@@ -1,0 +1,699 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.accelerator#8",
+      "source_sha256": "36930f00b4f9aa860f59f06df689ef3e755399f78040ef3897369e0b05b476e2",
+      "source": "DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "context": "Detected and usable are reported separately. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "translation": "GREINT OG NOTHÆFT ER TILKYNNT HVORT Í SÍNU LAGI. Uppsetningarskjár sem tilkynnir hraðal sem spaCR mun aldrei senda verk á er verri en skjár sem segir ekkert, því þá kennir notandinn vélbúnaði sínum um CPU hraðann. Taugavélar eru öll ástæðan fyrir því að þessi greinarmunur er hér: Neural Engine frá Apple, AI Boost frá Intel og Hexagon frá Qualcomm eru allt raunverulegt kísil án nokkurs færanlegs torch tækis, svo þau eru nefnd sem FUNDIN og aldrei valin."
+    },
+    {
+      "label": "spacr.active_learning.retrain_round#26",
+      "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+      "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "translation": "hversu margar óskráðar myndúrklippur á að draga af handahófi og fella að flokknum FJARVERANDI þegar aðeins einn flokkur hefur verið skráður. ``None`` (sjálfgefið) hafnar því í staðinn, eins og áður."
+    },
+    {
+      "label": "spacr.api.MaskConfig#2",
+      "source_sha256": "fcffe5b1b1fecf0608b6e7bb0730e4028130b5e09ec0d3320666be0ed972e54e",
+      "source": "src: Plate folder, or a sequence of plate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` lets spaCR estimate the diameter from representative fields. channels: Intensity channels retained in the merged field arrays. magnification: Objective magnification recorded with the run. pipeline_style: ``\"v1\"`` for the stable disk-based pipeline or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed fields. Keys that repeat a typed field are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy pipeline imports, model loading, segmentation, or writes.",
+      "context": "src: Laboratory microplate folder, or a sequence of laboratory microplate folders, containing the source microscopy images. cell_channel, nucleus_channel, pathogen_channel: Zero-based intensity image data channel used for each segmentation target. Leave an object at ``None`` when it should not be segmented. At least one is required. cell_diameter, nucleus_diameter, pathogen_diameter: Expected object diameters in pixels. ``None`` lets spaCR estimate the diameter from representative microscope fields of view. image data channels: Intensity image data channels retained in the merged microscope field of view arrays. magnification: Objective magnification recorded with the processing session. pipeline_style: ``\"v1\"`` for the stable disk-based workflow or ``\"v2\"`` for the experimental streaming path. extra: Advanced settings not represented by typed microscope fields of view. Structured-data names that repeat a typed microscope field of view are refused so one script cannot contain two answers. test_mode: Run Mask on a random subset of up to ``test_images`` complete image sets under ``<src>/test`` and enable diagnostic plots before processing the full source. dry_run: Run Mask preflight and return its reported problems before heavy workflow imports, model loading, segmentation, or writes.",
+      "translation": "src: Plötumappa, eða röð plötumappa, sem geymir upprunalegu smásjármyndirnar. cell_channel, nucleus_channel, pathogen_channel: Styrkleikarás talin frá núlli, notuð fyrir hvert hlutgreiningarmarkmið. Skildu hlut eftir á ``None`` þegar ekki á að greina hann. Að minnsta kosti eitt er nauðsynlegt. cell_diameter, nucleus_diameter, pathogen_diameter: Væntanleg þvermál hluta í mynddílum. ``None`` lætur spaCR meta þvermálið út frá dæmigerðum sviðum. channels: Styrkleikarásir sem haldið er eftir í sameinuðu sviðsfylkjunum. magnification: Stækkun linsu sem skráð er með keyrslunni. pipeline_style: ``\"v1\"`` fyrir stöðugu diskbundnu leiðina eða ``\"v2\"`` fyrir tilraunastreymisleiðina. extra: Ítarlegar stillingar sem eiga sér ekki eigin reit. Lyklum sem endurtaka slíkan reit er hafnað svo eitt skriftuskjal geti ekki innihaldið tvö svör. test_mode: Keyrðu Mask á slembiúrtaki af allt að ``test_images`` heilum myndasettum undir ``<src>/test`` og kveiktu á greiningarritum áður en allur uppruninn er unninn. dry_run: Keyrðu forathugun Mask og skilaðu skráðum vandamálum hennar áður en þungt er flutt inn, líkön hlaðin, greining gerð eða skrifað."
+    },
+    {
+      "label": "spacr.api.MeasureConfig#3",
+      "source_sha256": "16110a035801e66c24919407ac3455dd13b81db51bb82e9ed682f75a530dae78",
+      "source": "save_png: Write per-object crops for the requested ``crop_mode`` values and register their paths in ``measurements.db`` for annotation, classification, and image plots; timelapse measurement disables crop writing. test_mode: Copy a random subset of up to ``test_nr`` merged fields into ``test/merged``, redirect measurement there, and enable verbose diagnostic plots. dry_run: Run Measure preflight and return its reported problems before heavy imports, worker creation, database writes, or measurement. resume: Validate an interrupted Measure run, skip fields complete in every owned output, and clear partial rows before retrying incomplete fields.",
+      "context": "save_png: Write per-object extracted image regions for the requested ``crop_mode`` values and register their paths in ``measurements.db`` for annotation, classification, and image plots; timelapse measurement disables extracted image region writing. test_mode: Copy a random subset of up to ``test_nr`` merged microscope fields of view into ``test/merged``, redirect measurement there, and enable verbose diagnostic plots. dry_run: Run Measure preflight and return its reported problems before heavy imports, worker creation, database writes, or measurement. resume: Validate an interrupted Measure run, skip microscope fields of view complete in every owned output, and clear partial rows before retrying incomplete microscope fields of view.",
+      "translation": "save_png: Skrifaðu myndúrklippur fyrir hvern hlut fyrir umbeðin ``crop_mode`` gildi og skráðu slóðir þeirra í ``measurements.db`` fyrir skráningu, flokkun og myndrit; tímaraðamæling slekkur á skrifum úrklippa. test_mode: Afritaðu slembiúrtak af allt að ``test_nr`` sameinuðum sviðum í ``test/merged``, beindu mælingunni þangað og kveiktu á ítarlegum greiningarritum. dry_run: Keyrðu forathugun Measure og skilaðu skráðum vandamálum hennar áður en þungt er flutt inn, vinnuþræðir búnir til, skrifað í gagnagrunn eða mælt. resume: Staðfestu keyrslu Measure sem rofnaði, slepptu sviðum sem eru fullgerð í öllum úttökum og hreinsaðu hlutaraðir áður en reynt er aftur við ófullgerð svið."
+    },
+    {
+      "label": "spacr.batch_correction.BatchCorrectionReport#13",
+      "source_sha256": "b2b718afdda749f6568161f247a90762e5e4a5637a2e7c79df13c1b9e2f1daab",
+      "source": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "context": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "translation": "Skýr skilaboð um að ekkert sé gert, um varaleið, óbreytta lotu, fasta eiginleika eða takmörkun ComBat."
+    },
+    {
+      "label": "spacr.convert.Mapping#15",
+      "source_sha256": "4bd7db9761f49d5ca7dec25114188203fe0f68b692bde8ffe861e3bb7ca8433a",
+      "source": "provenance text for the selected source timepoint: the original filename token or a one-based plane ordinal.",
+      "context": "provenance text for the selected source timepoint: the original filename token or a one-based image layer ordinal.",
+      "translation": "upprunatexti fyrir valinn tímapunkt: upphaflega skráarnafnsbrotið eða raðnúmer plans talið frá einum."
+    },
+    {
+      "label": "spacr.core#7",
+      "source_sha256": "120fcd4dd1dac9e298ce9c73a341987242360ba42cdaf9e9a2e46ddf9f49997d",
+      "source": "A normal Mask run writes preprocessed stacks, object masks, overlays and segmentation-QC artifacts, settings CSVs, counts in ``measurements.db``, and a run manifest beneath the source tree; it normally returns ``None``.  A dry run instead returns its preflight problem list.  Timelapse mask generation also writes movies and masks relabelled with track identities.",
+      "context": "A normal Mask run writes preprocessed stacks, object masks, overlays and segmentation-QC artifacts, settings CSVs, counts in ``measurements.db``, and a run manifest beneath the source tree; it normally returns ``None``.  A dry run instead returns its preflight problem list.  Timelapse mask generation also writes movies and masks relabelled with track identities.",
+      "translation": "Venjuleg Mask keyrsla skrifar forunna stafla, hlutgrímur, yfirlög og gripi úr QC greiningargæðaeftirliti, stillinga-CSVs, talningar í ``measurements.db`` og keyrsluskrá undir upprunatrénu; hún skilar venjulega ``None``.  Þurrkeyrsla skilar þess í stað lista sinna forathugunarvandamála.  Grímugerð fyrir tímaraðir skrifar auk þess kvikmyndir og grímur sem endurmerktar eru með sporauðkennum."
+    },
+    {
+      "label": "spacr.core.preprocess_generate_masks#7",
+      "source_sha256": "a822162a2c83f27981d0ccb9521e605b59c46fe7716f1361e9884ed2cca267d5",
+      "source": "``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment pathogens with, instead of stock ``cpsam``. The pre-SAM ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to ``cpsam``; a PATH to a fine-tune is honoured, and a path that is not there stops the run rather than silently using stock weights.",
+      "context": "``pathogen_model`` — path to a Cellpose-SAM checkpoint to segment pathogens with, instead of stock ``cpsam``. The pre-SAM ``toxo_pv_lumen`` / ``toxo_cyto`` names are gone and resolve to ``cpsam``; a PATH to a fine-tune is honoured, and a path that is not there stops the run rather than silently using stock weights.",
+      "translation": "``pathogen_model`` — slóð á Cellpose-SAM eftirlitspunkt til að greina sýkla með, í stað hefðbundins ``cpsam``. Nöfnin ``toxo_pv_lumen`` / ``toxo_cyto`` frá því fyrir SAM eru horfin og vísa nú á ``cpsam``; PATH á fínstillt líkan er virt, og slóð sem er ekki til stöðvar keyrsluna í stað þess að nota hefðbundnar þyngdir í kyrrþey."
+    },
+    {
+      "label": "spacr.curation.CurationLog#3",
+      "source_sha256": "7198e1ede256b9fb8bcbaa9aa2c7b5e66f857125ffa0e141efdeb8de2fdffc74",
+      "source": "Append-only in the API as well as in spirit: there is no ``remove`` and no way to rewrite an entry. An undone paint appends an ``undo`` edit rather than deleting the ``paint`` — the fact that something was painted and then taken back is itself part of what happened, and a ledger you can quietly tidy is not evidence of anything. Initialize an empty ledger for one artifact and editing source.",
+      "context": "Append-only in the API as well as in spirit: there is no ``remove`` and no way to rewrite an entry. An undone paint appends an ``undo`` edit rather than deleting the ``paint`` — the fact that something was painted and then taken back is itself part of what happened, and a ledger you can quietly tidy is not evidence of anything. Initialize an empty ledger for one artifact and editing source.",
+      "translation": "Aðeins viðbætanlegt, bæði í API og í anda: það er ekkert ``remove`` og engin leið til að endurskrifa færslu. Máling sem er tekin til baka bætir við ``undo`` færslu í stað þess að eyða ``paint`` — sú staðreynd að eitthvað var málað og síðan tekið til baka er sjálf hluti af því sem gerðist, og bókhald sem hægt er að snyrta í kyrrþey er ekki sönnun um neitt. Frumstilltu tóma bók fyrir einn grip og eina ritunaruppsprettu."
+    },
+    {
+      "label": "spacr.curation.TrackCuration.save#1",
+      "source_sha256": "d8ae6810427eaf2289aa29e16337017624b7b7b0f7a8b2d69ee900c9428ea690",
+      "source": "One call, deliberately. A curated table written without its ledger is exactly the reproducibility hole this module exists to close, and leaving the second write to the caller is how that happens. The CSV and ledger remain sequential filesystem writes rather than one atomic transaction; retry this method if a process stops between them.",
+      "context": "One call, deliberately. A curated table written without its ledger is exactly the reproducibility hole this module exists to close, and leaving the second write to the caller is how that happens. The CSV and ledger remain sequential filesystem writes rather than one atomic transaction; retry this method if a process stops between them.",
+      "translation": "Eitt kall, af ásettu ráði. Ritstýrð tafla skrifuð án bókar sinnar er nákvæmlega sú gjá í endurgerðanleika sem þessi eining er til að loka, og að skilja seinni skrifin eftir hjá þeim sem kallar er einmitt hvernig það gerist. CSV-skráin og bókin eru áfram tvenn aðskilin skrif á skráakerfið fremur en ein óskipt færsla; endurtaktu þessa aðferð ef ferli stöðvast á milli þeirra."
+    },
+    {
+      "label": "spacr.example_archives.make_the_example_paths_absolute#1",
+      "source_sha256": "a21a8bd0a960b5dcd6b67f59422ef0b196f79e860e530387c86a928eafa5f6a1",
+      "source": "A measurements database stores ABSOLUTE paths to its crops, which name the machine that made it and resolve nowhere else. The published copy stores them relative to the dataset root instead, so it is portable and carries no account name -- and this is what turns them back into paths that open.",
+      "context": "A measurements database stores ABSOLUTE paths to its extracted image regions, which name the machine that made it and resolve nowhere else. The published copy stores them relative to the dataset root instead, so it is portable and carries no account name -- and this is what turns them back into paths that open.",
+      "translation": "Mælingagagnagrunnur geymir ALGERAR slóðir á úrklippur sínar, sem nefna vélina sem bjó hann til og vísa hvergi annars staðar. Útgefna eintakið geymir þær þess í stað miðað við rót gagnasafnsins, svo það er færanlegt og ber ekkert notandanafn -- og þetta er það sem breytir þeim aftur í slóðir sem opnast."
+    },
+    {
+      "label": "spacr.flowview.collector.Collector#9",
+      "source_sha256": "97a8a59a0598630a226bb643931aaa6f3159b2d6cf6fe778d273a3365cd34881",
+      "source": "Recursive-copy errors from caller-provided node payloads propagate.",
+      "context": "Recursive-copy errors from caller-provided node payloads propagate.",
+      "translation": "Villur við endurkvæma afritun úr gagnafarmi sem kallandi lagði til berast áfram."
+    },
+    {
+      "label": "spacr.foreign.MaskMapping#4",
+      "source_sha256": "d3e229d6f70d4b1032819d69793c0149ae958f7fff3bb4309f2b18ed47cb4043",
+      "source": "Canonical plate identifier of the matched image field.",
+      "context": "Canonical laboratory microplate identifier of the matched microscope image field of view.",
+      "translation": "Kanónískt plötuauðkenni þess myndsviðs sem passaði."
+    },
+    {
+      "label": "spacr.gene_measurement_compare.ComparisonStyle#3",
+      "source_sha256": "fd5bf3df8bc5ff3f86cd8683a2a3b002282439cb53b1cda2656fc9b99b5ae4aa",
+      "source": "x_label : str Horizontal-axis label; empty leaves the renderer's category labels. y_label : str Vertical-axis label; empty preserves the measurement name. title : str Optional title drawn above the comparison. x_scale : str Matplotlib horizontal scale inherited for house-style portability. y_scale : str Matplotlib vertical scale applied after the values are drawn. x_lim : tuple of float, optional Explicit horizontal limits, or ``None`` for data-derived limits. y_lim : tuple of float, optional Explicit vertical limits, or ``None`` for data-derived limits. invert_x : bool Reverse the horizontal axis after applying limits. invert_y : bool Reverse the vertical axis after applying limits. font_family : str Font-family value retained when styles move between figure types; the current comparison renderer does not apply a family override. font_size : float General text size retained for style portability; comparison text uses the specific title, label, and tick sizes below. title_font_size : float Title size in points. label_font_size : float Axis-label size in points. tick_font_size : float Group and value tick-label size in points. font_weight : str Weight applied to the optional title. figure_width : float Live and saved figure width in inches. figure_height : float Live and saved figure height in inches. dpi : int Resolution in dots per inch for raster exports. grid : bool Whether to show the selected grid lines. grid_axis : str Grid direction: ``\"x\"``, ``\"y\"``, ``\"both\"``, or ``\"none\"``. grid_color : str Matplotlib-compatible grid-line color. grid_width : float Grid-line width in points. hide_top_right_spines : bool Remove the top and right frame lines when true. legend : bool Retained for cross-style compatibility; comparison plots currently create no legend, so this value has no visual effect here. legend_location : str Retained legend position; unused while comparisons have no legend. background_color : str Matplotlib-compatible page and axes background, or ``\"none\"``. transparent : bool Export raster/vector backgrounds transparently when supported. kind : str Plot geometry from :data:`PLOTS`: box, jitter, violin, bar, or the default jitter-over-box combination. only : str Draw only one named group; stored statistics continue to describe the complete comparison. rest_color : str Color of the :data:`REST` group; empty uses the house grey. marker_size : float Scatter-marker area in squared typographic points. jitter_width : float Maximum random horizontal displacement on either side of a category. show_counts : bool Append each group's observation count to its tick label.",
+      "context": "x_label : str Horizontal-axis label; empty leaves the renderer's category labels. y_label : str Vertical-axis label; empty preserves the measurement name. title : str Optional title drawn above the comparison. x_scale : str Matplotlib horizontal scale inherited for house-style portability. y_scale : str Matplotlib vertical scale applied after the values are drawn. x_lim : tuple of float, optional Explicit horizontal limits, or ``None`` for data-derived limits. y_lim : tuple of float, optional Explicit vertical limits, or ``None`` for data-derived limits. invert_x : bool Reverse the horizontal axis after applying limits. invert_y : bool Reverse the vertical axis after applying limits. font_family : str Font-family value retained when styles move between figure types; the current comparison renderer does not apply a family override. font_size : float General text size retained for style portability; comparison text uses the specific title, label, and tick sizes below. title_font_size : float Title size in points. label_font_size : float Axis-label size in points. tick_font_size : float Group and value tick-label size in points. font_weight : str Weight applied to the optional title. figure_width : float Live and saved figure width in inches. figure_height : float Live and saved figure height in inches. dpi : int Resolution in dots per inch for raster exports. grid : bool Whether to show the selected grid lines. grid_axis : str Grid direction: ``\"x\"``, ``\"y\"``, ``\"both\"``, or ``\"none\"``. grid_color : str Matplotlib-compatible grid-line color. grid_width : float Grid-line width in points. hide_top_right_spines : bool Remove the top and right frame lines when true. legend : bool Retained for cross-style compatibility; comparison plots currently create no legend, so this value has no visual effect here. legend_location : str Retained legend position; unused while comparisons have no legend. background_color : str Matplotlib-compatible page and axes background, or ``\"none\"``. transparent : bool Export raster/vector backgrounds transparently when supported. kind : str Plot geometry from :data:`PLOTS`: box, jitter, violin, bar, or the default jitter-over-box combination. only : str Draw only one named group; stored statistics continue to describe the complete comparison. rest_color : str Color of the :data:`REST` group; empty uses the house grey. marker_size : float Scatter-marker area in squared typographic points. jitter_width : float Maximum random horizontal displacement on either side of a category. show_counts : bool Append each group's observation count to its tick label.",
+      "translation": "x_label : str Merking lárétta ássins; tómt skilur eftir flokkamerkingar teiknarans. y_label : str Merking lóðrétta ássins; tómt heldur heiti mælingarinnar. title : str Valfrjáls titill teiknaður ofan við samanburðinn. x_scale : str Matplotlib lárétti kvarðinn, erfður vegna færanleika húsasniðs. y_scale : str Matplotlib lóðrétti kvarðinn, beittur eftir að gildin eru teiknuð. x_lim : tuple of float, optional Skýr lárétt mörk, eða ``None`` fyrir mörk leidd af gögnunum. y_lim : tuple of float, optional Skýr lóðrétt mörk, eða ``None`` fyrir mörk leidd af gögnunum. invert_x : bool Snúa lárétta ásnum við eftir að mörkum er beitt. invert_y : bool Snúa lóðrétta ásnum við eftir að mörkum er beitt. font_family : str Leturfjölskyldugildi sem haldið er þegar snið færist milli myndgerða; núverandi samanburðarteiknari beitir ekki yfirskrift fjölskyldu. font_size : float Almenn textastærð sem haldið er vegna færanleika sniðs; samanburðartexti notar sérstöku titil-, merkinga- og kvarðastærðirnar hér að neðan. title_font_size : float Titilstærð í punktum. label_font_size : float Stærð ásmerkinga í punktum. tick_font_size : float Stærð hóp- og gildamerkinga í punktum. font_weight : str Þykkt sem beitt er á valfrjálsa titilinn. figure_width : float Breidd myndar, bæði lifandi og vistaðrar, í tommum. figure_height : float Hæð myndar, bæði lifandi og vistaðrar, í tommum. dpi : int Upplausn í punktum á tommu fyrir rasterútflutning. grid : bool Hvort sýna eigi valdar hjálparlínur. grid_axis : str Stefna hjálparlína: ``\"x\"``, ``\"y\"``, ``\"both\"``, eða ``\"none\"``. grid_color : str Litur hjálparlína, samhæfður Matplotlib. grid_width : float Breidd hjálparlína í punktum. hide_top_right_spines : bool Fjarlægja efstu og hægri rammalínurnar þegar satt. legend : bool Haldið vegna samhæfis milli sniða; samanburðarrit búa sem stendur ekki til skýringar, svo þetta gildi hefur engin sjónræn áhrif hér. legend_location : str Staðsetning skýringar, haldið; ónotað meðan samanburðir hafa enga skýringu. background_color : str Bakgrunnur síðu og ása, samhæfður Matplotlib, eða ``\"none\"``. transparent : bool Flytja út raster- og vigurbakgrunn gegnsæjan þegar það er stutt. kind : str Rúmfræði rits úr :data:`PLOTS`: box, jitter, violin, bar, eða sjálfgefna sambland af jitter yfir box. only : str Teikna aðeins einn nefndan hóp; geymd tölfræði lýsir áfram öllum samanburðinum. rest_color : str Litur :data:`REST` hópsins; tómt notar gráa húslitinn. marker_size : float Flatarmál punkta í fertugum leturpunktum. jitter_width : float Mesta slembna lárétta hliðrun hvorum megin við flokk. show_counts : bool Bæta fjölda mælinga hvers hóps aftan við merkingu hans."
+    },
+    {
+      "label": "spacr.gene_measurement_sweep.gene_of_guide#0",
+      "source_sha256": "a2045cc64181a447290c201cf0a40ac2f42999056741db15bb4d283a7bae7615",
+      "source": "The gene a GUIDE NAME belongs to, for both spellings in use.",
+      "context": "The gene a guide name belongs to, for both spellings in use.",
+      "translation": "Genið sem LEIÐARANAFN tilheyrir, fyrir báðar stafsetningarnar sem eru í notkun."
+    },
+    {
+      "label": "spacr.image_import.ImportPlan.columns#1",
+      "source_sha256": "266844c6621eaef1c31abff2603aabc745bc4ecb2678d9f21cde3d2e0cf92cfa",
+      "source": "ONLY THE AXES THIS FOLDER HAS. A column of empty cells for an axis no file carries reads as \"spaCR looked for a Z and found none\", which is a different claim from \"this acquisition has no Z\" and is the one a user acts on. The tiled tree gains a `tile` column and the flat OME one gains `c_count`; neither shows the other's.",
+      "context": "Only the axes this folder has. A column of empty cells for an axis no file carries reads as \"spaCR looked for a Z and found none\", which is a different claim from \"this acquisition has no Z\" and is the one a user acts on. The tiled tree gains a `tile` column and the flat OME one gains `c_count`; neither shows the other's.",
+      "translation": "AÐEINS ÞEIR ÁSAR SEM ÞESSI MAPPA HEFUR. Dálkur af tómum reitum fyrir ás sem engin skrá ber les sem \"spaCR looked for a Z and found none\", sem er önnur fullyrðing en \"this acquisition has no Z\" og sú sem notandi bregst við. Flísatréð fær `tile` dálk og flata OME-tréð fær `c_count`; hvorugt sýnir dálk hins."
+    },
+    {
+      "label": "spacr.image_import.apply_import#10",
+      "source_sha256": "a8f07fd33fb31a5a6cb8faf4da4fd7a08b463323aff157c06a2498344a23ae05",
+      "source": "THE OPT-OUT, and it takes precedence over ``stitch_tiles`` because it is the more specific request: a caller who says \"each tile is a field\" has said what they want the tiles to be. It discards the fact that they are ONE field, so anything measuring per field is then counting quarters of one -- which is why it is not the default.",
+      "context": "The opt-out, and it takes precedence over ``stitch_tiles`` because it is the more specific request: a caller who says \"each tile is a microscope field of view\" has said what they want the tiles to be. It discards the fact that they are ONE microscope field of view, so anything measuring per microscope field of view is then counting quarters of one -- which is why it is not the default.",
+      "translation": "AFÞÖKKUNIN, og hún gengur framar ``stitch_tiles`` af því að hún er nákvæmari beiðni: sá sem segir \"each tile is a field\" hefur sagt hvað hann vill að flísarnar séu. Hún kastar frá sér þeirri staðreynd að þær eru EITT svið, svo allt sem mælir eftir sviðum telur þá fjórðunga úr einu -- sem er ástæðan fyrir því að þetta er ekki sjálfgefið."
+    },
+    {
+      "label": "spacr.image_import.save_plan#1",
+      "source_sha256": "287cf7a6d77c5e40b07fb04af9f8aacc569c11f9f0dbd8d688607d9390604423",
+      "source": "THE MAPPING IS THE ANSWER WORTH KEEPING. The per-file table is written too, because a saved plan a person cannot read is not reviewable, but :func:`load_plan` re-derives the files from the folder and trusts only the mapping -- see its own docstring for why replaying a stale table would import last week's images.",
+      "context": "The mapping is the answer worth keeping. The per-file table is written too, because a saved plan a person cannot read is not reviewable, but :func:`load_plan` re-derives the files from the folder and trusts only the mapping -- see its own docstring for why replaying a stale table would import last week's images.",
+      "translation": "VÖRPUNIN ER SVARIÐ SEM VERT ER AÐ GEYMA. Taflan yfir hverja skrá er líka skrifuð, því vistuð áætlun sem enginn getur lesið er ekki yfirfaranleg, en :func:`load_plan` leiðir skrárnar aftur út frá möppunni og treystir aðeins vörpuninni -- sjá skýringu þeirrar aðferðar um hvers vegna endurspilun úreltrar töflu myndi flytja inn myndir síðustu viku."
+    },
+    {
+      "label": "spacr.image_stitch#3",
+      "source_sha256": "307bff3d5aa4bda90ff1e97238f2cfda63ba3632c7af2c30e2305fc539954a14",
+      "source": "1. THE FILE'S OWN STAGE COORDINATES, when it has them. An OME-TIFF records ``PositionX``/``PositionY`` in microns and the pixel size beside them, so the layout is not inferred at all -- it is read. Nothing else is as good. 2. THE PIXELS, otherwise. Adjacent tiles overlap, and the overlap is the same picture twice, so the right displacement is the one whose implied overlap correlates -- scored for EVERY admissible displacement rather than picked from a phase-correlation peak, which a small overlap buries. This also settles the ORDER -- row-major and serpentine put different tiles beside each other, so the arrangement that correlates is the arrangement the microscope used. 3. NOTHING, in which case it says so. Blank tiles, single-pixel overlaps and images with no shared content produce no correlation to speak of. The tiles are then butt-joined in a square-ish grid and the mosaic is marked ``assumed`` with its confidence, because a seam in an image a user was told about is a different thing from one they were not.",
+      "context": "1. The file's own stage coordinates, when it has them. An OME-TIFF records ``PositionX``/``PositionY`` in microns and the pixel size beside them, so the layout is not inferred at all -- it is read. Nothing else is as good. 2. the pixels, otherwise. Adjacent microscope image fields overlap, and the overlap is the same picture twice, so the right displacement is the one whose implied overlap correlates -- scored for EVERY admissible displacement rather than picked from a phase-correlation peak, which a small overlap buries. This also settles the ORDER -- row-major and serpentine put different microscope image fields beside each other, so the arrangement that correlates is the arrangement the microscope used. 3. NOTHING, in which case it says so. Blank microscope image fields, single-pixel overlaps and images with no shared content produce no correlation to speak of. The microscope image fields are then butt-joined in a square-ish grid and the stitched image grid is marked ``assumed`` with its confidence, because a seam in an image a user was told about is a different thing from one they were not.",
+      "translation": "1. SVIÐSHNIT SKRÁRINNAR SJÁLFRAR, þegar hún hefur þau. OME-TIFF skráir ``PositionX``/``PositionY`` í míkrómetrum og mynddílastærðina við hliðina, svo uppsetningin er alls ekki ályktuð -- hún er lesin. Ekkert annað er jafn gott. 2. MYNDDÍLARNIR, að öðrum kosti. Aðliggjandi flísar skarast, og skörunin er sama myndin tvisvar, svo rétta hliðrunin er sú þar sem skörunin sem hún felur í sér fylgist að -- metið fyrir SÉRHVERJA leyfilega hliðrun fremur en valið úr toppi fasafylgni, sem lítil skörun grefur. Þetta útkljáir líka RÖÐINA -- raðbundin og slöngulaga yfirferð setja ólíkar flísar hlið við hlið, svo sú skipan sem fylgist að er skipanin sem smásjáin notaði. 3. EKKERT, og þá segir hún það. Auðar flísar, skörun upp á einn mynddíl og myndir án sameiginlegs innihalds gefa enga fylgni sem heitið getur. Flísarnar eru þá lagðar saman brún við brún í nokkurn veginn ferkantað net og mósaíkin er merkt ``assumed`` með vissu sinni, því saumur í mynd sem notanda var sagt frá er annað en saumur sem honum var ekki sagt frá."
+    },
+    {
+      "label": "spacr.layers.PointsLayer.world_extent#0",
+      "source_sha256": "72afc959a790fd1de660906a16d08eb6bc18810468ac4fd31afa4063b5605409",
+      "source": "The world box these points occupy, INCLUDING their drawn size.",
+      "context": "The world box these points occupy, INCLUDING their drawn size.",
+      "translation": "Heimskassinn sem þessir punktar taka, MEÐTALINNI teiknaðri stærð þeirra."
+    },
+    {
+      "label": "spacr.measurement_scan.MeasurementEffect#1",
+      "source_sha256": "d75ad2ee9e05829153825e2696fa47a0e1d83411db3ae1423bd306c02dd4befd",
+      "source": "Name of the numeric response column that was scanned.",
+      "context": "Name of the numeric response column that was scanned.",
+      "translation": "Nafn tölulega svardálksins sem var skimaður."
+    },
+    {
+      "label": "spacr.mixed_gpu.TorchMixedResults#9",
+      "source_sha256": "45043f13f84837b63226b5d8221f711ab630b4b6919474ba7f55db3472e55364",
+      "source": "One-by-one covariance matrix for the outer-group random intercept on the response scale.",
+      "context": "One-by-one covariance matrix for the outer-group random intercept on the response scale.",
+      "translation": "Einn-á-móti-einum samdreifnifylki fyrir slembiskurðpunkt ytri hópsins á kvarða svarsins."
+    },
+    {
+      "label": "spacr.ml#4",
+      "source_sha256": "840d545efb08862de418b298b309fbeb66a5ad9a28d4ab441cc20187572830b5",
+      "source": "A regression run is configured with ``paired_data``: ordered score/count CSV pairs whose plate and well identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control wells, plate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.",
+      "context": "A regression processing session is configured with ``paired_data``: ordered score/count CSV pairs whose laboratory microplate and microplate sample position identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control microplate sample positions, laboratory microplate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.",
+      "translation": "Aðhvarfskeyrsla er stillt með ``paired_data``: röðuðum pörum af stiga- og talninga-CSV þar sem plötu- og brunnauðkenni stemma.  Eldri ``score_data`` og ``count_data`` listar eru fluttir eftir stöðu, en skýr pör eru öruggari. Veldu stigadálkinn með ``dependent_variable`` og gefðu upp viðeigandi viðmiðunarbrunna, lýsigögn plötunnar, greiningar-``level`` (leiðari, gen, eða hvort tveggja), þröskuld fyrir margprófun, og annaðhvort studda ``regression_type`` eða ``None`` fyrir dreifingarbundið val.  Stillingar sem eru sérstakar fyrir hverja fjölskyldu eru staðfestar fremur en hunsaðar í kyrrþey.  Klassíska vélnámsleiðin þarf þess í stað eina eða fleiri ``measurements.db`` skrár, merkta jákvæða og neikvæða viðmiðunarhópa eða skýringardálk, og líkanaval á borð við XGBoost, lógistískt aðhvarf, eða slembiskóg."
+    },
+    {
+      "label": "spacr.object_roles.setting_label#2",
+      "source_sha256": "b68bd5996de63a28fb4a5af78b1907169e9114732e8c2ad282b9a12cad4e7251",
+      "source": "The canonical human-readable setting label.",
+      "context": "The canonical easy-to-read setting label.",
+      "translation": "Kanóníska, mannlesanlega heiti stillingarinnar."
+    },
+    {
+      "label": "spacr.ome_zarr#10",
+      "source_sha256": "c99169e7b871c6e8d473c11af3de27682927e033d4e1b7e862ab1f320d3583ea",
+      "source": "**1. The Spacing is built from the SPACE axes only.** A 5-D NGFF image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the very check ``layers.py`` exists to make, and then draws a plausible picture of the wrong thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
+      "context": "**1. The Spacing is built from the SPACE axes only.** A 5-d ngff image has axes ``(t, c, z, y, x)``: the time axis is in seconds, the image data channel axis has no unit at all, and z/y/x are in micrometers. A single ``Spacing`` over all five would have to answer \"what unit is this?\" with one string, and whatever it answered would be wrong for three of the axes — a stack whose spacing claims ``\"um\"`` while one of its axes steps in seconds passes the very check ``layers.py`` exists to make, and then draws a plausible picture of the wrong thing. So :attr:`OmeZarrImage.spacing` covers z/y/x, and t and c are reported alongside as :class:`Axis` records through :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` and :attr:`OmeZarrImage.channel_axis`. Nothing is lost; the reader does not treat seconds and micrometers as the same kind of number.",
+      "translation": "**1. Bilið er byggt AÐEINS á rúmásunum.** Fimmvíð NGFF mynd hefur ásana ``(t, c, z, y, x)``: tímaásinn er í sekúndum, rásarásinn hefur enga einingu yfirleitt, og z/y/x eru í míkrómetrum. Eitt ``Spacing`` yfir alla fimm þyrfti að svara \"what unit is this?\" með einum streng, og hverju sem það svaraði væri rangt fyrir þrjá ásanna — stafli þar sem bilið segist vera ``\"um\"`` meðan einn ása hans stígur í sekúndum stenst einmitt þá athugun sem ``layers.py`` er til að gera, og teiknar svo trúverðuga mynd af röngum hlut. Þess vegna nær :attr:`OmeZarrImage.spacing` yfir z/y/x, og t og c eru tilkynnt við hliðina sem :class:`Axis` færslur gegnum :attr:`OmeZarrImage.other_axes`, :attr:`OmeZarrImage.time_axis` og :attr:`OmeZarrImage.channel_axis`. Ekkert tapast; lesarinn meðhöndlar sekúndur og míkrómetra ekki sem sömu tegund tölu."
+    },
+    {
+      "label": "spacr.ops_merge#7",
+      "source_sha256": "d4d8a6e566cdeff215297df74696c06d34071afbfa08304a3f72e4af3d9deb34",
+      "source": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "context": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "translation": "Fylgir brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), en `merge` þrep þess var lesið fyrir aðferðina."
+    },
+    {
+      "label": "spacr.ops_sbs#9",
+      "source_sha256": "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916",
+      "source": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "context": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "translation": "Aðferðin hér fylgir brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), en frumkóði þess var lesinn fyrir punktana þrjá hér að ofan fremur en endurgerður út frá þrepaheitum hans."
+    },
+    {
+      "label": "spacr.ops_sbs.assign_reads_to_cells#1",
+      "source_sha256": "e45dc9df5e131b5adf3636154e0e0c1b0a1fd92f86e53b0238e1569353a680e7",
+      "source": "A cell contains several spots and they will not all decode identically: an out-of-focus spot, a spot shared with a neighbour, and a genuine second perturbation all look the same at this stage. So a cell is assigned only when its reads AGREE -- ``min_fraction`` of at least ``min_reads`` must carry the same barcode -- and is otherwise left unassigned.",
+      "context": "A cell contains several spots and they will not all decode identically: an out-of-focus spot, a spot shared with a neighbour, and a genuine second perturbation all look the same at this stage. So a cell is assigned only when its reads AGREE -- ``min_fraction`` of at least ``min_reads`` must carry the same barcode -- and is otherwise left unassigned.",
+      "translation": "Fruma inniheldur nokkra bletti og þeir munu ekki allir afkóðast eins: blettur utan fókus, blettur sem deilt er með nágranna, og raunveruleg önnur breyting líta öll eins út á þessu stigi. Þess vegna er frumu aðeins úthlutað þegar aflestrar hennar ERU SAMMÁLA -- ``min_fraction`` af að minnsta kosti ``min_reads`` verða að bera sama strikamerkið -- og hún er annars skilin eftir óúthlutuð."
+    },
+    {
+      "label": "spacr.plugins.SpacrPlugin#1",
+      "source_sha256": "044c84d8ae185568357279b3d27264a90da5072cc917b828332087784f0589ab",
+      "source": "human-readable plugin name used in diagnostics and discovery output.",
+      "context": "easy-to-read plugin name used in diagnostics and discovery output.",
+      "translation": "mannlesanlegt heiti viðbótarinnar, notað í greiningu og í úttaki uppgötvunar."
+    },
+    {
+      "label": "spacr.qt.app.tile_sort_key#2",
+      "source_sha256": "3b5521e5414e558d76d346a2635258243bec16892342b4795010244cb49bd430",
+      "source": "``(section index, position in that section)``. An unlisted key sorts after every listed one, keeping registry order among the unlisted by virtue of Python's stable sort.",
+      "context": "``(section index, position in that section)``. An unlisted key sorts after every listed one, keeping registry order among the unlisted by virtue of Python's stable sort.",
+      "translation": "``(section index, position in that section)``. Lykill sem er ekki á listanum raðast á eftir öllum sem eru á honum, og innbyrðis röð þeirra óskráðu helst úr skránni vegna stöðugrar röðunar Python."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.AnnotateDropHandler.error_message#0",
+      "source_sha256": "f80077553335be2fe5b15d65d4fb5a6ce5da04414f6707db9041576db25977cc",
+      "source": "Name the file's path AND which module writes it, so a user who has not run Measure yet learns what is missing rather than that they are wrong.",
+      "context": "Name the file's path AND which module writes it, so a user who has not executed Measure yet learns what is missing rather than that they are wrong.",
+      "translation": "Nefndu slóð skrárinnar OG hvaða eining skrifar hana, svo notandi sem hefur ekki keyrt Measure enn læri hvað vantar fremur en að hann hafi rangt fyrir sér."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ExternalMasksDropHandler.apply#1",
+      "source_sha256": "c9cb7ea22f68c5b6eca06cea0e77d1c8147e77ac453e6f29ec52ff61a97fddb5",
+      "source": "APPEND, NOT REPLACE. The mapper pairs images with masks, so a drop that replaced the list would undo the pairing the previous drop just contributed to.",
+      "context": "APPEND, not replace. The mapper pairs images with masks, so a drop that replaced the list would undo the pairing the previous drop just contributed to.",
+      "translation": "BÆTA VIÐ, EKKI SKIPTA ÚT. Vörpunin parar myndir við grímur, svo innsláttur sem skipti listanum út myndi afturkalla þá pörun sem fyrri innsláttur var nýbúinn að leggja til."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.MeasureDropHandler.can_accept#0",
+      "source_sha256": "e08a7697dc3da1373317a58499abf99e42bd7e4bc8833e930a9798db600ba123",
+      "source": "The `merged` folder mask produced, a plate folder holding one, or a single mask/image file.",
+      "context": "The `merged` folder mask produced, a plate folder holding one, or a single mask/image file.",
+      "translation": "`merged` mappan sem gríman framleiddi, plötumappa sem geymir hana, eða ein grímu- eða myndskrá."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.ReportDropHandler.apply#0",
+      "source_sha256": "53a335a11112815ccf884f310bbd2d45001adaa3e25845080cc3193d669a0b80",
+      "source": "Set the source and scan it, raising the screen's own reason on failure.",
+      "context": "Set the source and scan it, raising the screen's own reason on failure.",
+      "translation": "Stilltu upprunann og skimaðu hann, og kastaðu ástæðu skjásins sjálfs ef það mistekst."
+    },
+    {
+      "label": "spacr.qt.dnd_handlers.TableDropHandler.deliver#1",
+      "source_sha256": "7b163964931e0dd5b265664e486d46e99ce3c219db92cdd1451c3a96ff729294",
+      "source": "A CANCELLED CHOOSER IS NOT A FAILURE. The user changed their mind about a drop; loading something anyway, or raising, would both be worse than doing nothing.",
+      "context": "A cancelled chooser is not a failure. The user changed their mind about a drop; loading something anyway, or raising, would both be worse than doing nothing.",
+      "translation": "AFTURKALLAÐUR VALGLUGGI ER EKKI BILUN. Notandinn skipti um skoðun um innslátt; að hlaða einhverju samt, eða kasta villu, væri hvort tveggja verra en að gera ekkert."
+    },
+    {
+      "label": "spacr.qt.gc_policy#1",
+      "source_sha256": "ec50cc5ffde77df3cea7a3bbf66958152c1f7271efab32af296eca09d5b1b29d",
+      "source": "WHY THIS EXISTS, MEASURED. Pressing Run in the live preview with ``cpsam`` produced, on 2026-09-01",
+      "context": "Why this exists, MEASURED. Pressing Run in the live preview with ``cpsam`` produced, on 2026-09-01",
+      "translation": "HVERS VEGNA ÞETTA ER TIL, MÆLT. Að ýta á Run í lifandi forskoðun með ``cpsam`` framkallaði, þann 2026-09-01"
+    },
+    {
+      "label": "spacr.qt.live_zoom#6",
+      "source_sha256": "91a0ce25b3fe4f4ced20e7460e007c33c24ff8916b35d4251fc7251e816023f8",
+      "source": "WHAT IS LIVE INSTEAD. An explicit ``QWidget.setFont`` *does* beat the application sheet's ``font-size`` -- it is the same escape hatch that lets a per-widget sheet win -- and it costs one font assignment and one relayout rather than a global unpolish/repolish. So a notch snapshots each visible widget's font once, then re-scales every widget from that snapshot by the ratio the wheel has travelled. The role hierarchy survives because each widget is scaled from its own baseline: a 22 px title and a 13 px caption stay in proportion without this module knowing which is which.",
+      "context": "What is live instead. An explicit ``QWidget.setFont`` *does* beat the application sheet's ``font-size`` -- it is the same escape hatch that lets a per-widget sheet win -- and it costs one font assignment and one relayout rather than a global unpolish/repolish. So a notch snapshots each visible widget's font once, then re-scales every widget from that snapshot by the ratio the wheel has travelled. The role hierarchy survives because each widget is scaled from its own baseline: a 22 px title and a 13 px caption stay in proportion without this module knowing which is which.",
+      "translation": "HVAÐ ER LIFANDI Í STAÐINN. Skýrt ``QWidget.setFont`` *hefur* betur en ``font-size`` forritsstílblaðsins -- það er sama undankomuleiðin og lætur stílblað fyrir eitt viðmótsstykki vinna -- og það kostar eina leturúthlutun og eina endurröðun fremur en altækt unpolish/repolish. Því tekur hvert þrep eina mynd af letri hvers sýnilegs viðmótsstykkis og kvarðar síðan hvert stykki út frá þeirri mynd eftir hlutfallinu sem hjólið hefur farið. Hlutverkastigveldið lifir af því hvert stykki er kvarðað út frá sínum eigin grunni: 22 px titill og 13 px myndatexti haldast í hlutfalli án þess að þessi eining viti hvor er hvað."
+    },
+    {
+      "label": "spacr.qt.module_hints#2",
+      "source_sha256": "b3c97c6645470312248191a2d262b6d48eb1b310e0c6811b05cf2789a5e01b2f",
+      "source": "IT USED TO GO TO THE STATUS BAR, the line in the bottom LEFT of the window, with a four-second linger, and it flickered: text that looked as though it were going to the hovered module and then to something else and back again. Two writers, not one -- this filter put the description there on every hover and Qt put the permanent message back four seconds later, so the corner alternated. The strip does not alternate -- it holds the last module for thirty seconds and is replaced only by the next.",
+      "context": "It used to go to the status bar, the line in the bottom LEFT of the window, with a four-second linger, and it flickered: text that looked as though it were going to the hovered module and then to something else and back again. Two writers, not one -- this filter put the description there on every hover and Qt put the permanent message back four seconds later, so the corner alternated. The strip does not alternate -- it holds the last module for thirty seconds and is replaced only by the next.",
+      "translation": "ÞETTA FÓR ÁÐUR Í STÖÐUSTIKUNA, línuna neðst til VINSTRI í glugganum, með fjögurra sekúndna töf, og hún flökti: texti sem virtist eiga við eininguna undir bendlinum og fór svo á eitthvað annað og til baka. Tveir skrifarar, ekki einn -- þessi sía setti lýsinguna þangað við hverja yfirferð og Qt setti föstu skilaboðin aftur fjórum sekúndum síðar, svo hornið skiptist á. Stikan skiptist ekki á -- hún heldur síðustu einingunni í þrjátíu sekúndur og henni er aðeins skipt út fyrir þá næstu."
+    },
+    {
+      "label": "spacr.qt.path_probe#3",
+      "source_sha256": "1cff92c770cdd4f36993e9d6ab0268b55c54ac531880ea5e363fc32ed2344ae2",
+      "source": "\"opening map barcodes crashes spacr\" -- it is not a crash, it is a freeze with no traceback, which is why nothing reached the logs. The journal shows `automount request ... triggered by spacr` immediately before each force-quit.",
+      "context": "\"opening map barcodes crashes spacr\" -- it is not a crash, it is a freeze with no traceback, which is why nothing reached the logs. The journal shows `automount request ... triggered by spacr` immediately before each force-quit.",
+      "translation": "\"opening map barcodes crashes spacr\" -- þetta er ekki hrun, þetta er frost án nokkurs rakningarstakks, sem er ástæðan fyrir því að ekkert komst í annálana. Kerfisannállinn sýnir `automount request ... triggered by spacr` beint á undan hverri þvinguðu lokun."
+    },
+    {
+      "label": "spacr.qt.path_probe.isdir#3",
+      "source_sha256": "0796de737f2808ceafe077b85e343892678dde73c217933399a88120bdc0dcc4",
+      "source": "WHY `wait` EXISTS, and why it is not the default. The freeze this module was written for came from statting REMEMBERED paths -- a passive pass over everything a settings file mentions, on the GUI thread, to colour the missing ones red. Nobody asked for it and nobody was waiting on it, so answering from cache and checking later is strictly better.",
+      "context": "WHY `wait` EXISTS, and why it is not the default. The freeze this module was written for came from statting REMEMBERED paths -- a passive pass over everything a settings file mentions, on the main GUI execution path, to colour the missing ones red. Nobody asked for it and nobody was waiting on it, so answering from cache and checking later is strictly better.",
+      "translation": "HVERS VEGNA `wait` ER TIL, og hvers vegna það er ekki sjálfgefið. Frostið sem þessi eining var skrifuð vegna kom af því að stat var keyrt á MUNAÐAR slóðir -- óvirk yfirferð yfir allt sem stillingaskrá nefnir, á GUI þræðinum, til að lita þær sem vantaði rauðar. Enginn bað um það og enginn beið eftir því, svo að svara úr skyndiminni og athuga síðar er hreinlega betra."
+    },
+    {
+      "label": "spacr.qt.preferences.get_dashboard_watermark#1",
+      "source_sha256": "73e1e9eda5b2629dd0c710d85c8176b4550146a0cab1233b4b2086d46514760c",
+      "source": "A WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on Recent runs and **Reset** on Totals sit beside the queue's Clear, but the queue holds plates waiting to start while these two read the run journal -- which is the record of what this installation has actually done, is what the Run History screen searches, and is what a run's `manifest.json` is for. Emptying a dashboard panel must not delete that.",
+      "context": "A watermark, not a deletion, and that is the whole design. **Clear** on Recent runs and **Reset** on Totals sit beside the software job list's Clear, but the software job list holds plates waiting to start while these two read the run journal -- which is the record of what this installation has actually done, is what the Run History screen searches, and is what a run's `manifest.json` is for. Emptying a dashboard panel must not delete that.",
+      "translation": "VATNSMERKI, EKKI EYÐING, og það er allt hönnunin. **Clear** á Nýlegum keyrslum og **Reset** á Samtölum standa við hliðina á Clear í biðröðinni, en biðröðin geymir plötur sem bíða þess að hefjast meðan þessi tvö lesa keyrsluannálinn -- sem er skráin yfir það sem þessi uppsetning hefur í raun gert, er það sem Run History skjárinn leitar í, og er það sem `manifest.json` keyrslu er til fyrir. Að tæma mælaborðsspjald má ekki eyða því."
+    },
+    {
+      "label": "spacr.qt.preferences.get_dashboard_watermark#2",
+      "source_sha256": "bb10062e8e28cac19db3b6a9293f8f61327e26fb4915ab618fcf8310b1c02e90",
+      "source": "So the panels remember a time instead and show only what happened after it. The journal is untouched, Run History still has everything, and a user who clears by accident loses a view rather than a history.",
+      "context": "So the panels remember a time instead and show only what happened after it. The journal is untouched, Run History still has everything, and a user who clears by accident loses a view rather than a history.",
+      "translation": "Þess í stað muna spjöldin tímapunkt og sýna aðeins það sem gerðist eftir hann. Annállinn er ósnertur, Run History hefur enn allt, og notandi sem hreinsar óvart tapar útsýni fremur en sögu."
+    },
+    {
+      "label": "spacr.qt.preferences.get_object_grid_enabled#2",
+      "source_sha256": "1c9f4ae1cfc9c68b73460370c7d4c2d7320fc614a9031c546d164e9606eebe02",
+      "source": "THE STORED KEYS DO NOT CHANGE either way. The grid edits the same widgets the flat rows do, so a settings file written with this on is the same file written with it off.",
+      "context": "The stored structured-data names do not change either way. The grid edits the same widgets the flat rows do, so a settings file written with this on is the same file written with it off.",
+      "translation": "GEYMDU LYKLARNIR BREYTAST EKKI hvort sem er. Rúðunetið breytir sömu viðmótshlutum og flötu raðirnar, svo stillingaskrá skrifuð með þetta kveikt er sama skráin og skrifuð með það slökkt."
+    },
+    {
+      "label": "spacr.qt.regex_editor.RegexEditorDialog#6",
+      "source_sha256": "e49aa504734f517eb43efe6a4782fce7f20c1b9f7a1110db85093d1ae181ced8",
+      "source": "Build the filename-regex editor over a sample of filenames.",
+      "context": "Build the filename-regex editor over a sample of filenames.",
+      "translation": "Byggðu ritilinn fyrir skráarnafnasegðir ofan á sýnishorni af skráarnöfnum."
+    },
+    {
+      "label": "spacr.qt.screens.align.TileLayoutWidget#0",
+      "source_sha256": "97c69e4494b3b5b7cac116d152a884f4fbeb6fa6402b72e29bd844142a16e977",
+      "source": "The stitch layout: one rectangle per tile, coloured by confidence.",
+      "context": "The stitch layout: one rectangle per microscope image field, coloured by confidence.",
+      "translation": "Saumauppsetningin: einn rétthyrningur fyrir hverja flís, litaður eftir vissu."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen#6",
+      "source_sha256": "9ff4e8e75592e37f45860a682045d6bc2f3467cfd128d4beb0c424b3ba929754",
+      "source": "Ordering matters throughout and is the reason for the length. The live preview watches ``src`` and can only be wired once both panels exist, because the settings panel owns the field and the runtime panel owns the preview. The category hints have the same constraint in reverse. The page-surface sweep runs on every route, not only where a backdrop was installed: with the ambient preference off, skipping it left every layout container carrying the blanket window fill, which is what made the settings half a solid slab.",
+      "context": "Ordering matters throughout and is the reason for the length. The live preview watches ``src`` and can only be wired once both panels exist, because the settings panel owns the field and the runtime panel owns the preview. The category hints have the same constraint in reverse. The page-surface sweep executes on every route, not only where a backdrop was installed: with the ambient preference off, skipping it left every layout container carrying the blanket window fill, which is what made the settings half a solid slab.",
+      "translation": "Röðin skiptir máli út í gegn og er ástæða lengdarinnar. Lifandi forskoðunin fylgist með ``src`` og verður aðeins tengd þegar bæði spjöldin eru til, því stillingaspjaldið á reitinn og keyrsluspjaldið á forskoðunina. Flokkavísbendingarnar hafa sömu skorðu í öfuga átt. Yfirferðin um síðuflötinn keyrir á hverri leið, ekki aðeins þar sem bakgrunnur var settur upp: með umhverfisstillinguna slökkta skildi það eftir hvert einasta útlitsílát með heildarfyllingu gluggans, sem er það sem gerði stillingahelminginn að einni samfelldri hellu."
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.done#1",
+      "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
+      "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "translation": "Bæði Delete og Cancel fara hér í gegn og HVORUGT sendir lokunaratburð — ``QDialog.done`` felur viðmótsstykkið — svo hér, en ekki í ``closeEvent``, verður niðurrif kvaðningarglugga að búa. Qt stöðvar ferlið umsvifalaust ef ``QThread`` sem er í gangi er eytt með eiganda sínum, og yfirferðin getur enn verið úti þegar notandinn hættir við."
+    },
+    {
+      "label": "spacr.qt.screens.experiment_design#3",
+      "source_sha256": "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb",
+      "source": "ONE PLATE WIDGET WHERE THERE CAN BE ONE. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two plates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a plate map that says what each well holds rather than only whether it is chosen.",
+      "context": "One laboratory microplate widget WHERE there can be one. The square, the constant it is pitched at and the row/column headers come from :mod:`spacr.qt.widgets.plate_map_picker` rather than being declared a second time here; the two laboratory microplates had already drifted apart once. What cannot be shared is the well itself, and the difference is real rather than historical: the picker's well is a checkable ``QPushButton`` whose checked state IS the selection and which paints itself from a fixed pair of colours, while this one is a ``QLabel`` carrying a role, an edge mark, a name and a condition, painted by the theme through the properties below -- a laboratory microplate map that says what each well holds rather than only whether it is chosen.",
+      "translation": "EITT PLÖTUSTYKKI WHERE EITT GETUR VERIÐ. Ferningurinn, fastinn sem hann er stilltur á og raða- og dálkahausarnir koma úr :mod:`spacr.qt.widgets.plate_map_picker` fremur en að vera lýst yfir í annað sinn hér; plöturnar tvær höfðu þegar rekið hvor frá annarri einu sinni. Það sem ekki er hægt að deila er brunnurinn sjálfur, og munurinn er raunverulegur fremur en sögulegur: brunnur veljarans er hakanlegur ``QPushButton`` þar sem hakað ástand ER valið og sem málar sig úr föstu litapari, meðan þessi er ``QLabel`` sem ber hlutverk, jaðarmerki, nafn og skilyrði, málaður af þemanu gegnum eiginleikana hér að neðan -- plötukort sem segir hvað hver brunnur geymir fremur en aðeins hvort hann er valinn."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.object_label#1",
+      "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
+      "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "translation": "ENGINN NOTANDI SÉR BÓKSTAF, beðið um það með þessum orðum 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Hólfin eru geymd með bókstaf -- ``organelle``, ``organelleb``, ``organellec`` -- því hlutverksheiti er forskeyti hvers stillingarlykils sem það á og ``organelle2`` kemst ekki fram og til baka gegnum ``prcfo`` lykil án þess að rekast á hlutinn sem MERKTUR er 2. Það er geymsluákvörðun og hún á ekkert erindi á skjáinn, þar sem hólf er TALA: Organelle 1, Organelle 2."
+    },
+    {
+      "label": "spacr.qt.screens.hyperparam.UmapSearchSettingsDialog#3",
+      "source_sha256": "3b7080e34956826e778c7d89fd4205fc54690a0a1cfebf01f5b9811af7ebefc3",
+      "source": "The panel's settings group is re-parented in here, and its embedded Run, Stop and Propagate buttons are hidden: they date from when the panel was the whole window, and leaving them would put two Runs and two Propagates on screen. The dialog carries its own stylesheet rather than touching the application palette.",
+      "context": "The panel's settings group is re-parented in here, and its embedded Run, Stop and Propagate buttons are hidden: they date from when the panel was the whole window, and leaving them would put two processing sessions and two Propagates on application view. The dialog carries its own stylesheet rather than touching the application palette.",
+      "translation": "Stillingahópur spjaldsins er endurforeldraður hingað inn, og innbyggðu Run, Stop og Propagate hnappar þess eru faldir: þeir eru frá þeim tíma þegar spjaldið var allur glugginn, og að skilja þá eftir myndi setja tvö Run og tvö Propagate á skjáinn. Glugginn ber sitt eigið stílblað fremur en að hrófla við litaspjaldi forritsins."
+    },
+    {
+      "label": "spacr.qt.screens.image_import#7",
+      "source_sha256": "2cf5b49c1d578b5df00ee246d739c172cdf303936d9dbce4a8d604c6fc2ef649",
+      "source": "**Everything the plan could not place is on screen**, with its values, and counted. Silence about unparsed files is how a plate imports with a third of its fields missing.",
+      "context": "**Everything the plan could not place is on application view**, with its values, and counted. Silence about unparsed files is how a laboratory microplate imports with a third of its microscope fields of view missing.",
+      "translation": "**Allt sem áætlunin gat ekki komið fyrir er á skjánum**, með gildum sínum, og talið. Þögn um óþáttaðar skrár er það hvernig plata flyst inn með þriðjung sviða sinna á vantandi."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
+      "source_sha256": "4f42abf241ab238fd87e1eb7644fcb820fab5c9269e7916cd1d9e6b93b3c3379",
+      "source": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "context": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "translation": "Eldri tveggja-stöðu stafsetningin á :meth:`set_tile_policy`, haldið því hún er það sem sá sem kallar og hefur aldrei heyrt um saum á við: off er nú DEFAULT stefnan fremur en það skip sem hún var, því saumað svið er það sem alltaf var viljað."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks#4",
+      "source_sha256": "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+      "source": "**Recrop** is the ninth and is the only one that changes WHICH field is on screen rather than what is painted on it. A staged crop holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own (:func:`spacr.qt.mask_engine.write_recrop`), queued straight after the current field, and the multi-object original is retired into ``recropped_originals/`` rather than curated (:func:`spacr.qt.mask_engine.retire_recropped_original`). A box shorter than :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` on a side, or repeating a cut already made past :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one.",
+      "context": "**Recrop** is the ninth and is the only one that changes WHICH field is on application view rather than what is painted on it. A staged extracted image region holding several cells is not one training example, and curating it as one teaches a network that two objects are one picture -- so a box round an object writes that region of both the image and the mask as a field of its own (:func:`spacr.qt.mask_engine.write_recrop`), queued straight after the current field, and the multi-object original is retired into ``recropped_originals/`` rather than curated (:func:`spacr.qt.mask_engine.retire_recropped_original`). A box shorter than :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` on a side, or repeating a cut already made past :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, is refused; objects the box cuts through are dropped, because an object whose boundary is where the mouse was released is not that object; and the labels that survive are renumbered from one.",
+      "translation": "**Recrop** er sá níundi og er sá eini sem breytir HVAÐA svið er á skjánum fremur en því sem á það er málað. Sviðsett úrklippa sem geymir margar frumur er ekki eitt þjálfunardæmi, og að ritstýra henni sem einu kennir neti að tveir hlutir séu ein mynd -- svo kassi utan um hlut skrifar það svæði bæði myndarinnar og grímunnar sem sitt eigið svið (:func:`spacr.qt.mask_engine.write_recrop`), sett í röð beint á eftir núverandi sviði, og fjölhluta frumritið er lagt til hliðar í ``recropped_originals/`` fremur en ritstýrt (:func:`spacr.qt.mask_engine.retire_recropped_original`). Kassa sem er styttri en :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` á hlið, eða endurtekur skurð sem þegar var gerður umfram :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, er hafnað; hlutum sem kassinn sker í gegnum er sleppt, því hlutur þar sem jaðarinn er þar sem músinni var sleppt er ekki sá hlutur; og merkin sem lifa af eru endurtölusett frá einum."
+    },
+    {
+      "label": "spacr.qt.screens.model_explanation.InvestigateHitPanel.run#1",
+      "source_sha256": "2abaa14e7625af02bd5d7e191e13495a14473089b669bfb49b62b8003ee0278d",
+      "source": "The guide and feature lists are comma-separated free text, so blanks are dropped rather than passed on as empty names.",
+      "context": "The guide and feature lists are comma-separated free text, so blanks are dropped rather than passed on as empty names.",
+      "translation": "Leiðara- og eiginleikalistarnir eru frjáls texti aðgreindur með kommum, svo auðum færslum er sleppt fremur en að þær séu sendar áfram sem tóm nöfn."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar#2",
+      "source_sha256": "83a67621ba1700ea63d6dabc5a1c13450d4852a6238155fdbc785dedb408aa32",
+      "source": "the module screen to filter. The bar owns no settings state -- it reads that screen's `SettingsWidgets` model and shows or hides rows that already exist, which is what keeps a half-typed value alive across a filter change.",
+      "context": "the module application view to filter. The bar owns no settings state -- it reads that application view's `SettingsWidgets` model and shows or hides rows that already exist, which is what keeps a half-typed value alive across a filter change.",
+      "translation": "einingaskjárinn sem á að sía. Stikan á enga stillingastöðu -- hún les `SettingsWidgets` líkan þess skjás og sýnir eða felur raðir sem eru þegar til, sem er það sem heldur hálfrituðu gildi á lífi þegar síu er breytt."
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar#6",
+      "source_sha256": "2406f2eb637f1b22cf9e92caec1d03aa024b26d475f00505a7e69d0588f98cc9",
+      "source": "The key-to-section index is built once from the rendered form, so filtering never has to guess which section a setting ended up in, and which sections the user had open is remembered -- clearing the box puts the form back rather than leaving it splayed.",
+      "context": "The structured-data name-to-section index is built once from the rendered form, so filtering never has to guess which section a setting ended up in, and which sections the user had open is remembered -- clearing the box puts the form back rather than leaving it splayed.",
+      "translation": "Lykla-í-kafla vísirinn er byggður einu sinni út frá teiknaða forminu, svo síun þarf aldrei að giska á hvaða kafla stilling lenti í, og hvaða kaflar voru opnir hjá notandanum er munað -- að hreinsa reitinn setur formið aftur fremur en að skilja það eftir sundurspennt."
+    },
+    {
+      "label": "spacr.qt.widgets.annotation_umap_tab.AnnotationUmapTab#4",
+      "source_sha256": "fa46f2219e3ee342cf58baf5bc3bf17276ccd64c0222f76ddd7219216bd0d7ab",
+      "source": "The plot and the table are two views of one result and sit side by side behind a divider the user owns -- the picture says where the cells landed, the table by how much, and reading one against the other is the whole job.",
+      "context": "The plot and the table are two views of one result and sit side by side behind a divider the user owns -- the picture says where the cells landed, the table by how much, and reading one against the other is the whole job.",
+      "translation": "Ritið og taflan eru tvær sýnir á eina niðurstöðu og sitja hlið við hlið á bak við skilrúm sem notandinn á -- myndin segir hvar frumurnar lentu, taflan hversu mikið, og að lesa aðra á móti hinni er allt verkið."
+    },
+    {
+      "label": "spacr.qt.widgets.cell_montage_view.CellMontageView.apply_workspace_state#2",
+      "source_sha256": "28a45cde783d7e3bf2e6789c2f206647f93fcb6e7fa404dcabb5deb92659b4f4",
+      "source": "DELIBERATELY NOT REBUILT. Loading the crops is the slow half -- the first montage of a run reads images off disk for seconds -- and a restore that started it would freeze a window the user had just opened to look around in. The settings are put back and the button is there; 155's \"the montage says how it chose\" is on screen either way.",
+      "context": "Deliberately not rebuilt. Loading the extracted image regions is the slow half -- the first montage of a processing session reads images off disk for seconds -- and a restore that started it would freeze a window the user had just opened to look around in. The settings are put back and the button is there; 155's \"the montage says how it chose\" is on application view either way.",
+      "translation": "VÍSVITANDI EKKI ENDURBYGGT. Að hlaða úrklippunum er hægari helmingurinn -- fyrsta myndaröð keyrslu les myndir af diski í nokkrar sekúndur -- og endurheimt sem hæfi það myndi frysta glugga sem notandinn var nýbúinn að opna til að skoða sig um í. Stillingarnar eru settar aftur og hnappurinn er þar; \"the montage says how it chose\" úr 155 er á skjánum hvort sem er."
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row#1",
+      "source_sha256": "fb422dcc50e52a9af026d23d9263524b844c51c3def0268b1dfe4fefeac0a9e4",
+      "source": "Regression's Input Tables category starts with a Download row -- Score, Count, Measurements (.db), Image crops -- and the first three of those fill one column each of the paired-data table directly below. Each button is centred on its column, and the download table's column widths are locked to the widths of their counterparts in the paired-data table below.",
+      "context": "Regression's Input Tables category starts with a Download row -- Score, Count, Measurements (.db), Extracted image regions -- and the first three of those fill one column each of the paired-data table directly below. Each button is centred on its column, and the download table's column widths are locked to the widths of their counterparts in the paired-data table below.",
+      "translation": "Input Tables flokkur aðhvarfsins byrjar á Download röð -- Score, Count, Measurements (.db), Image crops -- og fyrstu þrjú þeirra fylla hvert sinn dálk í pöruðu gagnatöflunni beint fyrir neðan. Hver hnappur er miðjaður á sínum dálki, og dálkabreiddum niðurhalstöflunnar er læst við breiddir samsvarandi dálka í pöruðu töflunni fyrir neðan."
+    },
+    {
+      "label": "spacr.qt.widgets.column_aligned_row#2",
+      "source_sha256": "6e86102a63cfaa26842ba5ab8e4215d80e02c18b09d183ae3ea0687580698ba3",
+      "source": "ONE COLUMN MODEL, READ IN ONE DIRECTION. The build the request describes -- a second table above the first, both told to keep the same widths -- is two column models that have to be kept in step, and this repository has already paid for that once (see the `_ClusterSettingsDialog` docstring on what two editors of one setting cost). This layout owns no widths at all. It asks the paired table's ``QHeaderView`` where each section starts and how wide it is, every time it lays out, and it writes nothing back: the header never learns that a strip is following it, so there is nothing to drift.",
+      "context": "One column model, read in one direction. The build the request describes -- a second table above the first, both told to keep the same widths -- is two column models that have to be kept in step, and this repository has already paid for that once (see the `_ClusterSettingsDialog` docstring on what two editors of one setting cost). This layout owns no widths at all. It asks the paired table's ``QHeaderView`` where each section starts and how wide it is, every time it lays out, and it writes nothing back: the header never learns that a strip is following it, so there is nothing to drift.",
+      "translation": "EITT DÁLKALÍKAN, LESIÐ Í EINA ÁTT. Sú smíði sem beiðnin lýsir -- önnur tafla ofan við þá fyrri, báðum sagt að halda sömu breiddum -- er tvö dálkalíkön sem þarf að halda í takt, og þetta geymslusafn hefur þegar borgað fyrir það einu sinni (sjá skýringu `_ClusterSettingsDialog` um hvað tveir ritlar einnar stillingar kosta). Þetta útlit á engar breiddir. Það spyr ``QHeaderView`` pöruðu töflunnar hvar hver kafli byrjar og hversu breiður hann er, í hvert sinn sem það raðar, og það skrifar ekkert til baka: hausinn kemst aldrei að því að stika sé að fylgja honum, svo það er ekkert sem getur rekið."
+    },
+    {
+      "label": "spacr.qt.widgets.feature_rank.ExplorerResult.summary#1",
+      "source_sha256": "177203f92f948518a8dd9303769e13ae4c63f9d245cb63879784530f6b9b411d",
+      "source": "NAMES THE SKIPPED ONES. A ranking that quietly dropped constant or all-null columns would read as a complete answer over a set of features the user did not choose.",
+      "context": "Names the SKIPPED ones. A ranking that quietly dropped constant or all-null columns would read as a complete answer over a set of features the user did not choose.",
+      "translation": "NEFNIR ÞÁ SEM SKIPPED VAR. Röðun sem sleppti föstum eða alveg tómum dálkum í kyrrþey myndi lesast sem fullgert svar yfir mengi eiginleika sem notandinn valdi ekki."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget#3",
+      "source_sha256": "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
+      "source": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the CSVs still land on the right plates.",
+      "context": "the table already saved, one entry per plate. Everything that arrives afterwards RE-PROPOSES the whole table from filename tokens rather than appending, which is what lets databases dropped in the opposite order to the CSVs still land on the right plates.",
+      "translation": "taflan sem þegar er vistuð, ein færsla á plötu. Allt sem berst eftir það LEGGUR TIL ALLA TÖFLUNA AÐ NÝJU út frá skráarnafnsbrotum fremur en að bæta við, sem er það sem lætur gagnagrunna sem sleppt er í öfugri röð við CSV-skrárnar samt lenda á réttum plötum."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.showEvent#2",
+      "source_sha256": "04c261becc557129fabb41270bec155bf7f2ac3ae7951a587703f4dc2768933c",
+      "source": "ON SHOW rather than in `__init__`: the strip is added to the section AFTER the settings rows are, so at construction there is nothing to find, and the widget has no parent chain to walk up either. Once installed the layout follows the header on its own, and the call is idempotent, so repeated shows cost one dictionary lookup.",
+      "context": "On show rather than in `__init__`: the strip is added to the section AFTER the settings rows are, so at construction there is nothing to find, and the widget has no parent chain to walk up either. Once installed the layout follows the header on its own, and the call is idempotent, so repeated shows cost one key-value mapping lookup.",
+      "translation": "VIÐ BIRTINGU fremur en í `__init__`: stikunni er bætt við kaflann EFTIR stillingaraðirnar, svo við smíði er ekkert að finna, og viðmótsstykkið hefur enga foreldrakeðju til að ganga upp heldur. Þegar hún er komin á sinn stað fylgir útlitið hausnum sjálfkrafa, og kallið er sjálfsamt, svo endurteknar birtingar kosta eina uppflettingu í orðabók."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_orbit_gpu#1",
+      "source_sha256": "66d80a28787b5f26d3e520d503ac8d8eb66da1a44ee6ac4cdb076ef1ec4b32c7",
+      "source": "The CPU orbit fold in :mod:`spacr.qt.widgets.fractal_travel` is the renderer this one is modelled on: it reads like a magnifying glass moving over the set. This is that same map, on the GPU.",
+      "context": "The CPU orbit fold in :mod:`spacr.qt.widgets.fractal_travel` is the renderer this one is modelled on: it reads like a magnifying glass moving over the set. This is that same map, on the GPU.",
+      "translation": "CPU brautarfellingin í :mod:`spacr.qt.widgets.fractal_travel` er teiknarinn sem þessi er sniðinn eftir: hann les eins og stækkunargler á hreyfingu yfir mengið. Þetta er sama vörpun, á GPU."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_settings.GateSettingsDialog.settings#0",
+      "source_sha256": "cf1b92a1a116dbbeb3ddb8a3125a7eee06c6f58a7544b11ffe3fe94270262ca9",
+      "source": "The gate settings the user chose.",
+      "context": "The data-selection boundary settings the user chose.",
+      "translation": "Valstillingarnar sem notandinn valdi."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.CylinderGate#2",
+      "source_sha256": "734a6ecac7235f28fae108deb346492ac9b3653e0c730b7928d1da851d15aaed",
+      "source": "THE PLANE IS NAMED BY ITS COLUMNS, not by a string. ``u_column`` and ``v_column`` are the two the oval is drawn on and ``axis_column`` is the normal; that says which of XY / XZ / YZ was the anchor without a second field that could disagree with the columns. It also reads the same from every camera angle, which is the principle :class:`BoxGate` states: a shape dragged on a rotated projection has no well-defined extent along the axis pointing at the viewer, so any attempt to read one off invents a number.",
+      "context": "The image layer is named by its columns, not by a string. ``u_column`` and ``v_column`` are the two the oval is drawn on and ``axis_column`` is the normal; that says which of XY / XZ / YZ was the anchor without a second microscope field of view that could disagree with the columns. It also reads the same from every camera angle, which is the principle :class:`BoxGate` states: a shape dragged on a rotated projection has no well-defined extent along the axis pointing at the viewer, so any attempt to read one off invents a number.",
+      "translation": "PLANIÐ ER NEFNT EFTIR DÁLKUM SÍNUM, ekki eftir streng. ``u_column`` og ``v_column`` eru þeir tveir sem sporbaugurinn er teiknaður á og ``axis_column`` er þverillinn; það segir hvert af XY / XZ / YZ var akkerið án annars reits sem gæti verið ósammála dálkunum. Það les líka eins frá hverju myndavélarhorni, sem er reglan sem :class:`BoxGate` setur fram: lögun sem dregin er á snúna vörpun hefur enga vel skilgreinda útbreiðslu eftir ásnum sem vísar að áhorfandanum, svo hver tilraun til að lesa slíka út býr til tölu."
+    },
+    {
+      "label": "spacr.qt.widgets.home.HomePage.show_module_hint#1",
+      "source_sha256": "76a14e22c2fdad3db91a1f5828330bf2a64cf17cf74b2244a617eb3a35be76d6",
+      "source": "The dock's rows and Home's tiles name the same modules, so they say the same thing in the same place -- `MainWindow._show_module_hint` routes a dock hover here whenever Home is the page on screen.",
+      "context": "The dock's rows and Home's tiles name the same modules, so they say the same thing in the same place -- `MainWindow._show_module_hint` routes a dock hover here whenever Home is the page on application view.",
+      "translation": "Raðir kvíarinnar og flísar Home nefna sömu einingar, svo þær segja það sama á sama stað -- `MainWindow._show_module_hint` beinir yfirferð í kvínni hingað hvenær sem Home er síðan."
+    },
+    {
+      "label": "spacr.qt.widgets.home.NewsPanel.read_releases#0",
+      "source_sha256": "1ec0bd501e5e26ae180001d6aed50101420ef48bf1b18fb61ff48d25d5f7b41e",
+      "source": "The bundled release records, newest first, or ``[]``.",
+      "context": "The bundled release records, newest first, or ``[]``.",
+      "translation": "Útgáfufærslurnar sem fylgja með, þær nýjustu fyrst, eða ``[]``."
+    },
+    {
+      "label": "spacr.qt.widgets.home.TotalsPanel.reset_counts#1",
+      "source_sha256": "b52010bc5874a741b3af7bc1ce01a94972bba4cd2a61762145f9526dc423d208",
+      "source": "NOTHING IS DELETED, for the same reason **Clear** on Recent runs deletes nothing — see :func:`spacr.qt.preferences.get_dashboard_watermark`. What these counts are FOR is telling the user how much this installation has done, and a reset that removed the manifests would take Run History and every run's provenance with it.",
+      "context": "Nothing is deleted, for the same reason **Clear** on Recent runs deletes nothing — see :func:`spacr.qt.preferences.get_dashboard_watermark`. What these counts are FOR is telling the user how much this installation has done, and a reset that removed the manifests would take Run History and every run's provenance with it.",
+      "translation": "ENGU ER EYTT, af sömu ástæðu og **Clear** á Nýlegum keyrslum eyðir engu — sjá :func:`spacr.qt.preferences.get_dashboard_watermark`. Það sem þessar tölur eru TIL fyrir er að segja notandanum hversu mikið þessi uppsetning hefur gert, og endursetning sem fjarlægði skrárnar tæki Run History og uppruna hverrar keyrslu með sér."
+    },
+    {
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbench#5",
+      "source_sha256": "c0fa4551e350a749322c8e6093f5669f8e1c78e0fbcad710e0f292d537eb0ac4",
+      "source": "The walk over dropped paths runs on its own worker. A drop is a path the user chose, and a plate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a run, and it is safe to do so because that runner carries nothing but the walk.",
+      "context": "The walk over dropped paths executes on its own worker. A drop is a path the user chose, and a laboratory microplate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a processing session, and it is safe to do so because that runner carries nothing but the walk.",
+      "translation": "Yfirferðin um slóðir sem sleppt er keyrir á sínum eigin vinnuþræði. Innsláttur er slóð sem notandinn valdi, og plata býr á sameign smásjárinnar: eitt ``os.path.exists`` undir sofandi autofs tengipunkti hafði ekki skilað sér eftir tuttugu sekúndur, og yfirferð er þúsundir slíkra. Innfelld fraus hún forritið án nokkurs rakningarstakks -- stöðnuð atburðalykkja er ekki hrun, og því var lýst sem flökti við yfirferð og glefsum af öðrum skjám. Keyrarinn er merktur ekki sýnilegur notanda því að sleppa möppu er ekki að hefja keyrslu, og það er óhætt því sá keyrari ber ekkert nema yfirferðina."
+    },
+    {
+      "label": "spacr.qt.widgets.measurement_scan_panel.WorkflowStep#2",
+      "source_sha256": "05653f74b57e037660eff38f24aa91967d79a09cea0c38fb02bd355341006720",
+      "source": "The heading is still the ``WorkflowStep`` ``QLabel`` :func:`step_header` makes, inside the header row rather than replacing it: it is what the stylesheet selects on and what a reader recognises. What is new beside it is a checkable arrow that hides the body, focusable so a keyboard reaches it, with an accessible name that says which step it folds.",
+      "context": "The heading is still the ``WorkflowStep`` ``QLabel`` :func:`step_header` makes, inside the header row rather than replacing it: it is what the stylesheet selects on and what a reader recognises. What is new beside it is a checkable arrow that hides the body, focusable so a keyboard reaches it, with an accessible name that says which step it folds.",
+      "translation": "Fyrirsögnin er enn ``WorkflowStep`` ``QLabel`` sem :func:`step_header` býr til, inni í hausaröðinni fremur en að leysa hana af hólmi: það er það sem stílblaðið velur á og það sem lesandi þekkir. Það sem er nýtt við hliðina er hakanleg ör sem felur meginmálið, með fókus svo lyklaborð nái til hennar, og með aðgengilegu heiti sem segir hvaða þrep hún fellir saman."
+    },
+    {
+      "label": "spacr.qt.widgets.object_grid_binding.ObjectGridBinding#5",
+      "source_sha256": "922ba4da35762eb0bd189bd43ac85aa5824a50386df25f4d5459e43eb87b6744",
+      "source": "The re-entrancy guard is what stops the table visibly rebuilding under a cursor that is still in a cell: writing a value into a widget makes that widget emit, and a screen that reseeds the grid on every widget change would rebuild it mid-edit. No value depends on the guard -- the write reads the grid once, before the first widget moves -- so a reseed halfway cannot drop an edit either way.",
+      "context": "The re-entrancy guard is what stops the table visibly rebuilding under a cursor that is still in a cell: writing a value into a widget makes that widget emit, and an application view that reseeds the grid on every widget change would rebuild it mid-edit. No value depends on the guard -- the write reads the grid once, before the first widget moves -- so a reseed halfway cannot drop an edit either way.",
+      "translation": "Vörnin gegn endurinngangi er það sem stöðvar töfluna í að endurbyggjast sýnilega undir bendli sem er enn í reit: að skrifa gildi í viðmótsstykki lætur það stykki senda merki, og skjár sem endursáir rúðunetið við hverja breytingu myndi endurbyggja það í miðri ritun. Ekkert gildi veltur á vörninni -- skrifin lesa rúðunetið einu sinni, áður en fyrsta stykkið hreyfist -- svo endursáning í miðjum klíðum getur ekki misst ritun hvorki né heldur."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid#6",
+      "source_sha256": "2c921ecadfa8c01fccbe4f629a84f0bc653d7120c48b7a7c31734344b031920b",
+      "source": "**A question an object does not ask stays absent.** ``cytoplasm`` has no channel, no diameter and no detection method -- it is DERIVED, cell minus the rest, not found in a channel. Those cells are blank and not editable, because writing a value there invents a key nothing reads.",
+      "context": "**A question an object does not ask stays absent.** ``cytoplasm`` has no channel, no diameter and no detection method -- it is DERIVED, cell minus the rest, not found in a channel. Those cells are blank and not editable, because writing a value there invents a structured-data name nothing reads.",
+      "translation": "**Spurning sem hlutur spyr ekki er áfram fjarverandi.** ``cytoplasm`` hefur enga rás, ekkert þvermál og enga greiningaraðferð -- hún er LEIDD, fruma að frádregnu hinu, ekki fundin í rás. Þeir reitir eru auðir og ekki ritanlegir, því að skrifa gildi þar býr til lykil sem ekkert les."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.next_organelle#0",
+      "source_sha256": "52a50c34cfca98862fff73db0103a3ff6dfbf97206217c922ae1c015466cfd95",
+      "source": "The role the next organelle column would take, or ``''``.",
+      "context": "The role the next organelle column would take, or ``''``.",
+      "translation": "Hlutverkið sem næsti frumulíffæradálkur tæki, eða ``''``."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_value#1",
+      "source_sha256": "dde224a871e2b9aa32f2ee7eb0805d33288ffe134e5a6c269f584eba86869624",
+      "source": "The screen's own edit path, exposed so a test drives the same code an item delegate does rather than reaching into the model.",
+      "context": "The screen's own edit path, exposed so a test drives the same code an item delegate does rather than reaching into the model.",
+      "translation": "Ritunarleið skjásins sjálfs, gerð aðgengileg svo próf keyri sama kóða og myndhlutur gerir fremur en að teygja sig inn í líkanið."
+    },
+    {
+      "label": "spacr.qt.widgets.pivot_spec.PivotResult.layer_keys#0",
+      "source_sha256": "bc87eb5787739c127fbedef3eb2677f6f13d5c12525c9f1428af325f024aefd4",
+      "source": "The ``(value, agg)`` pairs this result holds one array for.",
+      "context": "The ``(value, agg)`` pairs this result holds one array for.",
+      "translation": "``(value, agg)`` pörin sem þessi niðurstaða geymir eitt fylki fyrir."
+    },
+    {
+      "label": "spacr.qt.widgets.qc_field_browser#1",
+      "source_sha256": "fbe62d55639ef9135ce58d19a105f7a557eeec5568413c5b19fbedc0b7ce065d",
+      "source": "The Measure banner already has every field verdict in its scorecards.  This dialog turns those records into a triage loop: one implicated field at a time, every object-type verdict together, the merged intensities under toggleable mask outlines, and left/right/Q keyboard operation.",
+      "context": "The Measure banner already has every microscope field of view verdict in its scorecards.  This dialog turns those records into a triage loop: one implicated microscope field of view at a time, every object-type verdict together, the merged intensities under toggleable mask outlines, and left/right/Q keyboard operation.",
+      "translation": "Measure borðinn hefur þegar hvern sviðsdóm í skorkortum sínum.  Þessi gluggi breytir þeim færslum í flokkunarlykkju: eitt bendlað svið í einu, alla hlutgerðadóma saman, sameinaða styrkleika undir kveikjanlegum grímuútlínum, og stjórn með vinstri/hægri/Q á lyklaborði."
+    },
+    {
+      "label": "spacr.qt.widgets.section.Section#5",
+      "source_sha256": "29ab42780880f20d46f88ba28225877563bf273ab16a319acdc506789de673d2",
+      "source": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Plate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "context": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Laboratory microplate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "translation": "Titlinum er haldið eins og hann var skrifaður og hann er aðeins settur í hástafi á leiðinni að hnappnum, því þýðingaskráin er lykluð á rituðu heiti -- að fletta upp myndatexta sem þegar er í hástöfum finnur ekkert og skilur hausinn eftir á ensku. ``&`` í heiti eins og \"Plate Layout & Controls\" er varið fyrir birtingu, því ``QToolButton`` myndi annars lesa það sem flýtilykil og gleypa það."
+    },
+    {
+      "label": "spacr.qt.widgets.trellis_spec.TrellisPanel.frame#0",
+      "source_sha256": "c197ab60d9db7c0550c144a71dbe46a397e39f3c2e7b21f0125c8f1d30322990",
+      "source": "The rows this panel holds, taken out of ``source``.",
+      "context": "The rows this panel holds, taken out of ``source``.",
+      "translation": "Raðirnar sem þetta spjald geymir, teknar úr ``source``."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.UmapEmbeddingView.reset_view#1",
+      "source_sha256": "29f300eea7b0f1cf9ccf8ed5dd1901574db15ad42f4c2033ed795c45d34edcd9",
+      "source": "The way out of a spin or a zoom that has lost the cloud: a 3-D view can be rotated until nothing is on screen, and no amount of further dragging necessarily finds it again.",
+      "context": "The way out of a spin or a zoom that has lost the cloud: a 3-D view can be rotated until nothing is on application view, and no amount of further dragging necessarily finds it again.",
+      "translation": "Leiðin út úr snúningi eða aðdrætti sem hefur týnt skýinu: hægt er að snúa þrívíðri sýn þar til ekkert er á skjánum, og frekara dráttarlag finnur það ekki endilega aftur."
+    },
+    {
+      "label": "spacr.regex_infer.FieldEvidence#4",
+      "source_sha256": "9c66a06d79aefd8b04074dc87dc4c92932b1ed26ba1cee2d143552c1d2044354",
+      "source": "literal filename text immediately preceding this slot.",
+      "context": "literal filename text immediately preceding this slot.",
+      "translation": "bókstaflegur skráarnafnstexti beint á undan þessu hólfi."
+    },
+    {
+      "label": "spacr.regression_diagnostics.plot_design_identifiability#0",
+      "source_sha256": "00eebf2ab64eaaadd8e726e1c47f16b95b7e924dbb2f84dfec979700e450c402",
+      "source": "One compact panel reporting wells, predictors, rank and guide support.",
+      "context": "One compact panel reporting microplate sample positions, predictors, rank and guide support.",
+      "translation": "Eitt þjappað spjald sem greinir frá brunnum, forspárbreytum, stigi og stuðningi leiðara."
+    },
+    {
+      "label": "spacr.regression_panels#1",
+      "source_sha256": "697b6d99e2825824891acec7e753cf02bde003437d5ea41f48771ebad38ac34c",
+      "source": "One call writes exactly four files for one manuscript panel: a vector PDF with its narrative legend, a plot-only PNG, a point-level data CSV, and a key-value statistics CSV.  The numerical result table remains the source of truth; this module only applies a declared call rule and renders it.",
+      "context": "One call writes exactly four files for one manuscript panel: a vector PDF with its narrative legend, a plot-only PNG, a point-level data CSV, and a key-value statistics CSV.  The numerical result table remains the source of truth; this module only applies a declared call rule and renders it.",
+      "translation": "Eitt kall skrifar nákvæmlega fjórar skrár fyrir eitt handritsspjald: vigur-PDF með frásagnarskýringu sinni, PNG með ritinu einu, CSV með gögnum á punktastigi, og CSV með tölfræði í lykla-gildi formi.  Tölulega niðurstöðutaflan er áfram hin eina sanna heimild; þessi eining beitir aðeins lýstri kallreglu og teiknar hana."
+    },
+    {
+      "label": "spacr.report.Report#3",
+      "source_sha256": "0884546a6a77cde51b069b0900dc6c1981a7f5d1ef8b2349992b6763cedb2a38",
+      "source": "timezone-aware ISO timestamp recording when collection completed, or ``\"\"`` on a manually constructed report.",
+      "context": "timezone-aware ISO timestamp recording when collection completed, or ``\"\"`` on a manually constructed report.",
+      "translation": "ISO tímastimpill með tímabelti sem skráir hvenær söfnun lauk, eða ``\"\"`` á skýrslu sem búin var til í höndunum."
+    },
+    {
+      "label": "spacr.scorecard.match_objects#0",
+      "source_sha256": "568bb01b14c61acf93886a5ad2c476412585e30bcb97f4fe7de633197a409bfe",
+      "source": "Match predicted objects to labelled ones, one to one and optimally.",
+      "context": "Match predicted objects to labelled ones, one to one and optimally.",
+      "translation": "Parar spáða hluti við merkta, einn á móti einum og með sem bestum hætti."
+    },
+    {
+      "label": "spacr.seg_qc.SegmentationQCFailed#3",
+      "source_sha256": "d24851a39a6fc56e0079598ccabe16e41d410a02b861ee50f469d0b2b2bc05d7",
+      "source": "the QC summary, so a caller can report WHICH fields failed and why rather than only that something did. ``None`` when there is nothing to carry.",
+      "context": "the QC summary, so a caller can report WHICH fields failed and why rather than only that something did. ``None`` when there is nothing to carry.",
+      "translation": "samantekt QC gæðaeftirlitsins, svo kallandi geti greint frá HVAÐA svið féllu og hvers vegna fremur en aðeins að eitthvað hafi fallið. ``None`` þegar ekkert er að bera."
+    },
+    {
+      "label": "spacr.sequencing#2",
+      "source_sha256": "0f4a85c9d0557430930b200a9a4a0c27115a4d49ac0982c9b4eaefb058f59146",
+      "source": "The **Map Barcodes** module connects a sequencing run to an image-based screen.  It finds the plate-column, guide, and plate-row barcode in each read, resolves those sequences against reference tables, and counts the resulting guides by well.  :func:`generate_barecode_mapping` is the GUI and Python entry point (the historical ``barecode`` spelling remains part of the public API); :func:`graph_sequencing_stats` can then help choose a read-fraction cutoff.",
+      "context": "The **Map Barcodes** module connects a sequencing run to an image-based application view.  It finds the laboratory microplate-column, guide, and laboratory microplate-row barcode in each read, resolves those sequences against reference tables, and counts the resulting guides by well.  :func:`generate_barecode_mapping` is the GUI and Python entry point (the historical ``barecode`` spelling remains part of the public API); :func:`graph_sequencing_stats` can then help choose a read-fraction cutoff.",
+      "translation": "**Map Barcodes** einingin tengir raðgreiningarkeyrslu við myndbundið leitarverkefni.  Hún finnur strikamerki plötudálks, leiðara og plöturaðar í hverjum aflestri, leysir þær raðir upp á móti viðmiðunartöflum, og telur leiðarana sem út koma eftir brunnum.  :func:`generate_barecode_mapping` er inngangurinn bæði úr GUI og úr Python (sögulega stafsetningin ``barecode`` er áfram hluti af opinbera API); :func:`graph_sequencing_stats` getur síðan hjálpað við að velja þröskuld á aflestrarhlutfall."
+    },
+    {
+      "label": "spacr.sequencing#9",
+      "source_sha256": "e1380a40a01e067252f44957c4b4467d882cea762eb3b170776da2b0cbdb125a",
+      "source": "There are three easy ways to obtain plausible but incomplete output.  The anchor match is exact and a wrong regex silently rejects reads; reference sequences are compared in their stored orientation; and a sequence within ``barcode_mismatches`` of two references remains unassigned instead of being guessed.  Finally, read-level HDF5 output can be much larger than the count tables, and high compression may spend more time saving than decoding, so disable ``save_h5`` unless those individual annotations are needed.",
+      "context": "There are three easy ways to obtain plausible but incomplete output.  The anchor match is exact and a wrong regex silently rejects reads; reference sequences are compared in their stored orientation; and a sequence within ``barcode_mismatches`` of two references remains unassigned instead of being guessed.  Finally, read-level HDF5 output can be much larger than the count tables, and high compression may spend more time saving than decoding, so disable ``save_h5`` unless those individual annotations are needed.",
+      "translation": "Það eru þrjár auðveldar leiðir til að fá trúverðuga en ófullgerða útkomu.  Akkerissamsvörunin er nákvæm og röng segð hafnar aflestrum í kyrrþey; viðmiðunarraðir eru bornar saman í þeirri stefnu sem þær eru geymdar í; og röð sem er innan ``barcode_mismatches`` frá tveimur viðmiðunum er áfram óúthlutuð í stað þess að vera giskuð.  Loks getur HDF5 úttak á aflestrarstigi verið miklu stærra en talningatöflurnar, og mikil þjöppun getur eytt meiri tíma í vistun en afkóðun, svo slökktu á ``save_h5`` nema þessar einstöku skýringar séu nauðsynlegar."
+    },
+    {
+      "label": "spacr.settings.downloaded_zoo_models#1",
+      "source_sha256": "4b988cae3c8d59bef414fd09f4763d45b5ec4baad8ba41d8ffd33a5a7aed16be",
+      "source": "The live preview builds its model from the combo value. Including local zoo checkpoints here keeps that preview aligned with a selected run model; otherwise it would silently render stock cpsam while the user tuned diameter and thresholds for a different checkpoint.",
+      "context": "The live preview builds its model from the combo value. Including local zoo checkpoints here keeps that preview aligned with a selected run model; otherwise it would silently render stock cpsam while the user tuned diameter and thresholds for a different checkpoint.",
+      "translation": "Lifandi forskoðunin byggir líkan sitt úr gildi fellilistans. Að hafa staðbundna eftirlitspunkta úr safninu hér heldur þeirri forskoðun í takt við valið keyrslulíkan; annars myndi hún teikna hefðbundið cpsam í kyrrþey meðan notandinn stillti þvermál og þröskulda fyrir annan eftirlitspunkt."
+    },
+    {
+      "label": "spacr.spacrops.stitch_cycle_wells#1",
+      "source_sha256": "8f73b339608b45b5e9eeb813a4262071627ec8ad62489fee89931237242271a6",
+      "source": "Groups images by well from filename metadata, optionally moves or symlinks them into per-well folders, then runs :class:`spacrStitcher` on each well to produce pairwise CSVs, and -- when asked -- single- or multi-channel mosaics.",
+      "context": "Groups images by well from filename metadata, optionally moves or symlinks them into per-well folders, then runs :class:`spacrStitcher` on each well to produce pairwise CSVs, and -- when asked -- single- or multi-image data channel stitched image grids.",
+      "translation": "Flokkar myndir eftir brunnum út frá lýsigögnum í skráarnafni, færir þær eða tengir þær valfrjálst í möppur eftir brunnum, keyrir síðan :class:`spacrStitcher` á hvern brunn til að framleiða CSV fyrir pör, og -- sé þess óskað -- mósaík með einni eða mörgum rásum."
+    },
+    {
+      "label": "spacr.sra.RunFile#1",
+      "source_sha256": "76ef0a59f5fca3c0c6ba59349221a1be4d704ac8536e3dc1bfd5a7552a6317cc",
+      "source": "archive run accession shared by its mate files.",
+      "context": "archive run accession shared by its mate files.",
+      "translation": "auðkenni keyrslunnar í safninu, sameiginlegt með systurskrám hennar."
+    },
+    {
+      "label": "spacr.submodules#4",
+      "source_sha256": "c2c8491b52a6133a22d4485b6e9d575c7f23314812aca393a74e62468238c0f7",
+      "source": "Plaque analysis accepts a folder of TIFF images, or existing masks beneath that folder, plus Cellpose settings and a bundled, catalogue, or local plaque model.  Recruitment starts from a spaCR ``measurements.db`` containing joined cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence channel, object filters, and plate metadata that assign cell type, pathogen, and treatment.  Invasion and Replication both need one row per segmented parasite in a measurement table and condition metadata.  Invasion additionally needs the outside- and total-stain channels and preferably known control wells; Replication needs a defensible ``vacuole_key`` or spatial-linking distance. The Cellpose utilities require paired images and masks for training/testing, or an image folder and model path for inference.",
+      "context": "Plaque analysis accepts a folder of TIFF images, or existing masks beneath that folder, plus Cellpose settings and a bundled, catalogue, or local plaque model.  Recruitment starts from a spaCR ``measurements.db`` containing joined cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence image data channel, object filters, and laboratory microplate metadata that assign cell type, pathogen, and treatment.  Invasion and Replication both need one row per segmented parasite in a measurement table and condition metadata.  Invasion additionally needs the outside- and total-stain image data channels and preferably known control microplate sample positions; Replication needs a defensible ``vacuole_key`` or spatial-linking distance. The Cellpose utilities require paired images and masks for training/testing, or an image folder and model path for inference.",
+      "translation": "Skellugreining tekur við möppu með TIFF myndum, eða grímum sem fyrir eru undir þeirri möppu, auk Cellpose stillinga og skellulíkans sem fylgir með, er úr skránni, eða er staðbundið.  Ásókn hefst frá spaCR ``measurements.db`` sem inniheldur samtengda eiginleika frumu, kjarna, sýkils og umfrymis; hún þarf flúrljómunarrás, hlutsíur, og lýsigögn plötu sem úthluta frumugerð, sýkli og meðferð.  Innrás og Eftirmyndun þurfa báðar eina röð á hvert greint sníkjudýr í mælingatöflu ásamt lýsigögnum um skilyrði.  Innrás þarf að auki rásirnar fyrir ytri litun og heildarlitun og helst þekkta viðmiðunarbrunna; Eftirmyndun þarf verjanlegan ``vacuole_key`` eða fjarlægð fyrir rúmtengingu. Cellpose verkfærin krefjast paraðra mynda og gríma til þjálfunar eða prófunar, eða myndmöppu og líkanaslóðar til ályktunar."
+    },
+    {
+      "label": "spacr.submodules#8",
+      "source_sha256": "cd73796b398c38079ab52ba2c6a1904c5a5bda273ec53a9415724594ff29a208",
+      "source": "For plaques, inspect the masks before interpreting counts or areas.  For Recruitment, verify the object filters, condition annotation, and per-well denominators before comparing treatments.  For Invasion, review field-level thresholds, control agreement, bimodality, and sensitivity flags before using the efficiency table.  For Replication, inspect the vacuole grouping and the reported non-power-of-two fraction before comparing doubling distributions. Follow the specific function links above until the four tiles receive separate API destinations.",
+      "context": "For plaques, inspect the masks before interpreting counts or areas.  For Recruitment, verify the object filters, condition annotation, and per-microplate sample position denominators before comparing treatments.  For Invasion, review microscope field of view-level thresholds, control agreement, bimodality, and sensitivity flags before using the efficiency table.  For Replication, inspect the vacuole grouping and the reported non-power-of-two fraction before comparing doubling distributions. Follow the specific function links above until the four microscope image fields receive separate API destinations.",
+      "translation": "Fyrir skellur skaltu skoða grímurnar áður en talningar eða flatarmál eru túlkuð.  Fyrir Ásókn skaltu staðfesta hlutsíurnar, skilyrðaskráninguna og nefnara hvers brunns áður en meðferðir eru bornar saman.  Fyrir Innrás skaltu fara yfir þröskulda á sviðsstigi, samræmi viðmiða, tvítoppun og næmisflögg áður en skilvirknitaflan er notuð.  Fyrir Eftirmyndun skaltu skoða flokkun blaðra og tilkynnt hlutfall sem er ekki veldi af tveimur áður en tvöföldunardreifingar eru bornar saman. Fylgdu sértæku tenglunum hér að ofan þar til flísarnar fjórar fá sínar eigin API áfangastaði."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#3",
+      "source_sha256": "cf6f54837f4b7740b7728a619d640b06d780b5677f0fc67043eba4c82d553b12",
+      "source": "settings recovered from run-local ``settings.json`` or ``settings.csv``, or from a matching ancestor ``settings/*.csv``; empty when none is usable.",
+      "context": "settings recovered from run-local ``settings.json`` or ``settings.csv``, or from a matching ancestor ``settings/*.csv``; empty when none is usable.",
+      "translation": "stillingar endurheimtar úr ``settings.json`` eða ``settings.csv`` sem tilheyra keyrslunni, eða úr samsvarandi ``settings/*.csv`` ofar í tré; tómt þegar ekkert þeirra er nothæft."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#9",
+      "source_sha256": "3186785b00cdb3d155852b0c2121e5cd1f4675c042c1ebe996497b83e63844f5",
+      "source": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "context": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "translation": "þáttuð vörpun úr run-journal skránni, eða tóm vörpun þegar hún vantar, er ólæsileg, eða er ekki hlutur."
+    },
+    {
+      "label": "spacr.umap_search.walk_clusters#1",
+      "source_sha256": "3de9d77c4e3f019184b4ec1eb24ba19a30961d76735bd6d189b6c6a75de07f2b",
+      "source": "This is the clustering half of the Starplast-style walk.  It can run for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
+      "context": "This is the clustering half of the Starplast-style walk.  It can execute for every UMAP trial as that trial arrives, or later against the table row the user chose. Duplicate and out-of-range candidate sizes are skipped; if no size is meaningful the call is refused rather than fabricating a one-cluster winner. A clustering failure propagates, while an undefined silhouette is retained as ``nan`` and ranks below every measured score.",
+      "translation": "Þetta er klösunarhelmingur gönguferðarinnar að hætti Starplast.  Hún getur keyrt fyrir hverja UMAP tilraun um leið og sú tilraun berst, eða síðar á móti töfluröðinni sem notandinn valdi. Tvíteknum og of stórum eða of litlum stærðum er sleppt; sé engin stærð merkingarbær er kallinu hafnað fremur en að búa til sigurvegara með einum klasa. Bilun í klösun berst áfram, meðan óskilgreint sílúettugildi er haldið sem ``nan`` og raðast neðar en hvert mælt gildi."
+    },
+    {
+      "label": "spacr.utils.correct_metadata#5",
+      "source_sha256": "16fbf4da6b961ed22a53b76935745822e7bd660bf78413366801ad2c7191e8bd",
+      "source": "THE ``pp`` REPAIR RUNS AFTER THE RENAMES, and over every plate-bearing column. It used to run first and only over ``plateID``/``prcfo``, which meant it did nothing at all for the files that actually carry the artifact: a legacy score CSV has a ``plate`` column and NO ``plateID`` column, so the guard was false, the repair was skipped, and the very next line then copied the unrepaired ``plate`` value into ``plateID``.",
+      "context": "THE ``pp`` repair executes after the renames, and over every laboratory microplate-bearing column. It used to execute first and only over ``plateID``/``prcfo``, which meant it did nothing at all for the files that actually carry the artifact: a legacy score CSV has a ``plate`` column and NO ``plateID`` column, so the guard was false, the repair was skipped, and the very next line then copied the unrepaired ``plate`` value into ``plateID``.",
+      "translation": "``pp`` VIÐGERÐIN KEYRIR EFTIR ENDURNEFNINGARNAR, og yfir hvern dálk sem ber plötu. Hún keyrði áður fyrst og aðeins yfir ``plateID``/``prcfo``, sem þýddi að hún gerði alls ekkert fyrir þær skrár sem raunverulega bera gripinn: eldri stiga-CSV hefur ``plate`` dálk og ENGAN ``plateID`` dálk, svo vörnin var ósönn, viðgerðinni var sleppt, og næsta lína afritaði svo óviðgerða ``plate`` gildið yfir í ``plateID``."
+    },
+    {
+      "label": "spacr.validate.Problem.__str__#1",
+      "source_sha256": "e36e97ee68a2121af3d17b11d60917d834fe4f3ab53fa96652354073df72281b",
+      "source": "The setting's name leads when there is one, so a reader scanning a list of problems sees WHICH setting each belongs to before the message.",
+      "context": "The setting's name leads when there is one, so a reader scanning a list of problems sees WHICH setting each belongs to before the message.",
+      "translation": "Heiti stillingarinnar kemur fyrst þegar það er til staðar, svo lesandi sem rennir yfir lista af vandamálum sjái HVAÐA stillingu hvert þeirra tilheyrir áður en hann les skilaboðin."
+    },
+    {
+      "label": "spacr.qt.widgets.fast_plots.InfluencePlot#1",
+      "source_sha256": "4350cfa3c03dd8dd835b377eb543acdf1f6145649f88d6222d3364dc7ee15cad",
+      "source": "The interactive twin of :func:`spacr.regression_qc._panel_influence`. The question it answers is the one a screen cannot answer from the volcano: is a hit the shape of the data, or the shape of ONE WELL? A well far to the right has an unusual combination of guides; a well far up or down is poorly predicted; a well that is both is one whose removal moves the coefficients, and Cook's distance is the product that says so.",
+      "context": "The interactive twin of :func:`spacr.regression_qc._panel_influence`. The question it answers is the one a screening experiment cannot answer from the volcano: is a hit the shape of the data, or the shape of one microplate sample position? A microplate sample position far to the right has an unusual combination of guides; a microplate sample position far up or down is poorly predicted; a microplate sample position that is both is one whose removal moves the coefficients, and Cook's distance is the product that says so.",
+      "translation": "Gagnvirki tvíburi :func:`spacr.regression_qc._panel_influence`. Spurningin sem hann svarar er sú sem eldfjallaritið getur ekki svarað: er niðurstaða lögun gagnanna, eða lögun EINS BRUNNS? Brunnur langt til hægri hefur óvenjulega samsetningu leiðara; brunnur langt upp eða niður er illa spáð fyrir um; brunnur sem er hvort tveggja er sá sem færir stuðlana þegar hann er fjarlægður, og fjarlægð Cooks er stærðin sem segir það."
+    }
+  ]
+}
