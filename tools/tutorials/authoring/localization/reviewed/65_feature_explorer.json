@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "65_feature_explorer",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Classifique características pela capacidade de separar as classes selecionadas e examine as evidências que fundamentam a classificação.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Feature Explorer.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Feature Explorer. Classifique características pela capacidade de separar as classes selecionadas e examine as evidências que fundamentam a classificação.",
+        "Selecione uma tabela, a coluna de classes, os grupos que serão comparados e as características numéricas candidatas.",
+        "Na área principal de configuração, examine a pontuação, a validação, a filtragem, a amostragem e os controles de comparações múltiplas.",
+        "Calcule a classificação e examine as distribuições e os exemplos vinculados às imagens das características mais bem classificadas.",
+        "Ao término do fluxo de trabalho, a tabela classificada e os gráficos descrevem associação com as classes, não importância causal."
+      ]
+    }
+  }
+}

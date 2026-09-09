@@ -1,0 +1,198 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete human review of Spanish, French, and Italian data-workflow lessons 33 through 36, including metadata, objectives, exact interface terms, and every narration."
+  },
+  "lessons": {
+    "33_plate_viewer": {"languages": {
+      "es": {
+        "description": "Explore las mediciones como mapas de calor de placas y detecte artefactos espaciales o efectos de borde.",
+        "prerequisite": "Mida una placa con identificadores estables de placa y pocillo.",
+        "objectives": ["Crear un mapa de calor de placa adecuado.", "Reconocer artefactos espaciales y causados por recuentos bajos.", "Examinar y exportar resúmenes trazables por pocillo."],
+        "narrations": {
+          "1": "Plate Viewer convierte las mediciones de objetos en mapas de calor por pocillo y presenta junto a ellos los controles de calidad espacial.",
+          "2": "Abra una base de datos de mediciones o una carpeta de ejecución. El origen se consulta en modo de solo lectura.",
+          "3": "Elija la tabla de objetos, la característica numérica y la placa que desea mostrar.",
+          "4": "Seleccione la agregación, la escala de color y la evidencia mínima necesaria para un pocillo. El recuento permite detectar diferencias de segmentación o de siembra celular.",
+          "5": "Renderice la vista y compare el mapa de calor con los diagnósticos de filas, columnas, anillos y bordes.",
+          "6": "Seleccione un pocillo para examinar su identificador, el número de objetos, el valor mostrado y su posición.",
+          "7": "Los pocillos que no alcanzan el umbral de evidencia se muestran como espacios en blanco explícitos en lugar de ceros engañosos.",
+          "8": "Exporte la cuadrícula ordenada de pocillos actual, con los recuentos y las anotaciones espaciales, para auditarla o volver a representarla."
+        }
+      },
+      "fr": {
+        "description": "Explorez les mesures sous forme de cartes thermiques de plaques et détectez les artefacts spatiaux ou les effets de bord.",
+        "prerequisite": "Mesurez une plaque dotée d'identifiants stables de plaque et de puits.",
+        "objectives": ["Créer une carte thermique de plaque appropriée.", "Reconnaître les artefacts spatiaux et ceux dus à de faibles effectifs.", "Examiner et exporter des résumés traçables par puits."],
+        "narrations": {
+          "1": "Plate Viewer transforme les mesures des objets en cartes thermiques par puits et affiche à côté les contrôles de qualité spatiale.",
+          "2": "Ouvrez une base de données de mesures ou un dossier d'exécution. La source est interrogée en lecture seule.",
+          "3": "Choisissez la table d'objets, la caractéristique numérique et la plaque à afficher.",
+          "4": "Sélectionnez l'agrégation, l'échelle de couleurs et le niveau minimal de preuve requis pour un puits. Le dénombrement aide à repérer les différences de segmentation ou d'ensemencement cellulaire.",
+          "5": "Générez la vue, puis comparez la carte thermique aux diagnostics des lignes, des colonnes, des anneaux et des bords.",
+          "6": "Sélectionnez un puits pour examiner son identifiant, son nombre d'objets, la valeur affichée et sa position.",
+          "7": "Les puits situés sous le seuil de preuve deviennent des cases explicitement vides plutôt que des zéros trompeurs.",
+          "8": "Exportez la grille ordonnée actuelle des puits, avec les effectifs et les annotations spatiales, pour l'auditer ou la retracer."
+        }
+      },
+      "it": {
+        "description": "Esplora le misurazioni come mappe di calore delle piastre e rileva artefatti spaziali o effetti di bordo.",
+        "prerequisite": "Misura una piastra con identificatori stabili per piastra e pozzetto.",
+        "objectives": ["Creare una mappa di calore della piastra appropriata.", "Riconoscere gli artefatti spaziali e quelli dovuti a conteggi bassi.", "Esaminare ed esportare riepiloghi tracciabili per pozzetto."],
+        "narrations": {
+          "1": "Plate Viewer trasforma le misurazioni degli oggetti in mappe di calore a livello di pozzetto, affiancate dai controlli di qualità spaziale.",
+          "2": "Apri un database di misurazioni o una cartella di esecuzione. La sorgente viene interrogata in sola lettura.",
+          "3": "Scegli la tabella degli oggetti, la caratteristica numerica e la piastra da visualizzare.",
+          "4": "Seleziona l'aggregazione, la scala dei colori e l'evidenza minima richiesta per un pozzetto. Il conteggio è utile per individuare differenze di segmentazione o di semina cellulare.",
+          "5": "Genera la vista, quindi confronta la mappa di calore con i dati diagnostici relativi a righe, colonne, anelli e bordi.",
+          "6": "Seleziona un pozzetto per esaminarne l'identificatore, il numero di oggetti, il valore visualizzato e la posizione.",
+          "7": "I pozzetti al di sotto della soglia di evidenza vengono mostrati come spazi esplicitamente vuoti anziché come zeri fuorvianti.",
+          "8": "Esporta la griglia ordinata corrente dei pozzetti, con conteggi e annotazioni spaziali, per sottoporla a verifica o tracciarla nuovamente."
+        }
+      }
+    }},
+    "34_database": {"languages": {
+      "es": {
+        "description": "Explore, filtre y exporte bases de datos de mediciones de spaCR sin utilizar la línea de comandos.",
+        "prerequisite": "Disponga de una base de datos SQLite de spaCR o de una carpeta de ejecución.",
+        "objectives": ["Abrir y recorrer una base de datos de forma segura.", "Filtrar una tabla completa sin confundirla con la vista previa.", "Exportar un subconjunto trazable."],
+        "narrations": {
+          "1": "Database Browser permite examinar bases de datos grandes de spaCR mediante una vista limitada y de solo lectura.",
+          "2": "Seleccione una base de datos de mediciones o su carpeta de ejecución y ábrala.",
+          "3": "Seleccione una tabla después de revisar su finalidad y su estado de solo lectura.",
+          "4": "La vista previa carga una página limitada e informa por separado del número total de filas y columnas.",
+          "5": "Busque columnas para facilitar la lectura de tablas de características anchas sin modificar las filas subyacentes.",
+          "6": "Cree un filtro estructurado. Los nombres de las columnas y los operadores se validan, y los valores se enlazan de forma segura.",
+          "7": "El recuento exacto del filtro describe la consulta completa, aunque solo se muestre una página.",
+          "8": "Exporte el filtro actual completo y la selección de columnas visibles. La base de datos de origen no se modifica."
+        }
+      },
+      "fr": {
+        "description": "Parcourez, filtrez et exportez les bases de données de mesures spaCR sans utiliser la ligne de commande.",
+        "prerequisite": "Disposez d'une base de données SQLite spaCR ou d'un dossier d'exécution.",
+        "objectives": ["Ouvrir et parcourir une base de données en toute sécurité.", "Filtrer une table complète sans la confondre avec l'aperçu.", "Exporter un sous-ensemble traçable."],
+        "narrations": {
+          "1": "Database Browser examine les grandes bases de données spaCR dans une vue limitée et en lecture seule.",
+          "2": "Sélectionnez une base de données de mesures ou son dossier d'exécution, puis ouvrez-la.",
+          "3": "Sélectionnez une table après avoir vérifié son rôle et son état en lecture seule.",
+          "4": "L'aperçu charge une page limitée tout en indiquant séparément le nombre total de lignes et de colonnes.",
+          "5": "Recherchez des colonnes pour rendre les tables de caractéristiques très larges plus lisibles sans modifier les lignes sous-jacentes.",
+          "6": "Créez un filtre structuré. Les noms de colonnes et les opérateurs sont validés, et les valeurs sont liées de manière sûre.",
+          "7": "Le nombre exact de résultats du filtre décrit la requête complète, même si une seule page est affichée.",
+          "8": "Exportez l'intégralité du filtre actuel et la sélection de colonnes visibles. La base de données source reste inchangée."
+        }
+      },
+      "it": {
+        "description": "Esplora, filtra ed esporta i database di misurazioni spaCR senza usare la riga di comando.",
+        "prerequisite": "Devi avere a disposizione un database SQLite spaCR o una cartella di esecuzione.",
+        "objectives": ["Aprire e scorrere un database in sicurezza.", "Filtrare una tabella completa senza confonderla con l'anteprima.", "Esportare un sottoinsieme tracciabile."],
+        "narrations": {
+          "1": "Database Browser consente di esaminare database spaCR di grandi dimensioni in una vista limitata e in sola lettura.",
+          "2": "Seleziona un database di misurazioni o la relativa cartella di esecuzione e aprilo.",
+          "3": "Seleziona una tabella dopo averne verificato lo scopo e lo stato di sola lettura.",
+          "4": "L'anteprima carica una pagina limitata e riporta separatamente il numero totale di righe e colonne.",
+          "5": "Cerca le colonne per rendere leggibili le tabelle di caratteristiche molto ampie senza modificare le righe sottostanti.",
+          "6": "Crea un filtro strutturato. I nomi delle colonne e gli operatori vengono convalidati, mentre i valori vengono associati in modo sicuro.",
+          "7": "Il conteggio esatto del filtro descrive l'intera interrogazione, anche se viene mostrata una sola pagina.",
+          "8": "Esporta l'intero filtro corrente e la selezione delle colonne visibili. Il database sorgente rimane invariato."
+        }
+      }
+    }},
+    "35_converter": {"languages": {
+      "es": {
+        "description": "Convierta formatos de microscopía en archivos TIFF con nombres compatibles con spaCR y un mapa de procedencia revisado.",
+        "prerequisite": "Prepare archivos de microscopía compatibles y decida cómo se asignan las dimensiones de adquisición a los identificadores de spaCR.",
+        "objectives": ["Configurar una asignación que tenga en cuenta la pérdida de información.", "Validar el plan completo en la vista previa.", "Convertir o reanudar sin modificar los orígenes."],
+        "narrations": {
+          "1": "Format Converter utiliza un flujo de trabajo que comienza por la vista previa para que la nomenclatura y la asignación de dimensiones sean visibles antes de escribir los archivos.",
+          "2": "Seleccione los archivos de origen y un destino distinto.",
+          "3": "Describa la estructura de carpetas, las series, el tiempo, la profundidad, la nomenclatura de las placas y el comportamiento de reanudación. Las proyecciones descartan información; selecciónelas de forma deliberada.",
+          "4": "Preview examina las cabeceras y crea el plan de conversión sin escribir imágenes.",
+          "5": "Revise cada origen junto con los identificadores de placa, pocillo, campo, canal, tiempo y profundidad de destino.",
+          "6": "Realice la conversión solo cuando la asignación sea correcta y se superen las comprobaciones de colisiones. Los orígenes nunca se renombran ni se sustituyen.",
+          "7": "El resultado incluye archivos TIFF normalizados y un mapa de procedencia que remite a cada archivo e identificador originales.",
+          "8": "Al reanudar, se validan los puntos de control de los campos terminados antes de omitirlos, por lo que se regeneran las salidas ausentes o dañadas."
+        }
+      },
+      "fr": {
+        "description": "Convertissez des formats de microscopie en fichiers TIFF nommés conformément à spaCR, avec une table de provenance vérifiée.",
+        "prerequisite": "Préparez des fichiers de microscopie pris en charge et déterminez comment les dimensions d'acquisition correspondent aux identifiants spaCR.",
+        "objectives": ["Configurer une correspondance tenant compte des pertes d'information.", "Valider l'intégralité du plan dans l'aperçu.", "Convertir ou reprendre sans modifier les sources."],
+        "narrations": {
+          "1": "Format Converter commence par un aperçu afin que le nommage et la correspondance des dimensions soient visibles avant l'écriture des fichiers.",
+          "2": "Sélectionnez les fichiers sources et une destination distincte.",
+          "3": "Décrivez l'organisation des dossiers, les séries, le temps, la profondeur, le nommage des plaques et le comportement de reprise. Les projections éliminent de l'information ; choisissez-les délibérément.",
+          "4": "Preview analyse les en-têtes et construit le plan de conversion sans écrire d'images.",
+          "5": "Vérifiez chaque source avec ses identifiants cibles de plaque, de puits, de champ, de canal, de temps et de profondeur.",
+          "6": "Ne lancez la conversion que lorsque la correspondance est correcte et que les contrôles de collision sont validés. Les sources ne sont jamais renommées ni remplacées.",
+          "7": "Le résultat comprend des fichiers TIFF normalisés et une table de provenance renvoyant à chaque fichier et identifiant d'origine.",
+          "8": "Lors d'une reprise, les points de contrôle des champs terminés sont validés avant d'être ignorés, de sorte que les sorties manquantes ou endommagées sont reconstruites."
+        }
+      },
+      "it": {
+        "description": "Converti i formati di microscopia in file TIFF con nomi compatibili con spaCR e una mappa della provenienza verificata.",
+        "prerequisite": "Prepara file di microscopia supportati e stabilisci come associare le dimensioni di acquisizione agli identificatori spaCR.",
+        "objectives": ["Configurare un'associazione che tenga conto della perdita di informazioni.", "Convalidare l'intero piano nell'anteprima.", "Convertire o riprendere senza modificare le sorgenti."],
+        "narrations": {
+          "1": "Format Converter usa un flusso di lavoro che parte dall'anteprima, affinché la denominazione e l'associazione delle dimensioni siano visibili prima della scrittura dei file.",
+          "2": "Seleziona i file sorgente e una destinazione separata.",
+          "3": "Descrivi la struttura delle cartelle, le serie, il tempo, la profondità, la denominazione delle piastre e il comportamento di ripresa. Le proiezioni eliminano informazioni, quindi sceglile deliberatamente.",
+          "4": "Preview esamina le intestazioni e crea il piano di conversione senza scrivere immagini.",
+          "5": "Verifica ogni sorgente insieme ai relativi identificatori di destinazione per piastra, pozzetto, campo, canale, tempo e profondità.",
+          "6": "Esegui la conversione solo quando l'associazione è corretta e i controlli delle collisioni sono superati. Le sorgenti non vengono mai rinominate né sostituite.",
+          "7": "Il risultato include file TIFF standardizzati e una mappa della provenienza che riconduce a ogni file e identificatore originale.",
+          "8": "Durante la ripresa, i checkpoint dei campi completati vengono convalidati prima di essere ignorati; gli output mancanti o danneggiati vengono quindi ricostruiti."
+        }
+      }
+    }},
+    "36_import": {"languages": {
+      "es": {
+        "description": "Asigne las imágenes, máscaras y mediciones de otro laboratorio a un proyecto spaCR trazable.",
+        "prerequisite": "Prepare las imágenes de origen, las máscaras opcionales, las mediciones, los identificadores y la calibración física.",
+        "objectives": ["Asignar explícitamente los datos externos.", "Resolver uniones, unidades y conflictos de nomenclatura en Preview.", "Crear un proyecto normalizado con información de procedencia."],
+        "narrations": {
+          "1": "Import Project separa las asignaciones inferidas de las decisiones revisadas antes de crear un proyecto spaCR.",
+          "2": "Seleccione las imágenes externas y un destino nuevo, conservando los archivos originales.",
+          "3": "Añada cada clase de máscara y compruebe que todos los campos tengan las etiquetas correspondientes esperadas.",
+          "4": "Añada las mediciones, la calibración, los identificadores y una política para los conflictos entre nombres de columnas externas.",
+          "5": "Preview comprueba las cabeceras, el emparejamiento de campos, las etiquetas, las uniones, las unidades y los conflictos de nombres sin escribir datos del proyecto.",
+          "6": "Revise cada columna de destino, transformación y unidad propuestas, así como cada advertencia de unión.",
+          "7": "Corrija directamente las asignaciones inferidas y vuelva a ejecutar la validación hasta que el plan represente el experimento de origen.",
+          "8": "Importe únicamente el plan revisado. spaCR escribe las imágenes, máscaras y mediciones canónicas y la información de procedencia, al tiempo que conserva los identificadores externos."
+        }
+      },
+      "fr": {
+        "description": "Associez les images, les masques et les mesures d'un autre laboratoire à un projet spaCR traçable.",
+        "prerequisite": "Préparez les images sources, les masques facultatifs, les mesures, les identifiants et l'étalonnage physique.",
+        "objectives": ["Associer explicitement les données externes.", "Résoudre les jointures, les unités et les conflits de nommage dans Preview.", "Créer un projet normalisé avec ses informations de provenance."],
+        "narrations": {
+          "1": "Import Project distingue les correspondances déduites des décisions vérifiées avant de créer un projet spaCR.",
+          "2": "Sélectionnez les images externes et une nouvelle destination, tout en conservant les fichiers originaux.",
+          "3": "Ajoutez chaque classe de masque et vérifiez que tous les champs possèdent les étiquettes correspondantes attendues.",
+          "4": "Ajoutez les mesures, l'étalonnage, les identifiants et une politique de gestion des conflits entre noms de colonnes externes.",
+          "5": "Preview vérifie les en-têtes, l'appariement des champs, les étiquettes, les jointures, les unités et les conflits de noms sans écrire de données dans le projet.",
+          "6": "Vérifiez chaque colonne cible, transformation et unité proposées, ainsi que chaque avertissement de jointure.",
+          "7": "Corrigez directement les correspondances déduites et relancez la validation jusqu'à ce que le plan reflète l'expérience source.",
+          "8": "N'importez que le plan vérifié. spaCR écrit les images, les masques et les mesures canoniques ainsi que les informations de provenance, tout en conservant les identifiants externes."
+        }
+      },
+      "it": {
+        "description": "Associa immagini, maschere e misurazioni di un altro laboratorio a un progetto spaCR tracciabile.",
+        "prerequisite": "Prepara le immagini sorgente, le maschere facoltative, le misurazioni, gli identificatori e la calibrazione fisica.",
+        "objectives": ["Associare esplicitamente i dati esterni.", "Risolvere in Preview le unioni, le unità e i conflitti di denominazione.", "Creare un progetto standardizzato con informazioni sulla provenienza."],
+        "narrations": {
+          "1": "Import Project distingue le associazioni dedotte dalle decisioni verificate prima di creare un progetto spaCR.",
+          "2": "Seleziona le immagini esterne e una nuova destinazione, conservando i file originali.",
+          "3": "Aggiungi ogni classe di maschere e verifica che tutti i campi abbiano le etichette corrispondenti previste.",
+          "4": "Aggiungi le misurazioni, la calibrazione, gli identificatori e una regola per i conflitti tra i nomi delle colonne esterne.",
+          "5": "Preview controlla le intestazioni, l'abbinamento dei campi, le etichette, le unioni, le unità e i conflitti di nomi senza scrivere dati nel progetto.",
+          "6": "Verifica ogni colonna di destinazione, trasformazione e unità proposta e ogni avviso relativo alle unioni.",
+          "7": "Correggi direttamente le associazioni dedotte e ripeti la convalida finché il piano non rispecchia l'esperimento sorgente.",
+          "8": "Importa solo il piano verificato. spaCR scrive immagini, maschere e misurazioni canoniche e le informazioni sulla provenienza, conservando gli identificatori esterni."
+        }
+      }
+    }}
+  }
+}

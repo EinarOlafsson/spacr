@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "49_methods_results",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Redija textos rastreáveis de métodos e resultados a partir das execuções registradas, em vez de reconstruir as configurações de memória.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Methods & Results.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Methods & Results. Redija textos rastreáveis de métodos e resultados a partir das execuções registradas, em vez de reconstruir as configurações de memória.",
+        "Selecione os projetos e as execuções concluídas que devem fornecer as evidências do documento.",
+        "Na área principal de configuração, selecione as seções, as comparações, as figuras, as estatísticas, o estilo das citações e os campos que contêm informações sensíveis.",
+        "Gere um rascunho e rastreie cada afirmação até sua configuração, seu arquivo ou seu resultado calculado.",
+        "Ao término do fluxo de trabalho, os documentos editáveis de métodos e resultados são exportados com um resumo de proveniência."
+      ]
+    }
+  }
+}

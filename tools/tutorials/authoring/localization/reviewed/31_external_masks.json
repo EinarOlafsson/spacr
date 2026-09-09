@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "31_external_masks",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Importe imagens e máscaras de rótulos de terceiros como um projeto do spaCR medido e rastreável.",
+      "prerequisite": "Prepare as imagens de origem, as máscaras de rótulos inteiros, as regras de nomenclatura e as definições das classes de objetos.",
+      "objectives": [
+        "Mapear corretamente as entradas externas.",
+        "Validar a importação em Preview.",
+        "Criar um projeto medido com proveniência."
+      ],
+      "narrations": [
+        "External Masks importa imagens de origem e rótulos gerados externamente e prepara o projeto para os fluxos normais de medição e anotação do spaCR.",
+        "Adicione as fontes de imagens e máscaras e confirme que o spaCR identificou as funções pretendidas.",
+        "Associe cada entrada à respectiva classe de objeto. Verifique os nomes dos arquivos, as dimensões e os pares de campos, em vez de depender de uma atribuição inferida.",
+        "Input Mapping controla a ordem dos canais e dos planos de máscaras, a nomenclatura e a organização do destino.",
+        "As configurações de medição definem quais objetos e características serão produzidos após a importação.",
+        "Mantenha Preview habilitado na primeira execução e selecione um novo destino.",
+        "Examine os pares, as contagens de canais, as classes de objetos, os avisos e os erros impeditivos antes de gravar qualquer dado.",
+        "Execute a importação revisada. As imagens, máscaras, medições e informações de proveniência resultantes estarão prontas para a anotação subsequente."
+      ]
+    }
+  }
+}

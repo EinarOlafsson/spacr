@@ -1,0 +1,30 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "30_plate_queue",
+    "scene_count": 7,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Execute várias placas pelo mesmo pipeline validado, com estado visível e possibilidade de retomada.",
+      "prerequisite": "Valide primeiro a sequência de módulos e as configurações usando dados representativos.",
+      "objectives": [
+        "Construir e revisar uma fila com várias placas.",
+        "Executar e acompanhar a fila com segurança.",
+        "Retomar ou diagnosticar placas individuais."
+      ],
+      "narrations": [
+        "Plate Queue aplica um fluxo de trabalho validado a várias placas e mantém separado o estado de cada placa.",
+        "Adicione à fila o módulo configurado atualmente ou uma fonte de placa preparada.",
+        "Adicione outras placas e examine na tabela a origem, o destino, as configurações e a ordem de cada uma.",
+        "Defina os limites dos processos, o comportamento de interrupção e a política de retomada. O estado da fila é preservado, portanto uma interrupção não apaga o plano.",
+        "Teste o fluxo de trabalho em uma placa ou em um campo limitado antes de iniciar o restante da fila.",
+        "Durante a execução, acompanhe o progresso de cada placa e abra os logs quando um item emitir um aviso ou falhar.",
+        "As placas concluídas preservam saídas e registros de execução isolados; itens interrompidos ou com falha permanecem identificáveis e podem ser retomados."
+      ]
+    }
+  }
+}

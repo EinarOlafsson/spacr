@@ -1,0 +1,84 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "01_pypi_github",
+    "scene_count": 7,
+    "source_language": "en",
+    "reviewed_date": "2026-08-28",
+    "review_scope": "Current PyPI, conda-forge, GitHub, and nightly distribution guidance; exact product, branch, command, platform, and repository identifiers; and single-syllable pype speech generation."
+  },
+  "languages": {
+    "es": {
+      "description": "Elija la fuente oficial para un paquete de Python, un paquete de conda-forge, un instalador de escritorio o una rama de desarrollo.",
+      "prerequisite": "No se requiere instalación.",
+      "objectives": [
+        "Identifique los paquetes oficiales de PyPI y conda-forge.",
+        "Distinga las versiones estables de la rama nightly.",
+        "Seleccione la vía de instalación adecuada para el entorno previsto."
+      ],
+      "narrations": [
+        "Antes de instalar spaCR, elija una vía oficial de distribución. PyPI y conda-forge proporcionan paquetes publicados, mientras que GitHub proporciona el código fuente, instaladores de escritorio y el historial de versiones.",
+        "En PyPI, el encabezado de la versión muestra la versión estable actual y el comando pip install spacr.",
+        "La sección Enlaces del proyecto abre la documentación, la página de inicio, el gestor de incidencias y el repositorio del código fuente.",
+        "En GitHub, main es la línea de código fuente publicada y nightly contiene cambios más recientes que todavía están en pruebas. Use nightly solo cuando necesite específicamente un cambio aún no publicado.",
+        "En una versión de GitHub, expanda Assets para descargar el instalador de Windows, macOS o Linux, los archivos del paquete de Python o la lista de sumas de comprobación.",
+        "El paquete oficial de conda-forge instala spaCR y sus dependencias de escritorio en el entorno Conda activo. Use el comando exacto conda install conda-forge::spacr.",
+        "Use conda-forge o PyPI para un entorno de Python administrado, GitHub Releases para un instalador de escritorio y la rama nightly solo cuando necesite cambios que aún no se hayan publicado. A continuación, elija el tutorial de instalación correspondiente."
+      ]
+    },
+    "fr": {
+      "description": "Choisissez la source officielle pour un paquet Python, un paquet conda-forge, un programme d’installation ou une branche de développement.",
+      "prerequisite": "Aucune installation n’est requise.",
+      "objectives": [
+        "Identifier les paquets officiels PyPI et conda-forge.",
+        "Distinguer les versions stables de la branche nightly.",
+        "Choisir la méthode d’installation adaptée à l’environnement prévu."
+      ],
+      "narrations": [
+        "Avant d’installer spaCR, choisissez une méthode de distribution officielle. PyPI et conda-forge fournissent des paquets publiés, tandis que GitHub fournit le code source, les programmes d’installation et l’historique des versions.",
+        "Sur PyPI, l’en-tête de la version affiche la version stable actuelle et la commande pip install spacr.",
+        "La section Liens du projet ouvre la documentation, la page d’accueil, le suivi des problèmes et le dépôt du code source.",
+        "Sur GitHub, main correspond à la branche source publiée, tandis que nightly contient des modifications plus récentes encore en cours de test. Utilisez nightly uniquement si vous avez précisément besoin d’une modification non encore publiée.",
+        "Dans une version GitHub, développez la section Assets pour télécharger le programme d’installation Windows, macOS ou Linux, les fichiers du paquet Python ou la liste des sommes de contrôle.",
+        "Le paquet officiel conda-forge installe spaCR et ses dépendances de bureau dans l’environnement Conda actif. Utilisez exactement la commande conda install conda-forge::spacr.",
+        "Utilisez conda-forge ou PyPI pour un environnement Python géré, GitHub Releases pour un programme d’installation, et la branche nightly uniquement lorsque vous avez besoin de modifications qui ne sont pas encore publiées. Choisissez ensuite le tutoriel d’installation correspondant."
+      ]
+    },
+    "it": {
+      "description": "Scegli la fonte ufficiale per un pacchetto Python, un pacchetto conda-forge, un programma di installazione desktop o un ramo di sviluppo.",
+      "prerequisite": "Non è necessaria alcuna installazione.",
+      "objectives": [
+        "Identificare i pacchetti ufficiali su PyPI e conda-forge.",
+        "Distinguere i rilasci stabili dal ramo nightly.",
+        "Scegliere il percorso di installazione adatto all’ambiente previsto."
+      ],
+      "narrations": [
+        "Prima di installare spaCR, scegli un canale di distribuzione ufficiale. PyPI e conda-forge forniscono i pacchetti pubblicati, mentre GitHub fornisce il codice sorgente, i programmi di installazione desktop e la cronologia dei rilasci.",
+        "Su PyPI, l’intestazione del rilascio mostra la versione stabile corrente e il comando pip install spacr.",
+        "La sezione Project links apre la documentazione, la pagina iniziale, il sistema di tracciamento dei problemi e il repository del codice sorgente.",
+        "Su GitHub, main è la linea di codice sorgente pubblicata, mentre nightly contiene modifiche più recenti ancora in fase di test. Usa nightly solo quando ti serve specificamente una modifica non ancora pubblicata.",
+        "In un rilascio di GitHub, espandi Assets per scaricare il programma di installazione per Windows, macOS o Linux, i file del pacchetto Python o l’elenco dei checksum.",
+        "Il pacchetto ufficiale di conda-forge installa spaCR e le relative dipendenze desktop nell’ambiente Conda attivo. Usa il comando esatto conda install conda-forge::spacr.",
+        "Usa conda-forge o PyPI per un ambiente Python gestito, GitHub Releases per un programma di installazione desktop e il ramo nightly solo quando servono modifiche non ancora pubblicate. Quindi scegli il tutorial di installazione corrispondente."
+      ]
+    },
+    "pt-BR": {
+      "description": "Selecione a fonte oficial para um pacote Python, um pacote do conda-forge, um instalador de desktop ou um ramo de desenvolvimento.",
+      "prerequisite": "Nenhuma instalação é necessária.",
+      "objectives": [
+        "Identificar os pacotes oficiais no PyPI e no conda-forge.",
+        "Distinguir as versões estáveis do ramo nightly.",
+        "Selecionar a opção de instalação adequada ao ambiente pretendido."
+      ],
+      "narrations": [
+        "Antes de instalar o spaCR, selecione uma opção oficial de distribuição. O PyPI e o conda-forge fornecem pacotes publicados, enquanto o GitHub fornece o código-fonte, instaladores de desktop e o histórico de versões.",
+        "No PyPI, o cabeçalho da versão mostra a versão estável atual e o comando pip install spacr.",
+        "A seção Project links abre a documentação, a página inicial, o rastreador de problemas e o repositório do código-fonte.",
+        "No GitHub, use o seletor de ramos para escolher a linha de desenvolvimento. main corresponde às versões publicadas; nightly contém alterações mais recentes que ainda estão sendo testadas.",
+        "Em uma versão do GitHub, expanda Assets para baixar o instalador do Windows, macOS ou Linux, os arquivos do pacote Python ou a lista de somas de verificação.",
+        "O pacote oficial do conda-forge instala o spaCR e suas dependências de desktop no ambiente Conda ativo. Use exatamente o comando conda install conda-forge::spacr.",
+        "Use o conda-forge ou o PyPI para um ambiente Python gerenciado, GitHub Releases para um instalador de desktop e o ramo nightly somente quando precisar de alterações ainda não publicadas. Em seguida, selecione o tutorial de instalação correspondente."
+      ]
+    }
+  }
+}

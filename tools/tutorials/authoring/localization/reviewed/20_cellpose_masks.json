@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "20_cellpose_masks",
+    "scene_count": 9,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete Cellpose inference workflow, packaged and custom checkpoint semantics, exact interface labels, geometry and threshold controls, and preview-based mask validation."
+  },
+  "languages": {
+    "es": {
+      "description": "Aplique un modelo de Cellpose incluido o personalizado, examine las máscaras y los flujos y guarde una máscara de etiquetas de instancias por campo.",
+      "prerequisite": "Prepare imágenes de microscopía representativas y seleccione un modelo entrenado para el tipo de objeto, los canales y la escala correspondientes.",
+      "objectives": [
+        "Hacer corresponder las imágenes, los canales, la escala de los objetos y el punto de control.",
+        "Ajustar el preprocesamiento y los umbrales a partir de vistas previas diagnósticas.",
+        "Guardar máscaras de instancias revisadas para los flujos de trabajo posteriores."
+      ],
+      "narrations": [
+        "Cellpose Masks aplica un modelo incluido o un punto de control personalizado a imágenes de microscopía. La consola registra la resolución del modelo, el preprocesamiento, el progreso, los diagnósticos y las rutas de salida.",
+        "Input and Channels permite seleccionar la carpeta de imágenes, los planos, el uso de escala de grises o inversión y la normalización opcional. Verifique primero el canal; utilice el preprocesamiento solo cuando lo requieran las imágenes representativas.",
+        "Essentials contiene los controles necesarios para una primera aplicación. Utilice Modified para revisar el modelo y el preprocesamiento actuales, All para acceder a la geometría y las opciones de ejecución y Recipes para realizar inferencias reproducibles.",
+        "Model permite seleccionar pesos incluidos o un punto de control personalizado y registra la escala de objetos prevista. El punto de control y la disposición de los canales deben coincidir con las imágenes utilizadas durante el entrenamiento.",
+        "Detection Thresholds controla la probabilidad, la concordancia del flujo, el cambio de escala, el remuestreo y el rellenado de huecos. Ajuste estos parámetros solo después de confirmar la imagen, el canal, el modelo y la escala.",
+        "Image Geometry puede cambiar el tamaño de los campos para la inferencia y restaurar las máscaras a sus dimensiones originales. Conserve la relación de aspecto y mantenga la escala de píxeles coherente con el entrenamiento.",
+        "Output and Runtime controla las máscaras guardadas, el tamaño del lote y las figuras diagnósticas. Reduzca el tamaño del lote cuando la memoria del acelerador sea limitada.",
+        "Run carga el punto de control, aplica el preprocesamiento configurado, predice las máscaras y los flujos, realiza la corrección seleccionada y guarda cada imagen de etiquetas.",
+        "Examine imágenes originales representativas, los contornos de las máscaras y los campos de flujo en el panel de figuras antes de realizar mediciones posteriores. Elija la normalización y los umbrales a partir de estas vistas previas, en lugar de copiar los valores del tutorial."
+      ]
+    },
+    "fr": {
+      "description": "Appliquez un modèle Cellpose fourni ou personnalisé, examinez les masques et les flux, puis enregistrez un masque d’instances par champ.",
+      "prerequisite": "Préparez des images de microscopie représentatives et sélectionnez un modèle entraîné pour leur type d’objet, leurs canaux et leur échelle.",
+      "objectives": [
+        "Faire correspondre les images, les canaux, l’échelle des objets et le point de contrôle.",
+        "Régler le prétraitement et les seuils à partir d’aperçus diagnostiques.",
+        "Enregistrer des masques d’instances examinés pour les flux de travail ultérieurs."
+      ],
+      "narrations": [
+        "Cellpose Masks applique un modèle fourni ou un point de contrôle personnalisé à des images de microscopie. La console consigne la résolution du modèle, le prétraitement, la progression, les diagnostics et les chemins de sortie.",
+        "Input and Channels permet de sélectionner le dossier d’images, les plans, le comportement en niveaux de gris ou avec inversion, ainsi que la normalisation facultative. Vérifiez d’abord le canal ; n’utilisez le prétraitement que lorsque les images représentatives le nécessitent.",
+        "Essentials contient les commandes nécessaires à une première application. Utilisez Modified pour contrôler le modèle et le prétraitement actuels, All pour accéder à la géométrie et aux options d’exécution, et Recipes pour réaliser des inférences reproductibles.",
+        "Model permet de sélectionner les poids fournis ou un point de contrôle personnalisé et consigne l’échelle attendue des objets. Le point de contrôle et la disposition des canaux doivent correspondre aux images utilisées pendant l’entraînement.",
+        "Detection Thresholds contrôle la probabilité, la concordance des flux, le changement d’échelle, le rééchantillonnage et le comblement des trous. Ne réglez ces paramètres qu’après avoir vérifié l’image, le canal, le modèle et l’échelle.",
+        "Image Geometry peut redimensionner les champs pour l’inférence et restaurer les masques dans leurs dimensions d’origine. Préservez le rapport d’aspect et maintenez une échelle de pixels cohérente avec l’entraînement.",
+        "Output and Runtime contrôle les masques enregistrés, la taille des lots et les figures diagnostiques. Réduisez la taille des lots lorsque la mémoire de l’accélérateur est limitée.",
+        "Run charge le point de contrôle, applique le prétraitement configuré, prédit les masques et les flux, effectue le nettoyage sélectionné et enregistre chaque image d’étiquettes.",
+        "Examinez des images originales représentatives, les contours des masques et les champs de flux dans le panneau des figures avant toute mesure ultérieure. Choisissez la normalisation et les seuils d’après ces aperçus plutôt que de recopier les valeurs du tutoriel."
+      ]
+    },
+    "it": {
+      "description": "Applica un modello Cellpose incluso o personalizzato, esamina le maschere e i flussi e salva una maschera con etichette di istanza per ogni campo.",
+      "prerequisite": "Prepara immagini di microscopia rappresentative e seleziona un modello addestrato per il relativo tipo di oggetto, i canali e la scala.",
+      "objectives": [
+        "Far corrispondere immagini, canali, scala degli oggetti e punto di controllo.",
+        "Regolare la pre-elaborazione e le soglie in base alle anteprime diagnostiche.",
+        "Salvare maschere di istanza esaminate per i flussi di lavoro successivi."
+      ],
+      "narrations": [
+        "Cellpose Masks applica un modello incluso o un punto di controllo personalizzato alle immagini di microscopia. La console registra la risoluzione del modello, la pre-elaborazione, l’avanzamento, la diagnostica e i percorsi di output.",
+        "Input and Channels consente di selezionare la cartella delle immagini, i piani, il comportamento in scala di grigi o con inversione e la normalizzazione facoltativa. Verifica prima il canale; usa la pre-elaborazione solo quando è richiesta dalle immagini rappresentative.",
+        "Essentials contiene i controlli necessari per una prima applicazione. Usa Modified per verificare il modello e la pre-elaborazione correnti, All per accedere alla geometria e alle opzioni di esecuzione e Recipes per eseguire inferenze riproducibili.",
+        "Model consente di selezionare i pesi inclusi o un punto di controllo personalizzato e registra la scala prevista degli oggetti. Il punto di controllo e la disposizione dei canali devono corrispondere alle immagini usate durante l’addestramento.",
+        "Detection Thresholds controlla la probabilità, la concordanza del flusso, il ridimensionamento, il ricampionamento e il riempimento dei fori. Regola questi parametri solo dopo aver verificato l’immagine, il canale, il modello e la scala.",
+        "Image Geometry può ridimensionare i campi per l’inferenza e ripristinare le maschere alle dimensioni originali. Preserva le proporzioni e mantieni la scala dei pixel coerente con l’addestramento.",
+        "Output and Runtime controlla le maschere salvate, la dimensione dei batch e le figure diagnostiche. Riduci la dimensione dei batch quando la memoria dell’acceleratore è limitata.",
+        "Run carica il punto di controllo, applica la pre-elaborazione configurata, predice maschere e flussi, esegue la pulizia selezionata e salva ogni immagine delle etichette.",
+        "Esamina immagini originali rappresentative, i contorni delle maschere e i campi di flusso nel pannello delle figure prima delle misurazioni successive. Scegli la normalizzazione e le soglie in base a queste anteprime, anziché copiare i valori del tutorial."
+      ]
+    }
+  }
+}

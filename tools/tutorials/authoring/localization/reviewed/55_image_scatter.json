@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "55_image_scatter",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Represente medições em um gráfico e examine a imagem associada a qualquer ponto.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Image Scatter.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Image Scatter. Represente medições em um gráfico e examine a imagem associada a qualquer ponto.",
+        "Selecione uma tabela de medições, as características dos eixos x e y e a coluna com o recorte ou a imagem do campo.",
+        "Na área principal de configuração, defina as cores, o agrupamento, os filtros, a amostragem e as transformações dos eixos sem ocultar as linhas excluídas.",
+        "Renderize o diagrama de dispersão, mantenha o cursor sobre os pontos para consultar o contexto da imagem e clique em pontos representativos ou incomuns.",
+        "Ao término do fluxo de trabalho, os objetos selecionados e o gráfico podem ser exportados com identificadores estáveis da origem."
+      ]
+    }
+  }
+}

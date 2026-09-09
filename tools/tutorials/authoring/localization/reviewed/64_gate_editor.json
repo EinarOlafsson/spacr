@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "lesson_id": "64_gate_editor",
+  "note": "Human-reviewed technical narration. Scene order follows lessons_en.json.",
+  "languages": {
+    "es": [
+      "Gate Editor convierte regiones de una tabla de mediciones en compuertas de población con nombre y reutilizables. El espacio de trabajo reúne los ejes de las variables, las herramientas de dibujo, la vista completa de los datos y la jerarquía de compuertas.",
+      "En 2D, elija X e Y para crear un diagrama de dispersión, o deje Y vacío para crear un histograma. Seleccione un umbral o una herramienta de forma y dibuje alrededor de la población de interés. La nube completa permanece visible mientras se resaltan los objetos incluidos.",
+      "Elija 3D y una variable Z para examinar un volumen que se puede girar. Los botones de eje controlan la dirección del giro, y el botón Box gate guarda los límites de las tres variables mostradas.",
+      "Elija xD para proyectar las mediciones válidas en componentes principales. La etiqueta de origen muestra la varianza explicada, y PC1, PC2 y PC3 pasan a ser ejes normales para las mismas herramientas de creación de compuertas.",
+      "La jerarquía de compuertas muestra el número de objetos, el porcentaje respecto a la compuerta padre y el porcentaje respecto a todas las filas. Active o desactive la casilla de una compuerta para mostrarla u ocultarla, y seleccione una compuerta antes de dibujar si desea anidar dentro de ella la población siguiente.",
+      "Asigne un nombre claro a cada población y guarde la estrategia de compuertas. Cárguela en una tabla compatible para reutilizar los mismos nombres de variables, límites y jerarquía, y compruebe los nuevos recuentos antes de continuar.",
+      "Cluster Walk explora una secuencia acotada de radios DBSCAN en las mediciones mostradas e informa del radio seleccionado, el número de poblaciones y la fracción excluida. Examine las compuertas resultantes y no anote ni exporte hasta que las poblaciones concuerden con los datos visibles."
+    ],
+    "fr": [
+      "Gate Editor transforme des régions d’une table de mesures en fenêtres de sélection nommées et réutilisables. L’espace de travail réunit les axes des variables, les outils de dessin, la vue complète des données et la hiérarchie des fenêtres.",
+      "En 2D, choisissez X et Y pour créer un nuage de points, ou laissez Y vide pour créer un histogramme. Sélectionnez un seuil ou un outil de forme, puis entourez la population d’intérêt. Le nuage complet reste visible tandis que les objets inclus sont mis en évidence.",
+      "Choisissez le mode 3D et une variable Z pour examiner un volume orientable. Les boutons d’axe contrôlent le sens de rotation, et le bouton Box gate enregistre les limites sur les trois variables affichées.",
+      "Choisissez xD pour projeter les mesures admissibles sur des composantes principales. L’étiquette de la source indique la variance expliquée, et PC1, PC2 et PC3 deviennent des axes ordinaires utilisables avec les mêmes outils de sélection.",
+      "La hiérarchie indique le nombre d’objets, le pourcentage par rapport à la fenêtre parente et le pourcentage par rapport à toutes les lignes. Cochez ou décochez une fenêtre pour l’afficher ou la masquer, et sélectionnez une fenêtre avant de dessiner si la population suivante doit y être imbriquée.",
+      "Donnez un nom explicite à chaque population, puis enregistrez la stratégie de sélection. Chargez-la dans une table compatible pour réutiliser les mêmes noms de variables, limites et hiérarchie, puis vérifiez les nouveaux effectifs avant de continuer.",
+      "Cluster Walk parcourt une séquence bornée de rayons DBSCAN sur les mesures affichées et indique le rayon sélectionné, le nombre de populations et la fraction exclue. Examinez les fenêtres obtenues, puis n’annotez ou n’exportez les données que lorsque les populations concordent avec les données visibles."
+    ],
+    "hi": [
+      "गेट एडिटर माप तालिका के क्षेत्रों को नामित, दोबारा उपयोग किए जा सकने वाले पॉपुलेशन गेट में बदलता है। कार्यक्षेत्र में फीचर अक्ष, ड्रॉइंग टूल, पूरा डेटा दृश्य और गेट पदानुक्रम एक साथ दिखाई देते हैं।",
+      "2D मोड में स्कैटर प्लॉट के लिए X और Y चुनें, या हिस्टोग्राम के लिए Y को खाली छोड़ दें। थ्रेशोल्ड या शेप टूल चुनकर इच्छित पॉपुलेशन के चारों ओर सीमा बनाएँ। शामिल ऑब्जेक्ट हाइलाइट होते हैं, जबकि पूरा डेटा क्लाउड दिखाई देता रहता है।",
+      "3D मोड और Z माप चुनकर घुमाए जा सकने वाले वॉल्यूम को देखें। अक्ष बटन घुमाने की दिशा नियंत्रित करते हैं, और Box gate तीनों दिखाई गई मापों की सीमाएँ दर्ज करता है।",
+      "xD चुनकर उपयुक्त मापों को मुख्य घटकों पर प्रक्षेपित करें। स्रोत लेबल व्याख्यायित विचरण दिखाता है, और PC1, PC2 तथा PC3 उन्हीं गेटिंग टूल के लिए सामान्य अक्ष बन जाते हैं।",
+      "गेट पदानुक्रम ऑब्जेक्ट की संख्या, उसके पैरेंट का प्रतिशत और सभी पंक्तियों का प्रतिशत दिखाता है। किसी गेट को दिखाने या छिपाने के लिए उसका चेक बॉक्स बदलें। यदि अगली पॉपुलेशन को उसके भीतर नेस्ट करना है, तो ड्रॉ करने से पहले उस गेट को चुनें।",
+      "हर पॉपुलेशन को स्पष्ट नाम दें और फिर गेट रणनीति सहेजें। उन्हीं फीचर नामों, सीमाओं और पदानुक्रम को दोबारा उपयोग करने के लिए इसे किसी संगत तालिका में लोड करें, और आगे बढ़ने से पहले नई गिनती जाँचें।",
+      "Cluster Walk प्रदर्शित मापों पर DBSCAN त्रिज्याओं के सीमित क्रम की खोज करता है और चुनी गई त्रिज्या, पॉपुलेशन की संख्या तथा बाहर रखे गए अंश की रिपोर्ट करता है। बने हुए गेट जाँचें; पॉपुलेशन दिखाई देने वाले डेटा से मेल खाने पर ही एनोटेट या एक्सपोर्ट करें।"
+    ],
+    "it": [
+      "Gate Editor trasforma le regioni di una tabella di misure in gate di popolazione denominati e riutilizzabili. L’area di lavoro riunisce gli assi delle variabili, gli strumenti di disegno, la vista completa dei dati e la gerarchia dei gate.",
+      "In 2D, scegli X e Y per creare un grafico a dispersione, oppure lascia vuoto Y per creare un istogramma. Seleziona una soglia o uno strumento di forma e traccia il contorno della popolazione di interesse. L’intera nuvola resta visibile mentre gli oggetti inclusi vengono evidenziati.",
+      "Scegli 3D e una variabile Z per esaminare un volume ruotabile. I pulsanti degli assi controllano la direzione di rotazione e Box gate registra i limiti per tutte e tre le variabili visualizzate.",
+      "Scegli xD per proiettare le misure idonee sulle componenti principali. L’etichetta della sorgente mostra la varianza spiegata, mentre PC1, PC2 e PC3 diventano assi normali utilizzabili con gli stessi strumenti di gating.",
+      "La gerarchia dei gate mostra il numero di oggetti, la percentuale rispetto al gate padre e la percentuale rispetto a tutte le righe. Attiva o disattiva la casella di un gate per mostrarlo o nasconderlo e seleziona un gate prima di disegnare se la popolazione successiva deve essere annidata al suo interno.",
+      "Assegna a ogni popolazione un nome significativo, quindi salva la strategia di gating. Caricala in una tabella compatibile per riutilizzare gli stessi nomi delle variabili, limiti e gerarchia, e verifica i nuovi conteggi prima di continuare.",
+      "Cluster Walk esamina una sequenza limitata di raggi DBSCAN sulle misure visualizzate e riporta il raggio selezionato, il numero di popolazioni e la frazione esclusa. Controlla i gate risultanti e procedi con l’annotazione o l’esportazione solo quando le popolazioni corrispondono ai dati visibili."
+    ],
+    "pt-BR": {
+      "description": "Desenhe, examine, aninhe e reutilize portas populacionais em 2D, 3D ou em uma projeção de alta dimensionalidade.",
+      "prerequisite": "Prepare uma tabela de medições com características numéricas e identificadores estáveis dos objetos.",
+      "objectives": [
+        "Desenhar e examinar uma porta populacional em 2D.",
+        "Comparar o volume 3D real e o modo de projeção xD.",
+        "Interpretar, aninhar, salvar e reutilizar com segurança uma hierarquia de portas nomeadas.",
+        "Verificar uma Cluster Walk limitada antes da anotação ou exportação."
+      ],
+      "narrations": [
+        "Gate Editor transforma regiões de uma tabela de medições em portas populacionais nomeadas e reutilizáveis. O espaço de trabalho mantém juntos os eixos das características, as ferramentas de desenho, a visualização completa dos dados e a hierarquia das portas.",
+        "Em 2D, selecione X e Y para um diagrama de dispersão ou deixe Y vazio para um histograma. Selecione uma ferramenta de limiar ou de forma e desenhe ao redor da população pretendida. A nuvem completa permanece visível enquanto os objetos incluídos são destacados.",
+        "Selecione 3D e uma medição Z para examinar um volume que pode ser girado. Os botões dos eixos controlam a direção da rotação, e Box gate registra limites nas três medições exibidas.",
+        "Selecione xD para projetar as medições elegíveis em componentes principais. O rótulo da origem informa a variância explicada, e PC1, PC2 e PC3 tornam-se eixos comuns para as mesmas ferramentas de definição de portas.",
+        "A hierarquia das portas informa a contagem de objetos, a porcentagem em relação à porta pai e a porcentagem de todas as linhas. Marque ou desmarque a caixa de uma porta para exibi-la ou ocultá-la e selecione uma porta antes de desenhar quando a próxima população precisar ser aninhada nela.",
+        "Atribua um nome significativo a cada população e salve a estratégia de portas. Carregue-a em uma tabela compatível para reutilizar os mesmos nomes de características, limites e hierarquia e verifique as novas contagens antes de prosseguir.",
+        "Cluster Walk pesquisa uma sequência limitada de raios do DBSCAN nas medições exibidas e informa o raio selecionado, a contagem de populações e a fração excluída. Examine as portas resultantes e anote ou exporte somente depois que as populações corresponderem aos dados visíveis."
+      ]
+    },
+    "ja": [
+      "Gate Editor は、測定テーブル上の領域を、名前付きで再利用可能な集団ゲートに変換します。作業画面には、特徴量の軸、描画ツール、データ全体の表示、ゲート階層がまとめて配置されています。",
+      "2D では、散布図の X 軸と Y 軸を選びます。Y を空欄にするとヒストグラムになります。しきい値または図形ツールを選び、対象集団を囲みます。含まれるオブジェクトが強調表示されても、点群全体は表示されたままです。",
+      "3D を選び、Z 軸の測定値を指定すると、回転可能なボリュームを確認できます。軸ボタンで回転方向を制御し、Box gate で表示中の 3 つの測定値の範囲を記録します。",
+      "xD を選ぶと、対象となる測定値が主成分に投影されます。ソースラベルには寄与率が表示され、PC1、PC2、PC3 を通常の軸として同じゲートツールで使用できます。",
+      "ゲート階層には、オブジェクト数、親ゲートに対する割合、全行に対する割合が表示されます。チェックボックスでゲートの表示と非表示を切り替えます。次の集団を内側にネストする場合は、描画前に親ゲートを選択します。",
+      "各集団に分かりやすい名前を付け、ゲート戦略を保存します。互換性のあるテーブルに読み込むと、同じ特徴量名、境界、階層を再利用できます。続行する前に新しい件数を確認してください。",
+      "Cluster Walk は、表示中の測定値に対して範囲を限定した一連の DBSCAN 半径を探索し、選択された半径、集団数、除外率を表示します。作成されたゲートを確認し、集団が表示データと一致している場合にのみ注釈またはエクスポートを行います。"
+    ],
+    "zh-CN": [
+      "Gate Editor 将测量表中的区域转换为可命名、可复用的群体门。工作区将特征轴、绘图工具、完整数据视图和门控层级集中显示在一起。",
+      "在 2D 模式下，选择 X 轴和 Y 轴生成散点图；将 Y 轴留空则生成直方图。选择阈值或形状工具，圈出目标群体。门内对象会被突出显示，同时完整点云仍然保留在视图中。",
+      "选择 3D 模式并指定 Z 轴测量值，即可检查可旋转的三维视图。轴按钮用于控制旋转方向，Box gate 会记录当前显示的三个测量值的边界。",
+      "选择 xD 模式，将符合条件的测量值投影到主成分空间。来源标签会显示方差解释率，PC1、PC2 和 PC3 则作为普通坐标轴，可继续使用相同的门控工具。",
+      "门控层级会显示对象数量、相对于父门的百分比以及相对于全部行的百分比。勾选或取消勾选复选框可显示或隐藏门。如果要将下一个群体嵌套在某个门内，请在绘制前先选中该门。",
+      "为每个群体指定清晰的名称，然后保存门控策略。将策略加载到兼容的表格后，可以复用相同的特征名称、边界和层级。继续之前，请核对新的对象数量。",
+      "Cluster Walk 会在当前测量值上搜索一组范围受限的 DBSCAN 半径，并报告选定半径、群体数量和排除比例。检查生成的门；只有当群体与可见数据一致时，才进行注释或导出。"
+    ]
+  }
+}

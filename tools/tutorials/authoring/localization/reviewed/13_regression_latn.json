@@ -1,0 +1,78 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "13_regression",
+    "scene_count": 11,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Current seven-category workflow, statistical terminology, exact interface labels, and natural scientific narration."
+  },
+  "languages": {
+    "es": {
+      "description": "Relacione la abundancia de guías de un cribado agrupado con los fenotipos medidos mediante pruebas de permutación en bloques o regresión simultánea, y examine después el respaldo estadístico, los diagnósticos y las estimaciones de efecto.",
+      "prerequisite": "Complete el mapeo de códigos de barras y prepare tablas de fenotipos y recuentos de guías con identificadores de placa y pocillo concordantes.",
+      "objectives": [
+        "Alinear la información de fenotipos, recuentos de guías y controles.",
+        "Elegir un procedimiento de inferencia, una corrección y unas reglas de evidencia justificados.",
+        "Interpretar los efectos junto con los controles y los diagnósticos."
+      ],
+      "narrations": [
+        "Regression relaciona las puntuaciones fenotípicas con la abundancia de guías derivada de la secuenciación. La consola informa sobre la alineación de las tablas, el filtrado, el procedimiento de inferencia seleccionado, los diagnósticos, los resultados y los registros de reproducibilidad.",
+        "Input Tables permite seleccionar las puntuaciones fenotípicas, los recuentos de secuenciación, los metadatos génicos opcionales y el destino de los resultados. Deje el destino vacío para escribir junto a la primera tabla de recuentos; confirme que los identificadores de placa y pocillo coincidan antes de realizar el análisis.",
+        "Essentials contiene las entradas y los parámetros de inferencia necesarios para un primer análisis. Use Modified para revisar los cambios deliberados, All para examinar los parámetros avanzados y Recipes para guardar un diseño reutilizable.",
+        "Controls and Filters identifica los controles positivos, negativos y neutros; excluye las guías, los pocillos o las filas de las tablas que se indiquen; y establece las reglas de evidencia y normalización que determinan qué observaciones se incluyen en el análisis.",
+        "Plate and Batch Correction puede eliminar desviaciones técnicas mediante centrado, escalado robusto, controles de referencia o modelos de lote. Aplique una corrección solo cuando el diseño experimental la justifique.",
+        "Response permite seleccionar la columna de fenotipo, la unidad de análisis, la agregación, una inversión opcional y la transformación. Estas elecciones definen la magnitud que se asociará con la abundancia de guías.",
+        "Model and Inference permite elegir entre pruebas no paramétricas por guía, regresión simultánea paramétrica o selección automática. También define el nivel al que se presentan los resultados, la familia de modelos cuando corresponda, la corrección por comparaciones múltiples y la regla de significación.",
+        "Estimator Tuning reúne parámetros de covarianza, regularización, ajuste robusto, cuantiles, bootstrap y agregación de rangos. Solo los ajustes que utiliza el estimador seleccionado afectan al análisis.",
+        "Permutation Test configura el estadístico por guía, el número mínimo de pocillos con evidencia, el número de permutaciones y la semilla, el bloque de intercambiabilidad, las variables de ajuste, el umbral de presencia y el tamaño de lote limitado por la memoria.",
+        "Run valida los esquemas y las claves de pocillo, aplica las exclusiones y las correcciones, agrega la respuesta y ejecuta el procedimiento de inferencia seleccionado. El procedimiento no paramétrico predeterminado utiliza permutaciones de Freedman–Lane bloqueadas por placa y no ajusta un modelo de regresión.",
+        "El proyecto final contiene datos de análisis alineados, estimaciones de efecto por guía y por gen, tablas de significación empírica o basada en modelos, figuras diagnósticas, ajustes guardados y un manifiesto que permite repetir la ejecución."
+      ]
+    },
+    "fr": {
+      "description": "Reliez l’abondance des guides d’un criblage groupé aux phénotypes mesurés à l’aide de tests de permutation par blocs ou d’une régression simultanée, puis examinez le niveau de preuve, les diagnostics et les estimations d’effet.",
+      "prerequisite": "Terminez la cartographie des codes-barres et préparez des tableaux de phénotypes et de comptages de guides dont les identifiants de plaque et de puits concordent.",
+      "objectives": [
+        "Aligner les informations relatives aux phénotypes, aux comptages de guides et aux contrôles.",
+        "Choisir une procédure d’inférence, une correction et des règles de preuve justifiées.",
+        "Interpréter les effets conjointement avec les contrôles et les diagnostics."
+      ],
+      "narrations": [
+        "Regression relie les scores phénotypiques à l’abondance des guides issue du séquençage. La console présente l’alignement des tableaux, le filtrage, la procédure d’inférence sélectionnée, les diagnostics, les résultats et les données de reproductibilité.",
+        "Input Tables permet de sélectionner les scores phénotypiques, les comptages de séquençage, les métadonnées géniques facultatives et le dossier de résultats. Laissez ce dossier vide pour écrire à côté du premier tableau de comptages ; vérifiez la concordance des identifiants de plaque et de puits avant l’analyse.",
+        "Essentials contient les entrées et les paramètres d’inférence nécessaires à une première analyse. Utilisez Modified pour vérifier les modifications délibérées, All pour examiner les paramètres avancés et Recipes pour enregistrer un plan réutilisable.",
+        "Controls and Filters définit les contrôles positifs, négatifs et neutres ; exclut les guides, les puits ou les lignes de tableau indiqués ; et établit les règles de preuve et de normalisation qui déterminent les observations incluses dans l’analyse.",
+        "Plate and Batch Correction peut supprimer les décalages techniques par centrage, mise à l’échelle robuste, contrôles de référence ou modèles de lot. N’appliquez une correction que si le plan expérimental la justifie.",
+        "Response permet de sélectionner la colonne de phénotype, l’unité d’analyse, l’agrégation, une inversion facultative et la transformation. Ces choix définissent la quantité qui sera associée à l’abondance des guides.",
+        "Model and Inference permet de choisir entre un test non paramétrique par guide, une régression simultanée paramétrique ou une sélection automatique. Il définit également le niveau de restitution, la famille de modèles le cas échéant, la correction des tests multiples et la règle de significativité.",
+        "Estimator Tuning regroupe les paramètres de covariance, de régularisation, d’ajustement robuste, de quantile, de bootstrap et d’agrégation des rangs. Seuls les paramètres utilisés par l’estimateur sélectionné influencent l’analyse.",
+        "Permutation Test configure la statistique par guide, le nombre minimal de puits apportant des données, le nombre de permutations et la graine aléatoire, le bloc d’échangeabilité, les variables de nuisance, le seuil de présence et la taille des lots limitée par la mémoire.",
+        "Run valide les schémas et les clés de puits, applique les exclusions et la correction, agrège la réponse et exécute la procédure d’inférence sélectionnée. La procédure non paramétrique par défaut utilise des permutations de Freedman–Lane bloquées par plaque et n’ajuste aucun modèle de régression.",
+        "Le projet final contient les données d’analyse alignées, les estimations d’effet par guide et par gène, les tableaux de significativité empirique ou fondée sur un modèle, les figures diagnostiques, les paramètres enregistrés et un manifeste permettant de réexécuter l’analyse."
+      ]
+    },
+    "it": {
+      "description": "Collega l’abbondanza delle guide di uno screening pooled ai fenotipi misurati mediante test di permutazione a blocchi o regressione simultanea, quindi esamina il supporto statistico, la diagnostica e le stime degli effetti.",
+      "prerequisite": "Completa la mappatura dei codici a barre e prepara tabelle di fenotipi e conteggi delle guide con identificativi di piastra e pozzetto corrispondenti.",
+      "objectives": [
+        "Allineare le informazioni relative ai fenotipi, ai conteggi delle guide e ai controlli.",
+        "Scegliere una procedura di inferenza, una correzione e regole di evidenza giustificate.",
+        "Interpretare gli effetti insieme ai controlli e alla diagnostica."
+      ],
+      "narrations": [
+        "Regression collega i punteggi fenotipici all’abbondanza delle guide derivata dal sequenziamento. La console riporta l’allineamento delle tabelle, il filtraggio, la procedura di inferenza selezionata, la diagnostica, i risultati e i dati di riproducibilità.",
+        "Input Tables consente di selezionare i punteggi fenotipici, i conteggi di sequenziamento, i metadati genici facoltativi e la destinazione dei risultati. Lascia vuota la destinazione per scrivere accanto alla prima tabella dei conteggi; verifica la corrispondenza degli identificativi di piastra e pozzetto prima dell’analisi.",
+        "Essentials contiene gli input e i parametri di inferenza necessari per una prima analisi. Utilizza Modified per verificare le modifiche intenzionali, All per esaminare i parametri avanzati e Recipes per salvare un disegno riutilizzabile.",
+        "Controls and Filters identifica i controlli positivi, negativi e neutri; esclude le guide, i pozzetti o le righe delle tabelle specificati; e definisce le regole di evidenza e normalizzazione che determinano quali osservazioni entrano nell’analisi.",
+        "Plate and Batch Correction può rimuovere gli scostamenti tecnici mediante centratura, scalatura robusta, controlli di riferimento o modelli per batch. Applica una correzione solo se giustificata dal disegno sperimentale.",
+        "Response consente di selezionare la colonna del fenotipo, l’unità di analisi, l’aggregazione, un’inversione facoltativa e la trasformazione. Queste scelte definiscono la quantità che verrà associata all’abbondanza delle guide.",
+        "Model and Inference consente di scegliere tra un test non parametrico per guida, una regressione simultanea parametrica o la selezione automatica. Definisce inoltre il livello dei risultati, la famiglia di modelli quando applicabile, la correzione per confronti multipli e la regola di significatività.",
+        "Estimator Tuning raccoglie i parametri di covarianza, regolarizzazione, adattamento robusto, quantile, bootstrap e aggregazione dei ranghi. Solo le impostazioni utilizzate dallo stimatore selezionato influiscono sull’analisi.",
+        "Permutation Test configura la statistica per guida, il numero minimo di pozzetti con dati sufficienti, il numero di permutazioni e il seme casuale, il blocco di scambiabilità, le variabili di disturbo, la soglia di presenza e la dimensione del batch limitata dalla memoria.",
+        "Run convalida gli schemi e le chiavi dei pozzetti, applica le esclusioni e le correzioni, aggrega la risposta ed esegue la procedura di inferenza selezionata. La procedura non parametrica predefinita utilizza permutazioni di Freedman–Lane bloccate per piastra e non adatta un modello di regressione.",
+        "Il progetto finale contiene dati di analisi allineati, stime degli effetti per guida e per gene, tabelle di significatività empirica o basata sul modello, figure diagnostiche, impostazioni salvate e un manifesto che consente di rieseguire l’analisi."
+      ]
+    }
+  }
+}

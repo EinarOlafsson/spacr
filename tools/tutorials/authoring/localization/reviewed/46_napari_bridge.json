@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "46_napari_bridge",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Examine uma máscara no napari e devolva ao spaCR os rótulos corrigidos com proveniência.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Napari Bridge.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Napari Bridge. Examine uma máscara no napari e devolva ao spaCR os rótulos corrigidos com proveniência.",
+        "Selecione um projeto, um campo e o plano de máscara que deseja inspecionar.",
+        "Na área principal de configuração, confirme a classe do rótulo, as camadas das imagens de origem, o destino e as proteções contra substituição.",
+        "Edite os rótulos no napari, devolva-os ao spaCR e examine a alteração antes de aceitá-la.",
+        "Ao término do fluxo de trabalho, as máscaras corrigidas e o registro da curadoria permanecem vinculados ao campo original."
+      ]
+    }
+  }
+}

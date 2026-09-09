@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "67_experiment_design",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Planeje condições, controles e réplicas antes da aquisição.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Experiment Design.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Experiment Design. Planeje condições, controles e réplicas antes da aquisição.",
+        "Selecione o formato da placa, as condições, os controles, o plano de réplicas e as restrições.",
+        "Na área principal de configuração, examine a randomização, os blocos, o tratamento das bordas, o equilíbrio, os poços reservados e os rótulos dos metadados.",
+        "Gere e examine a disposição proposta e corrija conflitos ou desequilíbrios.",
+        "Ao término do fluxo de trabalho, o mapa de placa validado e os metadados podem ser exportados para a aquisição e para a análise posterior no spaCR."
+      ]
+    }
+  }
+}

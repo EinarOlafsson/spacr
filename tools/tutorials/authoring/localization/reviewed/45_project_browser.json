@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "45_project_browser",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Localize projetos do spaCR e consulte em uma tabela a etapa, o tamanho, a execução mais recente e as saídas desatualizadas.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Project Browser.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Project Browser. Localize projetos do spaCR e consulte em uma tabela a etapa, o tamanho, a execução mais recente e as saídas desatualizadas.",
+        "Selecione as raízes que contêm seus projetos e faça a varredura.",
+        "Na área principal de configuração, filtre e ordene por etapa, tamanho, idade, estado do módulo ou artefatos desatualizados.",
+        "Abra um projeto selecionado ou sua execução mais recente depois de examinar o resumo do estado.",
+        "Ao término do fluxo de trabalho, o navegador apresenta links para os arquivos e módulos relevantes sem modificar os dados do projeto."
+      ]
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-28",
+    "review_scope": "Current accelerated installer default and current Home layout for German, Swedish, Icelandic, Norwegian Bokmål, Korean, and Danish captions. Interface labels, commands, and backend names remain exact."
+  },
+  "lessons": {
+    "04_platform_installers": {
+      "languages": {
+        "de": {"narrations": {
+          "1": "Die schlanken nativen Installationsprogramme erstellen eine private Python-3.12-Laufzeit und laden anschließend Qt, PyTorch, spaCR und seine Abhängigkeiten herunter.",
+          "3": "Öffnen Sie unter Windows 10 oder 11 die Online-Setup-Datei. Die automatische Hardwarebeschleunigung ist standardmäßig ausgewählt und installiert CUDA-Unterstützung auf kompatibler NVIDIA-Hardware. Deaktivieren Sie diese Komponente nur, wenn Sie eine kleinere reine CPU-Installation benötigen.",
+          "5": "Machen Sie unter 64-Bit-Linux die heruntergeladene .run-Datei ausführbar und starten Sie sie in einem Terminal. Die standardmäßige automatische Backend-Auswahl installiert CUDA-Unterstützung, wenn kompatible NVIDIA-Hardware verfügbar ist.",
+          "6": "Wenn unter Linux ausdrücklich eine kleinere reine CPU-Installation erforderlich ist, verwenden Sie --torch-backend cpu. Behalten Sie andernfalls die automatische Standardauswahl bei, damit CUDA-Beschleunigung verwendet wird, wenn sie unterstützt wird.",
+          "8": "Unter Preferences gibt es genau einen Selektor Performance level mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Ressourcenreihenfolge. Wählen Sie das Profil für diesen Computer; es ändert Cache, Worker-Grenzen, Bereinigung und Animationsdetails, aber nicht wissenschaftliche Einstellungen oder Ergebnisse."
+        }},
+        "sv": {"narrations": {
+          "1": "De resurssnåla, plattformsspecifika installationsprogrammen skapar en privat Python 3.12-körmiljö och hämtar sedan Qt, PyTorch, spaCR och dess beroenden.",
+          "3": "I Windows 10 eller 11 öppnar du installationsfilen online. Automatisk maskinvaruacceleration är vald som standard och installerar CUDA-stöd på kompatibel NVIDIA-maskinvara. Avmarkera komponenten endast om du behöver en mindre installation enbart för CPU.",
+          "5": "I 64-bitars Linux gör du den hämtade .run-filen körbar och startar den sedan från en terminal. Den automatiska backend-väljaren är standard och installerar CUDA-stöd när kompatibel NVIDIA-maskinvara finns.",
+          "6": "Om du måste ha en mindre Linux-installation enbart för CPU anger du --torch-backend cpu. Behåll annars det automatiska standardvalet så att CUDA-acceleration används när den stöds.",
+          "8": "I Preferences finns en enda väljare för Performance level med Laptop, Extra Performance, Performance, Balanced och Workstation i stigande resursordning. Välj profilen för den här datorn; den ändrar cache, arbetargränser, rensning och animationsdetaljer, men inte vetenskapliga inställningar eller resultat."
+        }},
+        "is": {"narrations": {
+          "1": "Léttu innbyggðu uppsetningarforritin búa til einkarekinn Python 3.12 keyrsluumhverfi og sækja síðan Qt, PyTorch, spaCR og hugbúnaðarhæði þess.",
+          "3": "Í Windows 10 eða 11 skaltu opna netuppsetningarskrána. Sjálfvirk vélbúnaðarhröðun er valin sjálfgefið og setur upp CUDA-stuðning á samhæfum NVIDIA-vélbúnaði. Afveldu hana aðeins ef minni uppsetning eingöngu fyrir CPU er nauðsynleg.",
+          "5": "Í 64-bita Linux skaltu gera sóttu .run-skrána keyranlega og ræsa hana úr skipanalínu. Sjálfvirkt val á backend er sjálfgefið og setur upp CUDA-stuðning þegar samhæft NVIDIA-vélbúnaður er tiltækur.",
+          "6": "Ef krafist er minni Linux-uppsetningar eingöngu fyrir CPU skaltu nota --torch-backend cpu. Annars skaltu halda sjálfvirka sjálfgefna valinu svo CUDA-hröðun sé notuð þegar hún er studd.",
+          "8": "Í Preferences er einn valkostur fyrir Performance level með Laptop, Extra Performance, Performance, Balanced og Workstation í vaxandi röð auðlindanotkunar. Veldu snið fyrir þessa tölvu; það breytir skyndiminni, vinnsluþráðum, hreinsun og smáatriðum hreyfimynda, en ekki vísindalegum stillingum eða niðurstöðum."
+        }},
+        "nb": {"narrations": {
+          "1": "De lette, plattformtilpassede installasjonsprogrammene oppretter et privat Python 3.12-kjøremiljø og laster deretter ned Qt, PyTorch, spaCR og avhengighetene.",
+          "3": "I Windows 10 eller 11 åpner du den nettbaserte installasjonsfilen. Automatisk maskinvareakselerasjon er valgt som standard og installerer CUDA-støtte på kompatibel NVIDIA-maskinvare. Fjern valget bare hvis du trenger en mindre installasjon som bare bruker CPU.",
+          "5": "I 64-biters Linux gjør du den nedlastede .run-filen kjørbar og starter den fra en terminal. Automatisk backend-valg er standard og installerer CUDA-støtte når kompatibel NVIDIA-maskinvare er tilgjengelig.",
+          "6": "Hvis du må ha en mindre Linux-installasjon som bare bruker CPU, angir du --torch-backend cpu. Ellers beholder du det automatiske standardvalget slik at CUDA-akselerasjon brukes når det støttes.",
+          "8": "I Preferences finnes én velger for Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressursrekkefølge. Velg profilen for denne datamaskinen; den endrer hurtigbuffer, arbeidergrenser, opprydding og animasjonsdetaljer, men ikke vitenskapelige innstillinger eller resultater."
+        }},
+        "ko": {"narrations": {
+          "1": "경량 플랫폼별 설치 프로그램은 전용 Python 3.12 실행 환경을 만든 다음 Qt, PyTorch, spaCR 및 종속 패키지를 내려받습니다.",
+          "3": "Windows 10 또는 11에서는 온라인 설치 실행 파일을 여십시오. 자동 하드웨어 가속이 기본으로 선택되며 호환되는 NVIDIA 하드웨어에 CUDA 지원을 설치합니다. 더 작은 CPU-only 설치가 필요한 경우에만 이 구성 요소의 선택을 해제하십시오.",
+          "5": "64-bit Linux에서는 내려받은 .run 파일에 실행 권한을 부여한 다음 터미널에서 시작하십시오. 자동 backend 선택이 기본이며, 호환되는 NVIDIA 하드웨어가 있으면 CUDA 지원을 설치합니다.",
+          "6": "Linux에서 더 작은 CPU-only 설치가 반드시 필요하면 --torch-backend cpu를 지정하십시오. 그렇지 않으면 지원되는 환경에서 CUDA 가속을 사용하도록 기본 자동 선택을 유지하십시오.",
+          "8": "Preferences에는 리소스 사용량이 낮은 순서대로 Laptop, Extra Performance, Performance, Balanced, Workstation을 제공하는 하나의 Performance level 선택기가 있습니다. 이 컴퓨터에 맞는 프로필을 선택하십시오. 캐시, 작업자 수 제한, 정리 방식, 애니메이션 세부 수준은 바뀌지만 과학 설정이나 결과는 바뀌지 않습니다."
+        }},
+        "da": {"narrations": {
+          "1": "De lette, platformspecifikke installationsprogrammer opretter et privat Python 3.12-kørselsmiljø og henter derefter Qt, PyTorch, spaCR og dets afhængigheder.",
+          "3": "I Windows 10 eller 11 åbner du onlineinstallationsfilen. Automatisk hardwareacceleration er valgt som standard og installerer CUDA-understøttelse på kompatibel NVIDIA-hardware. Fravælg kun komponenten, hvis du har brug for en mindre installation, der kun bruger CPU.",
+          "5": "I 64-bit Linux gør du den hentede .run-fil kørbar og starter den fra en terminal. Automatisk backend-valg er standard og installerer CUDA-understøttelse, når kompatibel NVIDIA-hardware er tilgængelig.",
+          "6": "Hvis du kræver en mindre Linux-installation, der kun bruger CPU, skal du angive --torch-backend cpu. Ellers skal du beholde det automatiske standardvalg, så CUDA-acceleration bruges, når det understøttes.",
+          "8": "I Preferences findes én vælger til Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressourceorden. Vælg profilen til denne computer; den ændrer cache, worker-grænser, oprydning og animationsdetaljer, men ikke videnskabelige indstillinger eller resultater."
+        }}
+      }
+    },
+    "05_home": {
+      "languages": {
+        "de": {"narrations": [
+          "Wenn alle Reifestufen sichtbar sind, zeigt Home alle vierundvierzig registrierten spaCR-Module. Die Registerkarte Home gruppiert sie unter Core, Data, Results & QC, Explore, Assays und Design; jede Kategorie-Registerkarte filtert dasselbe Register.",
+          "Über die linke Seitenleiste sind Home und die sichtbaren Core-Module direkt erreichbar. Wenn alle Reifestufen aktiviert sind, ist dies die sechsstufige Core-Abfolge. Wählen Sie eine Kategorieüberschrift aus, um die übrigen sichtbaren Module einzublenden.",
+          "Das Core-Band folgt der Arbeitsablaufreihenfolge: Mask, Measure, Annotate, Classify, Map Barcodes und Regression. Bewegen Sie den Mauszeiger über eine Kachel, um die Modulbeschreibung und die Reifestufenfarbe Alpha, Beta oder Stable anzuzeigen. Unter Preferences können Sie Alpha- oder Beta-Module in Home und der Navigation ausblenden; Stable-Module bleiben sichtbar.",
+          "Unter Preferences gibt es genau einen Selektor Performance level mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Ressourcenreihenfolge. Wählen Sie das Profil für diesen Computer; es ändert Cache, Worker-Grenzen, Bereinigung und Animationsdetails, aber nicht wissenschaftliche Einstellungen oder Ergebnisse.",
+          "Wählen Sie eine Modulkachel aus, um den Einstellungsbildschirm zu öffnen. Modulname und Beschreibung am oberen Rand bestätigen, welcher Arbeitsablauf aktiv ist."
+        ]},
+        "sv": {"narrations": [
+          "När alla mognadsnivåer visas innehåller Home alla fyrtiofyra registrerade spaCR-moduler. Fliken Home grupperar dem under Core, Data, Results & QC, Explore, Assays och Design; varje kategoriflik filtrerar samma register.",
+          "I den vänstra sidopanelen är Home och de synliga Core-modulerna direkt tillgängliga. När alla mognadsnivåer är aktiverade är detta Core-sekvensens sex steg. Välj en kategorirubrik för att fälla ut de återstående synliga modulerna.",
+          "Core-bandet följer arbetsflödets ordning: Mask, Measure, Annotate, Classify, Map Barcodes och Regression. Håll pekaren över en panel för att visa modulbeskrivningen och dess mognadsfärg Alpha, Beta eller Stable. I Preferences kan Alpha- eller Beta-moduler döljas från Home och navigeringen; Stable-moduler förblir synliga.",
+          "I Preferences finns en enda väljare för Performance level med Laptop, Extra Performance, Performance, Balanced och Workstation i stigande resursordning. Välj profilen för den här datorn; den ändrar cache, arbetargränser, rensning och animationsdetaljer, men inte vetenskapliga inställningar eller resultat.",
+          "Välj en modulpanel för att öppna dess inställningsskärm. Modulens namn och beskrivning högst upp bekräftar vilket arbetsflöde som är aktivt."
+        ]},
+        "is": {"narrations": [
+          "Þegar öll þroskastig eru sýnileg birtir Home allar fjörutíu og fjórar skráðar spaCR-einingar. Home-flipinn flokkar þær undir Core, Data, Results & QC, Explore, Assays og Design; hver flokkaflipi síar sömu skrá.",
+          "Í vinstri hliðarstikunni eru Home og sýnilegu Core-einingarnar beint aðgengilegar. Þegar öll þroskastig eru virk er þetta sex þrepa Core-röðin. Veldu flokkafyrirsögn til að opna þær sýnilegu einingar sem eftir eru.",
+          "Core-bandið fylgir verkflæðisröðinni: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Haltu bendlinum yfir einingareit til að sjá lýsingu einingarinnar og þroskalit hennar, Alpha, Beta eða Stable. Í Preferences má fela Alpha- eða Beta-einingar á Home og í yfirlitsstikunni; Stable-einingar eru áfram sýnilegar.",
+          "Í Preferences er einn valkostur fyrir Performance level með Laptop, Extra Performance, Performance, Balanced og Workstation í vaxandi röð auðlindanotkunar. Veldu snið fyrir þessa tölvu; það breytir skyndiminni, vinnsluþráðum, hreinsun og smáatriðum hreyfimynda, en ekki vísindalegum stillingum eða niðurstöðum.",
+          "Veldu einingareit til að opna stillingaskjáinn. Heiti og lýsing einingarinnar efst staðfesta hvaða verkflæði er virkt."
+        ]},
+        "nb": {"narrations": [
+          "Når alle modenhetsnivåer er synlige, viser Home alle førtifire registrerte spaCR-moduler. Fanen Home grupperer dem under Core, Data, Results & QC, Explore, Assays og Design; hver kategorifane filtrerer det samme registeret.",
+          "I venstre sidefelt er Home og de synlige Core-modulene direkte tilgjengelige. Når alle modenhetsnivåer er aktivert, er dette Core-sekvensens seks trinn. Velg en kategorioverskrift for å utvide de resterende synlige modulene.",
+          "Core-båndet følger arbeidsflytrekkefølgen: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Hold pekeren over en flis for å vise modulbeskrivelsen og modenhetsfargen Alpha, Beta eller Stable. I Preferences kan Alpha- eller Beta-moduler skjules fra Home og navigasjonen; Stable-moduler forblir synlige.",
+          "I Preferences finnes én velger for Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressursrekkefølge. Velg profilen for denne datamaskinen; den endrer hurtigbuffer, arbeidergrenser, opprydding og animasjonsdetaljer, men ikke vitenskapelige innstillinger eller resultater.",
+          "Velg en modulflis for å åpne innstillingsskjermen. Modulnavnet og beskrivelsen øverst bekrefter hvilken arbeidsflyt som er aktiv."
+        ]},
+        "ko": {"narrations": [
+          "모든 성숙도 수준을 표시하면 Home에는 등록된 spaCR 모듈 마흔네 개가 모두 표시됩니다. Home 탭은 이를 Core, Data, Results & QC, Explore, Assays, Design으로 그룹화하며 각 범주 탭은 같은 모듈 목록을 필터링합니다.",
+          "왼쪽 사이드바에서는 Home과 현재 표시되는 Core 모듈에 바로 접근할 수 있습니다. 모든 성숙도 수준을 활성화하면 여섯 단계의 Core 순서가 모두 표시됩니다. 범주 제목을 선택하면 나머지 표시 대상 모듈이 펼쳐집니다.",
+          "Core 영역은 Mask, Measure, Annotate, Classify, Map Barcodes, Regression의 워크플로 순서를 따릅니다. 타일 위에 포인터를 놓으면 모듈 설명과 Alpha, Beta 또는 Stable 성숙도 색상이 표시됩니다. Preferences에서 Alpha 또는 Beta 모듈을 Home과 탐색 메뉴에서 숨길 수 있으며 Stable 모듈은 계속 표시됩니다.",
+          "Preferences에는 리소스 사용량이 낮은 순서대로 Laptop, Extra Performance, Performance, Balanced, Workstation을 제공하는 하나의 Performance level 선택기가 있습니다. 이 컴퓨터에 맞는 프로필을 선택하십시오. 캐시, 작업자 수 제한, 정리 방식, 애니메이션 세부 수준은 바뀌지만 과학 설정이나 결과는 바뀌지 않습니다.",
+          "모듈 타일을 선택하여 설정 화면을 여십시오. 상단의 모듈 이름과 설명으로 현재 활성화된 워크플로를 확인할 수 있습니다."
+        ]},
+        "da": {"narrations": [
+          "Når alle modenhedsniveauer er synlige, viser Home alle fireogfyrre registrerede spaCR-moduler. Fanen Home grupperer dem under Core, Data, Results & QC, Explore, Assays og Design; hver kategorifane filtrerer det samme register.",
+          "I venstre sidepanel er Home og de synlige Core-moduler direkte tilgængelige. Når alle modenhedsniveauer er aktiveret, er dette Core-sekvensens seks trin. Vælg en kategorioverskrift for at folde de resterende synlige moduler ud.",
+          "Core-båndet følger arbejdsgangens rækkefølge: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Hold markøren over et felt for at vise modulbeskrivelsen og modenhedsfarven Alpha, Beta eller Stable. I Preferences kan Alpha- eller Beta-moduler skjules fra Home og navigationen; Stable-moduler forbliver synlige.",
+          "I Preferences findes én vælger til Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressourceorden. Vælg profilen til denne computer; den ændrer cache, worker-grænser, oprydning og animationsdetaljer, men ikke videnskabelige indstillinger eller resultater.",
+          "Vælg et modulfelt for at åbne indstillingsskærmen. Modulnavnet og beskrivelsen øverst bekræfter, hvilken arbejdsgang der er aktiv."
+        ]}
+      }
+    }
+  }
+}

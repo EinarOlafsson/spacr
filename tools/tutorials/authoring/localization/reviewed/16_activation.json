@@ -1,0 +1,75 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "16_activation",
+    "scene_count": 10,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete attribution workflow, exact method and interface labels, training-compatibility requirements, validation controls, and bounded biological interpretation."
+  },
+  "languages": {
+    "es": {
+      "description": "Examine qué regiones de la imagen influyen en un clasificador de visión entrenado y compruebe si esas explicaciones son creíbles.",
+      "prerequisite": "Entrene y valide un clasificador de visión, y conserve los metadatos exactos de los recortes, los canales, la arquitectura y el preprocesamiento.",
+      "objectives": [
+        "Hacer corresponder la ejecución de atribución con el modelo entrenado y sus entradas.",
+        "Seleccionar un método de atribución con controles de validación adecuados.",
+        "Interpretar los mapas en ejemplos representativos, tanto correctos como incorrectos."
+      ],
+      "narrations": [
+        "Activation Maps identifica qué regiones de la imagen influyen en la predicción de un modelo de visión. La consola registra la carga de artefactos, los lotes de atribución, el progreso, los resultados y la información de reproducibilidad.",
+        "Model and Data permite seleccionar el archivo de recortes, el artefacto entrenado, la arquitectura, el tamaño de entrada, el tipo de objeto y el orden de los canales. Estos elementos deben coincidir con el entrenamiento; de lo contrario, todas las atribuciones serán inválidas.",
+        "Essentials contiene los controles necesarios para una primera ejecución. Utilice Modified para revisar los cambios, All para acceder a los controles de validación y cuantificación, y Recipes para realizar comparaciones reproducibles.",
+        "Attribution Method permite elegir Grad-CAM, mapas de saliencia, gradientes integrados, oclusión u otro método registrado, además de las capas o los controles de muestreo compatibles.",
+        "Attribution Validation proporciona comprobaciones de eliminación, inserción, referencia y aleatorización del modelo. Un mapa visualmente atractivo no resulta útil si permanece inalterado después de destruir la información del modelo.",
+        "Map Display aplica un preprocesamiento de entrada compatible con el entrenamiento y controla las superposiciones y las cuadrículas. El contraste de visualización modifica la presentación, no la evidencia de que el modelo haya aprendido una señal biológica válida.",
+        "Map Quantification puede comparar los canales de entrada con la intensidad de atribución y guardar esos resúmenes. Actívela únicamente cuando la estadística responda a una pregunta definida.",
+        "Hyperparameter Search compara un conjunto pequeño y explícito de métodos de atribución y ajustes de validación. Ordene los ensayos finalizados considerando conjuntamente las pruebas de eliminación, inserción, pointing game y coherencia; ninguna puntuación aislada demuestra que una explicación sea biológicamente correcta.",
+        "Run valida el modelo y los recortes, reproduce el preprocesamiento del entrenamiento, calcula las predicciones y los mapas, genera las cuadrículas solicitadas y registra los ajustes.",
+        "Examine los mapas de ejemplos correctos, incorrectos, de alta confianza y de baja confianza junto con las comprobaciones de validación. Extraiga conclusiones biológicas únicamente a partir de un clasificador entrenado y validado."
+      ]
+    },
+    "fr": {
+      "description": "Examinez les régions de l’image qui influencent un classificateur de vision entraîné et vérifiez si ces explications sont crédibles.",
+      "prerequisite": "Entraînez et validez un classificateur de vision, puis conservez les métadonnées exactes des vignettes, des canaux, de l’architecture et du prétraitement.",
+      "objectives": [
+        "Faire correspondre l’exécution d’attribution au modèle entraîné et à ses entrées.",
+        "Sélectionner une méthode d’attribution assortie de contrôles de validation appropriés.",
+        "Interpréter les cartes sur des exemples représentatifs, corrects comme incorrects."
+      ],
+      "narrations": [
+        "Activation Maps détermine les régions de l’image qui influencent la prédiction d’un modèle de vision. La console consigne le chargement des artefacts, les lots d’attribution, la progression, les résultats et les informations de reproductibilité.",
+        "Model and Data permet de sélectionner l’archive de vignettes, l’artefact entraîné, l’architecture, la taille d’entrée, le type d’objet et l’ordre des canaux. Ces éléments doivent correspondre à l’entraînement, faute de quoi toutes les attributions sont invalides.",
+        "Essentials contient les commandes nécessaires à une première exécution. Utilisez Modified pour contrôler les changements, All pour accéder aux commandes de validation et de quantification, et Recipes pour réaliser des comparaisons reproductibles.",
+        "Attribution Method permet de choisir Grad-CAM, les cartes de saillance, les gradients intégrés, l’occlusion ou une autre méthode enregistrée, ainsi que toute couche ou commande d’échantillonnage compatible.",
+        "Attribution Validation fournit des contrôles de suppression, d’insertion, de référence et de randomisation du modèle. Une carte visuellement agréable n’est pas utile si elle reste inchangée après la destruction des informations du modèle.",
+        "Map Display applique un prétraitement des entrées compatible avec l’entraînement et contrôle les superpositions et les grilles. Le contraste d’affichage modifie la présentation, et non les preuves que le modèle a appris un signal biologique valide.",
+        "Map Quantification peut comparer les canaux d’entrée à l’intensité d’attribution et enregistrer ces résumés. Ne l’activez que lorsque la statistique répond à une question définie.",
+        "Hyperparameter Search compare un ensemble restreint et explicite de méthodes d’attribution et de paramètres de validation. Classez les essais terminés en considérant conjointement les tests de suppression, d’insertion, de pointage et de cohérence ; aucun score isolé ne prouve qu’une explication est biologiquement correcte.",
+        "Run valide le modèle et les vignettes, reproduit le prétraitement de l’entraînement, calcule les prédictions et les cartes, génère les grilles demandées et consigne les paramètres.",
+        "Examinez les cartes d’exemples corrects, incorrects, très fiables et peu fiables en même temps que les contrôles de validation. Ne tirez de conclusions biologiques qu’à partir d’un classificateur entraîné et validé."
+      ]
+    },
+    "it": {
+      "description": "Esamina quali regioni dell’immagine influenzano un classificatore di visione addestrato e verifica se tali spiegazioni sono credibili.",
+      "prerequisite": "Addestra e convalida un classificatore di visione, quindi conserva i metadati esatti relativi ai ritagli, ai canali, all’architettura e alla pre-elaborazione.",
+      "objectives": [
+        "Far corrispondere l’esecuzione dell’attribuzione al modello addestrato e ai relativi input.",
+        "Selezionare un metodo di attribuzione con controlli di convalida adeguati.",
+        "Interpretare le mappe su esempi rappresentativi, corretti e non corretti."
+      ],
+      "narrations": [
+        "Activation Maps individua le regioni dell’immagine che influenzano la previsione di un modello di visione. La console registra il caricamento degli artefatti, i batch di attribuzione, l’avanzamento, i risultati e le informazioni sulla riproducibilità.",
+        "Model and Data consente di selezionare l’archivio dei ritagli, l’artefatto addestrato, l’architettura, la dimensione di input, il tipo di oggetto e l’ordine dei canali. Questi elementi devono corrispondere all’addestramento, altrimenti tutte le attribuzioni non sono valide.",
+        "Essentials contiene i controlli necessari per una prima esecuzione. Usa Modified per verificare le modifiche, All per accedere ai controlli di convalida e quantificazione e Recipes per eseguire confronti riproducibili.",
+        "Attribution Method consente di scegliere Grad-CAM, mappe di salienza, gradienti integrati, occlusione o un altro metodo registrato, insieme agli eventuali livelli o controlli di campionamento compatibili.",
+        "Attribution Validation fornisce controlli di eliminazione, inserimento, riferimento e randomizzazione del modello. Una mappa visivamente gradevole non è utile se rimane invariata dopo la distruzione delle informazioni del modello.",
+        "Map Display applica una pre-elaborazione dell’input compatibile con l’addestramento e controlla sovrapposizioni e griglie. Il contrasto di visualizzazione modifica la presentazione, non le prove che il modello abbia appreso un segnale biologico valido.",
+        "Map Quantification può confrontare i canali di input con l’intensità di attribuzione e salvare tali riepiloghi. Attivala soltanto quando la statistica risponde a una domanda definita.",
+        "Hyperparameter Search confronta un insieme piccolo ed esplicito di metodi di attribuzione e impostazioni di convalida. Ordina le prove completate considerando insieme i test di eliminazione, inserimento, puntamento e coerenza; nessun singolo punteggio dimostra che una spiegazione sia biologicamente corretta.",
+        "Run convalida il modello e i ritagli, ricrea la pre-elaborazione dell’addestramento, calcola previsioni e mappe, genera le griglie richieste e registra le impostazioni.",
+        "Esamina le mappe di esempi corretti, errati, ad alta fiducia e a bassa fiducia insieme ai controlli di convalida. Trai conclusioni biologiche solo da un classificatore addestrato e convalidato."
+      ]
+    }
+  }
+}

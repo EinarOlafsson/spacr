@@ -1,0 +1,75 @@
+{
+  "_meta": {"schema": 1, "lesson_id": "73_parameter_sweep", "scene_count": 5, "source_language": "en", "reviewed_date": "2026-08-15", "review_scope": "Natural narration, scientific terminology, and exact workflow semantics."},
+  "languages": {
+    "es": {
+      "description": "Ejecute una exploración limitada de configuraciones de regresión y compare qué conclusiones se mantienen ante opciones de análisis defendibles.",
+      "narrations": [
+        "Este tutorial presenta Parameter Sweep. Ejecute una exploración limitada de configuraciones de regresión y compare qué conclusiones se mantienen ante opciones de análisis defendibles.",
+        "Empareje los archivos CSV de puntuaciones por objeto y de recuentos de guías de cada placa. Elija la columna de respuesta y configure una carpeta de salida independiente.",
+        "En el área principal de configuración, elija los ejes que variarán, fije todos los demás valores, seleccione muestreo en cuadrícula o aleatorio, limite el número de ensayos, registre la semilla y acepte el límite de procesos impuesto por la memoria.",
+        "Use primero Estimate para comprobar el tamaño y el coste de la búsqueda permitida. Después, inicie una exploración pequeña y limitada y supervise los ensayos terminados, rechazados y fallidos.",
+        "Cuando finaliza el flujo de trabajo, la tabla de resultados reanudable registra la configuración, el estado, el número de descubrimientos, la posición de los controles positivos, la duración, la carpeta de salida y el motivo del fallo de cada ensayo."
+      ]
+    },
+    "fr": {
+      "description": "Exécutez une exploration limitée des paramètres de régression et comparez les conclusions qui résistent à des choix d’analyse défendables.",
+      "narrations": [
+        "Ce tutoriel présente Parameter Sweep. Exécutez une exploration limitée des paramètres de régression et comparez les conclusions qui résistent à des choix d’analyse défendables.",
+        "Associez, pour chaque plaque, le fichier CSV des scores par objet et celui des comptages de guides. Choisissez la colonne de réponse et définissez un dossier de sortie distinct.",
+        "Dans la zone de configuration principale, choisissez les axes à faire varier, fixez toutes les autres valeurs, sélectionnez un échantillonnage en grille ou aléatoire, limitez le nombre d’essais, enregistrez la graine et acceptez la limite de processus imposée par la mémoire.",
+        "Utilisez d’abord Estimate pour vérifier la taille et le coût de la recherche autorisée. Lancez ensuite une petite exploration limitée et suivez les essais réussis, rejetés et échoués.",
+        "À la fin du flux de travail, la table de résultats reprenable consigne, pour chaque essai, les paramètres, l’état, le nombre de découvertes, le classement des contrôles positifs, la durée, le dossier de sortie et la cause de l’échec."
+      ]
+    },
+    "hi": {
+      "description": "रिग्रेशन कॉन्फ़िगरेशन की सीमित खोज चलाएँ और तुलना करें कि उचित विश्लेषण विकल्पों के बीच कौन-से निष्कर्ष स्थिर रहते हैं।",
+      "narrations": [
+        "यह ट्यूटोरियल Parameter Sweep का परिचय देता है। रिग्रेशन कॉन्फ़िगरेशन की सीमित खोज चलाएँ और तुलना करें कि उचित विश्लेषण विकल्पों के बीच कौन-से निष्कर्ष स्थिर रहते हैं।",
+        "हर प्लेट के लिए प्रति-ऑब्जेक्ट स्कोर और गाइड गणना वाली CSV फ़ाइलें जोड़ें। प्रतिक्रिया कॉलम चुनें और अलग आउटपुट फ़ोल्डर निर्धारित करें।",
+        "मुख्य कॉन्फ़िगरेशन क्षेत्र में बदलने वाले अक्ष चुनें, बाकी सभी मान स्थिर रखें, ग्रिड या यादृच्छिक नमूना चुनें, परीक्षणों की संख्या सीमित करें, बीज दर्ज करें और मेमोरी के अनुसार कार्यकर्ताओं की सीमा स्वीकार करें।",
+        "अनुमत खोज का आकार और लागत देखने के लिए पहले Estimate का उपयोग करें। फिर एक छोटी सीमित खोज शुरू करें और सफल, अस्वीकृत तथा विफल परीक्षणों की निगरानी करें।",
+        "कार्यप्रवाह पूरा होने पर दोबारा शुरू की जा सकने वाली परिणाम तालिका हर परीक्षण की सेटिंग, स्थिति, खोजों की संख्या, सकारात्मक नियंत्रणों की रैंक, अवधि, आउटपुट फ़ोल्डर और विफलता का कारण दर्ज करती है।"
+      ]
+    },
+    "it": {
+      "description": "Esegui un’esplorazione limitata delle configurazioni di regressione e confronta quali conclusioni resistono a scelte di analisi giustificabili.",
+      "narrations": [
+        "Questo tutorial presenta Parameter Sweep. Esegui un’esplorazione limitata delle configurazioni di regressione e confronta quali conclusioni resistono a scelte di analisi giustificabili.",
+        "Abbina, per ogni piastra, il file CSV dei punteggi per oggetto e quello dei conteggi delle guide. Scegli la colonna di risposta e imposta una cartella di output separata.",
+        "Nell’area di configurazione principale, scegli gli assi da variare, mantieni fissi tutti gli altri valori, seleziona un campionamento a griglia o casuale, limita il numero di prove, registra il seme e accetta il limite di processi imposto dalla memoria.",
+        "Usa prima Estimate per controllare la dimensione e il costo della ricerca consentita. Avvia quindi una piccola esplorazione limitata e monitora le prove riuscite, rifiutate e fallite.",
+        "Al termine del flusso di lavoro, la tabella dei risultati riprendibile registra, per ogni prova, le impostazioni, lo stato, il numero di scoperte, la posizione dei controlli positivi, la durata, la cartella di output e il motivo dell’errore."
+      ]
+    },
+    "pt-BR": {
+      "description": "Execute uma exploração limitada das configurações de regressão e compare quais conclusões permanecem diante de escolhas de análise defensáveis.",
+      "narrations": [
+        "Este tutorial apresenta o Parameter Sweep. Execute uma exploração limitada das configurações de regressão e compare quais conclusões permanecem diante de escolhas de análise defensáveis.",
+        "Associe, para cada placa, o arquivo CSV de pontuações por objeto ao arquivo de contagens de guias. Escolha a coluna de resposta e configure uma pasta de saída separada.",
+        "Na área principal de configuração, escolha os eixos que vão variar, mantenha todos os outros valores fixos, selecione amostragem em grade ou aleatória, limite o número de ensaios, registre a semente e aceite o limite de processos imposto pela memória.",
+        "Use primeiro Estimate para verificar o tamanho e o custo da busca permitida. Em seguida, inicie uma exploração pequena e limitada e acompanhe os ensaios concluídos, rejeitados e malsucedidos.",
+        "Quando o fluxo de trabalho termina, a tabela de resultados retomável registra, para cada ensaio, as configurações, o estado, o número de descobertas, a posição dos controles positivos, a duração, a pasta de saída e o motivo da falha."
+      ]
+    },
+    "ja": {
+      "description": "回帰設定を限定的に探索し、妥当な解析条件を変えても維持される結論を比較します。",
+      "narrations": [
+        "このチュートリアルでは Parameter Sweep を説明します。回帰設定を限定的に探索し、妥当な解析条件を変えても維持される結論を比較します。",
+        "プレートごとに、オブジェクト単位のスコアとガイド数を記録した CSV ファイルを組み合わせます。応答列を選択し、専用の出力フォルダーを設定します。",
+        "メインの設定領域で、変化させる軸を選び、その他の値を固定します。グリッド探索またはランダム探索を選択し、試行数に上限を設け、乱数シードを記録して、メモリに基づく並列処理数の上限を確認します。",
+        "まず Estimate を使って、許可された探索の規模と費用を確認します。次に小規模で上限のある探索を開始し、完了、却下、失敗した各試行を監視します。",
+        "ワークフローが完了すると、再開可能な結果表に、各試行の設定、状態、発見数、陽性対照の順位、所要時間、出力フォルダー、失敗理由が記録されます。"
+      ]
+    },
+    "zh-CN": {
+      "description": "对回归配置进行有限的参数探索，并比较哪些结论能在合理的分析选择下保持稳定。",
+      "narrations": [
+        "本教程介绍 Parameter Sweep。对回归配置进行有限的参数探索，并比较哪些结论能在合理的分析选择下保持稳定。",
+        "请为每块板配对逐对象分数 CSV 文件和向导计数 CSV 文件，选择响应列，并设置独立的输出文件夹。",
+        "在主配置区域中，选择要变化的参数轴，固定其他所有值，选择网格或随机采样，限制试验数量，记录随机种子，并接受由内存决定的工作进程上限。",
+        "先使用 Estimate 检查允许搜索的规模和成本，然后开始一次小型、有限的参数探索，并监控成功、被拒绝和失败的试验。",
+        "工作流程完成后，可恢复的结果表会记录每次试验的设置、状态、发现数量、阳性对照排名、耗时、输出文件夹和失败原因。"
+      ]
+    }
+  }
+}

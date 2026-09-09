@@ -1,0 +1,100 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "13_regression",
+    "scene_count": 11,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Current seven-category workflow, statistical terminology, and natural scientific narration."
+  },
+  "languages": {
+    "hi": {
+      "description": "पूल्ड स्क्रीन में गाइड की प्रचुरता को फीनोटाइप मापों से जोड़ने के लिए ब्लॉक-आधारित परम्युटेशन परीक्षण या समकालिक रिग्रेशन का उपयोग करें, फिर समर्थन, निदान और प्रभाव के अनुमानों की जाँच करें।",
+      "prerequisite": "बारकोड मैपिंग पूरी करें और समान प्लेट तथा वेल पहचानकर्ताओं वाली फीनोटाइप और गाइड-काउंट तालिकाएँ तैयार करें।",
+      "objectives": [
+        "फीनोटाइप, गाइड-काउंट और नियंत्रण संबंधी जानकारी को सही ढंग से संरेखित करें।",
+        "उपयुक्त अनुमान-विधि, सुधार और साक्ष्य नियम चुनें।",
+        "नियंत्रणों और निदान परिणामों के साथ प्रभावों की व्याख्या करें।"
+      ],
+      "narrations": [
+        "Regression फीनोटाइप स्कोर को अनुक्रमण से प्राप्त गाइड की प्रचुरता से जोड़ता है। कंसोल तालिकाओं का संरेखण, फ़िल्टरिंग, चुनी गई अनुमान-विधि, निदान, परिणाम और पुनरुत्पादकता अभिलेख दिखाता है।",
+        "Input Tables में फीनोटाइप स्कोर, अनुक्रमण काउंट, वैकल्पिक जीन मेटाडेटा और परिणामों का गंतव्य चुना जाता है। गंतव्य खाली छोड़ने पर परिणाम पहली काउंट तालिका के पास लिखे जाते हैं; विश्लेषण से पहले प्लेट और वेल पहचानकर्ताओं का मेल सुनिश्चित करें।",
+        "Essentials में पहले विश्लेषण के लिए आवश्यक इनपुट और अनुमान-विधि के नियंत्रण होते हैं। जानबूझकर किए गए परिवर्तनों की जाँच के लिए Modified, उन्नत नियंत्रण देखने के लिए All और पुन: उपयोग योग्य डिज़ाइन सहेजने के लिए Recipes का उपयोग करें।",
+        "Controls and Filters सकारात्मक, नकारात्मक और तटस्थ नियंत्रण निर्धारित करता है; निर्दिष्ट गाइड, वेल या तालिका पंक्तियों को बाहर करता है; और उन साक्ष्य तथा सामान्यीकरण नियमों को तय करता है जिनसे विश्लेषण में शामिल प्रेक्षण चुने जाते हैं।",
+        "Plate and Batch Correction केंद्रीकरण, मजबूत स्केलिंग, संदर्भ नियंत्रण या बैच मॉडल द्वारा तकनीकी विचलन हटा सकता है। सुधार तभी लागू करें जब प्रयोगात्मक डिज़ाइन उसका समर्थन करता हो।",
+        "Response में फीनोटाइप कॉलम, विश्लेषण इकाई, एकत्रीकरण, वैकल्पिक दिशा-परिवर्तन और रूपांतरण चुने जाते हैं। ये विकल्प उस मात्रा को परिभाषित करते हैं जिसे गाइड की प्रचुरता से संबद्ध किया जाएगा।",
+        "Model and Inference में नॉनपैरामीट्रिक गाइड परीक्षण, पैरामीट्रिक समकालिक रिग्रेशन या स्वचालित चयन चुना जाता है। इसमें रिपोर्टिंग स्तर, लागू होने पर मॉडल परिवार, बहु-परीक्षण सुधार और सांख्यिकीय महत्व का नियम भी निर्धारित होता है।",
+        "Estimator Tuning में सहप्रसरण, नियमितीकरण, मजबूत फ़िट, क्वांटाइल, बूटस्ट्रैप और रैंक-एग्रीगेशन के नियंत्रण होते हैं। केवल चुने गए एस्टीमेटर द्वारा उपयोग की जाने वाली सेटिंग्स ही विश्लेषण को प्रभावित करती हैं।",
+        "Permutation Test में गाइड सांख्यिकी, वेल समर्थन की न्यूनतम मात्रा, परम्युटेशन की संख्या और सीड, विनिमेयता ब्लॉक, नुइसेंस चर, उपस्थिति सीमा और मेमोरी-सीमित बैच आकार निर्धारित किए जाते हैं।",
+        "Run तालिकाओं की संरचना और वेल कुंजियों की पुष्टि करता है, बहिष्करण और सुधार लागू करता है, प्रतिक्रिया को एकत्र करता है और चुनी गई अनुमान-विधि चलाता है। डिफ़ॉल्ट नॉनपैरामीट्रिक विधि प्लेट के भीतर ब्लॉक किए गए Freedman–Lane परम्युटेशन का उपयोग करती है और रिग्रेशन मॉडल फ़िट नहीं करती।",
+        "पूरा प्रोजेक्ट संरेखित विश्लेषण डेटा, गाइड और जीन स्तर के प्रभाव अनुमान, अनुभवजन्य या मॉडल-आधारित सांख्यिकीय महत्व की तालिकाएँ, निदान चित्र, सहेजी गई सेटिंग्स और दोबारा चलाने योग्य मैनिफेस्ट रखता है।"
+      ]
+    },
+    "ja": {
+      "description": "プール型スクリーニングのガイド量と測定済み表現型を、ブロック化置換検定または同時回帰で関連付け、支持度、診断結果、効果推定値を確認します。",
+      "prerequisite": "バーコードマッピングを完了し、プレート ID とウェル ID が一致する表現型テーブルとガイドカウントテーブルを準備してください。",
+      "objectives": [
+        "表現型、ガイドカウント、対照情報を正しく対応付ける。",
+        "妥当な推測法、補正法、エビデンス基準を選択する。",
+        "対照と診断結果を踏まえて効果を解釈する。"
+      ],
+      "narrations": [
+        "Regression は、表現型スコアとシーケンシングで得たガイド量を関連付けます。コンソールには、テーブルの対応付け、フィルタリング、選択した推測法、診断結果、解析結果、再現性情報が表示されます。",
+        "Input Tables では、表現型スコア、シーケンシングカウント、任意の遺伝子メタデータ、結果の保存先を選択します。保存先を空欄にすると最初のカウントテーブルと同じ場所に書き込まれます。解析前にプレート ID とウェル ID が一致していることを確認してください。",
+        "Essentials には、最初の解析に必要な入力項目と推測法の設定があります。意図的な変更の確認には Modified、詳細設定の確認には All、再利用できる解析設計の保存には Recipes を使用します。",
+        "Controls and Filters では、陽性、陰性、中立の各対照を指定し、対象外とするガイド、ウェル、テーブル行を設定します。また、解析に含める観測を決めるエビデンス基準と正規化規則も設定します。",
+        "Plate and Batch Correction では、中心化、ロバストスケーリング、参照対照、バッチモデルによって技術的なずれを補正できます。実験計画によって妥当性が確保できる場合にのみ適用してください。",
+        "Response では、表現型列、解析単位、集約方法、任意の符号反転、変換方法を選択します。これらの選択によって、ガイド量との関連を調べる量が定義されます。",
+        "Model and Inference では、ノンパラメトリックなガイド検定、パラメトリックな同時回帰、または自動選択を指定します。さらに、報告レベル、該当する場合のモデル族、多重検定補正、有意性の判定規則を設定します。",
+        "Estimator Tuning には、共分散、正則化、ロバスト推定、分位点回帰、ブートストラップ、順位統合の設定があります。選択した推定法が使用する設定だけが解析結果に影響します。",
+        "Permutation Test では、ガイド統計量、必要なウェル支持数、置換回数とシード、交換可能性ブロック、調整変数、存在判定しきい値、メモリ使用量を抑えるバッチサイズを設定します。",
+        "Run は、テーブル構造とウェルキーを検証し、除外と補正を適用し、応答を集約して、選択した推測法を実行します。既定のノンパラメトリック法は、プレート内でブロック化した Freedman–Lane 置換を使用し、回帰モデルは当てはめません。",
+        "完了したプロジェクトには、対応付け済みの解析データ、ガイドおよび遺伝子レベルの効果推定値、経験的またはモデルに基づく有意性テーブル、診断図、保存済み設定、再実行可能なマニフェストが含まれます。"
+      ]
+    },
+    "pt-BR": {
+      "description": "Relacione a abundância de guias de uma triagem agrupada aos fenótipos medidos usando testes de permutação em blocos ou regressão simultânea; depois, examine o suporte, os diagnósticos e as estimativas de efeito.",
+      "prerequisite": "Conclua o mapeamento de códigos de barras e prepare tabelas de fenótipos e de contagens de guias com identificadores correspondentes de placa e poço.",
+      "objectives": [
+        "Alinhar corretamente as informações de fenótipos, contagens de guias e controles.",
+        "Escolher um procedimento de inferência, uma correção e regras de evidência justificáveis.",
+        "Interpretar os efeitos em conjunto com os controles e os diagnósticos."
+      ],
+      "narrations": [
+        "Regression relaciona os escores fenotípicos à abundância de guias obtida por sequenciamento. O console informa o alinhamento das tabelas, a filtragem, o procedimento de inferência selecionado, os diagnósticos, os resultados e os registros de reprodutibilidade.",
+        "Input Tables seleciona os escores fenotípicos, as contagens de sequenciamento, metadados gênicos opcionais e o destino dos resultados. Deixe o destino vazio para gravar ao lado da primeira tabela de contagens; confirme a correspondência dos identificadores de placa e poço antes da análise.",
+        "Essentials reúne as entradas e os controles de inferência necessários para uma primeira análise. Use Modified para verificar alterações deliberadas, All para examinar controles avançados e Recipes para salvar um desenho reutilizável.",
+        "Controls and Filters identifica controles positivos, negativos e neutros; exclui guias, poços ou linhas de tabela especificados; e define as regras de evidência e normalização que determinam quais observações entram na análise.",
+        "Plate and Batch Correction pode remover desvios técnicos por centralização, escala robusta, controles de referência ou modelos de lote. Aplique a correção somente quando o desenho experimental oferecer suporte para ela.",
+        "Response seleciona a coluna fenotípica, a unidade de análise, a agregação, uma inversão opcional e a transformação. Essas escolhas definem a quantidade que será associada à abundância de guias.",
+        "Model and Inference escolhe entre o teste não paramétrico de guias, a regressão simultânea paramétrica ou a seleção automática. Também define o nível relatado, a família de modelos quando aplicável, a correção de testes múltiplos e a regra de significância.",
+        "Estimator Tuning contém controles de covariância, regularização, ajuste robusto, quantis, bootstrap e agregação de postos. Somente as configurações usadas pelo estimador selecionado afetam a análise.",
+        "Permutation Test configura a estatística de guia, o suporte mínimo de poços, o número e a semente das permutações, o bloco de permutabilidade, as variáveis de ajuste, o limiar de presença e o tamanho de lote limitado pela memória.",
+        "Run valida os esquemas e as chaves de poço, aplica exclusões e correções, agrega a resposta e executa o procedimento de inferência selecionado. O procedimento não paramétrico padrão usa permutações de Freedman–Lane bloqueadas por placa e não ajusta um modelo de regressão.",
+        "O projeto concluído contém dados de análise alinhados, estimativas de efeito nos níveis de guia e gene, tabelas de significância empírica ou baseada em modelo, figuras diagnósticas, configurações salvas e um manifesto que permite repetir a execução."
+      ]
+    },
+    "zh-CN": {
+      "description": "使用分块置换检验或同步回归，将混合筛选中的向导丰度与测得的表型相关联，然后检查支持度、诊断结果和效应估计值。",
+      "prerequisite": "请先完成条形码映射，并准备具有匹配板号和孔号标识符的表型表与向导计数表。",
+      "objectives": [
+        "正确对齐表型、向导计数和对照信息。",
+        "选择有依据的推断方法、校正方法和证据规则。",
+        "结合对照和诊断结果解释效应。"
+      ],
+      "narrations": [
+        "Regression 将表型得分与测序得到的向导丰度相关联。控制台会报告表格对齐、筛选、所选推断方法、诊断结果、分析结果和可重复性记录。",
+        "Input Tables 用于选择表型得分、测序计数、可选的基因元数据和结果保存位置。保存位置留空时，结果会写入第一个计数表所在目录；分析前请确认板号和孔号标识符一致。",
+        "Essentials 包含首次分析所需的输入和推断设置。使用 Modified 核查有意更改的设置，使用 All 查看高级设置，使用 Recipes 保存可重复使用的分析方案。",
+        "Controls and Filters 用于指定阳性、阴性和中性对照，排除指定向导、孔或表格行，并设置决定哪些观测进入分析的证据和归一化规则。",
+        "Plate and Batch Correction 可通过中心化、稳健缩放、参考对照或批次模型消除技术偏移。只有在实验设计能够支持时才应进行校正。",
+        "Response 用于选择表型列、分析单位、汇总方法、可选的方向反转和变换方式。这些选择定义了要与向导丰度建立关联的量。",
+        "Model and Inference 用于选择非参数向导检验、参数化同步回归或自动选择。它还定义报告层级、适用时的模型族、多重检验校正和显著性规则。",
+        "Estimator Tuning 包含协方差、正则化、稳健拟合、分位数、bootstrap 和秩聚合设置。只有所选估计方法实际使用的设置才会影响分析。",
+        "Permutation Test 用于设置向导统计量、最小孔支持数、置换次数与随机种子、可交换性分块、干扰变量、存在阈值以及受内存限制的批量大小。",
+        "Run 会验证表格结构和孔键，应用排除规则与校正，汇总响应并执行所选推断方法。默认非参数方法采用按板分块的 Freedman–Lane 置换，不拟合回归模型。",
+        "完成的项目包含已对齐的分析数据、向导和基因层级的效应估计值、经验显著性或基于模型的显著性表、诊断图、已保存设置以及可重新运行的清单。"
+      ]
+    }
+  }
+}

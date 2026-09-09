@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "43_illumination",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Estime e valide a correção de campo plano antes da medição das características de intensidade.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Illumination.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Illumination. Estime e valide a correção de campo plano antes da medição das características de intensidade.",
+        "Selecione campos combinados representativos e os canais que precisam de correção.",
+        "Na área principal de configuração, examine as opções de amostragem, suavização, exclusão e controle de qualidade de cada canal.",
+        "Examine a prévia dos campos de iluminação estimados e rejeite correções que acompanhem estruturas biológicas.",
+        "Ao término do fluxo de trabalho, os campos de correção aprovados e os diagnósticos são salvos para um pré-processamento reproduzível."
+      ]
+    }
+  }
+}

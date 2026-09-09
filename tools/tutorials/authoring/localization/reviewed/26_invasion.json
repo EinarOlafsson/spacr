@@ -1,0 +1,31 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "26_invasion",
+    "scene_count": 8,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Use uma coloração externa e outra total para distinguir parasitas aderidos de parasitas invadidos.",
+      "prerequisite": "Prepare um ensaio validado de coloração externa e total com controles e medições dos parasitas.",
+      "objectives": [
+        "Mapear corretamente os canais das colorações.",
+        "Calibrar a classificação a partir dos controles.",
+        "Examinar exemplos e resultados de invasão em nível de poço."
+      ],
+      "narrations": [
+        "Invasion Assay classifica parasitas medidos a partir de um protocolo de coloração com duas cores. O console registra as configurações, as verificações de qualidade e as saídas.",
+        "Selecione um experimento que contenha medições dos parasitas, canais das colorações, controles e metadados das placas.",
+        "Essentials apresenta as entradas, o mapeamento dos canais, os limiares, os controles, os filtros e as saídas necessários para uma primeira análise.",
+        "Mapeie, na ordem correta, a coloração externa e a coloração total dos parasitas. Invertê-las também inverte a interpretação biológica, sem necessariamente gerar um erro.",
+        "Derive os limiares de classificação a partir de controles adequados e examine a sensibilidade nas proximidades do limite escolhido.",
+        "Defina os controles de coloração e a quantidade mínima de evidências para campos e poços, para que grupos com evidências insuficientes sejam informados em vez de interpretados excessivamente.",
+        "Execute a análise depois de verificar o mapeamento das colorações, os controles, os filtros de objetos e os metadados das condições.",
+        "Examine conjuntamente exemplos aderidos, invadidos e incertos e os resumos em nível de poço. Os resultados exportados preservam as configurações do ensaio e os identificadores de origem."
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "44_data_manager",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Examine o armazenamento dos projetos e recupere espaço ocupado por arquivos derivados sem alterar as aquisições originais.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar Data Manager.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta Data Manager. Examine o armazenamento dos projetos e recupere espaço ocupado por arquivos derivados sem alterar as aquisições originais.",
+        "Selecione um projeto ou espaço de trabalho e permita que o spaCR faça o inventário de seus artefatos.",
+        "Na área principal de configuração, examine o tipo, o tamanho, a proveniência e a possibilidade de reconstrução dos artefatos e os avisos de dependências antes de selecionar qualquer item.",
+        "Examine a prévia do plano de limpeza e remova somente artefatos derivados que você esteja preparado para reconstruir.",
+        "Ao término do fluxo de trabalho, o inventário atualizado e o registro da limpeza mostram o que permanece e o que pode ser regenerado."
+      ]
+    }
+  }
+}

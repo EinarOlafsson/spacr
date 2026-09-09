@@ -1,0 +1,239 @@
+{
+  "_meta": {
+    "schema": 2,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Complete human review of Spanish, French, and Italian workflow lessons 28 through 32, including metadata, objectives, exact interface terms, and every narration."
+  },
+  "lessons": {
+    "28_training_runs": {"languages": {
+      "es": {
+        "description": "Compare ejecuciones de entrenamiento superponiendo curvas y contrastando configuraciones.",
+        "prerequisite": "Complete al menos dos ejecuciones de entrenamiento compatibles con métricas y configuraciones registradas.",
+        "objectives": ["Cargar y validar ejecuciones comparables.", "Interpretar las curvas entre puntos de control y particiones.", "Relacionar las diferencias de rendimiento con los cambios de configuración."],
+        "narrations": {
+          "1": "Training Runs compara varios ajustes sin reducir la selección del modelo a un único valor de pérdida.",
+          "2": "Seleccione una carpeta o registro que contenga ejecuciones de entrenamiento compatibles y examínelo.",
+          "3": "Revise las ejecuciones detectadas, las métricas disponibles, los registros incompletos y las advertencias antes de seleccionar candidatos.",
+          "4": "Elija la métrica, el suavizado, la visualización de particiones y los campos de configuración que desea comparar.",
+          "5": "Superponga el comportamiento de validación para comparar la convergencia, la estabilidad y el sobreajuste en los mismos ejes.",
+          "6": "Compare el mejor punto de control con el último cuando las etapas finales del entrenamiento puedan haber reducido la generalización.",
+          "7": "Los resúmenes por partición muestran la variación que oculta una única curva agregada.",
+          "8": "Utilice las curvas por partición y las diferencias de configuración, junto con el rendimiento en los datos reservados, para seleccionar una ejecución reproducible."
+        }
+      },
+      "fr": {
+        "description": "Comparez des entraînements en superposant leurs courbes et en confrontant leurs paramètres.",
+        "prerequisite": "Effectuez au moins deux entraînements compatibles dont les métriques et les paramètres sont consignés.",
+        "objectives": ["Charger et valider des entraînements comparables.", "Interpréter les courbes entre points de contrôle et plis.", "Relier les écarts de performance aux modifications de paramètres."],
+        "narrations": {
+          "1": "Training Runs compare plusieurs ajustements sans réduire le choix du modèle à une seule valeur de perte.",
+          "2": "Sélectionnez un dossier ou un registre contenant des entraînements compatibles, puis analysez-le.",
+          "3": "Examinez les entraînements détectés, les métriques disponibles, les enregistrements incomplets et les avertissements avant de sélectionner les candidats.",
+          "4": "Choisissez la métrique, le lissage, l'affichage des plis et les champs de paramètres à comparer.",
+          "5": "Superposez le comportement de validation afin de comparer la convergence, la stabilité et le surapprentissage sur les mêmes axes.",
+          "6": "Comparez le meilleur point de contrôle au dernier lorsque la fin de l'entraînement a pu dégrader la généralisation.",
+          "7": "Les résumés par pli révèlent la variabilité masquée par une seule courbe agrégée.",
+          "8": "Utilisez les courbes par pli et les différences de paramètres, conjointement avec les performances sur les données réservées, pour sélectionner un entraînement reproductible."
+        }
+      },
+      "it": {
+        "description": "Confronta le esecuzioni di addestramento sovrapponendo le curve e comparando le impostazioni.",
+        "prerequisite": "Completa almeno due esecuzioni di addestramento compatibili con metriche e impostazioni registrate.",
+        "objectives": ["Caricare e convalidare esecuzioni confrontabili.", "Interpretare le curve tra checkpoint e fold.", "Collegare le differenze nelle prestazioni alle modifiche delle impostazioni."],
+        "narrations": {
+          "1": "Training Runs confronta diversi addestramenti senza ridurre la scelta del modello a un unico valore di perdita.",
+          "2": "Seleziona una cartella o un registro contenente esecuzioni di addestramento compatibili ed esegui la scansione.",
+          "3": "Esamina le esecuzioni rilevate, le metriche disponibili, i record incompleti e gli avvisi prima di selezionare i candidati.",
+          "4": "Scegli la metrica, lo smussamento, la visualizzazione dei fold e i campi delle impostazioni da confrontare.",
+          "5": "Sovrapponi l'andamento della convalida per confrontare convergenza, stabilità e sovradattamento sugli stessi assi.",
+          "6": "Confronta il checkpoint migliore con quello finale quando l'ultima fase dell'addestramento potrebbe aver ridotto la capacità di generalizzazione.",
+          "7": "I riepiloghi per fold mostrano la variabilità nascosta da un'unica curva aggregata.",
+          "8": "Usa le curve per fold e le differenze nelle impostazioni, insieme alle prestazioni sui dati esclusi dall'addestramento, per selezionare un'esecuzione riproducibile."
+        }
+      }
+    }},
+    "29_report": {"languages": {
+      "es": {
+        "description": "Cree un resumen compartible en HTML o PDF que incluya el control de calidad, las figuras, las estadísticas, la configuración y las versiones.",
+        "prerequisite": "Complete y revise las ejecuciones que deben aparecer en el informe.",
+        "objectives": ["Seleccionar la evidencia pertinente para el informe.", "Resolver las carencias de calidad y procedencia.", "Generar y revisar un informe portátil."],
+        "narrations": {
+          "1": "Report compone un resumen trazable del proyecto, sin obligarle a copiar manualmente las figuras y la configuración.",
+          "2": "Seleccione un proyecto terminado o una carpeta de ejecución y examine la evidencia disponible.",
+          "3": "Revise el dictamen de calidad detectado y las entradas ausentes antes de elegir las secciones del informe.",
+          "4": "Incluya únicamente los controles de calidad, las figuras, las estadísticas, la configuración y la procedencia que necesiten los destinatarios.",
+          "5": "Defina el título, la autoría, el formato de salida, los límites de las figuras y cualquier exclusión por motivos de privacidad.",
+          "6": "Genere el informe después de resolver los archivos ausentes y los controles de calidad fallidos que pudieran inducir a error.",
+          "7": "Previsualice el informe terminado y compruebe las conclusiones, las versiones y los enlaces antes de compartirlo."
+        }
+      },
+      "fr": {
+        "description": "Créez un résumé partageable au format HTML ou PDF regroupant le contrôle qualité, les figures, les statistiques, les paramètres et les versions.",
+        "prerequisite": "Terminez et vérifiez les exécutions qui doivent figurer dans le rapport.",
+        "objectives": ["Sélectionner les éléments probants pertinents pour le rapport.", "Résoudre les lacunes de qualité et de provenance.", "Générer et vérifier un rapport portable."],
+        "narrations": {
+          "1": "Report compose un résumé traçable du projet sans vous demander de copier manuellement les figures et les paramètres.",
+          "2": "Sélectionnez un projet terminé ou un dossier d'exécution, puis analysez les éléments disponibles.",
+          "3": "Examinez le verdict de qualité détecté et les entrées manquantes avant de choisir les sections du rapport.",
+          "4": "N'incluez que les contrôles qualité, les figures, les statistiques, les paramètres et les informations de provenance dont les destinataires ont besoin.",
+          "5": "Définissez le titre, les auteurs, le format de sortie, les limites de figures et toute exclusion nécessaire à la protection des données.",
+          "6": "Générez le rapport après avoir résolu les fichiers manquants et les contrôles qualité en échec qui risqueraient de rendre le document trompeur.",
+          "7": "Prévisualisez le rapport final et vérifiez les conclusions, les versions et les liens avant de le partager."
+        }
+      },
+      "it": {
+        "description": "Crea un riepilogo condivisibile in HTML o PDF che includa controllo qualità, figure, statistiche, impostazioni e versioni.",
+        "prerequisite": "Completa e verifica le esecuzioni da includere nel report.",
+        "objectives": ["Selezionare gli elementi pertinenti per il report.", "Risolvere le lacune relative a qualità e provenienza.", "Generare e verificare un report portatile."],
+        "narrations": {
+          "1": "Report crea un riepilogo tracciabile del progetto senza richiedere di copiare manualmente figure e impostazioni.",
+          "2": "Seleziona un progetto completato o una cartella di esecuzione ed esamina gli elementi disponibili.",
+          "3": "Esamina il giudizio di qualità rilevato e gli input mancanti prima di scegliere le sezioni del report.",
+          "4": "Includi solo i controlli di qualità, le figure, le statistiche, le impostazioni e le informazioni di provenienza necessarie ai destinatari.",
+          "5": "Imposta titolo, autori, formato di output, limiti delle figure ed eventuali esclusioni necessarie per la riservatezza.",
+          "6": "Genera il report dopo aver risolto i file mancanti e i controlli di qualità non superati che potrebbero rendere il documento fuorviante.",
+          "7": "Visualizza l'anteprima del report finale e verifica conclusioni, versioni e collegamenti prima di condividerlo."
+        }
+      }
+    }},
+    "30_plate_queue": {"languages": {
+      "es": {
+        "description": "Procese varias placas mediante la misma canalización validada, con un estado visible que permite reanudar la ejecución.",
+        "prerequisite": "Valide primero la secuencia de módulos y la configuración con datos representativos.",
+        "objectives": ["Crear y revisar una cola de varias placas.", "Ejecutarla y supervisarla de forma segura.", "Reanudar o diagnosticar placas concretas."],
+        "narrations": {
+          "1": "Plate Queue aplica un flujo de trabajo validado a varias placas y mantiene por separado el estado de cada una.",
+          "2": "Añada a la cola el módulo configurado actualmente o un origen de placa preparado.",
+          "3": "Añada más placas y revise su origen, destino, configuración y orden en la tabla.",
+          "4": "Elija los límites de trabajadores, el comportamiento de parada y la política de reanudación. El estado de la cola se conserva para que una interrupción no borre el plan.",
+          "5": "Pruebe el flujo de trabajo en una placa o un campo delimitado antes de iniciar el resto de la cola.",
+          "6": "Durante la ejecución, supervise el progreso de cada placa y abra los registros si un elemento genera una advertencia o falla.",
+          "7": "Las placas terminadas conservan salidas y registros de ejecución independientes; los elementos detenidos o fallidos siguen siendo identificables y se pueden reanudar."
+        }
+      },
+      "fr": {
+        "description": "Traitez plusieurs plaques avec le même pipeline validé, en affichant un état qui permet la reprise.",
+        "prerequisite": "Validez d'abord la séquence des modules et les paramètres sur des données représentatives.",
+        "objectives": ["Créer et vérifier une file d'attente contenant plusieurs plaques.", "L'exécuter et la surveiller en toute sécurité.", "Reprendre ou diagnostiquer une plaque particulière."],
+        "narrations": {
+          "1": "Plate Queue applique un même flux de travail validé à plusieurs plaques tout en séparant l'état de chacune.",
+          "2": "Ajoutez à la file le module actuellement configuré ou une source de plaque préparée.",
+          "3": "Ajoutez d'autres plaques et vérifiez leur source, leur destination, leurs paramètres et leur ordre dans le tableau.",
+          "4": "Choisissez les limites de processus de travail, le comportement à l'arrêt et la politique de reprise. L'état de la file est conservé afin qu'une interruption n'efface pas le plan.",
+          "5": "Testez le flux de travail sur une plaque ou un champ limité avant de démarrer le reste de la file.",
+          "6": "Pendant l'exécution, suivez la progression de chaque plaque et ouvrez les journaux lorsqu'un élément génère un avertissement ou échoue.",
+          "7": "Les plaques terminées conservent des sorties et des enregistrements d'exécution distincts ; les éléments arrêtés ou en échec restent identifiables et peuvent être repris."
+        }
+      },
+      "it": {
+        "description": "Elabora più piastre con la stessa pipeline convalidata, mostrando uno stato che consente la ripresa.",
+        "prerequisite": "Convalida prima la sequenza dei moduli e le impostazioni su dati rappresentativi.",
+        "objectives": ["Creare e verificare una coda con più piastre.", "Eseguirla e monitorarla in sicurezza.", "Riprendere o diagnosticare singole piastre."],
+        "narrations": {
+          "1": "Plate Queue applica un unico flusso di lavoro convalidato a più piastre, mantenendo separato lo stato di ciascuna.",
+          "2": "Aggiungi alla coda il modulo attualmente configurato o una sorgente di piastra preparata.",
+          "3": "Aggiungi altre piastre e verificane nella tabella la sorgente, la destinazione, le impostazioni e l'ordine.",
+          "4": "Scegli i limiti dei processi di lavoro, il comportamento all'arresto e i criteri di ripresa. Lo stato della coda viene conservato, quindi un'interruzione non elimina il piano.",
+          "5": "Prova il flusso di lavoro su una piastra o un campo circoscritto prima di avviare il resto della coda.",
+          "6": "Durante l'esecuzione, segui l'avanzamento di ogni piastra e apri i registri se un elemento genera un avviso o non riesce.",
+          "7": "Le piastre completate conservano output e record di esecuzione separati; gli elementi arrestati o non riusciti restano identificabili e possono essere ripresi."
+        }
+      }
+    }},
+    "31_external_masks": {"languages": {
+      "es": {
+        "description": "Importe imágenes y máscaras de etiquetas de terceros como un proyecto spaCR medido y trazable.",
+        "prerequisite": "Prepare las imágenes de origen, máscaras de etiquetas enteras, reglas de nomenclatura y definiciones de clases de objetos.",
+        "objectives": ["Asignar correctamente las entradas externas.", "Validar la importación en Preview.", "Crear un proyecto medido con información de procedencia."],
+        "narrations": {
+          "1": "External Masks importa imágenes de origen y etiquetas generadas externamente y prepara el proyecto para la medición y anotación habituales de spaCR.",
+          "2": "Añada las imágenes y los orígenes de las máscaras y compruebe que spaCR haya detectado las funciones previstas.",
+          "3": "Asigne cada entrada a su clase de objeto. Compruebe los nombres de archivo, las dimensiones y el emparejamiento de campos en lugar de confiar en una asignación inferida.",
+          "4": "Input Mapping controla el orden de los canales y los planos de máscara, la nomenclatura y la disposición de destino.",
+          "5": "La configuración de medición define los objetos y las características que se generarán después de la importación.",
+          "6": "Mantenga Preview activado para la primera ejecución y seleccione un destino nuevo.",
+          "7": "Revise el emparejamiento, el número de canales, las clases de objetos, las advertencias y los errores bloqueantes antes de escribir datos.",
+          "8": "Ejecute la importación revisada. Las imágenes, las máscaras, las mediciones y la información de procedencia resultantes quedan listas para la anotación posterior."
+        }
+      },
+      "fr": {
+        "description": "Importez des images et des masques d'étiquettes tiers sous la forme d'un projet spaCR mesuré et traçable.",
+        "prerequisite": "Préparez les images sources, les masques d'étiquettes entières, les règles de nommage et les définitions des classes d'objets.",
+        "objectives": ["Associer correctement les entrées externes.", "Valider l'importation dans Preview.", "Créer un projet mesuré avec ses informations de provenance."],
+        "narrations": {
+          "1": "External Masks importe les images sources et les étiquettes produites par un outil externe, puis prépare le projet pour les étapes habituelles de mesure et d'annotation de spaCR.",
+          "2": "Ajoutez les images et les sources de masques, puis vérifiez que spaCR a détecté les rôles attendus.",
+          "3": "Associez chaque entrée à sa classe d'objet. Vérifiez les noms de fichiers, les dimensions et l'appariement des champs au lieu de vous fier à une association déduite.",
+          "4": "Input Mapping contrôle l'ordre des canaux et des plans de masque, le nommage et l'organisation de la destination.",
+          "5": "Les paramètres de mesure définissent les objets et les caractéristiques qui seront produits après l'importation.",
+          "6": "Laissez Preview activé pour la première exécution et choisissez une nouvelle destination.",
+          "7": "Vérifiez l'appariement, le nombre de canaux, les classes d'objets, les avertissements et les erreurs bloquantes avant toute écriture.",
+          "8": "Lancez l'importation vérifiée. Les images, les masques, les mesures et les informations de provenance obtenus sont prêts pour l'annotation en aval."
+        }
+      },
+      "it": {
+        "description": "Importa immagini e maschere di etichette di terze parti come progetto spaCR misurato e tracciabile.",
+        "prerequisite": "Prepara le immagini sorgente, le maschere di etichette intere, le regole di denominazione e le definizioni delle classi di oggetti.",
+        "objectives": ["Associare correttamente gli input esterni.", "Convalidare l'importazione in Preview.", "Creare un progetto misurato con informazioni sulla provenienza."],
+        "narrations": {
+          "1": "External Masks importa immagini sorgente ed etichette generate esternamente, quindi prepara il progetto per le normali operazioni di misurazione e annotazione di spaCR.",
+          "2": "Aggiungi le immagini e le sorgenti delle maschere, quindi verifica che spaCR abbia rilevato i ruoli previsti.",
+          "3": "Associa ogni input alla relativa classe di oggetti. Controlla i nomi dei file, le dimensioni e l'abbinamento dei campi, invece di affidarti a un'associazione dedotta.",
+          "4": "Input Mapping controlla l'ordine dei canali e dei piani delle maschere, la denominazione e la disposizione della destinazione.",
+          "5": "Le impostazioni di misurazione definiscono gli oggetti e le caratteristiche da generare dopo l'importazione.",
+          "6": "Mantieni Preview attivo per la prima esecuzione e scegli una nuova destinazione.",
+          "7": "Verifica l'abbinamento, il numero di canali, le classi di oggetti, gli avvisi e gli errori bloccanti prima di scrivere qualsiasi dato.",
+          "8": "Avvia l'importazione verificata. Le immagini, le maschere, le misurazioni e le informazioni sulla provenienza risultanti sono pronte per l'annotazione successiva."
+        }
+      }
+    }},
+    "32_align_stitch": {"languages": {
+      "es": {
+        "description": "Registre mosaicos de imágenes y escriba una imagen ensamblada con un uso limitado de memoria.",
+        "prerequisite": "Prepare adquisiciones en mosaico con un orden conocido, solapamiento o posiciones de platina y un canal adecuado para el registro.",
+        "objectives": ["Describir la disposición del mosaico.", "Auditar un plan de registro.", "Escribir un mosaico trazable con uso limitado de memoria."],
+        "narrations": {
+          "1": "Align and Stitch separa la planificación del registro de la escritura para que las posiciones y las estimaciones de recursos puedan revisarse primero.",
+          "2": "Seleccione la carpeta de mosaicos y el destino, sin modificar las adquisiciones de origen.",
+          "3": "Describa el orden de la cuadrícula, el solapamiento, la información de la platina y un canal de referencia que contenga estructuras útiles.",
+          "4": "Configure la confianza de las coincidencias, las restricciones entre elementos vecinos, la combinación y el límite de memoria para las bandas de salida.",
+          "5": "Plan estima los desplazamientos por pares y resuelve las restricciones aceptadas sin crear el mosaico ensamblado.",
+          "6": "Examine los mosaicos registrados y los que utilizan posiciones alternativas, los residuos, la confianza, el tamaño del lienzo y la estimación de escritura.",
+          "7": "Seleccione los mosaicos débiles o aislados para comprender la posición calculada antes de escribir la salida.",
+          "8": "Escriba los datos solo cuando el plan sea aceptable. spaCR guarda el mosaico ensamblado, las transformaciones, las coordenadas y el informe de registro."
+        }
+      },
+      "fr": {
+        "description": "Recallez les tuiles d'images et écrivez une mosaïque assemblée avec une utilisation limitée de la mémoire.",
+        "prerequisite": "Préparez des acquisitions en tuiles dont l'ordre, le chevauchement ou les positions de platine sont connus, avec un canal utile au recalage.",
+        "objectives": ["Décrire l'agencement des tuiles.", "Auditer un plan de recalage.", "Écrire une mosaïque traçable avec une utilisation limitée de la mémoire."],
+        "narrations": {
+          "1": "Align and Stitch sépare la planification du recalage de l'écriture afin de vérifier d'abord le placement et les estimations de ressources.",
+          "2": "Sélectionnez le dossier des tuiles et la destination, sans modifier les acquisitions sources.",
+          "3": "Décrivez l'ordre de la grille, le chevauchement, les informations de platine et un canal de référence contenant des structures utiles.",
+          "4": "Configurez la confiance des correspondances, les contraintes de voisinage, la fusion et la limite de mémoire des bandes de sortie.",
+          "5": "Plan estime les décalages par paires et résout les contraintes acceptées sans créer la mosaïque assemblée.",
+          "6": "Examinez les tuiles recalées et celles placées par la méthode de repli, les résidus, la confiance, la taille du canevas et l'estimation d'écriture.",
+          "7": "Sélectionnez les tuiles peu fiables ou isolées pour comprendre leur position calculée avant de valider la sortie.",
+          "8": "N'écrivez les données que lorsque le plan est acceptable. spaCR enregistre la mosaïque assemblée, les transformations, les coordonnées et le rapport de recalage."
+        }
+      },
+      "it": {
+        "description": "Registra le tile di immagini e scrivi un mosaico assemblato con un utilizzo limitato della memoria.",
+        "prerequisite": "Prepara acquisizioni a tile con ordine, sovrapposizione o posizioni del tavolino noti e un canale utile per la registrazione.",
+        "objectives": ["Descrivere la disposizione delle tile.", "Verificare un piano di registrazione.", "Scrivere un mosaico tracciabile con utilizzo limitato della memoria."],
+        "narrations": {
+          "1": "Align and Stitch separa la pianificazione della registrazione dalla scrittura, così da poter verificare prima il posizionamento e le stime delle risorse.",
+          "2": "Seleziona la cartella delle tile e la destinazione, mantenendo inalterate le acquisizioni sorgente.",
+          "3": "Descrivi l'ordine della griglia, la sovrapposizione, le informazioni sul tavolino e un canale di riferimento che contenga strutture utili.",
+          "4": "Configura l'affidabilità delle corrispondenze, i vincoli tra elementi adiacenti, la fusione e il limite di memoria per le bande di output.",
+          "5": "Plan stima gli spostamenti a coppie e risolve i vincoli accettati senza creare il mosaico assemblato.",
+          "6": "Esamina le tile registrate e quelle posizionate con il metodo alternativo, i residui, l'affidabilità, le dimensioni dell'area di lavoro e la stima di scrittura.",
+          "7": "Seleziona le tile poco affidabili o isolate per comprenderne la posizione calcolata prima di confermare l'output.",
+          "8": "Scrivi i dati solo quando il piano è accettabile. spaCR salva il mosaico assemblato, le trasformazioni, le coordinate e il rapporto di registrazione."
+        }
+      }
+    }}
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "_meta": {
+    "schema": 1,
+    "lesson_id": "59_anndata_export",
+    "scene_count": 5,
+    "source_language": "en",
+    "reviewed_date": "2026-08-26",
+    "review_scope": "Brazilian Portuguese scientific narration; complete sentence coverage and exact command identifiers."
+  },
+  "languages": {
+    "pt-BR": {
+      "description": "Grave medições do spaCR em um arquivo AnnData para uso no scanpy ou no scvi-tools.",
+      "prerequisite": "Siga as lições anteriores dos fluxos de trabalho quando este módulo exigir resultados produzidos anteriormente.",
+      "objectives": [
+        "Compreender quando usar AnnData Export.",
+        "Configurar as entradas e opções importantes.",
+        "Executar o fluxo de trabalho e localizar suas saídas."
+      ],
+      "narrations": [
+        "Este tutorial apresenta AnnData Export. Grave medições do spaCR em um arquivo AnnData para uso no scanpy ou no scvi-tools.",
+        "Selecione a tabela de medições, o tipo de objeto, as características, as observações e as colunas de metadados.",
+        "Na área principal de configuração, examine as junções, os valores ausentes, o escalonamento das características, o armazenamento esparso e os identificadores estáveis.",
+        "Examine a prévia das dimensões e dos metadados antes de gravar o arquivo.",
+        "Ao término do fluxo de trabalho, o arquivo h5ad preserva a matriz selecionada, as anotações e a proveniência para a análise subsequente."
+      ]
+    }
+  }
+}
