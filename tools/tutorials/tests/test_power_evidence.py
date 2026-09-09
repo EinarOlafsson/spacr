@@ -14,7 +14,7 @@ def records():
     for prefix, column in [('cells', 'imaging_n_cells_per_well_mu'), ('wells', 'n_wells_per_screen')]:
         result[prefix + '_scan'] = [
             {column: 120, 'status': 'ok', 'model_auroc': 0.8},
-            {column: 120, 'status': 'not_converged', 'model_auroc': 0.99},
+            {column: 120, 'status': 'not_converged', 'model_auroc': None},
         ]
         result[prefix + '_curve'] = [{'value': 120, 'n_replicates': 2,
                                      'n_detected': 1, 'power': 0.5, 'n_ok': 1,
@@ -23,12 +23,14 @@ def records():
 
 
 def test_nonconverged_high_score_is_not_a_detection_but_is_in_denominator():
-    assert check_curves(records(), 0.8, 2) == 4
+    data = records()
+    data['cells_scan'][1]['model_auroc'] = 0.99
+    assert check_curves(data, 0.8, 2) == 4
 
 
 def test_same_score_can_be_a_detection_once_the_fit_is_usable():
     data = records()
-    data['cells_scan'][1]['status'] = 'ok'
+    data['cells_scan'][1].update(status='ok', model_auroc=0.99)
     data['cells_curve'][0].update(n_detected=2, power=1, n_ok=2, n_not_converged=0)
     assert check_curves(data, 0.8, 2) == 4
 
@@ -43,6 +45,7 @@ def test_dropping_a_nonconverged_fit_cannot_raise_reported_power():
 
 def test_high_score_from_an_unusable_fit_cannot_raise_reported_power():
     data = records()
+    data['cells_scan'][1]['model_auroc'] = 0.99
     data['cells_curve'][0].update(n_detected=2, power=1)
     with pytest.raises(ValueError, match='only usable'):
         check_curves(data, 0.8, 2)

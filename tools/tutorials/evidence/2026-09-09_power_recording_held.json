@@ -13,7 +13,7 @@
   "source_location": "spacr/qt/widgets/power_design.py:plain_sentence selects the highest well-scan power without excluding the current well count",
   "other_visible_limitations": {"nonconverged_fits": 4, "clipped_simulated_screens": 2, "replicates_too_few_for_precise_design_recommendation": true},
   "recorder_checks": ["Real numeric fields and selectors", "Actual unsupported protective-effect warning then recovery", "Actual normal threaded simulator", "All fit records retained in detection denominator", "Actual caveat toggle and restoration"],
-  "tutorial_acceptance_tests": {"passed": 10, "status_check_mutant": "3 failures, restored to green", "unchanged_recommendation_mutant": "1 failure, restored to green"},
+  "tutorial_acceptance_tests": {"passed": 10, "status_check_mutant": "2 failures: both positive and negative counterparts; the other scan cannot trigger a substitute rejection; restored to green", "unchanged_recommendation_mutant": "1 failure, restored to green"},
   "application_source_modified": false,
   "narration_frozen": false,
   "replacement_media_generated": false,
