@@ -298,9 +298,64 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         raise RuntimeError('Turning off xD must not delete columns existing gates could depend on')
     capture('20_projection_off_keeps_columns')
     projection_label = screen._source.text()
+    # The search labels need more width at the tutorial's readable font size.
+    drag_handle(screen.gates.parentWidget(), 1, 2630)
+    drag_handle(screen.gates.body, 1, 2000)
     from capture_gate_search import record_search
     searches = record_search(app, screen, captures, capture, settle, write_json,
                              fill, choose, file_dialog, work)
+    file_dialog(screen._load_gates, work / 'two_gates.json', '27_return_to_raw_strategy')
+    if screen.gates.gates.to_dict() != two_gate_strategy:
+        raise RuntimeError('Reloading the raw-feature strategy did not restore both actual gates')
+    QTest.mouseClick(screen.side_tabs.tabBar(), Qt.LeftButton,
+                     pos=screen.side_tabs.tabBar().tabRect(0).center())
+    choose(screen.filters._picker, 'cell_area')
+    QTest.mouseClick(screen.filters.findChild(QPushButton, 'FilterAddButton'), Qt.LeftButton)
+    settle(0.4)
+    cutoff = 21925
+    row = screen.filters._rows['cell_area']
+    fill(row._low.lineEdit(), cutoff)
+    settle(0.7)
+    filtered_count = len(canvas.population())
+    if filtered_count != int((frame['cell_area'] >= cutoff).sum()) or filtered_count >= len(frame):
+        raise RuntimeError('The visible live filter did not retain exactly the expected objects')
+    capture('28_live_area_filter')
+    QTest.mouseClick(screen.filters._clear, Qt.LeftButton)
+    settle(0.7)
+    if len(canvas.population()) != len(frame):
+        raise RuntimeError('Clearing the actual live filter did not restore every object')
+    if screen.gates.gates.to_dict() != two_gate_strategy:
+        raise RuntimeError('Preview filtering unexpectedly changed the stored gate definitions')
+    capture('29_live_filter_cleared')
+
+    drag_handle(screen.gates.parentWidget(), 1, 2350)
+    drag_handle(screen.gates.parentWidget(), 2, 3100)
+    drag_handle(screen.gates.body, 1, 1700)
+    console = screen.console
+    if not console.isVisible() or console.width() < 320:
+        raise RuntimeError('The real console splitter did not reveal a readable panel')
+    before_expression = console.transcript()
+    QTest.mouseClick(console.input, Qt.LeftButton)
+    QTest.keyClicks(console.input, 'len(df)')
+    capture('30_real_console_expression')
+    QTest.keyClick(console.input, Qt.Key_Return)
+    settle(0.4)
+    after_expression = console.transcript()
+    if after_expression == before_expression or 'len(df)' not in after_expression or '2341' not in after_expression:
+        raise RuntimeError('The actual console did not evaluate the real measurement table')
+    capture('31_real_console_answer')
+    question = 'How should I interpret this gate?'
+    QTest.mouseClick(console.chat, Qt.LeftButton)
+    QTest.keyClicks(console.chat, question)
+    settle(0.3)
+    if console.chat.toPlainText() != question or console.transcript() != after_expression:
+        raise RuntimeError('The draft chat question was not preserved unsent')
+    capture('32_chat_draft_not_sent')
+    write_json(captures / 'console_evidence.json', {
+        'expression': 'len(df)', 'transcript': after_expression,
+        'unsent_question': question, 'assistant_responder_configured': console._responder is not None,
+        'assistant_request_sent': False,
+    })
     if hashlib.sha256(original.read_bytes()).hexdigest() != before:
         raise RuntimeError('The original downloaded measurement database changed')
     write_json(captures / 'gate_checkpoint.json', {
@@ -321,6 +376,17 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
         'projection_source_label': projection_label,
         'projection_independent_of_dimensions': True,
         'search_outcomes': searches,
-        'whole_lesson_complete': False, 'published': False,
+        'live_filter_cutoff': cutoff, 'live_filtered_rows': filtered_count,
+        'clearing_filter_restores_every_row': True,
+        'filter_does_not_change_saved_gate_boundaries': True,
+        'actual_console_expression': 'len(df)', 'actual_console_answer': len(frame),
+        'assistant_question_not_sent': True,
+        'whole_lesson_complete': True, 'published': False,
+    })
+    write_json(captures / 'scientific_acceptance.json', {
+        'accepted': True, 'reason': 'Real gates, exact export identities, reversible views/filtering and console checked',
+        'clustering_does_not_establish_biological_populations': True,
+        'projection_fit_is_not_part_of_saved_gate_strategy': True,
+        'publication_held': True, 'published': False,
     })
     print(f'Actual 2D gate checkpoint: {count}/2341, saved, deleted and reloaded', flush=True)
