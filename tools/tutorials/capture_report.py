@@ -23,6 +23,39 @@ CORE_SECTIONS = ['run_status', 'provenance', 'segmentation_qc', 'plate_qc',
                  'figures', 'statistics', 'settings', 'appendix']
 
 
+def _picker_timeout(window, dialog, timer_type, interval_ms):
+    """Keep the timer alive after a static QFileDialog destroys its dialog."""
+    timer = timer_type(window)
+    timer.setSingleShot(True)
+    timer.timeout.connect(dialog.reject)
+    timer.start(interval_ms)
+    return timer
+
+
+def _dispose_timers(timers):
+    """Stop callbacks before deferred deletion; do not hide lifetime errors."""
+    for timer in timers:
+        timer.stop()
+        timer.deleteLater()
+
+
+def _retire_report_jobs(screen, settle):
+    """Allow queued completion and thread-retirement signals to reach Report.
+
+    A picker/capture failure can occur after folder selection starts a scan.
+    Unwinding then would destroy the window while its QThread is still running.
+    Do not reuse the potentially expired capture deadline or kill a worker:
+    keep the caller's Qt event loop moving until both states are clear. The
+    caller's outer process watchdog bounds a genuinely wedged worker.
+    """
+    polls = 0
+    while screen.is_busy() or screen.active_jobs():
+        settle(.05)
+        polls += 1
+    return {'event_processing_polls': polls, 'active_jobs': screen.active_jobs(),
+            'busy': screen.is_busy(), 'workers_forcibly_stopped': False}
+
+
 def _digest(path):
     digest = hashlib.sha256()
     with Path(path).open('rb') as handle:
@@ -223,7 +256,8 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
     acceptance = captures / 'scientific_acceptance.json'
     write_json(acceptance, evidence)
     jobs = []
-    screen.job_finished.connect(jobs.append)
+    job_finished = jobs.append
+    screen.job_finished.connect(job_finished)
 
     def tick():
         if time.monotonic() >= deadline:
@@ -253,10 +287,9 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
                 if not isinstance(dialog, QFileDialog):
                     raise RuntimeError('The actual Report file picker did not open')
                 dialog.accepted.connect(lambda: accepted.append(True))
-                timer = QTimer(dialog)
-                timer.setSingleShot(True)
-                timer.timeout.connect(dialog.reject)
-                timer.start(max(1, min(12000, int((deadline - time.monotonic()) * 1000))))
+                timer = _picker_timeout(
+                    window, dialog, QTimer,
+                    max(1, min(12000, int((deadline - time.monotonic()) * 1000))))
                 timers.append(timer)
                 dialog.resize(1500, 950)
                 edit = dialog.findChild(QLineEdit, 'fileNameEdit')
@@ -285,9 +318,7 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
         try:
             click(button)
         finally:
-            opener.stop()
-            for timer in timers:
-                timer.stop()
+            _dispose_timers([opener, *timers])
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'The actual Report picker was not accepted')
 
@@ -376,4 +407,9 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
         write_json(acceptance, evidence)
         raise
     finally:
-        screen.job_finished.disconnect(jobs.append)
+        retirement = _retire_report_jobs(screen, settle)
+        screen.job_finished.disconnect(job_finished)
+        if evidence['accepted'] is False:
+            evidence.update(error_cleanup=retirement, active_jobs=retirement['active_jobs'],
+                            job_results=jobs)
+            write_json(acceptance, evidence)

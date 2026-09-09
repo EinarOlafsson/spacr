@@ -1,4 +1,4 @@
-"""Pure Report evidence guards: no Qt application or real pipeline is run."""
+"""Report guards and QtCore timer lifetimes; no GUI or real pipeline is run."""
 from copy import deepcopy
 import html
 import importlib.util
@@ -204,3 +204,103 @@ def test_rejects_symlink_source_member(source):
     (source / 'linked').symlink_to(source / 'artifacts.db')
     with pytest.raises(RuntimeError, match='symlink'):
         report.snapshot_source(source)
+
+
+@pytest.fixture
+def core_timers():
+    from PySide6.QtCore import QCoreApplication, QEvent, QObject, QTimer
+    from shiboken6 import delete, isValid
+
+    class Picker(QObject):
+        rejected = 0
+
+        def reject(self):
+            self.rejected += 1
+
+    app = QCoreApplication.instance() or QCoreApplication([])
+    owner = QObject()
+    dialog = Picker()
+    yield app, owner, dialog, QTimer, delete, isValid
+    if isValid(dialog):
+        delete(dialog)
+    if isValid(owner):
+        delete(owner)
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+
+def test_picker_timer_survives_dialog_deletion_and_is_cleaned(core_timers):
+    from PySide6.QtCore import QCoreApplication, QEvent
+
+    _, owner, dialog, timer_type, delete, is_valid = core_timers
+    timer = report._picker_timeout(owner, dialog, timer_type, 60000)
+    assert timer.parent() is owner
+    assert timer.isActive()
+    delete(dialog)  # The static picker has returned and destroyed its widget.
+    assert is_valid(timer)
+    report._dispose_timers([timer])
+    assert not timer.isActive()
+    QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+    assert not is_valid(timer)
+
+
+def test_dialog_owned_timer_reproduces_deleted_cpp_object_failure(core_timers):
+    _, _, dialog, timer_type, delete, is_valid = core_timers
+    timer = timer_type(dialog)  # The old, incorrect ownership.
+    timer.start(60000)
+    delete(dialog)
+    assert not is_valid(timer)
+    with pytest.raises(RuntimeError, match='deleted'):
+        report._dispose_timers([timer])
+
+
+def test_live_picker_timeout_still_rejects_once(core_timers):
+    app, owner, dialog, timer_type, _, _ = core_timers
+    timer = report._picker_timeout(owner, dialog, timer_type, 0)
+    app.processEvents()
+    app.processEvents()
+    assert dialog.rejected == 1
+    assert not timer.isActive()
+    report._dispose_timers([timer])
+
+
+class _JobState:
+    def __init__(self, states):
+        self.states = list(states)
+        self.polls = []
+
+    def is_busy(self):
+        return self.states[0][0]
+
+    def active_jobs(self):
+        return self.states[0][1]
+
+    def settle(self, seconds):
+        self.polls.append(seconds)
+        assert len(self.states) > 1, 'Unexpected extra wait after retirement'
+        self.states.pop(0)
+
+    def close(self):
+        raise AssertionError('Do not close a screen to stop its worker')
+
+
+def test_error_cleanup_waits_for_queued_thread_retirement_after_busy_clears():
+    screen = _JobState([(True, 1), (False, 1), (False, 0)])
+    result = report._retire_report_jobs(screen, screen.settle)
+    assert screen.polls == [.05, .05]
+    assert result == {'event_processing_polls': 2, 'active_jobs': 0,
+                      'busy': False, 'workers_forcibly_stopped': False}
+
+
+def test_idle_error_cleanup_does_not_wait():
+    screen = _JobState([(False, 0)])
+    assert report._retire_report_jobs(screen, screen.settle)['event_processing_polls'] == 0
+
+
+def test_error_cleanup_does_not_swallow_event_processing_errors():
+    screen = _JobState([(True, 1)])
+
+    def broken_settle(_seconds):
+        raise RuntimeError('event processing failed')
+
+    with pytest.raises(RuntimeError, match='event processing failed'):
+        report._retire_report_jobs(screen, broken_settle)
