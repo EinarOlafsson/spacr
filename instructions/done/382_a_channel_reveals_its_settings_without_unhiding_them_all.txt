@@ -135,3 +135,51 @@ DELIBERATELY NOT DONE
   result; step 2 is an unbounded change to how hidden rows defend themselves,
   in the most-used module, and the release is being cut. The xfail records
   the defect where the next person will meet it.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- A REGRESSION FROM THIS CHANGE, FOUND AFTER IT CLOSED
+--------------------------------------------------------------------------------
+
+Turning the Timelapse fold on in Mask now shows a SECOND "Pathogen model"
+control. Bisected to cd8fa90a1, this instruction's own commit:
+
+    tests/qt/test_the_mask_folds_are_settings_categories.py
+      ::test_the_tracking_categories_are_the_ones_mask_does_not_have
+
+    cd8fa90a1~1   PASSES
+    nightly       FAILS -- the fold mounts PATHOGEN SEGMENTATION alongside
+                  the two TRACKING categories it is supposed to be
+
+MEASURED, so the next reader starts from evidence:
+
+  * the mounted PATHOGEN SEGMENTATION section holds exactly one row,
+    "Pathogen model";
+  * `pathogen_model` is in Mask's settings and in Timelapse's, and it IS in
+    `screen._settings_model._widgets` once the screen is built -- all 21
+    pathogen widgets are present;
+  * `CategoryFoldSet.mount` keeps a row exactly when the host does not
+    already hold its key: `already = set(host_model._widgets)`, then
+    `SettingsWidgets(self.key, skip_keys=already)`.
+
+So the host holds the key at the END of the build and did not hold it when
+`mount()` read `_widgets`. That is this instruction's second part -- the
+first visibility pass moving off a `QTimer(0)` to run synchronously at the
+end of the screen build. If the folds mount before that pass, `already` is
+short by exactly the rows this change made appear, and the fold re-mounts
+them.
+
+WHY IT IS MORE THAN A RED TEST, in the failing test's own words: "a fold
+that re-mounted those would put a second control on the form for settings
+that already have one". `collect()` is keyed on the setting name, so with
+two controls for `pathogen_model` the one the user did not touch may be the
+one that wins, by ordering accident.
+
+AND THE TEST NAMED FOR THIS DID NOT CATCH IT.
+`test_no_setting_gets_a_second_control`, in the same file, still passes.
+Whatever it counts is not the duplicate its own name describes -- worth
+fixing with the regression rather than after it, because a guard that cannot
+see the defect it is named for is the shape this ledger keeps meeting.
+
+Handed to the session that wrote 382 rather than fixed here: the change is
+theirs, four hours old, and which of its three parts should carry the fix is
+a question about what they intended.
