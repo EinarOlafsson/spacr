@@ -49904,6 +49904,17 @@
       "source_sha256": "73452d1e0d7baea1660a604e2c0c7c46f640b7722e3c9bcbde2587c1815fe3f0",
       "text": "Return the window title for folded module ``key``.\n\nThe application title table is preferred so renamed modules remain\nconsistent throughout the interface. Fallback metadata is used after a\nmodule's standalone registry entry is removed."
     },
+    "spacr.qt.screens.map_barcodes.hide_as_page": {
+      "source_blocks_sha256": [
+        "ff95a79f8c77d8cc4b6d479fbfd73914f0550a441d5ff3bb4e2a9ce3f7b5a3d2",
+        "30b6fc41f7667c64999535a8f93e30ea37c5727f5d9c169837e0802c87efabfd",
+        "d42df450ffb04d6856920abd4d9184665bd5ca5bb6868b7251b1e456331c5230",
+        "adcbd00ec82ec453e44944345789cae6c5e31afee3acdfde9195997e45092140",
+        "e5e8c9028cd54a564f4b717b8d50233afe81a32c2b6e629606e681e0c497b278"
+      ],
+      "source_sha256": "2e79bdcde400493b81d15b34d6f5cde47cfc05ca665a4683068c9ccb80414f4a",
+      "text": "Take ``screen`` off ``host``'s page strip, keeping the screen.\n\nThe counterpart to :func:`show_as_page`, for a control that closes what\nit opened. It takes the same route the strip's own close mark takes --\n:func:`_close_fold_page` -- so a page closed by a switch and a page\nclosed by its cross leave the module in the same state, loaded and off\nthe strip rather than destroyed.\n\n:param screen: the folded module's widget.\n:param host: the host module's screen.\n:returns: True when a page was taken off the strip, False when the host\n    has no strip or the widget is not on it."
+    },
     "spacr.qt.screens.map_barcodes.host_pages": {
       "source_blocks_sha256": [
         "13078d4a55c66faf0c85bd9f907108caea35cbf8974c94fa9520daad07b17e08",
@@ -49982,13 +49993,14 @@
     },
     "spacr.qt.screens.mask": {
       "source_blocks_sha256": [
-        "6b736b07f83ba15e0dfe9f645749b36578e0f04a0bb54fdf6f5bb6e73d43de58",
+        "64e1ceaa3a5d63f8f05ed944da20d83834e6e42bb93390f40e26a4967a4dad21",
+        "d934a682721cf6c4943a6c980fed3e88364a82036ef163740f6b9f9ec50c438d",
         "ef640354b395eeddd783e456f6402b9ad3acb5b386077b1f5284e82ab3f04102",
         "8e50c247c30894c1b0d5674ea385a76ca4ac2d14c0038025f40551fdf4f724aa",
         "54e4a886c26296d8f39c12688abe56e193f7a99f397114eb75bb02843d55e5da"
       ],
-      "source_sha256": "aeccc93c5fe0394bf674446f611692637021f2692dfb1421809c2b21f6ff45fa",
-      "text": "Timelapse segmentation and tracking controls integrated with Mask.\n\nThe Timelapse switch enables ``timelapse=True`` for the standard mask\npipeline and displays the additional time-series and tracking settings on the\nMask form. Settings files created for the Timelapse module remain compatible;\n:func:`sync_folds` restores the switch state from the pipeline gate.\n\nThe integrated tracking preview evaluates object linkage across frames,\nwhereas the standard Mask preview evaluates segmentation of an individual\nfield. Motility analysis remains under Measure because it quantifies existing\nmasks and writes measurements rather than generating masks.\n\nCategory mounting and fold-state synchronization are shared with the other\nhost screens through :mod:`spacr.qt.screens.map_barcodes`."
+      "source_sha256": "187a6cb1f27a4e6d32802b7d56d9f0339ae0fe42084ef6a21cc193da6360f5b7",
+      "text": "The modules folded onto Mask Generation: Timelapse, and OPS.\n\nTWO KINDS OF FOLD MEET HERE, and the difference is what each one does to\nthis screen. Timelapse is SETTINGS: switching it on mounts its categories\non Mask's own form and sets the pipeline gate the run reads, so its switch\nbelongs on the masthead strip beside the heading. OPS is a PAGE: it has 63\nsettings of its own and its own run entry point, none of which is\n`preprocess_generate_masks`, so switching it on puts it on this screen's\npage strip instead and its switch sits in the actions row beside Live --\n\"add the ops button to Mask add it beside the Live and 3D buttons in the\nsame format\", 2026-09-09. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS`\nand :func:`install_ops_switch`.\n\nThe Timelapse switch enables ``timelapse=True`` for the standard mask\npipeline and displays the additional time-series and tracking settings on the\nMask form. Settings files created for the Timelapse module remain compatible;\n:func:`sync_folds` restores the switch state from the pipeline gate.\n\nThe integrated tracking preview evaluates object linkage across frames,\nwhereas the standard Mask preview evaluates segmentation of an individual\nfield. Motility analysis remains under Measure because it quantifies existing\nmasks and writes measurements rather than generating masks.\n\nCategory mounting and fold-state synchronization are shared with the other\nhost screens through :mod:`spacr.qt.screens.map_barcodes`."
     },
     "spacr.qt.screens.mask.example_plate_folder": {
       "source_blocks_sha256": [
@@ -50032,6 +50044,17 @@
       "source_sha256": "5760ced246b09994e26ad01547b22abb1d09d364faa6bdd0cdcd092dcbeb9374",
       "text": "Put Mask Generation's fold switches on ``screen``'s masthead.\n\nAnd the example-plate button on its form: this is the one walk that\nreaches this screen from outside, so everything hung on Mask Generation\nis hung here. See :func:`install_example_data_button`.\n\nIdempotent, and defensive by design: a screen that opens without its\nswitches is a smaller screen, while an exception raised here would be\nno screen at all.\n\n:param screen: the host module's screen.\n:returns: the strip, or None when this screen cannot carry one -- it\n    is not the host, it has no masthead, one is already installed, or\n    no folded module had a category of its own to add."
     },
+    "spacr.qt.screens.mask.install_ops_switch": {
+      "source_blocks_sha256": [
+        "efa60c570757e5996050df15de8460da49d74058f49669f584c4cad7aeff739d",
+        "4408951c0e31153e87731f2c5aa34adb46de9d38655d6682a1679195fd8730af",
+        "1428b1f63b4a225b4864f9b3d3eb269b60dc944263ec761d9b336694862c3122",
+        "1180fb2d487f962ca35507600ffe0107a78412c022fed71c49b002f926b137f2",
+        "c32c2b286c9a5c458196ec75d7a398732930d65618229be2639d9b3627e7c7ee"
+      ],
+      "source_sha256": "30677cb5d782dd663263398d41cc2671d403c5ce2cceeaeffcc9e92f950e031d",
+      "text": "Wire an actions-row switch to the OPS page.\n\nIdempotent: a second call on the same screen returns the first\ninstallation and connects nothing further.\n\n:param screen: the Mask Generation screen.\n:param switch: the toggle to connect.\n:returns: the installation, or None when this is not the host screen."
+    },
     "spacr.qt.screens.mask.load_the_example_images": {
       "source_blocks_sha256": [
         "d0b30158292148141d26cf1724ac0837b882bd75e682e9daff74e850f47353fa",
@@ -50052,6 +50075,13 @@
       ],
       "source_sha256": "4d1d632dcab815974835c24b707c6629c60b60c5456dd171108add696c41b8e4",
       "text": "Mark settings categories with their folded module icons.\n\nBoth mounted categories and host categories listed in\n:data:`FOLD_CATEGORIES` are marked. Repeated calls are idempotent, and a\nmissing icon does not interrupt screen construction.\n\n:param screen: Host module screen.\n:returns: Mapping from folded application keys to marked category titles."
+    },
+    "spacr.qt.screens.mask.ops_page": {
+      "source_blocks_sha256": [
+        "3b912723b54fbb3f9b21255520b071314d2924b5bb29660cdf376de15ad8d398"
+      ],
+      "source_sha256": "3b912723b54fbb3f9b21255520b071314d2924b5bb29660cdf376de15ad8d398",
+      "text": "The OPS switch installed on ``screen``, or None."
     },
     "spacr.qt.screens.mask.sync_folds": {
       "source_blocks_sha256": [
