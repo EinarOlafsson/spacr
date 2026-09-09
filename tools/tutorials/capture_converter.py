@@ -371,9 +371,16 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
     capture('09_completed_fields_reused')
     # Read the genuinely scrollable summary, including the checkpoint line
     # below its three-line viewport; do not enlarge or replace app widgets.
-    screen._summary.setFocus()
-    QTest.keyClick(screen._summary, Qt.Key_End, Qt.ControlModifier)
+    summary_scroll = screen._summary.verticalScrollBar()
+    summary_scroll.setFocus()
+    QTest.keyClick(summary_scroll, Qt.Key_End)
     settle(.2)
+    if summary_scroll.value() != summary_scroll.maximum():
+        raise RuntimeError('The real summary scrollbar did not reach its last line')
+    write_json(captures / 'summary_scroll.json', {
+        'minimum': summary_scroll.minimum(), 'maximum': summary_scroll.maximum(),
+        'value': summary_scroll.value(), 'summary': screen.summary_text(),
+    })
     capture('10_resume_checkpoint_summary')
     write_json(captures / 'resume_evidence.json', second)
     for path, digest in originals.items():
