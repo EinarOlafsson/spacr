@@ -288,3 +288,37 @@ SO THE REAL RESIDUE IS 43, NOT 76, and the two halves want different things:
 
 NOT DONE. Recorded with the measurement rather than left as a number that
 moved.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE CURATED HALF IS FIXED. 76 -> 58, AND 571 -> 589 ANCHORS.
+--------------------------------------------------------------------------------
+
+    before   571 API anchor  149 flow page  76 module page only
+    after    589 API anchor  149 flow page  58 module page only
+
+The 33 curated pairs above are now 15. A hand-written target decides WHICH
+MODULE the reader lands in; it never had to decide that they land at the top
+of it. The anchor is looked up in the same module and added.
+
+THE DETAIL THAT MADE THE FIRST ATTEMPT FIND NOTHING, and it is worth writing
+down because it looked like a dead end: the PER-MODULE consumer table is
+restricted to modules some app's help links to -- see `_app_api_modules` --
+and `spacr.batch_correction` is not one of them. It implements a correction;
+it does not host a panel. Asking that table for a batch anchor returns
+nothing, which reads exactly like "this module has no symbol for this
+setting" and stopped the fix on 2026-09-09 an hour before it was made. The
+KEY-ONLY table has the row: `correction_kwargs`, exact.
+
+So six of the eight batch settings gain
+`batch_correction.correction_kwargs`, across every panel that shows them.
+
+THE EIGHT EVALUATION KEYS GAIN NOTHING, and this is a real limit rather than
+a gap to close later. They are curated to `classifier_evaluation` and read in
+`deep_spacr`, so there is no symbol in the curated module to point at.
+Pointing at the `deep_spacr` one would be a fragment the landed page does not
+carry -- item 3's defect, which this instruction closed, arriving by a third
+route. They stay at the top of their module page, correctly.
+
+WHAT IS LEFT is 43 pairs whose setting has no flow section because nothing
+static analysis can see reads them, plus these 15. The first number moves
+only if the analyser learns to see more; the second does not move at all.

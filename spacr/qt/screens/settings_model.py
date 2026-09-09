@@ -4026,6 +4026,29 @@ DOCS_SITE_BASE = "https://einarolafsson.github.io/spacr"
 FLOW_ANCHOR = "setting-flow-"
 
 
+def _anchor_inside(key: str, module: str) -> str:
+    """The API anchor for ``key`` if its consumer lives in ``module``.
+
+    Returns "" when the setting is read somewhere else, or by a private
+    function that AutoAPI publishes no anchor for. Pointing at a symbol
+    from a DIFFERENT module would be a fragment the page does not carry,
+    which the browser ignores in silence -- item 3's defect.
+    """
+    try:
+        from spacr.qt.screens.setting_api_targets import SETTING_API_TARGETS
+    except Exception:                                        # noqa: BLE001
+        return ""
+    row = SETTING_API_TARGETS.get(key)
+    if not row:
+        return ""
+    where, symbol = row[0], row[1]
+    if where != "spacr." + str(module).replace("/", "."):
+        return ""
+    if not symbol or str(symbol).rsplit(".", 1)[-1].startswith("_"):
+        return ""
+    return f"{where}.{symbol}"
+
+
 def _has_a_flow_section(key: str) -> bool:
     """Whether the settings-flow page can answer for this setting.
 
@@ -4339,6 +4362,25 @@ def api_docs_url(
         # THE TILE'S OWN LINK. Six tiles share three module pages; this sends
         # each to the entry point that answers for it. See `_APP_API_ANCHOR`.
         anchor = _module_level_anchor(app_key, module or "")
+    if chosen_by_hand and module and not anchor and key:
+        # A CURATED MODULE CAN STILL HAVE A PRECISE ANCHOR. The three cases
+        # above choose the module a person decided the reader should land in
+        # -- and then left the anchor empty, so the link went to the top of
+        # that page. The consumer map often knows the symbol INSIDE that same
+        # module, and taking it keeps the decision while adding the part the
+        # hand-written table never carried.
+        #
+        # The KEY-ONLY map, not the per-module one, and the difference is why
+        # the obvious version of this found nothing: the per-module table is
+        # restricted to modules some app's help links to, and
+        # `batch_correction` is not one -- it implements a correction, it does
+        # not host a panel. Its row lives in the key-only map.
+        #
+        # Six of the eight batch settings gain
+        # `batch_correction.correction_kwargs` from this. The eight
+        # classifier-evaluation keys gain nothing and cannot: they are read in
+        # `deep_spacr`, so their curated module has no symbol to point at.
+        anchor = _anchor_inside(key, module)
     if (module and not anchor and key and not chosen_by_hand
             and _has_a_flow_section(key)):
         # A MODULE PAGE THAT MAY NOT MENTION THE SETTING. Instruction 383:

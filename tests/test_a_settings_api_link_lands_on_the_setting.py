@@ -317,3 +317,35 @@ def test_the_fallback_is_silent_when_the_index_is_missing():
             "mask", "magnification")
     finally:
         builtins.__import__ = real_import
+
+
+def test_a_curated_target_gets_an_anchor_when_its_module_has_one():
+    """The hand-written module decides WHERE; it need not decide nothing else.
+
+    `batch_*`, the classifier-evaluation keys and UMAP's search keys are
+    routed by hand to the module a person decided the reader should land
+    in -- and the table carried no symbol, so the link went to the top of
+    that page. 33 of the 76 anchorless links were these.
+
+    The anchor comes from the KEY-ONLY consumer map, and that detail is
+    the whole fix: the per-module table is restricted to modules some
+    app's help links to, and `batch_correction` is not one of those -- it
+    implements a correction, it does not host a panel. Looking there
+    found nothing and read as "no anchor exists".
+    """
+    from spacr.qt.screens.settings_model import api_docs_url
+
+    landed = api_docs_url("umap", "batch_correction")
+    assert landed.endswith(
+        "/batch_correction/index.html"
+        "#spacr.batch_correction.correction_kwargs"), landed
+    # The curated MODULE is still the one a person chose, which is the
+    # property `test_defaults_and_gui_categories_expose_batch_correction`
+    # pins and which the flow-page fallback must never overrule.
+    assert "/batch_correction/index.html" in landed
+
+    # And it stays empty where the curated module genuinely has no symbol:
+    # the evaluation keys are read in `deep_spacr`, so pointing at one
+    # would be a fragment `classifier_evaluation` does not carry.
+    evaluation = api_docs_url("classify_merged", "evaluation_bins")
+    assert evaluation.endswith("/classifier_evaluation/index.html"), evaluation
