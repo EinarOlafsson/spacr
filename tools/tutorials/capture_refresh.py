@@ -239,12 +239,29 @@ def main() -> int:
             record_diagnostics(window, screen, stage, args.diagnostics_from,
                                captures, capture, settle, write_json)
         if args.download:
-            buttons = [w for w in screen.findChildren(QAbstractButton)
-                       if w.isVisible() and w.isEnabled()
-                       and w.text().replace('…', '').strip() == 'Load test data']
+            def visible_test_data_buttons():
+                return [w for w in screen.findChildren(QAbstractButton)
+                        if w.isVisible() and w.isEnabled()
+                        and w.text().replace('…', '').strip() == 'Load test data']
+
+            buttons = visible_test_data_buttons()
+            if not buttons and args.module == 'classify_merged':
+                from copy import deepcopy
+                from capture_settings import require_unchanged_settings
+                before_disclosure = deepcopy(screen._settings_model.collect())
+                bar = screen._settings_search
+                if bar.level() != 'all':
+                    QTest.mouseClick(bar._disclosure, Qt.LeftButton)
+                    settle()
+                    capture('01_all_settings')
+                require_unchanged_settings(before_disclosure, screen._settings_model.collect())
+                buttons = visible_test_data_buttons()
             if len(buttons) != 1:
                 raise RuntimeError(f'Expected one visible test-data control, got {len(buttons)}')
             button = buttons[0]
+            if hasattr(screen, '_settings_scroll'):
+                screen._settings_scroll.ensureWidgetVisible(button)
+                settle()
             already_cached = any((stage / 'example_data/plate1').glob('*.tif'))
             loading_frame = '02_cached_load' if already_cached else '02_download'
             QTimer.singleShot(800, lambda: capture(loading_frame))

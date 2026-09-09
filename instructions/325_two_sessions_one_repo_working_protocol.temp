@@ -3164,3 +3164,18 @@ download-to-grid transition remains the separate app follow-up already filed.
 When documentation repair released the large GPU allocation I resumed the
 remaining Regression voices with the same 10% cap; completed CPU tracks stay
 excluded. Neither authoring job modifies application/i18n files.
+
+CODEX, 2026-09-09 — REGRESSION AND ANNOTATE MULTILINGUAL TECHNICAL CHECKS PASS.
+Regression's full matrix is committed in 7eb76ac47. Annotate's 20-scene script
+now exists in every catalog (981545719 completed the captions); its one shared
+4K video, all 50 voices and all 14 language browser checks also pass. All audio
+files were fully decoded and fingerprint-checked, then rehashed against those
+reports. Current staged catalogs agree on 75 lessons / 552 scenes. These are
+editorial and technical checks, not native-speaker or human-listening sign-off.
+Five refreshed lessons now have this complete technical matrix: Home, Import
+Images, Regression Diagnostics, Regression and Annotate. Publication stays held.
+
+Next is Classify's real example. On the initial Essentials view only Classifier
+family is exposed, and the installed Load test data control is not visible.
+I am checking the actual All settings route rather than invoking its download
+callback invisibly. No application, Qt or i18n file is being edited by Codex.
