@@ -2,6 +2,38 @@
 HOLD Z AND SCROLL TO CHANGE THE FONT SIZE LIVE -- IF IT CAN BE MADE FAST
 ================================================================================
 
+Status:    CLOSED 2026-09-09. Built 2026-09-05 in `spacr/qt/live_zoom.py`,
+           and the two things PART 5 listed as "rejected, with the reason"
+           are now done -- both were deferred for the same reason, and it
+           was never about the gesture.
+
+           Each is one more English sentence, and every user-facing sentence
+           here is a row in ten translation catalogs a ratchet test audits;
+           adding one meant regenerating catalogs that other work was
+           editing that week. The file named its own condition -- "STILL
+           WORTH DOING, with its catalog row, whenever the catalogs are next
+           rebuilt". 316 closed on 2026-09-09 and the catalogs are stable,
+           so it was met and both landed:
+
+             * the live "Text size 120 %" readout in the status bar,
+               ROUNDED rather than truncated, because PART 5 records that
+               four notches down from 1.0 is 0.7999999999999998 and 79 %
+               reads as a bug in the gesture rather than in the print;
+             * "Z + scroll -- Resize the interface text" on the cheat sheet,
+               with its nine hand-written compact rows.
+
+           THE CHEAT SHEET'S TEST HAD TO LEARN WHAT A GESTURE IS. It
+           required every entry to be a bound QShortcut or QAction, and this
+           one cannot be: Qt binds to a key PRESS, and a modifier held while
+           the wheel turns is caught in an event filter with no
+           QKeySequence that expresses it. The rule is "documented and
+           REACHABLE", which the file already said about QAction. Gestures
+           are now recognised by SHAPE -- " + " with spaces is prose, a real
+           sequence is "Ctrl+Shift+A" -- so a second one needs no edit here
+           and a mistyped sequence still fails.
+
+           PREVIOUS STATUS FOLLOWS.
+
 Status:    BUILT 2026-09-05, in `spacr/qt/live_zoom.py`, and live -- but NOT
            by the route PART 2 proposed, which was measured and does not
            exist. Qt has no relative unit for `font-size`, so the stylesheet
