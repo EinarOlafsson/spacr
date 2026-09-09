@@ -23,6 +23,64 @@ def _digest(path):
     return digest.hexdigest()
 
 
+def check_converter_run_status(records, *, operation, planned_targets,
+                               verified_outputs, planned_fields, resumed_fields,
+                               n_sources, n_written, n_existing,
+                               previous_records=()):
+    """Validate the newest ledger entry against this independently checked run.
+
+    A complete first conversion attempts every source and writes every target.
+    A full checkpoint resume attempts nothing, so its legitimate ledger status
+    is ``empty``. That is accepted only with exact target coverage, successful
+    independent pixel checks, and every planned field demonstrably reused.
+    Prior entries must be preserved with exactly one new, distinct run appended.
+    """
+    targets = tuple(planned_targets)
+    fields = tuple(planned_fields)
+    resumed = tuple(resumed_fields)
+    if (not targets or len(set(targets)) != len(targets)
+            or not fields or len(set(fields)) != len(fields)):
+        raise ValueError('The conversion must have unique planned outputs and fields')
+    if (set(verified_outputs) != set(targets)
+            or any(proof.get('all_pixels_exact') is not True
+                   for proof in verified_outputs.values())):
+        raise ValueError('Every planned output must be independently verified')
+    if (not isinstance(records, list) or len(records) != len(previous_records) + 1
+            or records[:-1] != list(previous_records)
+            or not isinstance(records[-1], dict)):
+        raise ValueError('The ledger must preserve its history and append exactly one run')
+    last = records[-1]
+    run_id = last.get('run_id')
+    if (not isinstance(run_id, str) or not run_id
+            or any(entry.get('run_id') == run_id for entry in previous_records)):
+        raise ValueError('The latest operation needs a distinct run identity')
+    if last.get('name') != 'convert_to_yokogawa_plan':
+        raise ValueError('The latest ledger entry is not the converter operation')
+    counts = (n_sources, n_written, n_existing,
+              last.get('n_attempted'), last.get('n_succeeded'), last.get('n_failed'))
+    if any(type(value) is not int or value < 0 for value in counts) or n_sources == 0:
+        raise ValueError('Conversion counts must be exact nonnegative integers')
+    if last['n_failed'] != 0 or last.get('failures') != []:
+        raise ValueError('The latest converter operation recorded a failure')
+    if operation == 'convert':
+        if (n_written != len(targets) or n_existing != 0 or resumed
+                or last.get('status') != 'complete'
+                or last['n_attempted'] != n_sources or last['n_succeeded'] != n_sources
+                or last.get('success_by_stage') != {'convert': n_sources}):
+            raise ValueError('The latest operation did not complete all new conversions')
+    elif operation == 'resume':
+        if (n_written != 0 or n_existing != len(targets)
+                or len(resumed) != len(fields) or set(resumed) != set(fields)
+                or last.get('status') != 'empty'
+                or last['n_attempted'] != 0 or last['n_succeeded'] != 0
+                or last.get('success_by_stage') != {}):
+            raise ValueError('An empty ledger is valid only for verified reuse of every planned output')
+    else:
+        raise ValueError(f'Unknown expected converter operation: {operation}')
+    return {'operation': operation, 'run_id': run_id, 'ledger_status': last['status'],
+            'ledger_entries': len(records), 'independently_verified_outputs': len(targets)}
+
+
 def record_converter(app, window, screen, stage, captures, capture, settle,
                      write_json, timeout):
     """Use real pickers, Preview, Convert and Resume; fail closed on mismatch."""
@@ -232,7 +290,7 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
         'plate_naming': screen.plate_naming(), 'resume': screen.resume_enabled(),
     })
 
-    def verify_outputs(result, status):
+    def verify_outputs(result, status, previous_records=()):
         if result is None or not result.is_complete or result.failed or result.skipped:
             raise RuntimeError('The real conversion did not complete')
         map_path = Path(result.map_path)
@@ -266,14 +324,20 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
             raise RuntimeError('Unexpected or missing output TIFFs')
         run_status_path = map_path.with_suffix('.run_status.json')
         run_status = json.loads(run_status_path.read_text())
-        if (not run_status or any(r.get('status') != 'complete' or r.get('n_failed') != 0
-                                  for r in run_status)):
-            raise RuntimeError('The generated conversion provenance reports an incomplete run')
+        ledger_check = check_converter_run_status(
+            run_status, operation='convert' if status == 'converted' else 'resume',
+            planned_targets=[str(destination / row['target']) for row in expected.values()],
+            verified_outputs=outputs,
+            planned_fields=[f"{row['plate']}/{row['well']}/f{row['field']:04d}"
+                            for row in expected.values()],
+            resumed_fields=result.resumed_fields, n_sources=plan.n_sources,
+            n_written=result.n_written, n_existing=len(result.existing),
+            previous_records=previous_records)
         checkpoint = Path(result.checkpoint_path)
         if checkpoint.parent != destination or not checkpoint.is_file():
             raise RuntimeError('No actual field checkpoint was written in the destination')
         return {'mapping_rows': rows, 'mapping_sha256': _digest(map_path),
-                'outputs': outputs, 'run_status': run_status,
+                'outputs': outputs, 'run_status': run_status, 'ledger_check': ledger_check,
                 'checkpoint_path': str(checkpoint), 'checkpoint_sha256': _digest(checkpoint),
                 'n_written': result.n_written, 'n_existing': len(result.existing),
                 'resumed_fields': list(result.resumed_fields)}
@@ -298,7 +362,7 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
     if (resumed is None or resumed is result or resumed.n_written != 0
             or len(resumed.existing) != 2 or len(resumed.resumed_fields) != 2):
         raise RuntimeError('Resume did not reuse the two complete fields')
-    second = verify_outputs(resumed, 'existing')
+    second = verify_outputs(resumed, 'existing', previous_records=first['run_status'])
     if second['outputs'] != first['outputs']:
         raise RuntimeError('Resume modified the independently verified TIFFs')
     second.update(summary=screen.summary_text(), status=screen.status_text(),
