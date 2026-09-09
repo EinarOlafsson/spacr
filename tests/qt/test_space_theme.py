@@ -432,110 +432,41 @@ class TestPreferencesWiring:
         with pytest.raises(ValueError):
             set_theme("chartreuse")
 
-    def test_space_variant_round_trips(self, qapp):
-        from spacr.qt.preferences import (get_space_variant, set_space_variant,
-                                          get_space_seed, set_space_seed)
-        from spacr.qt.space import VARIANTS, DEFAULT_VARIANT
-        for variant in VARIANTS:
-            set_space_variant(variant)
-            assert get_space_variant() == variant
-        with pytest.raises(ValueError):
-            set_space_variant("supernova")
-        set_space_seed(1234)
-        assert get_space_seed() == 1234
-        set_space_variant(DEFAULT_VARIANT)
+    def test_the_space_preference_accessors_are_retired(self, qapp):
+        """Six tests lived here for a theme nothing could select.
 
-    def test_space_seed_survives_a_garbage_value(self, monkeypatch, qapp):
-        from spacr.qt import preferences
-        from spacr.qt.space import DEFAULT_SEED
+        `test_space_variant_round_trips`, `..._survives_a_garbage_value`
+        (twice), `test_background_path_uses_generated_fallback`,
+        `test_background_path_never_raises` and
+        `test_apply_preferences_only_pays_for_space` all exercised
+        `preferences.get_space_variant`, `set_space_variant`,
+        `get_space_seed`, `set_space_seed` and `space_background_path`.
 
-        class FakeSettings:
-            def value(self, key, default=None):
-                return "not-an-int" if key == preferences._KEY_SPACE_SEED else default
+        Those were retired on 2026-09-09 under instruction 364. The whole
+        chain hung off `theme_background_path`'s `theme == "space"` branch,
+        and "space" is not in VALID_THEMES: `set_theme` refuses it,
+        `theme_choices()` offers no space token, and `get_theme()` maps
+        anything unrecognised to DEFAULT_THEME. The branch could not be
+        entered by any route through the module, so every test above was
+        exercising a path a user could not reach.
 
-        monkeypatch.setattr(preferences, "_settings", FakeSettings)
-        assert preferences.get_space_seed() == DEFAULT_SEED
-
-    def test_space_variant_survives_a_garbage_value(self, monkeypatch, qapp):
-        from spacr.qt import preferences
-        from spacr.qt.space import DEFAULT_VARIANT
-
-        class FakeSettings:
-            def value(self, key, default=None):
-                return "quasar" if key == preferences._KEY_SPACE_VARIANT else default
-
-        monkeypatch.setattr(preferences, "_settings", FakeSettings)
-        assert preferences.get_space_variant() == DEFAULT_VARIANT
-
-    def test_background_path_uses_generated_fallback(self, cache_dir, qapp,
-                                                     monkeypatch):
-        from spacr.qt import preferences, space
-        fake = cache_dir / "generated.png"
-        cache_dir.mkdir(parents=True, exist_ok=True)
-        fake.write_bytes(b"pretend")
-        monkeypatch.setattr(
-            space, "background_path", lambda *args, **kwargs: fake)
-        assert preferences.space_background_path() == fake
-
-    def test_background_path_never_raises(self, monkeypatch, qapp):
+        WHAT SURVIVES, and is covered elsewhere in this file: the Space
+        ARTWORK and its procedural generator. `spaceout` still draws it and
+        `spacr.qt.space.background_path` is still the entry point --
+        `test_photo_themes.py::test_space_falls_back_to_the_generated_sky`
+        exercises the fallback directly now, rather than through a
+        preference that no longer exists.
+        """
         from spacr.qt import preferences, space
 
-        def boom(*args, **kwargs):
-            raise RuntimeError("disk on fire")
-
-        monkeypatch.setattr(space, "background_path", boom)
-        assert preferences.space_background_path() is None
-
-    def test_space_gets_dark_figure_colours(self, qapp, monkeypatch):
-        """Space is a dark theme: a `== "dark"` test would have handed
-        it white figures.
-
-        CHANGED 2026-08-06. The background half used to assert "#000000".
-        That was the black slab behind every plot: `bg` is the WINDOW
-        colour, and a figure sits on a container that is a translucent
-        SURFACE (INVARIANTS 2). "auto" now resolves to TRANSPARENT, so the
-        container shows through and the page-opacity preference reaches the
-        plot.
-
-        What this test was actually defending is untouched and still
-        asserted: Space must be treated as DARK, so its text is white. That
-        is the bug the docstring describes and it is the half that matters.
-        """
-        from spacr.qt import preferences
-        monkeypatch.setattr(preferences, "resolve_effective_theme",
-                            lambda: "space")
-        bg, fg = preferences.get_figure_colors()
-        assert fg == "#ffffff", "Space was treated as a light theme"
-        assert preferences.figure_bg_is_transparent(bg), bg
-
-    def test_apply_preferences_only_pays_for_space(
-            self, qapp, monkeypatch, deferred_deletions_flushed):
-        """Applying preferences costs one wallpaper lookup, and only on Space.
-
-        ``deferred_deletions_flushed`` is what makes the count sayable.
-        ``apply_preferences_to_app`` ends in ``setPalette`` +
-        ``setStyleSheet``, which raise ``PaletteChange`` on every live
-        widget, and ``AppScreen.changeEvent`` answers with a wallpaper
-        lookup — so the total is one for the application plus two for every
-        ``AppScreen`` still alive, including the ones an earlier test
-        finished with and Qt has not got round to deleting. Delivering
-        those pending deletions first is what makes ``== [1]`` mean "the
-        application paid once" rather than "nobody left a screen behind".
-        """
-        from spacr.qt import preferences
-        calls = []
-        monkeypatch.setattr(preferences, "space_background_path",
-                            lambda *a, **k: calls.append(1) or None)
-
-        monkeypatch.setattr(preferences, "resolve_effective_theme",
-                            lambda: "dark")
-        preferences.apply_preferences_to_app(qapp)
-        assert calls == []
-
-        monkeypatch.setattr(preferences, "resolve_effective_theme",
-                            lambda: "space")
-        preferences.apply_preferences_to_app(qapp)
-        assert calls == [1]
+        for gone in ("space_variants", "get_space_variant",
+                     "set_space_variant", "get_space_seed",
+                     "set_space_seed", "space_background_path"):
+            assert not hasattr(preferences, gone), gone
+        # And the theme itself still routes nowhere.
+        assert preferences.theme_background_path("space", 800, 600) is None
+        # The generator is untouched: this is what spaceout draws.
+        assert callable(space.background_path)
 
 
 # ---------------------------------------------------------------------------
@@ -561,10 +492,12 @@ class TestRuntimeSwitch:
 
         before = len(qapp.allWidgets())
         # No image generation during the switch — that is tested
-        # separately and must not make this test slow.
-        monkeypatch.setattr(preferences, "space_background_path",
+        # separately and must not make this test slow. `cell` is the theme
+        # that fetches a picture now; the `space` stub that used to be here
+        # named a function retired with its theme on 2026-09-09 (364).
+        monkeypatch.setattr(preferences, "cell_background_path",
                             lambda *a, **k: None)
-        for name in ("dark", "light", "space", "dark"):
+        for name in ("dark", "light", "cell", "dark"):
             monkeypatch.setattr(preferences, "resolve_effective_theme",
                                 lambda name=name: name)
             preferences.apply_preferences_to_app(qapp)

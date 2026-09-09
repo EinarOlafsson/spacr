@@ -19,10 +19,8 @@ Public API::
     from spacr.qt.preferences import (
         get_theme, set_theme, get_theme_choice, set_theme_choice,
         get_language, set_language,
-        get_space_variant, set_space_variant,
         get_cell_variant, set_cell_variant,
-        get_space_seed, set_space_seed,
-        space_background_path, cell_background_path,
+        cell_background_path,
         theme_background_path,
         get_ambient_enabled, set_ambient_enabled,
         get_ambient_animation, set_ambient_animation,
@@ -533,6 +531,9 @@ VALID_THEMES = PALETTE_THEMES + ("system",)
 #: desktop app that ignores the system setting looks broken on a light desktop.
 DEFAULT_THEME = "system"
 
+#: RETIRED 2026-09-09. Kept as names only so a stored value can still be
+#: recognised and cleared; nothing reads them. See the note above
+#: `theme_background_path`.
 _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
 _KEY_CELL_VARIANT  = "prefs/cell_variant"
@@ -1553,35 +1554,6 @@ def set_theme_choice(choice: str) -> None:
         set_theme(choice)
 
 
-def space_variants() -> tuple:
-    """Every background the Space theme offers.
-
-    The three procedural skies from :mod:`spacr.qt.space` plus the
-    photographic ones from :mod:`spacr.qt.imagery`. The photo keys are
-    kept out of ``space.VARIANTS`` because those three index
-    ``space._VARIANT_MIX`` and a photograph has no mix.
-    """
-    from .imagery import SPACE_PHOTO_VARIANTS
-    from .space import VARIANTS
-    return tuple(VARIANTS) + tuple(SPACE_PHOTO_VARIANTS)
-
-
-def get_space_variant() -> str:
-    """Which background the Space theme uses."""
-    from .space import DEFAULT_VARIANT
-    raw = str(_settings().value(_KEY_SPACE_VARIANT, DEFAULT_VARIANT))
-    return raw if raw in space_variants() else DEFAULT_VARIANT
-
-
-def set_space_variant(variant: str) -> None:
-    """Persist a supported procedural or photographic Space variant."""
-    valid = space_variants()
-    if variant not in valid:
-        raise ValueError(f"unknown space variant {variant!r}. "
-                          f"Choose from {valid}.")
-    _settings().setValue(_KEY_SPACE_VARIANT, variant)
-
-
 def get_cell_variant() -> str:
     """Which of the user's micrographs the Cell theme uses."""
     from .imagery import CELL_VARIANTS, DEFAULT_CELL_VARIANT
@@ -1598,48 +1570,27 @@ def set_cell_variant(variant: str) -> None:
     _settings().setValue(_KEY_CELL_VARIANT, variant)
 
 
-def get_space_seed() -> int:
-    """Seed for the procedural sky. Same seed → same pixels, forever."""
-    from .space import DEFAULT_SEED
-    try:
-        return int(_settings().value(_KEY_SPACE_SEED, DEFAULT_SEED))
-    except (TypeError, ValueError):
-        return DEFAULT_SEED
-
-
-def set_space_seed(seed: int) -> None:
-    """Persist the deterministic seed used for procedural backgrounds."""
-    _settings().setValue(_KEY_SPACE_SEED, int(seed))
-
-
-def space_background_path(width: int = 0, height: int = 0):
-    """Path of the background image for the Space theme, or ``None``.
-
-    The selected photographic variant is used when its master is installed;
-    otherwise the selected procedural sky is generated and cached. Returns
-    ``None`` only when neither can be produced, at which point the stylesheet
-    paints a flat gradient.
-
-    A missing photo master is not an error and not a dead end — the theme
-    falls back to the generated sky, which needs no assets and
-    no network. **Never raises and never touches the network.**
-    """
-    try:
-        from . import space
-        variant = get_space_variant()
-        from .imagery import SPACE_PHOTO_VARIANTS, background_path
-        if variant in SPACE_PHOTO_VARIANTS:
-            photo = background_path(variant, width, height)
-            if photo is not None:
-                return photo
-        if width <= 0 or height <= 0:
-            width, height = space.screen_size()
-        return space.background_path(width, height,
-                                     variant=variant,
-                                     seed=get_space_seed())
-    except Exception:
-        return None
-
+#: THE SPACE THEME'S KEYS WERE RETIRED, 2026-09-09 (instruction 364).
+#:
+#: `space_variants`, `get_space_variant`, `set_space_variant`,
+#: `get_space_seed`, `set_space_seed` and `space_background_path` lived here
+#: and only ever called each other. `space_background_path` had exactly one
+#: caller -- the `theme == "space"` branch of `theme_background_path` -- and
+#: `"space"` is not in `VALID_THEMES`, so `set_theme` refuses it,
+#: `theme_choices()` offers no space token, and `get_theme()` maps anything
+#: unrecognised to `DEFAULT_THEME`. The branch could not be entered by any
+#: route through this module.
+#:
+#: The comment in `get_theme_choice` above already made half this argument --
+#: "a branch for it could not be reached by any route through this module" --
+#: and then kept the accessors on the grounds that "spaceout still draws it".
+#: That half was wrong. `spaceout` is the fractal dressing, and the "space"
+#: fractal PATTERN is `widgets/fractal_space.py`, a starfield shader that
+#: reads neither key. `set_space_variant` and `set_space_seed` were called
+#: from nowhere at all.
+#:
+#: The Space ARTWORK is untouched; what is gone is the accessor pair for a
+#: theme name nothing can select.
 
 def cell_background_path(width: int = 0, height: int = 0):
     """Path of the background image for the Cell theme, or ``None``.
@@ -1662,8 +1613,9 @@ def theme_background_path(theme: str, width: int = 0, height: int = 0):
     :func:`apply_preferences_to_app` and anything else that re-applies
     the stylesheet cannot drift apart.
     """
-    if theme == "space":
-        return space_background_path(width, height)
+    # NO `space` BRANCH. It was unreachable -- see the retirement note above
+    # `space_variants`' former home -- and a branch nothing can enter is a
+    # branch that will be read as live by the next person to touch this.
     if theme == "cell":
         return cell_background_path(width, height)
     return None

@@ -871,7 +871,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #          can now change the API inventory as a side effect. No
     #          callables came with it -- it is a frozenset -- so the callable
     #          counts below are unmoved.
-    expected = 10_243
+    #          10,243 -> 10,237 (2026-09-09). SIX SYMBOLS REMOVED, not
+    #          added: `space_variants`, `get_space_variant`,
+    #          `set_space_variant`, `get_space_seed`, `set_space_seed` and
+    #          `space_background_path`, retired under instruction 364. They
+    #          served a theme nothing could select -- "space" is not in
+    #          VALID_THEMES, `set_theme` refuses it, and `theme_choices()`
+    #          offers no space token -- so the one caller,
+    #          `theme_background_path`'s `theme == "space"` branch, was
+    #          unreachable and went with them.
+    expected = 10_237
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -889,7 +898,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_243
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_237
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -974,7 +983,11 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     #     1  spacr.qt.run_without_setup
     #   ---
     #   213
-    assert 10_456 - len(docs) == 213
+    # 10,456 -> 10,450 with the six retired space accessors. The BOUNDARY
+    # stays 213: they were rendered symbols, so both totals fall together.
+    # Moving only one would silently reattribute six removals to the
+    # non-rendered pile.
+    assert 10_450 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

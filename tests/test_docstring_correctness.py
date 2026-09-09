@@ -1940,9 +1940,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # `spacr.foreign` and `spacr.omero` instead. The two callables are the
     # dataclass constructor and its `summary`, which is why
     # `dataclass_constructor` and `method` each move by one.
-    assert len(callables) == len(by_symbol) == 8_465
+    # 8,465 -> 8,459 on 2026-09-09: the six space accessors retired under
+    # instruction 364, for a theme nothing could select.
+    assert len(callables) == len(by_symbol) == 8_459
     assert Counter(item.category for item in callables) == {
-        "function": 3_654,
+        "function": 3_648,
         "method": 3_776,
         "constructor": 393,
         "dataclass_constructor": 443,
@@ -1951,7 +1953,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "inherited_or_default_constructor": 56,
     }
     assert Counter(item.exposure for item in callables) == {
-        "autoapi": 8_460,
+        "autoapi": 8_454,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -1959,9 +1961,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # one new callable has one signature, like almost every other. The
     # seven two-variant entries are unchanged, which is the part worth
     # asserting -- a new overload pair would be a different event.
-    assert sum(item.variant_count for item in callables) == 8_472
+    # 8,472 -> 8,466 with the six retired space accessors.
+    assert sum(item.variant_count for item in callables) == 8_466
     assert Counter(item.variant_count for item in callables) == {
-        1: 8_458,
+        1: 8_452,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -1989,8 +1992,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     #       `event` is the one REQUIRED parameter in the set -- which is
     #       why the required total moves by one where the parameter total
     #       moves by four.
-    assert sum(len(item.parameters) for item in callables) == 16_694
-    assert sum(len(item.required_parameters) for item in callables) == 8_454
+    # 16,694 -> 16,690: four parameters left with the six retired space
+    # accessors (two took none). Required falls 8,454 -> 8,452.
+    assert sum(len(item.parameters) for item in callables) == 16_690
+    assert sum(len(item.required_parameters) for item in callables) == 8_452
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2000,7 +2005,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         f"{item.variant_count}\0{item.docless_variant_count}\0"
         f"{item.constructor_prose_variant_count}"
         for item in callables
-    ) == "378a24409d6eb8510fb5ffa6b8f6142fe8d82a6f3ba8e5e3053ea06b1ad2a336"
+    ) == "2b848bb4562d565e8d644d640388e5ce679e1e0bb0d28732caa0925083b055ed"
 
     # Fieldless, docless and generated-constructor contracts all remain in
     # scope.  These are named assertions so a future refactor cannot preserve
@@ -2331,13 +2336,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # RegexEditorDialog.resizeEvent. The extractor's own ratchet moved
     # 10,237 -> 10,242 over the same span and decomposes the difference:
     # +12 admitted, -7 retired with spacr.seg_metrics gone.
-    assert len(docs) == 10_243
+    # 10,243 -> 10,237 with the same six retirements.
+    assert len(docs) == 10_237
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
     # figure in this test: RegexEditorDialog.resizeEvent is both a public
     # callable and a rendered documented one.
-    assert len(rendered_documented_callables) == 8_460
+    # 8,460 -> 8,454: the six space accessors retired under 364.
+    assert len(rendered_documented_callables) == 8_454
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 
@@ -2577,22 +2584,26 @@ def test_no_new_undocumented_required_public_parameters():
     #
     # The total is a NET figure and a net figure hides one of these behind
     # the other, so the sum stays 1,635 while both halves moved.
-    assert len(omissions) == 2_280
-    assert sum(omitted_callables.values()) == 1_635
+    # 2,280 -> 2,278. Two of the six retired space accessors were
+    # omissions rather than rendered symbols, so this falls by two where
+    # the surface falls by six.
+    assert len(omissions) == 2_278
+    # 1,635 -> 1,633: two of the six retired accessors were omissions.
+    assert sum(omitted_callables.values()) == 1_633
     assert omitted_callables == {
-        "function": 757,
+        "function": 755,
         "method": 834,
         "dataclass_constructor": 42,
         "namedtuple_constructor": 2,
     }
     assert omitted_parameters == {
-        "function": 1_128,
+        "function": 1_126,
         "method": 1_010,
         "dataclass_constructor": 130,
         "namedtuple_constructor": 12,
     }
     assert _sha256_lines(omissions) == (
-        "5fdade7584fc451ea7ee90610e87a4e8857862867366dd9c7af31df584ca9f6c"
+        "49e7242e3f2a3f78c75bf50f5397f5c461bfad34ea2864e98b80449af1d7f999"
     )
 
 
