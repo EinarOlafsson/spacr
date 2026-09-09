@@ -2,9 +2,17 @@
 A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
 ================================================================================
 
-Status:    the sweep is written, green and running in three locales at two
-           font scales; four defects found and fixed. Filed 2026-09-02,
-           last measured 2026-09-05.
+Status:    GREEN IN EVERY COMBINATION IT RUNS, 2026-09-09. Four locales at
+           two font scales over 26 screens and the dialogs added so far:
+           208 cases, no clipped caption anywhere, and `KNOWN_OFFENDERS` is
+           empty -- every entry it ever held was CLOSED rather than
+           forgiven. Five defects found and fixed. Filed 2026-09-02.
+
+           WHAT REMAINS IS COVERAGE, NOT DEBT: 18 dialogs that need
+           invented fixtures, the six locales dropped from the matrix
+           because they found nothing (run by hand when one is suspected;
+           the matrix is one line), and the remaining raw geometry
+           constants. Nothing currently measured is failing.
 
            SCREEN COVERAGE IS NOW COMPLETE. The sweep sampled eight screens
            while the method was being proven; on 2026-09-05 the other sixteen
