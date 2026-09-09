@@ -144,27 +144,64 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         raise RuntimeError('The actual External Masks fold did not open')
     screen = children[0]
     capture('01b_current_external_masks_fold')
-    model, bar = screen._settings_model, screen._settings_search
+    model = screen._settings_model
     width = sum(screen._body_splitter.sizes())
     screen._body_splitter.setSizes([width // 2, width - width // 2])
-    if bar.modified_only():
-        click(bar._modified)
-    if bar.level() != 'all':
-        click(bar._disclosure)
-    if bar.level() != 'all' or bar.modified_only():
-        raise RuntimeError('The actual settings search did not expose all settings')
+
+    def owning_sections(field):
+        # The folded AppScreen has no shell-installed settings search.
+        # Follow only its existing widget ancestry: inspecting dormant form
+        # rows can itself materialize them, so do not use _row_widgets here.
+        registered = {id(section) for section in screen._settings_sections}
+        ancestors = []
+        parent = field.parentWidget()
+        while parent is not None and parent is not screen:
+            if id(parent) in registered:
+                ancestors.append(parent)
+            parent = parent.parentWidget()
+        return list(reversed(ancestors))
+
+    def unavailable(key, reason, field=None):
+        details = {'key': key, 'reason': reason, 'section_path': []}
+        if field is not None:
+            details['field'] = {'type': type(field).__name__,
+                                'visible': field.isVisible(),
+                                'hidden': field.isHidden()}
+            details['section_path'] = [
+                {'title': section.property('settingsCategorySource'),
+                 'expanded': section.is_expanded(),
+                 'visible': section.isVisible(),
+                 'discarded': bool(section.property('settingsSectionDiscarded'))}
+                for section in owning_sections(field)]
+        write_json(captures / 'setting_visibility_error.json', details)
+        capture('setting_unavailable_' + key)
+        raise RuntimeError(f'The actual {key} setting is not exposed: {reason}')
 
     def expose(key):
-        fill(bar._input, key)
-        settle(0.3)
-        if key not in bar.visible_keys() or key not in model._widgets:
-            raise RuntimeError(f'The settings search did not expose {key}')
-        field = model._widgets[key]
+        field = model._widgets.get(key)
+        if field is None:
+            unavailable(key, 'no bound control exists on this form')
+        sections = owning_sections(field)
+        if not sections:
+            unavailable(key, 'no rendered settings section owns the control', field)
+        for section in sections:
+            if section.property('settingsSectionDiscarded') or not section.isVisible():
+                unavailable(key, 'a required section is hidden or discarded', field)
+            header = section.header()
+            if not section.is_expanded():
+                screen._settings_scroll.ensureWidgetVisible(header)
+                screen._settings_scroll.horizontalScrollBar().setValue(0)
+                settle(0.2)
+                if not header.visibleRegion().contains(header.rect().center()):
+                    unavailable(key, 'the section header is outside the visible viewport', field)
+                click(header)
+                if not section.is_expanded():
+                    unavailable(key, 'the actual section header did not expand', field)
         screen._settings_scroll.ensureWidgetVisible(field)
         screen._settings_scroll.horizontalScrollBar().setValue(0)
         settle(0.2)
-        if not field.isVisible():
-            raise RuntimeError(f'The searched setting is hidden: {key}')
+        if not field.isVisible() or not field.visibleRegion().contains(field.rect().center()):
+            unavailable(key, 'the control remains hidden or outside the viewport', field)
         return field
 
     inputs = expose('inputs')
@@ -251,7 +288,7 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         'image_ignore_image_restored': True, 'groups_obtained_from_real_pickers': True,
     })
 
-    # The shared model writes each real, searched list editor. Simple
+    # The shared model writes each real, visibly exposed list editor. Simple
     # controls use ordinary keyboard/click gestures. Never set ``inputs``
     # through the model, and never pass an override into the Run handler.
     preset = {
@@ -293,7 +330,11 @@ def record_external_masks(app, window, screen, stage, captures, capture,
         if actual != value:
             raise RuntimeError(f'The real setting did not retain {key}={value!r}: {actual!r}')
         observations.append({'key': key, 'value': actual,
-                             'visible_keys': bar.visible_keys(),
+                             'exposure': 'actual_section_headers_and_scroll_area',
+                             'section_path': [section.property('settingsCategorySource')
+                                              for section in owning_sections(field)],
+                             'visible_keys': [name for name, widget in model._widgets.items()
+                                              if widget.isVisible() and not widget.visibleRegion().isEmpty()],
                              'widget': type(field).__name__})
         if frame:
             capture(frame)
