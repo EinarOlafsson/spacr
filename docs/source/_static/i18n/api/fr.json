@@ -65666,15 +65666,17 @@
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
         "2c627faf719a623369235427e6fd51d2c6656edbdedfbc6e4c9e8448a7883208",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
+        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
         "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
       ],
-      "source_sha256": "71c0f8028cbe9dadd04f14fcd4930f9eaa1a69e4f3b1d66a5950be173699063b",
-      "text": "Indique si ``path`` est là, répondu depuis le cache et ne bloque jamais.\n\n:param path: Tout ce que la fausseté est ``False``.\n:param default: que dire alors que la réponse est inconnue. ``True`` par défaut -- voir le module docstring sur la raison pour laquelle l'optimisme est le bon chemin ici.\n:param want_dir: demander ``isdir`` plutôt que ``exists``. Cached séparément, car un chemin peut exister et ne pas être un répertoire.\n:returns: la réponse en cache, ou ``default`` avec un contrôle en file d'attente.",
+      "source_sha256": "fade6ca679935d99b76b50062975aafd23fbec96953c9dc2d50eda6a0853daae",
+      "text": "Indique si ``path`` est là, répondu depuis le cache et ne bloque jamais.\n\n:param path: Tout ce que la fausseté est ``False``.\n:param default: que dire alors que la réponse est inconnue. ``True`` par défaut -- voir le module docstring sur la raison pour laquelle l'optimisme est le bon chemin ici.\n:param want_dir: demander ``isdir`` plutôt que ``exists``. Cached séparément, car un chemin peut exister et ne pas être un répertoire.\n:param wait: lier l'attente par :data:`PROBE_TIMEOUT_S` au lieu de répondre immédiatement à ``default``, et mettre en cache ce qui revient. Pour les appelants dont toute la question est \"is this one missing\" -- voir :func:`isdir` pour la raison pour laquelle la valeur par défaut optimiste est incorrecte pour eux.\n:returns: la réponse en cache, ou ``default`` avec un contrôle en file d'attente.",
       "translation_source_blocks_sha256": [
         "d542f861897018efde76ca679d2d0f5260e9fb4087c394f2a64442493061b442",
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
         "2c627faf719a623369235427e6fd51d2c6656edbdedfbc6e4c9e8448a7883208",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
+        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
         "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
       ]
     },
@@ -65692,14 +65694,20 @@
     },
     "spacr.qt.path_probe.isdir": {
       "source_blocks_sha256": [
-        "cc36f7199acbabf3a4ae6512e7be7851417763f6bc64f10b0b7b11aca2f69f13",
-        "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2"
+        "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
+        "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
+        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "0796de737f2808ceafe077b85e343892678dde73c217933399a88120bdc0dcc4",
+        "dddb7823e7625c9d9941adfd1f57fdf01f4fbf95cbf62b4da9205490a0777977"
       ],
-      "source_sha256": "9b362bec3588466999791181870bc45a18cbfee616ecff0e420923a2c967c969",
-      "text": "Indique si ``path`` est un répertoire, répondu depuis le cache, ne jamais bloquer.\n\n``default`` est False ici et True dans :func:`exists`, et l'asymétrie est délibérée : les appelants de celui-ci choisissent un dossier pour ouvrir une boîte de dialogue, et ouvrir quelque part qui s'avère ne pas exister est pire que l'ouvrir à l'emplacement par défaut.",
+      "source_sha256": "112abb5dfacdf1d274eebab9e2c983016b60f22b025b6757b0bc6d1ab7b2a640",
+      "text": "Indique si ``path`` est un répertoire, répondu depuis le cache.\n\n``default`` est False ici et True dans :func:`exists`, et l'asymétrie est délibérée : les appelants de celui-ci choisissent un dossier pour ouvrir une boîte de dialogue, et ouvrir quelque part qui s'avère ne pas exister est pire que l'ouvrir à l'emplacement par défaut.\n\n:param wait: lier l'attente par :data:`PROBE_TIMEOUT_S` au lieu de répondre immédiatement à ``default``, et mettre en cache ce qui revient.\n\nPOURQUOI `wait` EXISTS, et pourquoi ce n'est pas la valeur par défaut. Le gel de ce module a été écrit à partir de statistiques de chemins REMEMBRED -- un passage passif sur tout ce qu'un fichier de paramètres mentionne, sur le chemin d'exécution principal GUI, pour colorer les chemins manquants rouge. Personne ne l'a demandé et personne n'y attendait, donc répondre à partir du cache et vérifier plus tard est strictement mieux.\n\nL'extension d'un dossier que l'utilisateur vient de laisser tomber ou choisi est la situation opposée. Ils ont effectué une action et attendent son résultat, et le chemin inconnu tourne par défaut \"ajouter les fichiers de ce dossier\" dans \"ajouter ce dossier AS un fichier\" -- silencieusement, et seulement la première fois qu'un chemin est vu, c'est pourquoi il a survécu examen. L'attente est toujours limitée, donc un montage dormant autofs coûte une fraction d'une seconde plutôt que vingt.",
       "translation_source_blocks_sha256": [
-        "cc36f7199acbabf3a4ae6512e7be7851417763f6bc64f10b0b7b11aca2f69f13",
-        "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2"
+        "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
+        "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
+        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "3a0175d0d6ec51b041bc8906f5cb52369170f22f264e0e422c1e3298fb6d566d",
+        "dddb7823e7625c9d9941adfd1f57fdf01f4fbf95cbf62b4da9205490a0777977"
       ]
     },
     "spacr.qt.path_probe.known": {
@@ -84334,6 +84342,20 @@
         "a360e19a14545de13a943e7b32cdb0e52b6f9942f7d2f980577af927a3d208dc",
         "7b07fbcb4fc31894754dccf53871ec7a5d51818a989b520832b62ff1f9d12d62",
         "ddafe09ab0d8bd1abf2bc8ece4a206d96ee63eaa609f2b674be897015382a987"
+      ]
+    },
+    "spacr.qt.screens.settings_flow_index": {
+      "source_blocks_sha256": [
+        "bd8315f1199486509d1332d6de46227fef83c535e0bb62adb5c0149b4adf5d97",
+        "730a52ccc2a5f4c3d8a96b16c97f298349f95d5eeda474142bece91832712c34",
+        "33906baac4724434f33ee225d9c2a9796a046173219174a53a702c20cd5e3acd"
+      ],
+      "source_sha256": "0fe3236c0709b434575672dad3c8211ea33aa1e613a65d1363573876adb15402",
+      "text": "Paramètres de la page de flux a une section pour. Généré -- ne modifiez pas.\n\nÉcrit par ``tools/settings_flow.py --rst``, compté à partir de la page qu'il écrit dans la même exécution.\n\nLe panneau de paramètres offre ici un lien pour un réglage dont la cible API est une page de module sans ancre pour viser -- 245 de 796 liens, où le lecteur se pose sur un module de 4 000 lignes qui ne mentionne pas le réglage du tout. La page de flux le nomme, affiche son texte d'aide et liste toutes les fonctions qui le lisent, y compris celles privées qu'une page API ne peut pas adresser.",
+      "translation_source_blocks_sha256": [
+        "bd8315f1199486509d1332d6de46227fef83c535e0bb62adb5c0149b4adf5d97",
+        "730a52ccc2a5f4c3d8a96b16c97f298349f95d5eeda474142bece91832712c34",
+        "33906baac4724434f33ee225d9c2a9796a046173219174a53a702c20cd5e3acd"
       ]
     },
     "spacr.qt.screens.settings_model": {

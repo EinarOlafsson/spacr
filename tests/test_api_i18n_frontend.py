@@ -36,7 +36,7 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: accounting live in tests/test_api_i18n_extractor.py; this one exists
 #: to assert the BROWSER renders all of them, so it tracks the catalog
 #: file rather than the extractor.
-REAL_SYMBOL_COUNT = 10_242
+REAL_SYMBOL_COUNT = 10_243
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -504,7 +504,7 @@ setTimeout(() => {
 
 
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Render the complete 10,242-symbol union for every real locale."""
+    """Render the complete 10,243-symbol union for every real locale."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
         "this required-CI assertion must not be skipped"

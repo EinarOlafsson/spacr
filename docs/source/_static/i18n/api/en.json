@@ -40737,10 +40737,11 @@
         "218b65c89fbaee439f26efad3f67f099fb0d5b756a3fce83eb806fc3b8231a48",
         "2c627faf719a623369235427e6fd51d2c6656edbdedfbc6e4c9e8448a7883208",
         "49242dc9f64efa44db156e2e4fb012ea56e68d4d2f88ef2fe1c09c7efa4f9839",
+        "b1fec951a4397d87df73c0399c3d030d138da14b70b4ed07686c1721325adb48",
         "a5ec38998a80f4b1f7bec7fbaffe3daa8028fbab7f2a6556866d8ff2ebb9169a"
       ],
-      "source_sha256": "71c0f8028cbe9dadd04f14fcd4930f9eaa1a69e4f3b1d66a5950be173699063b",
-      "text": "Whether ``path`` is there, answered from cache and never blocking.\n\n:param path: the path to ask about. Anything falsy is ``False``.\n:param default: what to say while the answer is unknown. ``True`` by\n    default -- see the module docstring on why optimism is the right\n    way round here.\n:param want_dir: ask ``isdir`` rather than ``exists``. Cached\n    separately, because a path can exist and not be a directory.\n:returns: the cached answer, or ``default`` with a check queued."
+      "source_sha256": "fade6ca679935d99b76b50062975aafd23fbec96953c9dc2d50eda6a0853daae",
+      "text": "Whether ``path`` is there, answered from cache and never blocking.\n\n:param path: the path to ask about. Anything falsy is ``False``.\n:param default: what to say while the answer is unknown. ``True`` by\n    default -- see the module docstring on why optimism is the right\n    way round here.\n:param want_dir: ask ``isdir`` rather than ``exists``. Cached\n    separately, because a path can exist and not be a directory.\n:param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of\n    answering ``default`` immediately, and cache what comes back. For\n    callers whose whole question is \"is this one missing\" -- see\n    :func:`isdir` for why the optimistic default is wrong for them.\n:returns: the cached answer, or ``default`` with a check queued."
     },
     "spacr.qt.path_probe.forget": {
       "source_blocks_sha256": [
@@ -40752,11 +40753,14 @@
     },
     "spacr.qt.path_probe.isdir": {
       "source_blocks_sha256": [
-        "cc36f7199acbabf3a4ae6512e7be7851417763f6bc64f10b0b7b11aca2f69f13",
-        "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2"
+        "3627dbe11ff724cbafe4ff20fdc7c4ad2f2e4bec36756d33debd67afc8a1b347",
+        "929fa39e5d06a0d6b732cb078071e3d3b54db4663d426f480cf00c7b8bbeadd2",
+        "23bfdab2644901d7b62680b4adc5f66e5c04865b07316f76ae86248c2f9dd550",
+        "0796de737f2808ceafe077b85e343892678dde73c217933399a88120bdc0dcc4",
+        "dddb7823e7625c9d9941adfd1f57fdf01f4fbf95cbf62b4da9205490a0777977"
       ],
-      "source_sha256": "9b362bec3588466999791181870bc45a18cbfee616ecff0e420923a2c967c969",
-      "text": "Whether ``path`` is a directory, answered from cache, never blocking.\n\n``default`` is False here and True in :func:`exists`, and the asymmetry\nis deliberate: the callers of this one are choosing a folder to OPEN a\ndialog in, and opening it somewhere that turns out not to exist is worse\nthan opening it at the default location."
+      "source_sha256": "112abb5dfacdf1d274eebab9e2c983016b60f22b025b6757b0bc6d1ab7b2a640",
+      "text": "Whether ``path`` is a directory, answered from cache.\n\n``default`` is False here and True in :func:`exists`, and the asymmetry\nis deliberate: the callers of this one are choosing a folder to OPEN a\ndialog in, and opening it somewhere that turns out not to exist is worse\nthan opening it at the default location.\n\n:param wait: bound the wait by :data:`PROBE_TIMEOUT_S` instead of\n    answering ``default`` immediately, and cache what comes back.\n\nWHY `wait` EXISTS, and why it is not the default. The freeze this module\nwas written for came from statting REMEMBERED paths -- a passive pass\nover everything a settings file mentions, on the GUI thread, to colour\nthe missing ones red. Nobody asked for it and nobody was waiting on it,\nso answering from cache and checking later is strictly better.\n\nExpanding a folder the user has just dropped or chosen is the opposite\nsituation. They performed an action and are waiting for its result, and\nthe unknown-path default turns \"add this folder's files\" into \"add this\nfolder AS a file\" -- silently, and only the first time a path is seen,\nwhich is why it survived review. The wait is still bounded, so a sleeping\nautofs mount costs a fraction of a second rather than twenty."
     },
     "spacr.qt.path_probe.known": {
       "source_blocks_sha256": [
@@ -52908,6 +52912,15 @@
       ],
       "source_sha256": "5b6c95bcda5d22b630bc57be75624f052d470532fb5dac406689446b505b9c5c",
       "text": "Where each setting is actually READ. Generated -- do not edit.\n\nWritten by ``tools/build_setting_consumer_map.py``.\nThe API link used to be built from the SCREEN's app_key, so every row\non a panel pointed at that module's entry point whether the value was\nread there or twelve calls down. These targets come from an AST walk of\nthe package instead.\n\n``exact`` is False where the only consumer is a closure: Sphinx cannot\naddress one, so the link aims at the enclosing function that it can."
+    },
+    "spacr.qt.screens.settings_flow_index": {
+      "source_blocks_sha256": [
+        "bd8315f1199486509d1332d6de46227fef83c535e0bb62adb5c0149b4adf5d97",
+        "730a52ccc2a5f4c3d8a96b16c97f298349f95d5eeda474142bece91832712c34",
+        "33906baac4724434f33ee225d9c2a9796a046173219174a53a702c20cd5e3acd"
+      ],
+      "source_sha256": "0fe3236c0709b434575672dad3c8211ea33aa1e613a65d1363573876adb15402",
+      "text": "Settings the flow page has a section for. Generated -- do not edit.\n\nWritten by ``tools/settings_flow.py --rst``, counted from the page it\nwrites in the same run.\n\nThe settings panel offers a link here for a setting whose API target is a\nmodule page with no anchor to aim at -- 245 of 796 links, where the\nreader lands on a 4,000-line module that may not mention the setting at\nall. The flow page names it, shows its help text and lists every function\nthat reads it, including the private ones an API page cannot address."
     },
     "spacr.qt.screens.settings_model": {
       "source_blocks_sha256": [

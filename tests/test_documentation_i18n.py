@@ -34,7 +34,7 @@ TOOLS = ROOT / "tools"
 #: the cost this ratchet exists to make visible rather than to prevent:
 #: overriding a Qt event handler is a normal thing to do and it is not
 #: free.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_242
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_243
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
