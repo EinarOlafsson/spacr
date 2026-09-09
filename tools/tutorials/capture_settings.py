@@ -32,7 +32,8 @@ def record_settings(screen, captures, capture, settle, write_json):
                        'cell_chann_dim', 'pathogen_plate_metadata',
                        'cell_size_range', 'nucleus_size_range', 'pathogen_size_range',
                        'nuclei_limit', 'pathogen_limit', 'cells_per_well',
-                       'cell_intensity_range', 'plot', 'plot_nr'),
+                       'cell_intensity_range', 'nucleus_intensity_range',
+                       'pathogen_intensity_range', 'plot', 'plot_nr'),
     }
     if screen.app_key not in keys_by_module:
         raise ValueError('No measured settings tour is configured for this module')
@@ -58,6 +59,7 @@ def record_settings(screen, captures, capture, settle, write_json):
                 raise RuntimeError(f'Search did not expose {key}')
             field = screen._settings_model._widgets[key]
             screen._settings_scroll.ensureWidgetVisible(field)
+            screen._settings_scroll.horizontalScrollBar().setValue(0)
             settle()
             if not field.isVisible():
                 raise RuntimeError(f'The searched {key} field is hidden')
@@ -69,6 +71,7 @@ def record_settings(screen, captures, capture, settle, write_json):
         bar.set_level(old_level)
         bar.set_modified_only(old_modified)
         screen._settings_scroll.verticalScrollBar().setValue(0)
+        screen._settings_scroll.horizontalScrollBar().setValue(0)
         settle()
     after = screen._settings_model.collect()
     require_unchanged_settings(before, after)

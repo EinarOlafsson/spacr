@@ -226,7 +226,8 @@ def main() -> int:
         capture('07_help')
         help_menu.hide()
     if args.module != 'home':
-        host_key = {'import_images': 'foreign', 'regression_diagnostics': 'regression'}.get(args.module, args.module)
+        host_key = {'import_images': 'foreign', 'convert': 'foreign',
+                    'regression_diagnostics': 'regression'}.get(args.module, args.module)
         window._on_nav_selected(host_key)
         deadline = time.monotonic() + 60
         while window._screens.get(host_key) is None:
@@ -276,6 +277,10 @@ def main() -> int:
             from capture_align import record_align
             record_align(app, window, screen, stage, captures, capture,
                          settle, write_json, args.timeout)
+        if args.module == 'convert':
+            from capture_converter import record_converter
+            record_converter(app, window, screen, stage, captures, capture,
+                             settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
@@ -776,10 +781,23 @@ def main() -> int:
                     raise RuntimeError('Recruitment did not produce its overlay and four charts')
                 width = sum(screen._body_splitter.sizes())
                 screen._body_splitter.setSizes([width // 4, width - width // 4])
+                screen._settings_scroll.horizontalScrollBar().setValue(0)
+                if screen._usage_card.body.isVisible():
+                    QTest.mouseClick(screen._usage_card.title_label, Qt.LeftButton)
+                screen._runtime_splitter.setSizes([1200, 450])
                 for index in range(queue.count()):
                     queue.show_index(index)
                     settle()
                     capture(f'25_recruitment_figure_{index:02d}')
+                screen._runtime_splitter.setSizes([300, 1350])
+                screen._console._split.setSizes([1200, 100])
+                for block, _, _ in screen._console._pipeline_console_blocks():
+                    block.setFocus()
+                    QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
+                screen._console.jump_to_the_end()
+                settle()
+                capture('26_recruitment_console_counts')
+                screen._runtime_splitter.setSizes([1200, 450])
             if args.module == 'map_barcodes':
                 from capture_sequencing import inspect_mapping
                 write_json(captures / 'mapping_outputs.json',
