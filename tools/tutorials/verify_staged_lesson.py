@@ -87,6 +87,13 @@ def main():
     args = parser.parse_args()
     english = read(DEFAULT_STAGE / 'catalog/lessons_en.json')
     lesson = next(item for item in english['lessons'] if item['id'] == args.lesson)
+    if args.caption_language:
+        from catalog_preflight import validate_caption_structure
+        filename = f'captions_{args.caption_language}.json'
+        caption_path = DEFAULT_STAGE / 'catalog' / filename
+        if not caption_path.exists():
+            caption_path = DEFAULT_STAGE / 'catalog' / f'lessons_{args.caption_language}.json'
+        validate_caption_structure(english, read(caption_path), args.caption_language)
     from build_navigation import build
     navigation = build(english)
     for item in english['lessons']:
