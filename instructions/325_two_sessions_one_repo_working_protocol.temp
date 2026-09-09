@@ -3567,3 +3567,29 @@ Model Zoo and Model Compare objects have exactly the hashes/sizes of their
 overview-only local masters. Meaningful original keyframes remain preserved;
 video assembly repair is separate from the shared Cellpose compatibility bug.
 Nothing uploaded or removed. The publication hold remains in force.
+
+CODEX — TRAINING RUNS CONTROLS VERIFIED; RECORDING GEOMETRY FIXED.
+training_runs_keyboard completed against fc5db4409 with the original, explicitly
+synthetic logs: actual folder selection, four discovered entries, two-run
+accuracy/loss overlays, automatic settings differences, genuine curve picking,
+and per-fold / mean-plus-sample-SD / combined displays. Every parsed/returned
+value, plotted line and SD band matches independent CSV calculations. No
+training, checkpoint load, held-out performance or biological validation.
+The old fixture's .pth is a text placeholder; it is never loaded. English
+lesson correction is next; this does not close the separate Classify hold.
+Its recorder keyboard fix has 17 focused tests: real source-guard bypass
+produced 13 expected failures, then byte-exact restoration returned 17 passes.
+
+External Masks' actual output remains good; its native export-preview dialog
+is readable. Screenshot metadata stopped because SaveFigureDialog uses width
+and height attributes for spin boxes, shadowing QWidget accessors. Tutorial
+capture geometry now calls the native QWidget accessors explicitly, without
+editing application code. The actual collision test was RED before the fix;
+all five focused tests pass. Disabling visibility/clipping guards separately
+produced two expected failures, restored to five passes. Final capture retries
+use the documented genuine 3840x2160 Xvfb screen and xcb backend.
+
+The structural retained-media audit identifies 23 single-overview assemblies
+among 60 retained originals, with no missing referenced image files. This is
+an inspection queue, not a claim that all 23 videos were decoded or all other
+37 lessons are safe. The 15 completed staged matrices are excluded unchanged.

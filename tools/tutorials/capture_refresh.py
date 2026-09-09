@@ -144,15 +144,8 @@ def main() -> int:
             time.sleep(0.02)
 
     def rect(widget):
-        if not widget.isVisible():
-            return None
-        point = widget.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
-        x, y = max(0, point.x()), max(0, point.y())
-        right = min(window.width(), point.x() + widget.width())
-        bottom = min(window.height(), point.y() + widget.height())
-        if right <= x or bottom <= y:
-            return None
-        return [x, y, right - x, bottom - y]
+        from capture_geometry import capture_rect
+        return capture_rect(widget, window)
 
     def capture(name, *, desktop=False):
         pixmap = app.primaryScreen().grabWindow(0) if desktop else window.grab()

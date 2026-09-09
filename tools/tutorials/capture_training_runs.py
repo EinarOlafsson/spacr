@@ -231,24 +231,43 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
             wait_scan()  # Choosing the folder itself starts the normal scan.
 
         def choose_combo(combo, text, frame=None):
-            index = combo.findText(text)
-            if index < 0:
-                raise RuntimeError(f'The actual combo does not offer {text!r}')
-            click(combo)
-            view = combo.view()
-            item_index = combo.model().index(index, combo.modelColumn(), combo.rootModelIndex())
-            view.scrollTo(item_index)
-            settle(.1)
-            rect = view.visualRect(item_index)
-            if not view.isVisible() or not view.viewport().rect().contains(rect.center()):
-                raise RuntimeError('The requested combo option is not visible')
-            if frame is not None:
-                capture(frame, desktop=True)
-            QTest.mouseClick(view.viewport(), Qt.LeftButton, pos=rect.center())
-            settle(.25)
-            tick()
-            if combo.currentText() != text:
-                raise RuntimeError('The visible combo selection did not change')
+            diagnostic = {
+                'requested': text, 'before': combo.currentText(),
+                'items_before': [combo.itemText(i) for i in range(combo.count())],
+                'interaction': 'Actual popup keyboard Home/Down/Enter',
+            }
+            evidence.setdefault('combo_interactions', []).append(diagnostic)
+            try:
+                index = combo.findText(text)
+                if index < 0:
+                    raise RuntimeError('The actual combo does not offer the requested value')
+                click(combo)
+                view = combo.view()
+                if not view.isVisible():
+                    raise RuntimeError('The actual combo popup did not open')
+                if frame is not None:
+                    capture(frame, desktop=True)
+                # Popup coordinates can move after a metric redraw. Navigate
+                # its real selection model through keyboard events instead.
+                view.setFocus()
+                QTest.keyClick(view, Qt.Key_Home)
+                for _ in range(index):
+                    QTest.keyClick(view, Qt.Key_Down)
+                settle(.1)
+                diagnostic['popup_selected'] = view.currentIndex().data(Qt.DisplayRole)
+                if diagnostic['popup_selected'] != text:
+                    raise RuntimeError('Keyboard navigation did not select the requested popup item')
+                QTest.keyClick(view, Qt.Key_Return)
+                settle(.25)
+                tick()
+                diagnostic['actual'] = combo.currentText()
+                diagnostic['items_after'] = [combo.itemText(i) for i in range(combo.count())]
+                if combo.currentText() != text:
+                    raise RuntimeError('The visible combo selection did not change')
+            except Exception as exc:
+                diagnostic.update(actual=combo.currentText(), error=str(exc),
+                                  items_after=[combo.itemText(i) for i in range(combo.count())])
+                raise RuntimeError('Combo interaction failed: ' + json.dumps(diagnostic, ensure_ascii=False)) from exc
 
         def select_runs(names):
             wanted = {identities[name] for name in names}
