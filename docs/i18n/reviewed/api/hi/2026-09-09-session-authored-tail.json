@@ -1,0 +1,419 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.accelerator#8",
+      "source_sha256": "36930f00b4f9aa860f59f06df689ef3e755399f78040ef3897369e0b05b476e2",
+      "source": "DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "context": "Detected and usable are reported separately. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "translation": "पहचाना गया और उपयोग-योग्य अलग-अलग बताए जाते हैं। ऐसा सेटअप स्क्रीन जो किसी ऐसे त्वरक की घोषणा करे जिस पर spaCR कभी काम नहीं भेजेगा, उस स्क्रीन से बुरा है जो कुछ कहती ही नहीं, क्योंकि तब उपयोगकर्ता  CPU की गति के लिए अपने हार्डवेयर को दोष देता है। यह भेद यहाँ केवल न्यूरल इंजनों के कारण है: Apple का Neural Engine, Intel का AI Boost और Qualcomm का Hexagon सभी वास्तविक सिलिकॉन हैं जिनके लिए कोई पोर्टेबल torch डिवाइस नहीं है, इसलिए उन्हें मिले हुए के रूप में नाम दिया जाता है और कभी चुना नहीं जाता।"
+    },
+    {
+      "label": "spacr.active_learning.should_stop#4",
+      "source_sha256": "3c24c2892e56e7be15cdbc389a7be002d03818d077a4d08ec00d5df5b4a85ad1",
+      "source": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "context": "**It looks *back over* rounds, not *at* the last one.** A single round that happened to land flat is noise; the question is whether the last fifty labels — however they were divided up — bought anything.",
+      "translation": "**यह पिछले कई चक्रों को *पीछे मुड़कर* देखता है, केवल अंतिम चक्र को *नहीं*।** कोई एक चक्र जो संयोग से सपाट रहा, वह शोर है; सवाल यह है कि पिछले पचास लेबल — चाहे वे जैसे भी बाँटे गए हों — कुछ ला पाए या नहीं।"
+    },
+    {
+      "label": "spacr.batch_correction.BatchCorrectionReport#13",
+      "source_sha256": "b2b718afdda749f6568161f247a90762e5e4a5637a2e7c79df13c1b9e2f1daab",
+      "source": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "context": "Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "translation": "स्पष्ट रूप से कुछ-न-करने, विकल्प पर जाने, बैच अपरिवर्तित रहने, स्थिर विशेषता, या ComBat की सीमा से जुड़े संदेश।"
+    },
+    {
+      "label": "spacr.crashreport.collect#4",
+      "source_sha256": "2e240411d1684b7f20d7cc2c1ca67a6f5b7fb12b4afffc74d6b544e1ffd54993",
+      "source": "settings csv/json that was run.",
+      "context": "settings csv/json that was executed.",
+      "translation": "वह settings csv/json जो चलाई गई थी।"
+    },
+    {
+      "label": "spacr.crops.migrate_crop_folder#5",
+      "source_sha256": "a1dee0160a6f87f7f59b96826b3b98b20f4276e0a19c7bb7ae2789d446635dce",
+      "source": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the crop at its real name is always a complete PNG -- the old one or the new one;",
+      "context": "each file is converted into a durable staging file ``<name>.spacr_v2`` (itself written temp-then-``os.replace``, per ``io._save_array_atomic``) and only then ``os.replace``-d over the original, so the extracted image region at its real name is always a complete PNG -- the old one or the new one;",
+      "translation": "प्रत्येक फ़ाइल को एक टिकाऊ स्टेजिंग फ़ाइल ``<name>.spacr_v2`` में बदला जाता है (वह स्वयं पहले अस्थायी रूप में और फिर ``os.replace`` से लिखी जाती है, ``io._save_array_atomic`` के अनुसार) और उसके बाद ही मूल फ़ाइल पर ``os.replace``-d किया जाता है, ताकि अपने असली नाम वाला PNG काटा गया चित्र-क्षेत्र हमेशा पूरा रहे।"
+    },
+    {
+      "label": "spacr.errors.RunLedger.summary#0",
+      "source_sha256": "15ec43de887b4a69c8e60ea397497d24148e00ebf180f15613d495d742b63dec",
+      "source": "Render the loud end-of-run block.",
+      "context": "Render the loud end-of-run block.",
+      "translation": "निष्पादन के अंत का मुखर खंड प्रस्तुत करता है।"
+    },
+    {
+      "label": "spacr.errors.raise_if_strict#5",
+      "source_sha256": "adbb0e8a4fc5af75bb3f393aee873c3f572015344057fe56160d16cd8190edfd",
+      "source": "exception class to raise.",
+      "context": "exception class to raise.",
+      "translation": "उठाई जाने वाली अपवाद श्रेणी।"
+    },
+    {
+      "label": "spacr.hit_attribution.HitInvestigationResult#2",
+      "source_sha256": "7242d607af08e9f386642ac16e9c3d2c5248454a6adc4e93262332c146406660",
+      "source": "source regression hit and run-provenance contract.",
+      "context": "source regression hit and run-provenance contract.",
+      "translation": "स्रोत प्रतिगमन हिट और निष्पादन-उद्गम का अनुबंध।"
+    },
+    {
+      "label": "spacr.hits.benjamini_hochberg#0",
+      "source_sha256": "68613541f955ea03a035da293be613c7ede40c3e815c25693644efdf1a5ca309",
+      "source": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
+      "context": "Benjamini-Hochberg FDR q-values for a vector of p-values.",
+      "translation": "p-मानों के एक सदिश के लिए Benjamini-Hochberg FDR q-मान।"
+    },
+    {
+      "label": "spacr.macro.Recording#3",
+      "source_sha256": "b09e873d1dddabd0a3e532dd91e88e9a111f18802a1c5bdbb7c5353da7c3cdce",
+      "source": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "context": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "translation": "run-journal निर्देशिका जो अभिलिखित चरण में प्रतिलिपि की गई और तब उपयोग होती है जब कोई लॉग प्रविष्टि कोई निष्पादन पहचान उजागर नहीं करती।"
+    },
+    {
+      "label": "spacr.model_compare.iou_matrix#0",
+      "source_sha256": "c4fa84d5c78c8972293037366ab39b591331ee1f9a542de7648933635d1176c0",
+      "source": "Object-by-object IoU from an :func:`object_overlap` table.",
+      "context": "Object-by-object IoU from an :func:`object_overlap` table.",
+      "translation": ":func:`object_overlap` तालिका से वस्तु-दर-वस्तु IoU।"
+    },
+    {
+      "label": "spacr.ops_merge#7",
+      "source_sha256": "d4d8a6e566cdeff215297df74696c06d34071afbfa08304a3f72e4af3d9deb34",
+      "source": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "context": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "translation": "brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology) का अनुसरण करता है, जिसका `merge` चरण इस तरीके के लिए पढ़ा गया।"
+    },
+    {
+      "label": "spacr.ops_sbs#9",
+      "source_sha256": "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916",
+      "source": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "context": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "translation": "यहाँ की विधि brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology) का अनुसरण करती है, जिसका स्रोत ऊपर के तीनों बिंदुओं के लिए पढ़ा गया, न कि उसके चरणों के नामों से पुनर्निर्मित किया गया।"
+    },
+    {
+      "label": "spacr.pipeline_v2.FilenameRecord#7",
+      "source_sha256": "ead2106b534cef5fb1fca50a5b3c23f7b95b6ffbc04afbf8147e6ac0bee7af5e",
+      "source": "z-slice index parsed from the filename (defaults to 1).",
+      "context": "z-slice index parsed from the filename (defaults to 1).",
+      "translation": "फ़ाइल नाम से पढ़ा गया z-स्लाइस सूचकांक (डिफ़ॉल्ट 1)।"
+    },
+    {
+      "label": "spacr.plate_qc.EdgeEffectReport#14",
+      "source_sha256": "4321bd078e9bb54e7579e8eaecfdcd7796a108c1189d932f0029a98e1d180fa7",
+      "source": "two-sided Mann-Whitney U p-value comparing outer-ring and interior wells, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing outer-ring and interior microplate sample positions, or ``None`` when the comparison is unavailable.",
+      "translation": "बाहरी वलय और भीतरी वेल की तुलना करने वाला द्विपक्षीय Mann-Whitney U p-मान, या जब तुलना संभव न हो तब ``None``।"
+    },
+    {
+      "label": "spacr.plate_qc.RingStats#7",
+      "source_sha256": "16003b161e364809542aa5577cc1cb41480707881f43abc26cc0b40565b216c1",
+      "source": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "translation": "इस वलय की चुने हुए केंद्र से तुलना करने वाला द्विपक्षीय Mann-Whitney U p-मान, या जब तुलना संभव न हो तब ``None``।"
+    },
+    {
+      "label": "spacr.plugins.SpacrPlugin#7",
+      "source_sha256": "e71c7b0df9fa0a9c8f3b2e5ed36caad1490b087994744b169bf2a4cb927ae333",
+      "source": "locale-to-message mappings that translate the plugin's own visible strings.",
+      "context": "locale-to-message mappings that translate the plugin's own visible strings.",
+      "translation": "लोकेल-से-संदेश की मैपिंग जो प्लगइन की अपनी दृश्य पंक्तियों का अनुवाद करती हैं।"
+    },
+    {
+      "label": "spacr.power_model#0",
+      "source_sha256": "04b15af4c15be7d99e8d9359dd4a14fc95687ff0f6f4ad05b12f114a57749ff1",
+      "source": "Bayesian sparse-regression inference for pooled-screen power analysis.",
+      "context": "Bayesian sparse-regression inference for pooled-screening experiment statistical detection sensitivity analysis.",
+      "translation": "पूल्ड स्क्रीनिंग प्रयोगों की सांख्यिकीय संसूचन-संवेदनशीलता के विश्लेषण हेतु बायेसियन विरल-प्रतिगमन अनुमिति।"
+    },
+    {
+      "label": "spacr.predictions.crop_name_metadata#0",
+      "source_sha256": "bbfaee94a5d5ceda2498128edf0825404ee9586b8ac36ff847567d983c2c8d86",
+      "source": "Parse spaCR crop file names into the metadata ``prcfo`` is built from.",
+      "context": "Parse spaCR extracted-image-region file names into the metadata ``prcfo`` is built from.",
+      "translation": "spaCR के काटे गए चित्र-क्षेत्रों के फ़ाइल नामों को उस मेटाडेटा में विश्लेषित करता है जिससे ``prcfo`` बनता है।"
+    },
+    {
+      "label": "spacr.qt.ai.issue_report.file_issue#0",
+      "source_sha256": "bbdb8bfac3f99fa7af2e70739125ad7f88eaaae6db6d231eef7b1b596094fc68",
+      "source": "Legacy end-to-end helper retained for API callers and tests.",
+      "context": "Legacy end-to-end helper retained for API callers and tests.",
+      "translation": "API कॉल करने वालों और परीक्षणों के लिए रखा गया पुराना आद्योपांत सहायक।"
+    },
+    {
+      "label": "spacr.qt.ai.providers.ChatProvider#6",
+      "source_sha256": "341f47a18f69eade469aa091859e4ab03d77485180676db472ecf72d145bf959",
+      "source": "shell one-liner the user runs to authenticate.",
+      "context": "shell one-liner the user runs to authenticate.",
+      "translation": "वह शेल एक-पंक्ति आदेश जिसे उपयोगकर्ता प्रमाणीकरण के लिए चलाता है।"
+    },
+    {
+      "label": "spacr.qt.app.register_app#12",
+      "source_sha256": "14144a00c94df97da4c34318c1e4858cf55cf7dee80cc38bb13dab83128b0d86",
+      "source": "dotted-or-slashed module path under the generated API docs (\"qt/layer_viewer\"), for the ⓘ link beside the settings. Reaches ``settings_model._APP_API_MODULE``.",
+      "context": "dotted-or-slashed module path under the generated API docs (\"qt/layer_viewer\"), for the ⓘ link beside the settings. Reaches ``settings_model._APP_API_MODULE``.",
+      "translation": "उत्पन्न API दस्तावेज़ों के अंतर्गत बिंदु या स्लैश से लिखा मॉड्यूल पथ (\"qt/layer_viewer\"), सेटिंग्स के बगल वाली ⓘ कड़ी के लिए। ``settings_model._APP_API_MODULE`` तक पहुँचता है।"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.open_run_beside#2",
+      "source_sha256": "1b9b0a2bb3dcfb8bc287ae94056af191a87e2b8dfab9f25f0b4795d0dfb2c29d",
+      "source": "a Runs-tab row, or a run folder.",
+      "context": "a Runs-tab row, or a processing-session folder.",
+      "translation": "Runs टैब की एक पंक्ति, या एक निष्पादन फ़ोल्डर।"
+    },
+    {
+      "label": "spacr.qt.screens.classifier_evaluation#0",
+      "source_sha256": "5cc03935f6dfa2f4b29a28a1741636a5f47b03ce72c057dc61baa0bb6a4f4a02",
+      "source": "Classifier Evaluation workbench for out-of-fold result bundles.",
+      "context": "Machine-learning classification model Evaluation workbench for out-of-fold result bundles.",
+      "translation": "फ़ोल्ड-से-बाहर परिणाम बंडलों के लिए मशीन-लर्निंग वर्गीकरण मॉडल मूल्यांकन कार्यक्षेत्र।"
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog#2",
+      "source_sha256": "a79b163d9e4318d469b9aaca2e21e2193c849ad9a65c46db8c3604758c144003",
+      "source": "IT FILLS IN TWO STAGES, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of crops must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the GUI thread, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on screen — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
+      "context": "It fills in two stages, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of extracted image regions must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the main GUI execution path, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on application view — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.",
+      "translation": "यह दो चरणों में भरता है, और यही कारण इस पूरे अभ्यास का सार है। फ़ाइल सूची योजना में संचित नहीं होती: ``file_list`` की हर कॉल प्रत्येक संभावित निर्देशिका पर ``os.walk`` चलाती है, क्योंकि लाखों काटे गए चित्र-क्षेत्रों वाली किसी परियोजना की योजना लाखों पंक्तियाँ ढो नहीं सकती। इसे ``__init__`` में करने का अर्थ था उपयोगकर्ता की परियोजना का पूरा पुनरावर्ती भ्रमण मुख्य GUI निष्पादन-पथ पर रख देना, ठीक उसी क्षण जब वे किसी खिड़की के प्रकट होने की प्रतीक्षा कर रहे होते हैं — और सोई हुई साझा डिस्क पर माउंट को जगाने में बीस सेकंड भ्रमण का पहला stat लेता है, पूरा भ्रमण नहीं। इसलिए संवाद पहले उस आधे भाग के साथ खुलता है जिसे डिस्क से कुछ नहीं चाहिए (कुल योग, हर संभावित मद, हर रखी जाने वाली वस्तु और उसका कारण) और फ़ाइल सूची उसके पीछे आती है। कुछ भी छोड़ा नहीं जाता: कुछ भी मिटने से पहले उपयोगकर्ता अब भी हर पथ पढ़ता है, और इसीलिए स्वीकृति तब तक निष्क्रिय रोकी रहती है जब तक सूची स्क्रीन पर न आ जाए — या, भ्रमण विफल होने पर, जब तक :meth:`_on_listing_failed` सूची की जगह यह न बता दे। जो कभी नहीं होता, वह है उस डिब्बे का किसी स्थान-धारक के ऊपर सक्रिय हो जाना।"
+    },
+    {
+      "label": "spacr.qt.screens.regression.install_folds#2",
+      "source_sha256": "175e23b4b37f6862eaf77097b985b31eb2732b6f9bd774c07a25f53b139594dc",
+      "source": "Idempotent, and defensive by design: a screen that opens without its fold buttons is a smaller screen, while an exception raised here would be no regression screen at all.",
+      "context": "Idempotent, and defensive by design: a screening experiment that opens without its fold buttons is a smaller screening experiment, while an exception thrown here would be no regression screening experiment at all.",
+      "translation": "यह वर्ग-सम है और सोच-समझकर रक्षात्मक है: ऐसा प्रयोग जो अपने फ़ोल्ड बटनों के बिना खुलता है, एक छोटा प्रयोग होता है, जबकि यहाँ फेंका गया अपवाद कोई प्रतिगमन प्रयोग ही न होने के बराबर होगा।"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.permutation_test_explainer_html#0",
+      "source_sha256": "0e6b7f978cfb8052747a742d0416395d6e77fda2bea80203fd840aa2fb6950fb",
+      "source": "Render localized permutation-test guidance as HTML.",
+      "context": "Render localized permutation-test guidance as HTML.",
+      "translation": "क्रमचय-परीक्षण का स्थानीयकृत मार्गदर्शन HTML के रूप में प्रस्तुत करता है।"
+    },
+    {
+      "label": "spacr.qt.screens.settings_model.regression_model_explainer_html#0",
+      "source_sha256": "73e00e45270c47d70b1508892b6488bd5a489e4126b635e1eb77e19a1d1f60e1",
+      "source": "Render localized model or inference guidance as HTML.",
+      "context": "Render localized model or inference guidance as HTML.",
+      "translation": "मॉडल या अनुमिति का स्थानीयकृत मार्गदर्शन HTML के रूप में प्रस्तुत करता है।"
+    },
+    {
+      "label": "spacr.qt.settings_search.SettingsSearchBar#0",
+      "source_sha256": "3f5acd9116b1de17f89bce83675535df50a2d81adcefaa70e5521b42283895a8",
+      "source": "Search box, Modified filter, Essentials/All switch, and a count line.",
+      "context": "Search field, Modified filter, Essentials/All switch, and result count.",
+      "translation": "खोज बॉक्स, Modified फ़िल्टर, Essentials/All स्विच, और एक गणना पंक्ति।"
+    },
+    {
+      "label": "spacr.qt.synthetic.generate_synthetic_fastq#0",
+      "source_sha256": "36bf40b21fb781b1cec4c225dcc05fbf3f866ee25e5d8f16c7bd5df67a80201e",
+      "source": "Write a gzip-compressed synthetic FASTQ pair carrying known barcodes.",
+      "context": "Write a gzip-compressed synthetic FASTQ pair carrying known barcodes.",
+      "translation": "ज्ञात बारकोड ले जाने वाली, gzip से संपीड़ित कृत्रिम FASTQ जोड़ी लिखता है।"
+    },
+    {
+      "label": "spacr.qt.theme.field_chrome#4",
+      "source_sha256": "533364c636ec62c65438ef946608f3bea99ce356fd1665148b72767b51c2bd85",
+      "source": "dict Radius, fill, border, focus, and disabled-state tokens. Each color is represented as ``(hex_color, alpha)``.",
+      "context": "key-value mapping Radius, fill, border, focus, and disabled-state tokens. Each color is represented as ``(hex_color, alpha)``.",
+      "translation": "कुंजी-मान मैपिंग त्रिज्या, भराव, किनारा, फ़ोकस और निष्क्रिय-अवस्था के टोकन। प्रत्येक रंग ``(hex_color, alpha)`` के रूप में दर्शाया जाता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.__del__#1",
+      "source_sha256": "a3469d48a1e45819eb812a5f1bfebdd041fb00036dd239d55d6edcb867c4a55d",
+      "source": "The canvas goes first, so its queued idle draw cannot run after Python has released the owning widget; the workers follow, because they read out of the directory about to be removed and a live ``QThread`` must not be left holding a runner whose last reference is being dropped; the temporary directory goes last. Every step is guarded -- the C++ half may already be gone when Qt initiated the destruction.",
+      "context": "The canvas goes first, so its queued idle draw cannot execute after Python has released the owning widget; the workers follow, because they read out of the directory about to be removed and a live ``QThread`` must not be left holding a runner whose last reference is being dropped; the temporary directory goes last. Every step is guarded -- the C++ half may already be gone when Qt initiated the destruction.",
+      "translation": "कैनवास पहले जाता है, ताकि उसका कतारबद्ध निष्क्रिय-चित्रण तब न चल सके जब Python स्वामी विजेट छोड़ चुका हो; कर्मी उसके बाद जाते हैं, क्योंकि वे उसी निर्देशिका से पढ़ते हैं जिसे हटाया जाने वाला है और किसी जीवित ``QThread`` को ऐसा चलाने वाला थामे हुए नहीं छोड़ा जा सकता जिसका अंतिम संदर्भ छूट रहा हो; अस्थायी निर्देशिका सबसे अंत में जाती है। हर चरण सुरक्षित रखा गया है -- जब Qt ने विनाश आरंभ किया हो तब C++ वाला आधा भाग पहले ही जा चुका हो सकता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.figure_queue.FigureQueue.show_index#0",
+      "source_sha256": "fa134edfe7773a631e39747bde635c0fe008476d0457d02b16dc82ee2a7a1981",
+      "source": "Show one figure by position, ignoring an out-of-range index.",
+      "context": "Show one figure by position, ignoring an out-of-range index.",
+      "translation": "स्थिति के अनुसार एक आकृति दिखाता है, सीमा से बाहर के सूचकांक की उपेक्षा करते हुए।"
+    },
+    {
+      "label": "spacr.qt.widgets.folding_summary#0",
+      "source_sha256": "121d47111e85f93ececd6e7a6509397056f393470b68d260c1e4e5f7adba1994",
+      "source": "Render plain-text run summaries as foldable sections.",
+      "context": "Render plain-text run summaries as foldable sections.",
+      "translation": "सादे पाठ वाले निष्पादन सारांशों को मोड़े जा सकने वाले खंडों के रूप में प्रस्तुत करता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_canvas#2",
+      "source_sha256": "f0806cb63c07e4671ada84128639e2144d3c8c29e03f965a87bedd6f6ff2060e",
+      "source": "Cutoffs affect only the displayed range; they do not filter rows or change gate membership. Limits are keyed by measurement rather than by the current X/Y assignment, so they follow a measurement when axes are exchanged.",
+      "context": "Cutoffs affect only the displayed range; they do not filter rows or change data-selection boundary membership. Limits are keyed by measurement rather than by the current X/Y assignment, so they follow a measurement when axes are exchanged.",
+      "translation": "कटऑफ़ केवल दिखाई देने वाली सीमा को प्रभावित करते हैं; वे पंक्तियों को छानते नहीं और चयन-सीमा की सदस्यता नहीं बदलते। सीमाएँ वर्तमान X/Y नियुक्ति के बजाय माप के अनुसार अनुक्रमित होती हैं, इसलिए अक्ष बदलने पर वे अपने माप के साथ चलती हैं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_settings.GateEditorSettings#0",
+      "source_sha256": "6e4730832ef9a0ca6d827e73b021b160c44b7ddcb906e2118eb4d05be0ec0221",
+      "source": "Everything the Gate Editor is configured by.",
+      "context": "Everything the Data-selection boundary Editor is configured by.",
+      "translation": "वह सब कुछ जिससे चयन-सीमा संपादक विन्यस्त होता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_settings.GateSettingsDialog.settings#0",
+      "source_sha256": "cf1b92a1a116dbbeb3ddb8a3125a7eee06c6f58a7544b11ffe3fe94270262ca9",
+      "source": "The gate settings the user chose.",
+      "context": "The data-selection boundary settings the user chose.",
+      "translation": "वे चयन-सीमा सेटिंग्स जो उपयोगकर्ता ने चुनीं।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.Gate.thresholds#0",
+      "source_sha256": "2df2b5afe884e25668e0d4f7335bdd151c3853b50852fd5147c96f615e9fdd66",
+      "source": "Return editable per-column thresholds represented by this gate.",
+      "context": "Return editable per-column thresholds represented by this data-selection boundary.",
+      "translation": "इस चयन-सीमा से दर्शाई गई, स्तंभ-वार संपादन-योग्य देहलियाँ लौटाता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.Gate.translated#3",
+      "source_sha256": "5ec1847c56b863280510fdd86eb9c5641aeb37382d30f22bb655518a71e779fc",
+      "source": "shift along its y measurement. Ignored by a one-column gate, which has no y.",
+      "context": "shift along its y measurement. Ignored by a one-column data-selection boundary, which has no y.",
+      "translation": "अपने y माप के अनुदिश खिसकाव। एक-स्तंभ वाली चयन-सीमा इसकी उपेक्षा करती है, क्योंकि उसका कोई y नहीं होता।"
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.PolygonGate.with_vertex#0",
+      "source_sha256": "8cdb641cebd3e27a892dfddcae9b5b545943da50593bfc79337fc2258d1c91a8",
+      "source": "Move ONE vertex -- the per-vertex drag handle.",
+      "context": "Move ONE vertex -- the per-vertex drag handle.",
+      "translation": "केवल एक शीर्ष खिसकाता है -- प्रति-शीर्ष खींचने वाला हैंडल।"
+    },
+    {
+      "label": "spacr.qt.widgets.hover_tooltip.HoverTooltip.show_for#1",
+      "source_sha256": "54d12ff847789fc6590014a768e990de89771c1dff8629c2f152c57c347e9e76",
+      "source": "widget the popup docks to (clamped to its screen).",
+      "context": "widget the popup docks to (clamped to its application view).",
+      "translation": "वह विजेट जिससे पॉपअप जुड़ता है (उसकी दृश्य सीमा तक सीमित)।"
+    },
+    {
+      "label": "spacr.qt.widgets.import_workbench.ImportWorkbench.add_files#1",
+      "source_sha256": "1531d541e09f61ab24ff0c0dddc676cc4755b6e1b116d2ff9e1e05586d9df7e9",
+      "source": "SPLIT IN TWO, and the split is the fix for a frozen application. Everything here is a list of strings and a caption; the walk runs on this panel's own worker (:func:`_walk`, wrapping :func:`images_under`) because it is an `isdir` and a recursive `os.walk` over a path the user chose, which on one such workstation is an `autofs` share that took twenty seconds to answer a single stat. :meth:`_files_found` takes the answer back on the GUI thread.",
+      "context": "Split in two, and the split is the fix for a frozen application. Everything here is a list of strings and a caption; the walk executes on this panel's own worker (:func:`_walk`, wrapping :func:`images_under`) because it is an `isdir` and a recursive `os.walk` over a path the user chose, which on one such workstation is an `autofs` share that took twenty seconds to answer a single stat. :meth:`_files_found` takes the answer back on the main GUI execution path.",
+      "translation": "दो हिस्सों में बँटा हुआ, और यही बँटवारा जमे हुए अनुप्रयोग का उपचार है। यहाँ सब कुछ पंक्तियों की एक सूची और एक शीर्षक है; वह भ्रमण इस पैनल के अपने कर्मी पर चलता है (:func:`_walk`, जो :func:`images_under` को लपेटता है) क्योंकि वह एक `isdir` है और उपयोगकर्ता के चुने हुए पथ पर पुनरावर्ती `os.walk` है, जो ऐसी एक कार्यस्थली पर एक `autofs` साझा डिस्क थी जिसने एक अकेले stat का उत्तर देने में बीस सेकंड लिए। :meth:`_files_found` उत्तर को वापस GUI थ्रेड पर लेता है।"
+    },
+    {
+      "label": "spacr.qt.widgets.preview_controls.channel_view#1",
+      "source_sha256": "ca563958217c0da6e71151217120f6b523a7b75f2003879cea4730ca8a82b70e",
+      "source": "Out-of-range indices and 2-D images fall through untouched — a stale selection must never raise while the user is loading a new field.",
+      "context": "Out-of-range indices and 2-D images fall through untouched — a stale selection must never throw while the user is loading a new microscope field of view.",
+      "translation": "सीमा से बाहर के सूचकांक और द्वि-आयामी चित्र बिना छुए आगे निकल जाते हैं — नया दृश्य-क्षेत्र लोड करते समय किसी पुराने चयन को कभी अपवाद नहीं फेंकना चाहिए।"
+    },
+    {
+      "label": "spacr.qt.widgets.qc_field_browser.QCFieldBrowser.toggle_quarantine#1",
+      "source_sha256": "3d6bda99c6f2909ff21d1d7b1055b3270eaf203bff04d0e38d69935ceeaf6561",
+      "source": "THE MOVE RUNS ON A WORKER. It did not until 2026-09-04, and that made the whole `path_probe` gate in `_sync_action` pointless: the poll in front of this button stopped freezing and the button itself still did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which is the sleeping ``autofs`` share by assumption. See `_move_field`.",
+      "context": "The move executes on a worker. It did not until 2026-09-04, and that made the whole `path_probe` data-selection boundary in `_sync_action` pointless: the poll in front of this button stopped freezing and the button itself still did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which is the sleeping ``autofs`` share by assumption. See `_move_field`.",
+      "translation": "यह स्थानांतरण एक कर्मी पर चलता है। 2026-09-04 तक ऐसा नहीं था, और इसी ने समूची `path_probe` चयन-सीमा को, जो `_sync_action` में है, निरर्थक बना दिया था: इस बटन के आगे का मतदान जमना बंद हो गया और स्वयं बटन फिर भी जमता रहा, क्योंकि `quarantine_dir_for` एक `Path.resolve()` वास्तविक-पथ भ्रमण है और उसके बाद आने वाला पुनर्नामकरण इसमें एक mkdir, एक stat, एक link, एक ``fsync`` किया गया बही-लेखन और एक unlink और जोड़ देता है -- उसी प्लेट पथ पर जिसे उपयोगकर्ता ने चुना, और जो मान्यता के अनुसार सोई हुई ``autofs`` साझा डिस्क है। देखें `_move_field`।"
+    },
+    {
+      "label": "spacr.qt.widgets.section.Section#5",
+      "source_sha256": "29ab42780880f20d46f88ba28225877563bf273ab16a319acdc506789de673d2",
+      "source": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Plate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "context": "The title is kept as written and uppercased only on the way to the button, because the translation catalogue is keyed on the written name -- looking up an already-uppercased caption finds nothing and leaves the header in English. The ``&`` in a name like \"Laboratory microplate Layout & Controls\" is escaped for display, since a ``QToolButton`` would otherwise read it as a mnemonic and swallow it.",
+      "translation": "शीर्षक जैसा लिखा गया वैसा ही रखा जाता है और केवल बटन तक जाते समय बड़े अक्षरों में बदला जाता है, क्योंकि अनुवाद सूची लिखे हुए नाम पर अनुक्रमित है -- पहले से बड़े अक्षरों वाले शीर्षक को खोजने पर कुछ नहीं मिलता और शीर्षपंक्ति अंग्रेज़ी में रह जाती है। \"Laboratory microplate Layout & Controls\" जैसे नाम में आया ``&`` प्रदर्शन के लिए एस्केप किया जाता है, वरना कोई ``QToolButton`` उसे स्मरण-कुंजी मानकर निगल जाएगा।"
+    },
+    {
+      "label": "spacr.qt.widgets.sweep_panel#1",
+      "source_sha256": "30bf05a56eca6546a2114e5c52c21d3e11e4d364b09dc21ed6478df5112a6545",
+      "source": "The engine is :mod:`spacr.gene_measurement_sweep`; this is the thin panel over it, and it is thin on purpose -- the three corrections that make the answer trustworthy (identifiers excluded, Benjamini-Hochberg across the grid, circularity reported per row) live in the engine so a settings CSV, a macro and this button cannot disagree about them.",
+      "context": "The engine is :mod:`spacr.gene_measurement_sweep`; this is the thin panel over it, and it is thin on purpose -- the three corrections that make the answer trustworthy (identifiers excluded, Benjamini-Hochberg across the grid, circularity reported per row) live in the engine so a settings CSV, a macro and this button cannot disagree about them.",
+      "translation": "इंजन :mod:`spacr.gene_measurement_sweep` है; यह उसके ऊपर की पतली परत है, और जान-बूझकर पतली है -- वे तीन संशोधन जो उत्तर को भरोसेमंद बनाते हैं (पहचानकर्ता बाहर रखे गए, ग्रिड भर में Benjamini-Hochberg, प्रति पंक्ति वृत्ताकारता बताई गई) इंजन में रहते हैं, ताकि कोई settings CSV, कोई मैक्रो और यह बटन उनके बारे में असहमत न हो सकें।"
+    },
+    {
+      "label": "spacr.regex_infer.structure#4",
+      "source_sha256": "1312b084e583ee844dabb6654c1f606834fccafff3d2c62bde250efd09e8e5c4",
+      "source": "dict of str to int Sorted mapping from folder path to matched-file count. Unmatched files and records without a folder are omitted.",
+      "context": "key-value mapping of str to int Sorted mapping from folder path to matched-file count. Unmatched files and records without a folder are omitted.",
+      "translation": "str से int की कुंजी-मान मैपिंग फ़ोल्डर पथ से मिलान-प्राप्त फ़ाइल गणना की क्रमित मैपिंग। बिना मिलान वाली फ़ाइलें और बिना फ़ोल्डर वाली प्रविष्टियाँ छोड़ दी जाती हैं।"
+    },
+    {
+      "label": "spacr.run_journal.recent_runs#3",
+      "source_sha256": "db1a41a9e431850c8324c3d9e40ded89e3c253be7ce94399d2607ff3b4b86568",
+      "source": "Each entry is a dict with keys ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` (dict, best-effort).",
+      "context": "Each dictionary contains ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` dictionary when available.",
+      "translation": "प्रत्येक प्रविष्टि एक dict है जिसकी कुंजियाँ ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), और कच्चा ``manifest`` (dict, यथासंभव) हैं।"
+    },
+    {
+      "label": "spacr.seg_qc.thresholds_from_settings#0",
+      "source_sha256": "0b6090f7ee280a91595705817a1e5d29059e814f2618ee6409438c7e661b31d9",
+      "source": "Pull the ``seg_qc_*`` knobs out of a spaCR settings dict.",
+      "context": "Pull the ``seg_qc_*`` knobs out of a spaCR settings key-value mapping.",
+      "translation": "spaCR सेटिंग्स की कुंजी-मान मैपिंग में से ``seg_qc_*`` नियंत्रण निकालता है।"
+    },
+    {
+      "label": "spacr.selection.ObjectRequest#7",
+      "source_sha256": "1ee8689dfb5a3bdf1d98f678de1c3880eb67959292e1cf845310f2ff41db330d",
+      "source": "free-form extras for the destination — per-key scores to sort by, a column to annotate into. Shallow-copied into a read-only outer mapping; nested mutable values remain shared with the caller.",
+      "context": "free-form extras for the destination — per-structured-data name scores to sort by, a column to annotate into. Shallow-copied into a read-only outer mapping; nested mutable values remain shared with the caller.",
+      "translation": "गंतव्य के लिए मुक्त-रूप अतिरिक्त जानकारी — क्रमबद्ध करने हेतु प्रति-कुंजी अंक, या वह स्तंभ जिसमें टिप्पणी करनी है। इन्हें केवल-पठन बाहरी मैपिंग में उथली प्रतिलिपि के रूप में रखा जाता है; भीतर के परिवर्तनीय मान कॉल करने वाले के साथ साझा बने रहते हैं।"
+    },
+    {
+      "label": "spacr.sim.run_multiple_simulations#2",
+      "source_sha256": "361562dbfc69fc1087b39308d2cada734291452e428270b69f1f23203ae96614",
+      "source": "Sweep-settings dict. Must include ``max_workers``.",
+      "context": "Sweep-settings key-value mapping. Must include ``max_workers``.",
+      "translation": "स्वीप-सेटिंग्स की कुंजी-मान मैपिंग। इसमें ``max_workers`` अवश्य होना चाहिए।"
+    },
+    {
+      "label": "spacr.sim.validate_and_adjust_beta_params#0",
+      "source_sha256": "e29e74ac52a53aabea3a30d3ce3f77114f204f056c5a4f6dba34a4c63c65b02c",
+      "source": "Clamp per-run Beta variances so the requested mean/variance is feasible.",
+      "context": "Clamp per-run Beta variances so the requested mean/variance is feasible.",
+      "translation": "प्रति-निष्पादन Beta प्रसरणों को इस तरह सीमित करता है कि माँगा गया माध्य/प्रसरण संभव हो।"
+    },
+    {
+      "label": "spacr.spacrops.get_preprocess_ops_settings#0",
+      "source_sha256": "087879fb324f350b5bd43f3333b538ef351ed24e41c2433a59c9b5e9587f1937",
+      "source": "Fill in defaults for the ops preprocessing / stitching / alignment pipeline.",
+      "context": "Fill in defaults for the ops preprocessing / stitching / alignment workflow.",
+      "translation": "ops पूर्वप्रसंस्करण / सिलाई / संरेखण कार्यप्रवाह के लिए डिफ़ॉल्ट मान भरता है।"
+    },
+    {
+      "label": "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv#1",
+      "source_sha256": "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
+      "source": "Pass ``out_tif=None`` with an ``out_csv`` to run in manifest-only mode (compute transforms and canvas geometry, write manifest, skip rendering).",
+      "context": "Pass ``out_tif=None`` with an ``out_csv`` to run in manifest-only mode (compute transforms and canvas geometry, write manifest, skip rendering).",
+      "translation": "केवल-मैनिफ़ेस्ट मोड में चलाने के लिए ``out_tif=None`` को किसी ``out_csv`` के साथ दें (रूपांतरण और कैनवास ज्यामिति की गणना करें, मैनिफ़ेस्ट लिखें, प्रतिपादन छोड़ दें)।"
+    },
+    {
+      "label": "spacr.submodules.CellposeLazyDataset#9",
+      "source_sha256": "053de6085dc34b53ac430de2330ab65949f4b084978f0fd04ce81336e97880b0",
+      "source": "Mismatched lengths raise here rather than at the first bad index, so a wrongly paired dataset fails at construction instead of part-way through an epoch.",
+      "context": "Mismatched lengths raise here rather than at the first bad index, so a wrongly paired dataset fails at construction instead of part-way through an epoch.",
+      "translation": "बेमेल लंबाइयाँ पहले खराब सूचकांक पर नहीं, बल्कि यहीं अपवाद उठाती हैं, ताकि गलत जोड़ा गया डेटासेट किसी एपॉक के बीच में नहीं, बल्कि निर्माण के समय ही विफल हो।"
+    },
+    {
+      "label": "spacr.submodules.analyze_recruitment#0",
+      "source_sha256": "e2536b59483cfd352bcf0b5096f93952a96c80e5c82a50ee834dc99053a10df4",
+      "source": "Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-well summaries.",
+      "context": "Quantify recruitment of a fluorescent marker to the pathogenic vacuole and produce per-PV / per-microplate sample position summaries.",
+      "translation": "किसी प्रतिदीप्त मार्कर की रोगजनक रिक्तिका तक भर्ती का परिमाणन करता है और प्रति-PV / प्रति-वेल सारांश तैयार करता है।"
+    },
+    {
+      "label": "spacr.utils.SpatialAttention#0",
+      "source_sha256": "f2a58fae539a28cf7f62fc581282a7aae47bcd9eeeba1a80e2c56c6efd386fba",
+      "source": "Spatial attention gate that reweights features by pooled channel statistics.",
+      "context": "Spatial attention data-selection boundary that reweights features by pooled channel statistics.",
+      "translation": "स्थानिक अवधान चयन-सीमा जो पूल किए गए चैनल सांख्यिकी से विशेषताओं का पुनर्भारण करती है।"
+    },
+    {
+      "label": "spacr.utils.generate_path_list_from_db#2",
+      "source_sha256": "fb4a5400fb8a5586467fba4d23433d9a702581528837ec856eb169f7131c079a",
+      "source": "substring or list of substrings to LIKE-match against ``png_path``.",
+      "context": "substring or list of substrings to LIKE-match against ``png_path``.",
+      "translation": "``png_path`` से LIKE-मिलान के लिए उपस्ट्रिंग या उपस्ट्रिंगों की सूची।"
+    },
+    {
+      "label": "spacr.spacrops.spacrStitcher.mosaic_all_channels_from_csv#3",
+      "source_sha256": "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
+      "source": "mosaic TIFF output path (``None`` for manifest-only).",
+      "context": "stitched image grid TIFF output path (``None`` for manifest-only).",
+      "translation": "मोज़ेक TIFF आउटपुट पथ (केवल-मैनिफ़ेस्ट के लिए ``None``)।"
+    }
+  ]
+}
