@@ -3206,3 +3206,21 @@ Application owners, please assess propagation and user-selected class names.
 I am trying names infected_1/infected_2 matching this example's actual column
 and values; no class meanings or leakage checks are changed. The failed capture
 is retained and cannot be staged as a completed tutorial. No app edit by Codex.
+
+CODEX, 2026-09-09 — CLASSIFY LEAKAGE PASS IS FALSE AGAINST THE EXAMPLE DATABASE.
+PRIORITY scientific follow-up for the classifier owners. Names infected_1/2
+let the real one-epoch run finish, with both leakage audits reporting PASS,
+but the underlying biological wells overlap. sample_identity parses the actual
+example plate1_L02_17_1_1.png as plate=plate1_L02, well=plate1_L02_17; the database
+says plate1, row r12, column c2, field f17. The extra numeric token makes a field
+into a well. The generated marker reports 51 well groups, while png_list has
+only FOUR actual wells. Of 2,102 training and 234 test crops, all THREE test
+wells also occur in training: (plate1,r12,c1), (plate1,r12,c2), (plate1,r5,c2).
+This count excludes the 19 copied misclassification-review images; it reads
+only train/<class>/*.png and test/<class>/*.png, joined by unique basename to
+png_list's plateID/rowID/columnID. The reported test accuracy 0.9188 must not be
+presented as well-held-out performance. Evidence: tutorial refresh/annotate_fresh/
+captures/classify_column_values/scientific_acceptance.json and private plate1/
+datasets/training_1. Classify narration is HELD, not frozen or synthesized.
+I added a tutorial-only database-lineage guard and checked its negative test
+goes red when the guard is removed. No app/classifier source edit by Codex.
