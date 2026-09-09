@@ -40,11 +40,17 @@ def main() -> int:
     parser.add_argument('--platform', choices=('offscreen', 'xcb'), default='offscreen')
     parser.add_argument('--run', action='store_true', help='Record a bounded Plot-enabled real pipeline run')
     parser.add_argument('--ai-controls', action='store_true', help='Show the AI toggle and an UNSENT example question')
+    parser.add_argument('--settings-tour', action='store_true', help='Show bounded Regression choices and actual result tabs')
+    parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
+    if args.settings_tour and (args.module != 'regression' or not args.run):
+        parser.error('--settings-tour requires --module regression --run')
+    if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
+        parser.error('--capture-name must be one directory name')
     if args.module == 'regression_diagnostics' and args.diagnostics_from is None:
         parser.error('Regression Diagnostics needs an already completed --diagnostics-from project')
     stage = args.stage.resolve()
@@ -114,7 +120,7 @@ def main() -> int:
     window.apply_dock_mode('locked')
     window.resize(3840, 2160)
     window.show()
-    captures = stage / 'captures' / args.module
+    captures = stage / 'captures' / (args.capture_name or args.module)
     captures.mkdir(parents=True, exist_ok=True)
     write_json(captures / 'provenance.json', {'module': args.module,
                'completed_capture': False, 'status': 'capture_in_progress'})
@@ -541,6 +547,9 @@ def main() -> int:
                 if settings.get(key) != value:
                     raise RuntimeError(f'The UI did not retain {key}={value}')
             write_json(captures / 'batch_settings.json', settings)
+            if args.settings_tour:
+                from capture_settings import record_settings
+                record_settings(screen, captures, capture, settle, write_json)
             if getattr(screen, '_preview_switch', None) is not None:
                 screen._preview_switch.setChecked(False)
             settle()
@@ -609,6 +618,9 @@ def main() -> int:
             queue.show_index(queue.count() - 1)
             settle()
             capture('24_batch_figure')
+            if args.settings_tour:
+                from capture_settings import record_results
+                record_results(screen, captures, capture, settle, write_json)
         if args.ai_controls:
             # Show the genuine control and a draft; never submit a provider
             # request or imply that an AI response was generated.
