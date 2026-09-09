@@ -32,6 +32,13 @@ RATIO_COLUMNS = tuple(
     for prefix, suffix, _ in NUMERATORS
     for role in ("cell", "cytoplasm", "nucleus")
 ) + ("recruitment",)
+# These are the current consumer's actual filter channels, not the mask-plane
+# names: its mask_chans order is nucleus, pathogen, cell but its filter calls
+# use indices cell=0, nucleus=1, pathogen=2. Cell intensity remains disabled.
+NONRESTRICTIVE_INTENSITY_COLUMNS = {
+    "nucleus": "nucleus_channel_3_mean_intensity",
+    "pathogen": "pathogen_channel_1_mean_intensity",
+}
 
 
 def _require(condition, message):
@@ -128,8 +135,18 @@ def _settings(settings, project, database):
         _require(settings[name] == expected and not isinstance(settings[name], bool),
                  f"Unsupported setting {name}: expected {expected!r}")
     for role in ("cell", "nucleus", "pathogen"):
-        _require(settings[f"{role}_intensity_range"] is None,
-                 f"Unsupported {role}_intensity_range: expected None")
+        intensity_bounds = settings[f"{role}_intensity_range"]
+        nonrestrictive = (
+            role in NONRESTRICTIVE_INTENSITY_COLUMNS
+            and isinstance(intensity_bounds, list)
+            and len(intensity_bounds) == 2
+            and all(type(value) is int for value in intensity_bounds)
+            and intensity_bounds == [-1, 65536]
+        )
+        _require(intensity_bounds is None or nonrestrictive,
+                 f"Unsupported {role}_intensity_range: expected None"
+                 + (" or integer [-1, 65536]"
+                    if role in NONRESTRICTIVE_INTENSITY_COLUMNS else ""))
         bounds = settings[f"{role}_size_range"]
         _require(isinstance(bounds, list) and len(bounds) == 2
                  and all(type(value) is int for value in bounds)
@@ -159,7 +176,7 @@ def _settings(settings, project, database):
                      f"Unsupported {locations_key}: use explicit row/column IDs")
 
 
-def _read_table(connection, role):
+def _read_table(connection, role, settings):
     columns = {row[1] for row in connection.execute(f'PRAGMA table_info("{role}")')}
     _require(columns, f"Missing private measurement table {role}")
     _require(not ({"timeID", "time_id", "timepoint"} & columns),
@@ -172,6 +189,9 @@ def _read_table(connection, role):
         required.add("cell_id")
     if role == "pathogen":
         required.update(column for _, _, column in NUMERATORS)
+    if (role in NONRESTRICTIVE_INTENSITY_COLUMNS
+            and settings[f"{role}_intensity_range"] is not None):
+        required.add(NONRESTRICTIVE_INTENSITY_COLUMNS[role])
     aliases = {}
     canonical = "pathogen_channel_1_outside_percentile_75"
     legacy = "pathogen_channel_1_outside_75_percentile"
@@ -198,6 +218,39 @@ def _read_table(connection, role):
             if column.startswith(f"{role}_") and column != "cell_id":
                 row[column] = _number(row[column], f"{role}.{column}")
     return rows
+
+
+def _intensity_filter_evidence(tables, settings):
+    """Prove enabled strict bounds cannot reject finite uint16-domain means.
+
+    Check every source child, even orphans and count-filtered groups, before
+    aggregation: a bad individual value must not disappear into a mean or
+    pandas' missing-value handling. A nonempty arithmetic mean of these values
+    remains in [0, 65535], strictly within the only supported [-1, 65536]
+    bounds. Missing pathogen groups already fail the preceding area filter.
+    """
+    evidence = []
+    for role, column in NONRESTRICTIVE_INTENSITY_COLUMNS.items():
+        bounds = settings[f"{role}_intensity_range"]
+        if bounds is None:
+            continue
+        values = []
+        for row in tables[role]:
+            value = row[column]
+            _require(math.isfinite(value) and 0 <= value <= 65535,
+                     f"Cannot prove nonrestrictive {role} intensity filter: "
+                     f"{column} at {_key(row)} must be finite in [0, 65535], "
+                     f"got {value!r}")
+            values.append(value)
+        _require(values, f"No source values to prove nonrestrictive {role} intensity filter")
+        evidence.append({
+            "setting": f"{role}_intensity_range", "strict_bounds": list(bounds),
+            "actual_source_column": column, "source_rows_checked": len(values),
+            "source_minimum": min(values), "source_maximum": max(values),
+            "finite_source_domain": [0, 65535],
+            "additional_rows_excluded": 0,
+        })
+    return evidence
 
 
 def _annotations(key, settings):
@@ -366,7 +419,8 @@ def inspect_results(project, settings):
     _settings(settings, project, database)
     with sqlite3.connect(database.as_uri() + "?mode=ro", uri=True) as connection:
         connection.row_factory = sqlite3.Row
-        tables = {role: _read_table(connection, role) for role in ROLES}
+        tables = {role: _read_table(connection, role, settings) for role in ROLES}
+    intensity_evidence = _intensity_filter_evidence(tables, settings)
     expected, expected_wells, source_counts, stages = _reconstruct(tables, settings)
     actual_rows = _read_csv(project / "results" / "cells.csv")
     actual = {}
@@ -416,6 +470,7 @@ def inspect_results(project, settings):
         "source_field_identities": [list(key) for key in sorted({key[:4] for key in
                                      (_key(row) for row in tables["cell"])})],
         "filter_counts": stages, "cell_rows": len(expected), "well_rows": len(expected_wells),
+        "nonrestrictive_intensity_filters": intensity_evidence,
         "exact_surviving_cell_keys": [_prcfo(key) for key in sorted(expected)],
         "ratios_verified": list(RATIO_COLUMNS),
         "max_absolute_numeric_difference": max(differences, default=0.0),

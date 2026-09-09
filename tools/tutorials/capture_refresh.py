@@ -675,9 +675,11 @@ def main() -> int:
                 for key in ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim'):
                     recorded.pop(key, None)
                 recorded.update(src=str(destination), channel_dims=[1],
-                                cell_intensity_range=None, nucleus_intensity_range=None,
-                                pathogen_intensity_range=None, plot=True,
-                                plot_control=False, plot_nr=0)
+                                cell_intensity_range=None, nucleus_intensity_range=[-1, 65536],
+                                pathogen_intensity_range=[-1, 65536], plot=True,
+                                plot_control=False, plot_nr=0,
+                                cell_plate_metadata=[['c1', 'c2', 'c3']],
+                                treatment_plate_metadata=[['c1', 'c2', 'c3']])
                 presets['recruitment'] = recorded
             if args.module not in presets:
                 raise ValueError('No bounded recording preset for this module')
@@ -686,6 +688,7 @@ def main() -> int:
                 if not model.set_value_for_key(key, value):
                     raise RuntimeError(f'Cannot configure the real {key} control')
             settings = model.collect()
+            write_json(captures / 'configured_settings.json', settings)
             for key, value in bounded.items():
                 if settings.get(key) != value:
                     raise RuntimeError(f'The UI did not retain {key}={value}')

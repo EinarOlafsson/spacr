@@ -155,9 +155,103 @@ def test_positive_aggregates_parent_keys_and_mean_of_ratios(example):
     assert result["well_counts"][0]["retained_cells"] == 2
     assert result["well_ratio_means"][0]["recruitment"] == 4.0  # (7 + 1) / 2, not 2.5.
     assert len(result["ratios_verified"]) == 16
+    assert result["nonrestrictive_intensity_filters"] == []
     assert result["max_absolute_numeric_difference"] < 1e-12
     json.dumps(result, allow_nan=False)
     assert hashlib.sha256(database.read_bytes()).hexdigest() == before
+
+
+def _enable_nonrestrictive_filters(project, settings):
+    settings["nucleus_intensity_range"] = [-1, 65536]
+    settings["pathogen_intensity_range"] = [-1, 65536]
+    with sqlite3.connect(project / "measurements" / "measurements.db") as connection:
+        connection.execute(
+            'ALTER TABLE nucleus ADD COLUMN nucleus_channel_3_mean_intensity REAL DEFAULT 100')
+
+
+@pytest.mark.parametrize("role", ["nucleus", "pathogen"])
+@pytest.mark.parametrize("value", [0, 65535])
+def test_nonrestrictive_bounds_include_both_uint16_edges(example, role, value):
+    project, settings, cells = example
+    _enable_nonrestrictive_filters(project, settings)
+    column = f"{role}_channel_{3 if role == 'nucleus' else 1}_mean_intensity"
+    with sqlite3.connect(project / "measurements" / "measurements.db") as connection:
+        connection.execute(f'UPDATE {role} SET {column}=? WHERE fieldID="f2"', (value,))
+    if role == "pathogen":
+        cells[1] = _expected("f2", 3, 6, 12, (value, 12, 1, 2, 3), 200, 1)
+        _save_outputs(project, cells)
+    database = project / "measurements" / "measurements.db"
+    before = hashlib.sha256(database.read_bytes()).hexdigest()
+    result = inspect_results(project, settings)
+    assert result["accepted"] is True
+    assert result["cell_rows"] == 2
+    assert len(result["ratios_verified"]) == 16
+    assert len(result["nonrestrictive_intensity_filters"]) == 2
+    proof = next(item for item in result["nonrestrictive_intensity_filters"]
+                 if item["setting"] == f"{role}_intensity_range")
+    assert proof["actual_source_column"] == column
+    assert proof["strict_bounds"] == [-1, 65536]
+    assert proof["finite_source_domain"] == [0, 65535]
+    assert proof["source_rows_checked"] == result["source_table_rows"][role]
+    assert proof["additional_rows_excluded"] == 0
+    assert proof["source_minimum" if value == 0 else "source_maximum"] == value
+    json.dumps(result, allow_nan=False)
+    assert hashlib.sha256(database.read_bytes()).hexdigest() == before
+
+
+@pytest.mark.parametrize("role", ["nucleus", "pathogen"])
+def test_nonrestrictive_role_can_be_combined_with_other_role_disabled(example, role):
+    project, settings, _ = example
+    _enable_nonrestrictive_filters(project, settings)
+    settings[f"{'pathogen' if role == 'nucleus' else 'nucleus'}_intensity_range"] = None
+    result = inspect_results(project, settings)
+    assert [item["setting"] for item in result["nonrestrictive_intensity_filters"]] == [
+        f"{role}_intensity_range"]
+
+
+@pytest.mark.parametrize("role", ["nucleus", "pathogen"])
+@pytest.mark.parametrize("value", [-2, 65537, math.nan, math.inf, -math.inf])
+def test_rejects_source_outside_proven_domain_before_aggregation(example, role, value):
+    project, settings, _ = example
+    _enable_nonrestrictive_filters(project, settings)
+    column = f"{role}_channel_{3 if role == 'nucleus' else 1}_mean_intensity"
+    with sqlite3.connect(project / "measurements" / "measurements.db") as connection:
+        # SQLite stores float NaN as NULL; it must not be skipped by aggregation.
+        connection.execute(f'UPDATE {role} SET {column}=? WHERE fieldID="f2"', (value,))
+    with pytest.raises(ValueError, match=f"Cannot prove nonrestrictive {role} intensity filter"):
+        inspect_results(project, settings)
+
+
+@pytest.mark.parametrize("label", [1, 4, 15])
+def test_domain_proof_checks_children_before_averaging_or_count_filtering(example, label):
+    project, settings, _ = example
+    _enable_nonrestrictive_filters(project, settings)
+    with sqlite3.connect(project / "measurements" / "measurements.db") as connection:
+        # 1: mean with sibling 20 would be 9 (apparently valid); 4: count-rejected
+        # group; 15: orphan. The proof deliberately checks all three source cases.
+        connection.execute(
+            'UPDATE pathogen SET pathogen_channel_1_mean_intensity=-2 '
+            'WHERE fieldID="f1" AND object_label=?', (label,))
+    with pytest.raises(ValueError, match="Cannot prove nonrestrictive pathogen intensity filter"):
+        inspect_results(project, settings)
+
+
+def test_enabled_nucleus_bound_requires_actual_channel_three_source_column(example):
+    project, settings, _ = example
+    settings["nucleus_intensity_range"] = [-1, 65536]
+    with pytest.raises(ValueError, match="Missing nucleus source columns.*nucleus_channel_3"):
+        inspect_results(project, settings)
+
+
+@pytest.mark.parametrize("role", ["nucleus", "pathogen"])
+@pytest.mark.parametrize("bounds", [[0, 65535], [-1, 65535], [0, 65536],
+                                    [-2, 65537], [-1.0, 65536], [-1, 65536.0],
+                                    [], [-1], [-1, 65536, 65537], "[-1, 65536]"])
+def test_rejects_excluding_or_unsupported_intensity_bounds(example, role, bounds):
+    project, settings, _ = example
+    settings[f"{role}_intensity_range"] = bounds
+    with pytest.raises(ValueError, match=f"Unsupported {role}_intensity_range"):
+        inspect_results(project, settings)
 
 
 @pytest.mark.parametrize("column", RATIOS)
