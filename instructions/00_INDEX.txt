@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-363 done / 18 open (95%).
+363 done / 19 open (95%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -83,6 +83,9 @@ OPEN
 
   383  A SETTING'S API LINK LANDS ON THAT SETTING, IN THE MODULE THE USER IS IN
        383_a_settings_api_link_lands_on_the_setting.txt
+
+  385  THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
+       385_the_backdrop_keeps_moving_while_a_dialog_is_open.txt
 
 --------------------------------------------------------------------------------
 DONE

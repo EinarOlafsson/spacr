@@ -1646,3 +1646,417 @@ THE SETTINGS MUST SAY THIS EXPLICITLY -- which channel averages across what
 to every channel by whoever implements it next, and a barcode destroyed by
 averaging fails silently: the reads still decode, they just decode to the
 wrong thing.
+
+
+--------------------------------------------------------------------------------
+PART 8 -- THE ORDER OF WORK, AND WHERE IT IS WRITTEN. 2026-09-09.
+--------------------------------------------------------------------------------
+
+TWO THINGS THE MAINTAINER FIXED IN THE PLAN, and both change the shape of it
+rather than adding to it.
+
+1. HOECHST IS PROCESSED FIRST AND ALONE. It is the alignment channel, and it
+   is also the channel the object map is built on. NOTHING else is touched
+   until the nuclei are segmented and given plate-level object numbers,
+   because those numbers and those coordinates are the only thing that links
+   a sequencing read to a phenotype measurement. A pipeline that segments
+   and calls bases in one pass has nothing to join on.
+
+2. IT ALL LANDS IN measurements.db. An OPS table set in the same database
+   every other module reads, so `measure`, the plotting, the ML and the DB
+   browser reach it without learning a new format. Parquet (and HDF5 for raw
+   arrays) alongside it where the scan speed is worth it -- but the database
+   is the authority and the sidecar is a cache, never the other way round.
+
+--------------------------------------------------------------------------------
+PHASE A -- GEOMETRY, ON HOECHST ONLY
+--------------------------------------------------------------------------------
+
+A1  LAYOUT FROM THE ACQUISITION, NOT FROM A GUESS. PART 6-C settled the
+    model: row-major with a snake remap, columns of varying height because
+    the well is round. Site -> (column, row) is read or measured, never
+    assumed, and `max_site_gap` goes away.
+
+A2  TILE STITCH, PER WELL PER CYCLE. Phase correlation on Hoechst; unwrap
+    the shifts; reject (0,0) as the no-overlap signature; solve the edge
+    graph by least squares into one well frame. Output is a TRANSFORM TABLE,
+    never a canvas. It prints canvas dimensions and a shift histogram --
+    PART 6-A: a placement count is not a measure of a stitch.
+
+A3  CYCLE REGISTRATION. Each cycle's Hoechst against the reference cycle in
+    the well frame -> one rigid transform per cycle, composed with A2.
+    A cycle that fails to register is DROPPED FROM THE AVERAGE AND RECORDED,
+    not allowed to fail the well.
+
+A4  PHENOTYPE TO SBS. 2960 against 1480: scale and rotation are real here, so
+    this is the one place feature matching earns its keep. Align on Hoechst,
+    store the transform, and do not resample one into the other -- PART 7:
+    aligned, not averaged.
+
+--------------------------------------------------------------------------------
+PHASE B -- THE CANONICAL NUCLEAR MAP. EVERYTHING WAITS ON THIS.
+--------------------------------------------------------------------------------
+
+B1  THE HOECHST COMPOSITE. Averaged across overlapping tiles AND across every
+    cycle. Nuclei do not move between cycles, so eleven acquisitions are
+    eleven samples of one signal: about a 3.3x gain on the exact channel
+    segmentation runs on. HOECHST ONLY -- PART 7.
+
+B2  SEGMENT ONCE, on the composite, window by window.
+
+B3  SEW THE LABELS ACROSS WINDOW SEAMS. An object straddling a boundary is
+    one object, matched on its well-frame centroid.
+
+B4  PLATE-LEVEL OBJECT NUMBERS, ASSIGNED IN THE WELL FRAME. Per-window
+    numbering would give two windows an object #1 apiece. This id, and the
+    centroid beside it, is the join key for every later phase.
+
+B5  WRITTEN AND VERIFIED BEFORE PHASE C STARTS. The gate is explicit: no
+    sequencing or phenotype channel is read until `ops_objects` is on disk
+    and its row count checked.
+
+--------------------------------------------------------------------------------
+PHASE C -- EVERY OTHER CHANNEL, SAMPLED AT THOSE COORDINATES
+--------------------------------------------------------------------------------
+
+C1  SEQUENCING CHANNELS, PER CYCLE, at the B4 coordinates through the A2/A3
+    transforms. NEVER averaged across cycles -- that is the one operation
+    that destroys a barcode while leaving it decodable.
+
+C2  SPOTS AND BASE CALLS per object per cycle, with a quality.
+
+C3  BARCODE ASSEMBLY across cycles BY OBJECT ID, to a read, a quality and a
+    mapped guide.
+
+C4  PHENOTYPE CHANNELS at the same object ids through A4, emitting the schema
+    `measure` already emits -- which is what makes the OPS output usable by
+    everything downstream without a translation layer.
+
+--------------------------------------------------------------------------------
+PHASE D -- THE STORAGE CONTRACT
+--------------------------------------------------------------------------------
+
+IN measurements.db, authoritative:
+
+    ops_geometry   well, cycle, site, transform, residual, accepted, method
+    ops_objects    plate, well, object_id, centroid_x, centroid_y, area,
+                   bbox, window, n_cycles_averaged
+    ops_reads      object_id, cycle, per-channel intensity, base, quality
+    ops_barcodes   object_id, barcode, mean quality, n_cycles, mapped guide
+
+and the ordinary measurement tables keyed on THE SAME object ids, so nothing
+downstream needs to know the run was OPS.
+
+BESIDE IT, as a cache: parquet for `ops_reads` and `ops_barcodes`, which are
+the wide numeric tables where a columnar scan is worth an order of magnitude;
+HDF5 only if raw per-window arrays are ever kept. Written in the same step,
+with the row counts asserted equal, so the sidecar cannot silently drift from
+the authority. The reader prefers parquet and falls back to sqlite.
+
+--------------------------------------------------------------------------------
+PHASE E -- GPU, WITH A FALLBACK THAT IS TESTED
+--------------------------------------------------------------------------------
+
+Phase correlation is an FFT and an argmax, so the backend is an indirection
+over the array module: CuPy (CUDA) -> torch.fft (CUDA / ROCm / MPS) ->
+numpy+scipy. The CPU path is not an error path; both backends run the same
+fixture and must agree to within a pixel.
+
+--------------------------------------------------------------------------------
+THREE HOLES IN THIS ORDER, NAMED BEFORE THEY BITE
+--------------------------------------------------------------------------------
+
+1. The nuclear gate means every cycle's geometry must be solved before B1
+   can start. Hence A3's rule: a cycle that will not register is dropped
+   from the average and recorded, never fatal to the well.
+
+2. Sampling the sequencing channels at nuclear coordinates assumes the reads
+   are nuclear. In this protocol they are -- but the footprint (nucleus,
+   dilated nucleus, cytoplasmic ring) must be a SETTING, because it is the
+   assumption that would mis-call bases without ever looking wrong.
+
+3. `number_of_objects` is assigned in the well frame (B4). Anywhere it is
+   assigned per window, two windows produce the same id and the join silently
+   pairs the wrong cells.
+
+
+--------------------------------------------------------------------------------
+PART 9 -- THE HOLES IN PART 8, CLOSED. 2026-09-09.
+--------------------------------------------------------------------------------
+
+PART 8 named three holes and left them named. That is not a specification --
+"this could go wrong" is a note to whoever implements it, and whoever
+implements it will decide these three by default and not record the decision.
+So each one is decided here, with the setting that carries it and the way it
+fails. NOTHING BELOW IS BUILT YET; this is the contract implementation is
+held to.
+
+--------------------------------------------------------------------------------
+HOLE 1 -- A CYCLE THAT WILL NOT REGISTER MUST NOT COST THE WELL
+--------------------------------------------------------------------------------
+
+The gate in PART 8 makes every cycle a dependency of the object map: no
+composite until all eleven are placed. One bad acquisition then costs a whole
+well, which is not acceptable for a plate that took a week to run.
+
+DECIDED:
+
+1. EVERY CYCLE REGISTERS AGAINST THE REFERENCE DIRECTLY, never against its
+   predecessor. Chaining c1->c2->c3 is cheaper by one registration and wrong:
+   a single bad link displaces every cycle after it, and the residual does not
+   say which link failed. Direct registration makes each cycle's acceptance
+   independent, which is the only reason the rest of this is possible.
+
+2. ACCEPTANCE IS RECORDED, NOT ASSUMED. `ops_geometry` carries the peak ratio
+   and the residual for every cycle, and an `accepted` flag decided by
+   `ops_min_peak_ratio` (the measured contrast is 38-46 for a true neighbour
+   against a background near 10, so the threshold has real room -- PART 6).
+
+3. A REJECTED CYCLE IS DROPPED FROM THE COMPOSITE AND FROM THE READS. Not
+   from the composite only: if its geometry is not trustworthy then its
+   coordinates are not either, and base calls sampled at wrong coordinates
+   decode to a wrong barcode rather than to nothing. Both halves go, and
+   `ops_barcodes.n_cycles` records what the read was actually assembled from.
+
+4. THE WELL FAILS LOUDLY BELOW `ops_min_cycles_for_composite` (default 3).
+   Segmenting on an average of two noisy fields and calling it the canonical
+   object map is worse than stopping.
+
+5. THE COMPOSITE IS A WEIGHTED MEAN AND CARRIES ITS SAMPLE COUNT. Tile
+   overlaps and the well's round edge mean the number of contributing
+   (tile, cycle) samples varies across the field, and a nucleus segmented
+   where one sample landed is not the same evidence as one segmented where
+   eleven did. The count map is kept and `ops_objects.n_samples_mean` records
+   it per object, so a later filter can ask.
+
+--------------------------------------------------------------------------------
+HOLE 2 -- "THE READS ARE NUCLEAR" IS AN ASSUMPTION, SO MEASURE IT
+--------------------------------------------------------------------------------
+
+Sampling the base channels at nuclear coordinates is right for this protocol
+and it is still an assumption. It is also the assumption that fails without
+looking wrong: a footprint that is too tight drops reads, one that is too
+loose mixes two cells' reads into one barcode, and both produce barcodes that
+decode cleanly to the wrong guide.
+
+DECIDED:
+
+1. SPOTS ARE DETECTED FIRST AND ATTRIBUTED SECOND. Detection runs on the SBS
+   channels over the whole field, independently of any footprint; only then is
+   each spot assigned to an object. THIS ORDER IS THE WHOLE POINT -- code that
+   only ever looks inside the footprint can never discover that the reads are
+   somewhere else.
+
+2. THE FOOTPRINT IS A SETTING, `ops_read_footprint`, one of `nucleus`,
+   `nucleus_dilated`, `cytoplasm_ring`, `cell`. Default `nucleus_dilated`
+   with `ops_read_footprint_radius`, whose default is 3 px -- roughly 3
+   microns at the scale PART 6-C measured (1267 px against 1280 microns,
+   ~1.01 px/micron). A STARTING VALUE, to be answered by the first real
+   decode rather than defended.
+
+3. CONTAINMENT IS A REPORTED NUMBER AND A GATE. The fraction of detected
+   spots landing inside the chosen footprint is written per well per cycle,
+   and a run below `ops_min_spot_containment` (default 0.8) says so loudly.
+   It is the one measurement that distinguishes "this protocol is nuclear"
+   from "we only looked in the nucleus".
+
+4. A SPOT INSIDE TWO FOOTPRINTS IS ASSIGNED TO NEITHER, and counted. Splitting
+   it by distance would invent a read; dropping it silently would hide how
+   often the footprint is too loose.
+
+--------------------------------------------------------------------------------
+HOLE 3 -- OBJECT NUMBERS ARE THE JOIN KEY, SO THEY GET A CONTRACT
+--------------------------------------------------------------------------------
+
+Everything downstream joins on the object number. A number assigned per
+window collides across windows; a number that is a row index changes when a
+filter changes; either way the join silently pairs the wrong cells, and a
+wrong pairing between a barcode and a phenotype is the exact failure this
+whole module exists to avoid.
+
+DECIDED:
+
+1. ASSIGNED ONCE, IN THE WELL FRAME, AFTER THE SEAMS ARE SEWN. Never per
+   window, never per tile.
+
+2. DETERMINISTIC AND REPRODUCIBLE. Objects are ordered by centroid --
+   (y, x), rounded to 0.1 px to make the sort stable against float noise --
+   and numbered from 1. A re-run on the same input reproduces the same ids,
+   which is what makes two OPS runs comparable and a database diffable.
+
+3. NEVER A ROW INDEX. The id is stored, not derived from position in a table.
+
+4. UNIQUENESS IS A CONSTRAINT, NOT A CONVENTION. `UNIQUE(plate, well,
+   object_id)` in the schema, so the bug surfaces as a write that fails at
+   the moment it happens rather than as a mispairing found months later, if
+   at all.
+
+5. SEAM MATCHING IS BY DISTANCE, NOT BY LABEL. An object whose centroid falls
+   in a window overlap is matched to its twin within
+   `ops_seam_match_distance`, default half the expected nuclear diameter, and
+   the two masks are unioned. An object that matches nothing keeps its own id
+   -- an unmatched object near a seam is a real object, not an error.
+
+--------------------------------------------------------------------------------
+THREE MORE, FOUND WHILE CLOSING THOSE
+--------------------------------------------------------------------------------
+
+HOLE 4 -- THE SEGMENTATION CHANNEL IS NOT A CHOICE. The premise of PART 7 is
+that segmentation runs on Hoechst averaged across cycles. If the module
+exposes "which channel do I segment", someone points it at CY3 and the object
+map silently becomes per-cycle and non-canonical. The setting is WHICH
+CHANNEL IS HOECHST; the segmentation input is the composite, and it is not
+selectable.
+
+HOLE 5 -- THE DATABASE IS WRITTEN BEFORE THE SIDECAR, ALWAYS. A run that dies
+between them then leaves an authority with no cache, which the reader already
+handles by falling back to sqlite. The other order leaves a cache newer than
+the authority, which nothing detects and every later read believes.
+
+HOLE 6 -- A WELL-FRAME COORDINATE WITH NO STORED ORIGIN IS NOT A COORDINATE.
+`ops_geometry` stores the well frame's origin and pitch alongside the per-tile
+transforms, so an object centroid can be mapped back to the tile and pixel it
+came from. Without it the centroids are internally consistent and externally
+meaningless, and no later run can check them against the images.
+
+--------------------------------------------------------------------------------
+WHAT IMPLEMENTATION STARTS FROM
+--------------------------------------------------------------------------------
+
+PART 8 is the order of work, PART 9 is the contract. The first code is still
+PART 6-C's remainder -- the position-driven adjacency that replaces
+`max_site_gap` -- and nothing in PART 8 or 9 changes that, because every
+phase after A2 is waiting on a stitch that places all 333 tiles.
+
+
+--------------------------------------------------------------------------------
+PART 9-A -- TEST ON A PATCH, NOT ON A PLATE. 2026-09-09.
+--------------------------------------------------------------------------------
+
+MAINTAINER, 2026-09-09: "when you are testing the ops data you do not need to
+do the entire plate to start with, i think, if there is a way for you to do a
+small segment of the plate (e.g. 100 FOV or less) then do that".
+
+RIGHT, AND IT IS WORTH MORE THAN THE TIME IT SAVES. Every measurement in
+PART 6 cost 400 seconds because it ran all 333 tiles of well A1, and each of
+the three prototypes was a single 7-minute answer to a question that could
+have been asked in one. A loop that turns over in under a minute is a
+different way of working, not a faster version of the same one.
+
+THE SUBSET MUST BE CONTIGUOUS, AND THIS IS THE PART THAT IS EASY TO GET
+WRONG. A random 100 of 333 tiles is not a tenth of the problem, it is a
+DIFFERENT problem: the tiles do not touch, so there are no overlaps to
+register, and a stitch over them can only fail. The subset is a PATCH -- a
+rectangular block of the raster, or a run of whole columns -- so that the
+adjacency inside it is the same adjacency the full well has.
+
+  `ops_site_subset`, taking either an explicit site list or a
+  `(column_start, column_stop)` range, with the transform table carrying
+  which sites went in. A run over a subset is a real run over a smaller
+  well, not a special mode.
+
+WHAT A PATCH CAN AND CANNOT ANSWER:
+
+  IT CAN          the matcher, the unwrapping, the (0,0) rejection, the
+                  cycle registration, the composite, the segmentation, the
+                  object numbering, the schema, the whole of Phase C, and
+                  every memory claim -- PART 6 measured peak RSS as flat in
+                  tile count, so a patch's footprint is the well's.
+
+  IT CANNOT       the varying column height that broke both prototypes. A
+                  patch inside one part of the well sees a constant offset
+                  and will make a fixed raster look correct. THE ADJACENCY IS
+                  THE ONE THING THAT MUST BE CONFIRMED ON THE FULL WELL
+                  before it is believed.
+
+  SO THE RULE     develop on a patch, and re-run the full well only when the
+                  adjacency changes or before calling a stage done.
+
+A GOOD FIRST PATCH IS COLUMNS 0-8 OF WELL A1 c1 -- around 90 tiles, spanning
+several column boundaries, so it contains at least one place where the
+horizontal offset changes. A patch from the middle of a single column would
+run fast and prove nothing.
+
+
+--------------------------------------------------------------------------------
+PART 10 -- THERE IS ONLY ONE DAPI. PART 7 AND PART 8 CORRECTED. 2026-09-09.
+--------------------------------------------------------------------------------
+
+MEASURED BEFORE WRITING ANY CODE, and it overturns a decided design, so it is
+recorded before it is acted on.
+
+    cycle   tif files   DAPI files   partial downloads
+    c1          1,998        1,998        0
+    c2-c11      7,992            0        0-3 each
+
+  c1 is ONE FIVE-CHANNEL STACK PER SITE:
+      10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-N.tif
+  c2..c11 are FOUR SEPARATE PER-CHANNEL FILES PER SITE:
+      10X_c8_A1_A594_Site-N.tif, ..._CY3_..., ..._CY5_..., ..._CY7_...
+
+  7,992 = 6 wells x 333 sites x 4 channels. 1,998 = 6 x 333 x 1 stack.
+
+  THE HOECHST CHANNEL WAS ACQUIRED ONCE, IN CYCLE 1, AND NOWHERE ELSE.
+
+WHAT THIS BREAKS. PART 7 concluded that averaging Hoechst across cycles "is
+not merely safe, it is the right thing" and put the gain at roughly sqrt(11),
+about 3.3x, on the exact channel segmentation runs on. PART 8 built two steps
+on it: A3 registers each cycle's Hoechst against the reference, and B1
+averages Hoechst across every cycle. NEITHER CAN RUN. There are not eleven
+acquisitions of one DAPI field; there is one.
+
+  The reasoning in PART 7 was sound and the premise was wrong. It is a
+  correction rather than a retraction: on an acquisition that DOES image
+  Hoechst every cycle, every word of PART 7 holds.
+
+WHAT REPLACES IT, AND IT IS NOT A GUESS -- THE REFERENCE ALREADY SOLVES THIS.
+`ops/firesnake.py:_align_SBS` takes `method` as either 'DAPI' or 'SBS_mean',
+and the second exists for exactly this case:
+
+    target  = max over the SBS channels, in a centered window
+    normed  = normalize_by_percentile(target, q_norm=70), clipped at cutoff
+    offsets = phase correlation on that
+
+So cycle-to-cycle registration uses the SBS channels themselves. The spots
+are punctate and abundant, which is good material for phase correlation --
+better in some ways than DAPI, whose nuclei are smooth. The reference also
+handles the channel-count mismatch directly: it keeps only the channels
+common to every cycle, which DROPS c1's DAPI from the cycle stack, with
+`keep_extras` to propagate it instead.
+
+  CORRECTED A3: register cycles on the SBS_mean target, not on Hoechst.
+  Keep the acceptance test (peak ratio, residual, (0,0) rejection) exactly as
+  PART 9 hole 1 decided it -- only the channel changes.
+
+  CORRECTED B1: the Hoechst composite averages across OVERLAPPING TILES
+  within c1. That is still worth doing and it is still one canonical object
+  map. What goes is the cross-cycle term and the 3.3x with it: segmentation
+  gets one acquisition's signal-to-noise, not eleven.
+
+  UNCHANGED: everything the maintainer specified about ORDER. Hoechst is
+  still processed first and alone, nuclei are still segmented before any
+  other channel is read, and the plate-level object numbers still come from
+  that map and still link the sequencing and phenotype channels. PART 10
+  changes what the alignment is measured ON, not what is done first.
+
+AND PART 9 HOLE 1's MINIMUM LOSES ITS MEANING. `ops_min_cycles_for_composite`
+was a floor on how many cycles may be missing from a Hoechst average that no
+longer averages cycles. It is replaced by a floor on how many cycles register
+successfully at all, which is what `ops_barcodes.n_cycles` already reports --
+a read assembled from four of eleven cycles is a short barcode, and that is a
+decode question rather than a segmentation one.
+
+SEVENTEEN PARTIAL DOWNLOADS, worth knowing before a run trips on one.
+`.lftp-pget-status` files are lftp's record of an interrupted transfer, and
+there are 17 across c2..c11 (c3 2, c7 2, c8 3, c9 3, c11 3, one each in
+c2/c4/c5/c6, none in c1 or c10). 17 in ~80,000 files, so the mirror is
+essentially complete -- but the .tif beside each of those may be truncated,
+and a loader that opens one will fail in the middle of a run rather than at
+its start. THE PRE-FLIGHT SHOULD REFUSE THEM BY NAME.
+
+  WORTH ASKING THE MAINTAINER: whether the source has Hoechst for c2..c11
+  and it simply was not mirrored. If it does, PART 7 comes back intact and
+  this whole entry becomes a note about an incomplete copy. The file layout
+  argues it does not -- c1's five-channel stack against c2..c11's four
+  separate per-channel files is two different acquisition configurations,
+  not one configuration with files missing.

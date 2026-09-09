@@ -22,9 +22,17 @@ into `00_INDEX.txt`, so read it there rather than here). The old header said 92/
 a `codex/tutorial-api-final` checkpoint; both were nine months of work out of
 date and are in section 8 below with the rest of the history.
 
-Two sessions share this repository. `instructions/open/325` is the channel
+Two sessions share this repository.
+`instructions/325_two_sessions_one_repo_working_protocol.temp` is the channel
 between them and the record of who owns what — **read it before touching
-anything**, and announce there before editing `setup.py`, `spacr/__init__.py`,
+anything**,
+
+> NOT UNDER `open/`, AND NOT A MISFILING. The maintainer took 325 off the
+> instructions list on 2026-09-09: it is a standing protocol rather than a
+> task that can be finished, so it does not belong in a ledger that counts
+> what is done. `build_instruction_index.py` globs `open/*.txt` and
+> `done/*.txt`, so 325 is deliberately invisible to `00_INDEX.txt` and
+> `--check` passes without it. Do not "repair" it back into `open/`. and announce there before editing `setup.py`, `spacr/__init__.py`,
 `spacr/schema.py`, `spacr/accelerator.py` or `.github/**`.
 
 WHAT IS RELEASE-BLOCKING, from instruction 331 which splits the list into
@@ -155,7 +163,8 @@ creating anything, and prefer `Edit` over `Write` for a path that may exist.
 
 * Branch `nightly`. SUPERSEDED 2026-09-02: the file list and ownership that
   used to be here were true in August and are not now.
-  **`instructions/open/325` sections 1 and 2 are the current answer** to which
+  **`instructions/325_two_sessions_one_repo_working_protocol.temp`
+  sections 1 and 2 are the current answer** to which
   tree is whose and which files are whose, and it stays current because both
   sessions write to it.
 * THERE ARE TWO LIVE TREES, one per session:

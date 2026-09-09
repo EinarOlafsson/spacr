@@ -1,0 +1,90 @@
+================================================================================
+THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
+================================================================================
+
+Status:    not started
+Requested: 2026-09-09 -- "when the preferences menue or help menu is open the
+           theme in the background stops, the theme should continue."
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Opening Preferences or Help freezes the animated backdrop behind the window.
+It resumes when the dialog closes, so nothing is broken -- the animation is
+simply not running for as long as the dialog is up.
+
+WHAT IT IS NOT, MEASURED 2026-09-09 SO THE NEXT READER DOES NOT RE-DERIVE IT:
+
+  * NOT `_pause_the_fractal`. `spacr/qt/screens/app_screen.py:1213` has an
+    explicit pause helper, and it has exactly ONE caller --
+    `app_screen.py:7439`, which stops the backdrop for the duration of a
+    pipeline RUN. No dialog calls it.
+  * NOT `Screensaver.closeEvent` (`spacr/qt/screensaver.py:126`), which
+    pauses only the screensaver's own backdrop as its window goes.
+  * NOT, on the face of it, the modal `exec()`. Preferences opens through
+    `PreferencesDialog(window).exec()` (`spacr/qt/app.py:3883`,
+    `spacr/qt/shortcuts.py:489`), and a modal dialog's nested event loop
+    still delivers timer events to other widgets. `exec()` is worth ruling
+    out properly rather than assuming, but it is not sufficient on its own.
+
+SO THE CAUSE IS STILL OPEN. The two candidates worth measuring first are the
+frame gate at `spacr/qt/widgets/fractal_travel.py:1107`
+(``if self._busy or not self.isVisible(): return``) and the same test at
+line 188 -- and whatever the dialog does to the window's active state. Note
+that Qt's ``isVisible()`` is about show state rather than occlusion, so a
+dialog merely covering the canvas should not trip it; if it does, that is
+the finding.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The backdrop is the one part of the interface that says the application is
+alive. Freezing it exactly when the user opens a settings panel reads as the
+program hanging, which is the opposite of what a decoration is for -- and it
+is most visible in Preferences, which is where the backdrop's own settings
+live: a user changing the pointer reach or the speed cannot see the effect of
+the change they are making.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. REPRODUCE IT AS A NUMBER, not as an impression. Count frames over a fixed
+   wall-clock interval with the dialog shut, then with it open. A test can
+   drive this without a human: open the dialog with `show()` inside a
+   `qtbot.waitExposed`, sample the canvas's frame counter twice, and assert
+   the second interval is not zero.
+
+2. FIND THE GATE THAT CLOSES. Instrument the early returns named above and
+   see which one fires while the dialog is up. Do not fix the first plausible
+   one -- 382 in this repo was three separate causes wearing one symptom.
+
+3. FIX IT WHERE THE DECISION IS MADE. If the canvas is stopping itself on a
+   state that a dialog changes, the fix is in the canvas's own gate. If
+   something is calling `pause()`, the fix is that caller. Either way the
+   backdrop must keep running for a MODAL dialog and must still stop for a
+   pipeline run, which is the one case that deliberately pauses it.
+
+4. THE SCREENSAVER STAYS AS IT IS. Its `closeEvent` pause is a crash guard,
+   not a decoration policy.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A test in `tests/qt/` that opens Preferences and asserts the backdrop's frame
+counter advances while it is up, and a second that asserts a pipeline run
+still pauses it. Both green, plus the eye test: open Preferences, watch the
+backdrop move behind it.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+No cause is asserted here. The three ruled out above were ruled out by
+reading the callers; the remainder was not measured, and filing a guess as a
+finding is how the next session spends an afternoon on a mechanism that is
+not there.
