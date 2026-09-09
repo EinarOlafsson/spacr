@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "label": "spacr.accelerator#8",
+      "source_sha256": "36930f00b4f9aa860f59f06df689ef3e755399f78040ef3897369e0b05b476e2",
+      "source": "DETECTED AND USABLE ARE REPORTED SEPARATELY. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "context": "Detected and usable are reported separately. A setup screen announcing an accelerator spaCR will never dispatch to is worse than one that says nothing, because the user then blames their hardware for CPU speed. Neural engines are the whole reason that distinction exists here: the Apple Neural Engine, Intel AI Boost and Qualcomm Hexagon are all real silicon with no portable torch device, so they are named as FOUND and never selected.",
+      "translation": "Upptäckt och användbar rapporteras var för sig. En inställningsskärm som tillkännager en accelerator som spaCR aldrig kommer att skicka arbete till är sämre än en som inget säger, eftersom användaren då skyller CPU-hastigheten på sin hårdvara. Neurala motorer är hela skälet till att den skillnaden finns här: Apple Neural Engine, Intel AI Boost och Qualcomm Hexagon är alla verkligt kisel utan någon portabel torch-enhet, så de namnges som UPPTÄCKTA och väljs aldrig."
+    },
+    {
+      "label": "spacr.active_learning.retrain_round#26",
+      "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+      "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "translation": "hur många oannoterade bildutsnitt som ska dras slumpmässigt och anpassas som klassen FRÅNVARANDE när endast en klass har annoterats. ``None`` (standard) vägrar i stället, som tidigare."
+    },
+    {
+      "label": "spacr.cancellation.CancellationToken#2",
+      "source_sha256": "3d6458dd8e805e6523eb45e799c27a908e7b318a7e9aece455fbe9f5292fa680",
+      "source": "Create an unset token carrying the fallback cancellation reason.",
+      "context": "Create an unset token carrying the fallback cancellation reason.",
+      "translation": "Skapa en osatt token som bär det reservskäl för avbrytande som gäller."
+    },
+    {
+      "label": "spacr.crop_source.resolve_source#1",
+      "source_sha256": "dad43e0a552e5659deb0d505a6df7d393a9d778d4a16fd6e56d4e7568508ab7e",
+      "source": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means LOAD IMAGES, which is the default everywhere the question is asked.",
+      "context": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means load images, which is the default everywhere the question is asked.",
+      "translation": "Varje stavning i :data:`CROP_SOURCE_ALIASES` går att lösa upp, så en inställningsfil från vilken panel som helst som spaCR har levererat besvarar den här frågan. Osatt betyder läs in bilder, vilket är standard överallt där frågan ställs."
+    },
+    {
+      "label": "spacr.macro.Recording#3",
+      "source_sha256": "b09e873d1dddabd0a3e532dd91e88e9a111f18802a1c5bdbb7c5353da7c3cdce",
+      "source": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "context": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "translation": "run-journal-katalog som kopierats till det registrerade steget och används för att återskapa ett reservlöp-id när ingen loggpost röjer något."
+    },
+    {
+      "label": "spacr.object_settings_table.to_table#2",
+      "source_sha256": "163ebcb0b75d65ff3cc00c35f08c2c8b8bda0b52ee2ba0b33e18bd93a375e4a3",
+      "source": "A question a given object does not ask is ABSENT from its row rather than present as ``None``. ``cytoplasm`` has no channel, no diameter and no detection method because it is derived rather than found in a channel, and a blank cell says that where a ``None`` would read as \"not set yet\".",
+      "context": "A question a given object does not ask is ABSENT from its row rather than present as ``None``. ``cytoplasm`` has no channel, no diameter and no detection method because it is derived rather than found in a channel, and a blank cell says that where a ``None`` would read as \"not set yet\".",
+      "translation": "En fråga som ett givet objekt inte ställer SAKNAS i dess rad i stället för att stå där som ``None``. ``cytoplasm`` har ingen kanal, ingen diameter och ingen detekteringsmetod, eftersom den härleds i stället för att hittas i en kanal, och en tom cell säger just det där ett ``None`` skulle läsas som \"not set yet\"."
+    },
+    {
+      "label": "spacr.ops_merge#7",
+      "source_sha256": "d4d8a6e566cdeff215297df74696c06d34071afbfa08304a3f72e4af3d9deb34",
+      "source": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "context": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "translation": "Följer brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), vars `merge`-steg lästes för tillvägagångssättet."
+    },
+    {
+      "label": "spacr.ops_merge.align_by_triangles#1",
+      "source_sha256": "783029840de405f9ac7892781a7f1a4ba4494123dfc36913c7efc8877b6154f5",
+      "source": "Every triangle in ``source`` is matched to the ``target`` triangles whose shape descriptor is within ``tolerance``, each match proposes a transform, and the proposals are pooled. Pooling is what makes this robust: a single coincidental shape match proposes a wrong transform, but wrong proposals disagree with each other while right ones agree, so the median survives and the outliers do not.",
+      "context": "Every triangle in ``source`` is matched to the ``target`` triangles whose shape descriptor is within ``tolerance``, each match proposes a transform, and the proposals are pooled. Pooling is what makes this robust: a single coincidental shape match proposes a wrong transform, but wrong proposals disagree with each other while right ones agree, so the median survives and the outliers do not.",
+      "translation": "Varje triangel i ``source`` matchas mot de trianglar i ``target`` vars formdeskriptor ligger inom ``tolerance``, varje matchning föreslår en transform, och förslagen samlas ihop. Det är sammanslagningen som gör metoden robust: en enstaka slumpartad formmatchning föreslår en felaktig transform, men felaktiga förslag är oense med varandra medan riktiga är eniga, så medianen överlever och avvikarna gör det inte."
+    },
+    {
+      "label": "spacr.ops_sbs#9",
+      "source_sha256": "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916",
+      "source": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "context": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "translation": "Metoden här följer brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), vars källkod lästes för de tre punkterna ovan i stället för att rekonstrueras ur stegens namn."
+    },
+    {
+      "label": "spacr.plate_qc.EdgeEffectReport#14",
+      "source_sha256": "4321bd078e9bb54e7579e8eaecfdcd7796a108c1189d932f0029a98e1d180fa7",
+      "source": "two-sided Mann-Whitney U p-value comparing outer-ring and interior wells, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing outer-ring and interior microplate sample positions, or ``None`` when the comparison is unavailable.",
+      "translation": "tvåsidigt p-värde från Mann-Whitney U som jämför brunnarna i ytterringen med de inre, eller ``None`` när jämförelsen inte är möjlig."
+    },
+    {
+      "label": "spacr.plate_qc.RingStats#7",
+      "source_sha256": "16003b161e364809542aa5577cc1cb41480707881f43abc26cc0b40565b216c1",
+      "source": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "context": "two-sided Mann-Whitney U p-value comparing this ring with the selected core, or ``None`` when the comparison is unavailable.",
+      "translation": "tvåsidigt p-värde från Mann-Whitney U som jämför den här ringen med den valda kärnan, eller ``None`` när jämförelsen inte är möjlig."
+    },
+    {
+      "label": "spacr.qt.memory_budget.what_to_drop#6",
+      "source_sha256": "cacfbfd07a2f73a883e233de8269be4aa7da60e7306154141f03ad837ca4e0ad",
+      "source": "TWO REASONS, APPLIED IN ORDER. Anything idle longer than the timeout goes because nothing is using it. Then, if what remains is still over the ceiling, the least recently used go until it fits -- so a cache under pressure gives up what it is least likely to want next rather than whatever it happens to reach first.",
+      "context": "Two reasons, applied in order. Anything idle longer than the timeout goes because nothing is using it. Then, if what remains is still over the ceiling, the least recently used go until it fits -- so a cache under pressure gives up what it is least likely to want next rather than whatever it happens to reach first.",
+      "translation": "Två skäl, tillämpade i tur och ordning. Allt som varit overksamt längre än tidsgränsen får gå, eftersom ingen använder det. Om det som återstår ändå ligger över taket får därefter de minst nyligen använda gå tills det får plats -- så att en cache under press ger upp det den minst troligt vill ha härnäst i stället för det den råkar nå först."
+    },
+    {
+      "label": "spacr.qt.preferences.get_news_height#1",
+      "source_sha256": "2f4f8b50842a8495b56972c2d179a6f9fcab9ca5d13cf8ae305adf7b206b551f",
+      "source": "Stored in FONT-SCALE-INDEPENDENT px, so a reader who drags the box tall and then raises the interface zoom gets a box that is still the same size relative to the text in it, rather than one that keeps the pixel count and loses two of its four visible lines.",
+      "context": "Stored in FONT-SCALE-INDEPENDENT px, so a reader who drags the box tall and then raises the interface zoom gets a box that is still the same size relative to the text in it, rather than one that keeps the pixel count and loses two of its four visible lines.",
+      "translation": "Lagras i px oberoende av teckenskala, så att en läsare som drar rutan hög och sedan höjer gränssnittets zoom får en ruta som fortfarande är lika stor i förhållande till texten i den, i stället för en som behåller antalet pixlar och tappar två av sina fyra synliga rader."
+    },
+    {
+      "label": "spacr.qt.preferences.get_performance_level#2",
+      "source_sha256": "1ad39652ed069e05e6c2fb76fb5e57501673dda1f4f8f6d089613c1eab8cd4ea",
+      "source": "MIGRATION HAPPENS HERE rather than in a startup step, because every reader of the old settings comes through this function and a migration that only ran at launch would be skipped by a headless run, a test, or a second process. It is idempotent: once a level is stored the old values are never consulted again.",
+      "context": "Migration happens here rather than in a startup step, because every reader of the old settings comes through this function and a migration that only ran at launch would be skipped by a headless run, a test, or a second process. It is idempotent: once a level is stored the old values are never consulted again.",
+      "translation": "Migreringen sker här och inte i ett uppstartssteg, eftersom varje läsare av de gamla inställningarna går genom den här funktionen och en migrering som bara kördes vid start skulle hoppas över av en huvudlös körning, ett test eller en andra process. Den är idempotent: när en nivå väl är lagrad läses de gamla värdena aldrig igen."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.object_label#1",
+      "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
+      "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "translation": "Ingen användare ser en bokstav, efterfrågat i just så många ord den 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Platserna lagras med bokstav -- ``organelle``, ``organelleb``, ``organellec`` -- eftersom ett rollnamn är prefixet i varje inställningsnamn det äger och ``organelle2`` inte kan ta sig fram och tillbaka genom en ``prcfo``-nyckel utan att krocka med objektet MÄRKT 2. Det är ett lagringsbeslut och det har inget på skärmen att göra, där en plats är ett NUMMER: Organelle 1, Organelle 2."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
+      "source_sha256": "4f42abf241ab238fd87e1eb7644fcb820fab5c9269e7916cd1d9e6b93b3c3379",
+      "source": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "context": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "translation": "Den äldre tvålägesstavningen av :meth:`set_tile_policy`, behållen eftersom det är vad en anropare som aldrig hört talas om hopfogning menar: off är numera policyn DEFAULT i stället för det skip den var förr, eftersom ett hopfogat synfält är vad man alltid velat ha."
+    },
+    {
+      "label": "spacr.qt.widgets.console_panel.ConsolePanel.append_warning#1",
+      "source_sha256": "826834f37631d3c1c613d95dab3a85ea0611314346d43b570a154e1b7d60b4f6",
+      "source": "DELIBERATELY NOT ITS OWN BANNER, and the reason is a coordination one rather than a design one: a \"spaCR warning\" heading would need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the COMPACT caption ratchet. Amber under the existing translated \"spaCR output\" heading already achieves the point -- warnings out of the ERROR pane, errors still in it -- without reaching into that machinery. A dedicated banner would be the nicer end state.",
+      "context": "Deliberately not its own banner, and the reason is a coordination one rather than a design one: a \"spaCR warning\" heading would need a new row in ``spacr.qt.i18n._ROWS`` with nine translations, which moves the COMPACT caption ratchet. Amber under the existing translated \"spaCR output\" heading already achieves the point -- warnings out of the ERROR pane, errors still in it -- without reaching into that machinery. A dedicated banner would be the nicer end state.",
+      "translation": "Medvetet ingen egen banderoll, och skälet är samordning snarare än formgivning: en rubrik \"spaCR warning\" skulle kräva en ny rad i ``spacr.qt.i18n._ROWS`` med nio översättningar, vilket flyttar spärren för KOMPAKTA bildtexter. Bärnstensfärg under den befintliga översatta rubriken \"spaCR output\" åstadkommer redan poängen -- varningar ut ur ERROR-rutan, fel kvar i den -- utan att gripa in i den maskineriet. En egen banderoll vore det trevligare sluttillståndet."
+    },
+    {
+      "label": "spacr.qt.widgets.file_list.PairedFileTableWidget.showEvent#2",
+      "source_sha256": "04c261becc557129fabb41270bec155bf7f2ac3ae7951a587703f4dc2768933c",
+      "source": "ON SHOW rather than in `__init__`: the strip is added to the section AFTER the settings rows are, so at construction there is nothing to find, and the widget has no parent chain to walk up either. Once installed the layout follows the header on its own, and the call is idempotent, so repeated shows cost one dictionary lookup.",
+      "context": "On show rather than in `__init__`: the strip is added to the section AFTER the settings rows are, so at construction there is nothing to find, and the widget has no parent chain to walk up either. Once installed the layout follows the header on its own, and the call is idempotent, so repeated shows cost one key-value mapping lookup.",
+      "translation": "Vid visning i stället för i `__init__`: remsan läggs till i avsnittet EFTER inställningsraderna, så vid konstruktionen finns inget att hitta, och widgeten har heller ingen föräldrakedja att gå uppåt i. När den väl är på plats följer layouten rubriken av sig själv, och anropet är idempotent, så upprepade visningar kostar en uppslagning i en nyckel-värde-avbildning."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.read_plane_count#1",
+      "source_sha256": "643611f23c11726dcc78f1e05a0b676b69c79f90ed79959287f66b85d559007e",
+      "source": "``np.load(..., mmap_mode=\"r\")`` sounds free and is not. Before it maps anything it OPENS the file and reads the ``.npy`` header, so it is a filesystem round trip on a path the user supplied -- and an open is no cheaper than the stat that started this exercise. Measured on one workstation, one stat under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had not returned after twenty seconds.",
+      "context": "``np.load(..., mmap_mode=\"r\")`` sounds free and is not. Before it maps anything it OPENS the file and reads the ``.npy`` header, so it is a filesystem round trip on a path the user supplied -- and an open is no cheaper than the stat that started this exercise. Measured on one workstation, one stat under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had not returned after twenty seconds.",
+      "translation": "``np.load(..., mmap_mode=\"r\")`` låter gratis och är det inte. Innan något mappas ÖPPNAS filen och ``.npy``-huvudet läses, så det är en tur och retur till filsystemet på en sökväg som användaren angett -- och en öppning är inte billigare än den stat som startade den här övningen. Mätt på en arbetsstation: en stat under ``/nas_mnt`` -- en ``autofs``-montering vars utdelning sov -- hade inte återvänt efter tjugo sekunder."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#1",
+      "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
+      "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "translation": "Resten BEHÅLLS, kastas inte: :meth:`settings` returnerar den oförändrad vid sidan av tabellens egna nycklar, så att den här widgeten kan redigera ett hörn av en inställningsfil utan att hålla hela filen som gisslan."
+    },
+    {
+      "label": "spacr.spacrops.spacrStitcher#45",
+      "source_sha256": "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc",
+      "source": "``downsample`` is the scale every match runs at; the transforms it produces are expressed at full size, so lowering it costs accuracy rather than changing the output geometry. ``ransac_thresh_px`` is in FULL-SIZE pixels.",
+      "context": "``downsample`` is the scale every match runs at; the transforms it produces are expressed at full size, so lowering it costs accuracy rather than changing the output geometry. ``ransac_thresh_px`` is in FULL-SIZE pixels.",
+      "translation": "``downsample`` är den skala varje matchning körs i; de transformer den ger uttrycks i full storlek, så att sänka den kostar noggrannhet snarare än att ändra utdatageometrin. ``ransac_thresh_px`` anges i pixlar i FULL STORLEK."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#9",
+      "source_sha256": "3186785b00cdb3d155852b0c2121e5cd1f4675c042c1ebe996497b83e63844f5",
+      "source": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "context": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "translation": "tolkad avbildning av run-journal-manifestet, eller en tom avbildning när det saknas, inte går att läsa eller inte är ett objekt."
+    }
+  ]
+}
