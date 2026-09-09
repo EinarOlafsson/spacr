@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import functools
+import hashlib
 import http.server
 import json
 import re
@@ -80,6 +81,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--lesson', default='05_home')
+    parser.add_argument('--language', default='en')
+    parser.add_argument('--voice', default='af_heart')
     args = parser.parse_args()
     english = read(DEFAULT_STAGE / 'catalog/lessons_en.json')
     lesson = next(item for item in english['lessons'] if item['id'] == args.lesson)
@@ -90,13 +93,13 @@ def main():
     production = '/' + str(DEFAULT_STAGE.relative_to(WORKSPACE)) + '/production'
     for attribute in ('production-root', 'audio-root', 'video4k-root'):
         source = re.sub(rf'data-{attribute}="[^"]*"', f'data-{attribute}="{production}"', source)
-    output = DEFAULT_STAGE / 'browser' / args.lesson
+    output = DEFAULT_STAGE / 'browser' / args.lesson / f'{args.language}-{args.voice}'
     output.mkdir(parents=True, exist_ok=True)
     errors = []
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
                 functools.partial(Handler, directory=str(WORKSPACE)))
     threading.Thread(target=server.serve_forever, daemon=True).start()
-    evidence = {'lesson': args.lesson, 'scope': 'English af_heart playback and scene links only',
+    evidence = {'lesson': args.lesson, 'scope': f'{args.language}/{args.voice} playback and scene links only',
                 'uploaded': False, 'translation_or_listening_review': False}
     try:
         with sync_playwright() as engine:
@@ -109,11 +112,40 @@ def main():
                 body=catalog_js, content_type='application/javascript'))
             context.route('**/web/catalog/lessons_en.json*', lambda route: route.fulfill(
                 json=english))
+            if args.language != 'en':
+                localized = read(DEFAULT_STAGE / 'catalog' / f'lessons_{args.language}.json')
+                context.route(f'**/web/catalog/lessons_{args.language}.json*',
+                              lambda route: route.fulfill(json=localized))
             page = context.new_page()
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(base + '/web/#lesson=' + args.lesson, wait_until='domcontentloaded')
             page.wait_for_function('document.querySelectorAll(".chapter-button").length === ' + str(len(lesson['scenes'])), timeout=60000)
             page.wait_for_function('elements.video.readyState >= 2 && elements.audio.readyState >= 2', timeout=60000)
+            page.select_option('#language-select', args.language)
+            page.wait_for_function('(voice) => [...elements.voice.options].some(o => o.value === voice)',
+                                   arg=args.voice, timeout=30000)
+            page.select_option('#voice-select', args.voice)
+            try:
+                page.wait_for_function('(voice) => audioTimings?.voice === voice && narrationAudioAvailable && elements.audio.readyState >= 2',
+                                       arg=args.voice, timeout=30000)
+            except Exception:
+                diagnostic = page.evaluate('({audioSrc: elements.audio.currentSrc, audioReady: elements.audio.readyState, error: elements.audio.error?.message, language: elements.language.value, voice: elements.voice.value, lesson: activeLesson?.id, status: elements.status.textContent, toast: elements.toast.textContent})')
+                diagnostic['javascript_errors'] = errors
+                write(output / 'language-load-failure.json', diagnostic)
+                print(json.dumps(diagnostic, indent=2), flush=True)
+                raise
+            # The player intentionally prefetches narration into a blob URL.
+            # Match its actual bytes, not an assumed URL shape or just the
+            # selected label, which could still show a previous voice.
+            audio_hash = page.evaluate('''async () => {
+                const bytes = await (await fetch(elements.audio.currentSrc)).arrayBuffer();
+                const digest = await crypto.subtle.digest('SHA-256', bytes);
+                return [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, '0')).join('');
+            }''')
+            expected_hash = hashlib.sha256((DEFAULT_STAGE / 'production' / args.lesson /
+                            'audio' / args.language / f'{args.voice}.m4a').read_bytes()).hexdigest()
+            assert audio_hash == expected_hash, (audio_hash, expected_hash)
+            evidence['loaded_audio_sha256'] = audio_hash
             evidence['scene_count'] = page.locator('.chapter-button').count()
             expected = sorted({identity for scene in lesson['scenes'] for identity in scene.get('related_lessons', [])})
             actual = page.locator('#chapter-list [data-related-lesson]').evaluate_all(

@@ -1,0 +1,20 @@
+{
+  "lesson": "05_home", "language": "zh-CN",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Preserve English GUI names and correct screening, cropped images and parent-module terminology.", "Correct hover to pointer hover, not click; CV remains computer vision, not a résumé.", "Retain the measured-feature classification route and all nine scene meanings."]},
+  "title": "Home 页面与导航",
+  "description": "了解 Core 的六个步骤和 Home 当前的分类，并在所属的主模块中找到相关工具。",
+  "objectives": ["了解从图像到回归分析结果的 Core 工作流程。", "找到 Data、Tools 和 Assays，避免把已整合的功能误认为缺失的模块。", "区分可下载的真实数据与生成的演示数据，并找到对应的专题教程。"],
+  "prerequisite": "安装 spaCR 并打开桌面应用。录制使用深色主题和放大的界面文字。",
+  "scenes": [
+    "Home 将 spaCR 分为 Core、Data、Tools 和 Assays。这些分类对应不同的工作流程。相关工具也可能位于某个主模块内部，因此 Home 上的按钮并不代表全部功能。",
+    "Core 按筛选实验的分析流程排列：Mask、Measure、Annotate、Classify、Map Barcodes 和 Regression。请从适合现有输入数据的步骤开始。如果已经有兼容的测量数据或裁剪图像，就不必重新进行分割。",
+    "Data 集合了 Import、Run Compare、Experiment Design、Power and Design、Dose Response 和质量控制。Import 也是 Import Images、Format Converter 和 External Masks 的入口。要找到这些功能，请先打开所属的主模块。",
+    "Tools 包含 Make Masks、Align and Stitch、Image UMAP、Gate Editor 和 Graph Builder。每个模块都集合了相关操作。例如，Make Masks 提供模型训练和比较，Graph Builder 提供 Plate Viewer 和 Small Multiples。",
+    "Assays 包含 Plaque Assay、Recruitment、Invasion Assay 和 Replication Assay。请选择符合实验内容和所需输入数据的工作流程。模块的成熟度颜色与它所属的分类无关；在依赖实验性功能之前，请先阅读工具提示。",
+    "Classify 是一个模块。通过 Classifier family 设置，可以选择基于图像的计算机视觉，或基于测量特征的机器学习。原有的计算机视觉和机器学习教程仍然分别讲解这两条路线，并不代表 Home 上有两个独立的模块按钮。",
+    "Classify 顶部的图标可打开 Classifier Evaluation、Explain CV Model、Activation、Training Runs 和 Feature Explorer。将鼠标指针停在图标上，即可查看名称和说明。准备检查训练好的模型或其结果时，请打开链接中的相应专题教程。",
+    "Core 教程使用 Load test data 提供的真实数据集。下载后会填入相关输入和兼容的设置。Help 中生成的演示数据是另一种选择。在 Mask 中，Time 和 3D 开关显示时序及三维数据的工作流程；Live 打开预览。",
+    "使用 Help 可返回操作引导和教程。把当前模块的教程与应用并排打开，按照教程检查数据、设置和输出。下一课将介绍如何通过 Python API 和命令行使用同样的工作流程。"
+  ]
+}

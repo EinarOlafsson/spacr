@@ -1,0 +1,20 @@
+{
+  "lesson": "05_home", "language": "hi",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Keep English GUI labels identifiable in the shared recording.", "Correct image crops rather than agricultural crops, parent modules rather than parents, and hover rather than movement.", "Restore the assay, classification and guided-tour explanations without adding new workflow claims."]},
+  "title": "Home स्क्रीन और नेविगेशन",
+  "description": "Core के छह चरण देखें, Home की मौजूदा श्रेणियाँ जानें और संबंधित टूल उनके मुख्य मॉड्यूल में खोजें।",
+  "objectives": ["Core में चित्रों से रिग्रेशन के परिणामों तक का विश्लेषण क्रम समझना।", "Data, Tools और Assays ढूँढ़ना और किसी मुख्य मॉड्यूल में शामिल टूल को गायब मॉड्यूल न समझना।", "डाउनलोड किए जाने वाले वास्तविक डेटा और बनाए गए डेमो में अंतर समझना तथा संबंधित विशेष ट्यूटोरियल ढूँढ़ना।"],
+  "prerequisite": "spaCR इंस्टॉल करके डेस्कटॉप ऐप खोलें। इस रिकॉर्डिंग में डार्क थीम और इंटरफ़ेस के बड़े अक्षरों का उपयोग किया गया है।",
+  "scenes": [
+    "Home में spaCR को Core, Data, Tools और Assays में व्यवस्थित किया गया है। ये कार्यप्रवाह की श्रेणियाँ हैं। संबंधित टूल किसी मुख्य मॉड्यूल के अंदर भी हो सकते हैं, इसलिए Home के बटन सभी सुविधाओं की पूरी सूची नहीं हैं।",
+    "Core में स्क्रीनिंग के विश्लेषण का क्रम है: Mask, Measure, Annotate, Classify, Map Barcodes और Regression। अपने इनपुट डेटा के अनुसार सही चरण से शुरू करें। यदि आपके पास पहले से संगत माप या चित्रों के कटे हुए हिस्से हैं, तो सेगमेंटेशन दोबारा करने की ज़रूरत नहीं है।",
+    "Data में Import, Run Compare, Experiment Design, Power and Design, Dose Response और गुणवत्ता नियंत्रण शामिल हैं। Import से Import Images, Format Converter और External Masks भी खोले जा सकते हैं। इन कार्यप्रवाहों तक पहुँचने के लिए पहले मुख्य मॉड्यूल खोलें।",
+    "Tools में Make Masks, Align and Stitch, Image UMAP, Gate Editor और Graph Builder हैं। हर मॉड्यूल संबंधित कार्यों को एक जगह रखता है। उदाहरण के लिए, Make Masks में मॉडल का प्रशिक्षण और तुलना है, जबकि Graph Builder में Plate Viewer और Small Multiples हैं।",
+    "Assays में Plaque Assay, Recruitment, Invasion Assay और Replication Assay हैं। ऐसा कार्यप्रवाह चुनें जो आपके प्रयोग और उसके आवश्यक इनपुट से मेल खाता हो। मॉड्यूल की परिपक्वता बताने वाला रंग उसकी श्रेणी से अलग है; किसी प्रायोगिक सुविधा पर निर्भर होने से पहले उसका टूलटिप पढ़ें।",
+    "Classify एक ही मॉड्यूल है। इसकी Classifier family सेटिंग से चित्रों पर आधारित कंप्यूटर विज़न या मापी गई विशेषताओं पर आधारित मशीन लर्निंग चुनी जाती है। कंप्यूटर विज़न और मशीन लर्निंग के पुराने ट्यूटोरियल इन्हीं दो विकल्पों के विशेष मार्गदर्शक हैं, Home के अलग-अलग बटनों के नहीं।",
+    "Classify के ऊपर दिए गए आइकन Classifier Evaluation, Explain CV Model, Activation, Training Runs और Feature Explorer खोलते हैं। नाम और विवरण पढ़ने के लिए पॉइंटर को आइकन पर रखें। जब आप प्रशिक्षित मॉडल या उसके परिणामों को देखना चाहें, तो दिए गए लिंक से संबंधित विशेष ट्यूटोरियल खोलें।",
+    "Core के ट्यूटोरियल Load test data से मिलने वाले वास्तविक डेटा का उपयोग करते हैं। डाउनलोड करने पर संबंधित इनपुट और संगत सेटिंग्स भर जाती हैं। Help में बनाए गए डेमो एक अलग विकल्प हैं। Mask में Time और 3D स्विच समय-श्रृंखला और त्रि-आयामी कार्यप्रवाह दिखाते हैं; Live से प्रीव्यू खुलता है।",
+    "निर्देशित परिचय और ट्यूटोरियल पर वापस जाने के लिए Help का उपयोग करें। मौजूदा मॉड्यूल का ट्यूटोरियल ऐप के साथ खुला रखें और उसमें बताए डेटा, सेटिंग्स तथा परिणामों की जाँच करें। अगला पाठ दिखाता है कि इन्हीं कार्यप्रवाहों का उपयोग Python API और कमांड लाइन से कैसे किया जाता है।"
+  ]
+}

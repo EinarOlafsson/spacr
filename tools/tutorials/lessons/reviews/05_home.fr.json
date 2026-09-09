@@ -1,0 +1,34 @@
+{
+  "lesson": "05_home",
+  "language": "fr",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {
+    "kind": "Codex editorial review against English and captured English GUI",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Preserve spaCR and the English control names shown in the recording.",
+      "Use recadrages d'images instead of cultures for image crops.",
+      "Replace literal translations of tiles, folded actions, hover, assay and training runs.",
+      "Retain every source sentence and distinguish a host module from a standalone Home tile."
+    ]
+  },
+  "title": "Écran Home et navigation",
+  "description": "Repérez les six étapes de Core, explorez les catégories actuelles de Home et retrouvez les outils intégrés à leurs modules principaux.",
+  "objectives": [
+    "Suivre le parcours d'analyse de Core, des images aux résultats de régression.",
+    "Trouver Data, Tools et Assays sans confondre une action intégrée avec un module manquant.",
+    "Distinguer les jeux de données réels à télécharger des démonstrations générées et trouver les tutoriels spécialisés correspondants."
+  ],
+  "prerequisite": "Installez spaCR et ouvrez l'application de bureau. L'enregistrement utilise le thème sombre et une taille de texte agrandie.",
+  "scenes": [
+    "Home organise spaCR en Core, Data, Tools et Assays. Ces catégories regroupent les étapes de travail. Des outils connexes peuvent aussi se trouver dans un module principal : les boutons de Home ne représentent donc pas toutes les fonctionnalités.",
+    "Core suit le parcours d'analyse du criblage : Mask, Measure, Annotate, Classify, Map Barcodes et Regression. Commencez à l'étape adaptée à vos données d'entrée. Il n'est pas nécessaire de refaire la segmentation si vous disposez déjà de mesures ou de recadrages d'images compatibles.",
+    "Data regroupe Import, Run Compare, Experiment Design, Power and Design, Dose Response et le contrôle qualité. Import donne également accès à Import Images, Format Converter et External Masks. Ouvrez d'abord le module principal pour retrouver ces outils.",
+    "Tools contient Make Masks, Align and Stitch, Image UMAP, Gate Editor et Graph Builder. Chaque module rassemble des actions connexes. Par exemple, Make Masks propose l'entraînement et la comparaison de modèles, tandis que Graph Builder donne accès à Plate Viewer et Small Multiples.",
+    "Assays regroupe Plaque Assay, Recruitment, Invasion Assay et Replication Assay. Choisissez un parcours adapté à votre expérience et aux données qu'il nécessite. La couleur indiquant la maturité d'un module est indépendante de sa catégorie ; lisez son infobulle avant de vous appuyer sur une fonctionnalité expérimentale.",
+    "Classify est un seul module. Son réglage Classifier family permet de choisir la vision par ordinateur à partir d'images ou l'apprentissage automatique à partir de caractéristiques mesurées. Les anciens tutoriels de vision par ordinateur et d'apprentissage automatique restent des guides dédiés à ces deux parcours, et non à des boutons distincts de Home.",
+    "Les icônes en haut de Classify ouvrent Classifier Evaluation, Explain CV Model, Activation, Training Runs et Feature Explorer. Survolez une icône pour lire son nom et sa description. Consultez le tutoriel spécialisé associé lorsque vous souhaitez examiner un modèle entraîné ou ses résultats.",
+    "Les tutoriels de Core utilisent les jeux de données réels proposés par Load test data. Le téléchargement renseigne les entrées pertinentes et les réglages compatibles. Les démonstrations générées dans Help constituent une autre option. Dans Mask, les interrupteurs Time et 3D affichent les parcours temporels et volumétriques ; Live ouvre l'aperçu.",
+    "Utilisez Help pour revenir aux visites guidées et aux tutoriels. Gardez le tutoriel du module actuel à côté de l'application et suivez ses vérifications des données, des réglages et des résultats. La prochaine leçon montre comment retrouver ces mêmes parcours dans l'API Python et en ligne de commande."
+  ]
+}

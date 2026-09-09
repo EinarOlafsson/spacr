@@ -1,0 +1,20 @@
+{
+  "lesson": "05_home", "language": "is",
+  "english_sha256": "90f5b1b66812661ba7fc6222bbab7c525b60fe520eae11843172f52f026b97b9",
+  "review": {"kind": "Codex editorial review against English and captured English GUI", "native_speaker_signoff": false, "corrections": ["Replace machine-draft crop, host, classifier, tooltip and assay errors.", "Retain visible English names, the two classification routes and every source instruction.", "Caption-only language; no native-speaking narrator is claimed."]},
+  "title": "Home-skjárinn og leiðsögn",
+  "description": "Finndu sex skref Core, skoðaðu núverandi flokka á Home-skjánum og finndu tengd verkfæri inni í aðaleiningunum sem hýsa þau.",
+  "objectives": ["Fylgja vinnuferlinu í Core frá myndum að niðurstöðum aðhvarfsgreiningar.", "Finna Data, Tools og Assays án þess að rugla saman innbyggðri aðgerð og einingu sem vantar.", "Greina á milli raunverulegra niðurhalanlegra gagnasafna og tilbúinna sýnidæma og finna viðeigandi sérkennsluefni."],
+  "prerequisite": "Settu upp spaCR og opnaðu skjáborðsforritið. Upptakan notar dökkt þema og stækkaðan texta í viðmótinu.",
+  "scenes": [
+    "Á Home-skjánum er spaCR skipt í Core, Data, Tools og Assays. Þetta eru flokkar vinnuferla. Tengd verkfæri geta líka verið inni í aðaleiningu, þannig að hnapparnir á Home sýna ekki alla möguleika forritsins.",
+    "Core fylgir greiningarferlinu: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Byrjaðu á því skrefi sem hentar inntaksgögnunum þínum. Þú þarft ekki að endurtaka aðgreiningu hluta á myndum ef þú ert þegar með samhæf mæligögn eða útskorin myndsvæði.",
+    "Data sameinar Import, Run Compare, Experiment Design, Power and Design, Dose Response og gæðaeftirlit. Import er líka inngangurinn að Import Images, Format Converter og External Masks. Opnaðu fyrst aðaleininguna til að finna þessi vinnuferli.",
+    "Tools inniheldur Make Masks, Align and Stitch, Image UMAP, Gate Editor og Graph Builder. Hver eining safnar saman tengdum aðgerðum. Make Masks hýsir til dæmis þjálfun og samanburð líkana, en Graph Builder hýsir Plate Viewer og Small Multiples.",
+    "Assays sameinar Plaque Assay, Recruitment, Invasion Assay og Replication Assay. Veldu vinnuferli sem hentar tilrauninni og þeim inntaksgögnum sem það krefst. Litur sem sýnir þroskastig einingar er óháður flokknum hennar; lestu hjálpartextann áður en þú treystir á eiginleika sem er enn á tilraunastigi.",
+    "Classify er ein eining. Stillingin Classifier family velur á milli tölvusjónar sem vinnur úr myndum og vélanáms sem vinnur úr mældum eiginleikum. Eldri kennslumyndbönd um tölvusjón og vélanám útskýra áfram þessar tvær leiðir, ekki aðskilda hnappa á Home-skjánum.",
+    "Táknin efst í Classify opna Classifier Evaluation, Explain CV Model, Activation, Training Runs og Feature Explorer. Haltu bendlinum yfir tákni til að sjá nafn og lýsingu. Notaðu tengda sérkennsluefnið þegar þú vilt skoða þjálfað líkan eða niðurstöður þess.",
+    "Kennsluefnið fyrir Core notar raunveruleg gagnasöfn sem Load test data býður upp á. Niðurhalið fyllir inn viðeigandi inntak og samhæfar stillingar. Sýnidæmin sem eru búin til undir Help eru annar valkostur. Í Mask sýna rofarnir Time og 3D vinnuferli fyrir tímaraðir og þrívíð gögn; Live opnar forskoðunina.",
+    "Notaðu Help til að fara aftur í leiðsagnir og kennsluefni. Hafðu kennsluefnið fyrir núverandi einingu opið við hlið forritsins og fylgdu athugunum á gögnum, stillingum og niðurstöðum. Næsta kennslustund sýnir hvernig nota má sömu vinnuferli með Python-forritaskilunum og skipanalínunni."
+  ]
+}

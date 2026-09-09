@@ -53,10 +53,14 @@ def main() -> int:
         private_cache = stage / 'example_data'
         private_cache.mkdir(parents=True, exist_ok=True)
         destination = Path.home() / '.cache/spacr/example_data'
+        private_runs = stage / 'runs'
+        private_runs.mkdir(parents=True, exist_ok=True)
+        runs_destination = Path.home() / '.spacr/runs'
         os.environ['SPACR_TUTORIAL_CACHE_ISOLATED'] = '1'
         os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
                           '--dev-bind', '/dev', '/dev',
-                          '--bind', str(private_cache), str(destination), '--',
+                          '--bind', str(private_cache), str(destination),
+                          '--bind', str(private_runs), str(runs_destination), '--',
                           sys.executable, str(Path(__file__).resolve()),
                           *sys.argv[1:]])
     for key, value in {
@@ -74,7 +78,7 @@ def main() -> int:
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtGui import QPainter
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QLabel, QMenu
+    from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QLabel, QMenu, QMessageBox, QTabWidget
     from shiboken6 import isValid
     import spacr
     import spacr.qt
@@ -237,9 +241,101 @@ def main() -> int:
                 write_json(captures / 'dataset.json', {
                     'image_count': len(images), 'images': [p.name for p in images],
                     'bytes': sum(p.stat().st_size for p in images)})
-        if args.preview:
+        if args.preview and args.module == 'measure':
+            import numpy as np
+            panel = screen._measure_preview
+            screen._preview_switch.setChecked(True)
+            settle()
+            deadline = time.monotonic() + args.timeout
+            while panel._data is None or panel._loads_in_flight:
+                if time.monotonic() > deadline:
+                    raise TimeoutError(f'Measure preview did not load: {panel._status.text()}')
+                settle(0.2)
+            if not panel._crops:
+                raise RuntimeError(f'Measure preview has no visible crops: {panel._status.text()}')
+            capture('04_live_crops')
+            QTest.mouseClick(panel._settings_btn, Qt.LeftButton)
+            settle()
+            dialog = panel._crop_settings_dialog
+            dialog.resize(1350, 1350)
+            dialog.move(window.mapToGlobal(QPoint(60, 110)))
+            tabs = dialog.findChild(QTabWidget)
+            settle()
+            capture('05_crop_general')
+            tabs.setCurrentIndex(1)
+            settle()
+            capture('06_crop_options')
+            # The archived example has normalization off and its low-valued
+            # channels are nearly black. Show the actual crop control making
+            # them inspectable; this is not brightness editing of an image.
+            if not panel._normalise.isChecked():
+                QTest.mouseClick(panel._normalise, Qt.LeftButton)
+                settle()
+                deadline = time.monotonic() + args.timeout
+                while panel._loads_in_flight:
+                    if time.monotonic() > deadline:
+                        raise TimeoutError('Normalised crop preview did not finish')
+                    settle(0.2)
+            capture('06_normalised_crops')
+            tabs.setCurrentIndex(2)
+            settle()
+            capture('07_crops_before')
+            def crop_rows():
+                return [{'label': int(c['label']), 'area': int(c['area']),
+                         'category': c.get('category'), 'included': bool(c.get('included', True))}
+                        for c in panel._crops]
+            before = crop_rows()
+            original = panel._min_sizes['cell'].value()
+            threshold = int(np.median([c['area'] for c in before])) + 1
+            source_hash = hashlib.sha256(panel._data.tobytes()).hexdigest()
+            if args.preview_variants:
+                if panel._propagate_btn.isChecked():
+                    QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
+                def set_area(value):
+                    control = panel._min_sizes['cell']
+                    control.setFocus()
+                    QTest.keyClick(control, Qt.Key_A, Qt.ControlModifier)
+                    QTest.keyClicks(control, str(value))
+                    QTest.keyClick(control, Qt.Key_Enter)
+                    settle(0.3)
+                    deadline = time.monotonic() + args.timeout
+                    while panel._loads_in_flight:
+                        if time.monotonic() > deadline:
+                            raise TimeoutError('Live recropping did not finish')
+                        settle(0.2)
+                    settle()
+                main_before = screen._settings_model.collect()['cell_min_size']
+                set_area(threshold)
+                after = crop_rows()
+                capture('08_crops_filtered')
+                if not 0 < len(after) < len(before):
+                    raise RuntimeError('The live filter did not visibly reduce the nonempty crop grid')
+                if screen._settings_model.collect()['cell_min_size'] != main_before:
+                    raise RuntimeError('Preview changed batch settings while propagation was off')
+                QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
+                settle()
+                if screen._settings_model.collect()['cell_min_size'] != threshold:
+                    raise RuntimeError('Propagate settings did not reach the real batch form')
+                capture('09_crops_propagated')
+                set_area(original)
+                restored = crop_rows()
+                if restored != before:
+                    raise RuntimeError('Restoring the filter did not restore the same crops')
+                QTest.mouseClick(panel._propagate_btn, Qt.LeftButton)
+                capture('10_crops_restored')
+                if hashlib.sha256(panel._data.tobytes()).hexdigest() != source_hash:
+                    raise RuntimeError('Filtering unexpectedly modified the loaded array')
+                write_json(captures / 'live_variants.json', {
+                    'source': panel._data_path, 'source_sha256': source_hash,
+                    'shape': list(panel._data.shape), 'minimum_area_before': original,
+                    'minimum_area_after': threshold, 'before': before, 'after': after,
+                    'restored': restored, 'source_unchanged': True,
+                    'propagation_off_preserved_batch': True, 'propagation_on_updated_batch': True})
+            dialog.close()
+            settle()
+        elif args.preview:
             if args.module != 'mask':
-                raise ValueError('The current preview capture supports Mask only')
+                raise ValueError('The current preview capture supports Mask and Measure')
             panel = screen._live_preview
             screen._preview_switch.setChecked(True)
             settle()
@@ -371,13 +467,40 @@ def main() -> int:
                 })
                 dialog.close()
         if args.run:
-            if args.module != 'mask':
-                raise ValueError('Bounded pipeline presets currently support Mask only')
             model = screen._settings_model
-            bounded = {'test_mode': True, 'test_images': 2, 'batch_size': 2,
+            if args.module == 'measure' and model.collect().get('normalize'):
+                # Show the real scientific caveat, then choose No. Crops may
+                # be brightened for inspection without teaching irreversible
+                # per-crop intensity rescaling as a default for saved data.
+                warning_seen = []
+                def decline_crop_warning():
+                    for box in app.topLevelWidgets():
+                        if isinstance(box, QMessageBox) and box.isVisible():
+                            if box.windowTitle() != 'Check the crop settings':
+                                box.reject()
+                                return
+                            box.setMinimumWidth(1000)
+                            box.resize(1100, 1250)
+                            settle(0.2)
+                            capture('19_crop_normalization_warning')
+                            warning_seen.append(box.text())
+                            QTest.mouseClick(box.button(QMessageBox.No), Qt.LeftButton)
+                QTimer.singleShot(500, decline_crop_warning)
+                QTest.mouseClick(screen._btn_run, Qt.LeftButton)
+                if not warning_seen or getattr(screen, '_worker', None) is not None:
+                    raise RuntimeError('The crop warning did not cancel the trial before running')
+                write_json(captures / 'crop_normalization_warning.json', {
+                    'shown': warning_seen[0], 'choice': 'No', 'pipeline_started': False})
+            presets = {'mask': {'test_mode': True, 'test_images': 2, 'batch_size': 2,
                        'n_jobs': 2, 'randomize': False, 'plot': True,
                        'examples_to_plot': 1, 'cell_diameter': 30,
-                       'nucleus_diameter': 30, 'pathogen_diameter': 15}
+                       'nucleus_diameter': 30, 'pathogen_diameter': 15},
+                       'measure': {'test_mode': True, 'test_nr': 1, 'n_jobs': 1,
+                                   'plot': True, 'save_measurements': True, 'save_png': True,
+                                   'normalize': False}}
+            if args.module not in presets:
+                raise ValueError('Bounded pipeline presets currently support Mask and Measure')
+            bounded = presets[args.module]
             for key, value in bounded.items():
                 if not model.set_value_for_key(key, value):
                     raise RuntimeError(f'Cannot configure the real {key} control')
@@ -389,6 +512,14 @@ def main() -> int:
             screen._preview_switch.setChecked(False)
             settle()
             capture('20_batch_settings')
+            def reject_unexpected_prompt():
+                for box in app.topLevelWidgets():
+                    if isinstance(box, QMessageBox) and box.isVisible():
+                        capture('21_unexpected_run_prompt')
+                        write_json(captures / 'unexpected_prompt.json', {
+                            'title': box.windowTitle(), 'text': box.text(), 'accepted': False})
+                        box.reject()
+            QTimer.singleShot(1000, reject_unexpected_prompt)
             QTest.mouseClick(screen._btn_run, Qt.LeftButton)
             worker = getattr(screen, '_worker', None)
             if worker is None:
@@ -416,6 +547,14 @@ def main() -> int:
             write_json(captures / 'batch_outcome.json', outcome)
             blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
             write_json(captures / 'batch_console.json', blocks)
+            write_json(captures / 'settings_after_run.json', screen._settings_model.collect())
+            for block, _, _ in screen._console._pipeline_console_blocks():
+                # Real text selection/navigation, including an internally
+                # scrollable console block, not a replacement transcript.
+                block.setFocus()
+                QTest.keyClick(block, Qt.Key_End, Qt.ControlModifier)
+            screen._console.jump_to_the_end()
+            settle()
             capture('23_batch_finished')
             if not outcome['ok'] or outcome['errors']:
                 raise RuntimeError('The real pipeline failed; see batch_outcome.json')
@@ -445,7 +584,7 @@ def main() -> int:
             screen._ai_switch.setChecked(True)
             settle()
             screen._console._input.setPlainText(
-                'Explain the latest segmentation results and suggest which settings I should inspect. Do not change anything.')
+                'Explain the latest results and suggest which settings I should inspect. Do not change anything.')
             capture('30_ai_unsent_question')
             write_json(captures / 'ai_demo.json', {'prompt_submitted': False,
                        'response_generated': False, 'toggle_enabled': screen._ai_switch.isChecked()})
