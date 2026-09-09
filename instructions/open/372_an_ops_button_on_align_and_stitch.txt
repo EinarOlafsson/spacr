@@ -1601,3 +1601,48 @@ differently:
   same input and asserts they agree. Not "the GPU version passes its own
   test": the two must agree, or the fallback is not a fallback, it is a
   second implementation nobody compares.
+
+--------------------------------------------------------------------------------
+PART 7 -- WHAT IS AVERAGED, AND WHAT MUST NEVER BE. 2026-09-09.
+--------------------------------------------------------------------------------
+
+CORRECTING A WARNING THAT WAS TOO BROAD. I raised "do not average across
+sequencing cycles -- c1..c11 carry different base calls and averaging
+destroys the barcode". The maintainer's answer: "when i say average i only
+mean the hoechst channel", and that changes the conclusion rather than
+qualifying it.
+
+    channel                     across overlapping tiles   across cycles
+    Hoechst / DAPI              average                    AVERAGE
+    CY3 / A594 / CY5 / CY7      average within a cycle     NEVER -- stack
+    phenotype GFP/A594/AF750    average within acquisition  n/a, one run
+
+AVERAGING HOECHST ACROSS CYCLES IS NOT MERELY SAFE, IT IS THE RIGHT THING.
+The nuclei do not move between cycles, so eleven acquisitions of one DAPI
+field are eleven samples of ONE signal: averaging them is roughly a sqrt(11),
+about 3.3x, improvement in signal-to-noise on the exact channel segmentation
+runs on. The warning applies only to the base-call channels, where averaging
+would destroy the read.
+
+SO THERE IS ONE CANONICAL OBJECT MAP. Segment once, on Hoechst averaged
+across every cycle and every overlapping tile; then sample each cycle's base
+channels at those coordinates. Two consequences worth stating because they
+are what makes OPS work:
+
+  * segmentation is better than any single cycle could give, on the composite
+    rather than on one noisy field;
+  * every cycle's reads are attributed to the SAME object identity, which is
+    the whole requirement for assembling a barcode.
+
+PHENOTYPE AND SEQUENCING HOECHST ARE ALIGNED BUT NOT AVERAGED TOGETHER.
+2960x2960 against 1480x1480: different optics and different sampling, so
+averaging across that boundary means resampling one into the other and
+blurring whichever is upsampled. Align them, keep them separate. The exact
+factor of two is a convenience for the transform, not a licence to merge the
+pixels.
+
+THE SETTINGS MUST SAY THIS EXPLICITLY -- which channel averages across what
+-- because "average the overlap" is the kind of instruction that gets wired
+to every channel by whoever implements it next, and a barcode destroyed by
+averaging fails silently: the reads still decode, they just decode to the
+wrong thing.
