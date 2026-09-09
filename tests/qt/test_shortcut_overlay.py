@@ -208,7 +208,25 @@ def test_the_new_bindings_are_both_declared_and_wired(window):
     bound = {sc.key().toString() for sc in window.findChildren(QShortcut)}
     bound |= {a.shortcut().toString() for a in window.findChildren(QAction)
               if not a.shortcut().isEmpty()}
-    for keys in declared:
+
+    # A GESTURE IS NOT A KEY SEQUENCE, and cannot be bound as one. Qt binds a
+    # shortcut to a key PRESS; 378's text resize is a modifier held while the
+    # wheel turns, caught in an event filter, and there is no QKeySequence
+    # that expresses it. It belongs on the cheat sheet all the same -- 378's
+    # own note says "a gesture nobody can guess belongs on that map" -- so
+    # the rule this test enforces has to be read as "documented and
+    # REACHABLE" rather than "documented and bound to a QShortcut", which is
+    # what the comment above already says about QAction.
+    #
+    # Recognised by shape rather than by a list of exceptions: a spec whose
+    # keys contain a space around "+" is prose describing a gesture, where a
+    # real sequence is "Ctrl+Shift+A" with no spaces. That way a second
+    # gesture needs no edit here, and a typo in a real sequence still fails.
+    gestures = {keys for keys in declared if " + " in keys}
+    assert gestures <= {"Z + scroll"}, (
+        f"unexpected gesture spec {sorted(gestures - {'Z + scroll'})}; add it "
+        f"deliberately rather than letting a mistyped sequence through")
+    for keys in declared - gestures:
         assert keys in bound, f"{keys} is on the cheat sheet but not bound"
 
 

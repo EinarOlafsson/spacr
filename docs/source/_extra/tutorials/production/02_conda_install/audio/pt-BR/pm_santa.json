@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "pt-BR",
+  "voice": "pm_santa",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 75.2,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.45,
+      "scene_end": 13.149999999999999,
+      "duration": 13.149999999999999,
+      "text": "Um ambiente Conda mantém a spaCR e as suas dependências científicas separadas de projectos não relacionados. Python três ponto doze oferece atualmente a mais ampla compatibilidade opcional de pacotes.",
+      "speech_text": "Um ambiente Conda mantém a espáquer e as suas dependências científicas separadas de projectos não relacionados. Python três ponto doze oferece atualmente a mais ampla compatibilidade opcional de pacotes.",
+      "phonemes": "ũŋ ˌɐ̃mbiˈAŋʧy kˈoŋdæ mɐ̃ŋtˈAŋ a ˌespˈakɛɾ i as sˌuæz dˌepAŋdˈAŋsjæs sˌiAŋʧˈifikæs sˌepaɾˈadæz ʤy prˌoʒˈɛktʊz nˌɐ̃ʊ̃ xˌelasˌionˈadʊs. pˈIθɐ̃ŋ trˈes pˈoŋtʊ dˈozj ˌofeɾˈɛsj ˌatuWmˈAŋʧj a mˈIz ˈɐ̃mplæ kˌompaʧˌibilidˈaʤj ˌopsionˈW ʤy pˌakˈɔʧys."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.149999999999999,
+      "speech_end": 19.724999999999998,
+      "scene_end": 20.424999999999997,
+      "duration": 7.274999999999999,
+      "text": "Abre um terminal com Conda habilitado e crie um ambiente chamado spacr com Python três pontos doze e pip.",
+      "speech_text": "Abre um terminal com Conda habilitado e crie um ambiente chamado espáquer com Python três pontos doze e pip.",
+      "phonemes": "ˈabri ũŋ tˌeɾəminˈW koŋ kˈoŋdæ ˌabilitˈadw i krˈij ũŋ ˌɐ̃mbiˈAŋʧy ʃˌæmˈadw ˌespˈakɛr koŋ pˈIθɐ̃ŋ trˈes pˈoŋtʊz dˈozj i pˈip."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.424999999999997,
+      "speech_end": 26.599999999999998,
+      "scene_end": 27.299999999999997,
+      "duration": 6.875,
+      "text": "Ativa o ambiente. Confirme que o Python pertence ao ambiente spacr antes de instalar qualquer coisa.",
+      "speech_text": "Ativa o ambiente. Confirme que o Python pertence ao ambiente espáquer antes de instalar qualquer coisa.",
+      "phonemes": "ˌaʧˈivæ u ˌɐ̃mbiˈAŋʧy. kˌoŋfˈiɾəmy ky ʊ pˈIθɐ̃ŋ pˌeɾətˈAŋsj W ˌɐ̃mbiˈAŋʧj ˌespˈakɛɾ ˈɐ̃ŋʧyz ʤj ˌiŋstalˈar kwWkˌɛr kˈoɪzæ."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.299999999999997,
+      "speech_end": 35.849999999999994,
+      "scene_end": 36.55,
+      "duration": 9.25,
+      "text": "Atualizar pip através do intérprete Python ativo. O uso de python -m pip impede que um executável de pipa diferente receba o pacote.",
+      "speech_text": "Atualizar pip através do intérprete Python ativo. O uso de python -m pip impede que um executável de pipa diferente receba o pacote.",
+      "phonemes": "ˌatuˌalizˈar pˈip ˌatravˈɛz dʊ ˌiŋtˈɛɾəpreʧy pˈIθɐ̃ŋ ˌaʧˈivʊ. u ˈuzʊ ʤy pˈIθɐ̃ŋ ˈeme pˈip ˌimpˈɛʤy ky ũŋ ˌezekutˈaveʊ ʤy pˈipæ ʤˌifeɾˈAŋʧy xˌesˈebæ ʊ pˌakˈɔʧy."
+    },
+    {
+      "scene": 5,
+      "speech_start": 36.55,
+      "speech_end": 45.875,
+      "scene_end": 46.575,
+      "duration": 10.025000000000006,
+      "text": "Para o aplicativo desktop, instale o spacr com o qt extra. Usar o pacote de espaços simples para uma estação de trabalho ou servidor sem cabeça.",
+      "speech_text": "Para o aplicativo desktop, instale o espáquer com o qt extra. Usar o pacote de espaços simples para uma estação de trabalho ou servidor sem cabeça.",
+      "phonemes": "pˌaɾæ u ˌaplikaʧˈivʊ desktˈɔp, ˌiŋstˈali u ˌespˈakɛr koŋ ʊ kˌetˈe ˈestræ. uzˈaɾ ʊ pˌakˈɔʧy ʤj ˌespˈasʊs sˈimplys pˌaɾæ ˌumæ ˌestasˈɐ̃ʊ̃ ʤy trˌabˈaljw ow sˌeɾəvidˈor sˈAŋ kˌabˈesæ."
+    },
+    {
+      "scene": 6,
+      "speech_start": 46.575,
+      "speech_end": 60.775000000000006,
+      "scene_end": 61.47500000000001,
+      "duration": 14.900000000000006,
+      "text": "Execute spaCR-doctor antes da primeira inicialização. A ferramenta de diagnóstico verifica a instalação ativa, o Qt, o PyTorch, os componentes opcionais e o suporte de hardware e sugere uma solução para cada verificação com falha.",
+      "speech_text": "Execute espáquer-doctor antes da primeira inicialização. A ferramenta de diagnóstico verifica a instalação ativa, o Qt, o PyTorch, os componentes opcionais e o suporte de hardware e sugere uma solução para cada verificação com falha.",
+      "phonemes": "ˌezekˈuʧj ˌespˈakɛrdoktˈoɾ ˈɐ̃ŋʧyz da prˌimˈAɾæ ˌinisˌialˌizasˈɐ̃ʊ̃. a fˌexæmˈAŋtæ ʤy ʤˌiaɡnˈɔsʧikʊ vˌeɾifˈikæ a ˌiŋstalasˈɐ̃ʊ̃ ˌaʧˈivæ, ʊ kˌetˈe, ʊ pi tˈoɾəʃ, ʊs kˌomponˈAŋʧyz ˌopsionˈIz i ʊ sˌupˈɔɾəʧy ʤy hˈardweə i sˌuʒˈɛɾi ˌumæ sˌolusˈɐ̃ʊ̃ pˌaɾæ kˈadæ vˌeɾifˌikasˈɐ̃ʊ̃ koŋ fˈaljæ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 61.47500000000001,
+      "speech_end": 74.50000000000001,
+      "scene_end": 75.20000000000002,
+      "duration": 13.725000000000009,
+      "text": "O pacote conda-forge ainda não foi publicado, portanto não execute conda install -c conda-forge spacr por enquanto. Quando estiver disponível, o repositório do spaCR terá os links para a receita e o canal oficiais.",
+      "speech_text": "O pacote conda-forge ainda não foi publicado, portanto não execute conda install -c conda-forge espáquer por enquanto. Quando estiver disponível, o repositório do espáquer terá os links para a receita e o canal oficiais.",
+      "phonemes": "ʊ pˌakˈɔʧy kˈoŋdæfˈɔɾəʒj ˌaˈiŋdæ nˌɐ̃ʊ̃ foɪ pˌublikˈadʊ, pˌoɾətˈɐ̃ŋtʊ nˌɐ̃ʊ̃ ˌezekˈuʧy kˈoŋdæ iŋstˈal sˈe kˈoŋdæfˈɔɾəʒj ˌespˈakɛr poɾ ˌAŋkwˈɐ̃ŋtʊ. kwˈɐ̃ŋdw ˌesʧivˌɛr ʤˌisponˈiveʊ, ʊ xˌepozitˈɔɾjʊ dʊ ˌespˈakɛr teɾˌa ʊz lˈiŋks pˌaɾæ a xˌesˈAtæ i ʊ kɐ̃nˈW ˌofisiˈIs."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "voice": "ff_siwis",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 91.625,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 12.875,
+      "scene_end": 13.575,
+      "duration": 13.575,
+      "text": "Avant d'installer spaCR, connaissez les trois routes de distribution officielles: PyPI pour le paquet Python publié, GitHub pour les installateurs de code source et de bureau, et conda-forge une fois son paquet révisé publié.",
+      "speech_text": "Avant d'installer spakeur, connaissez les trois routes de distribution officielles: paï pi pour le paquet Python publié, GitHub pour les installateurs de code source et de bureau, et conda-forge une fois son paquet révisé publié.",
+      "phonemes": "avˌɑ̃ dɛ̃stalˈe spakˈœʁ, kɔnɛsˈe le tʁwˈa ʁˈut də distʁibysjˈɔ̃ ɔfisjˈɛl: pˈaj pˈi puʁ lə pakˈɛ pitˈɔ̃ pybliˈe, ʒˈi ˈœb puʁ lez ɛ̃stalatˈœʁ də kˈɔd sˈuʁs e də byʁˈo, e kɔ̃dˈafˈɔʁʒ yn fwˈa sɔ̃ pakˈɛ ʁevizˈe pybliˈe."
+    },
+    {
+      "scene": 2,
+      "speech_start": 13.575,
+      "speech_end": 23.5,
+      "scene_end": 24.2,
+      "duration": 10.625,
+      "text": "La page spaCR sur PyPI montre la version stable actuelle et la commande pip install spacr. Les fichiers de sortie comprennent une roue Python et une archive source.",
+      "speech_text": "La page spakeur sur paï pi montre la version stable actuelle et la commande pip install spakeur. Les fichiers de sortie comprennent une roue Python et une archive source.",
+      "phonemes": "la pˈaʒ spakˈœʁ syʁ pˈaj pˈi mˈɔ̃tʁ la vɛʁsjˈɔ̃ stˈabl aktyˈɛl e la kɔmˈɑ̃d pˈip ɪnstˈɔːl spakˈœʁ. le fiʃjˈe də sɔʁtˈi kɔ̃pʁˈɛnt yn ʁˈu pitˈɔ̃ e yn aʁʃˈiv sˈuʁs."
+    },
+    {
+      "scene": 3,
+      "speech_start": 24.2,
+      "speech_end": 36.15,
+      "scene_end": 36.85,
+      "duration": 12.650000000000002,
+      "text": "PyPI renvoie également à la documentation, au référentiel source et au tracker de la question. Vérifiez les versions requises de Python et la date de sortie avant de modifier un environnement existant.",
+      "speech_text": "paï pi renvoie également à la documentation, au référentiel source et au tracker de la question. Vérifiez les versions requises de Python et la date de sortie avant de modifier un environnement existant.",
+      "phonemes": "pˈaj pˈi ʁɑ̃vwˈa eɡalmˈɑ̃ a la dokymɑ̃tasjˈɔ̃, o ʁefeʁɑ̃sjˈɛl sˈuʁs e o tʁakˈœʁ də la kɛstjˈɔ̃. veʁifjˈe le vɛʁsjˈɔ̃ ʁəkˈiz də pitˈɔ̃ e la dˈat də sɔʁtˈi avˌɑ̃ də modifjˈe œ̃n ɑ̃viʁɔnmˈɑ̃ ɛɡzistˈɑ̃."
+    },
+    {
+      "scene": 4,
+      "speech_start": 36.85,
+      "speech_end": 50.8,
+      "scene_end": 51.5,
+      "duration": 14.649999999999999,
+      "text": "Sur GitHub, main correspond à la branche source publiée, tandis que nightly contient des modifications plus récentes encore en cours de test. Utilisez nightly uniquement si vous avez précisément besoin d’une modification non encore publiée.",
+      "speech_text": "Sur GitHub, main correspond à la branche source publiée, tandis que nightly contient des modifications plus récentes encore en cours de test. Utilisez nightly uniquement si vous avez précisément besoin d’une modification non encore publiée.",
+      "phonemes": "syʁ ʒˈi ˈœb, mˈɛ̃ koʁɛspˈɔ̃ a la bʁˈɑ̃ʃ sˈuʁs pybliˈe, tɑ̃dˌi kə nˈItli kɔ̃tjˈɛ̃ de modifikasjˈɔ̃ ply ʁesˈɑ̃tz ɑ̃kˌɔʁ ɑ̃ kˈuʁ də tˈɛst. ytilizˈe nˈItli ynikmˈɑ̃ sˈi vuz avˈe pʁesizemˈɑ̃ bəzwˈɛ̃ dyn modifikasjˈɔ̃ nɔ̃ ɑ̃kˌɔʁ pybliˈe."
+    },
+    {
+      "scene": 5,
+      "speech_start": 51.5,
+      "speech_end": 62.625,
+      "scene_end": 63.325,
+      "duration": 11.825000000000003,
+      "text": "GitHub Releases fournit les installateurs Windows, macOS et Linux, les notes de sortie, les fichiers de paquets Python et les sumes de vérification SHA-256.",
+      "speech_text": "GitHub Releases fournit les installateurs Windows, macOS et Linux, les notes de sortie, les fichiers de paquets Python et les sumes de vérification SHA-256.",
+      "phonemes": "ʒˈi ˈœb ɹɪlˈiːsɪz fuʁnˈi lez ɛ̃stalatˈœʁ wˈɪndQz, mˈak ˌoˈɛs e linˈyks, le nˈot də sɔʁtˈi, le fiʃjˈe də pakˈɛ pitˈɔ̃ e le sˈym də veʁifikasjˈɔ̃ ˌɛsˌaʃˈa døsɑ̃ sɛ̃kɑ̃tsˈis."
+    },
+    {
+      "scene": 6,
+      "speech_start": 63.325,
+      "speech_end": 76.35000000000001,
+      "scene_end": 77.05000000000001,
+      "duration": 13.725000000000009,
+      "text": "La recette conda-forge est préparée dans le référentiel, mais aucun paquet spaCR n'est encore publié sur le canal conda-forge. Pour l'instant, créez un environnement Conda et installez spaCR de PyPI à l'intérieur.",
+      "speech_text": "La recette conda-forge est préparée dans le référentiel, mais aucun paquet spakeur n'est encore publié sur le canal conda-forge. Pour l'instant, créez un environnement Conda et installez spakeur de paï pi à l'intérieur.",
+      "phonemes": "la ʁəsˈɛt kɔ̃dˈafˈɔʁʒ ɛ pʁepaʁˈe dɑ̃ lə ʁefeʁɑ̃sjˈɛl, mɛz okˈœ̃ pakˈɛ spakˈœʁ nɛt ɑ̃kˌɔʁ pybliˈe syʁ lə kanˈal kɔ̃dˈafˈɔʁʒ. puʁ lɛ̃stˈɑ̃, kʁeˈez œ̃n ɑ̃viʁɔnmˈɑ̃ kɔ̃dˈa e ɛ̃stalˈe spakˈœʁ də pˈaj pˈi a lɛ̃teʁjˈœʁ."
+    },
+    {
+      "scene": 7,
+      "speech_start": 77.05000000000001,
+      "speech_end": 90.92500000000001,
+      "scene_end": 91.62500000000001,
+      "duration": 14.575000000000003,
+      "text": "Utilisez PyPI ou pip pour un environnement Python, GitHub Releases pour un installateur natif et la branche nightly uniquement pour le développement. Les tutoriels suivants démontrent chaque itinéraire d'installation sans lancer l'application.",
+      "speech_text": "Utilisez paï pi ou pip pour un environnement Python, GitHub Releases pour un installateur natif et la branche nightly uniquement pour le développement. Les tutoriels suivants démontrent chaque itinéraire d'installation sans lancer l'application.",
+      "phonemes": "ytilizˈe pˈaj pˈi u pˈip puʁ œ̃n ɑ̃viʁɔnmˈɑ̃ pitˈɔ̃, ʒˈi ˈœb ɹɪlˈiːsɪz puʁ œ̃n ɛ̃stalatˈœʁ natˈif e la bʁˈɑ̃ʃ nˈItli ynikmˈɑ̃ puʁ lə devlɔpmˈɑ̃. le tytoʁjˈɛl syivˈɑ̃ demˈɔ̃tʁ ʃak itineʁˈɛʁ dɛ̃stalasjˈɔ̃ sɑ̃ lɑ̃sˈe laplikasjˈɔ̃."
+    }
+  ]
+}

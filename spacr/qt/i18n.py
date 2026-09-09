@@ -243,6 +243,18 @@ _ROWS: Dict[str, tuple[str, ...]] = {
         "Återställ zoomningen", "Zoom zurücksetzen", "Restablecer el zoom",
         "重置缩放", "Redefinir o zoom", "ज़ूम रीसेट करें", "확대/축소 초기화",
         "Endurstilla aðdrátt", "Réinitialiser le zoom"),
+    # 378's gesture, on the cheat sheet. Order matters here: "Resi" sorts
+    # before "Rest".
+    "Resize the interface text": _row(
+        "Ändra storlek på gränssnittstexten",
+        "Größe des Oberflächentexts ändern",
+        "Cambiar el tamaño del texto de la interfaz",
+        "调整界面文字大小",
+        "Redimensionar o texto da interface",
+        "इंटरफ़ेस के पाठ का आकार बदलें",
+        "인터페이스 텍스트 크기 조절",
+        "Breyta stærð viðmótstexta",
+        "Redimensionner le texte de l’interface"),
     "Restart the background": _row(
         "Starta om bakgrunden", "Hintergrund neu starten",
         "Reiniciar el fondo", "重新启动背景动画", "Reiniciar o plano de fundo",

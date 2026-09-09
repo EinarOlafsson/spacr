@@ -48,6 +48,11 @@ from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QFont
+
+# LOCAL, NOT AT IMPORT TIME. `spacr.qt.i18n` pulls the catalogs in, and this
+# module is on the startup path; the readout is the only thing here that
+# needs a translated string, so the import lives in the one function that
+# uses it rather than costing every launch.
 from PySide6.QtWidgets import QApplication
 
 LOG = logging.getLogger(__name__)
@@ -336,14 +341,46 @@ class LiveZoomFilter(QObject):
                 # Deleted mid-gesture -- a dialog the user closed, a screen
                 # that rebuilt itself. Ordinary, not exceptional.
                 continue
+        self._announce()
 
-    # NO PERCENTAGE IN THE STATUS BAR, though it was written and removed.
-    # The wheel has no detents a user can count, so a readout is genuinely
-    # useful -- but it is one more English sentence, and every user-facing
-    # sentence in this package is a row in ten translation catalogs that a
-    # ratchet test audits. Adding it here would have meant regenerating
-    # catalogs that other work is editing at the same time. The live text is
-    # the feedback for now, and Preferences still shows the number.
+    def _announce(self) -> None:
+        """Say the size in the status bar while the wheel is turning.
+
+        THE READOUT 378 DEFERRED, added 2026-09-09. It was written and
+        removed once: the wheel has no detents a user can count, so a number
+        is genuinely useful, but it is one more English sentence and every
+        user-facing sentence here is a row in ten translation catalogs that a
+        ratchet test audits. It was left out rather than regenerate catalogs
+        that other work was editing at the same time. That work is finished
+        and the catalogs are stable, which is the condition 378 named --
+        "STILL WORTH DOING, with its catalog row, whenever the catalogs are
+        next rebuilt".
+
+        ROUNDED, NOT TRUNCATED, and that is not cosmetic: 378 records that
+        four notches down from 1.0 is 0.7999999999999998, which truncates to
+        79 % and reads as a bug in the gesture rather than in the print.
+
+        A window with no status bar is ordinary -- a dialog, a screensaver --
+        so this is best-effort and never raises into the event filter that
+        calls it.
+        """
+        window = self._window
+        if window is None or not _alive(window):
+            return
+        status = getattr(window, "statusBar", None)
+        if not callable(status):
+            return
+        from .i18n import tr
+
+        try:
+            status().showMessage(
+                tr("Text size {percent} %").format(
+                    percent=int(round(self._live_scale * 100))),
+                _SETTLE_MS * 2)
+        except (RuntimeError, AttributeError):
+            # The window went away mid-gesture, or carries no real status
+            # bar. Feedback is not worth an exception on the input path.
+            return
 
     # -- the settle ------------------------------------------------------
 

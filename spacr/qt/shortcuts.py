@@ -91,6 +91,20 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+Shift+F", "Show the background full screen",
                  "Background"),
     ShortcutSpec("Ctrl+B",       "Blank the background",   "Background"),
+    # HOLD Z AND SCROLL, from 378. It is on the map for the reason 378's own
+    # rejection note gives: "a gesture nobody can guess belongs on that map".
+    # It was left off at the time only because every spec's label, category
+    # and scope are rows in the compact caption ratchet, and the catalogs
+    # were being rebuilt by other work that week. They are stable now, so the
+    # condition that deferred it is met.
+    #
+    # NOT A KEY SEQUENCE, which is why the first column reads as prose rather
+    # than as an accelerator. Qt binds a shortcut to a key press; this is a
+    # modifier held while the wheel turns, caught in an event filter, and
+    # there is no QKeySequence that can express it. The cheat sheet is a MAP
+    # of what the hands can do, not a list of what QShortcut owns.
+    ShortcutSpec("Z + scroll",   "Resize the interface text",
+                 "Background"),
     # BOUND ON WINDOW ACTIONS: the window carries these, so they
     # belongs on the map, and `install()` is not the one that creates it.
     ShortcutSpec("F11",          "Full screen",            "Actions"),

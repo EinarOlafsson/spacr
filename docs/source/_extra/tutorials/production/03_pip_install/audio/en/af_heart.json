@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "language": "en",
+  "voice": "af_heart",
+  "speed": 1.03,
+  "sample_rate": 24000,
+  "total_duration": 65.475,
+  "scenes": [
+    {
+      "scene": 1,
+      "speech_start": 0.0,
+      "speech_end": 11.05,
+      "scene_end": 11.75,
+      "duration": 11.75,
+      "text": "The pip route works on Windows, macOS, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation.",
+      "speech_text": "The pip route works on Windows, macOS, and Linux. Always use an isolated virtual environment rather than modifying the operating system's Python installation.",
+      "phonemes": "ðə pˈɪp ɹˈut wˈɜɹks ˌɔn wˈɪndOz, mˌækˌOˈɛs, ænd lˈɪnəks. ˈɔlwˌAz jˈuz ɐn ˈIsəlˌATᵻd vˈɜɹʧəwəl ənvˈIɹənmᵊnt ɹˈæðəɹ ðən mˈɑdᵻfˌIɪŋ ði ˈɑpəɹˌATɪŋ sˈɪstəmz pˈIθˌɑn ˌɪnztəlˈAʃən."
+    },
+    {
+      "scene": 2,
+      "speech_start": 11.75,
+      "speech_end": 19.55,
+      "scene_end": 20.25,
+      "duration": 8.5,
+      "text": "On macOS or Linux, create the environment with Python three point twelve, then activate it from its bin directory.",
+      "speech_text": "On macOS or Linux, create the environment with Python three point twelve, then activate it from its bin directory.",
+      "phonemes": "ˌɔn mˌækˌOˈɛs ɔɹ lˈɪnəks, kɹiˈAt ði ənvˈIɹənmᵊnt wɪð pˈIθˌɑn θɹˈi pˈYnt twˈɛlv, ðˈɛn ˈæktəvˌAt ɪt fɹʌm ɪts bˈɪn dəɹˈɛktəɹi."
+    },
+    {
+      "scene": 3,
+      "speech_start": 20.25,
+      "speech_end": 26.95,
+      "scene_end": 27.65,
+      "duration": 7.399999999999999,
+      "text": "On Windows, use the Python launcher to create the environment and activate it from the Scripts directory.",
+      "speech_text": "On Windows, use the Python launcher to create the environment and activate it from the Scripts directory.",
+      "phonemes": "ˌɔn wˈɪndOz, jˈuz ðə pˈIθˌɑn lˈɔnʧəɹ tə kɹiˈAt ði ənvˈIɹənmᵊnt ænd ˈæktəvˌAt ɪt fɹʌm ðə skɹˈɪpts dəɹˈɛktəɹi."
+    },
+    {
+      "scene": 4,
+      "speech_start": 27.65,
+      "speech_end": 36.425,
+      "scene_end": 37.125,
+      "duration": 9.475000000000001,
+      "text": "Upgrade pip in the active environment. The command python -m pip keeps installation tied to the Python you just activated.",
+      "speech_text": "Upgrade pip in the active environment. The command python dash m pip keeps installation tied to the Python you just activated.",
+      "phonemes": "ˈʌpɡɹˌAd pˈɪp ɪn ði ˈæktɪv ənvˈIɹənmᵊnt. ðə kəmˈænd pˈIθˌɑn dˈæʃ ˈɛm pˈɪp kˈips ˌɪnztəlˈAʃən tˈId tə ðə pˈIθˌɑn ju ʤˈʌst ˈæktəvˌATᵻd."
+    },
+    {
+      "scene": 5,
+      "speech_start": 37.125,
+      "speech_end": 44.35,
+      "scene_end": 45.050000000000004,
+      "duration": 7.925000000000004,
+      "text": "Install the plain spacr package for headless use, or spacr with the qt extra for the desktop interface.",
+      "speech_text": "Install the plain spacer package for headless use, or spacer with the qt extra for the desktop interface.",
+      "phonemes": "ɪnstˈɔl ðə plˈAn spˈAsəɹ pˈækɪʤ fɔɹ hˈɛdləs jˈus, ɔɹ spˈAsəɹ wɪð ðə kjˌutˈi ˈɛkstɹə fɔɹ ðə dˈɛsktˌɑp ˈɪntəɹfˌAs."
+    },
+    {
+      "scene": 6,
+      "speech_start": 45.050000000000004,
+      "speech_end": 52.975,
+      "scene_end": 53.675000000000004,
+      "duration": 8.625,
+      "text": "Verify the imported version and run spacr-doctor. Resolve any failed checks before opening experimental data.",
+      "speech_text": "Verify the imported version and run spacer doctor. Resolve any failed checks before opening experimental data.",
+      "phonemes": "vˈɛɹəfˌI ði ɪmpˈɔɹTᵻd vˈɜɹʒən ænd ɹˈʌn spˈAsəɹ dˈɑktəɹ. ɹəzˈɔlv ˈɛni fˈAld ʧˈɛks bəfˈɔɹ ˈOpᵊnɪŋ ɪkspˌɛɹəmˈɛntᵊl dˈATə."
+    },
+    {
+      "scene": 7,
+      "speech_start": 53.675000000000004,
+      "speech_end": 64.775,
+      "scene_end": 65.47500000000001,
+      "duration": 11.800000000000004,
+      "text": "The environment is now ready. Keep it activated whenever you use spaCR, and use python -m pip install --upgrade spacr when you intentionally update it.",
+      "speech_text": "The environment is now ready. Keep it activated whenever you use spacer, and use python dash m pip install dash dash upgrade spacer when you intentionally update it.",
+      "phonemes": "ði ənvˈIɹənmᵊnt ɪz nˈW ɹˈɛdi. kˈip ɪt ˈæktəvˌATᵻd wənˈɛvəɹ ju jˈuz spˈAsəɹ, ænd jˈuz pˈIθˌɑn dˈæʃ ˈɛm pˈɪp ɪnstˈɔl dˈæʃ dˈæʃ ˈʌpɡɹˌAd spˈAsəɹ wˌɛn ju ɪntˈɛnʧᵊnəli ˈʌpdˌAt ɪt."
+    }
+  ]
+}

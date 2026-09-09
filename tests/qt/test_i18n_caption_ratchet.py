@@ -52,9 +52,15 @@ ROOT = Path(__file__).resolve().parents[2]
 # substitution is the key's NAME, made identically in all nine locales,
 # because a key name is not prose: "Ctrl+P" is what the user's keyboard
 # says in every language.
-COMPACT_CAPTION_COUNT = 207
+# 207 -> 208 on 2026-09-09: 378's cheat-sheet entry for the Z + scroll
+# gesture, "Resize the interface text". It is a SHORTCUT label, so it
+# lives in the compact layer with its nine hand-written rows rather than
+# in the generated one. 378 deferred it for exactly this reason -- every
+# spec's label is a row here -- and named the condition it was waiting
+# on: "whenever the catalogs are next rebuilt".
+COMPACT_CAPTION_COUNT = 208
 COMPACT_CAPTION_SHA256 = (
-    "d569d24e05c3cd0dbd124aed2d78f5e724e96371e0eba97fe1cb53f593b037bf"
+    "d27b4576703e5c4424517f67a3a6b6294ae9f7e554b7abea1f0e433be4538856"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
@@ -111,7 +117,7 @@ EXTERNAL_SOURCE_COUNTS = {
     # tooltip says nothing about the settings under it, which costs the
     # reader the hover and tells them nothing.
     "CATEGORY_HELP": 201,
-    "UI": 2838,
+    "UI": 2841,
     "MODULE_SUMMARIES": 67,
 }
 # Moved with the counts above. The identity that changed is one UI row: the
@@ -125,7 +131,7 @@ EXTERNAL_SOURCE_COUNTS = {
 # Moved again on 2026-09-08 with the CATEGORY_HELP count above: nine new
 # section headings are nine new record identities.
 EXTERNAL_SOURCE_KEY_SHA256 = (
-    "bb1cc291cf12e63c98e04b577817d6e665da725855afa8965cfa20dff58b94c3"
+    "807c8a94de06ea3c1a8580b2c1eb318cc19f2e0951d85569fccaecbd10e97e5d"
 )
 
 # Calls whose literal argument is chrome owned by the compact catalog on the
