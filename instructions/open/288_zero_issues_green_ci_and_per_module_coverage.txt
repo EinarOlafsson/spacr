@@ -1066,3 +1066,56 @@ one by being repeated. `echo $?` reading tail's exit, a detector reporting 0
 for the wrong reason, a grep swallowing the failure it was watching for -- and
 now a stopwatch that was never started. Before quoting a number to the
 maintainer, run the command and read the output.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- ONE FAILURE LEFT, AND IT IS NOT IN THIS SESSION'S REACH
+--------------------------------------------------------------------------------
+
+    non-Qt   41,641 passed
+    tests/qt    803 passed, 36m01s serial
+    remaining failures: 1
+
+`test_no_commit_credits_claude` is GREEN. The history rewrite landed as
+542bb45b1 -- see done/58, which now records the procedure that worked and the
+633-pair commit collapse that is a repair rather than a loss.
+
+THE LAST ONE IS `test_every_module_and_fold_has_exactly_one_current_tutorial
+_route`, and it belongs to 358. Three routes -- ops, regression_diagnostics,
+import_images -- have no lesson, and a lesson is fourteen catalog files, not
+one: lessons in eight languages, captions in six more, IPA per scene, all
+pinned equal to English by
+`test_every_translated_tutorial_catalog_has_the_english_structure`. Writing
+them in English alone makes this test pass and breaks that one, which is the
+"one test better, a different one worse" move this instruction exists to
+refuse.
+
+IT CANNOT BE DONE FROM THIS MACHINE. The translation models are at
+/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/translation_models
+on the HOME machine -- nine opus pairs, m2m100_418M, madlad400-3b and 7b.
+Nothing here; checked ~/.cache/huggingface and mnt3. The other session has
+taken it and has written it down.
+
+WHAT WAS FIXED IN THE LAST DAY, since the failure list is now short enough
+that the work behind it is invisible: 255 failures at the start of this
+instruction, 23 non-Qt and 18 Qt found and fixed in the final sweep, and two
+of those were worth more than the count --
+
+  * `tests/test_db_contract.py` had NEVER COMPLETED, in any run either
+    session has ever done. 706 canonical object tables written per field
+    behind a FUNCTION-scoped fixture, 706 rebuilds, about twelve hours,
+    printing nothing because pytest prints nothing until a test finishes --
+    so it read as a hang and the chunk carrying it died on a timeout with an
+    empty log. Now 9m03s, 4,328 passing, with the 706-wide contract sweeps
+    untouched on the module-scoped fixture.
+
+  * `importlib.reload` in the outliers test replaced `OutliersScreen`, so a
+    later test compared an instance of the new class against the old
+    module-scope import and failed an isinstance on two objects with
+    identical reprs -- only when pytest-randomly ordered the reload first.
+
+AND SIX REAL PRODUCT DEFECTS the suite found on the way, none of them
+reported by a user: the path_probe folder-and-database pair, six SQLite
+connections on the five-second default, the settings-flow fallback overruling
+a curated API target, three apps whose section had drifted across five
+declarations, and Ctrl+H reading as unbound because the test looked only at
+QShortcut.

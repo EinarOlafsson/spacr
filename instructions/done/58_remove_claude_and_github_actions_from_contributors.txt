@@ -740,3 +740,57 @@ was wrong. No amount of better reporting could have caught it, because the
 failure was not in the reporting layer at all. Hiding-the-result wants better
 checks. Faithfully-reporting-progress-into-a-broken-state wants a dry run or
 a staging ref -- something that makes the intermediate states private.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE REWRITE LANDED. nightly IS 542bb45b1.
+--------------------------------------------------------------------------------
+
+Authorised by the maintainer that morning -- "try wiping Claude from the
+commits once more" -- and done by the procedure this file gained after the
+first attempt broke his repo. It worked exactly as written.
+
+VERIFIED FROM THE REMOTE, by fetching it back rather than trusting the local
+rewrite:
+
+    origin/nightly  542bb45b1dfcce72be87eaec69e2a9b0d6c4b30e
+    tree            03e3882f49f5ac68acfd70d0f772bd5a74d1f9ca  -- UNCHANGED
+    trailers        185 -> 0
+    authored or committed by Claude   0
+    commits quoting the trailer in prose   subjects intact
+
+All 6,164 commits went to `refs/heads/rewrite-staging` first. `nightly` did
+not move until the whole history was on the remote and had been fetched back
+and checked. Then one ref update. There was no window in which the public
+branch was in an intermediate state, which was the entire failure of the
+first attempt.
+
+THE COMMIT COUNT DROPS 6,802 -> 6,169 AND NOTHING IS LOST. This must be in
+this file, because `git log | wc -l` coming back 633 shorter is exactly the
+shape that reads as data loss.
+
+Traced before the final move, not after: every one of the 6,802 source
+commits is in filter-repo's commit-map, every mapped target exists, and every
+one is reachable from the new tip -- checked exhaustively, not sampled. The
+count falls because 633 PAIRS collapse, with a maximum fan-in of exactly 2.
+
+WHAT THE PAIRS ARE, and it is the best part of the outcome: the earlier
+partial strip that this file records under "the trailer strip is done" and
+"The Claude trailers came back" left a DUPLICATED CHAIN in the history -- the
+same series present twice, the copies differing only by the trailer. Removing
+the trailer makes them byte-identical and git merges them back into one. So
+the rewrite did not only remove the credit; it repaired the duplication the
+half-finished attempt introduced.
+
+THREE THINGS THE PROCEDURE GOT RIGHT that the first attempt did not, all of
+them written into this file between the two:
+
+  * SSH. The HTTPS remote's OAuth token has no `workflow` scope and refuses
+    any push touching .github/workflows/, which a rewrite touches for every
+    commit. Over HTTPS this could never have completed at any size.
+  * The staging ref, so the 2 GiB pack cap could be paid in slices without
+    the public branch ever being one of the intermediate states.
+  * Re-cutting immediately before the move. The first staging run was cut
+    from 7ee46ad9 and the tip moved twice while it ran; the history that
+    actually landed was cut from 1233584dd, minutes before the ref update.
+
+`test_no_commit_credits_claude` passes. 58 stays closed and now records how.
