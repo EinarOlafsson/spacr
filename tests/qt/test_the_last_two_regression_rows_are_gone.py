@@ -190,9 +190,16 @@ def test_the_regression_strip_still_draws_all_three_in_order(
     # so the sweep started failing on a fact about the screen that is
     # correct. The maturity each button lights in is worth pinning; that
     # they all light in ONE colour never was.
+    #
+    # AND DIAGNOSTICS IS ALPHA AGAIN, 2026-09-08. It was beta only in
+    # `regression.FOLD_FALLBACK`, which f37f7d553 shadowed with a shared
+    # record in `map_barcodes.FOLD_FALLBACK` carrying the registry row's
+    # alpha. Two tables answered this question and disagreed; the shadowed
+    # one has been brought into step rather than deleted, and this follows
+    # the one that is actually read.
     expected = {"volcano_explorer": "alpha", "hit_list": "alpha",
                 "methods_export": "alpha", "investigate_hit": "alpha",
-                "profiler": "alpha", regression.DIAGNOSTICS_KEY: "beta"}
+                "profiler": "alpha", regression.DIAGNOSTICS_KEY: "alpha"}
     assert set(expected) == set(regression.FOLDED_APPS), (
         "a fold arrived or left without this test being told its maturity")
     for key in regression.FOLDED_APPS:
