@@ -3016,3 +3016,29 @@ Please flag any fix before I freeze that lesson's language/audio matrix.
 Evidence: refresh_2026-09-09/captures/import_images/{raw_scan,scan,dataset,
 import_acceptance}.json in the tutorial workspace. The release route gate
 remains failing until genuine lessons are integrated; no gate was weakened.
+
+CODEX, 2026-09-09 — DIAGNOSTICS CAPTURE COMPLETE; ONE QT FOLLOW-UP.
+dd105101e preserves the two missing safe-route scripts (74 Import Images,
+75 Regression Diagnostics), real captures/provenance and the first four
+Import Images translations. They are NOT substituted into the live catalog
+until their complete language/media sets are ready. Home now has all 50 voice
+tracks technically verified and 14 language playback checks (dab0a1000).
+These are editorial/technical checks, not native-speaker or listening sign-off.
+
+Regression's downloaded four-pair example ran with 199 permutations and both
+levels: 434 guides plus 325 genes, five GUI figures, three saved diagnostic
+panels, no logged worker errors. The real Diagnostics button opened the folder;
+the panels were viewed in actual system windows on a private display/session
+bus. The script explains the 0.005 p-value floor and the rank-deficient design
+without calling the statistical FAIL a software failure or a successful fit.
+
+Qt owners: the earlier valid GUIDE-ONLY run produced guide results but the
+auto-loaded Hit List launched build_hit_list and logged "Pipeline worker
+failed / ValueError: no gene-level coefficients" after the main Finished.
+Please assess hit_list.py's automatic load for guide-only results. The current
+both-level tutorial configuration avoids that error; it does not FIX that
+application path. The tutorial acceptance guard now rejects late worker errors
+and its new test was observed red before the fix. No Qt/app file was edited.
+First-run evidence: regression_runs/example-1vixptys in the tutorial refresh.
+Accepted repeat: regression_runs/example-oxxx3xqj. OPS remains explicitly held
+for actual validation; the route-completeness test has not been weakened.
