@@ -1515,3 +1515,89 @@ WHAT TO BUILD, and it is now a small algorithm rather than a guess:
   listed at the end of PART 6-B and none of them depends on the adjacency
   being solved. The adjacency is the open problem; the memory ceiling, the
   matcher, the wrapping and the (0,0) rejection are settled.
+
+--------------------------------------------------------------------------------
+PART 6 -- THE OUTPUT IS COORDINATES, NOT PIXELS. THE MAINTAINER'S DESIGN,
+2026-09-09, WITH THE MEASUREMENTS THAT FORCE IT
+--------------------------------------------------------------------------------
+
+MEASURED ON THE REAL SCREEN, /nas_mnt/data/ops/OpticalPooledScreens_data/
+screenA/20200202_6W-LaC024A:
+
+    sequencing site   (5, 1480, 1480) uint16    22 MB   11 cycles, c1..c11
+    phenotype site    (4, 2960, 2960) uint16    70 MB   23,071 files
+    sites in c1       1,998
+    one cycle held at once                      43.8 GB
+    ALL 11 CYCLES HELD AT ONCE                  481 GB   <-- the wall
+
+481 GB against a 125 GB machine, on a maintainer's ceiling of 100 GB. The
+phenotype is exactly 2x the sequencing edge, which makes the
+cross-magnification transform a clean factor of two.
+
+WHY THERE IS NO `merged/` FOLDER FOR OPS, and this is the whole of PART 6.
+Measure consumes `merged/`: one `.npy` per FIELD, channels plus mask stacks,
+and `_measure_crop_core` iterates one file at a time. The FIELD is the unit.
+
+Once tiles are aligned into a well mosaic there is no field any more. Writing
+`merged/` would mean INVENTING pseudo-fields by re-tiling the mosaic on an
+arbitrary grid, and every cut lands where the grid says rather than where the
+biology is. In the maintainer's words: it "would cut tons of objects in half
+at the image borders". A half cell still measures as a cell, so the loss is
+silent -- and for OPS it is worse than silent, because a cell cut in half is
+a cell whose barcode cannot be trusted.
+
+SO THE ALIGNMENT RUN PERSISTS COORDINATES AND CUTS NOTHING. Measure streams:
+given an object, it reads that object's pixels from whichever source tiles
+cover it, assembling across a seam when it spans one. Three additions:
+
+  1. A COORDINATE ARTIFACT -- the per-tile transform and the phenotype <->
+     sequencing mapping. It is also what makes a re-run cheap, since scoring
+     is the expensive half.
+  2. A NEW OBJECT IMPORT FOR MEASURE whose unit is the OBJECT, not the
+     field, resolving mosaic coordinates back to source tiles on demand.
+  3. AN OPS SETTINGS CATEGORY in measure, and the sequencing reads as their
+     OWN TABLE in measurements.db. Barcodes are not morphology and do not
+     belong in the object feature table.
+
+Everything downstream -- annotate, classify, regression, the crop PNGs --
+keeps working unchanged, because all of it reads measurements.db and
+per-object crops, which this still produces.
+
+TWO DECISIONS, ANSWERED BY THE MAINTAINER 2026-09-09:
+
+  SEGMENT PER TILE, THEN MERGE ACROSS SEAMS. Not on a streamed mosaic
+  window. Memory stays per-tile, which is the only version that fits the
+  numbers above.
+
+  AN OBJECT AT A SEAM IS MERGED INTO ONE OBJECT. Its fragments are unioned
+  through the alignment transform, measured once, and written as one row.
+  Rejected: keeping whichever tile holds the centroid (loses pixels, so area
+  and intensity are wrong for exactly the cells that straddle a seam), and
+  emitting both fragments with a flag (puts duplicate-looking rows in
+  measurements.db that every consumer then has to handle).
+
+  THE MERGE RULE IS THE RISK and is to be written with that in mind: it can
+  be wrong in both directions -- fusing two real neighbours across a seam, or
+  failing to fuse one cell and counting it twice. Whatever is built must be
+  measurable against planted truth before it is believed, the same way PART
+  1-A's decode chain was.
+
+GPU ACCELERATION, ASKED FOR THE SAME DAY: "allignment seems like a matrix
+multiplication problem". It is. Three hot spots, and they suit it
+differently:
+
+    spacrops        ORB detect + Hamming descriptor matching, N x M   excellent
+    ops_merge       align_by_triangles: descriptor match + voting     excellent
+    ops_merge       match_cells: mutual nearest neighbour             good
+
+  BACKEND CHOSEN BY THE MAINTAINER: PyTorch first, CuPy second, NumPy always.
+  Torch is already a dependency (Cellpose), so nothing new is installed, and
+  one code path reaches CUDA, ROCm and Apple MPS. Measured here: torch
+  2.6.0+cu124 on an RTX 3090; CuPy is NOT installed, so the live chain is
+  Torch -> NumPy.
+
+  EVERY ACCELERATED FUNCTION TAKES AND RETURNS NUMPY, so no caller learns
+  which backend ran, and every one gets a test that runs BOTH paths on the
+  same input and asserts they agree. Not "the GPU version passes its own
+  test": the two must agree, or the fallback is not a fallback, it is a
+  second implementation nobody compares.
