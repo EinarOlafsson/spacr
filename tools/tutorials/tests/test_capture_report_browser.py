@@ -202,7 +202,7 @@ def accepted_flags():
             'html': {'accepted': True, 'section_count': 8, 'embedded_images': 0,
                      'external_dependencies': False},
             'synthetic_status_created': False, 'source_pipeline_rerun': False,
-            'active_jobs': [], 'job_results': [True, True]}
+            'active_jobs': 0, 'job_results': [True, True]}
 
 
 def test_accepted_receipt_contract(accepted_flags):
@@ -213,6 +213,9 @@ def test_accepted_receipt_contract(accepted_flags):
     ('accepted', False), ('lesson', '31_external_masks'), ('original_preserved', False),
     ('private_material_files_unchanged', False), ('synthetic_status_created', True),
     ('source_pipeline_rerun', True), ('active_jobs', ['still running']),
+    ('active_jobs', []), ('active_jobs', False), ('active_jobs', True),
+    ('active_jobs', 0.0), ('active_jobs', None), ('active_jobs', '0'),
+    ('active_jobs', 1), ('active_jobs', -1),
     ('job_results', []), ('job_results', [False]), ('job_results', ['True']),
     ('html', {'accepted': False}), ('html', {'accepted': True, 'section_count': 7})])
 def test_unaccepted_or_incomplete_receipt_rejected(accepted_flags, field, value):

@@ -189,7 +189,8 @@ def _require_accepted_receipt(receipt):
             or receipt.get('html', {}).get('external_dependencies') is not False
             or receipt.get('synthetic_status_created') is not False
             or receipt.get('source_pipeline_rerun') is not False
-            or receipt.get('active_jobs') != []
+            or type(receipt.get('active_jobs')) is not int
+            or receipt['active_jobs'] != 0
             or not receipt.get('job_results') or any(value is not True for value in receipt['job_results'])):
         raise RuntimeError('A complete accepted real GUI Report receipt is required')
 

@@ -218,7 +218,14 @@ def main() -> int:
         settle()
         capture('07_help')
         help_menu.hide()
-    if args.module != 'home':
+    if args.module == 'db_browser':
+        # The retained Database narration is still accurate. Capture its
+        # current Help route and real controls without pre-opening it through
+        # the private navigation slot or regenerating any voice track.
+        from capture_database import record_database
+        screen = record_database(app, window, None, stage, captures, capture,
+                                 settle, write_json, args.timeout)
+    elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
                     'train_compare': 'classify_merged',
