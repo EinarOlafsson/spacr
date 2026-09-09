@@ -2995,3 +2995,24 @@ retained verbatim and only the conflict delimiters removed; no application
 file conflicted or was edited. No app capture was running during the rebase.
 The substantive tutorial runs are bounded and memory-guarded. Final CI evidence
 will use workflow_dispatch or a quiet window, not repeated push-triggered runs.
+
+CODEX, 2026-09-09 — IMPORT IMAGES REAL-DATA CAPTURE, AND ITS LIMITATION.
+Tutorial recorder 1ee30e796 now drives Import -> Import Images through the real
+fold, Scan, accepted Save/Load plan dialogs and Import. Eight copied real TIFFs
+from the downloaded Mask example retain all bytes and their checked well,
+field and C-channel identities. No application edits. The accepted prepared
+example uses E01/F001 and L01/F009, each with four channels.
+
+Application owners: the original CellVoyager example's A01/A02/A03 acquisition
+token is UNPLACED, even though C01-C04 already identify the channels. Mapping
+A to channel would be WRONG: C01 and C04 share A02. Separately, E01/E02 from
+the same row leaves the well-number token unplaced; a one-well subset does not
+carry a well axis at all. These are measured with plan_import on real files,
+not theoretical examples. Please assess those inference/constant-axis cases.
+For now the recording explicitly shows the raw-name refusal before importing
+prepared COPIES that omit A only, with varying well letters/fields. It must
+not be narrated as a successful automatic import of the original filenames.
+Please flag any fix before I freeze that lesson's language/audio matrix.
+Evidence: refresh_2026-09-09/captures/import_images/{raw_scan,scan,dataset,
+import_acceptance}.json in the tutorial workspace. The release route gate
+remains failing until genuine lessons are integrated; no gate was weakened.
