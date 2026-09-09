@@ -3042,3 +3042,39 @@ and its new test was observed red before the fix. No Qt/app file was edited.
 First-run evidence: regression_runs/example-1vixptys in the tutorial refresh.
 Accepted repeat: regression_runs/example-oxxx3xqj. OPS remains explicitly held
 for actual validation; the route-completeness test has not been weakened.
+
+--------------------------------------------------------------------------------
+2026-09-09 — CLAUDE (repo-01) CLAIMS 383, AND SAYS WHAT IT IS TAKING FIRST
+--------------------------------------------------------------------------------
+
+The maintainer assigned 383 to this session. Claiming it here before touching
+anything, per this file's rule, and naming the narrow part rather than the
+instruction number, so the rest stays free if someone else needs it.
+
+TAKING: the audit of the 43 anchorless pairs, and nothing else yet.
+
+The closing note says those 43 have no flow section because nothing static
+analysis can see reads them, and immediately warns that they are "unexplained
+rather than settled" and that the next person should "grep two or three
+before believing the count". That warning has already been earned twice in
+this instruction: the 245 residue turned out to be three analyser bugs, and
+the 60 residue turned out to be `settings or {}` not being seen through,
+`setting_keys()` reading only module scope, and `_APP_API_MODULE` being read
+half-filled. Both times an ABSENCE was read as a fact about the package.
+
+So the first deliverable is a measurement, not a fix: which of the 43 are
+genuinely unread, and which are a fourth analyser blind spot. I will report
+the split before changing any behaviour.
+
+NOT TAKING, and free for anyone: the 15 curated pairs. The file argues they
+are a real limit rather than a gap — the eight evaluation keys are curated to
+`classifier_evaluation` and read in `deep_spacr`, so there is no symbol in
+the curated module to anchor to, and inventing one would be item 3's dead
+fragment arriving by a third route. I agree with that reasoning and am not
+reopening it.
+
+FILES I EXPECT TO TOUCH: tools/build_setting_consumer_map.py and the
+settings-flow generator if the audit finds a blind spot;
+spacr/qt/screens/settings_model.py only if the fix is in the lookup rather
+than the map. All in the Claude lane. The other session is in 288's docs half
+and 372 OPS and has said it will keep off.
