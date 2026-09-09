@@ -227,12 +227,28 @@ def test_the_panel_offers_one_control_per_question(qtbot, spaceout_only):
         named += [c.objectName() for c in dlg.findChildren(kind)
                   if c.objectName().startswith("Fractal")]
 
-    # It was twenty-one.
-    assert len(named) <= 10, sorted(named)
+    # It was twenty-one. Eleven since 922aab7c4, and the eleventh was asked
+    # for by name: "id like a setting that controlls the size of the gravity
+    # ball" (2026-09-08). That REVERSES half of the removal this test was
+    # written for, and the reversal is narrow -- see below.
+    assert len(named) <= 11, sorted(named)
     # And none of the derived numbers is offered beside the control that
     # already sets it.
+    #
+    # `FractalPointerSize` LEFT THIS LIST, alone. The original note said
+    # "size and strength answer the same question -- how much does it pull
+    # -- and offering both let a size of 3 fight a strength of 0". Half of
+    # that still holds and is why STRENGTH stays off: two knobs over one
+    # feeling is what produced the setting that cancelled itself. The other
+    # half was too strong. Size is not strength; it is the REACH, how far
+    # from the cursor the pattern feels the pull at all, and it is the half
+    # a user can watch change.
     for gone in ("FractalSpeedMin", "FractalSpeedMax", "FractalSpeedPeriod",
-                 "FractalPointerSize", "FractalPointerStrength",
+                 "FractalPointerStrength",
                  "Fractal_steering_strength", "Fractal_steering_duration",
                  "Fractal_steering_interval_decades"):
         assert gone not in named, gone
+    # The pair must never both be offered again, which is the part of the
+    # original decision that survives.
+    assert not ("FractalPointerSize" in named
+                and "FractalPointerStrength" in named), sorted(named)

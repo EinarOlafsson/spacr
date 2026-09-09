@@ -320,6 +320,13 @@ def test_the_fractal_panel_is_short_enough_not_to_need_sub_categories(qtbot, spa
     """Twenty-one fields in one column is a wall, and headings were the
     first answer to it. Removing the fields is the better one: eight
     controls need no signposting.
+
+    ELEVEN SINCE 922aab7c4, and the ceiling moved with it rather than
+    against it. The maintainer asked for the gravity ball's size by name,
+    and that is a control a user can watch working; the point of this test
+    is that the panel does not need SUB-CATEGORIES, and eleven does not.
+    Twenty-one did. If this reaches the middle teens the answer is to take
+    something off again, not to raise the number a second time.
     """
     from PySide6.QtWidgets import QComboBox, QDoubleSpinBox, QSpinBox
 
@@ -330,7 +337,7 @@ def test_the_fractal_panel_is_short_enough_not_to_need_sub_categories(qtbot, spa
     for kind in (QComboBox, QDoubleSpinBox, QSpinBox):
         named += [c.objectName() for c in dlg.findChildren(kind)
                   if c.objectName().startswith("Fractal")]
-    assert len(named) <= 10, sorted(named)
+    assert len(named) <= 11, sorted(named)
 
 
 def test_the_restart_is_in_the_hotkey_menu(qtbot, spaceout_only):
