@@ -2167,3 +2167,48 @@ WHAT THIS CHANGES:
   * A2 can be implemented directly: build the adjacency from the layout,
     register each pair by phase correlation on DAPI, unwrap, reject (0,0),
     and solve the graph. There is no search step left in it.
+
+
+--------------------------------------------------------------------------------
+PART 11-B -- CONFIRMED ON SITES THE FIT NEVER SAW. 24 OF 24. 2026-09-09.
+--------------------------------------------------------------------------------
+
+PART 11-A asked for the fit to predict offsets at unmeasured sites and be
+checked by registration. Done, on well A1 cycle 1, DAPI plane, sites 20, 60,
+140, 200, 260 and 300 -- none of which was in the seven the circle was
+fitted to.
+
+    24 predicted neighbours     24 confirmed     0 weak
+    peak/mean 23.6 to 53.1      against controls at 9.0, 14.4, 15.6
+
+Every one of the four directions at every one of the six sites. The three
+control pairs -- tiles the layout says are NOT adjacent -- came back at
+9-15.6 and at shift (0,0), which is PART 6-A's no-overlap signature behaving
+exactly as it should.
+
+  THE FIT IS NOW A LAYOUT. Seven constraints and four free parameters made
+  PART 11-A a good fit; 24 out of 24 on held-out sites makes it a fact about
+  this acquisition.
+
+AND THE SHIFTS ARE ONE GEOMETRY, WHICH IS THE SECOND CONFIRMATION.
+
+    down    (1267,    9)        up      ( 213, 1471)
+    left    (   9,  212)        right   (1471, 1268)
+
+Unwrapped against the 1480 px tile, `up` is (-213, -9) -> (-1267, -9) and
+`left` is (9, -1268): a pitch of 1267-1268 px on both axes with a constant
+~9 px skew between them. That is a single rigid stage geometry, measured
+four ways at six places, and it agrees with PART 6-C's 1280 microns at
+~1.01 px/micron.
+
+WHAT IS NOW UNBLOCKED. A2 needs no search: for every tile, the four
+neighbours come from the site index in closed form, each pair registers by
+phase correlation on DAPI, shifts unwrap against a known pitch, and the graph
+solves. `_pairs_by_site_window` and `max_site_gap` can both go.
+
+  THE NUMBERS TO BEAT, from PART 6: 26 of 333 tiles placed by ORB, 181 by
+  windowed index offsets. The layout proposes 4 candidates per tile instead
+  of 128 and every one of the 24 tested is real, so the target is 333 of 333
+  with a residual consistent with the 213 px overlap -- and a canvas near
+  26,838 x 15,531, which is what PART 6-A found once its shifts were
+  unwrapped.
