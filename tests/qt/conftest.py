@@ -37,6 +37,40 @@ collect_ignore_glob = (
 # per directory". This module is imported exactly once either way.
 
 
+def pytest_configure(config):
+    """Point the preference store at a throwaway directory, before anything.
+
+    THE TESTS WROTE TO THE USER'S REAL CONFIG, and on 2026-09-09 they left
+    `font_scale=2` in ~/.config/spacr/qt.conf. Opening spaCR after that gave
+    a 200 % interface nobody chose, and two tests in
+    `test_every_picture_is_drawn_for_the_screen_it_is_on` failed for a whole
+    session because the masthead logo follows the font scale -- they measured
+    144 px for a 72 px mark and read as a device-pixel-ratio regression.
+
+    `_restore_font_scale` below was supposed to prevent exactly that and
+    cannot: it is a TEARDOWN, and a run that is killed -- a timeout, a
+    segfault, a Ctrl-C, a `pkill` -- never reaches it. Every one of those
+    happened during a single afternoon of measuring, and each left whatever
+    scale the last test had set.
+
+    So the store is moved instead of restored. `QSettings(org, app)` resolves
+    through XDG_CONFIG_HOME on Linux and the equivalent elsewhere, and this
+    runs in `pytest_configure`, before any test or fixture has constructed
+    one. A killed process now leaves a temporary directory behind rather than
+    a changed preference.
+    """
+    import tempfile
+
+    if os.environ.get("SPACR_TEST_KEEP_REAL_CONFIG"):
+        return
+    home = tempfile.mkdtemp(prefix="spacr-test-config-")
+    os.environ["XDG_CONFIG_HOME"] = home
+    # APPDATA and the macOS default are resolved from HOME, which Qt reads
+    # for the native formats those platforms use.
+    os.environ.setdefault("APPDATA", home)
+    config._spacr_test_config_home = home
+
+
 @pytest.fixture(scope="session")
 def qt_theme_applied(qapp):
     """Apply the spacr palette + QSS to the shared QApplication once."""
