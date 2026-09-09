@@ -382,12 +382,43 @@ def test_register_is_idempotent_and_lands_in_data():
 
 
 def test_the_module_does_not_register_itself_at_import():
-    """Importing a screen must not mutate the registry — see register()."""
-    import importlib
+    """Importing a screen must not mutate the registry — see register().
+
+    IMPORTED UNDER A THROWAWAY NAME, NOT RELOADED IN PLACE, and the
+    difference is a test failure two tests later.
+
+    `importlib.reload` mutates the canonical module object, so
+    `spacr.qt.screens.outliers.OutliersScreen` becomes a NEW class. This
+    file did `from ... import OutliersScreen` at import time, so that name
+    still refers to the OLD one -- and `test_the_factory_returns_a_screen`,
+    which builds through the reloaded module and compares against the name,
+    then failed its `isinstance` on two objects whose repr is identical.
+    It failed only when pytest-randomly put the reload first, which is the
+    reason it read as flaky rather than as this.
+
+    Executing the source under a throwaway module name asks the same
+    question -- does IMPORTING it register anything -- and leaves the
+    canonical module, and every class identity in the process, alone.
+    """
+    import importlib.util
+    import sys
+
     import spacr.qt.screens.outliers as module
     from spacr.qt.app import APPS
 
     before = len([row for row in APPS if row[0] == APP_KEY])
-    importlib.reload(module)
+    # A PACKAGE-QUALIFIED throwaway name, because the module uses relative
+    # imports and a bare name gives it no parent package to resolve them
+    # against. `submodule_search_locations` on the spec is what makes the
+    # relative `from ..app import` work.
+    spec = importlib.util.spec_from_file_location(
+        "spacr.qt.screens.outliers_import_probe", module.__file__)
+    probe = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = probe
+    try:
+        spec.loader.exec_module(probe)
+    finally:
+        sys.modules.pop(spec.name, None)
     after = len([row for row in APPS if row[0] == APP_KEY])
     assert after == before
+    assert probe is not module, "the probe must not BE the canonical module"
