@@ -1,0 +1,19 @@
+{
+  "lesson": "06_api", "language": "pt-BR",
+  "english_sha256": "a8d7ca434cf8ec58ef00d69f6a114834d862bd4a58941fbf73ea4467d7acaba3",
+  "review": {"kind": "Editorial translation checked against English and actual terminal commands", "native_speaker_signoff": false, "corrections": ["Preserve exact command identifiers and expected refusal status.", "Do not equate a clean preflight with executed or scientifically validated analysis."]},
+  "title": "API Python e fluxos atuais sem interface gráfica",
+  "description": "Descubra os comandos em lote instalados, diferencie ferramentas interativas de funções Python e inspecione a simulação de um exemplo real sem afirmar que uma análise foi executada.",
+  "objectives": ["Confirmar a versão do pacote no ambiente Python ativo.", "Descobrir as chaves atuais dos comandos e as funções que eles realmente chamam.", "Diferenciar um fluxo interativo, uma função Python e um comando em lote.", "Ler as configurações, o código de saída e as limitações de uma simulação antes de executar tarefas sem supervisão."],
+  "prerequisite": "Conclua primeiro uma aula de instalação. Para a verificação demonstrada, use os dados pareados baixados e as configurações salvas da aula Regression; substitua os caminhos desta máquina pelos seus. Nenhuma análise ou relatório é gerado nesta gravação.",
+  "scenes": [
+    "No ambiente em que você instalou o spaCR, importe o pacote e imprima sua versão. Este terminal real informa a versão um ponto cinco ponto zero ponto quatro. Confira sua própria versão antes de seguir os comandos, pois um ambiente antigo pode oferecer funções e configurações diferentes.",
+    "Execute spacr-run com a opção list. A seção de processamento em lote mostra as chaves exatas dos comandos e os pontos de entrada Python, incluindo mask, measure e classify_merged. Os nomes de Home e os botões aninhados não são automaticamente comandos em lote. Consulte a lista instalada em vez de adivinhar uma chave pelo título do tutorial.",
+    "Use describe com regression para ver a função perform_regression em spacr.ml, a função que fornece os valores padrão e os requisitos de entrada. Isso conecta o comando à função real de análise. As configurações salvas de dados pareados vêm do exemplo Regression vinculado, não de uma pasta de medições inventada.",
+    "Annotate é um fluxo interativo. Chamar spacr-run annotate realmente retorna o código de saída dois e explica que não existe equivalente em lote. Use Annotate no aplicativo desktop para rotular recortes. Essa recusa esperada não demonstra que a instalação esteja com defeito.",
+    "Outros recursos têm uma API Python sem uma chave correspondente para processamento em lote. Aqui importamos build_report de spacr.report e inspecionamos sua assinatura real. Não chamamos a função nem geramos um relatório. Consulte a documentação e os argumentos da função em vez de presumir que spacr-run report existe.",
+    "Passe para regression o arquivo de configurações salvas e acrescente a opção dry-run. O comando real resolve as configurações e executa suas verificações prévias, depois declara explicitamente que perform_regression não foi chamada. Leia o código de saída e as mensagens: esta gravação não iniciou outra regressão nem gravou seus resultados analíticos.",
+    "Uma verificação prévia sem erros não prova que a análise completa terá sucesso nem validade científica. O plano genérico desta versão menciona um banco de medições, embora nossa regressão use tabelas pareadas. Inspecione as entradas reais do módulo e teste uma execução limitada antes de confiar em processamento sem supervisão.",
+    "Remova dry-run somente quando quiser executar a análise. Guarde as configurações exatas, os identificadores das entradas, a versão do pacote e o registro da console junto com os resultados. Siga a aula vinculada do módulo para ver uma execução demonstrada e consulte a referência API atual ao escrever scripts Python."
+  ]
+}
