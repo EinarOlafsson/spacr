@@ -3146,3 +3146,21 @@ The Annotate recorder is using actual Open source, a new tutorial-only column,
 and real clicks. Its first probe confirmed that clicks are queued, not written
 on a timer; the tutorial will explicitly show Next/Back, the real flush boundary,
 and verify persisted labels read-only. Original columns and PNGs are hash-checked.
+
+CODEX, 2026-09-09 — ANNOTATE REAL WORKFLOW NOW VERIFIED.
+The accepted native-4K capture uses the actual 1.5 font preference, all 2,341
+downloaded PNGs and png_list rows, and a new tutorial_demo_06 column. Actual
+click + Next/Back writes class 1, reloads it, reports the count, then clears it
+and reloads NULL. All original columns and PNG bytes remain unchanged. Actual
+RGB -> CMY -> RGB display changes restore exactly. Coverage, the Agreement
+fold, Train's two routes, Generate entry, console and unsent AI prompt are
+recorded. No model training, generated database or AI response is claimed.
+The English 20-scene script is source-pinned; translations/media are next.
+
+The recorder needed fixes to own its QImage buffer during hashing, to find
+the real active settings dialog, and to wait for the asynchronous Train popup.
+Those were recorder failures, not additional app defects. The earlier missing
+download-to-grid transition remains the separate app follow-up already filed.
+When documentation repair released the large GPU allocation I resumed the
+remaining Regression voices with the same 10% cap; completed CPU tracks stay
+excluded. Neither authoring job modifies application/i18n files.

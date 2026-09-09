@@ -1,0 +1,130 @@
+{
+  "id": "09_annotate",
+  "number": 9,
+  "slug": "annotate",
+  "title": "Annotate: real example crops, saved labels and review tools",
+  "series": 1,
+  "app_key": "annotate",
+  "section": "Core",
+  "description": "Load the downloadable crop dataset, create a separate annotation column, verify real saved labels, adjust the crop view and find the review and training tools in the current Annotate module.",
+  "objectives": [
+    "Choose the appropriate downloadable crop or streaming example and open its actual project folder.",
+    "Use a separate annotation column, distinguish queued labels from persisted labels, and clear a demonstration label without changing the original annotations.",
+    "Inspect class counts and coverage and change display colours without modifying image files.",
+    "Locate the nested Agreement workflow, current training routes, annotation-database generator and optional AI console."
+  ],
+  "prerequisite": "Open spaCR and choose Annotate from the Core modules. This recording uses the downloadable Load dataset: 2,341 exported PNG crops and their measurements database. No model training or AI service is required. Define your biological class scheme before a real annotation pass; the temporary label here demonstrates saving, not a biological judgement.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "Open Annotate from the Core modules. Its main workspace is a crop grid backed by a measurements database. The current module also contains coverage checks, learning and training controls, database generation, and a nested Annotator Agreement tool.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_data_choice_load",
+      "focus": [1680, 914, 460, 393],
+      "narration": "Choose Load test data, then inspect the two routes. Load supplies exported image crops and a database. The example contains two thousand three hundred and forty-one PNG crops. This recording reuses the complete downloaded cache; it does not invent images or labels.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_data_choice_stream",
+      "focus": [1680, 914, 460, 393],
+      "narration": "Stream supplies merged image arrays and the database for obtaining crops on demand. Choose the route that matches how you want to read images; downloading one is not evidence that you have the other. We use Load throughout this demonstration.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_open_source_dialog",
+      "focus": [1577, 810, 1300, 950],
+      "narration": "If the grid still says no source selected after the download, choose Open source. Select the plate folder containing the measurements subfolder and its database, not the database file itself. This is the real extra step needed by the application build shown here.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_loaded_crops",
+      "narration": "Confirm that the real crops appear and that the page counter matches the expected dataset. The number of images on a page depends on the window and image size. A successfully opened folder is not enough: inspect the images before making annotation decisions.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_annotation_settings",
+      "focus": [1536, 309, 748, 1462],
+      "narration": "Open Settings and create a separate annotation column for this demonstration. Keep the original labels intact. Before real work, document what each class means and agree on a consistent view; the example label we will assign is only a test of the save path.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_class_one_pending",
+      "narration": "Left-click the first crop to assign class one. Right-click assigns class two, and repeating the same class clears it. The class-coloured ring shows the current decision; the extra white ring marks focus. A changed ring alone does not prove the label has reached the database.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_next_page_saved",
+      "narration": "Press Next to leave the page. In this build, changing pages submits queued labels to the background save worker. We checked the actual database and confirmed that class one was written. Do not teach yourself to treat an unsaved visual change as completed storage.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_class_one_saved",
+      "narration": "Press Back and check the same crop. Its saved class loads again from the database. For keyboard work, the visible legend lists class keys one to nine, zero to clear, navigation, undo and Enter for the next batch. Keep the focused crop in view when using shortcuts.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_class_counts",
+      "focus": [1768, 972, 285, 136],
+      "narration": "Class counts now reports one saved example in class one. Counts help reveal imbalance, but a single demonstration label is not a training set and says nothing about biological accuracy. Keep machine suggestions separate from reviewed answers.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_annotation_coverage",
+      "focus": [1450, 730, 920, 620],
+      "narration": "Coverage asks where the annotations came from, not just how many exist. Review representation across the groups shown in the report before training. One labelled crop cannot establish representative coverage, even when the software correctly records it.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_class_cleared",
+      "narration": "Click that same class again, then use Next and Back to save and reload the cleared state. The demonstration column is empty again. Read-only checks confirmed the transitions from empty to one to empty, while every original annotation column and downloaded PNG remained unchanged.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_display_colour_settings",
+      "focus": [1536, 309, 748, 1462],
+      "narration": "Settings also controls the view. Channel colours changes the display palette; Display order changes which source channel occupies each colour slot. These are not instructions to rewrite a file's channel order. Here we select CMY, then return to RGB.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_cmy_view",
+      "narration": "The actual crops change colour immediately after applying the view settings. Restoring RGB restores the same displayed pixels, and the source files are unchanged. Use a consistent, interpretable view for annotation. A palette change is not new segmentation, measurement or evidence of a different phenotype.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_agreement_fold",
+      "narration": "Annotator Agreement now lives at the right of Annotate's header. Hover over the icon to identify it. Keep the existing specialist tutorial for comparing annotation columns and investigating disagreements; it is linked here rather than repeated as another Home-module lesson.",
+      "focus_buttons": "FoldButton", "hold_after": 0.7,
+      "related_lessons": ["23_agreement"]
+    },
+    {
+      "visual": "16_training_routes",
+      "focus": [1836, 204, 416, 80],
+      "narration": "Train now opens a menu with two routes: the images, using a neural image classifier, or the measured features, using boosted trees. Follow the linked computer-vision and machine-learning lessons inside Classify. We are showing the routes only; no training was started with this empty demonstration column.",
+      "hold_after": 0.7,
+      "related_lessons": ["41_classify", "10_classify_cv", "11_classify_ml"]
+    },
+    {
+      "visual": "14_restored_rgb",
+      "narration": "Retrain, Suggest and Rounds support a review loop once suitable labels exist. A model's proposed class is not automatically a human answer. Review its coverage and held-out performance before relying on it. None of those operations was run or given an invented success result in this demonstration.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_generate_database_entry",
+      "narration": "Generate annotation database is now available here for creating an annotation crop set from suitable source data. The downloaded Load example already has its database and crops, so we do not generate another set. Scripted generation uses generate_annotation_dataset in the annotation-dataset module; consult the current API for its required inputs.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api", "08_measure"]
+    },
+    {
+      "visual": "18_annotation_console",
+      "narration": "Open Console when you need the real source, label and status messages, then hide it to give space back to the grid. Annotate's demonstrated output is a database label, not a Plot-enabled analysis figure. The visible crops and saved-state checks are the outputs to inspect here.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "30_ai_unsent_question",
+      "narration": "AI enables optional help through the provider configured in Preferences. It is separate from training a classifier or accepting predicted labels. This is an unsent example question: no service was contacted and no answer was fabricated. Keep your class definitions, saved labels and review decisions grounded in the data.",
+      "hold_after": 0.7
+    }
+  ]
+}

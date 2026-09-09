@@ -24,6 +24,7 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QMessageBox
     from spacr.qt.screens.annotate import _SettingsDialog
+    from spacr.qt.widgets.fold_strip import FoldButton
 
     source = Path.home() / '.cache/spacr/example_data/plate1'
     database = source / 'measurements/measurements.db'
@@ -193,6 +194,14 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
         QTest.mouseClick(dialog.button(QMessageBox.Ok), Qt.LeftButton)
 
     modal_action(screen._btn_count, show_counts)
+    QTest.mouseClick(screen._btn_coverage, Qt.LeftButton)
+    settle()
+    report = screen._reports.get('Annotation coverage')
+    if report is None or not report.isVisible():
+        raise RuntimeError('Coverage did not open its actual report')
+    capture('09_annotation_coverage')
+    report.close()
+    settle()
     QTest.mouseClick(screen._thumbs[0], Qt.LeftButton)
     QTest.mouseClick(screen._btn_next, Qt.LeftButton)
     wait_for(page_ready, 'Next did not load after clearing the example label')
@@ -202,19 +211,60 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     capture('10_class_cleared')
 
     def pixels():
-        return [hashlib.sha256(p.toImage().bits().tobytes()).hexdigest()
-                for p in screen._thumb_pixmaps if p is not None]
+        from PySide6.QtGui import QImage
+        result = []
+        for path, pixmap in zip(screen._page_paths, screen._thumb_pixmaps):
+            if pixmap is None:
+                raise RuntimeError('A displayed crop lost its pixels')
+            image = pixmap.toImage().convertToFormat(QImage.Format_RGBA8888)
+            result.append({'path': path[0], 'size': [image.width(), image.height()],
+                           'sha256': hashlib.sha256(image.bits().tobytes()).hexdigest()})
+        return result
 
     rgb = pixels()
+    write_json(captures / 'view_rgb_before.json', {'pixels': rgb, 'settings': vars(screen._settings)})
     settings(primaries='cmy', frame='11_display_colour_settings')
     cmy = pixels()
+    write_json(captures / 'view_cmy.json', {'pixels': cmy, 'settings': vars(screen._settings)})
     if not rgb or cmy == rgb:
         raise RuntimeError('Changing channel colours did not visibly change the real crops')
     capture('12_cmy_view')
     settings(primaries='rgb', frame='13_restore_rgb_settings')
-    if pixels() != rgb:
-        raise RuntimeError('Restoring RGB did not restore the same displayed crops')
+    restored = pixels()
+    write_json(captures / 'view_rgb_restored.json', {'pixels': restored, 'settings': vars(screen._settings)})
     capture('14_restored_rgb')
+    if restored != rgb:
+        raise RuntimeError('Restoring RGB did not restore the same displayed crops')
+    folds = [b for b in screen.findChildren(FoldButton) if b.isVisible()]
+    if [b.app_key for b in folds] != ['agreement']:
+        raise RuntimeError('The current Annotate fold inventory changed')
+    QTest.mouseMove(folds[0])
+    settle(1)
+    capture('15_agreement_fold')
+    menu = screen._btn_train.menu()
+    actions = [a.text() for a in menu.actions() if not a.isSeparator()]
+    menu_seen = []
+
+    def inspect_training_menu():
+        if menu.isVisible():
+            capture('16_training_routes')
+            menu_seen.append(True)
+        menu.close()
+
+    QTimer.singleShot(600, inspect_training_menu)
+    QTest.mouseClick(screen._btn_train, Qt.LeftButton)
+    settle(0.9)
+    if not menu_seen:
+        raise RuntimeError('The actual Train menu did not open')
+    QTest.mouseMove(screen._btn_generate)
+    settle(1)
+    capture('17_generate_database_entry')
+    if not screen._console_switch.isChecked():
+        QTest.mouseClick(screen._console_switch, Qt.LeftButton)
+    settle()
+    if not screen._console.isVisible():
+        raise RuntimeError('The Console switch did not reveal the actual console')
+    capture('18_annotation_console')
     require_preserved(before, snapshot())
     if query(f'SELECT count(*) FROM png_list WHERE "{annotation}" IS NOT NULL')[0][0] != 0:
         raise RuntimeError('The demonstration left a label in the new column')
@@ -226,5 +276,7 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
         'original_columns_and_pixels_preserved': True,
         'view_changed_rgb_cmy_rgb': True, 'synthetic_images': False,
         'label_write_boundary': 'Actual Next and Back buttons; no private flush call',
+        'folds': [b.app_key for b in folds], 'training_menu_actions': actions,
+        'training_started': False, 'annotation_database_generation_started': False,
         'biological_classification_claim': False,
     })

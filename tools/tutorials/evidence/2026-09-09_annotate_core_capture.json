@@ -1,0 +1,41 @@
+{
+  "lesson": "09_annotate",
+  "status": "Real workflow and English script verified; translations and narration not yet produced",
+  "canonical_english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
+  "english_scene_count": 20,
+  "application_commit": "ed93b0e2a",
+  "application_version": "1.5.0.4",
+  "application_source_modified": false,
+  "capture": {
+    "directory": "refresh_2026-09-09/annotate_fresh/captures/annotate_readable",
+    "staging_copy": "refresh_2026-09-09/captures/annotate_readable",
+    "native_resolution": [3840, 2160],
+    "actual_app_font_scale": 1.5,
+    "completed": true,
+    "recorded_frames": 26,
+    "selected_scene_hashes_and_geometry_verified": true
+  },
+  "data": {
+    "route": "Actual Load test data chooser, Load; complete previously downloaded cache",
+    "png_files": 2341,
+    "database_rows": 2341,
+    "visible_crops": 128,
+    "extra_action": "Actual Open source picker selects the plate folder because download alone does not open the grid in this build"
+  },
+  "bounded_operation": {
+    "annotation_column": "tutorial_demo_06",
+    "actual_saved_transitions": [null, 1, null],
+    "verification": "Read-only SQL after actual Next/Back actions, then reloaded crop and Class counts",
+    "original_column_values_preserved": true,
+    "all_original_png_hashes_preserved": true,
+    "final_demonstration_column_nonempty_rows": 0,
+    "biological_label_claim": false
+  },
+  "display_operation": "Actual Settings RGB -> CMY -> RGB changes displayed pixels and restores them exactly; source files unchanged",
+  "other_recorded_controls": ["Coverage report", "Annotator Agreement fold on the masthead", "Train menu: images and measured features", "Generate annotation database entry", "Actual console", "Unsent AI question"],
+  "training_started": false,
+  "annotation_database_generation_started": false,
+  "ai_provider_contacted": false,
+  "recorder_regressions": "4 preservation tests pass; removing the guard in memory made all 3 negative cases fail while the positive counterpart passed. Pixel comparisons retain their QImage buffer owner, and menu capture waits for the real asynchronous popup.",
+  "published": false
+}
