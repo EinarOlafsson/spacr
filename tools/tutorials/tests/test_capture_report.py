@@ -206,6 +206,153 @@ def test_rejects_symlink_source_member(source):
         report.snapshot_source(source)
 
 
+def test_full_private_copy_preserves_original_and_existing_sidecars(source, tmp_path):
+    (source / 'artifacts.db-shm').write_bytes(b'\x01' * 32768)
+    (source / 'artifacts.db-wal').write_bytes(b'')
+    destination = tmp_path / 'private' / 'source_project'
+    destination.parent.mkdir()
+    original_before, copied = report.copy_private_source(source, destination)
+    assert original_before == copied == report.snapshot_source(source)
+    assert copied == report.snapshot_source(destination)
+    assert {'artifacts.db-shm', 'artifacts.db-wal'} <= set(copied)
+    for name in copied:
+        assert (source / name).stat().st_ino != (destination / name).stat().st_ino
+    assert report.verify_private_sqlite_changes(destination, copied, copied) == []
+
+
+@pytest.mark.parametrize('kind', ['same', 'inside', 'existing'])
+def test_refuses_nonfresh_or_overlapping_private_copy(source, tmp_path, kind):
+    destination = {'same': source, 'inside': source / 'copy', 'existing': tmp_path}[kind]
+    with pytest.raises(RuntimeError, match='fresh private copy'):
+        report.copy_private_source(source, destination)
+
+
+def test_copy_rejects_corrupted_destination_bytes(source, tmp_path, monkeypatch):
+    real_copy = report.shutil.copy2
+
+    def corrupt_copy(src, dst):
+        result = real_copy(src, dst)
+        if Path(src).name == 'pngs.pdf':
+            Path(dst).write_bytes(b'corrupted copy')
+        return result
+
+    monkeypatch.setattr(report.shutil, 'copy2', corrupt_copy)
+    with pytest.raises(RuntimeError, match='source file set or bytes changed'):
+        report.copy_private_source(source, tmp_path / 'copy')
+
+
+def test_copy_rejects_original_change_during_copy(source, tmp_path, monkeypatch):
+    real_copy = report.shutil.copy2
+
+    def change_original(src, dst):
+        result = real_copy(src, dst)
+        if Path(src).name == 'pngs.pdf':
+            Path(src).write_bytes(b'changed original fixture')
+        return result
+
+    monkeypatch.setattr(report.shutil, 'copy2', change_original)
+    with pytest.raises(RuntimeError, match='source file set or bytes changed'):
+        report.copy_private_source(source, tmp_path / 'copy')
+
+
+def test_copy_refuses_hardlinks(source, tmp_path, monkeypatch):
+    import os
+
+    monkeypatch.setattr(report.shutil, 'copy2', os.link)
+    with pytest.raises(RuntimeError, match='hard link'):
+        report.copy_private_source(source, tmp_path / 'copy')
+
+
+@pytest.mark.parametrize('database', report.DATABASE_PATHS)
+@pytest.mark.parametrize('suffix,size', [('-wal', 0), ('-shm', 32768)])
+def test_private_sqlite_added_sidecar_is_narrowly_reported(source, database, suffix, size):
+    before = report.snapshot_source(source)
+    name = database + suffix
+    (source / name).write_bytes(b'\x00' * size)
+    after = report.snapshot_source(source)
+    assert report.verify_private_sqlite_changes(source, before, after) == [
+        {'path': name, 'change': 'added', 'before': None, 'after': after[name]}]
+    # The same addition is never exempt on an original source.
+    with pytest.raises(RuntimeError, match='source file set or bytes changed'):
+        report.require_unchanged(before, after)
+
+
+def test_private_sqlite_existing_shm_change_is_reported(source):
+    target = source / 'artifacts.db-shm'
+    target.write_bytes(b'\x00' * 32768)
+    before = report.snapshot_source(source)
+    target.write_bytes(b'\x01' * 32768)
+    after = report.snapshot_source(source)
+    assert report.verify_private_sqlite_changes(source, before, after) == [
+        {'path': 'artifacts.db-shm', 'change': 'changed',
+         'before': before['artifacts.db-shm'], 'after': after['artifacts.db-shm']}]
+
+
+def test_private_sqlite_app_sidecar_removal_is_reported(source):
+    target = source / 'artifacts.db-wal'
+    target.write_bytes(b'')
+    before = report.snapshot_source(source)
+    target.unlink()  # Simulate app cleanup in a disposable fixture, never the original.
+    assert report.verify_private_sqlite_changes(source, before, report.snapshot_source(source)) == [
+        {'path': 'artifacts.db-wal', 'change': 'removed',
+         'before': before['artifacts.db-wal'], 'after': None}]
+
+
+@pytest.mark.parametrize('suffix,size', [('-wal', 1), ('-shm', 0), ('-shm', 32767), ('-shm', 32769)])
+def test_private_sqlite_nonempty_wal_or_wrong_shm_size_rejected(source, suffix, size):
+    before = report.snapshot_source(source)
+    (source / ('artifacts.db' + suffix)).write_bytes(b'x' * size)
+    with pytest.raises(RuntimeError, match='WAL must be empty and SHM'):
+        report.verify_private_sqlite_changes(source, before, report.snapshot_source(source))
+
+
+def test_private_sqlite_invalid_existing_sidecar_is_not_grandfathered(source):
+    (source / 'artifacts.db-wal').write_bytes(b'live WAL')
+    before = report.snapshot_source(source)
+    with pytest.raises(RuntimeError, match='WAL must be empty and SHM'):
+        report.verify_private_sqlite_changes(source, before, before)
+
+
+@pytest.mark.parametrize('name', ['notes-shm', 'fake.db-shm', 'results/not_sqlite.pdf-shm',
+                                'measurements/other.db-wal', 'artifacts.db-extra-shm'])
+def test_arbitrary_sidecar_names_are_not_exempt(source, name):
+    before = report.snapshot_source(source)
+    (source / name).write_bytes(b'\x00' * 32768)
+    with pytest.raises(RuntimeError, match='material file set or bytes changed'):
+        report.verify_private_sqlite_changes(source, before, report.snapshot_source(source))
+
+
+def test_changed_private_database_is_never_exempt(source):
+    before = report.snapshot_source(source)
+    connection = sqlite3.connect(source / 'artifacts.db')
+    connection.execute('INSERT INTO artifacts VALUES (2)')
+    connection.commit()
+    connection.close()
+    with pytest.raises(RuntimeError, match='base database changed'):
+        report.verify_private_sqlite_changes(source, before, report.snapshot_source(source))
+
+
+def test_new_private_csv_is_never_exempt(source):
+    before = report.snapshot_source(source)
+    (source / 'results/new.csv').write_text('id,value\n1,2\n')
+    with pytest.raises(RuntimeError, match='material file set or bytes changed'):
+        report.verify_private_sqlite_changes(source, before, report.snapshot_source(source))
+
+
+def test_removed_private_material_file_is_never_exempt(source):
+    before = report.snapshot_source(source)
+    (source / 'results/plate1_A01_1/pngs.pdf').unlink()
+    with pytest.raises(RuntimeError, match='material file set or bytes changed'):
+        report.verify_private_sqlite_changes(source, before, report.snapshot_source(source))
+
+
+def test_sidecar_allowance_requires_real_sqlite_header(source):
+    (source / 'artifacts.db').write_bytes(b'not a SQLite file')
+    before = report.snapshot_source(source)
+    with pytest.raises(RuntimeError, match='actual existing SQLite database'):
+        report.verify_private_sqlite_changes(source, before, before)
+
+
 @pytest.fixture
 def core_timers():
     from PySide6.QtCore import QCoreApplication, QEvent, QObject, QTimer

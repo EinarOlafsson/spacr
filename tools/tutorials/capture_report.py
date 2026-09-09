@@ -1,4 +1,4 @@
-"""Record Report on one accepted, unchanged External Masks project.
+"""Record Report on a byte-verified private copy of an accepted project.
 
 The caller owns the application, Help navigation and process timeout. This
 module never launches an app/browser or fabricates a run stamp. Generation is
@@ -12,6 +12,7 @@ from html.parser import HTMLParser
 import json
 import math
 from pathlib import Path
+import shutil
 import sqlite3
 import tempfile
 import time
@@ -19,6 +20,7 @@ import time
 
 SOURCE_RELATIVE = 'external_mask_runs/example-pj_qwr_5/project'
 CAPTURE_RELATIVE = 'captures/external_masks_final_console'
+DATABASE_PATHS = ('artifacts.db', 'measurements/measurements.db')
 CORE_SECTIONS = ['run_status', 'provenance', 'segmentation_qc', 'plate_qc',
                  'figures', 'statistics', 'settings', 'appendix']
 
@@ -90,6 +92,60 @@ def require_unchanged(before, after):
         raise RuntimeError('The original Report source file set or bytes changed')
 
 
+def copy_private_source(original, destination):
+    """Copy every bounded source file, without excluding pre-existing sidecars."""
+    original, destination = Path(original).resolve(), Path(destination).resolve()
+    if (destination.exists() or destination.is_relative_to(original)
+            or original.is_relative_to(destination)):
+        raise RuntimeError('Report requires a fresh private copy outside the original project')
+    before = snapshot_source(original)
+    shutil.copytree(original, destination, symlinks=True, copy_function=shutil.copy2)
+    require_unchanged(before, snapshot_source(original))
+    copied = snapshot_source(destination)
+    require_unchanged(before, copied)
+    for name in before:
+        left, right = (original / name).stat(), (destination / name).stat()
+        if (left.st_dev, left.st_ino) == (right.st_dev, right.st_ino):
+            raise RuntimeError('A private Report source file must not be a hard link to the original')
+    return before, copied
+
+
+def verify_private_sqlite_changes(source, before, after):
+    """Allow only documented empty-WAL/32-KiB-SHM changes in the private copy.
+
+    The two base databases must be pre-existing, unchanged SQLite files. Other
+    similarly named files are material, not exempt. The recorder itself never
+    deletes a sidecar; app-created, changed or removed sidecars are reported.
+    This allowance never applies to the accepted original project.
+    """
+    source = Path(source)
+    allowed = {}
+    for name in DATABASE_PATHS:
+        if name not in before or before.get(name) != after.get(name):
+            raise RuntimeError('A private Report base database changed or disappeared')
+        with (source / name).open('rb') as handle:
+            if handle.read(16) != b'SQLite format 3\x00':
+                raise RuntimeError('Sidecar allowances require an actual existing SQLite database')
+        allowed[name + '-wal'] = 0
+        allowed[name + '-shm'] = 32768
+    material_before = {name: value for name, value in before.items() if name not in allowed}
+    material_after = {name: value for name, value in after.items() if name not in allowed}
+    if material_before != material_after:
+        raise RuntimeError('The private Report material file set or bytes changed')
+    changes = []
+    for name, expected_size in sorted(allowed.items()):
+        previous, current = before.get(name), after.get(name)
+        for value in (previous, current):
+            if value is not None and (value['bytes'] != expected_size or
+                    (expected_size == 0 and value['sha256'] != hashlib.sha256(b'').hexdigest())):
+                raise RuntimeError('Private SQLite WAL must be empty and SHM must be exactly 32768 bytes')
+        if previous != current:
+            changes.append({'path': name, 'change': 'added' if previous is None else
+                            'removed' if current is None else 'changed',
+                            'before': previous, 'after': current})
+    return changes
+
+
 def read_source_facts(source):
     """Independently read small SQLite counts/stamps, never spaCR helpers.
 
@@ -98,7 +154,7 @@ def read_source_facts(source):
     """
     source = Path(source)
     counts, stamps = {}, []
-    for relative in ['artifacts.db', 'measurements/measurements.db']:
+    for relative in DATABASE_PATHS:
         path = source / relative
         wal = Path(str(path) + '-wal')
         if not path.is_file() or (wal.exists() and wal.stat().st_size):
@@ -255,6 +311,7 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
                 'synthetic_status_created': False, 'source_pipeline_rerun': False}
     acceptance = captures / 'scientific_acceptance.json'
     write_json(acceptance, evidence)
+    original, original_before = None, None
     jobs = []
     job_finished = jobs.append
     screen.job_finished.connect(job_finished)
@@ -277,6 +334,16 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
         if screen.last_error or not jobs or not all(jobs):
             raise RuntimeError(screen.last_error or 'An actual Report job failed')
         settle(.2)
+
+    def check_copies():
+        original_after = snapshot_source(original)
+        require_unchanged(original_before, original_after)
+        private_after = snapshot_source(source)
+        changes = verify_private_sqlite_changes(source, before, private_after)
+        evidence.update(original_preserved=True, original_source_files_after=original_after,
+                        source_files_after=private_after, private_material_files_unchanged=True,
+                        private_sqlite_sidecar_changes=changes)
+        return changes
 
     def choose_path(button, path, frame, save=False):
         errors, accepted, timers = [], [], []
@@ -330,18 +397,27 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
                 or documents['provenance.json'].get('completed_capture') is not True
                 or documents['output_evidence.json'].get('accepted') is not True):
             raise RuntimeError('The exact reused External Masks capture is not complete and accepted')
-        source = stage / SOURCE_RELATIVE
-        if Path(documents['scientific_acceptance.json']['destination']).resolve() != source:
+        original = stage / SOURCE_RELATIVE
+        if Path(documents['scientific_acceptance.json']['destination']).resolve() != original:
             raise RuntimeError('The accepted External Masks receipt names a different project')
-        before = snapshot_source(source)
-        facts = read_source_facts(source)
-        evidence.update(source=str(source), source_capture=str(previous), source_facts=facts,
-                        prior_evidence_sha256={name: _digest(previous / name) for name in documents},
-                        source_files_before=before)
-        write_json(captures / 'input_manifest.json', evidence)
         runs = stage / 'report_runs'
         runs.mkdir(exist_ok=True)
-        destination = Path(tempfile.mkdtemp(prefix='example-', dir=runs))
+        work = Path(tempfile.mkdtemp(prefix='example-', dir=runs))
+        source = work / 'source_project'
+        original_before, before = copy_private_source(original, source)
+        facts = read_source_facts(source)
+        verify_private_sqlite_changes(source, before, snapshot_source(source))
+        require_unchanged(original_before, snapshot_source(original))
+        evidence.update(source=str(source), original_source=str(original),
+                        source_capture=str(previous), source_facts=facts,
+                        prior_evidence_sha256={name: _digest(previous / name) for name in documents},
+                        source_files_before=before, original_source_files_before=original_before,
+                        full_copy_byte_identical=True, copied_file_count=len(before),
+                        original_preserved=True, private_sqlite_sidecar_changes=[],
+                        private_copy_note='All original files, including existing SQLite sidecars, were copied byte-for-byte. Only this copy is submitted to Report; no run stamp or data is fabricated.')
+        write_json(captures / 'input_manifest.json', evidence)
+        destination = work / 'reports'
+        destination.mkdir()
         output = destination / 'external_masks_report.html'
         if screen.report is not None or screen.written:
             raise RuntimeError('A fresh Report panel is required')
@@ -364,9 +440,11 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
             raise RuntimeError('Expected the actual read-only Report section inventory')
         if list(destination.iterdir()):
             raise RuntimeError('Report Scan unexpectedly wrote output')
-        require_unchanged(before, snapshot_source(source))
+        check_copies()
         write_json(captures / 'scan_evidence.json', {**summary, 'no_report_output_written': True,
-                                                  'source_unchanged': True, 'sections_selectable': False})
+                    'original_preserved': True, 'private_material_files_unchanged': True,
+                    'private_sqlite_sidecar_changes': evidence['private_sqlite_sidecar_changes'],
+                    'sections_selectable': False})
         capture('03_actual_completion_not_qc_pass')
         capture('04_read_only_missing_sections')
         click(screen._format)
@@ -392,12 +470,12 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
         if sorted(destination.iterdir()) != [output]:
             raise RuntimeError('Unexpected output files were generated')
         html_evidence = verify_html(output.read_text(), summary, facts)
-        require_unchanged(before, snapshot_source(source))
+        check_copies()
         capture('09_actual_report_written')
         capture('10_open_control_not_yet_invoked')
-        evidence.update(accepted=True, reason='Real Scan and Generate returned the exact source stamp, six PDF identities and database counts; generated HTML retains sections and missing-QC disclosure; source bytes unchanged',
+        evidence.update(accepted=True, reason='Real Scan and Generate returned the exact source stamp, six PDF identities and database counts; generated HTML retains sections and missing-QC disclosure; accepted original preserved and private-copy material unchanged, with any allowed SQLite sidecar changes explicitly recorded',
                         destination=str(destination), output=str(output), output_sha256=_digest(output),
-                        report=summary, html=html_evidence, source_unchanged=True,
+                        report=summary, html=html_evidence,
                         job_results=jobs, active_jobs=screen.active_jobs(), figure_cap=3)
         write_json(captures / 'report_output_evidence.json', evidence)
         write_json(acceptance, evidence)
@@ -409,6 +487,14 @@ def record_report(app, window, screen, stage, captures, capture, settle, write_j
     finally:
         retirement = _retire_report_jobs(screen, settle)
         screen.job_finished.disconnect(job_finished)
+        if original_before is not None:
+            original_after = snapshot_source(original)
+            evidence['original_preserved'] = original_before == original_after
+            evidence['original_source_files_after'] = original_after
+            if not evidence['original_preserved']:
+                evidence.update(accepted=False, reason='The accepted original changed during Report capture')
+                write_json(acceptance, evidence)
+                require_unchanged(original_before, original_after)
         if evidence['accepted'] is False:
             evidence.update(error_cleanup=retirement, active_jobs=retirement['active_jobs'],
                             job_results=jobs)
