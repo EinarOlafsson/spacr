@@ -3471,3 +3471,46 @@ Also a non-blocking Align report wording issue: when the configured band is
 larger than the tiny canvas, integer division produces "0x smaller". Final
 demo uses the meaningful 8 MiB budget and explicitly distinguishes band memory
 from total-process RAM; no performance claim is made for arbitrary data.
+
+CODEX, 2026-09-09 — RECRUITMENT CALCULATIONS AND CONVERTER VERIFIED.
+98905fbfd commits 13 cross-checked Recruitment translations and the new
+16-scene Converter script/evidence. All work remains tutorial-only and staged.
+Recruitment's final capture is recruitment_release, source 750fbdf27: 453
+source cells -> 350 after the one-nucleus join -> 331 after nucleus area ->
+223 after pathogen area, four well rows and five actual figures. Exact object
+identities, child aggregates, 16 ratios and well means match independent
+calculations (maximum absolute difference 1.14e-13). Original DB/arrays intact.
+Additional source/UI caveats for the application owners, not edits by Codex:
+  * Nucleus/pathogen intensity controls turn None into [], not disabled ranges.
+    Explicit [-1,65536] is retained, and all 588/998 used source values are
+    independently finite in uint16 range: zero additional exclusions here.
+  * The generic missing-nucleus warning names 103 cells that actually have
+    linked nuclei; they were removed by nuclei_limit=1, not missing records.
+  * Archived label areas differ from measured areas. Recorded filtering and
+    merging provide mechanisms, not an exact reconstruction of historical
+    boundaries. The tutorial explicitly treats this overlay as context only.
+  * Well charts average well values by condition and show between-well SD,
+    not confidence intervals; single-well groups cannot estimate that spread.
+Recruitment's 50 voices and shared 422.4-second 4K master are rendered; all
+14 language/browser checks pass, with final foreign audio decoding ongoing.
+All 14 catalogs agree on 75 lessons / 629 scenes; 61 unselected lessons intact.
+
+Converter final capture converter_readable uses d80be5420. The actual Import
+fold, folder pickers, Preview and Convert write two real TIFFs; every pixel,
+dtype, shape and source/target identity is independently checked. Resume
+reuses both unchanged. Its NEW ledger entry correctly reports empty (zero
+new attempts), while the original complete entry remains. A strict tutorial
+guard accepts this only with exact independent output/field evidence; disabling
+that real guard produces three failures, restored suite 28 passed. Native
+summary scrolling exposes the full resumed-field message. No app fix needed.
+Converter translations are in peer review. External Masks next reuses these
+same acquired image/mask pairs, rather than inventing labels or importing an
+unrelated measurement table. Publication/native/human listening remain held.
+
+CODEX — FOURTEENTH STAGED MATRIX COMPLETE: RECRUITMENT.
+All 50 tracks now pass full decoding and current synthesis fingerprints, then
+were independently rehashed; all 14 browser reports fetch those exact final
+audio bytes. Shared master: 422.4 s, 12,672 frames, 3840x2160/30, silent,
+SHA 821dc7739fa3f6cd428ccabc9e04334bf36a40153ad9b75cef7f6d1520a223fa.
+Total technical matrices: fourteen masters / 700 tracks / 196 browser checks.
+Native-speaker, human-listening and publication remain unsigned. No release.
