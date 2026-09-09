@@ -1182,3 +1182,33 @@ NOT DONE, and deliberately left rather than half-fixed. Two of the three
 rejected fixes would have passed this one case while leaving every other
 column-aligned caption exposed, which is the shape of fix this file exists to
 refuse.
+
+FOURTH REJECTED FIX, and it narrows the search usefully for whoever takes it.
+
+`PairedFileTableWidget._widen_columns_for` exists for exactly this defect --
+its docstring says so, "aligning a button to a column NARROWER than the
+button leaves two bad choices, overlap the neighbour or clip the caption" --
+and it reads `button.sizeHint().width()` on a widget that may not be polished
+yet, which is the same 100 %-measurement trap as the other three. Adding
+`ensurePolished()` before the measurement is correct on its own terms and
+was still REVERTED, because it does not touch this case:
+
+    screen._example_counts_button is None on the regression screen
+
+so `_install_example_buttons` returns False and the widening path never runs
+there at all. The regression screen's header sections measure
+[133, 249, 152, 164, 204, 133, 100] and none of them is 144.
+
+SO THE 144 COMES FROM SOMEWHERE ELSE, and the next person should start by
+finding out where rather than by reading `file_list.py`. What is known:
+
+  * the widget is a QPushButton whose text is the pt rendering of "Count",
+  * its parent's layout IS a `ColumnAlignedRow`, measured,
+  * it is NOT `_example_counts_button`, and NOT reached by
+    `PairedFileTableWidget.DOWNLOAD_BUTTONS`,
+  * no header section on that screen is 144 px wide.
+
+Four fixes have now been tried and measured away: the button's own sizing,
+the row it is built in, the layout that clamps it, and the widener that
+exists to prevent exactly this. Each was plausible and each is recorded so
+the fifth attempt does not repeat one.
