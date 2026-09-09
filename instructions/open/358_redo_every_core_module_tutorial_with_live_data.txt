@@ -137,3 +137,42 @@ afternoon, and it should be counted with 358 rather than with 288's failure
 list. Writing the three lessons in English only would make the suite LOOK one
 test better while breaking a different one and shipping a tutorial library
 that is complete in one language and short in thirteen.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- CODEX OWNS THE TUTORIALS. NEITHER CLAUDE SESSION TOUCHES THEM.
+--------------------------------------------------------------------------------
+
+The maintainer started a Codex session on the tutorials this morning and told
+this session plainly not to touch them. That settles an ownership question
+that had drifted: the other Claude session had taken the three missing
+lessons an hour earlier, on the strength of owning the only machine with the
+translation models. It has been told to drop it.
+
+OUT OF BOUNDS for both Claude sessions until he says otherwise:
+
+    docs/source/_extra/tutorials/**     lesson and caption catalogs
+    spacr/qt/tutorial/**                the engine
+    docs/tutorial/, docs/resources/tutorial/
+    this instruction, and the tutorial half of 384
+
+WHAT THIS DOES TO 288, and it is the reason this note is here rather than
+only in a message: 288's LAST failing test is
+`test_every_module_and_fold_has_exactly_one_current_tutorial_route`, and it
+fails because ops, regression_diagnostics and import_images have no lesson.
+That test now belongs to CODEX. 288 sits at one failure that neither Claude
+session may fix, so nobody should read it as work either of them is about to
+pick up.
+
+WHAT CODEX INHERITS, so it is not re-derived: a lesson is FOURTEEN catalog
+files, not one -- lessons in es, fr, hi, it, ja, pt-BR, zh-CN plus English,
+and captions in da, de, is, ko, nb, sv -- and
+`test_every_translated_tutorial_catalog_has_the_english_structure` requires
+every one to carry the same lesson ids, numbers, routes and SCENE COUNT as
+English. Writing the three in English alone makes the route test pass and
+breaks the structure test. Each scene also carries `narration`, a `visual`
+key, `hold_after`, and `speech_text` with IPA, pinned across languages by
+`test_every_spoken_pypi_is_the_single_word_pypie`.
+
+The translation models are at
+/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/translation_models
+on the home machine -- nine opus pairs, m2m100_418M, madlad400-3b and 7b.
