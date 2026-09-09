@@ -228,6 +228,7 @@ def main() -> int:
     if args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
+                    'train_compare': 'classify_merged',
                     'regression_diagnostics': 'regression'}.get(args.module, args.module)
         window._on_nav_selected(host_key)
         deadline = time.monotonic() + 60
@@ -290,6 +291,10 @@ def main() -> int:
             from capture_model_zoo import record_model_zoo
             record_model_zoo(app, window, screen, stage, captures, capture,
                              settle, write_json, args.timeout)
+        if args.module == 'train_compare':
+            from capture_training_runs import record_training_runs
+            record_training_runs(app, window, screen, stage, captures, capture,
+                                 settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
