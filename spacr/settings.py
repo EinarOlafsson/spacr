@@ -1587,6 +1587,34 @@ def _set_classifier_evaluation_defaults(settings):
     return settings
 
 
+def _fold_gradient_accumulation(settings):
+    """Let ``gradient_accumulation_steps`` alone say whether to accumulate.
+
+    ONE QUESTION, ONE ANSWER. `gradient_accumulation` was a boolean sitting
+    beside the step count, and ``steps = 1`` already IS the off state -- one
+    batch per optimizer step is ordinary training. Two keys for one decision
+    is a pair that can disagree: on with one step, off with eight, and
+    nothing saying which wins.
+
+    THE MIGRATION IS THE POINT, not the removal. Retiring the flag on its own
+    would silently turn accumulation ON for everyone who had written
+    ``gradient_accumulation: false`` beside the default four steps -- the
+    value would be ignored, the step count would stand, and their training
+    would change without a word. So a stored ``false`` is honoured by
+    collapsing the step count to 1, which says the same thing in the new
+    spelling. A stored ``true`` needs nothing; the steps already say how many.
+
+    :param settings: the settings mapping, edited in place.
+    :returns: the same mapping, for chaining.
+    """
+    if 'gradient_accumulation' not in settings:
+        return settings
+    legacy = settings.pop('gradient_accumulation')
+    if legacy is False or str(legacy).strip().lower() in ('false', '0', 'no'):
+        settings['gradient_accumulation_steps'] = 1
+    return settings
+
+
 def set_default_train_test_model(settings):
     """Populate default settings for the train/test classifier training pipeline.
 
@@ -1619,8 +1647,8 @@ def set_default_train_test_model(settings):
     settings.setdefault('amsgrad',True)
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('mixed_precision', False)
-    settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
+    _fold_gradient_accumulation(settings)
     settings.setdefault('intermedeate_save',True)
     settings.setdefault('resume_checkpoint','')
     settings.setdefault('custom_model_path','')
@@ -1746,8 +1774,8 @@ def deep_spacr_defaults(settings):
     settings.setdefault('amsgrad',True)
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('mixed_precision', False)
-    settings.setdefault('gradient_accumulation',True)
     settings.setdefault('gradient_accumulation_steps',4)
+    _fold_gradient_accumulation(settings)
     settings.setdefault('label_smoothing',0.1)
     settings.setdefault('focal_gamma',2.0)
     settings.setdefault('focal_alpha',None)
@@ -1851,8 +1879,8 @@ def get_train_test_model_settings(settings):
      settings.setdefault('amsgrad', True)
      settings.setdefault('use_checkpoint', True)
      settings.setdefault('mixed_precision', False)
-     settings.setdefault('gradient_accumulation', True)
      settings.setdefault('gradient_accumulation_steps', 4)
+     _fold_gradient_accumulation(settings)
      settings.setdefault('intermedeate_save',True)
      settings.setdefault('resume_checkpoint','')
      settings.setdefault('custom_model_path','')

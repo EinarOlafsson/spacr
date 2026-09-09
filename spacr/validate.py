@@ -1056,6 +1056,13 @@ RETIRED_SETTINGS: Dict[str, str] = {
     # the shared filter the Qt live preview uses. So tuning the preview until
     # it looked right and then pressing run applied a different filter, with
     # nothing saying so. cell, nucleus and pathogen only ever had `_area`.
+    # ONE QUESTION, ONE ANSWER. The boolean sat beside
+    # `gradient_accumulation_steps`, and `steps = 1` already IS the off
+    # state, so the pair could disagree -- on with one step, off with eight.
+    # `settings._fold_gradient_accumulation` honours a stored `false` by
+    # collapsing the step count to 1, so a settings file in the wild keeps
+    # meaning what it meant instead of quietly starting to accumulate.
+    "gradient_accumulation": "gradient_accumulation_steps",
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
     "minimum_cell_count": "min_cell_count",

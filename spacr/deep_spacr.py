@@ -1297,7 +1297,12 @@ def _cross_validate_model(settings, num_classes):
             focal_gamma=settings.get('focal_gamma', 2.0),
             focal_alpha=settings.get('focal_alpha'),
             logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
-            gradient_accumulation=settings['gradient_accumulation'],
+            # DERIVED, NOT STORED. `steps = 1` is the off state, so the
+            # step count alone says whether to accumulate -- see
+            # `settings._fold_gradient_accumulation` for why the boolean
+            # that used to sit beside it was folded in.
+            gradient_accumulation=int(
+                settings['gradient_accumulation_steps']) > 1,
             gradient_accumulation_steps=settings[
                 'gradient_accumulation_steps'],
             channels=settings['train_channels'],
@@ -1863,7 +1868,8 @@ def train_test_model(settings):
             focal_gamma=settings.get('focal_gamma', 2.0),
             focal_alpha=settings.get('focal_alpha'),
             logit_adjust_tau=settings.get('logit_adjust_tau', 1.0),
-            gradient_accumulation=settings['gradient_accumulation'],
+            gradient_accumulation=int(
+                settings['gradient_accumulation_steps']) > 1,
             gradient_accumulation_steps=settings['gradient_accumulation_steps'],
             channels=settings['train_channels'],
             num_classes=num_classes,
