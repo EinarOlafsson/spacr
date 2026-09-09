@@ -233,6 +233,20 @@ NAS; this needs its equivalent before any threshold in it is defensible.
 NEXT ACTION
 --------------------------------------------------------------------------------
 
-Ask the maintainer (a), (b) or (c) from PART 0, and which of PART 1 they
-actually want. Then measure how much of the chosen list falls out of an
-existing Measure run before writing any new image processing.
+ANSWERED AND STALE, corrected 2026-09-09. This said "ask the maintainer
+(a), (b) or (c) from PART 0". He answered on 2026-09-06 -- "(c) A report,
+not a pipeline" -- and `spacr/infection.py` was built to it that day, with
+the three metrics PART 0-A found were NOT derivable deliberately absent
+rather than approximated. The question is closed; leaving it as the NEXT
+ACTION invited someone to ask it a second time.
+
+WHAT IS ACTUALLY LEFT IS A DATASET, AND NOT CODE. The report has never seen
+a real `measurements.db`: its fixture is synthetic with chosen answers, so
+every threshold in it is currently defensible only against numbers this
+repository invented. The plaque assay has a real dataset on the NAS; this
+needs its equivalent before any threshold is believed.
+
+That makes 377 the same shape as 372 PART 0 and 370's held-out set: the
+code is written and what it lacks is the maintainer's data and judgement.
+An agent cannot close it, and should not close it by lowering what
+"believed" means.
