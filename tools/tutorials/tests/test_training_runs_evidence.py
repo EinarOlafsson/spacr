@@ -6,7 +6,7 @@ import sys
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from capture_training_runs import _read_curve, _same_rows
+from capture_training_runs import _read_curve, _same_rows, _require_visible_identifier
 
 
 def rows():
@@ -69,3 +69,22 @@ def test_reader_rejects_empty_gapped_or_duplicate_epochs(tmp_path, body):
     path.write_text('epoch,accuracy\n' + body)
     with pytest.raises(RuntimeError, match='consecutive epoch rows'):
         _read_curve(path)
+
+
+def test_full_run_identifier_inside_wide_native_viewport():
+    _require_visible_identifier('maxvit_t/0_1/epochs_20',
+                                'maxvit_t/0_1/epochs_20 · 20 epochs · …',
+                                (28, 20, 450, 32), (0, 0, 916, 900))
+
+
+@pytest.mark.parametrize('text,rect', [
+    ('maxvit_t/0_1/epochs_2…', (28, 20, 450, 32)),
+    ('maxvit_t/0_1/epochs_25 · 25 epochs', (28, 20, 450, 32)),
+    ('maxvit_t/0_1/epochs_20 · 20 epochs', (500, 20, 450, 32)),
+    ('maxvit_t/0_1/epochs_20 · 20 epochs', (-1, 20, 450, 32)),
+    ('maxvit_t/0_1/epochs_20 · 20 epochs', (28, 880, 450, 32)),
+    ('maxvit_t/0_1/epochs_20 · 20 epochs', (28, 20, 0, 32)),
+])
+def test_rejects_elided_wrong_or_clipped_identifiers(text, rect):
+    with pytest.raises(RuntimeError, match='identifier'):
+        _require_visible_identifier('maxvit_t/0_1/epochs_20', text, rect, (0, 0, 916, 900))

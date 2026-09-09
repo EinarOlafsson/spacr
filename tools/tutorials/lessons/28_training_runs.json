@@ -1,0 +1,121 @@
+{
+  "id": "28_training_runs",
+  "number": 28,
+  "slug": "training_runs",
+  "series": 4,
+  "app_key": "train_compare",
+  "host_app_key": "classify_merged",
+  "section": "Tools",
+  "title": "Training Runs: practise comparison controls with synthetic logs",
+  "description": "Open Training Runs within Classify and use explicitly synthetic progress logs to inspect recorded metrics, automatic settings differences and fold-display modes without training or evaluating a model.",
+  "objectives": [
+    "Discover existing log folders and distinguish usable curves from an incomplete fixture.",
+    "Compare recorded metrics while preserving each series' own epoch range.",
+    "Read automatic configuration differences separately from execution-related settings.",
+    "Distinguish best and last recorded epochs, fold sample standard deviation and scientific validation."
+  ],
+  "prerequisite": "Use the existing, explicitly disclosed synthetic/training_runs tutorial folder. Its baseline, tuned and cross_validated curves, fold values and settings were generated as interface examples; no classifier produced these values. Its incomplete .pth file contains only placeholder text and must not be loaded as a model. This lesson demonstrates the real CSV parser and comparison controls, not training, checkpoint evaluation or biological performance. For your own analysis, retain genuine train.csv and validation.csv logs with their settings and dataset provenance. Training Runs has no separate example-download control.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "Open Classify, then its nested Training Runs tool. This lesson uses explicitly synthetic progress logs: every curve, fold and configuration is an example, not a measured classifier result. We demonstrate the comparison interface without training or evaluating a model.",
+      "hold_after": 0.7,
+      "related_lessons": ["41_classify"]
+    },
+    {
+      "visual": "01_current_training_runs_fold",
+      "narration": "Training Runs has its own folder selector, run list, Metric and Folds controls, and Overlay selected button. It reads saved train.csv and validation.csv tables and recovers settings. The parent Classify training form is a separate workflow; do not press its Run button for this exercise.",
+      "hold_after": 0.7,
+      "focus": [465, 310, 3350, 1650]
+    },
+    {
+      "visual": "02_synthetic_source_folder_picker",
+      "narration": "Click Choose folder…, select the existing synthetic training_runs directory and confirm Choose. Select the folder above the example projects, not an individual CSV. Keep these original fixtures unchanged; there is no need to regenerate them, copy a run or create a new checkpoint.",
+      "hold_after": 0.7,
+      "focus": [1555, 790, 1410, 965]
+    },
+    {
+      "visual": "03_synthetic_runs_and_real_warnings",
+      "narration": "Scan discovers four fixture folders: a twenty-epoch baseline, a twenty-five-epoch tuned example, an eighteen-epoch example with three folds, and one incomplete entry. Baseline and tuned are demonstration labels. The model names in these paths do not mean those models were trained for this lesson.",
+      "hold_after": 0.7,
+      "focus": [465, 530, 940, 285]
+    },
+    {
+      "visual": "03_synthetic_runs_and_real_warnings",
+      "narration": "Read the incomplete entry's warnings. It has no settings, no train.csv and no validation.csv, so it contributes no curve or settings comparison. Its file ending in dot p t h is only text that exercises discovery; the application does not load or evaluate that placeholder.",
+      "hold_after": 0.7,
+      "focus": [465, 1845, 3350, 175]
+    },
+    {
+      "visual": "04b_actual_metric_choices",
+      "narration": "Tick the baseline and tuned examples, then choose accuracy under Metric. The menu contains numeric columns actually present in these logs, including loss and prauc. Their values are synthetic too; a familiar metric name does not turn a generated number into an experimental measurement.",
+      "hold_after": 0.7,
+      "focus": [465, 1680, 940, 300]
+    },
+    {
+      "visual": "05_actual_synthetic_accuracy_overlay",
+      "narration": "Click Overlay selected. Four series appear from the two selected examples: train is dashed and validation is solid. Each retains its own epoch range, twenty or twenty-five. The shorter curve is neither padded nor truncated to match its neighbour; read the run and split in the legend.",
+      "hold_after": 0.7,
+      "focus": [1390, 530, 2420, 960]
+    },
+    {
+      "visual": "06_actual_synthetic_settings_diff",
+      "narration": "The settings comparison is automatic. Here four of eleven shared settings differ: batch_size changes from sixty-four to thirty-two, epochs from twenty to twenty-five, learning_rate from zero point zero zero zero one to zero point zero zero zero three, and src names different synthetic projects.",
+      "hold_after": 0.7,
+      "focus": [1390, 1490, 2420, 360]
+    },
+    {
+      "visual": "06_actual_synthetic_settings_diff",
+      "narration": "The separate env row shows n_jobs changing from thirty to eight, an execution-related setting. This is one environment difference and zero schema differences. These are example settings, not evidence of hardware use or elapsed training time. The table does not establish that any setting caused a curve difference.",
+      "hold_after": 0.7,
+      "focus": [1390, 1490, 2420, 360]
+    },
+    {
+      "visual": "07_actual_series_pick_best_and_last_epochs",
+      "narration": "Click the baseline validation curve. Its detail line reports last accuracy zero point seven four nine six at epoch twenty and best accuracy zero point seven eight six zero at epoch fifteen. These are recorded CSV epochs, not separately evaluated checkpoints. Selecting the best point on the same curve explains the optimistic warning.",
+      "hold_after": 0.7,
+      "focus": [465, 2000, 3350, 105]
+    },
+    {
+      "visual": "08_actual_synthetic_loss_overlay",
+      "narration": "Choose loss under Metric. The same four series and settings remain, but the vertical axis now shows the logged loss values. The late validation upturns were deliberately generated in these fixtures. This demonstrates switching metrics, not observed deterioration of a trained model.",
+      "hold_after": 0.7,
+      "focus": [1390, 530, 2420, 960]
+    },
+    {
+      "visual": "08b_actual_fold_choices",
+      "narration": "Keep the tuned example selected and replace the baseline with the eighteen-epoch, three-fold example. Return Metric to accuracy, press Overlay selected, then open Folds. Its actual choices are per fold, mean ± sd, and both. These change the display; they do not create new folds.",
+      "hold_after": 0.7,
+      "focus": [465, 1730, 940, 175]
+    },
+    {
+      "visual": "09_actual_synthetic_fold_mean_sd",
+      "narration": "Choose mean ± sd. Four series are shown: the tuned example's two splits and the three-fold example's train and validation means. Each band is plus or minus one sample standard deviation across three synthetic folds at that epoch, not a confidence interval or biological uncertainty estimate.",
+      "hold_after": 0.7,
+      "focus": [1390, 530, 2420, 960]
+    },
+    {
+      "visual": "10_actual_synthetic_folds_and_mean",
+      "narration": "Choose both to display ten series: two from the tuned example, six individual fold series and two fold means. The mean curves are summaries of those same fold values, not additional independent runs. All three synthetic folds contribute throughout their eighteen recorded epochs.",
+      "hold_after": 0.7,
+      "focus": [1390, 530, 2420, 960]
+    },
+    {
+      "visual": "11_actual_synthetic_per_fold_curves",
+      "narration": "Choose per fold to remove the two means, leaving eight series. The fold curves stop at epoch eighteen while the tuned example continues to twenty-five. The updated table reports five configuration differences and one environment difference; changing the selected examples changes the settings comparison too.",
+      "hold_after": 0.7,
+      "focus": [1390, 530, 2420, 1315]
+    },
+    {
+      "visual": "11_actual_synthetic_per_fold_curves",
+      "narration": "For this recording, we check the returned numeric rows, plotted curves, settings differences and sample-standard-deviation bands against the existing CSVs. The original files remain unchanged. That verifies this software demonstration only; these synthetic examples cannot establish predictive performance, generalization or a scientifically reproducible winner.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_actual_synthetic_per_fold_curves",
+      "narration": "In Python, spacr.train_compare.find_runs discovers folders and load_run reads one run. compare_runs builds the comparison and settings differences; plot_curves draws a chosen metric. The compare_runs folds argument accepts per_fold, mean or both. Keep genuine logs and dataset provenance together when applying these read-only tools to your own results.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api", "41_classify"]
+    }
+  ]
+}

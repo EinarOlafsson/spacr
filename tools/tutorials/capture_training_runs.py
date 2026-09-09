@@ -96,6 +96,20 @@ def _same_rows(actual, expected, label):
                 raise RuntimeError(f'Returned data differs from the source CSV: {label}/{key}')
 
 
+def _require_visible_identifier(run_id, displayed_text, identifier_rect, viewport_rect):
+    """Reject elided identifiers or glyph bounds clipped by the list viewport."""
+    if not displayed_text.startswith(run_id + ' ·'):
+        raise RuntimeError(f'The displayed run identifier is elided: {run_id}')
+    x, y, width, height = identifier_rect
+    left, top, available_width, available_height = viewport_rect
+    values = (*identifier_rect, *viewport_rect)
+    if (not all(math.isfinite(float(value)) for value in values)
+            or width <= 0 or height <= 0 or available_width <= 0 or available_height <= 0
+            or x < left or y < top or x + width > left + available_width
+            or y + height > top + available_height):
+        raise RuntimeError(f'The full run identifier is not visibly inside its row: {run_id}')
+
+
 def record_training_runs(app, window, screen, stage, captures, capture, settle,
                          write_json, timeout):
     """Use actual visible controls and validate their results against the CSVs."""
@@ -143,9 +157,11 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
             raise RuntimeError('The original synthetic fixture tree changed')
 
     try:
-        from PySide6.QtCore import QPoint, Qt, QTimer
+        from PySide6.QtCore import QPoint, QRect, Qt, QTimer
+        from PySide6.QtGui import QFontMetrics
         from PySide6.QtTest import QTest
-        from PySide6.QtWidgets import QFileDialog, QDialogButtonBox, QLineEdit, QScrollArea
+        from PySide6.QtWidgets import (QFileDialog, QDialogButtonBox, QLineEdit, QScrollArea,
+                                       QSplitter, QStyle, QStyleOptionViewItem)
         from spacr.qt.screens.train_compare import TrainCompareScreen
         from spacr.qt.widgets.fold_strip import FoldButton
         from spacr.train_compare import render_setting_value
@@ -176,6 +192,78 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
             tick()
             if panel.last_error:
                 raise RuntimeError(panel.last_error)
+
+        def widen_existing_splitter():
+            candidates = [widget for widget in panel.findChildren(QSplitter)
+                          if widget.orientation() == Qt.Horizontal and widget.count() == 2
+                          and widget.widget(0).isAncestorOf(panel._runs_list)
+                          and widget.widget(1).isAncestorOf(panel._canvas)]
+            if len(candidates) != 1:
+                raise RuntimeError('Cannot identify the existing native run-list/plot splitter')
+            splitter = candidates[0]
+            expose(splitter)
+            before = splitter.sizes()
+            total = sum(before)
+            if total < 2920:
+                raise RuntimeError('The native window is too narrow for readable list and plot panes')
+            # Resize only the existing user-adjustable divider; no widget,
+            # font, layout minimum or size-policy changes are introduced.
+            splitter.setSizes([920, total - 920])
+            settle(.35)
+            after = splitter.sizes()
+            if not 850 <= after[0] <= 950 or panel._canvas.width() < 2000:
+                raise RuntimeError('The native splitter did not leave readable list and plot widths')
+            evidence['native_layout'] = {
+                'splitter_sizes_before': before, 'splitter_sizes_after': after,
+                'run_list_viewport_width': panel._runs_list.viewport().width(),
+                'plot_width': panel._canvas.width(), 'minima_or_policies_changed': False,
+            }
+
+        def verify_visible_identifiers(names, phase):
+            view = panel._runs_list
+            wanted = {identities[name] for name in names}
+            rows = []
+            for index in range(view.count()):
+                item = view.item(index)
+                run_id = item.data(Qt.UserRole)
+                if run_id not in wanted:
+                    continue
+                row_rect = view.visualItemRect(item)
+                option = QStyleOptionViewItem()
+                option.initFrom(view)
+                option.rect = row_rect
+                option.text = item.text()
+                option.font = item.data(Qt.FontRole) or view.font()
+                option.fontMetrics = QFontMetrics(option.font)
+                option.displayAlignment = Qt.AlignLeft | Qt.AlignVCenter
+                option.textElideMode = view.textElideMode()
+                option.checkState = item.checkState()
+                option.features = (QStyleOptionViewItem.ViewItemFeature.HasDisplay
+                                   | QStyleOptionViewItem.ViewItemFeature.HasCheckIndicator)
+                text_rect = view.style().subElementRect(
+                    QStyle.SubElement.SE_ItemViewItemText, option, view)
+                metrics = option.fontMetrics
+                glyphs = metrics.boundingRect(run_id)
+                left_bearing = min(0, glyphs.left())
+                identifier_rect = QRect(
+                    text_rect.left() + left_bearing, text_rect.top(),
+                    max(metrics.horizontalAdvance(run_id), glyphs.right() + 1) - left_bearing,
+                    metrics.height())
+                available = max(0, min(text_rect.width(), view.viewport().width() - text_rect.left()))
+                displayed = metrics.elidedText(item.text(), view.textElideMode(), available)
+                _require_visible_identifier(run_id, displayed, identifier_rect.getRect(),
+                                            view.viewport().rect().getRect())
+                if (not row_rect.contains(identifier_rect)
+                        or not view.viewport().visibleRegion().contains(identifier_rect)):
+                    raise RuntimeError(f'The run identifier is clipped by its visible item row: {run_id}')
+                origin = view.viewport().mapToGlobal(identifier_rect.topLeft()) - window.mapToGlobal(QPoint(0, 0))
+                rows.append({'run_id': run_id, 'displayed_text': displayed,
+                             'identifier_rect_in_window': [origin.x(), origin.y(),
+                                                           identifier_rect.width(), identifier_rect.height()],
+                             'row_rect_in_viewport': list(row_rect.getRect())})
+            if len(rows) != len(wanted):
+                raise RuntimeError('Not every selected run has a visible identifier')
+            evidence.setdefault('identifier_visibility_checks', []).append({'phase': phase, 'rows': rows})
 
         def choose_source():
             accepted, errors, timers = [], [], []
@@ -288,6 +376,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                     raise RuntimeError('The actual run checkbox did not change')
             if set(panel.selected_run_ids()) != wanted:
                 raise RuntimeError('The selected run identities are wrong')
+            verify_visible_identifiers(names, 'selected: ' + ', '.join(names))
 
         def expected_series(names, mode):
             result = {}
@@ -403,6 +492,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                     raise RuntimeError('The visible fold-SD band differs from the independent CSV calculation')
             verify_diff(comparison, names)
             expose(panel._canvas)
+            verify_visible_identifiers(names, frame)
             capture(frame)
             snapshots.append({'frame': frame, 'synthetic': True, 'fold_mode': mode,
                               'metric': metric, 'series_count': len(summary), 'series': summary,
@@ -460,6 +550,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
         panel = visible[0]
         if panel.runs() or panel.comparison() is not None:
             raise RuntimeError('A fresh current Training Runs panel is required')
+        widen_existing_splitter()
         panel.job_finished.connect(job_finished)
         panel.series_clicked.connect(series_clicked)
         capture('01_current_training_runs_fold')
@@ -500,6 +591,7 @@ def record_training_runs(app, window, screen, stage, captures, capture, settle,
                                       for name in RUNS]
         evidence['run_rows'] = panel.run_rows()
         evidence['problem_text'] = panel.problem_text()
+        verify_visible_identifiers(list(RUNS), 'discovery')
         capture('03_synthetic_runs_and_real_warnings')
 
         select_runs(['baseline', 'tuned'])
