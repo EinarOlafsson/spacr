@@ -347,6 +347,30 @@ class SettingsSearchBar(QWidget):
         total = len(self._index)
         wanted = set(self._index)
 
+        # THE OBJECT RULE OUTRANKS THE INDEX, and is subtracted BEFORE the
+        # level and the query rather than undone afterwards. This strip
+        # indexed every row on the panel, including rows belonging to
+        # objects the run does not have, so "All settings" filled Mask with
+        # nucleus and pathogen settings while every channel was None -- the
+        # maintainer's report, and what
+        # `test_the_object_rows_stay_off_the_form` guards.
+        #
+        # SUBTRACTED, NOT RE-HIDDEN. Showing them and hiding them again in
+        # the same pass leaves `visible_keys()` disagreeing with the form
+        # for as long as it takes the second write to land, and it is the
+        # strip's own index that answers that question. Removing them from
+        # `wanted` means the row is never shown, so there is one answer
+        # throughout.
+        #
+        # Asked of the model, because the strip has no idea which objects a
+        # run has and teaching it would put the same rule in two places.
+        hidden_by_run = getattr(model, "keys_hidden_by_the_run", None)
+        if callable(hidden_by_run):
+            try:
+                wanted -= set(hidden_by_run())
+            except Exception:                                # noqa: BLE001
+                pass
+
         query = self._input.text().strip()
         if query:
             try:

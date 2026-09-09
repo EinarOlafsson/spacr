@@ -167,6 +167,14 @@ def _applicable(bar):
     :func:`spacr.qt.screens.app_screen.dimension_settings`, rather than
     listed here, so a key added to a 3-D or timelapse category is covered
     without this helper being touched.
+
+    THE OBJECT RULE IS A THIRD REASON, added 2026-09-08 and read from the
+    model for the same reason as the second: a run whose nucleus channel
+    names no plane has no use for the nucleus settings, and that is not the
+    level filter either. It became visible here when the rows started being
+    BUILT and hidden instead of being left out of the build -- see 382. A
+    row that never existed was never indexed, so this helper never had to
+    know about it.
     """
     from spacr.qt.screens.app_screen import dimension_settings
 
@@ -178,6 +186,10 @@ def _applicable(bar):
         for dimension, keys in dimension_settings().items():
             if not screen.dimension_is_on(dimension):
                 ruled_out |= set(keys)
+        model = getattr(screen, "_settings_model", None)
+        hidden = getattr(model, "keys_hidden_by_the_run", None)
+        if callable(hidden):
+            ruled_out |= set(hidden())
     return set(bar.indexed_keys()) - ruled_out
 
 

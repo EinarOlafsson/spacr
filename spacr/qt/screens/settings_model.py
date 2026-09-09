@@ -8454,8 +8454,7 @@ class SettingsWidgets:
         self._skip_keys = frozenset(self._skip_keys) | frozenset(
             self._organelle_keys_beyond(self._slots_built_for,
                                         self._defaults)
-        ) | frozenset(self._keys_of_objects_the_run_has_no_channel_for(
-            self._defaults, deciding))
+        )
         # WHICH KEYS THE PANEL INVENTED, and what it gave them. A settings
         # file is not a panel: writing every slot that can be named into
         # every CSV would bury the four a run uses. `collect` leaves these

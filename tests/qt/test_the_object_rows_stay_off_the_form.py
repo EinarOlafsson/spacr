@@ -167,4 +167,13 @@ def test_the_panel_says_which_rows_the_run_has_no_object_for(qtbot):
     assert "cell_channel" not in hidden, "the switch is never one of them"
     assert {"remove_background_nucleus",
             "remove_background_pathogen"} <= hidden
-    assert "nucleus_diameter" not in model._widgets
+    # BUILT AND HIDDEN, NOT ABSENT. This asserted `not in model._widgets`,
+    # which was true while an unset object's keys were dropped from the
+    # build entirely. That is what made 356's reveal impossible -- a row
+    # that does not exist cannot be toggled -- so the rows are built now and
+    # the rule hides them. `keys_hidden_by_the_run` is the seam a filter
+    # subtracts, and it is the same answer either way; what changed is that
+    # there is now a row for it to name.
+    assert "nucleus_diameter" in model._widgets
+    assert "nucleus_diameter" in hidden
+    assert not screen.setting_row_is_visible("nucleus_diameter")

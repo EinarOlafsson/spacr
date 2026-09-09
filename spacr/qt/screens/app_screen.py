@@ -2435,6 +2435,34 @@ class AppScreen(QWidget):
         self._settings_layout = layout
         self._mount_the_object_grid(layout)
         self.refresh_maturity_visibility()
+
+        # THE OBJECT RULE, NOW THAT THE ROWS EXIST. `SettingsWidgets` cannot
+        # apply it while it is handing the rows back -- there is no ROW to
+        # hide yet, only a field, and hiding the field alone leaves its name
+        # behind on an empty row -- so it schedules the pass on a zero-delay
+        # timer instead. That timer lands on the next turn of the event loop.
+        #
+        # WHICH IS TOO LATE FOR ANYONE WHO LOOKS FIRST. A caller that builds
+        # a panel and reads it without spinning the loop sees every gated row
+        # VISIBLE, because the only pass that would have hidden them has not
+        # run. That did not show while an unset object's keys were also being
+        # dropped from the build: rows that do not exist cannot be visible,
+        # so the deferral was invisible behind the skip. Take the skip away
+        # -- which is what 356 needs, see 382 -- and the deferral is the
+        # defect on its own.
+        #
+        # Run here, synchronously, at the point the rows are on the form and
+        # the panel is about to be returned. The timer stays: it is what
+        # re-asserts the rule after a later route puts a row back, and it is
+        # cheap when there is nothing to do.
+        model = getattr(self, "_settings_model", None)
+        if model is not None:
+            try:
+                model.refresh_object_visibility()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not decide the object rows at build",
+                          exc_info=True)
+
         layout.addStretch(1)
         scroll.setWidget(content)
         return scroll
