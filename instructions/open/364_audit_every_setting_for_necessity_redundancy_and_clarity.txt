@@ -1202,3 +1202,55 @@ control that is gone.
 Nothing is applied yet as this note is written. Each group will be committed
 separately so the tutorial impact can be read off one commit rather than
 reconstructed from a range.
+
+
+--------------------------------------------------------------------------------
+THE REGRESSION READERS ARE TAKEN, AND THE ORDER MATTERS. 2026-09-09.
+--------------------------------------------------------------------------------
+
+RECORDED IN THE FILE BECAUSE THE CHANNEL CLOSED. The work session and I
+agreed this split over the session bridge and both of its sessions have since
+ended; a decision that lives only in a chat neither party can re-read is not
+a decision. So it is here, in the file whoever picks this up will open.
+
+THE SPLIT. The declaration side -- `spacr/settings.py`'s tables and the Qt
+labels -- was the work session's. THE READER SIDE IS TAKEN BY THE SESSION
+THAT OWNS `spacr/ml.py` AND FRIENDS: ml.py, hyperparam.py, sequencing.py,
+batch_correction.py and classify_classes.py, for all seven renames
+
+    positive_control  -> positive_control_id
+    negative_control  -> negative_control_id
+    controls          -> nontargeting_control_grnas
+    control_wells     -> stain_baseline_wells
+    min_n             -> min_observations_per_hit
+    min_cell_count    -> min_cells_per_well
+    expected_end      -> window_length
+
+and for the retirements that read into those files: `grna`, `Toxoplasma`,
+the three `*_mask_dim` keys and `img_size`.
+
+THE ORDER, AND IT IS NOT INTERCHANGEABLE:
+
+  1. READERS FIRST, accepting BOTH spellings.
+  2. Then the old declaration is retired.
+  3. Then the readers drop the old spelling.
+
+At no point does a settings file that worked yesterday stop working. THE
+OTHER ORDER IS THE BUG THIS INSTRUCTION EXISTS TO REMOVE: land the
+declaration first and every settings file in the wild names a key nothing
+reads -- silently, because a missing key is a default and a default is not
+an error.
+
+AND CODEX IS TOLD BEFORE, NOT AFTER. The maintainer's words on 2026-09-09
+were "any changes you make that impact the tutorials please tell codex via
+the instructions list or in any other way you can. so codex knows to redo
+those later". Every one of these seven changes a VISIBLE LABEL, so the
+rename table goes into 358 in the same commit that lands the readers.
+
+ONE CONTRACT WORTH HAVING HERE, from the API catalog work: THE PRODUCT-NAME
+RULE IS CASE SENSITIVE. `NONE` shouted in prose is not the literal `None`,
+and a translated label that writes the literal ADDS a protected token the
+source never had. That is the same shape as this instruction's
+silent-divergence bugs -- two spellings, one meaning, and only one of them is
+the contract -- and it will reach `stain_baseline_wells` and
+`nontargeting_control_grnas` the moment they gain translated labels.
