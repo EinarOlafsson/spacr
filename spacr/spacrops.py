@@ -1329,6 +1329,173 @@ class spacrStitcher:
             lst.sort(key=lambda x: (self._parse_meta(x).get("site") or 10**9, x))
         return buckets
 
+    # ---------------------- the well's own geometry -----------------------
+    # A ROUND WELL VISITED BY A SNAKE, which is what instruction 372 PART 11-A
+    # measured and PART 11-B confirmed on sites the fit never saw: 24 predicted
+    # neighbours, 24 registered, against three non-neighbour controls that came
+    # back at the no-overlap signature. The acquisition walks DOWN one column of
+    # fields, moves across, and comes back UP the next; the well is a circle, so
+    # each column holds only the rows that fall inside it and the columns have
+    # different heights. On well A1 of 20200202_6W-LaC024A that is 21 columns of
+    # 5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21, 19, 19, 17, 17, 15, 13,
+    # 9, 5 -- which sums to exactly the 333 sites the well has.
+    #
+    # WHY THIS REPLACES THE SITE WINDOW. `_pairs_by_site_window` proposes
+    # neighbours by index distance, so it needs a window wide enough for the
+    # jump between columns and then offers every index in between: at the
+    # current default of 64 that is 128 candidates per tile to find 4, and the
+    # real horizontal neighbour is at a different offset in every column
+    # because the heights differ. The layout gives all four in closed form.
+    #
+    # NOT ASSUMED, CHOSEN BY REGISTRATION. Several circles can hold the same
+    # number of sites, so `_layout_for_sites` enumerates the candidates and
+    # asks the images which one is right -- a handful of pairs per candidate,
+    # kept only when they register far above the background.
+
+    @staticmethod
+    def _circular_snake_layout(columns: int, radius: float,
+                               centre_x: float, centre_y: float,
+                               parity: int = 0
+                               ) -> Optional[Dict[int, Tuple[int, int]]]:
+        """Site index -> (column, ABSOLUTE grid row) for one candidate circle.
+
+        THE ROW IS ABSOLUTE, and that is the whole of what a first attempt at
+        this got wrong: in a round well every column starts at a different
+        row, so "row 3 of column c" and "row 3 of column c+1" are not side by
+        side. Indexing each column from its own top matched 3 of 7 measured
+        offsets; the same model with absolute rows matched 7 of 7.
+
+        :param columns: how many columns the raster has.
+        :param radius: the well's radius, in whole fields.
+        :param centre_x: the circle's centre, in column units.
+        :param centre_y: the circle's centre, in row units.
+        :param parity: which columns run downwards; 0 means the even ones.
+        :returns: the map, or None when the circle holds no field at all.
+        """
+        spans: List[Optional[Tuple[int, int]]] = []
+        for column in range(columns):
+            dx = column - centre_x
+            if abs(dx) > radius:
+                spans.append(None)
+                continue
+            dy = math.sqrt(max(radius * radius - dx * dx, 0.0))
+            low, high = math.ceil(centre_y - dy), math.floor(centre_y + dy)
+            spans.append((low, high) if high >= low else None)
+        heights = [0 if span is None else span[1] - span[0] + 1
+                   for span in spans]
+        if not any(heights):
+            return None
+        starts = [0] * columns
+        for column in range(1, columns):
+            starts[column] = starts[column - 1] + heights[column - 1]
+        layout: Dict[int, Tuple[int, int]] = {}
+        for column, span in enumerate(spans):
+            if span is None:
+                continue
+            low, high = span
+            downwards = (column % 2 == parity)
+            for offset, row in enumerate(range(low, high + 1)):
+                index = (starts[column] + offset if downwards
+                         else starts[column] + heights[column] - 1 - offset)
+                layout[index] = (column, row)
+        return layout
+
+    @classmethod
+    def _candidate_layouts(cls, n_sites: int
+                           ) -> List[Dict[int, Tuple[int, int]]]:
+        """Every circular snake whose fields number exactly ``n_sites``.
+
+        FOUR PARAMETERS, NOT FIVE, and that is what makes this a sweep rather
+        than a search. Moving the centre by a whole column or a whole row
+        only renames the columns and translates the rows, so the integer part
+        of both carries no information: the centre is pinned to the left edge
+        and to row zero, and only the HALF-STEP matters -- whether the circle
+        is centred on a field or between two. What is left is the radius, two
+        half-steps and which columns run downwards.
+
+        Ordered by how square the raster is, because a real well is wider
+        than one column and narrower than its site count.
+
+        :param n_sites: how many fields the well holds.
+        :returns: the candidate layouts, best-shaped first.
+        """
+        found: List[Tuple[float, Dict[int, Tuple[int, int]]]] = []
+        seen = set()
+        for parity in (0, 1):
+            for half_x in (0.0, 0.5):
+                for half_y in (0.0, 0.5):
+                    for step in range(2, 20 * 40):
+                        radius = step / 20.0
+                        # THE LEFTMOST FIELD IS COLUMN ZERO. Only the centre's
+                        # half-step carries information, so it is slid to the
+                        # largest value with that half-step for which column 0
+                        # is still inside the circle.
+                        centre_x = math.floor(radius - half_x) + half_x
+                        if centre_x <= radius - 1:
+                            centre_x += 1
+                        if centre_x > radius:
+                            continue
+                        columns = int(math.floor(centre_x + radius)
+                                      - math.ceil(centre_x - radius) + 1)
+                        if columns < 2:
+                            continue
+                        layout = cls._circular_snake_layout(
+                            columns, radius, centre_x, half_y, parity)
+                        if layout is None or len(layout) != n_sites:
+                            continue
+                        key = tuple(sorted(layout.items()))
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        rows = {row for _column, row in layout.values()}
+                        found.append((abs(columns - len(rows)), layout))
+        found.sort(key=lambda pair: pair[0])
+        return [layout for _score, layout in found]
+
+    @staticmethod
+    def _layout_neighbours(layout: Dict[int, Tuple[int, int]], site: int
+                           ) -> Dict[str, int]:
+        """The four fields touching ``site``, by name, where they exist.
+
+        :param layout: a map from :meth:`_circular_snake_layout`.
+        :param site: the field to look around.
+        :returns: ``{"up"|"down"|"left"|"right": site}``, missing where the
+            well has no field on that side.
+        """
+        where = layout.get(site)
+        if where is None:
+            return {}
+        column, row = where
+        by_place = {place: index for index, place in layout.items()}
+        out: Dict[str, int] = {}
+        for name, place in (("up", (column, row - 1)),
+                            ("down", (column, row + 1)),
+                            ("left", (column - 1, row)),
+                            ("right", (column + 1, row))):
+            index = by_place.get(place)
+            if index is not None:
+                out[name] = index
+        return out
+
+    @staticmethod
+    def _layout_pairs(layout: Dict[int, Tuple[int, int]]
+                      ) -> List[Tuple[int, int]]:
+        """Every adjacency in the well, once each.
+
+        :param layout: a map from :meth:`_circular_snake_layout`.
+        :returns: ``(low, high)`` site pairs, sorted, with no duplicates --
+            four per interior field rather than the ``2 * max_site_gap`` the
+            index window proposes.
+        """
+        by_place = {place: index for index, place in layout.items()}
+        pairs = set()
+        for index, (column, row) in layout.items():
+            for place in ((column, row + 1), (column + 1, row)):
+                other = by_place.get(place)
+                if other is not None:
+                    pairs.add((min(index, other), max(index, other)))
+        return sorted(pairs)
+
     def _pairs_by_site_window(self, files: List[str], max_site_gap: int) -> List[Tuple[str,str]]:
         """Candidate neighbour pairs, by site number within ``max_site_gap``.
 
