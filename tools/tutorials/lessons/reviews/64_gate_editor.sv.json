@@ -1,0 +1,39 @@
+{
+  "lesson": "64_gate_editor",
+  "language": "sv",
+  "english_sha256": "83fdeb4bcb4990344599ab38d5a7ef5fa94a8a8a3b1af663be53d09bdbe66bb7",
+  "review": {"kind": "Editorial caption translation checked against English and the actual captured workflow", "native_speaker_signoff": false},
+  "title": "Gate Editor: verkliga populationer, vyer som kan återställas och exakta exporter",
+  "description": "Rita gates i nedladdade cellmätningar, kontrollera sparad tillhörighet, jämför vyer av tre faktiska mätvariabler med projektioner och undersök en avgränsad klustersökning utan att hitta på biologiska kategorier.",
+  "objectives": [
+    "Läs in verkliga mätningar och skilj mellan gates, vyfilter och synlighet.",
+    "Spara och återställ gränser för mätvariabler och exportera sedan tillhörighet med exakta objektidentiteter.",
+    "Utforska tredimensionella gränser och huvudkomponenter utan att förväxla en projektion med en anpassad transformation som kan återanvändas.",
+    "Jämför faktiska resultat från klustersökningar och använd den lokala mätkonsolen."
+  ],
+  "prerequisite": "Ladda först ned Annotate-exemplet och gör sedan en privat kopia av dess mätdatabas. Gate Editor har ingen separat knapp för att ladda ned ett exempel. Den här inspelningen använder alla 2 341 verkliga cellrader och ändrar bara den privata kopian vid export; gatenamnen i handledningen är beteckningar för granskning, inte biologiskt fastställda facit.",
+  "scenes": [
+    "Öppna Gate Editor i kategorin Tools på Home. Dra i avdelarna så att diagrammet, gatetabellen och sidopanelens reglage får tillräckligt med plats. Den här lektionen använder de nedladdade Annotate-mätningarna; Gate Editor har ingen egen knapp för att ladda ned ett exempel.",
+    "Använd Load table för att öppna en privat kopia av measurements.db. Välj tabellen cell: Det här exemplet innehåller 2 341 verkliga objekt. Export gates skriver till en databas, så behåll originalexemplet oförändrat och arbeta med kopian.",
+    "Välj cell_area för X och cell_channel_1_mean_intensity för Y samt verktyget Rectangle. Varje punkt representerar ett uppmätt objekt. Granska mätvariablernas namn och enheter innan du ritar; ett område avgränsat av area och intensitet påvisar inte i sig en infekterad cell eller någon annan biologisk klass.",
+    "Dra över spridningsdiagrammet, släpp och ange ett beskrivande gatenamn. Populationen i handledningen är avsiktligt ett granskningsexempel. Formen lagrar numeriska gränser i de här två mätvariablerna; den är ingen modell som tränats att känna igen celler utifrån deras bilder.",
+    "Det här ritade området innehåller 655 objekt, ungefär 28 procent av tabellen. Läs av antal och procentandelar bredvid gatenamnet. Olika muspositioner ger olika gränser och antal, så använd den sparade strategin när du behöver upprepa resultatet exakt.",
+    "Om du avmarkerar gaten döljs dess överlägg utan att definitionen raderas eller tillhörigheten ändras. Markera den igen för att återställa vyn. Detta skiljer sig från Delete gate och från fliken Filter, som ändrar vilka objekt som visas under dessa gates.",
+    "Använd Save gates för att spara de namngivna gränserna för mätvariabler i en JSON-strategi. Här sparar vi, raderar faktiskt gaten och läser sedan in den sparade filen. För att återanvända en strategi måste mätnamn, enheter och förbehandling stämma överens; det räcker inte med en tabell som har samma antal kolumner.",
+    "Load gates återställer samma gränser och alla 655 tillhörande objekt. Vi kontrollerade tillhörigheten efter att faktiskt ha raderat och läst in gaten igen, inte bara genom att spara en fil. För en annan datamängd ska du kontrollera de återställda gränserna och objektidentiteterna innan du förlitar dig på antalen.",
+    "Save graph sparar den faktiska figuren; inställningarna i den här inspelningen ger en PNG- och en PDF-fil. En figur skiljer sig från en gatestrategi eller exporterad tillhörighet. Behåll tillhörande data och strategi när du behöver återskapa hur en visad population definierades.",
+    "Export gates skriver tillhörighetsmarkeringar till tabellen filters i den privata databasen. Vår första gate markerar exakt 655 cellidentiteter, matchade efter platta, rad, kolumn, bildfält, objektetikett och objekttyp. Den ursprungliga nedladdningen och de underliggande cellmätningarna förblir oförändrade.",
+    "Rita en andra form medan den första är vald. Bland dess 259 objekt finns några utanför den första gaten: Nya gates nästlas inte automatiskt, trots vad äldre statustext kan antyda. Spara den här strategin med två gates separat och kontrollera uttryckligen eventuella relationer till överordnade gates när du läser in en befintlig hierarki.",
+    "Välj 3D och cell_perimeter för Z för att undersöka tre faktiska mätvariabler. Knapparna för rotationsaxlar styr rotationen. Rotation ändrar vyn, inte de sparade gränserna för de två befintliga områdena i area och intensitet; återgå till 2D för att granska dessa former igen.",
+    "From view skapar en namngiven låda med gränser i alla tre visade mätvariabler. Vårt exempel som omfattar hela volymen innehåller varje inläst objekt: Det visar hur reglaget fungerar, inte en anrikad biologisk population. Spara strategin med tre gates separat så att den tidigare filen med två gates finns kvar.",
+    "Reglaget xD beräknar huvudkomponenter från lämpliga mätvariabler. Det är oberoende av valet mellan vyerna 2D och 3D. Här anger källetiketten 17, 13 och 6 procent förklarad varians för de tre första komponenterna; detta är variansandelar, inte klassificeringsnoggrannhet.",
+    "När xD stängs av finns komponentkolumnerna kvar; välj de råa mätvariablerna som axlar igen när du återgår till gates på dessa variabler. En sparad gatestrategi sparar inte den anpassade projektionen. Komponentnamn räcker inte för att göra oberoende anpassade projektioner kompatibla, så återanvänd inte deras gategränser utan kontroll.",
+    "Bredda sidopanelen för Search och ta bort tillfälliga gates efter att du har sparat dem. Använd samma två råa mätvariabler, aktivera skalning och ställ in minsta antal grannar på 20 samt antalet Walk-steg på fem. Run walk öppnar en bekräftelse i den här versionen; kontrollera att dess värden stämmer med de synliga inställningarna.",
+    "Den faktiska Walk-körningen väljer en radie på cirka 0,167 och rapporterar två populationer, med 33 procent av objekten utanför dem. Granska konturerna som skapas. Täthetsbaserad klustring och dess sparade polygongates är utforskande beskrivningar, inte validerade celltyper eller bevis för att uteslutna objekt är ogiltiga.",
+    "Spara Walk-strategin, ta bort dess tillfälliga gates, stäng av Walk och kör med radien 0,5. Detta separata val skapar en större polygongate som innehåller 2 239 objekt. Resultatet är inte bättre enbart för att det omfattar fler celler.",
+    "Läs in den sparade strategin med två gates på råa mätvariabler igen och lägg sedan till cell_area i Filter. Om den nedre gränsen sätts till 21 925 återstår 1 171 visade objekt. Den här förhandsvisningen i realtid begränsar vyn utan att skriva om de sparade gategränserna.",
+    "Rensa filtret så visas alla 2 341 objekt igen. Kontrollera både det aktiva vyfiltret och gatedefinitionen innan du tolkar antal eller exporterar. Att dölja ett överlägg, filtrera en vy och radera en gate är tre olika åtgärder.",
+    "Dra avdelaren längst till höger åt vänster för att visa konsolen. Ange len(df): Den verkliga tabellen returnerar 2 341. Uttryckskonsolen körs lokalt; resultatet är inte ett svar genererat av en AI-modell.",
+    "Chattrutan är skild från uttrycken. Vi lämnar ett utkast osänt utan att demonstrera en assistent eller en biologisk tolkning. I Python lagrar GateSet från spacr.qt.widgets.gate_spec definitioner; gate_mask_over_table och export_gate i spacr.filters beräknar och sparar objektmarkeringar för hela tabellen. Kontrollera identiteterna före efterföljande annotering."
+  ]
+}
