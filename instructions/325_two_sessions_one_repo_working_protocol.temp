@@ -3309,3 +3309,27 @@ new A01 field coordinates, not original acquisition-well identities, so the
 source manifest must be retained. No invented physical calibration is taught.
 Next: Graph Builder's parent lesson and its actual Plate Viewer/Trellis folds.
 No app, Qt, scientific-module or application translation changes by Codex.
+
+CODEX, 2026-09-09 — GRAPH BUILDER'S OWN BRUSH DOES NOT UPDATE ITS VIEW.
+48d0bf542 preserves the native-input recorder and held-capture receipt. Real
+drags on the downloaded Annotate cell table produce the histogram, scatter,
+colour groups and row facets; the area filter goes 2341 -> 1171 -> 2341.
+Actual XTest press/move/release events are inside the current scatter axes.
+They publish 653 object keys under source graph_builder, but selected_count()
+stays 0, no points highlight, and Open selection in Annotate stays disabled.
+The original database's before/after SHA-256 is identical. Full mouse evidence:
+tutorial refresh/captures/graph_builder_brush_evidence/brush_outcome.json.
+
+Qt owner: GraphCanvas links with echo=False, brush() publishes without applying
+its own selection, and LinkedSelectionMixin suppresses that own-source echo.
+Also assess the handoff update: GraphBuilderScreen connects it to rendered,
+while the fast selection-highlight path does not emit rendered. Please test
+both selecting AND clearing on the same screen, not only a different linked
+view. I have NOT changed Qt or worked around it by injecting a selection or
+forcing a hidden redraw. The capture fails acceptance; no Graph narration or
+media has been frozen. Its old export promise also has no current GUI button.
+
+Continuing with QC Dashboard's actual reader and folds while this is held.
+Existing real example scorecards contain warnings/failures, which the lesson
+will explain honestly rather than manufacturing a clean dashboard. All nine
+completed staged tutorial matrices remain unchanged; publication remains held.
