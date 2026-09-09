@@ -2431,3 +2431,132 @@ WHAT THE OWNER SHOULD CHECK BEFORE MOVING IT:
 NOT MINE. 372 belongs to the other session; this note exists because the
 instruction ledger is where a decision has to live, and because the message
 arrived in a session that does not own the item.
+
+
+--------------------------------------------------------------------------------
+PART 13 -- THE OLD OPS CODE, WEIGHED AGAINST THE NEW PLAN. 2026-09-09.
+--------------------------------------------------------------------------------
+
+The maintainer, on opening the button: "i did not see a GPU option for the
+ops screen. and it seems like you have implemented my origional ops logic,
+not necessarily what is outlined in the instructions list entry", then "is
+there any use to keeping my old ops logic? is our new plan not much better?
+if the new plan is much better then scrap the old ops code, if the old code
+has any advantages over the new code keep both."
+
+BOTH OBSERVATIONS WERE CORRECT. The button runs `ops_preprocess`, which is
+`spacrops.spacrStitcher` -- the original logic -- and OPS shipped with no GPU
+control of any kind. Its only GPU-capable step is the optional Cellpose
+outline, which takes whatever `accelerator.cellpose_kwargs()` resolves and
+then POPS THE RESOLVED DEVICE, against that helper's own contract that its
+three arguments have to agree. That pop is a defect and is recorded here
+rather than fixed in passing, because it belongs to the retirement below.
+
+THE COMPARISON IS MEASURED, NOT ARGUED. Both approaches have now been run on
+the same pixels -- well A1 cycle 1, 333 tiles of 10X SBS DAPI (PART 6,
+PART 11-C, PART 11-D):
+
+    ORB + RANSAC, index window          26 of 333 placed        409 s
+    phase correlation, index window    181 of 333               406 s
+    layout + phase correlation         333 of 333, 624/624      106 s
+                                       canvas 26,855 x 26,865
+                                       residual median 0.2 px
+
+Nuclei at 10X are round blobs with no corners. A corner detector finds
+essentially nothing on them -- median match score 0.0002 -- which is a
+mismatch between the detector and the specimen rather than a bug. And the old
+design's output is a CANVAS, which is the memory problem PART 5 measured.
+
+DECIDED: THE OLD STITCH ENGINE IS SUPERSEDED. THREE PIECES OF IT ARE NOT.
+
+  1. FEATURE MATCHING, FOR PHASE A4 ONLY. Phenotype at 2960 against SBS at
+     1480 has real scale and rotation between them, and PART 8 already says
+     "this is the one place feature matching earns its keep". The ORB +
+     RANSAC machinery in `spacrops` is the right tool for exactly that step
+     and the wrong one for the tile raster. Keep it; use it there.
+  2. THE MOSAIC WRITER, AS QC. The new output is coordinates, not pixels,
+     and somebody still has to LOOK at a well. A downsampled mosaic rendered
+     from the transform table is the cheapest way to see a bad stitch, and
+     the old code already writes one.
+  3. THE PLUMBING. 63 settings with types, categories and tooltips;
+     `spacr-run ops`; the `validate.APP_FUNCTIONS` pre-flight; the button and
+     its fold. None of that cares which engine runs underneath.
+
+  AND NOTHING IS DELETED YET, ON PURPOSE. Removing the only path the button
+  has before its replacement is finished leaves a dead button, which is worse
+  than a button running a superseded stitch. The retirement lands with
+  Phases A and B, and what goes is `spacrStitcher`'s PAIR SEARCH and its
+  canvas-first output -- `_pairs_by_site_window`, `max_site_gap`, and the
+  mosaic as the primary artefact -- not the file.
+
+--------------------------------------------------------------------------------
+PART 13-A -- A1 AND A2 ARE SHIPPED MODULES NOW, WITH PHASE E's BACKEND.
+--------------------------------------------------------------------------------
+
+Everything PARTS 11-A to 11-D measured was measured by a SCRIPT: the commits
+carry this file and no code. `spacr/ops_layout.py` and `spacr/ops_register.py`
+are that work as shipped modules, with 37 tests, and they carry the findings
+of those runs rather than re-deriving them.
+
+A1, THE LAYOUT. The circle fitted in PART 11-A and confirmed in PART 11-B is
+a frozen dataclass: `round_well_layout(333)` gives the 21 columns, the
+measured heights, and for any site its four neighbours in closed form. The
+tests pin BOTH halves of the evidence -- the seven offsets it was fitted to,
+one test each so a model that got six would say which, and the six held-out
+sites whose 24 neighbours registration confirmed. It proposes 624 pairs,
+which is the number PART 11-C ran.
+
+A2, THE REGISTRATION. Phase correlation with everything the real runs taught:
+
+  * THE DC BIN IS MASKED. PART 11-C left "27 of 624 real neighbours correlate
+    at (0,0)" as an open question and PART 11-D answered it. Two strips that
+    share no structure still share a BACKGROUND, and after phase
+    normalisation that constant is the only component they agree on -- so the
+    surface peaks at the origin and a true pair reads as no-overlap. Zeroed
+    in all three backends.
+  * ACCEPTANCE IS JUDGED AGAINST THE LAYOUT. `tolerance` asks "did this pair
+    land where the raster says it should" instead of "was that a confident
+    peak", and when it is given the peak ratio becomes a recorded number
+    rather than the gate. 624 of 624 against 595.
+  * THE UNWRAP TAKES AN EXPECTATION. PART 11-C's uniform one-period error
+    came from unwrapping around the wrong centre; this module takes the
+    expectation as an argument, and its own strip mode needs it -- a 222 px
+    strip carrying a true shift of 116 folds to -106 against the half-range,
+    a number both wrong and plausible.
+  * THE ORIGIN IS JUDGED ON THE RAW PEAK, found while writing the above: once
+    the unwrap resolves around an expectation, a raw (0,0) comes back as some
+    other number, so a test on the unwrapped shift would have silently
+    stopped firing.
+  * THE SHIFT IS NOT NEGATED. PART 11-C's first run negated it on the
+    assumption that the correlation reports b->a. It does not: the measured
+    `down` shift is already +1267. The convention is asserted in the tests
+    against a known `np.roll` rather than described in a comment.
+  * REGISTER THE BAND THAT CAN AGREE. At the raster's 14 % overlap, 86 % of a
+    whole-tile correlation cannot match and only raises the background the
+    peak is judged against. On the fixture: whole tile 15.2 and the shift
+    wrong, a 30 % strip 29.2 and the shift exact, a 40 % strip 15.4 and wrong
+    again.
+
+PHASE E, THE GPU, IS THE BACKEND INDIRECTION AND NOTHING MORE, because that
+is all this computation is: an FFT, a multiply and an argmax. CuPy -> torch
+-> NumPy, selected through `spacr.accelerator` so it agrees with the rest of
+spaCR about the machine, refused outright by `gpu=False`, and falling through
+to the next when one raises -- an out-of-memory on the card the AlphaFold
+screen is using must not fail a well.
+
+  BOTH PATHS RUN THE SAME FIXTURE AND MUST AGREE, which is what makes the
+  fallback a fallback rather than a second implementation nobody compares.
+  Torch is asked for BY NAME in that test so it runs where there is no card
+  at all: `torch.fft` on the CPU is the same code with a different device,
+  and CI is exactly where an unrun path would drift.
+
+WHAT IS STILL OWED. The `min_peak_ratio` default of 20 sits in the gap
+between the measured distributions, but this implementation recomputes the
+statistic and has only checked it against a synthetic fixture at the same
+overlap (true 33.4 and 34.5, control 11.9). Where `tolerance` is used it does
+not matter; where it is not, IT MUST BE RE-MEASURED on well A1. The
+acquisition is not reachable from the work machine.
+
+NEXT: A3 (PART 12 measured it on the SBS channels; it wants the same
+treatment -- a module and its tests), then the least-squares solve of the
+edge graph, then Phase B.
