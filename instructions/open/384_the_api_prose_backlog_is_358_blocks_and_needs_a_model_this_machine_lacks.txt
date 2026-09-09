@@ -96,10 +96,10 @@ EXIT=0. Today it is 1. Capture the exit code into a file rather than reading
 it off a pipe -- both sessions were bitten on 2026-09-08 by a wrapper
 reporting 0 while the process under it had failed.
 
-NOTE: the standalone `--audit` flag stalled at 0% CPU for ten minutes twice
-on this machine and produced nothing. The same audit runs fine at the end of
-`--repair-api-blocks`, and that is where these numbers came from. Worth
-diagnosing before trusting the flag.
+NOTE: the standalone `--audit` flag LOOKS hung -- see the diagnosis at the
+end of this file. It is slow, not blocked. The same audit runs at the end of
+`--repair-api-blocks` per locale, and that is where these numbers came from;
+prefer that cheaper route.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
@@ -136,3 +136,40 @@ caught TWO -- the two left as literal English. So 358 is a floor on what is
 wrong, not a measure of it. Whoever picks this up should read the number as
 "at least 358", and should not report a smaller one as progress without a
 fluent reader having looked.
+
+--------------------------------------------------------------------------------
+2026-09-08, LATER — `--audit` IS NOT HUNG. IT IS SLOW, AND HERE IS WHERE.
+--------------------------------------------------------------------------------
+
+The note above said the flag "stalled at 0% CPU and produced nothing" and
+was worth diagnosing. Diagnosed, with `faulthandler.dump_traceback_later`
+rather than by inference:
+
+    audit()                     build_documentation_i18n.py:6272
+      syntax_contract()                                    :6039
+        _syntax_preserved()     build_i18n_catalogs.py     :4509
+          matches()                                        :4496
+            Counter(<genexpr>)                             :4496
+
+It is computing, not blocked. `_syntax_preserved` builds a `Counter` per
+PROTECT pattern per block, and the audit runs it over every symbol in every
+locale -- roughly 10,243 x 9, each against ~20 patterns, on prose. There is
+no deadlock, no missing model, and no I/O wait to find.
+
+WHY IT LOOKED HUNG, and this is the transferable part: `ps -o pcpu=` reports
+the average over the process's LIFETIME, not what it is doing now. A process
+that spent its first minutes importing and reading before settling into a
+tight loop can read low, and I twice took "0.0" as evidence of a block when
+the process was busy. Two sessions spent 2026-09-08 finding instruments that
+hid the result they were built to show; this is another, and it is in a tool
+everyone reaches for.
+
+CONSEQUENCE FOR WHOEVER PICKS THIS UP: budget for it rather than killing it.
+The numbers in this file came from the per-locale logs of
+`--repair-api-blocks`, which prints the same audit per locale as it goes, so
+there is a cheaper route to the same figures. Prefer it.
+
+NOT OPTIMISED HERE. The obvious fix -- hoist the per-pattern Counter, or
+short-circuit once a contract is known broken -- touches the gate that every
+translation decision goes through, and it is not the sort of change to make
+in a release window on a tool whose only symptom is that it is slow.
