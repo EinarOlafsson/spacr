@@ -101,14 +101,14 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
     fill(screen._conf_box.lineEdit(), .30)
     fill(screen._radius_box.lineEdit(), 1)
     choose(screen._blend_combo, 'feather')
-    fill(screen._budget_box.lineEdit(), 64)
+    fill(screen._budget_box.lineEdit(), 8)
     fill(screen._dst_edit, destination)
     fill(screen._db_edit, database)
     if screen._overwrite_box.isChecked():
         QTest.mouseClick(screen._overwrite_box, Qt.LeftButton)
     settings = screen.settings()
     expected = {'grid': (3, 3), 'overlap': .25, 'reference_channel': 1,
-                'min_confidence': .30, 'neighbour_radius': 1, 'max_buffer_bytes': 64 << 20,
+                'min_confidence': .30, 'neighbour_radius': 1, 'max_buffer_bytes': 8 << 20,
                 'blend': 'feather', 'order': 'row-major', 'overwrite': False}
     if any(settings[key] != value for key, value in expected.items()):
         raise RuntimeError('The recorded controls did not reach the expected real settings')
@@ -163,7 +163,7 @@ def record_align(app, window, screen, stage, captures, capture, settle, write_js
     if maximum_error > 1:
         raise RuntimeError(f'The actual mosaic differs from the known source by {maximum_error} intensity units')
     coordinates = read_coordinates(database)
-    if len(coordinates) != 9 or result.peak_buffer_bytes > 64 << 20:
+    if len(coordinates) != 9 or result.peak_buffer_bytes > 8 << 20:
         raise RuntimeError('Coordinate count or measured band-buffer budget is wrong')
     from align_evidence import check_coordinate_rows
     check_coordinate_rows(records, coordinates.to_dict('records'), stack)
