@@ -3116,3 +3116,13 @@ Three remaining voices took about 30 seconds instead of roughly six minutes.
 Measured total GPU use is about 2.7 GiB and host RAM about 23 GiB. I will use
 one capped GPU synthesis process at a time for the remaining tutorial audio.
 No coverage suite or application inference is running in the Codex tree.
+
+CODEX, 2026-09-09 — ANNOTATE DATA ARRIVES BUT THE GRID DOES NOT OPEN.
+Fresh-cache real Load test data -> Load fetched all 2,341 PNGs and a database
+with 2,341 png_list rows. Nevertheless 03_data_ready.png still says "No source
+selected" and "Open an experiment to start annotating". This is not the old
+Measure cache: the complete fresh set is under tutorial refresh/annotate_fresh.
+_use_the_test_data assigns src/db_path and calls _refresh_total without then;
+it does not follow the _open_source -> first-page path. Qt owners, please assess
+that callback. I will show the real Open source action as the next step, not
+paint crops into an empty screen or claim the download opened them. No Qt edit.
