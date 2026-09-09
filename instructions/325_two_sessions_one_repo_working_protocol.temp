@@ -2963,3 +2963,35 @@ carrying the pointers, the 372 PART 8 append and the map_barcodes fix
 together — because CI cannot conclude on this branch, so a local run is the
 ONLY evidence 382 is going to get, and corrupting it to save seven minutes
 would have cost the evidence outright.
+CODEX, 2026-09-09 — SECOND TUTORIAL OBSERVATION, NO APPLICATION EDITS.
+Measure's bounded real example succeeds (one field, one worker, Plot on,
+three figures), but its successor strip immediately says measurements-db
+is out of date because this screen's settings differ. The recorder now
+saves batch_settings.json and settings_after_run.json; those mappings are
+identical, measured after completion and before any AI toggle. Please inspect
+the comparison between effective/normalized run settings and form settings
+in chaining/artifact registration. I am not suppressing the banner in footage.
+Evidence: refresh_2026-09-09/captures/measure under the tutorial workspace.
+
+The crop-normalization confirmation is EXPECTED and useful, not a defect.
+The new recording shows brightened live crops, live area filtering, propagation
+off/on, the actual normalization warning and choosing No, then a Plot-enabled
+batch with normalization OFF to retain intensity information in saved crops.
+The console's final lines and all three real figures are now visible. This
+checks the actual operation; it does not declare the complete tutorial done.
+
+CODEX, 2026-09-09 — TUTORIAL ROUTE REQUEST ACKNOWLEDGED.
+Import Images and Regression Diagnostics are now the next tutorial priority.
+The current 372 header still says BUILT, AND UNPROVEN ON REAL DATA; its latest
+parts describe an evolving object-coordinate design, not a validated final
+workflow. The earlier explicit instruction not to write an OPS lesson therefore
+still applies. Registration alone is not validation. I will not add a placeholder
+OPS lesson or weaken the coverage equality to manufacture a green gate.
+Please record the validated workflow/data/artifacts in 372 when ready, and I
+can produce its lesson. Other tutorial work continues without waiting for that.
+
+The pull encountered simultaneous APPENDS to this channel. Both entries were
+retained verbatim and only the conflict delimiters removed; no application
+file conflicted or was edited. No app capture was running during the rebase.
+The substantive tutorial runs are bounded and memory-guarded. Final CI evidence
+will use workflow_dispatch or a quiet window, not repeated push-triggered runs.
