@@ -233,7 +233,8 @@ def test_player_release_cache_key_and_voice_counts_are_current():
     assert "8 languages · 50 voices" in index
     assert 'voice_catalog.js?v=20260811-50-voices' in index
     assert 'lesson_catalog.js?v=20260827-conda-live' in index
-    assert 'app_v2.js?v=20260825-folded-routes' in index
+    assert 'module_navigation.js?v=20260909-main-submodules' in index
+    assert 'app_v2.js?v=20260909-main-submodules' in index
     assert "20260810-mobile-smooth" not in index
 
 
@@ -242,10 +243,33 @@ def test_folded_lesson_route_uses_the_current_host_module() -> None:
     index = INDEX.read_text(encoding="utf-8")
 
     assert 'id="lesson-route"' in index
-    assert "lesson?.host_app_key || lesson?.app_key" in source
-    assert "item.app_key === lesson.host_app_key && !item.host_app_key" in source
     assert "elements.content.dataset.appKey = route.appKey" in source
     assert "localizedLesson(route.host.id)" in source
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node.js is required for the browser-player contract test")
+    route = extract_simple_function(source, "routedLesson")
+    setup = """
+const LESSONS = [
+  {id: 'classify', app_key: 'classify_merged'},
+  {id: 'measure', app_key: 'measure'},
+  {id: 'moved', app_key: 'train_compare', host_app_key: 'measure'}
+];
+const MODULE_NAVIGATION = {routes: {
+  moved: {host_app_key: 'classify_merged'},
+  measure: {kind: 'main'}
+}};
+"""
+    checks = """
+const moved = routedLesson(LESSONS[2]);
+if (moved.appKey !== 'classify_merged' || moved.host.id !== 'classify') process.exit(1);
+const main = routedLesson(LESSONS[1]);
+if (main.appKey !== 'measure' || main.host !== null) process.exit(2);
+const legacy = routedLesson({id: 'legacy', app_key: 'child', host_app_key: 'measure'});
+if (legacy.appKey !== 'measure' || legacy.host.id !== 'measure') process.exit(3);
+if (LESSONS[2].host_app_key !== 'measure') process.exit(4);
+"""
+    subprocess.run([node, "-e", setup + route + checks], check=True)
 
 
 def test_player_catalog_excludes_pause_heavy_retired_voices():

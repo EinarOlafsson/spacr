@@ -58,7 +58,7 @@ HF_DATASET = "einarolafsson/spacr-tutorials"
 ENCODE_MANIFEST = REPO / "tools" / "tutorial-encode-manifest.json"
 
 WEB_FILES = [
-    "index.html", "styles.css", "app_v2.js", "voice_catalog.js",
+    "index.html", "styles.css", "app_v2.js", "voice_catalog.js", "module_navigation.js",
     "lesson_catalog.js", "logo_spacr.png", "favicon.svg",
     "TUTORIAL_MEDIA_NOTICE.md",
 ]
@@ -135,14 +135,8 @@ def publish_web() -> None:
     # Removed source assets must not survive indefinitely in the derived
     # docs tree merely because publishing is incremental.
     (DESTINATION / "youtube_links.js").unlink(missing_ok=True)
-    production = DESTINATION / "production"
-    if production.is_dir():
-        for audio in production.glob("[0-9][0-9]_*/audio"):
-            # Narration is authoritative on Hugging Face. Old per-language
-            # fallback copies would otherwise remain tracked forever even
-            # though the current player and docs staging policy never use
-            # them.
-            shutil.rmtree(audio)
+    # Existing tracked audio is retained pending the maintainer's decision
+    # (325, 2026-09-09). Updating navigation must never silently delete it.
     for filename in WEB_FILES:
         # The application icon is the canonical thinned spaCR logo. Keep the
         # tutorial publisher tied to that source instead of allowing an old
@@ -234,6 +228,24 @@ def hf_upload_ready() -> bool:
     return True
 
 
+def publish_navigation() -> None:
+    """Copy only navigation assets; preserve every catalog and media byte."""
+    names = ("index.html", "styles.css", "app_v2.js", "module_navigation.js")
+    missing = [name for name in names if not (WEB / name).is_file()]
+    if missing:
+        raise FileNotFoundError(f"Missing navigation assets: {missing}")
+    DESTINATION.mkdir(parents=True, exist_ok=True)
+    for name in names:
+        source = (WEB / name).read_text(encoding="utf-8")
+        if name == "index.html":
+            source = source.replace('data-production-root="../production"',
+                                    'data-production-root="production"')
+        temporary = DESTINATION / f"{name}.part"
+        temporary.write_text(source, encoding="utf-8")
+        temporary.replace(DESTINATION / name)
+    print("navigation only; all lesson catalogs, videos and audio preserved")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__.splitlines()[0],
@@ -244,7 +256,13 @@ def main() -> int:
                         help="do not touch the media host")
     parser.add_argument("--force-encode", action="store_true",
                         help="re-encode even when the master is unchanged")
+    parser.add_argument("--navigation-only", action="store_true",
+                        help="copy navigation assets only; never encode, upload, or delete media")
     args = parser.parse_args()
+
+    if args.navigation_only:
+        publish_navigation()
+        return 0
 
     if shutil.which("ffmpeg") is None or shutil.which("ffprobe") is None:
         print("ffmpeg and ffprobe are required", file=sys.stderr)

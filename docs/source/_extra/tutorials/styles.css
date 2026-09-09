@@ -494,6 +494,20 @@ kbd {
   display: none;
 }
 
+.module-group {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.module-group-heading {
+  margin: 14px 12px 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .lesson-link {
   position: relative;
   width: 100%;

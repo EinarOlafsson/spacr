@@ -39,3 +39,27 @@ The user confirmed these requirements on 9 September:
 
 An inventory or passing structural test is not a completed tutorial. Only
 validated recordings, narration, captions, and links close a lesson.
+
+## Navigation clarification — 9 September
+
+The user requests two module sections: **Main modules** (the Home tiles) and
+**Submodules**, grouped beneath their actual parent-module headings. A tutorial
+whose module only moved is relocated without regenerating its video, narration,
+or captions. Rewrite only content that changed. Preserve the existing lesson
+IDs, media paths, deep links, and watch history when reorganizing the library.
+Setup/API lessons remain accessible; Help-only utilities must be identified as
+Help workflows rather than assigned an invented Home parent.
+
+### Navigation checkpoint
+
+`build_navigation.py` now derives the hierarchy from `tiled_apps()`,
+`home_bands()` and `folded_children()`: 21 Home tiles, with all 73 existing
+lesson identities assigned exactly once. The navigation-only publisher leaves
+catalogs, captions, voices and media untouched. Browser checks cover desktop,
+390-pixel mobile layout, parent search, retained deep links and Spanish labels;
+they do **not** constitute playback or translation acceptance.
+
+The full tutorial-route gate remains open for missing lessons. Import Images
+and Regression Diagnostics need production; OPS is explicitly deferred because
+its real workflow has not been validated (325, 9 September). No placeholder OPS
+lesson or weakened route gate is a substitute for that validation.

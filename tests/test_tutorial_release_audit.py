@@ -73,10 +73,11 @@ def _live_gui_inventory():
 import json
 import spacr.qt
 spacr.qt.register_self_registering_modules()
-from spacr.qt.app import APPS
+from spacr.qt.app import APPS, tiled_apps
 from spacr.qt.widgets.fold_strip import folded_modules
 print(json.dumps({
     "registry": sorted({row[0] for row in APPS}),
+    "home_tiles": sorted({row[0] for row in tiled_apps()}),
     "folded": {
         key: entry[3].rsplit(".", 1)[-1]
         for key, entry in folded_modules().items()
@@ -205,10 +206,61 @@ def test_player_routes_folded_lessons_through_their_current_host():
             "index.html").read_text(encoding="utf-8")
 
     assert 'id="lesson-route"' in page
-    assert "lesson?.host_app_key || lesson?.app_key" in player
-    assert "item.app_key === lesson.host_app_key && !item.host_app_key" in player
     assert "localizedLesson(route.host.id)" in player
     assert "elements.content.dataset.appKey = route.appKey" in player
+    assert "module_navigation.js?v=" in page
+
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("Node.js is required to execute the player route contract")
+    start = player.index("function routedLesson(")
+    end = player.index("\n}\n", start) + len("\n}\n")
+    route = player[start:end]
+    contract = """
+const LESSONS = [
+  {id: 'classify', app_key: 'classify_merged'},
+  {id: 'measure', app_key: 'measure'},
+  {id: 'moved', app_key: 'train_compare', host_app_key: 'measure'}
+];
+const MODULE_NAVIGATION = {routes: {
+  moved: {host_app_key: 'classify_merged'}, measure: {kind: 'main'}
+}};
+const moved = routedLesson(LESSONS[2]);
+if (moved.appKey !== 'classify_merged' || moved.host.id !== 'classify') process.exit(1);
+const main = routedLesson(LESSONS[1]);
+if (main.appKey !== 'measure' || main.host !== null) process.exit(2);
+const legacy = routedLesson({id: 'legacy', app_key: 'child', host_app_key: 'measure'});
+if (legacy.appKey !== 'measure' || legacy.host.id !== 'measure') process.exit(3);
+if (LESSONS[2].host_app_key !== 'measure') process.exit(4);
+"""
+    subprocess.run([node, "-e", route + contract], check=True)
+
+
+def test_navigation_places_existing_lessons_once_under_current_home_and_hosts():
+    """A move changes navigation, not a retained lesson's media identity."""
+    source = (ROOT / "docs/source/_extra/tutorials/module_navigation.js").read_text(
+        encoding="utf-8")
+    navigation = json.loads(source.split("Object.freeze(", 1)[1].rsplit(");", 1)[0])
+    lessons = _tutorial_catalog()["lessons"]
+    sections = navigation["sections"]
+    assert [section["id"] for section in sections] == ["main", "submodules"]
+    assigned = navigation["intro"]["lessons"] + [
+        identity for section in sections for group in section["groups"]
+        for identity in group["lessons"]
+    ]
+    assert len(assigned) == len(set(assigned)) == len(lessons)
+    assert set(assigned) == {lesson["id"] for lesson in lessons}
+    main_keys = [key for group in sections[0]["groups"] for key in group["module_keys"]]
+    assert sorted(main_keys) == _live_gui_inventory()["home_tiles"]
+    assert set(navigation["labels"]) == {
+        "en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN",
+        "da", "de", "is", "ko", "nb", "sv",
+    }
+    expected_hosts = _folded_lesson_hosts()
+    for lesson in lessons:
+        key = lesson.get("app_key")
+        if key in expected_hosts:
+            assert navigation["routes"][lesson["id"]]["host_app_key"] == expected_hosts[key]
 
 
 def test_every_spoken_pypi_is_the_single_word_pypie():

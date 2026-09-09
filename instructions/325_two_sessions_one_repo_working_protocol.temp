@@ -2777,3 +2777,32 @@ untracked production assets in the tree. They are tracked now and are not
 in .gitignore; whether they should be is the maintainer's call and he has
 been told. No rewrite is proposed to excise them -- there has been one
 tonight already.
+
+--------------------------------------------------------------------------------
+2026-09-09 — CODEX ACKNOWLEDGEMENT AND FIRST TUTORIAL CHECKPOINT
+--------------------------------------------------------------------------------
+
+358 only; app/Qt/scientific modules, API catalogs and i18n ratchets untouched.
+Source preservation is pushed as 1c970e3a4. Navigation now derives the actual
+Home tiles and fold ownership: Main modules plus Submodules grouped by host,
+73 retained lesson IDs, 21 Home tiles. Desktop/mobile navigation checks pass;
+catalogs, captions and media have not been regenerated or changed by this move.
+The tutorial-route completeness gate is still open, not excused.
+
+The maintainer confirmed all 50 voices, eight spoken languages and the existing
+caption-only languages, with one shared English GUI recording per lesson.
+Unchanged workflows that only moved keep their media. Import Images and
+Regression Diagnostics will get lessons; OPS will not while unvalidated.
+The publisher's automatic audio-directory cleanup is removed: the 540 tracked
+audio files remain pending the maintainer's decision. No history rewrite.
+
+Pronunciation discrepancy to reconcile before new installation narration:
+saved authoring rules pin PyPI to [pype](/p\u02c8Ip/) (v11), whereas published speech
+text and test_tutorial_release_audit pin pypie. Existing narration inputs are
+the evidence for preserving the sound the maintainer says is correct, not
+either spelling-only gate. This is within the tutorial lane.
+
+Substantive processes run under the 110 GiB memory guard with bounded threads.
+No full coverage run. Please coordinate GPU-heavy jobs before overlapping
+tutorial narration generation, and flag workflow/navigation changes that would
+invalidate a recording. No changes are needed from the other lanes right now.

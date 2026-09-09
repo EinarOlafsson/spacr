@@ -2,6 +2,7 @@
 
 const VOICE_CATALOG = window.SPACR_VOICE_CATALOG || [];
 const BASE_CATALOG = window.SPACR_LESSON_CATALOG;
+const MODULE_NAVIGATION = window.SPACR_TUTORIAL_NAVIGATION;
 const DEFAULT_LANGUAGE = "en";
 const DEFAULT_VOICE = "af_heart";
 const PRODUCTION_ROOT = document.documentElement.dataset.productionRoot || "../production";
@@ -556,17 +557,35 @@ function baseLesson(id) {
 }
 
 function routedLesson(lesson) {
-  const appKey = lesson?.host_app_key || lesson?.app_key || null;
-  const host = lesson?.host_app_key
-    ? LESSONS.find(item => item.app_key === lesson.host_app_key && !item.host_app_key)
+  const location = MODULE_NAVIGATION?.routes?.[lesson?.id];
+  const hostKey = location ? location.host_app_key : lesson?.host_app_key;
+  const appKey = hostKey || lesson?.app_key || null;
+  const host = hostKey
+    ? LESSONS.find(item => item.app_key === hostKey && !item.host_app_key)
     : null;
   return { appKey, host };
 }
 
 function seriesBlocks() {
+  if (MODULE_NAVIGATION) {
+    const language = elements.language?.value || DEFAULT_LANGUAGE;
+    const labels = MODULE_NAVIGATION.labels[language] || MODULE_NAVIGATION.labels.en;
+    return MODULE_NAVIGATION.sections.map(section => ({
+      id: section.id,
+      title: labels[section.label_index],
+      groups: section.groups.map(group => ({
+        ...group,
+        title: group.label_index != null ? labels[group.label_index]
+          : group.host_lesson && language !== "en"
+            ? localizedLesson(group.host_lesson).title : group.title,
+        lessons: group.lessons.map(baseLesson).filter(Boolean)
+      }))
+    }));
+  }
   return localizedCatalog.series.map(series => ({
     ...series,
-    lessons: LESSONS.filter(lesson => lesson.series === series.number)
+    id: `series-${series.number}`,
+    groups: [{title: "", lessons: LESSONS.filter(lesson => lesson.series === series.number)}]
   }));
 }
 
@@ -763,34 +782,65 @@ function renderCurriculum(query = "") {
   const normalized = query.trim().toLowerCase();
   elements.curriculum.innerHTML = "";
   let matches = 0;
-  seriesBlocks().forEach(series => {
-    const filtered = series.lessons.filter(base => {
+  if (MODULE_NAVIGATION?.intro) {
+    const language = elements.language?.value || DEFAULT_LANGUAGE;
+    const labels = MODULE_NAVIGATION.labels[language] || MODULE_NAVIGATION.labels.en;
+    const title = labels[MODULE_NAVIGATION.intro.label_index];
+    const lessons = MODULE_NAVIGATION.intro.lessons.map(baseLesson).filter(base => {
       const lesson = localizedLesson(base.id);
-      const host = routedLesson(base).host;
-      const hostTitle = host ? localizedLesson(host.id).title : "";
-      return !normalized || `${lesson.title} ${lesson.description} ${hostTitle} ${series.title}`
-        .toLowerCase().includes(normalized);
+      return !normalized || `${lesson.title} ${lesson.description} ${title}`.toLowerCase().includes(normalized);
     });
-    if (!filtered.length) return;
-    matches += filtered.length;
+    if (lessons.length) {
+      elements.curriculum.appendChild(makeModuleGroup({id: "getting-started", title, lessons}));
+      matches += lessons.length;
+    }
+  }
+  seriesBlocks().forEach(series => {
+    const groups = series.groups.map(group => ({...group,
+      lessons: group.lessons.filter(base => {
+        const lesson = localizedLesson(base.id);
+        const host = routedLesson(base).host;
+        const hostTitle = host ? localizedLesson(host.id).title : "";
+        return !normalized || `${lesson.title} ${lesson.description} ${hostTitle} ${group.title} ${series.title}`
+          .toLowerCase().includes(normalized);
+      })
+    })).filter(group => group.lessons.length);
+    const count = groups.reduce((sum, group) => sum + group.lessons.length, 0);
+    if (!count) return;
+    matches += count;
     const block = document.createElement("section");
     block.className = "series-block";
+    block.dataset.section = series.id;
     const toggle = document.createElement("button");
     toggle.type = "button";
     toggle.className = "series-toggle";
     toggle.setAttribute("aria-expanded", "true");
-    toggle.innerHTML = `<span><small>Series ${series.number}</small><strong>${escapeHTML(series.title)}</strong></span><span class="series-count">${filtered.length}</span><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`;
+    toggle.innerHTML = `<span><strong>${escapeHTML(series.title)}</strong></span><span class="series-count">${count}</span><svg class="chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>`;
     toggle.addEventListener("click", () => {
       const collapsed = block.classList.toggle("collapsed");
       toggle.setAttribute("aria-expanded", String(!collapsed));
     });
     const list = document.createElement("div");
     list.className = "series-lessons";
-    filtered.forEach(lesson => list.appendChild(makeLessonLink(lesson)));
+    groups.forEach(group => list.appendChild(makeModuleGroup(group)));
     block.append(toggle, list);
     elements.curriculum.appendChild(block);
   });
   if (!matches) elements.curriculum.innerHTML = `<div class="empty-search">No tutorials match “${escapeHTML(query)}”.</div>`;
+}
+
+function makeModuleGroup(group) {
+  const container = document.createElement("div");
+  container.className = "module-group";
+  container.dataset.host = group.id || "";
+  if (group.title) {
+    const heading = document.createElement("h3");
+    heading.className = "module-group-heading";
+    heading.textContent = `${group.help_host ? "Help → " : ""}${group.title}`;
+    container.appendChild(heading);
+  }
+  group.lessons.forEach(lesson => container.appendChild(makeLessonLink(lesson)));
+  return container;
 }
 
 function makeLessonLink(base) {
@@ -834,7 +884,12 @@ function updateLessonHeader() {
   const lesson = localizedLesson(activeLesson.id);
   const series = localizedCatalog.series.find(item => item.number === activeLesson.series);
   const route = routedLesson(activeLesson);
-  elements.seriesLabel.textContent = `Series ${activeLesson.series}`;
+  const navigationSection = seriesBlocks().find(section => section.groups.some(
+    group => group.lessons.some(item => item.id === activeLesson.id)));
+  const navLabels = MODULE_NAVIGATION?.labels[elements.language?.value || DEFAULT_LANGUAGE]
+    || MODULE_NAVIGATION?.labels.en;
+  elements.seriesLabel.textContent = navigationSection?.title
+    || (navLabels ? navLabels[2] : `Series ${activeLesson.series}`);
   elements.position.textContent = `Lesson ${activeLesson.number} of ${LESSONS.length}`;
   elements.status.textContent = "Ready";
   elements.status.className = "status-pill ready";

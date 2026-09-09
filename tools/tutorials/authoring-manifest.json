@@ -234,8 +234,8 @@
     },
     {
       "path": "tools/publish_tutorials.py",
-      "sha256": "47bcec4fc986873dae5a9a009b47591da83cefc6414919a503e0fb9f3c8fc32a",
-      "bytes": 12646
+      "sha256": "8ff8af6394d46a2cf8afd8eca7a06d53136c50c819422968b6025750e7a3149d",
+      "bytes": 13546
     },
     {
       "path": "tools/render_all_visuals.py",
@@ -329,8 +329,8 @@
     },
     {
       "path": "tests/test_web_player_contract.py",
-      "sha256": "bb54585b2bbf1b31635e0ccf7eb15cfac928b5c9adcddfc2d435c36b97d805dd",
-      "bytes": 10392
+      "sha256": "c1becd4b8d3bf091388304c29dc97f4f0b749272ff48f2897e547e2a47171e8f",
+      "bytes": 11372
     },
     {
       "path": "catalog/10_classify_cv_override.json",
@@ -574,8 +574,8 @@
     },
     {
       "path": "web/app_v2.js",
-      "sha256": "39b55b1f8790775763726c4e989dc2628aa62d7d9b3d4a4e9a54ac26ba880d21",
-      "bytes": 80718
+      "sha256": "2ffb5a767ce4f5e22cf88debebf02a5e63cf968b32e03245475d179cff4dc63a",
+      "bytes": 83268
     },
     {
       "path": "web/catalog/captions_da.json",
@@ -649,8 +649,8 @@
     },
     {
       "path": "web/index.html",
-      "sha256": "8a8706c1a8378e8a241e57a167242282f5ee31d2610584ccd30f7c0b6196cf5a",
-      "bytes": 15852
+      "sha256": "ab0ef720157beb7e30c7a7e3e99351556ec7e869154e9015c4b786c8367b4ba9",
+      "bytes": 15931
     },
     {
       "path": "web/lesson_catalog.js",
@@ -658,9 +658,14 @@
       "bytes": 235412
     },
     {
+      "path": "web/module_navigation.js",
+      "sha256": "9a6676f82b68f0753d99bce1a045311e54b83f7ce039b46d1fe278d68cf65524",
+      "bytes": 20067
+    },
+    {
       "path": "web/styles.css",
-      "sha256": "39b7046d1d9151a9c82cd6b234c37152da11e219e39a299e6db0d4df0ca11801",
-      "bytes": 34688
+      "sha256": "fd33ba5a864c935a7ef1003d71cc81f350355b9a7fb7a71843872f4130b07f2f",
+      "bytes": 34893
     },
     {
       "path": "web/voice_catalog.js",
@@ -1398,6 +1403,11 @@
       "source": "web/catalog/lessons_zh-CN.json",
       "published": "docs/source/_extra/tutorials/catalog/lessons_zh-CN.json",
       "published_sha256": "af385356b4473a2d56bb93768fb2d1727585898279fee5be6d4501180716581c"
+    },
+    {
+      "source": "web/index.html",
+      "published": "docs/source/_extra/tutorials/index.html",
+      "published_sha256": "bd282466f59bd7226365beb6e6f4444798813e18dbb6f5814b1a812ffeda6cbe"
     },
     {
       "source": "web/lesson_catalog.js",
