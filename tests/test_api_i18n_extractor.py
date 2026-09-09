@@ -880,7 +880,30 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #          offers no space token -- so the one caller,
     #          `theme_background_path`'s `theme == "space"` branch, was
     #          unreachable and went with them.
-    expected = 10_237
+    #          10,237 -> 10,278 (2026-09-09). +41/-0, and every one of them
+    #          is instruction 372's OPS work becoming modules instead of
+    #          scripts. THREE new modules from this session --
+    #          `spacr.ops_layout` (the round well's geometry: WellLayout
+    #          with span, heights, site_count, position, positions, site,
+    #          neighbours, pairs, micron_position, and round_well_layout),
+    #          `spacr.ops_register` (Registration and its shift, unwrap,
+    #          available_backends, phase_correlate, register_edge,
+    #          register_pairs) and `spacr.ops_accel` (the three array
+    #          primitives: accelerated_backends, matmul, maximum_filter,
+    #          nearest_neighbours) -- plus `spacr.ops_stitch` (the driver:
+    #          stitch_well, StitchedWell and its placed, accepted,
+    #          proposed, residuals, canvas, expected_canvas, summary,
+    #          canvas_agrees), `spacr.ops_solve.solve_placements` from the
+    #          other session, and the three the OPS button's move brought:
+    #          `mask.install_ops_switch`, `mask.ops_page` and
+    #          `map_barcodes.hide_as_page`.
+    #
+    #          THE CATALOGS ARE MID-REBUILD as this is written, which is
+    #          the honest state rather than a tidy one: the other session
+    #          is translating all nine locales in one pass against this
+    #          set, deliberately batched because a rebuild costs two hours
+    #          whether it carries one symbol or forty.
+    expected = 10_278
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -898,7 +921,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_237
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_278
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -987,7 +1010,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # stays 213: they were rendered symbols, so both totals fall together.
     # Moving only one would silently reattribute six removals to the
     # non-rendered pile.
-    assert 10_450 - len(docs) == 213
+    # 10,450 -> 10,491 with the forty-one OPS symbols, for the same reason
+    # in the other direction: they are all rendered, so both totals rise
+    # together and the boundary is unmoved. None of the four new modules is
+    # generated, none is a per-language catalog, and none is a bridge --
+    # so nothing about them belongs in the 213.
+    assert 10_491 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
