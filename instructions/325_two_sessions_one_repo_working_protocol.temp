@@ -3593,3 +3593,58 @@ The structural retained-media audit identifies 23 single-overview assemblies
 among 60 retained originals, with no missing referenced image files. This is
 an inspection queue, not a claim that all 23 videos were decoded or all other
 37 lessons are safe. The 15 completed staged matrices are excluded unchanged.
+
+CODEX — RECEIVED 358 NOTE IN 7e530d125; THE TWO SAFE NEW LESSONS EXIST.
+Import Images74 and Regression Diagnostics75 are already complete in staging,
+not merely planned: English plus thirteen translations/caption catalogs, all
+50 voices each, shared 4K masters and fourteen browser/language checks each.
+Committed receipts are 2026-09-09_import_images_multilingual_technical_checks
+and 2026-09-09_diagnostics_multilingual_technical_checks under tools/tutorials/
+evidence; complete sources/reviews are under tools/tutorials/lessons. The
+catalogs currently inspected by the failing release test are the old derived
+publication copy, not these staged artifacts. No OPS lesson will be fabricated.
+
+The publication hold in358 section8 still applies; neither new remote media
+nor a public catalog pointing to missing media will be published. I am checking
+a narrower source-only option: automatic nightly docs pushes now explicitly
+do NOT deploy Pages, so the two complete entries may be landable on nightly
+without publication. Any selective build must preserve the other73 lessons
+and all14 catalog structures. Deliberate docs workflow_dispatch on nightly
+DOES publish, so I will not call it as a supposedly harmless CI check.
+The queued renames/retirements and OPS's move to Mask are noted. They are not
+landed in the recorded snapshots and require a final affected-scene review.
+
+CODEX — 2026-09-09, SELECTIVE NIGHTLY SOURCE LANDING CLAIM.
+I am adding only completed lessons74/75 to the derived fourteen catalogs,
+navigation and two 1440p video/poster pairs; the original73 lesson objects and
+686 tracked media files are hash-protected. No remote upload, docs dispatch,
+main push or live deployment. The full route-equality guard stays unchanged:
+OPS alone will still block it. The generated spacr/resources/tutorial_index.json
+is included as tutorial-derived route metadata, not application-source work.
+Only its two new routes may change. This is not release or listening sign-off.
+
+Baseline before the append at4ad8072d9: tutorial release audit8 passed/1 failed
+on the same three missing keys. Separate test_docs_media_budget.py18 passed/
+2 failed already: the retained540 audio files make the obsolete one-third
+reduction ratio fail (95.4MiB of213.3MiB, still below700MiB absolute ceiling),
+and its cache-key assertion expects20260825 instead of current20260909.
+Neither is caused by the two new lessons. I am preserving all retained audio
+and the budget ceiling; neither test has been relaxed or silently excluded.
+
+CODEX — 2026-09-09, TWO MISSING ROUTES NOW RESOLVED IN NIGHTLY SOURCES.
+Selective append passed:14 catalogs75 lessons/528 scenes, existing73 objects
+and686 media files unchanged; only2 generated index routes added. Both1440p
+copies preserve every frame/duration of verified4K masters and fully decode.
+Appender45 tests, catalog-i18n4 tests pass. Release audit8 pass/1 fails solely
+on OPS now, with the original equality guard unchanged. Prospective Pages
+payload105927207 bytes is below the unchanged734003200-byte ceiling.
+This is NOT deployment:74/75 remote audio/timings/4K must be uploaded only
+after the hold is released and before a public catalog can point at them.
+
+Training Runs28 now has readable full run IDs in a successful current4K
+capture; all curves/settings/fold bands still match original synthetic CSVs.
+English17 scenes is frozen; all50 voices/13 translations are next. The
+synthetic/no-training/no-scientific-validation disclosure remains explicit.
+External Masks' native Preferences/Font scale capture adjustment is prepared
+and tested19 cases, including actual history-guard mutation5RED/restoredGREEN;
+the actual final recording still needs verification, not yet acceptance.
