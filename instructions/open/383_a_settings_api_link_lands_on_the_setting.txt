@@ -239,3 +239,52 @@ THE GENERAL POINT, since this instruction has now met it twice. A checker that
 reports NOTHING FOUND is making a claim, and it is the one claim that looks
 identical whether it is true or the checker is broken. Both times here the
 absence was read as a fact about the package.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE RESIDUE THAT "MOVED ON THE MERGE" WAS MY OWN CHANGE
+--------------------------------------------------------------------------------
+
+A commit yesterday recorded that the anchorless links read 43 before merging
+the other session's work and 76 after, said it could not be explained, and
+left it rather than move a pin to match. Explained now, and the honest answer
+is that the merge had nothing to do with it.
+
+    43   pairs whose setting has NO flow section
+    33   pairs with a CURATED target, where the flow fallback is suppressed
+    --
+    76
+
+The 33 are `batch_*`, the classifier-evaluation keys and UMAP's search keys.
+They started landing on a module page the moment `chosen_by_hand` was added
+to `api_docs_url` -- which was MY fix, for
+`test_defaults_and_gui_categories_expose_batch_correction`, made AFTER the 43
+was measured and before the 76. The hand-written targets are decisions a
+person made and the flow fallback must not overrule them; suppressing it is
+correct, and the cost is that those 33 land on a module page with no anchor.
+
+WHAT I DID WRONG WAS THE ATTRIBUTION, not the change. Two numbers taken
+either side of a merge, one commit in between that was mine, and I named the
+merge because that is what had visibly happened. Nobody would have caught it
+from the note, which said only that regenerating the artefacts did not move
+it back -- true, and irrelevant, because a generated file was never the
+cause.
+
+SO THE REAL RESIDUE IS 43, NOT 76, and the two halves want different things:
+
+  * the 43 have no flow section because nothing static analysis can see
+    reads them -- `mask/denoise`, the `seg_qc_*` family, and so on. There is
+    no page that mentions them, so there is nothing to link to. That is the
+    honest floor unless the analyser learns to see more.
+
+  * the 33 have a section and are deliberately not sent to it. A better
+    answer exists for these and it is not a fallback: give the curated
+    module an ANCHOR by looking up the consumer map's symbol WITHIN that
+    module. Tried on 2026-09-09 and it did not work in the obvious form --
+    `classifier_evaluation` has no consumer row at all, because those
+    settings are read in `deep_spacr`, so there is nothing in the curated
+    module to anchor to. `batch_correction` does have one
+    (`correction_kwargs`), so a narrower version of that fix would help the
+    batch family and leave the evaluation keys where they are.
+
+NOT DONE. Recorded with the measurement rather than left as a number that
+moved.
