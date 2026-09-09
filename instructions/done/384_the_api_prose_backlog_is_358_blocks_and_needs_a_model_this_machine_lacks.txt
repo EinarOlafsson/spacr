@@ -7,6 +7,44 @@ content errors to zero, and the build measured at 3m45s rather than the
 80 minutes previously quoted. If you are here because "the docs job is
 red", do not re-diagnose the Sphinx half. It is done.
 
+Status:    CLOSED 2026-09-09 BY THE MAINTAINER'S DECISION. Asked with the
+           corrected measurement in front of him and answered: English is
+           acceptable for these blocks. They are API docstring prose, the
+           README already carries the qualified claim, and 316's header has
+           said from the start that an English fallback is readable while a
+           wrong translation is not.
+
+           THE MEASUREMENT THE DECISION WAS MADE ON, and it corrects an
+           earlier note in this file. The blocker is NOT the multi-canonical
+           clause in `api_repair_candidate_valid`: there are 34,107
+           contextual forms and exactly ONE has more than one canonical
+           source ("the setting name." <- "the setting key." / "the settings
+           key."), fan-in 2. Relaxing that contract would have cleared one
+           block, not 359. I had inferred it from `caller_gate`'s definition
+           without checking how often the clause binds, and the maintainer
+           made a first decision on that wrong basis before I caught it.
+
+           WHAT THEY ACTUALLY ARE: long, marked-up technical paragraphs. On
+           Icelandic, median 266 characters and longest 2,616; 48 of 120
+           carry RST literals and 36 run to three or more sentences. They
+           fail `_api_block_valid` on ordinary quality grounds -- English
+           residue, copied phrases, protected-syntax damage across a
+           2,600-character paragraph. The gates are correctly calibrated and
+           the models cannot clear them on this kind of prose. There is no
+           contract to relax that changes that.
+
+           WHAT WAS REJECTED, with the reason, because both are the sort of
+           thing a later reader will propose again:
+             * machine-translating and filing the output as reviewed --
+               forbidden by 357's guideline 4, which is that a review nobody
+               gave must not be claimed. `reviewed_api_block_translations`
+               calls its own inputs "evidence, not catalogs".
+             * leaving it open for fluent reviewers -- honest, and it would
+               have sat open indefinitely on every future ledger. Six of
+               nine locales have never had one.
+
+           PREVIOUS STATUS FOLLOWS.
+
 Status:    OPEN, filed 2026-09-08. NOT release-blocking, and 316's own
            header says why: an English fallback is readable and a wrong
            translation is not. The maintainer confirmed on 2026-09-07 that
