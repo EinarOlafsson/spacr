@@ -227,6 +227,43 @@ def write_suggestions(db_path: str, annotation_column: str,
                 f"{SUGGESTION_OFFSET + 1} would be the same number. See "
                 f"379-C -- extending the scheme past two classes is an open "
                 f"decision, and this is the collision it has to avoid.")
+    # 379-C, THE OTHER DIRECTION, and the one the guard above does not
+    # reach. That one refuses to SUGGEST a class at or above the offset.
+    # This refuses to write suggestions into a column that ALREADY HOLDS
+    # one, which is the case that loses a person's work rather than merely
+    # confusing a number.
+    #
+    # `pending_suggestions` counts every value above the offset as
+    # outstanding, and `is_suggestion` reads one the same way, so a human
+    # who annotated class 11 has a row that the bulk KEEP will rewrite to a
+    # 1. PART 2's first rule is that a suggestion must never overwrite a
+    # human annotation, and this is the only route by which it still could.
+    #
+    # SAFE TO REFUSE HERE because the screen clears outstanding suggestions
+    # before it asks for new ones -- `resolve_suggestions(keep=False)` in
+    # `annotate._on_suggest` -- so anything at or above the offset that
+    # survives to this point is a real answer and not a stale proposal. A
+    # caller that has not cleared gets told to, which is the same sentence.
+    with _connect_read_only(db_path) as db:
+        try:
+            existing = sorted({
+                int(v[0]) for v in db.execute(
+                    f'SELECT DISTINCT "{annotation_column}" FROM '
+                    f'"{png_table}" WHERE "{annotation_column}" >= ?',
+                    (SUGGESTION_OFFSET,)).fetchall()
+                if v and v[0] is not None})
+        except sqlite3.Error:
+            existing = []
+    if existing:
+        raise ValueError(
+            f"{annotation_column} already holds {existing[0]}, at or above "
+            f"the suggestion offset {SUGGESTION_OFFSET}. A suggested 1 is "
+            f"stored as {SUGGESTION_OFFSET + 1}, so the two cannot be told "
+            f"apart and a bulk KEEP would rewrite the answer to a 1. "
+            f"Resolve any outstanding suggestions first; if these are real "
+            f"answers, 379-C has to be decided before Suggest can run on "
+            f"this column.")
+
     rows = [(int(s), str(p)) for s, p in
             zip(suggestions["stored"], suggestions["png_path"])
             if pd.notna(s)]

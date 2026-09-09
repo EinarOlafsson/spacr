@@ -227,3 +227,47 @@ def test_class_counts_reports_only_what_a_person_labelled(tmp_path):
 
     counted = {value for value, _n in class_counts(db_path, "test")}
     assert counted == {1, 2}, counted
+
+
+def test_a_real_class_at_the_offset_stops_suggest_rather_than_being_eaten(
+        tmp_path):
+    """379-C's collision, from the side that costs somebody their work.
+
+    `write_suggestions` already refuses to SUGGEST a class at or above the
+    offset. This is the other direction: a column that ALREADY holds one.
+
+    A suggested 1 is stored as 11, `pending_suggestions` counts every value
+    above the offset as outstanding, and `is_suggestion` reads one the same
+    way -- so a person who annotated class 11 has a row the bulk KEEP would
+    rewrite to a 1, silently, with no way to notice until a run came out
+    wrong. PART 2's first rule is that a suggestion must never overwrite a
+    human annotation, and this was the last route by which it still could.
+
+    Refusing is the whole fix and is deliberately not a repair: whether the
+    scheme should extend past two classes is 379-C, which is the
+    maintainer's decision and is still open. What is not open is that it
+    must never collide in silence.
+    """
+    db_path, _ = _db(tmp_path)
+    result = suggest.suggest_from_scores(db_path, "test")
+    assert not result.frame.empty, result.note
+
+    # One human answer at the offset, planted after the model was scored so
+    # it cannot be mistaken for a proposal this run produced.
+    with sqlite3.connect(db_path) as db:
+        db.execute("UPDATE png_list SET test = ? WHERE png_path = ("
+                   "SELECT png_path FROM png_list WHERE test IS NOT NULL "
+                   "LIMIT 1)", (suggest.SUGGESTION_OFFSET + 1,))
+
+    with pytest.raises(ValueError) as caught:
+        suggest.write_suggestions(db_path, "test", result.frame)
+    message = str(caught.value)
+    assert str(suggest.SUGGESTION_OFFSET) in message
+    assert "379-C" in message, "the refusal has to say which decision it waits on"
+
+    # AND IT WROTE NOTHING. A refusal that had already written half the rows
+    # would be worse than the collision it is preventing.
+    with sqlite3.connect(db_path) as db:
+        stored = {r[0] for r in db.execute(
+            "SELECT test FROM png_list WHERE test IS NOT NULL")}
+    assert stored <= {1, 2, suggest.SUGGESTION_OFFSET + 1}, stored
