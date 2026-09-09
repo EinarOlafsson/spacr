@@ -6264,10 +6264,39 @@ class PreferencesDialog:
                 "press."))
             fractal.addRow(tr("Pointer"), fractal_pointer)
 
-            # ONE MOUSE CONTROL, not three. Size and strength answer
-            # the same question -- how much does it pull -- and offering
-            # both let a size of 3 fight a strength of 0.
-            fractal_pointer_size = None
+            # SIZE IS OFFERED, STRENGTH IS NOT, asked for 2026-09-08: "id
+            # like a setting that controlls the size of the gravity ball".
+            #
+            # The note this replaces said "ONE MOUSE CONTROL, not three.
+            # Size and strength answer the same question -- how much does it
+            # pull -- and offering both let a size of 3 fight a strength of
+            # 0." The second half of that is still true and is why STRENGTH
+            # stays off the panel: two controls over one feeling is what
+            # produced the setting that cancelled itself. The first half was
+            # too strong. Size is not strength. It is the REACH -- how far
+            # from the cursor the pattern feels the pull at all -- and it is
+            # the one a user can see themselves changing.
+            #
+            # 1.0 is the widget's short edge, which is why the range runs to
+            # 3.0 rather than to some rounder number: past about three short
+            # edges the whole backdrop is inside the ball and there is
+            # nothing left for it to reach toward.
+            # `_tenths` is a QDoubleSpinBox holding the value itself -- the
+            # name is the helper's, not a unit. Scale, Speed and Dream above
+            # are saved straight from `.value()` and so is this.
+            fractal_pointer_size = _tenths(
+                "FractalPointerSize", _fractal_values["pointer_size"],
+                0.0, 3.0)
+            fractal_pointer_size.setToolTip(tr(
+                "How far the pointer reaches, as a share of the window's "
+                "short edge. 1.0 pulls the pattern within roughly one short "
+                "edge of the cursor; 0 turns the reach off without turning "
+                "the pointer off, so a click still shoves. The pull fades "
+                "toward the edge of the reach rather than stopping at it."))
+            fractal.addRow(tr("Pointer reach"), fractal_pointer_size)
+            fractal_pointer_size.setEnabled(fractal_pointer.isChecked())
+            fractal_pointer.toggled.connect(fractal_pointer_size.setEnabled)
+
             fractal_pointer_strength = None
 
             # HOW OFTEN IT BREATHES IS NOT A QUESTION ANYBODY ASKED.
@@ -6669,10 +6698,15 @@ class PreferencesDialog:
                     speed_min=fractal_speed.value() * 0.55,
                     speed_max=fractal_speed.value() * 1.65,
                     pointer_gravity=fractal_pointer.isChecked(),
-                    # On is the ordinary reach and the ordinary pull;
-                    # off is a strength of zero, which stops it whatever
-                    # else is stored.
-                    pointer_size=1.0,
+                    # THE REACH IS THE USER'S NOW, so it is read from the
+                    # field rather than pinned at 1.0. Strength is still
+                    # derived: off is a strength of zero, which stops the
+                    # pull whatever reach is stored, and there is no control
+                    # for it because two knobs over one feeling is what let
+                    # a size of 3 fight a strength of 0.
+                    pointer_size=(fractal_pointer_size.value()
+                                  if fractal_pointer_size is not None
+                                  else 1.0),
                     pointer_strength=(1.0 if fractal_pointer.isChecked()
                                       else 0.0),
                     supersampling=int(fractal_ss.value()),
