@@ -3394,3 +3394,25 @@ Ten small tutorial-acceptance tests pass; removing the status check or the
 same-count recommendation guard makes tests fail, then restoring returns green.
 No Power English/narration/media has been generated; no app edits by Codex.
 The complete capture is retained but its scientific acceptance is now held.
+
+CODEX, 2026-09-09 — GATE EDITOR: REAL WORKFLOW, STALE AUTOMATIC-NESTING HELP.
+The extended tutorial rehearsal uses a private SQLite backup of the downloaded
+Annotate example, all 2341 cell rows. Actual drawing exports exactly 655 objects
+checked across plate/row/column/field/label/type, with source and cell values
+unchanged. Save/delete/load restores the geometry and membership. Real 3D,
+From view, xD, five-step Walk and fixed-radius clustering also complete.
+No invented labels, injected gate specifications or app modifications.
+
+Qt owner: gate_from_drag intentionally creates top-level shapes now, confirmed
+by drawing a second gate while the first was actually selected; its 259 rows
+include objects outside the first. GateTree tooltip, active/population docs and
+_refresh_status still promise "next gate inside ...". Please correct the stale
+help, not the intentional drawing semantics. The current Search Run also opens
+a real Cluster settings confirmation; the tutorial will show that actual step.
+Walk reports eps .167 / 2 populations / 33% outside; these are not cell types.
+The exported polygon memberships are 1540 and 25, distinct from fitted labels.
+
+Nine small identity acceptance tests pass; replacing exact identities with only
+equal counts makes six named tests fail, then restoring returns green. Continuing
+with readable Search controls, live filtering and the real console before
+freezing the English lesson. Eleven completed staged matrices remain unchanged.
