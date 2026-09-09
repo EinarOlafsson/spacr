@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 from contextlib import closing
 from pathlib import Path
@@ -29,6 +30,13 @@ IDENTITY = LOCATION + ("object_label",)
 
 def _quote(name):
     return '"' + name.replace('"', '""') + '"'
+
+
+def _positive_integral_id(value):
+    """Accept SQLite integer/REAL identities without changing their values."""
+    return ((type(value) is int and value > 0)
+            or (type(value) is float and math.isfinite(value)
+                and value > 0 and value.is_integer()))
 
 
 def _signature(path):
@@ -89,7 +97,7 @@ def _validate_identity(table, record, field_locations, seen):
     if any(not isinstance(value, str) or not value for value in location):
         raise ValueError(f"{table} has an incomplete location identity")
     label = record["object_label"]
-    if not isinstance(label, int) or label <= 0:
+    if not _positive_integral_id(label):
         raise ValueError(f"{table} has an invalid object_label")
     key = location + (label,)
     if key in seen:
@@ -114,7 +122,8 @@ def prepare_subset(source_project, destination, fields=DEFAULT_FIELDS,
     measurement tables must cover every selected field. Object identities are
     unique within each table; cytoplasm and child links must refer to cells in
     the same plate, row, column and field. Every selected cell must have all
-    three associated compartments. Numeric assay validity and image/mask
+    three associated compartments. Positive integral REAL IDs are accepted
+    without coercing their stored values. Numeric assay validity and image/mask
     agreement remain the recorder's responsibility.
 
     The existing destination, its symlink aliases, and all paths inside the
@@ -219,7 +228,7 @@ def prepare_subset(source_project, destination, fields=DEFAULT_FIELDS,
                         identity["file_name"] = record["file_name"]
                         if table in ("nucleus", "pathogen"):
                             parent = record["cell_id"]
-                            if not isinstance(parent, int) or parent <= 0:
+                            if not _positive_integral_id(parent):
                                 raise ValueError(f"{table} has an invalid cell_id")
                             identity["cell_id"] = parent
                         records.append(identity)

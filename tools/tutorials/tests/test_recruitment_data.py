@@ -29,16 +29,19 @@ def small_npy(value):
 
 
 @pytest.fixture
-def source(tmp_path):
+def source(tmp_path, request):
     project = tmp_path / 'source'
     (project / 'measurements').mkdir(parents=True)
     (project / 'merged').mkdir()
     database = project / 'measurements' / 'measurements.db'
+    real_ids = getattr(request, 'param', False)
     with closing(sqlite3.connect(database)) as connection, connection:
         for table in TABLES:
-            child = ', cell_id INTEGER NOT NULL' if table in ('nucleus', 'pathogen') else ''
+            parent_type = 'REAL' if real_ids else 'INTEGER'
+            label_type = 'REAL' if real_ids == 'all' else 'INTEGER'
+            child = f', cell_id {parent_type} NOT NULL' if table in ('nucleus', 'pathogen') else ''
             connection.execute(f'''CREATE TABLE {table} (
-                object_label INTEGER NOT NULL CHECK(object_label > 0),
+                object_label {label_type} NOT NULL CHECK(object_label > 0),
                 plateID TEXT NOT NULL, rowID TEXT NOT NULL,
                 columnID TEXT NOT NULL, fieldID TEXT NOT NULL,
                 file_name TEXT NOT NULL, path_name TEXT, prcf TEXT,
@@ -119,6 +122,56 @@ def test_a_host_in_another_field_does_not_satisfy_a_child_link(source, tmp_path)
         prepare_subset(source, destination, fields=FIELDS)
     assert not destination.exists()
     assert not list(tmp_path.glob('.recruitment-subset-*'))
+
+
+@pytest.mark.parametrize('source', ['children', 'all'], indirect=True)
+def test_integral_real_ids_keep_exact_sqlite_values_and_links(source, tmp_path):
+    database = source / 'measurements' / 'measurements.db'
+    before = digest(database)
+    destination = tmp_path / 'real_ids'
+    manifest = prepare_subset(source, destination, fields=FIELDS)
+    with closing(sqlite3.connect(database)) as original, \
+            closing(sqlite3.connect(destination / 'measurements' / 'measurements.db')) as copied:
+        for table in ('nucleus', 'pathogen'):
+            query = (f'SELECT object_label,typeof(object_label),cell_id,typeof(cell_id) '
+                     f'FROM {table} WHERE file_name IN (?,?) ORDER BY fieldID,object_label')
+            expected = original.execute(query, FIELDS).fetchall()
+            assert len(expected) == 3
+            assert all(type(row[2]) is float and row[3] == 'real' for row in expected)
+            assert copied.execute(query, FIELDS).fetchall() == expected
+            assert all(type(row['cell_id']) is float
+                       for row in manifest['tables'][table]['identities'])
+        for table in TABLES:
+            query = f'SELECT * FROM {table} WHERE file_name IN (?,?) ORDER BY fieldID,object_label'
+            assert copied.execute(query, FIELDS).fetchall() == original.execute(query, FIELDS).fetchall()
+    assert digest(database) == before
+
+
+@pytest.mark.parametrize('source', ['children'], indirect=True)
+def test_real_parent_id_in_another_field_is_still_rejected(source, tmp_path):
+    mutate(source, 'UPDATE pathogen SET cell_id=2.0 WHERE file_name=?', (FIELDS[0],))
+    with pytest.raises(ValueError, match='Broken pathogen host-cell link'):
+        prepare_subset(source, tmp_path / 'wrong_real_parent', fields=FIELDS)
+
+
+@pytest.mark.parametrize('source', ['children'], indirect=True)
+@pytest.mark.parametrize('parent', [1.5, float('inf'), float('-inf'), 0.0, -1.0])
+def test_invalid_real_parent_ids_are_rejected(source, tmp_path, parent):
+    mutate(source, 'UPDATE nucleus SET cell_id=? WHERE file_name=?', (parent, FIELDS[0]))
+    with pytest.raises(ValueError, match='nucleus has an invalid cell_id'):
+        prepare_subset(source, tmp_path / 'invalid_real_parent', fields=FIELDS)
+
+
+@pytest.mark.parametrize('value', [True, False, 1.5, float('nan'), float('inf'),
+                                  float('-inf'), 0, 0.0, -1, -1.0, '1', None])
+def test_identity_validation_rejects_non_integral_or_non_numeric_ids(value):
+    # SQLite maps bound NaN to NULL and bool to integer, so exercise these
+    # distinctions before SQLite erases their original Python types.
+    assert not recruitment_data._positive_integral_id(value)
+    record = dict(zip(recruitment_data.LOCATION, ('plate1', 'r1', 'c1', 'f1')))
+    record.update(object_label=value, file_name='one')
+    with pytest.raises(ValueError, match='invalid object_label'):
+        recruitment_data._validate_identity('cell', record, {}, set())
 
 
 def test_cytoplasm_requires_the_same_full_cell_identity(source, tmp_path):
