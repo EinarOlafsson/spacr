@@ -161,12 +161,40 @@ MEASURED, so the next reader starts from evidence:
     already hold its key: `already = set(host_model._widgets)`, then
     `SettingsWidgets(self.key, skip_keys=already)`.
 
-So the host holds the key at the END of the build and did not hold it when
-`mount()` read `_widgets`. That is this instruction's second part -- the
-first visibility pass moving off a `QTimer(0)` to run synchronously at the
-end of the screen build. If the folds mount before that pass, `already` is
-short by exactly the rows this change made appear, and the fold re-mounts
-them.
+SO THE HOST HOLDS THE KEY AT THE END OF THE BUILD -- and the hypothesis
+that followed from that was WRONG, and is corrected here rather than left
+standing, because a plausible wrong mechanism in a ledger is worse than none.
+
+I wrote that the folds must be mounting before the synchronous visibility
+pass, so `already` was short. The session that wrote 382 checked: `mount()`
+reads the host's `_widgets` AFTER the build completes, all 141 keys, so
+there is no race and `refresh_object_visibility` is not involved.
+
+THE REAL MECHANISM is the same change seen from the other side. Mask's
+registry carries `pathogen_model_name`; the timelapse registry carries
+`pathogen_model`. Before 382 the fold's own `SettingsWidgets` SKIPPED
+`pathogen_model` outright -- there is no pathogen channel in the run -- so
+no row existed and no section was mounted. After 382 that row is BUILT AND
+HIDDEN rather than skipped, which is precisely what this instruction set out
+to do. `mount()` then saw a key the host lacked, and mounted a second
+PATHOGEN SEGMENTATION card holding that one row, beside the host's own
+pathogen card whose twenty rows the run hides.
+
+So the fold was doing exactly what it was told, on a row that had only just
+started to exist.
+
+FIXED in `CategoryFold.mount()` by filtering rows through
+`keys_hidden_by_their_object` as well as through `held`. The subtlety worth
+carrying: that rule gates a role only when the role's SWITCH is on the same
+panel -- it refuses to hide a row whose switch the user cannot reach -- and
+the fold's panel has `pathogen_model` without `pathogen_channel`, so asking
+it about the fold's keys alone returns nothing. It is asked about
+`set(model._widgets) | held` and the answer intersected back down to the
+fold's keys, because the switch IS reachable, one card up on the host.
+
+Unmounted keys still reach the run: their value rides along in
+`host_model._defaults` exactly as a setting with no control does, so
+`collect()` still returns `pathogen_model=None`.
 
 WHY IT IS MORE THAN A RED TEST, in the failing test's own words: "a fold
 that re-mounted those would put a second control on the form for settings
