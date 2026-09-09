@@ -209,7 +209,8 @@ def align_by_triangles(source: np.ndarray, target: np.ndarray, *,
 
 
 def match_cells(source: np.ndarray, target: np.ndarray, *,
-                transform=None, threshold: float = 10.0) -> np.ndarray:
+                transform=None, threshold: float = 10.0,
+                gpu: bool = True) -> np.ndarray:
     """Pair cells one-to-one, keeping only mutual nearest neighbours.
 
     AMBIGUITY IS DROPPED, NOT ASSIGNED. A pair survives only when each cell is
@@ -226,9 +227,14 @@ def match_cells(source: np.ndarray, target: np.ndarray, *,
         means the two sets are already in the same frame.
     :param threshold: the largest distance, in TARGET units, that may still be
         called the same cell.
+    :param gpu: run the two nearest-neighbour searches on the card where
+        there is a usable one. A well carries tens of thousands of nuclei
+        on each side and the search is done twice, once in each direction;
+        `spacr.ops_accel.nearest_neighbours` chunks it so the working set
+        does not grow with the well.
     :returns: ``(K, 2)`` array of ``(source_index, target_index)`` pairs.
     """
-    from scipy.spatial import cKDTree
+    from .ops_accel import nearest_neighbours
 
     src = np.asarray(source, float).reshape(-1, 2)
     dst = np.asarray(target, float).reshape(-1, 2)
@@ -239,13 +245,18 @@ def match_cells(source: np.ndarray, target: np.ndarray, *,
         scale, rotation, translation = transform
         src = (scale * (rotation @ src.T).T) + translation
 
-    forward = cKDTree(dst).query(src)[1]
-    backward = cKDTree(src).query(dst)[1]
+    forward, gaps = nearest_neighbours(src, dst, gpu=gpu)
+    backward, _gaps = nearest_neighbours(dst, src, gpu=gpu)
 
     pairs = []
     for i, j in enumerate(forward):
         if backward[j] != i:
             continue                      # not mutual: somebody else is closer
+        # MEASURED IN FULL PRECISION, NOT FROM THE SEARCH. The search
+        # returns float32 distances -- a card's native width -- and a pair
+        # sitting exactly on the threshold would then be kept or dropped
+        # according to which backend ran. The decision is re-made here on
+        # the coordinates themselves so it cannot be.
         if np.linalg.norm(src[i] - dst[j]) > threshold:
             continue
         pairs.append((i, j))

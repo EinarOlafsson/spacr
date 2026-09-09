@@ -211,7 +211,14 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # with no API anchor can be linked to that page instead (383). It ships
     # in the wheel, so it is shipped Python and needs a coverage row like
     # the rest.
-    assert len(shipped) == 546
+    # 546 -> 549 on 2026-09-09: `spacr/ops_layout.py`,
+    # `spacr/ops_register.py` and `spacr/ops_accel.py`, the first three
+    # modules of instruction 372's Phase A -- the round-well layout in
+    # closed form, the phase-correlation registration, and the three array
+    # primitives (windowed maximum, matrix multiply, nearest neighbour)
+    # that carry Phase E's CuPy -> torch -> NumPy indirection. All three
+    # ship in the wheel and every one has its own tests.
+    assert len(shipped) == 549
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 

@@ -78,7 +78,8 @@ def estimate_read_locations(stack: np.ndarray) -> np.ndarray:
 
 
 def find_peaks(score: np.ndarray, *, min_distance: int = 3,
-               threshold: Optional[float] = None) -> np.ndarray:
+               threshold: Optional[float] = None,
+               gpu: bool = True) -> np.ndarray:
     """Local maxima of ``score``, as an ``(N, 2)`` array of ``(y, x)``.
 
     A plain "is this pixel the largest in its window" test returns a clump of
@@ -93,13 +94,18 @@ def find_peaks(score: np.ndarray, *, min_distance: int = 3,
     :param threshold: ignore maxima below this. ``None`` keeps every local
         maximum and leaves the decision to the caller, which is the right
         default because the useful cutoff depends on the stain.
+    :param gpu: let the windowed maximum run on the card where there is a
+        usable one. It is a max-pool, which is the single most expensive
+        step in the decode chain on a well-sized field and the operation a
+        GPU exists for. The result is identical either way -- see
+        `tests/test_the_ops_primitives_agree_on_every_backend.py`.
     :returns: peak coordinates, strongest first.
     """
-    from scipy.ndimage import maximum_filter
+    from .ops_accel import maximum_filter
 
     field = np.asarray(score, dtype=np.float32)
     window = 2 * int(min_distance) + 1
-    local_max = maximum_filter(field, size=window, mode="nearest")
+    local_max = maximum_filter(field, window, gpu=gpu)
     hits = (field == local_max) & (field > 0)
     if threshold is not None:
         hits &= field >= float(threshold)
@@ -138,7 +144,8 @@ def extract_bases(stack: np.ndarray, peaks: np.ndarray, *,
 
 def compensate_crosstalk(values: np.ndarray, *,
                          method: str = "percentile",
-                         percentile: float = 95.0) -> np.ndarray:
+                         percentile: float = 95.0,
+                         gpu: bool = True) -> np.ndarray:
     """Undo dye bleed-through, so the brightest channel IS the base.
 
     THE RAW ARGMAX IS NOT THE BASE. Each dye emits into its neighbours'
@@ -159,6 +166,9 @@ def compensate_crosstalk(values: np.ndarray, *,
         Percentile is the more robust of the two when one base is rare, which
         is the case a median call gets wrong.
     :param percentile: the cutoff for ``"percentile"``.
+    :param gpu: let the unmixing multiply run on the card. One tiny matrix
+        applied to every spot of every cycle is a large multiply by a small
+        operand, which is the shape that goes to a card well.
     :returns: corrected intensities, same shape.
     :raises ValueError: on an unknown ``method``.
     """
@@ -197,7 +207,13 @@ def compensate_crosstalk(values: np.ndarray, *,
         # uncorrected values are returned and the caller's quality scores
         # will show what happened.
         return data
-    return (flat @ correction).reshape(data.shape).astype(np.float32)
+    # THE BIG MULTIPLY, on whatever hardware there is. `correction` is
+    # 4 x 4 and `flat` is every spot of every cycle, so this is the one
+    # step in the chain whose cost scales with the plate.
+    from .ops_accel import matmul
+
+    return matmul(flat, correction, gpu=gpu).reshape(
+        data.shape).astype(np.float32)
 
 
 def call_reads(values: np.ndarray, *, bases: Sequence[str] = BASES,
