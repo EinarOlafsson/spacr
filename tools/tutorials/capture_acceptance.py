@@ -12,6 +12,8 @@ def assess_pipeline(outcome, console_blocks, figure_count):
     output = '\n'.join(console_blocks)
     if 'RUN INCOMPLETE' in output or 'ARTIFACTS FROM THIS RUN ARE INCOMPLETE' in output:
         reasons.append('The console reports partial artifacts despite the GUI completion status.')
+    if 'Pipeline worker failed' in output:
+        reasons.append('A background worker failed, even though the main pipeline finished.')
     if figure_count < 1:
         reasons.append('Plot was enabled but no inspectable figure was produced.')
     return {'accepted': not reasons, 'reasons': reasons, 'figure_count': figure_count,

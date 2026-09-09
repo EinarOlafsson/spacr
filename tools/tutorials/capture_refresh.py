@@ -13,6 +13,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -102,6 +103,9 @@ def main() -> int:
     set_preload_policy('on_demand')
     set_theme('dark')
     set_font_scale(1.5)
+    if args.module == 'regression':
+        from spacr.qt.preferences import set_figure_format
+        set_figure_format('png')
     apply_preferences_to_app(app)
     window = gui.MainWindow()
     window.apply_dock_mode('locked')
@@ -506,8 +510,20 @@ def main() -> int:
                        'measure': {'test_mode': True, 'test_nr': 1, 'n_jobs': 1,
                                    'plot': True, 'save_measurements': True, 'save_png': True,
                                    'normalize': False}}
+            if args.module == 'regression':
+                run_parent = stage / 'regression_runs'
+                run_parent.mkdir(parents=True, exist_ok=True)
+                # Never inherit the app's saved project output path. The
+                # downloaded score/count CSVs stay intact in the private cache.
+                destination = tempfile.mkdtemp(prefix='example-', dir=run_parent)
+                presets['regression'] = {
+                    'src': destination, 'inference': 'nonparametric',
+                    'analysis_unit': 'well', 'guide_permutations': 199,
+                    'guide_min_wells': [2], 'guide_permutation_seed': 0,
+                    'level': 'both', 'annotation_source': 'none',
+                }
             if args.module not in presets:
-                raise ValueError('Bounded pipeline presets currently support Mask and Measure')
+                raise ValueError('No bounded recording preset for this module')
             bounded = presets[args.module]
             for key, value in bounded.items():
                 if not model.set_value_for_key(key, value):
@@ -517,7 +533,8 @@ def main() -> int:
                 if settings.get(key) != value:
                     raise RuntimeError(f'The UI did not retain {key}={value}')
             write_json(captures / 'batch_settings.json', settings)
-            screen._preview_switch.setChecked(False)
+            if getattr(screen, '_preview_switch', None) is not None:
+                screen._preview_switch.setChecked(False)
             settle()
             capture('20_batch_settings')
             def reject_unexpected_prompt():

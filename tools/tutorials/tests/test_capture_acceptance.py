@@ -38,3 +38,13 @@ def test_refuses_incomplete_failed_or_figureless_runs(outcome, count):
     result = acceptance.assess_pipeline(outcome, ['✓ Finished'], count)
     assert result['accepted'] is False
     assert result['reasons']
+
+
+def test_post_run_result_panel_failure_is_not_a_clean_demonstration():
+    result = acceptance.assess_pipeline(
+        {'finished': True, 'ok': True, 'errors': []},
+        ['✓ Finished\n[10:59:39] spacr.qt.bridge ERROR  Pipeline worker failed\n'
+         'ValueError: no gene-level coefficients in the guide-only run'], 5)
+    assert result['accepted'] is False
+    assert result['worker_ok'] is True
+    assert 'background worker' in result['reasons'][0]
