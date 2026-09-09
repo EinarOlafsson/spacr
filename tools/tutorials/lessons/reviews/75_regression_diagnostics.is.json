@@ -1,0 +1,21 @@
+{
+  "lesson": "75_regression_diagnostics", "language": "is",
+  "english_sha256": "636adada0750d87b67747ee847c26351442e9bb4bd9d98063728b6c302af4b33",
+  "review": {"kind": "Editorial caption translation checked against English and recorded diagnostic evidence", "native_speaker_signoff": false, "corrections": ["Preserve the distinction between design warnings, permutation inference and software errors.", "Retain numerical limits and explain why this run has no fitted residuals."]},
+  "title": "Regression Diagnostics: skildu forsendurnar að baki niðurstöðunum",
+  "description": "Opnaðu greiningarskrár úr raunverulegri úrvinnslu skimunar með dæmigögnum, greindu á milli viðvarana um tilraunasniðið og niðurstaðna umröðunarprófa og þekktu takmarkanir stuttrar sýnikeyrslu.",
+  "objectives": ["Opna Diagnostics í Regression og staðfesta hvaða úttaksmappa er skoðuð.", "Túlka auðkennanleika tilraunasniðs, tíðni leiðsöguraða og ályktunarmyndir í samhengi við valda greiningu.", "Þekkja ástæðu þess að leifamyndir vantar og takmarkaða upplausn umröðunarprófa án þess að gera ráð fyrir að líkan hafi verið aðlagað."],
+  "prerequisite": "Ljúktu Regression-dæminu með fjórum niðurhalanlegum pörum af skor- og talningarskrám. Upptakan skoðar afmarkaða óstikaða keyrslu með 199 umröðunum, að lágmarki tveimur brunnum og niðurstöðum fyrir bæði leiðsöguraðir og gen. Hún sýnir hugbúnaðinn og túlkun greiningarmynda, ekki fullnægjandi lokagreiningu til að staðfesta uppgötvanir.",
+  "scenes": [
+    "Haltu bendlinum yfir Diagnostics í Regression og opnaðu það þegar greiningu er lokið. Hnappurinn les vistað úttak; hann aðlagar ekki annað líkan. Hann opnar nýjustu greiningarmöppuna í verkefninu, svo athugaðu slóðina ef margar keyrslur eru til.",
+    "Skráastjóri kerfisins sýnir raunverulegar skrár úr greiningu niðurhalaðra skimunardæmigagna. Hér var myndasniðið stillt á PNG. Mappan inniheldur myndir um auðkennanleika tilraunasniðsins, greiningu sniðsins og tölfræðilega ályktun, ásamt yfirlitstöflu og töflu yfir samlínuleg pör leiðsöguraða.",
+    "Tilraunasniðið hefur 606 brunna, 793 stika og fylkisröð 599. Ekki er hægt að ákvarða ótvíræðan stuðul fyrir hverja leiðsöguröð samtímis. Viðvörunin skýrir hvers vegna við notuðum umröðunargreiningu; hún þýðir ekki að sameiginlegt líkan hafi verið aðlagað með árangri.",
+    "Leiðsöguraðirnar koma misoft fyrir: 355 þeirra eru aðeins í einum brunni í þessu sniði. Fá tilvik takmarka hvað tilraunin getur sýnt. Skoðaðu þekjuna áður en áhrif eru túlkuð og greindu á milli alls sniðsins og síaða hópsins sem var raunverulega prófaður.",
+    "Myndin af tilraunasniðinu hjálpar til við að finna litla þekju og háð milli skýribreyta leiðsöguraða. Erfitt er að aðgreina tölfræðilega raðir sem koma alltaf saman fyrir. Skoðaðu tiltekin pör í samlínuleikatöflunni í stað þess að líta á viðvörunartákn sem fullnægjandi skýringu.",
+    "Ályktunarmyndin tekur saman 434 próf á leiðsöguröðum: dreifingu p-gilda, samanburð við jafna dreifingu undir núlltilgátunni og uppgötvanir við leiðrétt viðmið. Þessi stutta keyrsla hefur engar uppgötvanir við sýnt viðmið. Viðvörun um kvörðun kallar á athugun, en er ekki sönnun fyrir líffræðilegum áhrifum.",
+    "Við notuðum aðeins 199 umröðanir til að hafa sýnikeyrsluna stutta. Lægsta mögulega reynslubundna p-gildið er því 0,005. Þessi upplausn getur verið ófullnægjandi eftir leiðréttingu fyrir mörgum prófum. Veldu vel skipulagðan fjölda umröðana fyrir raunverulegu greininguna.",
+    "Þessi umröðunarkeyrsla hefur enga mynd af leifum aðlagaðs líkans því hún aðlagaði ekki sameiginlega aðhvarfslíkanið. Samanburður p-gildanna sem við sáum var ekki leifagreining. Aðrar greiningaraðferðir geta skrifað leifamyndir þegar þær skila mældum og aðlöguðum gildum.",
+    "Yfirlitið skráir mat á hverri mynd og versta matið fyrir greininguna í heild. Lestu hvert mat í samhengi í stað þess að túlka heildartáknið sem hugbúnaðarvillu. Python-forritaskilin fyrir aðhvarfsgreiningarmyndir skrifa sams konar myndir út frá gögnunum sem þau fá.",
+    "Farðu aftur í Regression til að skoða inntakið eða breyta greiningarvali af ásettu ráði. Breyting krefst nýrrar keyrslu og nýrra greiningarmynda; það uppfærir aldrei eldri niðurstöður að opna möppuna. Regression-leiðbeiningarnar fara yfir allt gagnasafnið, stjórnborðið, gagnvirkar niðurstöður og aðstoðina."
+  ]
+}
