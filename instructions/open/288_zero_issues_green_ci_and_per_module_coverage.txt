@@ -1212,3 +1212,50 @@ AND `--repair-api-blocks` DOES NOT CLEAR THEM. Run on es, the smallest:
   hides the rest, so the visible failure looked like 162 contextual-gate
   blocks when it is 405 blocks under six headings. The first hour of this
   went on the wrong number.
+
+
+--------------------------------------------------------------------------------
+THE CATALOGS ARE DOWNSTREAM OF EVERY PUBLIC DOCSTRING. 2026-09-09.
+--------------------------------------------------------------------------------
+
+All nine locales were clean and pushed, and the cross-locale audit then
+failed in seven of them on a class that has nothing to do with translation:
+
+    sv de es zh_CN pt ko fr:  6 stale API symbols
+                              stale source hash for spacr.qt.preferences
+                              code/link/RST roles changed
+
+WHAT HAPPENED IS ORDINARY WORK IN ANOTHER LANE. 364 retired the Space
+theme's six preference accessors -- a correct retirement, with nine ratchets
+moving DOWNWARD for the first time (surface 10,243 -> 10,237). The catalogs
+still listed six symbols that no longer exist.
+
+  NOTE WHICH TWO LOCALES ARE ABSENT: `hi` and `is`, the ones rebuilt most
+  recently, after that change landed. So the failure is inventory staleness
+  in whichever catalogs were built before the docstring moved, and nothing
+  else. The fix is the two-pass -- plain build to refresh the inventory and
+  the hash contracts, then repair to recover the reviewed translations --
+  and it is cheap, because every block already has a reviewed target.
+
+THE PART WORTH WRITING DOWN. Any session that touches a PUBLIC DOCSTRING
+silently stales all nine locales. Not the translations -- the inventory and
+the source hashes. There is no local signal: the audit is the only thing
+that says so, `docs` is the only workflow that runs it, and `docs` cannot
+conclude on nightly because of the cancel-in-progress policy. So the cost
+lands on whoever next runs the audit, in a lane that did not make the change.
+
+  THIS IS THE SAME SHAPE AS THE FLOW-INDEX RATCHET WARNING: regenerating
+  `settings_flow_index` moves DOCUMENTATION_API_SYMBOL_COUNT_RATCHET,
+  REAL_SYMBOL_COUNT and the extractor's expected, and takes COVERAGE.md and
+  REVIEW_SCOPE with them. One lane's routine regeneration is another lane's
+  red suite, and neither lane can see it happen.
+
+  WHAT WOULD FIX IT, and it is not more coordination: a pre-commit or CI
+  check that compares the English manifest's symbol set against
+  `public_docstrings()` and fails on drift. It is a two-second check against
+  a fourteen-minute audit, and it would name the commit that caused the
+  drift instead of the session that found it.
+
+RECORDED HERE RATHER THAN RELAYED. The work session's bridge has gone quiet
+three times today mid-exchange, and a decision or a warning that lives only
+in a chat neither party can re-read is not a decision or a warning.
