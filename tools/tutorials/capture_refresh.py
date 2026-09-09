@@ -42,6 +42,7 @@ def main() -> int:
     parser.add_argument('--ai-controls', action='store_true', help='Show the AI toggle and an UNSENT example question')
     parser.add_argument('--settings-tour', action='store_true', help='Show bounded Regression choices and actual result tabs')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
+    parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
@@ -243,7 +244,38 @@ def main() -> int:
             already_cached = any((stage / 'example_data/plate1').glob('*.tif'))
             loading_frame = '02_cached_load' if already_cached else '02_download'
             QTimer.singleShot(800, lambda: capture(loading_frame))
+            choice = {}
+            if args.module in {'annotate', 'classify_merged'}:
+                def choose_test_data():
+                    from spacr.qt.widgets.test_data_chooser import TestDataChooser
+                    dialogs = [d for d in app.topLevelWidgets()
+                               if isinstance(d, TestDataChooser) and d.isVisible()]
+                    if len(dialogs) != 1:
+                        choice['error'] = 'Expected exactly one test-data chooser'
+                        for d in dialogs:
+                            d.reject()
+                        return
+                    dialog = dialogs[0]
+                    try:
+                        options = {str(b.property('routeKey')): b for b in dialog.findChildren(QAbstractButton)
+                                   if b.property('routeKey')}
+                        for route in ('load', 'stream'):
+                            QTest.mouseMove(options[route])
+                            settle()
+                            capture(f'02_data_choice_{route}')
+                        QTest.mouseClick(options[args.test_data_route], Qt.LeftButton)
+                        if dialog.chosen != args.test_data_route:
+                            raise RuntimeError('The actual test-data route was not selected')
+                        choice['selected_route'] = dialog.chosen
+                    except Exception as error:
+                        choice['error'] = str(error)
+                        dialog.reject()
+                QTimer.singleShot(1200, choose_test_data)
             QTest.mouseClick(button, Qt.LeftButton)
+            if args.module in {'annotate', 'classify_merged'}:
+                write_json(captures / 'test_data_choice.json', choice)
+                if choice.get('error') or choice.get('selected_route') != args.test_data_route:
+                    raise RuntimeError(f'Test-data selection failed: {choice}')
             deadline = time.monotonic() + args.timeout
             while isValid(button) and not button.isEnabled():
                 if time.monotonic() > deadline:
