@@ -584,6 +584,8 @@ def main() -> int:
                        'measure': {'test_mode': True, 'test_nr': 1, 'n_jobs': 1,
                                    'plot': True, 'save_measurements': True, 'save_png': True,
                                    'normalize': False},
+                       'map_barcodes': {'n_jobs': 2, 'chunk_size': 1000,
+                                        'test': False, 'mode': 'paired', 'save_h5': True},
                        'classify_merged': {
                            'classifier_family': 'cv', 'dataset_mode': 'annotation',
                            'classes': {
@@ -676,7 +678,8 @@ def main() -> int:
             if not outcome['ok'] or outcome['errors']:
                 raise RuntimeError('The real pipeline failed; see batch_outcome.json')
             queue = screen._figure_queue
-            if queue.count() < 1:
+            requires_figure = args.module != 'map_barcodes'
+            if requires_figure and queue.count() < 1:
                 raise RuntimeError('Plot was enabled but the run produced no inspectable figure')
             figures = []
             for index, pixmap in enumerate(queue.all_pixmaps()):
@@ -685,14 +688,19 @@ def main() -> int:
                     raise RuntimeError(f'Could not preserve figure {index}')
                 figures.append({'image': path.name, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()})
             write_json(captures / 'batch_figures.json', figures)
-            acceptance = assess_pipeline(outcome, blocks, len(figures))
+            acceptance = assess_pipeline(outcome, blocks, len(figures), requires_figure=requires_figure)
             write_json(captures / 'batch_acceptance.json', acceptance)
             if not acceptance['accepted']:
                 raise RuntimeError('Recording is not a successful complete example: '
                                    + '; '.join(acceptance['reasons']))
-            queue.show_index(queue.count() - 1)
-            settle()
-            capture('24_batch_figure')
+            if queue.count():
+                queue.show_index(queue.count() - 1)
+                settle()
+                capture('24_batch_figure')
+            if args.module == 'map_barcodes':
+                from capture_sequencing import inspect_mapping
+                write_json(captures / 'mapping_outputs.json',
+                           inspect_mapping(Path(settings['src']), sequence_choice['run'], 10000))
             if args.settings_tour and args.module == 'regression':
                 from capture_settings import record_results
                 record_results(screen, captures, capture, settle, write_json)
@@ -720,7 +728,8 @@ def main() -> int:
             settle(2)
             blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
             write_json(captures / 'batch_console_after_tour.json', blocks)
-            final_acceptance = assess_pipeline(outcome, blocks, screen._figure_queue.count())
+            final_acceptance = assess_pipeline(outcome, blocks, screen._figure_queue.count(),
+                                                requires_figure=requires_figure)
             write_json(captures / 'batch_acceptance.json', final_acceptance)
             if not final_acceptance['accepted']:
                 raise RuntimeError('The completed result tour exposed an error: '

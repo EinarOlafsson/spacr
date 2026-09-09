@@ -44,3 +44,35 @@ def test_one_file_cannot_impersonate_both_mates(tmp_path):
 def test_matching_short_files_do_not_meet_the_requested_read_count(tmp_path):
     with pytest.raises(RuntimeError, match='Expected 2 reads, got 1'):
         recorder.inspect_pair(pair(tmp_path), 2)
+
+
+def mapping_files(tmp_path, count=4):
+    folder = tmp_path / 'SRR_example_paired'
+    folder.mkdir()
+    (folder / 'unique_combinations.csv').write_text(f'grna_name,count\nguide1,{count}\n')
+    (folder / 'qc.csv').write_text('total_reads\n10\n')
+    (folder / 'annotated_reads.h5').write_bytes(b'nonempty artifact fixture')
+    return folder
+
+
+def test_real_count_files_are_recorded_without_claiming_every_read_mapped(tmp_path):
+    mapping_files(tmp_path)
+    proof = recorder.inspect_mapping(tmp_path, 'SRR_example', 10)
+    assert proof['accepted'] is True
+    assert proof['mapped_read_count'] == 4
+    assert proof['requested_read_pairs'] == 10
+    assert len(proof['files']) == 3
+
+
+@pytest.mark.parametrize('count', [0, 11])
+def test_empty_or_impossible_count_totals_are_rejected(tmp_path, count):
+    mapping_files(tmp_path, count)
+    with pytest.raises(RuntimeError, match='plausible'):
+        recorder.inspect_mapping(tmp_path, 'SRR_example', 10)
+
+
+def test_empty_requested_artifact_is_not_a_complete_mapping(tmp_path):
+    folder = mapping_files(tmp_path)
+    (folder / 'annotated_reads.h5').write_bytes(b'')
+    with pytest.raises(RuntimeError, match='incomplete'):
+        recorder.inspect_mapping(tmp_path, 'SRR_example', 10)

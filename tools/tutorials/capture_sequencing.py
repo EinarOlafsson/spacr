@@ -2,9 +2,30 @@
 from __future__ import annotations
 
 import gzip
+import csv
 import hashlib
 import time
 from pathlib import Path
+
+
+def inspect_mapping(source, run, expected_reads):
+    """Require nonempty mapped counts and preserve the actual QC totals for review."""
+    folder = Path(source) / f'{run}_paired'
+    with (folder / 'unique_combinations.csv').open() as handle:
+        rows = list(csv.DictReader(handle))
+    with (folder / 'qc.csv').open() as handle:
+        qc = list(csv.DictReader(handle))
+    mapped = sum(int(row['count']) for row in rows)
+    if not rows or not 0 < mapped <= expected_reads or not qc:
+        raise RuntimeError('Mapping did not produce plausible nonempty counts and QC')
+    files = [folder / name for name in ('unique_combinations.csv', 'qc.csv', 'annotated_reads.h5')]
+    if not all(path.is_file() and path.stat().st_size for path in files):
+        raise RuntimeError('The requested mapping artifacts are incomplete')
+    return {'accepted': True, 'folder': str(folder), 'count_rows': len(rows),
+            'mapped_read_count': mapped, 'requested_read_pairs': expected_reads,
+            'qc_rows': qc, 'files': [{'file': p.name, 'bytes': p.stat().st_size,
+                                     'sha256': hashlib.sha256(p.read_bytes()).hexdigest()}
+                                    for p in files]}
 
 
 def inspect_pair(paths, expected_reads):

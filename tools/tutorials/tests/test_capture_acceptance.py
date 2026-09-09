@@ -48,3 +48,12 @@ def test_post_run_result_panel_failure_is_not_a_clean_demonstration():
     assert result['accepted'] is False
     assert result['worker_ok'] is True
     assert 'background worker' in result['reasons'][0]
+
+
+def test_mapping_can_produce_tables_without_an_invented_plot_switch():
+    outcome = {'finished': True, 'ok': True, 'errors': []}
+    assert acceptance.assess_pipeline(outcome, ['Finished'], 0,
+                                       requires_figure=False)['accepted'] is True
+    assert acceptance.assess_pipeline(outcome, ['Finished'], 0)['accepted'] is False
+    assert acceptance.assess_pipeline(outcome, ['RUN INCOMPLETE'], 0,
+                                       requires_figure=False)['accepted'] is False
