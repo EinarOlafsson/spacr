@@ -1,0 +1,47 @@
+================================================================================
+352 -- A FRESH COVERAGE MEASUREMENT FOR THE QT LANE, 2026-09-09
+================================================================================
+
+WHY THIS FILE EXISTS: the baseline anyone would plan 352 from --
+`instructions/data/288_per_module_coverage_batched_2026-08-30b.txt` -- is ten
+days stale and understates the Qt lane badly. Planning off it means writing
+tests for modules that are already covered.
+
+    module                                 2026-08-30    2026-09-09
+    ------------------------------------   ----------    ----------
+    spacr/qt/widgets/annotation_umap_tab      56.29%       100.00%
+    spacr/qt/screens/mask                     59.81%        99.07%
+    spacr/qt/screensaver                      61.11%        98.61%   (after)
+    spacr/qt/memory_budget                    71.62%        97.30%   (after)
+    spacr/qt/widgets/sortable_table           79.30%        98.91%
+    spacr/qt/widgets/qc_field_browser         80.83%        94.94%
+    spacr/qt/crash_recovery                   80.00%       100.00%   (after)
+    spacr/qt/startup_benchmark                82.66%        99.51%
+    spacr/qt/safespacr                        85.00%       100.00%
+
+Six of the nine were already high before this session touched anything. Three
+were raised here -- crash_recovery, memory_budget and screensaver -- and are
+marked "(after)".
+
+WHAT WAS ACTUALLY MISSING, and it was the same shape in all three: not the
+main path, which is what a test naturally exercises, but every FALLBACK. No
+psutil. Memory that cannot be read. A preferences module that will not
+import. A log directory that does not exist. A GL stack that will not build a
+backdrop. A marker file on a read-only filesystem.
+
+That is the half that runs on somebody else's machine, and none of it had a
+test. `crash_recovery` had none at all -- the module whose entire job is to
+run when a launch is already segfaulting.
+
+HOW TO RE-MEASURE ONE MODULE, since the batched script is slow and this is
+what was actually used:
+
+    python -m coverage run --source=spacr.qt.<module> -m pytest <its tests> \
+        -q -p no:cacheprovider -m "not gpu"
+    python -m coverage report --show-missing
+
+REMAINING IN THIS LANE, honestly: qc_field_browser at 94.94% is the largest
+gap by statement count (36 of 727) and the rest are single lines and partial
+branches. 352 asks for "the highest REASONABLE coverage -- not 100%", and the
+Qt lane is at 97.47% across the modules measured here. The next real work is
+not in these numbers.
