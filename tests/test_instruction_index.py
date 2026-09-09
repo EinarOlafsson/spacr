@@ -127,3 +127,44 @@ def test_the_index_points_at_the_handoff():
     text = (INSTRUCTIONS / "00_INDEX.txt").read_text()
     assert "HANDOFF.md" in text
     assert (INSTRUCTIONS / "HANDOFF.md").exists()
+
+
+def test_an_open_status_line_does_not_contradict_its_own_body():
+    """A Status of "not started" over a body recording the work landing.
+
+    TWICE IN ONE DAY on 2026-09-08/09. Instruction 383's header read "not
+    started" while three of its four items were done and recorded below it;
+    382's read the same while the body carried the commit that closed it.
+    Both were found by a person reading the file, which is the check that
+    does not scale -- the header is what a session reads to decide what to
+    work on, so a stale one costs a whole session or duplicates work
+    another one has already finished.
+
+    The rule is narrow on purpose: it fires only when the header claims
+    NOTHING has happened and the body says otherwise in the form this
+    ledger actually uses -- a dated entry announcing the work as done. It
+    does not police percentages, partial progress, or the many honest ways
+    a status can lag its body by a little.
+    """
+    import re
+
+    stale = []
+    for path in sorted((INSTRUCTIONS / "open").glob("*.txt")):
+        text = path.read_text(encoding="utf-8")
+        header = re.search(r"^Status:\s*(.+?)(?=^\w+:|\Z)", text,
+                           re.M | re.S)
+        if not header:
+            continue
+        claim = " ".join(header.group(1).split()).lower()
+        if not claim.startswith("not started"):
+            continue
+        # A dated section announcing completion, which is how this ledger
+        # records it: "2026-09-09 -- ... DONE" or "... IS DONE".
+        landed = re.search(r"^\d{4}-\d{2}-\d{2}[^\n]*\b(IS DONE|DONE)\b",
+                           text, re.M)
+        if landed:
+            stale.append(f"{path.name}: says 'not started', body says "
+                         f"{landed.group(0)[:60]!r}")
+    assert not stale, (
+        "an open instruction's Status contradicts its own body:\n  "
+        + "\n  ".join(stale))

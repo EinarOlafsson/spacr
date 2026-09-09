@@ -2,7 +2,15 @@
 A CHANNEL REVEALS ITS OBJECT'S SETTINGS, AND "ALL SETTINGS" STILL DOES NOT
 ================================================================================
 
-Status:    not started
+Status:    DONE 2026-09-09 in ca60be697, by the other session. It needed
+           THREE fixes, not the one this file described: the keys stop
+           being dropped from the build so the rows exist to reveal; the
+           first visibility pass runs synchronously at the end of the
+           screen build rather than on a QTimer(0), because anyone who
+           built a panel and read it without spinning the event loop saw
+           every gated row visible; and the settings-search strip now
+           subtracts the model's hidden set from `wanted`, so "All
+           settings" stops putting the absent objects back.
 Requested: 2026-09-08 — found while clearing 288. Not a new request: it is
            the seam between two requests already made.
 Owner:     unassigned. Not a release blocker; the workaround is real.
