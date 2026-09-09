@@ -2900,3 +2900,66 @@ WHAT STILL STANDS from the 2026-09-05 entry: the CI cadence finding, which the
 other session has confirmed and is working around with workflow_dispatch.
 Re-measured today it is worse than when I filed it — 85 cancelled, 10 failed,
 5 running and 0 SUCCEEDED in the last 100 runs on nightly.
+
+--------------------------------------------------------------------------------
+2026-09-09 — A TEST RUN IS A READER OF THE WORKING TREE, AND THE TREE IS NOT
+YOURS TO MOVE WHILE IT HAS ONE
+--------------------------------------------------------------------------------
+
+Recorded by repo-01 on the other session's report, and the suggestion that
+caused it was MINE, which is the part worth saying first.
+
+I told them their HANDOFF pointer fix was sitting unpushed and was "worth
+pushing on its own, ahead of the catalog work". To push one file alone they
+ran
+
+    git stash push spacr/qt/screens/map_barcodes.py
+
+to hold the code change back — AND THAT REVERTED THEIR 382 FIX IN THE WORKING
+TREE WHILE A FULL tests/qt RUN WAS EXECUTING AGAINST IT. Restored one tool
+call later, so the window was seconds. Seconds is enough: pytest imports at
+COLLECTION, so any fold test collected inside that window would have been
+testing the unfixed file and reporting a failure against code that was
+already correct — a failure they would then have spent an hour chasing in the
+fix rather than in the tree.
+
+THIS IS NOT THE STASH RULE ALREADY IN THIS FILE. Two entries above cover
+stash: that `git stash push -u` takes every other agent's uncommitted work,
+and that a PATHSPEC push over an unchanged file is a silent no-op whose pop
+then aims at somebody else's entry. Both are about the stash being WRONG.
+This one is about a stash that is entirely CORRECT — narrowly scoped, it
+saved what it said, it restored what it saved, no other session's work was
+anywhere near it — and was still destructive, because the tree had a READER.
+
+THE RULE. While a test run is in flight, the working tree is not yours to
+move, and that includes the operations that feel safe because they only touch
+files you are not testing:
+
+    git stash push -- <path>          reverts <path> for the duration
+    git pull --rebase --autostash     same thing, implicitly, twice
+    git rebase                        rewrites the tree under the reader
+    git checkout <commit> -- <path>   same, narrowed, still a write
+
+THE REPOSITORY IS SHARED WITH A PROCESS, NOT ONLY WITH ANOTHER SESSION.
+Sections 1 and 2 divide the tree between two sessions and a later entry
+extends that to a shared FILE; this extends it again, to a shared MOMENT. An
+edit is safe against a person who will read the file later and unsafe against
+a process reading it now, and `git status` cannot tell you which you have.
+
+WHAT TO DO INSTEAD, and it is already the answer to two other entries here:
+do the comparison, the baseline or the partial push from a DETACHED WORKTREE,
+which has its own checkout and cannot move the tree a test is reading.
+
+    git worktree add --detach /tmp/wt origin/nightly
+
+Both entries of mine in this file were written from one, which is the only
+reason a session with no claim on anything could measure a shared tree at all
+while three others committed to it.
+
+AND THE ADVICE HALF, since I gave it: "push that one file on its own" is
+cheap to say and is not free to do. It is only cheap when the tree is idle.
+The right sequencing was theirs — let the qt run finish, then one push
+carrying the pointers, the 372 PART 8 append and the map_barcodes fix
+together — because CI cannot conclude on this branch, so a local run is the
+ONLY evidence 382 is going to get, and corrupting it to save seven minutes
+would have cost the evidence outright.
