@@ -36,11 +36,14 @@ sentence is in the button's tooltip, and widening the column shows it.
 
 from __future__ import annotations
 
+import logging
 from typing import Iterable, Optional, Tuple
 
 import shiboken6
 from PySide6.QtCore import QEvent, QPoint, QRect, QSize, Qt
 from PySide6.QtWidgets import QLayout, QWidget, QWidgetItem
+
+LOG = logging.getLogger(__name__)
 
 __all__ = ["ColumnAlignedRow", "align_row_to_columns", "TRAILING_SPACING"]
 
@@ -84,7 +87,8 @@ class ColumnAlignedRow(QLayout):
     :param parent: parent widget.
     """
 
-    def __init__(self, header, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, header, parent: Optional[QWidget] = None,
+                 on_invalidate=None) -> None:
         # `parent` installs this as the widget's layout, which is why the
         # caller has to have removed the previous one first.
         """Lay a row out against a header's column widths.
@@ -95,10 +99,17 @@ class ColumnAlignedRow(QLayout):
         :param header: the header view whose sections set the column widths;
             the row follows its resizes, reorders and re-layouts.
         :param parent: the widget to become the layout of, or ``None``.
+        :param on_invalidate: called with no arguments whenever a managed
+            widget's size hint changes. THE ROW CANNOT ACT ON THAT ITSELF:
+            a button that grew needs its COLUMN widened, the header is read
+            and never written here, and a layout that wrote back to the
+            geometry it reads would re-enter itself on the resize it
+            caused. So it tells whoever owns the header instead.
         """
         super().__init__(parent)
         self._items: list[Tuple[QWidgetItem, Optional[int]]] = []
         self._header = header
+        self._on_invalidate = on_invalidate
         self.setContentsMargins(0, 0, 0, 0)
         if _alive(header):
             # THE ONLY THREE THINGS THAT MOVE A COLUMN. A drag on a section
@@ -199,6 +210,37 @@ class ColumnAlignedRow(QLayout):
         form give this one-button-high row every spare pixel of height."""
         return Qt.Orientations(Qt.Horizontal)
 
+    def invalidate(self) -> None:
+        """Tell the header's owner that a managed widget changed size.
+
+        WHY THIS EXISTS AND WHAT IT COST. A button's caption is set in
+        English when the row is built and REPLACED by the language pass
+        afterwards, and "Count" is 100 px where "Contagem" is 151. The
+        column was sized once, before the translation, and the row then
+        clamped the wider caption into the narrower column for the life of
+        the screen -- which is this class behaving exactly as documented
+        and still showing a cut-off word.
+
+        Qt already reports the event: `setText` calls `updateGeometry`,
+        which invalidates the parent layout. The row passes it on rather
+        than acting, because widening a column is the header owner's job
+        and doing it from here would re-enter this layout.
+
+        Never raises: a failed refit is a column that stays where it was,
+        and a layout that raised here would take the whole strip with it.
+        """
+        super().invalidate()
+        callback = getattr(self, "_on_invalidate", None)
+        if callback is None or getattr(self, "_in_callback", False):
+            return
+        self._in_callback = True
+        try:
+            callback()
+        except Exception:                                     # noqa: BLE001
+            LOG.debug("the column refit callback failed", exc_info=True)
+        finally:
+            self._in_callback = False
+
     def setGeometry(self, rect: QRect) -> None:               # noqa: N802
         """Put each widget over its column, and the rest after them."""
         super().setGeometry(rect)
@@ -278,6 +320,7 @@ class ColumnAlignedRow(QLayout):
 def align_row_to_columns(
         strip: QWidget, header,
         columns: Iterable[Tuple[QWidget, Optional[int]]],
+        on_invalidate=None,
 ) -> Optional[ColumnAlignedRow]:
     """Re-lay ``strip``'s widgets out over ``header``'s sections.
 
@@ -289,6 +332,9 @@ def align_row_to_columns(
     :param header: the ``QHeaderView`` whose columns are followed.
     :param columns: ``(widget, column index or None)`` in the order the
         un-aligned ones should trail in.
+    :param on_invalidate: passed to the layout; called when a managed
+        widget's size hint changes, so the header's owner can re-fit the
+        column to a caption that has since been translated.
     :returns: the installed layout, or ``None`` when there was nothing to do.
     """
     if strip is None or not _alive(strip) or not _alive(header):
@@ -309,7 +355,7 @@ def align_row_to_columns(
         # on the next line, and Qt refuses to install one while the widget
         # still has a layout -- which a deferred deletion leaves it with.
         shiboken6.delete(existing)
-    row = ColumnAlignedRow(header, strip)
+    row = ColumnAlignedRow(header, strip, on_invalidate=on_invalidate)
     for widget, column in columns:
         row.add_over_column(widget, column)
     row.activate()

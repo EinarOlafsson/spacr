@@ -1212,3 +1212,83 @@ Four fixes have now been tried and measured away: the button's own sizing,
 the row it is built in, the layout that clamps it, and the widener that
 exists to prevent exactly this. Each was plausible and each is recorded so
 the fifth attempt does not repeat one.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE LAST DEFECT IS CLOSED. IT WAS A MATTER OF ORDER.
+--------------------------------------------------------------------------------
+
+    test_no_caption_is_cut_off[regression-pt-2.0]
+    QPushButton 'Contagem': 144 px wide, wants 151
+
+FOUND BY LOOKING, WHICH IS WHAT THE PREVIOUS NOTE ASKED FOR. Four fixes had
+been tried and measured away and the note said to start by finding the
+widget rather than by reading `file_list.py`. Doing that took one
+instrumented run of the failing case:
+
+    QPushButton 'Contagem'  w=144  hint=151
+      ^1 QWidget  layout=ColumnAlignedRow
+      ^2 SectionBody (QFormLayout)  ...
+      header sections [209, 138, 144, 269, 133]
+      items: 'Score' col 1 hint 94 span (210,138)
+             'Contagem' col 2 hint 151 span (348,144)
+             'Medições (.db)' col 3 hint 203 span (492,269)
+
+So it IS the Download row, it IS `PairedFileTableWidget`, and the earlier
+note's "`_example_counts_button` is None on the regression screen" was
+wrong -- the alignment demonstrably ran and put three buttons over three
+columns. That claim came from a probe on a screen built differently.
+
+THE CAUSE IS THE ORDER OF TWO EVENTS, AND NEITHER IS WRONG ON ITS OWN.
+
+    1. the row is built with its ENGLISH captions
+    2. `_widen_columns_for` fits each column to its button -- ONCE
+    3. the language pass replaces the captions
+
+"Count" is 100 px. "Contagem" is 151. Column 2 was 144 -- from
+`_fit_columns_to_their_headers`, fitting the HEADING -- so English fitted
+and Portuguese did not, and the once-only guard meant the column was never
+looked at again. Measured directly:
+
+    ENGLISH  text='Count'     hint=100   sections [209,138,144,269,133]
+    PT       text='Contagem'  hint=151   sections [209,138,144,269,133]
+
+THE FIX IS IN TWO PARTS, and the second is what makes the first safe.
+
+  * `ColumnAlignedRow.invalidate` now passes the event on. Qt already
+    reports it -- `setText` calls `updateGeometry`, which invalidates the
+    parent layout -- and the row cannot act on it itself: the header is
+    read and never written there, and a layout writing back to the
+    geometry it reads would re-enter itself on the resize it caused. So it
+    calls a callback the header's OWNER supplied.
+  * `_widen_columns_for` stopped being once-only and started REMEMBERING.
+    A flag answers "have we ever done this" when the question is "has the
+    user moved it since". The width this widget set is recorded, a column
+    that already fits records its width as a baseline, and a column found
+    at any other width is the USER'S -- permanently, not until the next
+    caption grows.
+
+    THE BASELINE IS THE HALF THAT IS EASY TO MISS. Without it, "we have
+    never touched this one" and "the user has not touched it either" are
+    the same state, so a column dragged narrow before any caption grew
+    would be dragged back the moment one did. It failed exactly that way
+    once before the sentinel was added.
+
+    AND THE ONE-WAY DOOR IS THE OTHER HALF. Recording the width on every
+    pass looks equivalent and is not: the refit triggered BY the user's own
+    drag records the dragged width as ours, and the next pass then widens
+    it back. Also failed exactly that way, once.
+
+MEASURED AFTER: column 2 goes 144 -> 151 when the caption is translated,
+the button is no longer clipped, and the four-locale sweep at both font
+scales passes -- 208 cases, no offenders anywhere.
+
+THREE TESTS HOLD IT, in `test_the_download_buttons_sit_over_their_columns`:
+a caption that grows after the fit takes its column with it; a column the
+user narrowed is not widened back; and the two rules meeting, where the
+user wins. The first is written against the MECHANISM rather than against
+Portuguese -- any caption that changes after the fit must re-fit, and a
+test keyed on one locale would go green the day that string changed.
+
+  THE SWEEP IS NOW GREEN IN EVERY COMBINATION IT RUNS: 4 locales x 2 font
+  scales x 26 screens, and `KNOWN_OFFENDERS` is still empty.

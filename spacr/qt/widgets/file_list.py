@@ -370,6 +370,12 @@ class PairedFileTableWidget(QWidget):
             if header.sectionSize(column) < needed:
                 header.resizeSection(column, needed)
 
+    #: Sentinels for the remembered Download column widths. A column is
+    #: either unseen, at a width this widget set (or found acceptable), or
+    #: the user's -- and the third is a one-way door.
+    _NEVER_SET = object()
+    _THE_USERS = object()
+
     def _widen_columns_for(self, columns) -> None:
         """Make sure each Download button's column can hold the button.
 
@@ -391,16 +397,51 @@ class PairedFileTableWidget(QWidget):
         :param columns: ``(button, column)`` pairs, column None for a button
             that fills a setting rather than a column.
         """
-        if getattr(self, "_download_widths_applied", False):
-            return
-        self._download_widths_applied = True
         header = self.table.horizontalHeader()
+        applied = getattr(self, "_download_widths", None)
+        if applied is None:
+            applied = self._download_widths = {}
+        self._download_widths_applied = True
         for button, column in columns:
             if column is None:
                 continue
             wanted = button.sizeHint().width()
-            if header.sectionSize(column) < wanted:
+            current = header.sectionSize(column)
+            # NEVER AGAINST THE USER, AND THAT IS WHY THE WIDTH IS
+            # REMEMBERED RATHER THAN A FLAG BEING SET. A once-only guard
+            # answers "have we ever done this" when the question is "has
+            # the user moved it since": the caption is set in English when
+            # the row is built and REPLACED by the language pass
+            # afterwards, so a column sized once is sized for the wrong
+            # word. "Count" is 100 px and "Contagem" is 151.
+            #
+            # THE WIDTH IS RECORDED EVEN WHEN NOTHING IS RESIZED, which is
+            # the half that makes the rule work for a column that already
+            # fit. Otherwise "we have never touched this one" and "the
+            # user has not touched it either" are the same state, and a
+            # column dragged narrow before any caption grew would be
+            # dragged back the moment one did.
+            ours = applied.get(column, self._NEVER_SET)
+            if ours is self._THE_USERS:
+                continue
+            if ours is not self._NEVER_SET and current != ours:
+                # THE USER HAS MOVED IT, so this column stops being
+                # managed -- for good, not until the next caption grows.
+                # A table that argued with a drag every time the language
+                # changed would be unusable.
+                applied[column] = self._THE_USERS
+                continue
+            if current < wanted:
                 header.resizeSection(column, wanted)
+                applied[column] = header.sectionSize(column)
+            elif ours is self._NEVER_SET:
+                # A BASELINE FOR A COLUMN THAT ALREADY FITS, which is the
+                # half that makes the rule work at all: without it, "we
+                # have never touched this one" and "the user has not
+                # touched it either" are the same state, and a column
+                # dragged narrow before any caption grew would be dragged
+                # back the moment one did.
+                applied[column] = current
 
     def showEvent(self, event):                               # noqa: N802
         """Take the Download row above over this table's columns.
@@ -462,8 +503,36 @@ class PairedFileTableWidget(QWidget):
         # button has to be widened first or the caption is clipped by the
         # alignment that was supposed to make it readable.
         self._widen_columns_for(columns)
+        # AND AGAIN WHENEVER A CAPTION CHANGES SIZE. The language pass runs
+        # after the row is built, so the first fit is against the English
+        # text; `ColumnAlignedRow.invalidate` reports the change and the
+        # table -- which owns the header -- acts on it.
+        self._download_columns = list(columns)
         return align_row_to_columns(
-            strip, self.table.horizontalHeader(), columns) is not None
+            strip, self.table.horizontalHeader(), columns,
+            on_invalidate=self._refit_download_columns) is not None
+
+    def _refit_download_columns(self) -> None:
+        """Re-fit the Download columns to captions that have since changed.
+
+        Called by the strip's layout when a managed button's size hint
+        moves, which is what a translated caption does. Cheap -- four size
+        hints and at most four section resizes -- and guarded against
+        re-entry, because resizing a section makes the header emit and the
+        row re-lay itself.
+        """
+        if getattr(self, "_refitting", False):
+            return
+        columns = getattr(self, "_download_columns", None)
+        if not columns:
+            return
+        self._refitting = True
+        try:
+            self._widen_columns_for(columns)
+        except Exception:                                     # noqa: BLE001
+            LOG.debug("could not re-fit the Download columns", exc_info=True)
+        finally:
+            self._refitting = False
 
     def _owning_screen(self):
         """The screen holding the Download buttons, or None.

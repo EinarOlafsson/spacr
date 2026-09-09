@@ -304,8 +304,13 @@ def test_alignment_never_clips_a_button_it_aligned(qtbot):
 
 
 def test_a_column_the_user_narrowed_is_not_widened_back(qtbot):
-    """The widening happens once. A column dragged narrow is the user's, and
-    a table that argued with every show would be unusable."""
+    """A column dragged narrow is the user's, and stays theirs.
+
+    The rule is not "widen once" -- see the test below, where a caption
+    that changes after the first fit must still be fitted. It is "widen
+    unless the user has moved it since", which is why the width we set is
+    remembered rather than a flag being raised.
+    """
     screen, _section = _shown_regression(qtbot)
     table = _table(screen)
     table.align_download_buttons()
@@ -316,3 +321,59 @@ def test_a_column_the_user_narrowed_is_not_widened_back(qtbot):
     qtbot.wait(10)
 
     assert header.sectionSize(3) == 60
+
+
+def test_a_caption_that_changes_after_the_fit_still_gets_its_column(qtbot):
+    """Instruction 350's last defect, and it was a matter of ORDER.
+
+    The buttons are built with their English captions and the language
+    pass replaces them afterwards. "Count" is 100 px where the Portuguese
+    "Contagem" is 151, so a column fitted once -- before the translation
+    -- clamped the wider caption for the life of the screen, and the
+    sweep reported `QPushButton 'Contagem': 144 px wide, wants 151` in one
+    locale at one font scale.
+
+    Asserted through the MECHANISM rather than through a locale: any
+    caption that grows after the fit must take its column with it, which
+    is also true of a caption that changes for any other reason.
+    """
+    screen, _section = _shown_regression(qtbot)
+    table = _table(screen)
+    table.align_download_buttons()
+    header = table.table.horizontalHeader()
+    button = _buttons(screen)["Count"]
+    column = PairedFileTableWidget.SIDE_COLUMNS["count"]
+    before = header.sectionSize(column)
+
+    button.setText("Contagem muito mais longa")
+    qtbot.wait(10)
+
+    wanted = button.sizeHint().width()
+    assert wanted > before, (
+        "the replacement caption is not wider than the column was, so this "
+        "test cannot show the defect it was written for")
+    assert header.sectionSize(column) >= wanted, (
+        f"column {column} is {header.sectionSize(column)} px and the caption "
+        f"wants {wanted}")
+    assert button.width() >= wanted, "the button is still clamped"
+
+
+def test_a_narrowed_column_stays_narrow_even_when_the_caption_grows(qtbot):
+    """The two rules meet, and the user wins.
+
+    A caption that grows re-fits its column -- unless the user has moved
+    that column since, in which case it is theirs and the caption is
+    elided instead. Without this the refit would drag a dragged column
+    back every time the language changed.
+    """
+    screen, _section = _shown_regression(qtbot)
+    table = _table(screen)
+    table.align_download_buttons()
+    header = table.table.horizontalHeader()
+    column = PairedFileTableWidget.SIDE_COLUMNS["count"]
+
+    header.resizeSection(column, 60)
+    _buttons(screen)["Count"].setText("Contagem muito mais longa")
+    qtbot.wait(10)
+
+    assert header.sectionSize(column) == 60
