@@ -272,6 +272,10 @@ def main() -> int:
             from capture_gates import record_gates
             record_gates(app, window, screen, stage, captures, capture,
                          settle, write_json, args.timeout)
+        if args.module == 'align':
+            from capture_align import record_align
+            record_align(app, window, screen, stage, captures, capture,
+                         settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
