@@ -1613,7 +1613,7 @@
         "def30ca32159c3b40b48d311b96a952ec26d093809eeb9f6227f8521c6b7d52f"
       ],
       "source_sha256": "75811db7be0825861f43c27469f725c3b921490ea418c79a49671c92225056f4",
-      "text": "插入并将图像显微镜图像字段的任意数量调整到一个管道。\n\n一个由 10x10 个 2048x2048 uint16 显微镜视野组成的网格会形成 20480x20480 的画布：单通道占 800 MB，四通道占 3.2 GB。本模块从不把这张画布——也不把整套输入——完整保存在 RAM 中。这里的每一项设计决策都由这一约束决定：\n\n* :func:`scan_tiles` 只读 **头**。 ``.npy`` 通过 :func:`numpy.lib.format.read_magic` 加上公共 ``read_array_header_*`` 对; TIFF 到 ``tifffile.TiffFile`` 的序列数据。 一千个板块花费一千个``seek``\\s,没有像素。\n* :func:`estimate_offsets` 记录在 **overlap 条仅** 连接,通过相同的窗口访问模式从记忆地图显微镜图像字段中阅读 :class:`spacr.crops.MergedField` 用于按要求提取图像区域。 在2048x2048显微镜图像字段上占10%的覆盖范围为2048 x205条线 - 0.8 MB,而不是8 MB。\n* :func:`plan_canvas`从*之前的*任何东西都被分配,因此不可能的字符串在算法上被拒绝,而不是由OOM杀手发现。\n* :func:`write_stack` 填充输出 **一个水平带在一个时间**. 顶级工作组是一个带的 float32 积累器加上一个显微镜图像字段窗口,两者都被 ``max_buffer_bytes`` 限制,并且两者独立于管道大小。\n\n问题的另一半是对什么注册和什么不做的诚实。\n\n**Offsets 是全球解决的,从未积累.** 连锁微镜图像字段到微镜图片字段沿着一行 10x10 网络添加每个双重错误,所以最后一个微镜视频字段将数十个像素放出,输出中没有什么说。 相比之下,每对邻居一对都有一个 ``p_j - p_i = d_ij`` 方程式的贡献,整个集合同时作为对夫妇图表的重量较少的四分之一问题解决(见 :func:`solve_positions`)。 旋转边缘 - 一个网的直径邻居,``i``/``i+2``一对重过的序列 - 然后*取消*错误而不是组合它,每个显微镜图像字段得到一个**剩余**:它的解决位置从自己的对话所要求的位置有多远。\n\n未登记的 **A 对已被报告,未被猜测.** 白色或近空的表面上方的阶段相互关系返回了一个自信的顶峰,这是纯粹的噪音。 因此,每对是通过两条线的正常交叉相互关系*after*的分数,适用于测量转换; 在 ``min_confidence`` 以下,一对是落下的,一个微镜图像字段留下没有生存的对保持其名称阶段位置,并被标记为 ``method='nominal'``。 一个名称位置的显微镜图像字段并不像一个注册字段和:data:`ALIGN_TABLE`说什么是,每个显微镜图形字段。\n\n**图像数据通道共享一个解决方案。** 注册仅在 ``reference_channel`` 上运行,并且所产生的放置应用于该站点的每个图像信息通道。  独立对齐图像数据通道会剪切复合图像 — 核蒙版及其自身的 DAPI 图像信息通道将不再对齐 — 因此不提供此选项。\n\n**z is not stitched.** Tiles are 2-D ``(H, W)`` or channel-last 3-D ``(H, W, C)``, which is the layout spaCR's ``merged/*.npy`` already uses. A z-stack must be projected first, or aligned one z-plane at a time by calling this module per plane; a 4-D array is refused with a message that says so rather than being silently reinterpreted.\n\n典型使用::\n\n    from spacr import align\n\n    tiles = align.scan_tiles('plate1/tiles', grid=(10, 10), overlap=0.1)\n    plan = align.estimate_offsets(tiles)\n    print(align.format_plan(plan))\n    result = align.write_stack(plan, 'plate1/stitched')\n    align.save_coordinates(plan, 'plate1/measurements/measurements.db',\n                           canvas=result.canvas, stack_path=result.stack_path)\n\n或在设置关键值地图中的一个呼叫中,每个其他 spaCR 模块的格式::\n\n    align.align_folder({'src': 'plate1/tiles', 'dst': 'plate1/stitched',\n                        'grid': (10, 10), 'db_path': '.../measurements.db'})\n\n坐标表是正确的方式,每个测量表在 ``measurements.db`` 是密钥 - ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` 加上 ``prc`` / ``prcf`` 组合,通过 :mod:`spacr.schema` 构建,这是一个定义 ``spacr.utils`` 写它们也 - 所以::\n\n    SELECT c.*, a.y, a.x, a.method, a.confidence, a.residual\n    FROM cell AS c\n    JOIN align_coordinates AS a USING (plateID, rowID, columnID, fieldID)\n\n它将每个测量对象放在微观视野的粘贴质量旁边,这就是让一个可疑的攻击群体被追踪到“这三个微观观点落后到名称”的结合。\n\n该模块是故意免费的 torch、 cellpose、Qt 和 TensorFlow:它是通过一个 GUI 应用程序视图和仅由标题扫描进口,也不应该支付一个深度学习支票。",
+      "text": "插入并将图像显微镜图像字段的任意数量调整到一个管道。\n\n一个由 10x10 个 2048x2048 uint16 显微镜视野组成的网格会形成 20480x20480 的画布：单通道占 800 MB，四通道占 3.2 GB。本模块从不把这张画布——也不把整套输入——完整保存在 RAM 中。这里的每一项设计决策都由这一约束决定：\n\n* :func:`scan_tiles` 只读 **头**。 ``.npy`` 通过 :func:`numpy.lib.format.read_magic` 加上公共 ``read_array_header_*`` 对; TIFF 到 ``tifffile.TiffFile`` 的序列数据。 一千个板块花费一千个``seek``\\s,没有像素。\n* :func:`estimate_offsets` 记录在 **overlap 条仅** 连接,通过相同的窗口访问模式从记忆地图显微镜图像字段中阅读 :class:`spacr.crops.MergedField` 用于按要求提取图像区域。 在2048x2048显微镜图像字段上占10%的覆盖范围为2048 x205条线 - 0.8 MB,而不是8 MB。\n* :func:`plan_canvas`从*之前的*任何东西都被分配,因此不可能的字符串在算法上被拒绝,而不是由OOM杀手发现。\n* :func:`write_stack` 填充输出 **一个水平带在一个时间**. 顶级工作组是一个带的 float32 积累器加上一个显微镜图像字段窗口,两者都被 ``max_buffer_bytes`` 限制,并且两者独立于管道大小。\n\n问题的另一半是对什么注册和什么不做的诚实。\n\n**Offsets 是全球解决的,从未积累.** 连锁微镜图像字段到微镜图片字段沿着一行 10x10 网络添加每个双重错误,所以最后一个微镜视频字段将数十个像素放出,输出中没有什么说。 相比之下,每对邻居一对都有一个 ``p_j - p_i = d_ij`` 方程式的贡献,整个集合同时作为对夫妇图表的重量较少的四分之一问题解决(见 :func:`solve_positions`)。 旋转边缘 - 一个网的直径邻居,``i``/``i+2``一对重过的序列 - 然后*取消*错误而不是组合它,每个显微镜图像字段得到一个**剩余**:它的解决位置从自己的对话所要求的位置有多远。\n\n未登记的 **A 对已被报告,未被猜测.** 白色或近空的表面上方的阶段相互关系返回了一个自信的顶峰,这是纯粹的噪音。 因此,每对是通过两条线的正常交叉相互关系*after*的分数,适用于测量转换; 在 ``min_confidence`` 以下,一对是落下的,一个微镜图像字段留下没有生存的对保持其名称阶段位置,并被标记为 ``method='nominal'``。 一个名称位置的显微镜图像字段并不像一个注册字段和:data:`ALIGN_TABLE`说什么是,每个显微镜图形字段。\n\n**图像数据通道共享一个解决方案。** 注册仅在 ``reference_channel`` 上运行,并且所产生的放置应用于该站点的每个图像信息通道。  独立对齐图像数据通道会剪切复合图像 — 核蒙版及其自身的 DAPI 图像信息通道将不再对齐 — 因此不提供此选项。\n\n**z 轴不做拼接。** 视野图像为二维 ``(H, W)`` 或通道在后的三维 ``(H, W, C)``，这正是 spaCR 的 ``merged/*.npy`` 已经采用的布局。z 堆栈必须先做投影，或者对每一个 z 层分别调用本模块逐层对齐；四维数组会被拒绝，并给出说明原因的提示，而不是被悄悄地重新解读。\n\n典型使用::\n\n    from spacr import align\n\n    tiles = align.scan_tiles('plate1/tiles', grid=(10, 10), overlap=0.1)\n    plan = align.estimate_offsets(tiles)\n    print(align.format_plan(plan))\n    result = align.write_stack(plan, 'plate1/stitched')\n    align.save_coordinates(plan, 'plate1/measurements/measurements.db',\n                           canvas=result.canvas, stack_path=result.stack_path)\n\n或在设置关键值地图中的一个呼叫中,每个其他 spaCR 模块的格式::\n\n    align.align_folder({'src': 'plate1/tiles', 'dst': 'plate1/stitched',\n                        'grid': (10, 10), 'db_path': '.../measurements.db'})\n\n坐标表是正确的方式,每个测量表在 ``measurements.db`` 是密钥 - ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` 加上 ``prc`` / ``prcf`` 组合,通过 :mod:`spacr.schema` 构建,这是一个定义 ``spacr.utils`` 写它们也 - 所以::\n\n    SELECT c.*, a.y, a.x, a.method, a.confidence, a.residual\n    FROM cell AS c\n    JOIN align_coordinates AS a USING (plateID, rowID, columnID, fieldID)\n\n它将每个测量对象放在微观视野的粘贴质量旁边,这就是让一个可疑的攻击群体被追踪到“这三个微观观点落后到名称”的结合。\n\n该模块是故意免费的 torch、 cellpose、Qt 和 TensorFlow:它是通过一个 GUI 应用程序视图和仅由标题扫描进口,也不应该支付一个深度学习支票。",
       "translation_source_blocks_sha256": [
         "ac1c69940c19e0d39361e9a266b9d6c88bf8fed938bb88c6bd8bb5fdef37d72d",
         "ac3feec1e13e92cb7fc071584c5dae841368a75bd988e2ae17ef2eddad33ea5e",
@@ -2964,10 +2964,10 @@
         "df6d4fa14806aebed5275214be5a8ed5bc53d2f6e9b92aee0552b5acfe2ef208"
       ],
       "source_sha256": "12001f7a626327ba1ecb77033203fd1650c4f03f3e7b77a6df1c4867787b8680",
-      "text": "要求下一个免费桌面名称,通过创建它,空白。\n\n保留在提取图像区域之前 已切断,而不是之后, 因此,他们所写的文件夹可以被命名为匹配: `png_list_2` 得到 `data_2`. 从表中提取文件夹是使磁盘上的设置可追踪到数据库中的设置 -- 有两个独立的帐号,他们第一次流动,或是被删除。, 然后什么都没有说明哪个文件夹描述一个表。\n\n创建表是保留它的:两次处理会议开始在一起,否则会选择相同的名称,而第二次将失败输入后,它已经写了一个文件夹,充满了提取的图像区域。\n\n:param db_path: 测量数据库。\n:returns: 保留的桌子名称。",
+      "text": "要求下一个免费桌面名称,通过创建它,空白。\n\n在提取的图像区域被切断之前保留,而不是之后,所以他们写的文件夹可以被命名相匹配: `png_list_2` 得到了 `data_2`. 从表中提取文件夹是使磁盘上的设置可追踪到数据库中的设置 - 两个独立的计算器,他们第一次流动,或者被删除,然后什么都没有说哪个文件夹一个表描述。\n\n创建表是保留它的:两次处理会议开始在一起,否则会选择相同的名称,而第二次将失败输入后,它已经写了一个文件夹,充满了提取的图像区域。\n\n:param db_path: 测量数据库。\n:returns: 保留的桌子名称。",
       "translation_source_blocks_sha256": [
         "485baea907cb4ecc4b8f601dd23c4a3ab264c66c64e462a1bb13c438ac51e6de",
-        "5b35f2a9073ab044f6bff7a307f28693513742f59cbec5b2dd5dbe64f4496cc8",
+        "cd194951e3999f786c1f2bd29b9e558a8e4cd9985a45947ff8d286b19f1c666e",
         "d7674c17b8c946d02f591ab629a9a8ab27b273261e9a1807dc32b414479164ea",
         "b3d43656f315ab63753e3c0c9e4d06bcc2bf336bb47ada10d7fc6eac044f4864",
         "df6d4fa14806aebed5275214be5a8ed5bc53d2f6e9b92aee0552b5acfe2ef208"
@@ -6051,7 +6051,7 @@
         "b2b718afdda749f6568161f247a90762e5e4a5637a2e7c79df13c1b9e2f1daab"
       ],
       "source_sha256": "d861c9d190bb7185fa8dd960057d5e945efceb4609deb93cd9108323d9c9ad05",
-      "text": "一个修复操作的诊断。\n\n:param method: 正常化修正方法要求操作;它仍然记录,当一个单击操作变成一个警告的No-op。\n:param batch_column: 易于阅读的代数据列名称用于识别提供的包标签。\n:param batches: 分类分类标签后转换为线条。\n:param features: 由操作返回的数值属性列名称,无论是纠正或留下不变的 no-op。\n:param rows: 注入函数行数考虑。\n:param controls: 总行与使用 ``control_center`` 的参考控制相匹配;其他方法的零。\n:param centroid_spread_before: 指在修复前的集合中心标准偏差,或在不可用时 ``None``。\n:param centroid_spread_after: 相同的集合中心诊断后纠正或没有,或 ``None`` 如果不可用。\n:param covariate_columns: 源生物科瓦里特列为 ComBat。\n:param covariate_terms: 设计矩阵的术语从 ComBat 被配置时扩展到这些定位; 没有匹配时空白。\n:param covariate_spread_before: 混合中心风格,在纠正之前分布在类别的科瓦里特群体中,或``None``没有或持续的科沃里特。\n:param covariate_spread_after: 相同的类别科瓦里亚特在纠正后或没有,或 ``None`` 如果不可用。\n:param warnings: Explicit no-op, fallback, unchanged-batch, constant-feature, or ComBat limitation messages.",
+      "text": "一个修复操作的诊断。\n\n:param method: 正常化修正方法要求操作;它仍然记录,当一个单击操作变成一个警告的No-op。\n:param batch_column: 易于阅读的代数据列名称用于识别提供的包标签。\n:param batches: 分类分类标签后转换为线条。\n:param features: 由操作返回的数值属性列名称,无论是纠正或留下不变的 no-op。\n:param rows: 注入函数行数考虑。\n:param controls: 总行与使用 ``control_center`` 的参考控制相匹配;其他方法的零。\n:param centroid_spread_before: 指在修复前的集合中心标准偏差,或在不可用时 ``None``。\n:param centroid_spread_after: 相同的集合中心诊断后纠正或没有,或 ``None`` 如果不可用。\n:param covariate_columns: 源生物科瓦里特列为 ComBat。\n:param covariate_terms: 设计矩阵的术语从 ComBat 被配置时扩展到这些定位; 没有匹配时空白。\n:param covariate_spread_before: 混合中心风格,在纠正之前分布在类别的科瓦里特群体中,或``None``没有或持续的科沃里特。\n:param covariate_spread_after: 相同的类别科瓦里亚特在纠正后或没有,或 ``None`` 如果不可用。\n:param warnings: 明确的无操作、回退、批次未变、常量特征或 ComBat 限制等提示信息。",
       "translation_source_blocks_sha256": [
         "b89386d0a8da946275eaedc8c50b30d5865752097d5ac5140688b4f42eab07bd",
         "6b38ef08b22f2fef3e196572d34d59d37f0141e97337f76cb7f5d475edefe7de",
@@ -25995,12 +25995,12 @@
         "f59d09289c9a30ddf5fc2ac319e36df10874a828dda59d545662af5114f5ab60"
       ],
       "source_sha256": "a3a13d694ad7c9906d5947de76fd82d698bb9606d6380ea665332029de290f43",
-      "text": "效应相当于每个基因的有效代表性。\n\n图表表明代表性是可能的混乱,而不改变基本统计数据,它表明一个基因的显著测量数量是否遵循整体代表性趋势,或者离开它。\n\nx 是基因的 EFFECTIVE Microplate 样品位置 COUNT - 参与比例,这就是字面上每个 p 值被计算的样品大小 - 和 y 是多少测量它移动超越纠正。\n\n有效的微板样本位置,而不是`share`,测量别的东西。 `share`是中间分数一个基因从微板模板位置它是IN - 它是多么集中,当存在时 - 一个罕见的基因可以高得分,正是因为它是罕见。 测量在这个模块的自己的固定:一个基于18的120微板的样品位置有0.44和所有120有一个0.20,这是相反的命令读者正在询问。\n\n控制是用一个不同的标志,因为它们与趋势的关系提供了一个有用的估计定义。\n\n:returns: matplotlib 图,或 ``None`` 当没有任何生存。",
+      "text": "效应相当于每个基因的有效代表性。\n\n图表表明代表性是可能的混乱,而不改变基本统计数据,它表明一个基因的显著测量数量是否遵循整体代表性趋势,或者离开它。\n\nx 是基因的有效微板样本位置计算 - 参与比例,这是字面上每个 p 值被计算的样本大小 - 和 y 是多少测量它超越了纠正。\n\n有效的微板样本位置,而不是 `share`,测量了其他东西。 `share`是中间分数一个基因从微板模型位置它是IN - 它是多么集中在当存在时 - 一个罕见的基因可以得分高于它,正是因为它是稀有的。 测量在这个模块的自己的固定:在18个120个微板示型位置的一基因共有0.44和所有120有一个0.20,这是相反的命令读者正在询问的。\n\n控制是用一个不同的标志,因为它们与趋势的关系提供了一个有用的估计定义。\n\n:returns: matplotlib 图,或 ``None`` 当没有任何生存。",
       "translation_source_blocks_sha256": [
         "30960df0883781eb1588cc39c6f9525b4f82543421a2c297b9e9c0d347868159",
         "0ba478a38200475d895aa31723803d6fd06b4e3a7e33d4070da2fd5b5aa1f2f2",
-        "e5e4f33e3414148e22f06547444910bc8acbe4c45f4fa107ab3555c3ecd9a646",
-        "0923083d36455cecc66316059a746533a82eb4595e03787058924f0c4f74f4f0",
+        "8be588dd45d8ddcb88cd5a193a3838cb4046c8bdd316e97d872fbac282d827be",
+        "911fa0f7cbe407af9cc3a567b07f6099d76f22cec0e57a2e9bd667fe73439b48",
         "ab2757a4afb412ed0d6d9ed5156f1dea2cba1917514be022852bdce4e59b7469",
         "f59d09289c9a30ddf5fc2ac319e36df10874a828dda59d545662af5114f5ab60"
       ]
@@ -26763,7 +26763,7 @@
         "9222d0830d09d587f033c4a598073e51a834b48b5aca529e956c6b551b35866a",
         "4fbb6e1b69b6d982d81ced68876d4eb651a68f6f4ab9bf7c6cb71a98eb64416c",
         "69bba1839d913c21ac3f8e864eeb1ac3a4d94400360d1d5bc8fc750c9d3045e7",
-        "8aa34c53814829c99aac062ac384a6fee9ea3179a4e9d86632b66d8a462c65a0",
+        "663cd988b7c022f52503989669381b8fd2cdaa22445db988c5544ffeb0b0b19e",
         "cb4056793f9d5169141f6586f1436da688a65681aceca62265d3c75d9d9a9469",
         "3006a7c6aa157a8b0360fc7254ea3ad6595bf5c8b64f109ad126173bc4a49735",
         "c33699e078db14db31b48dc6b65b305a261ec799d2fff52d3ce215385ae07178"
@@ -30678,7 +30678,7 @@
         "0a6b7f80a4f32524d759aaa420d9825d22b91ad248747770c9fc13466fe1a2fe"
       ],
       "source_sha256": "601c5b7fc0c20442f1ace31f924c78c24c5f793e2dd9baff917a65c498a72e20",
-      "text": "写下 spaCR 项目 ``plan`` 描述。\n\n``consolidate`` - 最接近的点 spaCR 得到了这一点 - 复制每个图像重新安排它的名字,所以一个300GB的磁盘花费600GB的进口。\n\n一个进口是不可逆转的一半,计划所提出的每一个问题都是结果平静地错误的途径 - 一个无名的轴意味着无法分开描述的图像。\n\n:param plan: 一个计划,其中 :meth:`ImportPlan.problems` 是空的。\n:param destination: 要创建的文件夹。\n:param link: symlink 而不是复制. 返回复制文件。\n:param plate: 字符的名称要写在字符中。\n:param stitch_tiles: 将每个显微镜视野的片段重新聚集在一个图像中,显微镜视野是。 默认情况下:一个显微镜视野作为一个图像到达,并将其转换为例外而不是规则。\n\n    这就是为什么文件名不需要显微镜图像字段SLOT。 核心模块读取的惯例是实验室微板/微板样品位置/T/显微镜视场/L/A/Z/图像数据通道,因此一个显微视场的四个显微图像场产生四个图像,一个名称,三个会被覆盖。  缝合消除了问题,而不是回答它:一个缝合的显微镜视场是一个图像,有一个名称,没有下游需要学习什么是显微镜视场。  参见 :mod:`spacr.image_stitch` 来了解放置是如何完成的,以及当显微镜图像区域不提供任何工作时它会做些什么。\n:param tiles_as_fields: 换句话说,给每个字体自己的显微镜字段视图号。\n\n    退出,它需要先行于 ``stitch_tiles`` 因为它是更具体的请求:一个呼叫者说“每个字符是显微镜的视野”已经说了他们想要的字符是什么。\n\n    既然是两张,图像是 SKIPPED 这是唯一的诚实答案,在推论存在之前,它被保留,因为拒绝写作仍然更好,而不是写三个四个图像。\n:raises ValueError: 当计划仍然有问题时",
+      "text": "写下 spaCR 项目 ``plan`` 描述。\n\n``consolidate`` - 最接近的点 spaCR 得到了这一点 - 复制每个图像重新安排它的名字,所以一个300GB的磁盘花费600GB的进口。\n\n一个进口是不可逆转的一半,计划所提出的每一个问题都是结果平静地错误的途径 - 一个无名的轴意味着无法分开描述的图像。\n\n:param plan: 一个计划,其中 :meth:`ImportPlan.problems` 是空的。\n:param destination: 要创建的文件夹。\n:param link: symlink 而不是复制. 返回复制文件。\n:param plate: 字符的名称要写在字符中。\n:param stitch_tiles: 将每个显微镜视野的片段重新聚集在一个图像中,显微镜视野是。 默认情况下:一个显微镜视野作为一个图像到达,并将其转换为例外而不是规则。\n\n    因此,文件名不需要微镜图像字幕. 核心模块阅读的协议是实验室微板/微板样本位置/T/微镜视野/L/A/Z/图像数据渠道, 因此,四个微镜图像字段的一个微镜视图字段产生四个图像与一个名字和三个将被写过。: 密集的显微镜视野是一个名称的图像。, 没有什么下流需要了解微镜图像字段是什么。 查看 :mod:`spacr.image_stitch` 如何处理配置, 而它在微镜图像字段给它什么不工作。\n:param tiles_as_fields: 换句话说,给每个字体自己的显微镜字段视图号。\n\n    退出,它需要先行于 ``stitch_tiles`` 因为它是更具体的请求:一个呼叫者说“每个字符是显微镜的视野”已经说了他们想要的字符是什么。\n\n    既然是两张,图像是 SKIPPED 这是唯一的诚实答案,在推论存在之前,它被保留,因为拒绝写作仍然更好,而不是写三个四个图像。\n:raises ValueError: 当计划仍然有问题时",
       "translation_source_blocks_sha256": [
         "02051c495a64f8cee12c408b9542e30caa34ab82f94b57c062ac9402a12f4460",
         "4818e13271967e587e6f678dd00d7fe34c3ab20a724cc22b41c2c8f50186cf70",
@@ -30688,7 +30688,7 @@
         "b69320ebb81b4e74da2deaba5fc531d6a291749349c4b7d22a24f2af907a0bdd",
         "678c02ebf2fe56b375ec80a0ba3f50a44c6e0512ee82e4996f6217c7c80840be",
         "c21b717100c356994f8eb5b12400a7e1c28c2bf0cd23d381d60cbd8fe5fb6853",
-        "d7874d6b667e137aacb7b2ebf378b0079e5d55b7e13ab765b09a06a81bdf9f7d",
+        "9cc067806574e0344fe0fd9d245a31bb1bc6dfdf85fb98f0be5f61cab44960d0",
         "c4444734a6d8416b6b43fc2ef1f0e5ad1cdd43bd5286772fe70163682fd23ebc",
         "bd96adc7f746d69ec270529e6a0879e301ec473f672851c45bad8e7b50b94f3b",
         "645321483555c46c7172751406b910b305f3012e74812122c65174858c158ec2",
@@ -30810,13 +30810,13 @@
         "4dd994e739aac1c353dad893b11ef360d9c1dfed5dc00f3d80ea8079a91ef3b4"
       ],
       "source_sha256": "f683904d8f59459bbd0acea5e45a83d65def083c545d867216983d8d827c0b06",
-      "text": "将一个显微镜视野的板块集成到一个图像中,显微镜视野实际上是。\n\nspaCR 该条约的名称 - ``plate_well_T####F###L##A##Z##C##`` 没有微镜图像字段,所以一个字段分为四个微镜图片字段产生了四个图像,其中一个字母名称和三个将被过写。 spaCR 输入时,有打开的选项,这是正确的答案:一个插入的字段是一个名称的图像,所以没有下流需要了解微镜图像字段是什么。\n\n使这一点困难的是,微镜图像字段指数不是一个位置。 ``tile03`` 说图像是某个数字的第三个; 它不说它去哪里,如何命令微镜图片字段,或者它们越过多远。\n\n1. 文件的自己的阶段坐标,当它有它们. 一个 OME-TIFF 记录 ``PositionX``/``PositionY`` 在微小和像素大小旁边,所以布局是没有结束的 - 它是阅读的. 没有别的东西是那么好的. 2. 像素, 相反. 附近的微镜图像字段上滑, 和上滑是相同的图像两次, 因此,正确的转移是谁的暗示上滑相连 - 得分为每一个可接受的转换而不是从一个阶段上滑的顶部,这是一个小上滑。 白色显微镜图像字段,单像图表和没有共享内容的图像产生任何相互关系,以便谈论。 显微镜图像的字段随后在一个方形图像网和集成图像网络标记为 ``assumed`` 与其信任,因为一个图像中的标记一个用户被告知是与一个他们不是不同的东西。\n\n这个缺陷是要避免的是整个进口模块被写的反对:一个答案看起来可靠,是错误的。 收集的图像网在错误地板上是一个带有复制带的字段,每个测量在该带计算了两次,并且没有什么在应用程序视图这样说。",
+      "text": "将一个显微镜视野的板块集成到一个图像中,显微镜视野实际上是。\n\nspaCR 该条约的名称 - ``plate_well_T####F###L##A##Z##C##`` 没有微镜图像字段,所以一个字段分为四个微镜图片字段产生了四个图像,其中一个字母名称和三个将被过写。 spaCR 输入时,有打开的选项,这是正确的答案:一个插入的字段是一个名称的图像,所以没有下流需要了解微镜图像字段是什么。\n\n使这一点困难的是,一个显微镜图像字段指数不是一个位置。 ``tile03`` 说图像是某个数字的第三个; 它不说它去哪里,微镜图片字段是如何订购的,或者它们是多远的。\n\n1. 文件的自己的阶段坐标,当它有它们. 一个 OME-TIFF 记录 ``PositionX``/``PositionY`` 在微小和像素大小旁边,所以布局是没有结束的 - 它是阅读的. 没有别的东西是那么好的. 2. 像素, 相反. 附近的微镜图像字段上滑, 和上滑是相同的图像两次, 因此,正确的转移是谁的暗示上滑相连 - 得分为每一个可接受的转换而不是从一个阶段上滑的顶部,这是一个小上滑。 白色显微镜图像字段,单像图表和没有共享内容的图像产生任何相互关系,以便谈论。 显微镜图像的字段随后在一个方形图像网中加入,并以其信任标记为``assumed``,因为一个用户被告知的一个图像中的标记与他们没有相同的东西不同。\n\n这个缺陷是要避免的是整个进口模块被写的反对:一个答案看起来可靠,是错误的。 一个粘贴的图像网聚集在错误地板上是一个带有复制带的字段,每个测量在该带计算了两次,并且没有什么在应用程序视图这样说。 因此,信心与结果旅行,一个关心的召唤者可以拒绝它。",
       "translation_source_blocks_sha256": [
         "2dff1e66292135d18316006a758326480ff45aabbb1a9508a35fc45f6c8f3b0e",
         "6db3a3471b24c9fb6610d76a2e9f97f3af9296ae492ffbd5091d009fa4afe88e",
-        "1b8db3cb213e5795d4fa1875c33a28e4acf96de4fd5145b1383cffeeb98fade3",
-        "06899e70338791815dd9e327a57ab921720ce12015ff0956222d52d1633eb2bd",
-        "9045f01c8c94e1ec47b68f2c42506a082d018299e771cf41ad210977c0bf7414"
+        "89f8c564a3c3f5cf6841ee4d7523f7f7e681da184bc4e398cf6f3abcbb661d41",
+        "f1a5d74cc9de276013cea4bd3a23df6cadd40c25fce9684b49899564d9ad3b08",
+        "4e8169f2f7d68b08660068ef01dd5e22d360c792153d20d51e8437258bdec9b3"
       ]
     },
     "spacr.image_stitch.Mosaic": {
@@ -30833,12 +30833,12 @@
         "bf11a6f6493cc2cbc43c11a986799091a078a36b9e9b30758722be542038d28d"
       ],
       "source_sha256": "9752b4917f02db72dde91792edebfa74b2410b785576951d3fff4f7eb7d53b05",
-      "text": "一个显微镜视野的计划:每个线路去哪里,以及它是如何决定的。\n\n:param placements: 每片一片,按片顺序。\n:param height: 收集图像网格高度在像素。\n:param width: 收集图像网的宽度在像素。\n:param rows: 网上的线条。\n:param cols: 网中的列。\n:param arrangement: 使用的 :data:`ARRANGEMENTS` 密钥。\n:param how: ``\"single\"``(一片,没有什么可放置的), ``\"stage\"``, ``\"correlated\"``或 ``\"assumed\"`` - 证据的放置休息,在下降的信任顺序。\n:param confidence: 平均是正常的交叉相互关系,在没有任何相互关系的情况下,0。\n:param overlap: ``(y, x)``在邻居之间的像素中覆盖。",
+      "text": "一个显微镜视野的计划:每个线路去哪里,以及它是如何决定的。\n\n:param placements: 每片一片,按片顺序。\n:param height: 图像网格高度在像素。\n:param width: 图像网格宽度在像素中。\n:param rows: 网上的线条。\n:param cols: 网中的列。\n:param arrangement: 使用的 :data:`ARRANGEMENTS` 密钥。\n:param how: ``\"single\"``(一片,没有什么可放置的), ``\"stage\"``, ``\"correlated\"``或 ``\"assumed\"`` - 证据的放置休息,在下降的信任顺序。\n:param confidence: 平均是正常的交叉相互关系,在没有任何相互关系的情况下,0。\n:param overlap: ``(y, x)``在邻居之间的像素中覆盖。",
       "translation_source_blocks_sha256": [
         "bb7416cc4843bc065294c7d06700ac536c7efc28dae8e2f51c695d37dc1ec562",
         "1023eab9ee93d153c8c9e771bca95c958f8fd3fd9ec095c424cf5896dc1375b9",
-        "a43fcd502162393511f1b1a8505227ae23f0777d529a61eecef06af3678b284b",
-        "43cfca79ac9937ec94d9621a85d61e682d13da40f47b183b6f49b2cdb17e540a",
+        "eddea3e774b5657c62ef1c347161e58b1b906d653239bcac26659a25ea3c981c",
+        "e1505e7e1def5f77064421819f2fe7180f2f78efa1a51fe2639e19fddba25db8",
         "ba1a4d88fa6316a4140eef7d6c3b45d94fce8383018670ed4a7ac244958f44bc",
         "fc1291f705c7e59e3d25690d26d02cf497d333dd5220f5d6ac5cfc0ef0f9063d",
         "94c2b7935a3e774942cb3a837775dca93f71cb9bb6cf20a933fe1569c8a10aa7",
@@ -30877,14 +30877,14 @@
         "d1d5d75680aa6463628d1e028e3fe28f1b3919591e429b07eb9c192aa2fab5f4"
       ],
       "source_sha256": "a39596617b313eaa6d59e3ebc9817212325715d1f02b10ebfb50175217c4f811",
-      "text": "在一个显微镜图像字段进入集成图像网。\n\n:param tile: 字母的指数,正如字母所给出的那样。\n:param row: 其序列在网络上。\n:param col: 它在网络中的列。\n:param y: 在集成图像网像的顶端。\n:param x: 左边在集成图像网像素中。",
+      "text": "在一个显微镜图像字段进入粘贴图像网。\n\n:param tile: 字母的指数,正如字母所给出的那样。\n:param row: 其序列在网络上。\n:param col: 它在网络中的列。\n:param y: 图像网格的顶端像素。\n:param x: 左边的图像网格像素。",
       "translation_source_blocks_sha256": [
-        "c2c5775865abc4075678b781c50b1c80b054b6ae3babeace0ac29f32ad069d27",
+        "c9d5ff8a4eb4eaadaa81d103d5f52af39f63a38ea11dc797045e794c99df808d",
         "1cef28027c45b595f4f0d51de3e8b24ffe669e93516ad9e9233a01e2b5015d3d",
         "c52c6779ad79b5c5367dd05daa346d787aae459b40db44c8050f05b137a1c572",
         "ff1d2833dc799c7bd6070af09b36070f8a6e3816a64073f8c241e00b6885822f",
-        "3a5251836cf2f15417301d8b29522922523cf15163e9a06802afe6a105e44e9a",
-        "f68dc5d3188f2e84ed8114b22ded2c6730a5b00dfd45ff37315aef0e8a6f2e99"
+        "177def1cc7085bd4bf1334ceb0ae0b8456eeb0d0f6a1d4a0922e48be71959670",
+        "2c1591a69334286c9f1119e949dcb9c9259fb074436aa946596ce21a4535f695"
       ]
     },
     "spacr.image_stitch.arrangement_of": {
@@ -30917,12 +30917,12 @@
         "4145ac5ab809c1b0a2bd8c8e8f0e4aa5820eea9f3efd95905a6beb22895ce728"
       ],
       "source_sha256": "6ec88367014e35ab27772b7d131f2e99959fa75df6a500d596c6c03005642d82",
-      "text": "工作到一个显微镜视野的每个片段去哪里 阅读;写不写。\n\n:param paths: 图像,以图像顺序。\n:param tiles: 标签指数,为记录. 缺点到 1..n。\n:returns: 收集的图像网,或 None 当微镜图像字段根本无法阅读。",
+      "text": "工作到一个显微镜视野的每个片段去哪里 阅读;写不写。\n\n:param paths: 图像,以图像顺序。\n:param tiles: 标签指数,为记录. 缺点到 1..n。\n:returns: 粘贴图像网,或 None 当微镜图像字段根本无法阅读。",
       "translation_source_blocks_sha256": [
         "4cdc3681a92f0c857bdfb608458a20f1e17fa315adba73bd882f4e43080554b1",
         "4bf518cd8d99f392f3a3aa89d3f5e4406e97e7ceab90b53516643bc3ead666e4",
         "cf48d89d29994ec42a74ec57833a894d0db09f7fb0d3a0db9dd62c0e3fc1dcd6",
-        "98e3d5dfb20a9561871f579618681a573f44321f013a2787400270f6a34501b0"
+        "19925a04f44d51f78f655cb1b6fc1a423eb9c419e5cdab279ab4b0fff25b6bc2"
       ]
     },
     "spacr.image_stitch.read_stage_positions": {
@@ -30932,10 +30932,10 @@
         "f2406c5bc463edb495f63e5fa6551668633b4841dad50a7466251b44d5425dfb"
       ],
       "source_sha256": "9f79d12bb80947ef62bc7a849099e6924a629761715ec4ebe3987fcc6d3ba104",
-      "text": "``(y, x)`` 在 PIXELS 每个路径,或 None 当任何文件缺乏它们。\n\n半个集成图像网从舞台坐标和半个相互关系是两个坐标系统在一个图像,它们之间的连接正是没有什么检查的地方。\n\n返回 None 而不是扔到无法阅读的文件:失去的位置是常见的案例,而不是错误,呼叫者有第二种方法来回归。",
+      "text": "``(y, x)`` 在 PIXELS 每个路径,或 None 当任何文件缺乏它们。\n\n一半是从舞台坐标中放置的紧张图像网,一半是相互关系的两个坐标系统,它们之间的连接正是没有什么检查的地方。\n\n返回 None 而不是扔到无法阅读的文件:失去的位置是常见的案例,而不是错误,呼叫者有第二种方法来回归。",
       "translation_source_blocks_sha256": [
         "10128b1e42cba974a272a74fb86504264a5677bc795a4d851b038c96952ac531",
-        "69ca0303eec5b7ef0a083f18eefeaeb98d473a0155cf6776aff20f762c4eabbc",
+        "3265d53de83c1b476ac2ee1435287564c81a9272dec78b40f4d3cae2f77ecc10",
         "67d3824d633d7350cc38c00d4c5af0c7b95c091f46accecafb27c12af3ff1d27"
       ]
     },
@@ -31150,10 +31150,10 @@
         "709c5294d91374ae3825a0b93a2b75a8cf82de62dd3b57a23f9a131d5447ff4c"
       ],
       "source_sha256": "f549da474c875bccbbceabbe3c8c902220c4d080459d1c05f909537f469a89c2",
-      "text": "感染测量,从完成的测量运行组合。\n\n一份报告,不是一个工作流,这是一个故意的选择,在衍生性被测量后:十三个候选感染测量从表中掉下来 测量已经写了,没有新的图像处理。\n\n名称是整个问题,这就是为什么这个模块产生的每一个数字都携带其自己的名称。 几乎每一种方法都会错误地获得感染测量,就是一个名称,不匹配它的名称:\n\n* 关系表没有对没有寄生虫的细胞的条纹。 ``measure.get_components``爆炸了每个细胞的儿童列表,并将空白列放下,所以数序列在那里计算感染细胞,并称之为细胞计算。 名称必须从 ``cell`` 表中来,它保留了每个分区细胞,无论它里面有什么东西。\n* ``io.py`` 放下病原体没有 ``cell_id`` 并且可以过滤顺序为 ``pathogen_prcfo_count``. 也不触摸细胞表. 从过滤病因表上建立的编号器在未过滤细胞板上计算两个不同的群体,比例看起来完全可靠。\n\n因此,:func:`infection_report`在每个行中返回名称和其大小,一个与一个数字不同意的读者可以立即看到他们不同意哪两个半数。\n\n它不发明第五个字典. ``uninfected``、 ``pathogen_count`` 和 ``pathogen_prcfo_count`` 已经存在于 ``measure``、``io`` 或 ``timelapse`` 之间. 此模块重复使用它们并不添加任何同义词。",
+      "text": "感染测量,从完成的测量运行组合。\n\n一份报告,不是工作流,这是一个故意的选择,在衍生性被测量后:十三名候选人感染测量从表中掉下来 测量已经写了,没有新的图像处理。\n\n名称是整个问题,这就是为什么这个模块产生的每一个数字都携带其自己的名称。 几乎每一种方法都会错误地获得感染测量,就是一个名称,不匹配它的名称:\n\n* 关系表没有对没有寄生虫的细胞的条纹。 ``measure.get_components``爆炸了每个细胞的儿童列表,并将空白列放下,所以数序列在那里计算感染细胞,并称之为细胞计算。 名称必须从 ``cell`` 表中来,它保留了每个分区细胞,无论它里面有什么东西。\n* ``io.py`` 放下病原体没有 ``cell_id`` 并且可以过滤顺序为 ``pathogen_prcfo_count``. 也不触摸细胞表. 从过滤病因表上建立的编号器在未过滤细胞板上计算两个不同的群体,比例看起来完全可靠。\n\n因此,:func:`infection_report`在每个行中返回名称和其大小,一个与一个数字不同意的读者可以立即看到他们不同意哪两个半数。\n\n它不发明第五个字典. ``uninfected``、 ``pathogen_count`` 和 ``pathogen_prcfo_count`` 已经存在于 ``measure``、``io`` 或 ``timelapse`` 之间. 此模块重复使用它们并不添加任何同义词。",
       "translation_source_blocks_sha256": [
         "762c04257d5522947c5379d8294b9056fe89facb104f747be680867a9d87beef",
-        "2d68c5510aff84759c34ed96d47e0ccce8e19455c66c78db436d5de566cfe3b1",
+        "60a053bfdd65a80c0d03ffcadc25e424c7979aa50d20a633d116ae17710c132f",
         "eed46f83b593fe6e8ea1c27bb70922b23533e13631cbf30d8bfe35059e13807d",
         "80d66ef242ea2b20e72ed9cf775fe472d7dbacc85b6e46780cd6c50ae38c3585",
         "412e6282670675f3273f599e21d4c17d5d321abcc59e64e6283669bae4b44c72",
@@ -35512,12 +35512,12 @@
         "97f46c61ba94ec37f9bd306b53ba5f0ded88c819e6802f57886b4d016f00c864"
       ],
       "source_sha256": "81b8c97105e6bd8084d61a52fadf926033339333a92766ad996f589f7e9d329d",
-      "text": "一个层的序列元素坐在世界上。\n\n``world = translate + scale * index``,按轴,有轴命名,以便两层可以同意 \"z\" 是什么意思,而不同意序列形状。\n\n:param scale: 非零和终端,每个轴:一个零将崩溃的轴,每个世界的问答将以元素0回答,这引出一个可靠的图像错误的滑板。\n:param translate: 这个是提取图像区域的折扣 - 一个微镜图像字段从收集图像网中切断保持其位置在收集的图像网络通过携带它在这里。\n:param axes: 轴名称,主要是第一. ``(\"z\", \"y\", \"x\")`` 的缺陷被``len(scale)`` 折叠。\n:param units: 相比之下,当层被粘贴时,因为“0.65”意味着什么,直到你知道它是 µm。\n\n麻醉是正常情况,而不是例外。::\n\n    Spacing.from_map({\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}, units=\"um\")",
+      "text": "一个层的序列元素坐在世界上。\n\n``world = translate + scale * index``,按轴,有轴命名,以便两层可以同意 \"z\" 是什么意思,而不同意序列形状。\n\n:param scale: 非零和终端,每个轴:一个零将崩溃的轴,每个世界的问答将以元素0回答,这引出一个可靠的图像错误的滑板。\n:param translate: 每个轴的元素0的世界坐标. 缺点到零. 这是提取的图像区域的折扣 - 一个微镜图像字段从粘贴图像网中切断,通过将其带到这里保持其位置在粘贴图片网中。\n:param axes: 轴名称,主要是第一. ``(\"z\", \"y\", \"x\")`` 的缺陷被``len(scale)`` 折叠。\n:param units: 相比之下,当层被粘贴时,因为“0.65”意味着什么,直到你知道它是 µm。\n\n麻醉是正常情况,而不是例外。::\n\n    Spacing.from_map({\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}, units=\"um\")",
       "translation_source_blocks_sha256": [
         "b5b7bd38776cdc77711078d00f664712f0febcd84bc5acb0aeed8718d9f6a2b2",
         "6340ddc001940d20f5386491afad9b66e8c4d7ce0ce30c9461475c115081660b",
         "f4b4175f69fb53fa571129624370981b978fb0e08a53f6f7af21074daaee523f",
-        "e19d5528c1e33fa10e5e1998e3df06363a574d668210f413cd072b00592af428",
+        "8ed6f88cc1df17d7bad1f9b2b8fae2fc3166e3f5d83d54582fcba0f6111ca6d0",
         "83777dfebd76bfd11747e55b4c9a53d3ace993b071687d7136bb3ca66066adfe",
         "729568d5bf1200f6eb71c355f144230270ce1cf74e267e5ab2bba148c70d6644",
         "97f46c61ba94ec37f9bd306b53ba5f0ded88c819e6802f57886b4d016f00c864"
@@ -37085,7 +37085,7 @@
         "3e6628ee2c90defccd89407aafa7536638ed771b1cab30d59a9dad0ef94fb058"
       ],
       "source_sha256": "1a85a0b836b2d21be9673e982b53cb4a7eff848646c03105253b256344967197",
-      "text": "将遮罩和图像数据通道转换为数据库中每个对象的一行。\n\n分类说 WHERE 对象是; 这个模块说他们是什么 喜欢. 它阅读的草坪 掩膜写的,并产生桌子每一个下流问题被问到 - 哪些基因改变了一个现象,哪些细胞训练一个机器学习分类模型,哪些微板样本位置相信。\n\nWHAT IT NEEDS. A ``merged/`` folder written by :func:`spacr.core.preprocess_generate_masks`: the intensity channels and the label masks for one field, saved together as ``.npy``. Which masks to measure is named per object -- ``cell_mask_dim``, ``nucleus_mask_dim``, ``pathogen_mask_dim`` and the organelle slots -- and an object with no mask dimension is simply not measured, rather than measured as empty.\n\n它所产生的。\n\n* ``measurements/measurements.db``, one SQLite table per object type, one row per object, keyed by the plate/row/column/field/object identity :mod:`spacr.schema` composes. The columns are shape, intensity, texture and SPATIAL features -- how many neighbours an object has within a radius, how far the nearest one is, what fraction of its border touches another.\n* 可选,一 PNG 对象(``save_png``)由掩膜提取的图像区域,这些提取图像区是 :func:`spacr.deep_spacr.deep_spacr` 列车上和什么Annotate显示,这就是为什么提取图像区域生活在这里而不是机器学习分类模型:它们必须由测量来源的相同掩膜切割。\n\n接下来要做什么? 注明或分类,如果提取的图像区域是写的; 回归,如果问题是什么干扰移动什么测量。\n\n--------------------------------------------------------------------------\n\n三件事是不明显的,是负担负担的:\n\n沉默会让一个逆转分析344个384个微板样本位置,并报告一个结果没有迹象,四十是缺失,这是这个模块的失败是最谨慎的 - 同样的原因,它的3D路径拒绝一个容量它不能正确测量而不是错误测量它。\n\n二D PATH 它是相当相同的,故意是这样. 掩膜可以发出 ``(Z, Y, X)`` 标签现在(参见) :mod:`spacr.zstack`)和所有关于音频空间,容量列和单位标签的存在,以便一个3D显微镜的视野被测量为真实的单位或被拒绝。 ``spacing=None``;去年测量并今天重新测量的筛选产生相同的数字。\n\n``neighbors_within_30`` 是不同列的 ``neighbors_within_50``,跟随相同的先例为 ``homogeneity_distance_<d>``,因此在不同的射线测量的两个实验室微板不会沉默地集成到一个框架,这意味着两件事。\n\n照明纠正和用户驱动的 ROI 通过 :mod:`spacr.measure_hooks` 中的记录而不是编辑来实现这个模块. 两者都是默认空白的,并且两点输入返回他们的输入时不变,因此一个常见的运行是比特相同的,从它们存在之前。",
+      "text": "将遮罩和图像数据通道转换为数据库中每个对象的一行。\n\n分类说 WHERE 对象是; 这个模块说他们是什么 喜欢. 它阅读的草坪 掩膜写的,并产生桌子每一个下流问题被问到 - 哪些基因改变了一个现象,哪些细胞训练一个机器学习分类模型,哪些微板样本位置相信。\n\n它需要什么。一个 ``merged/`` 文件夹，由 :func:`spacr.core.preprocess_generate_masks` 写出：某一个视野的强度图像通道与标签掩膜，一起保存为 ``.npy``。要测量哪些掩膜按对象逐一指定 —— ``cell_mask_dim``、``nucleus_mask_dim``、``pathogen_mask_dim`` 以及各个细胞器槽位 —— 没有掩膜维度的对象根本不会被测量，而不是被当作空对象测量。\n\n它所产生的。\n\n* ``measurements/measurements.db``，每种对象类型一张 SQLite 表，每个对象一行，以 :mod:`spacr.schema` 组成的 板/行/列/视野/对象 标识为键。列包括形状、强度、纹理以及空间特征 —— 一个对象在给定半径内有多少邻居、最近的邻居有多远、它的边界有多大比例与另一个对象相接。\n* 可选,一 PNG 对象(``save_png``)由掩膜提取的图像区域,这些提取图像区是 :func:`spacr.deep_spacr.deep_spacr` 列车上和什么Annotate显示,这就是为什么提取图像区域生活在这里而不是机器学习分类模型:它们必须由测量来源的相同掩膜切割。\n\n接下来要做什么? 注明或分类,如果提取的图像区域是写的; 回归,如果问题是什么干扰移动什么测量。\n\n--------------------------------------------------------------------------\n\n三件事是不明显的,是负担负担的:\n\n沉默会让一个逆转分析344个384个微板样本位置,并报告一个结果没有迹象,四十是缺失,这是这个模块的失败是最谨慎的 - 同样的原因,它的3D路径拒绝一个容量它不能正确测量而不是错误测量它。\n\n二D PATH 它是相当相同的,故意是这样. 掩膜可以发出 ``(Z, Y, X)`` 标签现在(参见) :mod:`spacr.zstack`)和所有关于音频空间,容量列和单位标签的存在,以便一个3D显微镜的视野被测量为真实的单位或被拒绝。 ``spacing=None``;去年测量并今天重新测量的筛选产生相同的数字。\n\n``neighbors_within_30`` 是不同列的 ``neighbors_within_50``,跟随相同的先例为 ``homogeneity_distance_<d>``,因此在不同的射线测量的两个实验室微板不会沉默地集成到一个框架,这意味着两件事。\n\n照明纠正和用户驱动的 ROI 通过 :mod:`spacr.measure_hooks` 中的记录而不是编辑来实现这个模块. 两者都是默认空白的,并且两点输入返回他们的输入时不变,因此一个常见的运行是比特相同的,从它们存在之前。",
       "translation_source_blocks_sha256": [
         "77d70cda8597218238b2e5e82a060105cb2eaa31558d8c044e64a4506adac27b",
         "ec7e1b9547cc0f3f74d340029412f1cf5aff1d128381039e312d137b5f3c76f3",
@@ -39059,7 +39059,7 @@
         "dd82f29f4c8273b8974672206afa51ba15377faef24a655d5c0c26f952975867"
       ],
       "source_sha256": "ccfdccb5bac996ada658b13dbb4bc0f87c16e0eb64abc1062a0df822cf694037",
-      "text": "查找扫描实验现象和测试,指导或基因解释它们。\n\n它是为了什么\n==============\n**Regression**显微镜图像字段打开这个模块,因为:func:`perform_regression`是它的主要输入点:它将每微型样品位置图像分数连接到序列计算和估计引导 RNA或基因级的组合为一个集成筛选。 该模块还包含一个单独的经典机器学习工作流,:func:`generate_ml_scores`,它训练一个机器学习分类模型测量单个对象特性,并将这些预测转化为一个可消耗的回归表。\n\n它需要什么\n=============\nA regression run is configured with ``paired_data``: ordered score/count CSV pairs whose plate and well identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control wells, plate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.\n\n它所产生的\n================\n回归结果进入一个新的,不过度编写的 ``<output root>/results/<analysis kind>[_n]`` 目录。 ``results.csv`` 是主要组合表; ``results_grna.csv`` 和 ``results_gene.csv`` 使定位级别明确,而 ``results_significant.csv`` 记录了边界攻击。 相同的目录包含总结、诊断、火山和实验室微板数字、可选出版面板包、资源测量或详细的失败报告。 没有固定行的要求级别被保留为一个标题 - 仅为 CSV 因此下流工具可以区分“测试,没有行”与缺乏的艺术品。 经典ML编写预测、功能重要表、评估结果和实验室微板温度图在``results``下方。\n\n接下来的要做什么\n================\n阅读诊断和失败/资源记录之前排名打击,然后检查与完整的级别表旁边的重要表,并检查引导 RNA和基因效果是否一致。 打开创建的结果面板为视觉 QC 并保留设置/示威与任何报告的打击列表. 如果分数还不存在,运行 :func:`generate_ml_scores`;如果分数尚未存在,使用 :func:`spacr.sequencing.generate_barecode_mapping` 创建它们。\n\n一些统计区别是故意的。 引导 RNA和基因匹配是单独的多重测试家庭,并获得单独纠正; 名称 ``alpha``,效应尺寸边界和纠正的含义分数不可交换。 混合模型报告指示效果,如缩小BLUP预测没有指示p或q值,所以它们不应该被阅读为第二个引导 RNA意义测试。 诊断或报告代故障不会删除成功的科学结果,而实际的逆转故障被记录,然后重新升起不变,所以呼叫者不能错过完成的处理会议。",
+      "text": "查找扫描实验现象和测试,指导或基因解释它们。\n\n它是为了什么\n==============\n**Regression**显微镜图像字段打开这个模块,因为:func:`perform_regression`是它的主要输入点:它将每微型样品位置图像分数连接到序列计算和估计引导 RNA或基因级的组合为一个集成筛选。 该模块还包含一个单独的经典机器学习工作流,:func:`generate_ml_scores`,它训练一个机器学习分类模型测量单个对象特性,并将这些预测转化为一个可消耗的回归表。\n\n它需要什么\n=============\n回归运行通过 ``paired_data`` 配置：成对且有序的分数/计数 CSV，其板与孔的标识必须一致。较旧的 ``score_data`` 与 ``count_data`` 列表会按位置迁移，但显式配对更为稳妥。用 ``dependent_variable`` 选择分数列，并提供相关的对照孔、板的元数据、分析 ``level``（guide、gene 或两者）、多重检验阈值，以及受支持的 ``regression_type`` 或 ``None``（表示基于分布的选择）。各系列专有的设置会被校验，而不是被悄悄忽略。经典机器学习路径则需要一个或多个 ``measurements.db`` 文件、带标注的阳性与阴性对照或一个标注列，以及模型选择，例如 XGBoost、逻辑回归或随机森林。\n\n它所产生的\n================\n回归结果进入一个新的,不过度编写的 ``<output root>/results/<analysis kind>[_n]`` 目录。 ``results.csv`` 是主要组合表; ``results_grna.csv`` 和 ``results_gene.csv`` 使定位级别明确,而 ``results_significant.csv`` 记录了边界攻击。 相同的目录包含总结、诊断、火山和实验室微板数字、可选出版面板包、资源测量或详细的失败报告。 没有固定行的要求级别被保留为一个标题 - 仅为 CSV 因此下流工具可以区分“测试,没有行”与缺乏的艺术品。 经典ML编写预测、功能重要表、评估结果和实验室微板温度图在``results``下方。\n\n接下来的要做什么\n================\n阅读诊断和失败/资源记录之前排名打击,然后检查与完整的级别表旁边的重要表,并检查引导 RNA和基因效果是否一致。 打开创建的结果面板为视觉 QC 并保留设置/示威与任何报告的打击列表. 如果分数还不存在,运行 :func:`generate_ml_scores`;如果分数尚未存在,使用 :func:`spacr.sequencing.generate_barecode_mapping` 创建它们。\n\n一些统计区别是故意的。 引导 RNA和基因匹配是单独的多重测试家庭,并获得单独纠正; 名称 ``alpha``,效应尺寸边界和纠正的含义分数不可交换。 混合模型报告指示效果,如缩小BLUP预测没有指示p或q值,所以它们不应该被阅读为第二个引导 RNA意义测试。 诊断或报告代故障不会删除成功的科学结果,而实际的逆转故障被记录,然后重新升起不变,所以呼叫者不能错过完成的处理会议。",
       "translation_source_blocks_sha256": [
         "2bfa32509013c612894e8cd0375023a84daf173ad9e3618e5d2ab602bbba0b07",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -40123,14 +40123,14 @@
         "7bbd26948a92993986994c0718abdd58de0831936accbe24b6031565e5e0d8c0"
       ],
       "source_sha256": "3d8a3e92d71a16385968db55b67c431fba6e04e40a75471ba9a0e2bcc3d1e33d",
-      "text": "写 ``model.summary().as_text()`` 到 ``file_path`` 作为平板文本。\n\n内容是 statsmodels 文本摘要,从来没有 CSV - 这就是为什么默认名称为 :data:`SUMMARY_FILENAME` 而不再 ``summary.csv``. 老板在磁盘上写了 ``mode_summary.csv``; 在此存储库中的每个读者都接受两者,请参见 :data:`SUMMARY_FILENAMES`。\n\n:param model: 定位 statsmodels 结果对象。\n:param file_path: 目的地路径. 默认 :data:`SUMMARY_FILENAME`。\n:returns: 路径是写的,或者``None``,如果没有什么可写的。\n\n每张桌子都写完后,这个字会被称为;一个背尾的``summary()``扔不应该带着它走下去,而呼叫者是由``None``说,而不是由一个跟踪。",
+      "text": "写 ``model.summary().as_text()`` 到 ``file_path`` 作为平板文本。\n\n内容是 statsmodels 文本摘要,从来没有 CSV - 这就是为什么默认名称为 :data:`SUMMARY_FILENAME` 而不再 ``summary.csv``. 老板在磁盘上写了 ``mode_summary.csv``; 在此存储库中的每个读者都接受两者,请参见 :data:`SUMMARY_FILENAMES`。\n\n:param model: 定位 statsmodels 结果对象。\n:param file_path: 目的地路径. 默认 :data:`SUMMARY_FILENAME`。\n:returns: 路径是写的,或者``None``,如果没有什么可写的。\n\n每张桌子都被写下来后,这被称为;一个背端的 ``summary()`` 投下不应与它一起投下,而呼叫者则被告知为 ``None`` 而不是由一个跟踪。",
       "translation_source_blocks_sha256": [
         "0a046f7a2d4a77cdbf034aa73ff872e69bdf0f20dd75892d27110a7b96427845",
         "d7df09494cdcebfd98f7f99641b0775aab7870cda58499b88a3375a42454fdbb",
         "7a76b356b56bfe6c766c1fcea786964f1bcfaaa96f59ab369bff202d11d74112",
         "0029acde584972f81208f8e2f4312880308e89c9534f0dd642d5b56d31414c8b",
         "6b592ff6160a5c3594145db7c500e2fe8210a429d4f2b93b981fa58dc6fa4776",
-        "51122d17d3168b6b17a27ec328f7bed632ee0d5501b2e050ea3c75851e7b198c"
+        "229b4054cb5cc06caa4bc789d49571c279b003e6ed8e9ab86dbef9185e5fbc1f"
       ]
     },
     "spacr.ml.scale_variables": {
@@ -42057,7 +42057,7 @@
         "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
       ],
       "source_sha256": "1b32cd5c05e056c7322ad58a1ce80fd09e84ccc4a060d40b76215d0ebb9c0c96",
-      "text": "社区目录,从 :data:`REMOTE_CATALOGUE_URI` 获取。\n\n:param uri: 超越目录位置。\n:param timeout: 等待几秒钟的请求。\n:param force: 忽略缓存和重新捕捉。\n:param block: 要等到网络。 ``None`` 假设,以及一个不思议的召唤者得到的东西,到处都在等待。 Qt 其主要 GUI 执行路径,在那里它从缓存中响应,并在一个独立的Daemon执行路线上更新。 ``True`` 等到它在哪里被召唤,只有一个知道它在一个工作进程或在一个CLI可以要求的召唤者。 ``False`` 永远不要等。\n:returns: 输入,或 ``()`` 如果目录无法阅读。\n\n从未在主 GUI 执行路线上捕捉,并且这不是最佳化. 这是从 ``spacr.settings.downloaded_zoo_models`` 到达的,而设定面板正在建造,所以它在内部运行 ``MainWindow._on_nav_selected`` 没有什么可以画或回应作曲家. 测量与目录主机非路由性 (10.255.255.1,下方 VPN 或捕捉门的形状 - 连接不完成或被拒绝): 开启掩膜模组采取 **32.2 s**,所有它的一个主要 GUI 执行路线被困在 ``urlopen``. GNOME 寻求一个窗口,如果它是活的后五,所以用户看到的是 spaCR 的 \"force quit\" 对话,这是如何。\n\n不要等待的成本是第一个开放的模组,其 Cellpose 下载列出结合和当地模型,但不是社区模型;背景更新意味著第二个有它们。\n\n它从来没有升起,而且是故意的,这是当一个用户打开一个模型列表的模块,而列表是有用的没有它:包装输入和任何地方模型仍然在那里。 Hugging Face 打开所有产生相同的东西 - 更短的列表和日志线 - 而不是一个不打开的模块。\n\nWOULD 保持沉默和有害的失败是一个腐败或敌对的目录,所以不分裂的输入被单独放下,没有 ``sha256`` 的输入仍然不能由 :func:`fetch` 安装,没有明确的过渡。",
+      "text": "社区目录,从 :data:`REMOTE_CATALOGUE_URI` 获取。\n\n:param uri: 超越目录位置。\n:param timeout: 等待几秒钟的请求。\n:param force: 忽略缓存和重新捕捉。\n:param block: 要等到网络。 ``None`` 假设,以及一个不思议的召唤者得到的东西,到处都在等待。 Qt 其主要 GUI 执行路径,在那里它从缓存中响应,并在一个独立的Daemon执行路线上更新。 ``True`` 等到它在哪里被召唤,只有一个知道它在一个工作进程或在一个CLI可以要求的召唤者。 ``False`` 永远不要等。\n:returns: 输入,或 ``()`` 如果目录无法阅读。\n\n从未在主 GUI 执行路线上捕捉,并且这不是最佳化. 这是从 ``spacr.settings.downloaded_zoo_models`` 到达的,而设定面板正在建造,所以它在内部运行 ``MainWindow._on_nav_selected`` 没有什么可以画或回应作曲家. 测量与目录主机非路由性 (10.255.255.1,下方 VPN 或捕捉门的形状 - 连接不完成或被拒绝): 开启掩膜模组采取 **32.2 s**,所有它的一个主要 GUI 执行路线被困在 ``urlopen``. GNOME 寻求一个窗口,如果它是活的后五,所以用户看到的是 spaCR 的 \"force quit\" 对话,这是如何。\n\n不要等待的成本是第一个开放的模组,其 Cellpose 下载列出结合和当地模型,但不是社区模型;背景更新意味著第二个有它们。\n\n它从来没有扔掉,而且是故意的. 这是当一个用户打开一个模型列表的模块,而列表是有用的没有它:包装输入和任何地方模型仍然在那里。 Hugging Face 打开所有产生相同的东西 - 更短的列表和日志线 - 而不是一个不打开的模块。\n\nWOULD 保持沉默和有害的失败是一个腐败或敌对的目录,所以不分裂的输入被单独放下,没有 ``sha256`` 的输入仍然不能由 :func:`fetch` 安装,没有明确的过渡。",
       "translation_source_blocks_sha256": [
         "a11c0b6d86e8b0c5269f6a306a3f9c3ab702e89474d0bbb241974aa999b921b4",
         "94c20c1ef9bdcc66534132fe105cbb1f55a266532f2d46ca26bd474cb0280b12",
@@ -42067,7 +42067,7 @@
         "e6dc6abbd0dbe2ffb30424931c3d215861c95ca990f8ee96964081fb6f21267f",
         "fc573f9f39175e3480369c1e2d5507cadaccc0540267fc48c86848c43b3852a6",
         "7aefb1fe26428e65edf007b7786bb33b1fb75ee44c89c7d0adc1588f9ab471d5",
-        "78ef3cecd066fae289acc304682a729954c7c33eba4afb1182ba57478b549770",
+        "4a4607e2c765b31a3936ba0bd24e3ac3bb9d094706352f353f032e708ea735ff",
         "55679653920dac41f48c2692ed23a0dfe186d3fa4e87909565389052d086380a"
       ]
     },
@@ -42452,11 +42452,11 @@
         "f96ed866524b46cd17c069b328aa0b4f57886213c725ac2106ab932df20aa6a9"
       ],
       "source_sha256": "4b8ffae352c0b562305da511c19482f794d7418b8468f33c5515e2e95689a181",
-      "text": "每个带有实验室微板的列中都会出现双重 ``p`` 预定。\n\n为什么这不是化妆品? 测量资料库印刷 ``pplate1`` 产生合成行印刷``pplate1``,而得分和数量 CSVs 已经正常化为 ``plate1``. 两者然后不相遇. 每个加入 INSIDE 合成是无影响的,因为两方阅读相同的储存值 - 这正是什么使它很难看到:合成成功,行数是正确的,并且失败出现后来和其他地方,作为一个基因的一半,没有可见的理由。\n\n组成的结构数据名称相当于实验室微板COLUMN。 ``prc`` 是 ``<plate>_<row>_<column>``,因此在其第一组件中有双重预定; 单独重新编写 ``plateID`` 将使 ``prc`` 不可分割,而两个列不同意相同的实验室小板。\n\n应用于阅读,所以磁盘上的任何东西都没有重写,旧数据库仍在工作 - 现有规则是纠正进程格式并迁移内容,而测量数据库是用户的数据,而不是我们的编辑。\n\n一个薄名称超过 :func:`spacr.schema.normalise_plate_columns`,这是一个实施。\n\n:param frame: 任何框架从测量数据库中阅读。\n:returns: 相同的框架,与实验室微板带的列在位置正常化。",
+      "text": "每个带有实验室微板的列中都会出现双重 ``p`` 预定。\n\n为什么这不是化妆品? 测量资料库印刷 ``pplate1`` 产生合成行印刷``pplate1``,而得分和数量 CSVs 已经正常化为 ``plate1``. 两者然后不相遇. 每个加入 INSIDE 合成是无影响的,因为两方阅读相同的储存值 - 这正是什么使它很难看到:合成成功,行数是正确的,并且失败出现后来和其他地方,作为一个基因的一半,没有可见的理由。\n\n组成的结构化数据名称与实验室微板列相同。 ``prc`` 是 ``<plate>_<row>_<column>``,因此在其第一组件中进行双重预定; 单独重新编写 ``plateID`` 将使 ``prc`` 不可分割,而两个列不同意相同的实验室小板。\n\n应用于阅读,所以磁盘上的任何东西都没有重写,旧数据库仍在工作 - 现有规则是纠正进程格式并迁移内容,而测量数据库是用户的数据,而不是我们的编辑。\n\n一个薄名称超过 :func:`spacr.schema.normalise_plate_columns`,这是一个实施。\n\n:param frame: 任何框架从测量数据库中阅读。\n:returns: 相同的框架,与实验室微板带的列在位置正常化。",
       "translation_source_blocks_sha256": [
         "2a9f5fabdc61b47f77ebab744f6a69343af7f01f90cda8b6079b629fa98cc770",
         "a147b97c84673fc2c07d3536074868e61bd86129c36d92f1158b387fb13579ab",
-        "17d040cf17ebdf642e2e878cb23dd2357f038142a6dd9f36d889311268f4c3b5",
+        "3fd7fe231787e19780043108c19194bee2cf2174f6e2d3df0c1dfc70b2ee3456",
         "8b8e650a6bc225ac7377d14c983f9a1d625d59ed6dfefeeaf98e59b006106258",
         "28abbf3be2eb0dce0247475abdd15c6919bc67ed3eb0b1d254c9fe35ed996e93",
         "e1b2ce7298e744edb8ebbc63d489c9f0fe5f670a30f76b7e99b82ea87db96fa7",
@@ -46481,7 +46481,7 @@
         "dea8f413b76eed94e260ee9af91a214ff28de2a06005472bd7b26f9ab7339b4c"
       ],
       "source_sha256": "a4f72d9f9cbace3aa994622b306412d9d524e0f00c3b868fb602d2461ed8f353",
-      "text": "读者在哪里:周期间的变化,而不是亮度。\n\nA sequencing spot changes colour from cycle to cycle, which is exactly what a constant piece of debris does not do. Taking the standard deviation over the CYCLE axis and then the mean over channels therefore scores \"something here changed\" rather than \"something here is bright\", and the brightest object in a field is very often not a read.\n\n有一个循环没有循环到循环的变量来测量,所以标准偏差是通过频道而不是 - 一个点是一个颜色而不是灰色。\n\n:param stack: ``(cycles, channels, Y, X)`` 强度。\n:returns: 一个 ``(Y, X)`` float32 地图,高,在那里一个阅读是可能的。\n:raises ValueError: 如果 ``stack`` 不是四维。",
+      "text": "读者在哪里:周期间的变化,而不是亮度。\n\n测序斑点的颜色会随循环而变化，而一粒恒定的碎屑恰恰不会。因此，先沿循环轴取标准差、再沿通道取均值，衡量的是 \"something here changed\"，而不是 \"something here is bright\"，而视野中最亮的物体往往并不是一次读出。\n\n有一个循环没有循环到循环的变量来测量,所以标准偏差是通过频道而不是 - 一个点是一个颜色而不是灰色。\n\n:param stack: ``(cycles, channels, Y, X)`` 强度。\n:returns: 一个 ``(Y, X)`` float32 地图,高,在那里一个阅读是可能的。\n:raises ValueError: 如果 ``stack`` 不是四维。",
       "translation_source_blocks_sha256": [
         "482d2751a9cb8bc51c836d927c04666e6637a707e1d20cfb43ec1af805bbc80c",
         "8ecb04201bb845ec0b437579a9688b40461527ae2fa5258e57063e5722e1ca45",
@@ -47463,14 +47463,14 @@
         "b584d64cbe9f0a75c0021a99ce599319ae8f1662c24a79b44268eeeb3f675107"
       ],
       "source_sha256": "8f9e1ae278235ac551c5fb239c2725ca5bb2979167222194e501dbb8ddb4a62a",
-      "text": "``array`` 将被绘制为笔记应用程序将其绘制。\n\n:param array: 一个 ``(H, W, 3)`` uint8 提取图像区域。\n:param picture: 被命名为Annotator的设置。\n:returns: 一系列相同的形状,或者输入不变,当没有任何要求或工作流不适用时。\n\n笔记本的自己的功能做工作 - `normalize_pil`, `filter_channels_pil`, `outline_image` 从 :mod:`spacr.qt.annotate_engine`. \"normalise a crop\"的第二次实施是对正常化意味着什么的第二个答案。 重新使用标记器的功能保持相同配置的图像视觉一致。\n\n一个图像是它产生的最后一件事,最不重要的是:失去一个组合到一个排行榜是最糟糕的交易。",
+      "text": "``array`` 将被绘制为笔记应用程序将其绘制。\n\n:param array: 一个 ``(H, W, 3)`` uint8 提取图像区域。\n:param picture: 被命名为Annotator的设置。\n:returns: 一系列相同的形状,或者输入不变,当没有任何要求或工作流不适用时。\n\n笔记本的自己的功能做工作 - `normalize_pil`, `filter_channels_pil`, `outline_image` 从 :mod:`spacr.qt.annotate_engine`. \"normalise a crop\"的第二次实施是对正常化意味着什么的第二个答案。 重新使用标记器的功能保持相同配置的图像视觉一致。\n\n一个图像是它产生的最后一件事,最不重要的是:失去一个集装到一个排行榜是最糟糕的交易。",
       "translation_source_blocks_sha256": [
         "399fdf06e1ad6d557169619278fa818b62dd7a1805030ee1950277a18374c1af",
         "530a7c5ec72b649d95d8479927d391d04b21db4fd003bb61fbb3e3cbc9297f37",
         "04f7db73774ba1f87b452f3fc6c4dce1e72cfc80c9839a0e75e2eabd9fa8284d",
         "ee99c8a8511296a9250d8691ce8bfd2c50ee62152128f61d3474c5a627867657",
         "10461a73674725617182baa9fe2167bd9a4adb00a544310f033a982fdb3622a9",
-        "20a8a693a6d6b1119a94a30da38653de2f8b4853e91f57261971f83ce1a9d3fd"
+        "28f118a7d49b3f726f7a682ef387e8fb6c1fa273d3915f0e11e9b98ad9b687b5"
       ]
     },
     "spacr.picture_settings.drop_retired": {
@@ -48208,7 +48208,7 @@
         "0bafdfe5776597bee9ec1e9df0d479dbc049ebda792885ba9da6c815d8d9eb05"
       ],
       "source_sha256": "a719fd5a9b63001a2c584e4b4b7d3ec9d3d1951c796e0d21f28d0c32b870b592",
-      "text": "把显微镜视野堆栈分批交给 Cellpose，然后将掩模图像数据通道追加到同一批 npy 文件。\n\n:param stacks: 由 :func:`stream_originals_to_stack` 制作的列表。\n:param model_name: 使用的 Cellpose 模型(``\"cyto\"``, ``\"nuclei\"``, ...)。\n:param channels_for_cellpose: 在把每个已组装堆栈交给 Cellpose 之前，从中选择 C 轴索引——对图像数据通道数量取模，并按原顺序去重。该值不会作为 Cellpose 的 ``channels=`` 参数传递；因此 ``[0, 0]`` 得到的是单个图像层，而不是一对灰度层。\n:param diameter: 预计对象直径为 px(None → Cellpose auto)。\n:param batch_fields: 多大字段可以同时加载到内存中? 更大的字段 = 更快,但更大的 RAM。\n:param mask_channel_name: 人名,用于记录附加的掩码图像数据通道(默认为 ``\"mask\"`` ) 。\n:param keep_npz: 中间集合在每个集合中压缩为 ``npz_dir`` 以下的 NPZ;这个旗帜只决定该文件和切割文件夹是否能存活处理会议。\n:param npz_dir: 在哪里写下(可选)中间的NPZ文件. 缺陷到在 stack 文件夹下的分类字段。\n:param illumination_session: optional :class:`spacr.illumination.SegmentationIlluminationSession`. Its corrector sees private selected-channel copies immediately before normalisation/Cellpose; persisted intensity planes and scratch NPZs remain raw, and completion is recorded only after the combined stack has been atomically replaced.\n:returns: 相同的列表,每个更新 :class:`StackFile.shape` / ``.channels`` 反映附加的掩膜图像数据渠道。",
+      "text": "把显微镜视野堆栈分批交给 Cellpose，然后将掩模图像数据通道追加到同一批 npy 文件。\n\n:param stacks: 由 :func:`stream_originals_to_stack` 制作的列表。\n:param model_name: 使用的 Cellpose 模型(``\"cyto\"``, ``\"nuclei\"``, ...)。\n:param channels_for_cellpose: 在把每个已组装堆栈交给 Cellpose 之前，从中选择 C 轴索引——对图像数据通道数量取模，并按原顺序去重。该值不会作为 Cellpose 的 ``channels=`` 参数传递；因此 ``[0, 0]`` 得到的是单个图像层，而不是一对灰度层。\n:param diameter: 预计对象直径为 px(None → Cellpose auto)。\n:param batch_fields: 多大字段可以同时加载到内存中? 更大的字段 = 更快,但更大的 RAM。\n:param mask_channel_name: 人名,用于记录附加的掩码图像数据通道(默认为 ``\"mask\"`` ) 。\n:param keep_npz: 中间集合在每个集合中压缩为 ``npz_dir`` 以下的 NPZ;这个旗帜只决定该文件和切割文件夹是否能存活处理会议。\n:param npz_dir: 在哪里写下(可选)中间的NPZ文件. 缺陷到在 stack 文件夹下的分类字段。\n:param illumination_session: 可选的 :class:`spacr.illumination.SegmentationIlluminationSession`。它的校正器只在归一化/Cellpose 之前看到私有的、已选通道副本；持久化的强度图层与临时 NPZ 保持原始状态，并且只有在合并后的堆栈被原子性替换之后才记录完成。\n:returns: 相同的列表,每个更新 :class:`StackFile.shape` / ``.channels`` 反映附加的掩膜图像数据渠道。",
       "translation_source_blocks_sha256": [
         "457c0fe40e57264cec59da2c88109de5b91fcf781e59c74aaffcfd57d23140c1",
         "8fb1f2dd3a42d5076632d19933596a2b92359382f89c7a967f421191c784b936",
@@ -48258,14 +48258,14 @@
         "f3ab981b531d98588a7976848b5319b009f31d786115394dff2d300008082592"
       ],
       "source_sha256": "363a766b9cf0030415769afdb429eb9771d795efdbc625ce9760f26f3b2fba6f",
-      "text": "微板样本位置检测和物理尺寸为板的测量。\n\n平板分析是从两个形式的图像中计算出来的,它们需要不同的处理:\n\n* **每张图像** - 分区它并计算,这是:func:`spacr.submodules.analyze_plaques`一直做的事情;\n* **一张图像中的北微板样本位置** - 整个实验室微板,或一条条线. 直接计算每个微孔板在每个孔中的一个数字和损失,每一个都来自,这就是整个实验。\n\n该模块为第二个案例提供前半:找到微板样本位置,然后分别分配给分区。\n\n为什么微板样本位置是测量,而不是只是挖掘的。 平板 *区域*在像素是微镜的属性,不是生物学。 相同的平板图像在两个扩展给了两个区域,而一个研究占据它们是比较光学的位置. 微板模型位置,相比之下,是一个制造的物理尺寸的对象 - 一个6个位置的实验室微板显板模型的位置是34.8毫米的任何图像它。\n\n这就是为什么 :func:`detect_wells` 返回一个直径而不是仅仅是一个盒子,而为何 :func:`scale_from_well` 是分析实际上消耗的零件。",
+      "text": "微板样本位置检测和物理尺寸为板的测量。\n\n平板分析是从两个形式的图像中计算出来的,它们需要不同的处理:\n\n* **每张图像** - 分区它并计算,这是:func:`spacr.submodules.analyze_plaques`一直做的事情;\n* **一张图像中的北微板样本位置** - 整个实验室微板,或一条条线. 直接计算每个微孔板在每个孔中的一个数字和损失,每一个都来自,这就是整个实验。\n\n该模块为第二个案例提供前半:找到微板样本位置,然后分别分配给分区。\n\n为什么微板样本位置是测量,而不是只是挖掘的。 平板 *区域*在像素是微镜的属性,不是生物学。 相同的平板图像在两个扩展给了两个区域,而一个研究占据它们是比较光学. 微板模型位置,相比之下,是一个制造的物理尺寸的对象 - 一个6个位置的实验室微板显板模型的位置是34.8 毫米,无论图像它。 因此,微板的样本姿势的直径在像中是一个控制器,存在于图像本身,并通过它分裂,每个区域变成一个物理,可以通过微镜,目标和日。\n\n这就是为什么 :func:`detect_wells` 返回一个直径而不是仅仅是一个盒子,而为何 :func:`scale_from_well` 是分析实际上消耗的零件。",
       "translation_source_blocks_sha256": [
         "38045b69c8dae724b3f99728fb296f9499c305059eb5fca3b09115d68bdb2e96",
         "942c0931338f2a2190b3f656d99bdb477f44bbc2e42f7773f0ac7dbf978d1fad",
         "f31779c30dbe80e686ded071c1d452bcc9444e91207b376e53ab58450925a82a",
         "7ef4c8754ba7c577b14736ff3cf122c092aa3b0723a2a01ddfc4ddcbae5418c0",
         "8ac97ae90907feced7241a95a76cd2543a0bc29592fb403ee1284380cb14ff1b",
-        "d336b949867bbd2f19595722de0e1efdfcff0f731eeaec87a735dbeb4b847b41",
+        "dca704c74bf7d9e7b649ae60c195f438849f33cb6ef4ea0cb4e90f7ff804d78b",
         "f3ab981b531d98588a7976848b5319b009f31d786115394dff2d300008082592"
       ]
     },
@@ -55788,11 +55788,11 @@
         "a47d496bcdd19a9a88aacd10c964ec70045206682f802e11f56719dbd784a09c"
       ],
       "source_sha256": "6ef4725f0040c751e0793dfd30ef51c1b89dd73dced589ba3f2a368e0c156ff7",
-      "text": "重新打开一个力量重新启动保存的模块. 返回其密钥,或“”。\n\nTAKEN,不要阅读: `restart_state.take` 将状态删除,因为它通过它,所以在回头路上的故障不能离开 spaCR 每次发射后重新打开相同的折叠模块 - 这将使一个糟糕的下午变成一个永久破碎的安装。\n\n设置已应用,但 THE 处理会话尚未启动。  142 C: 运行程序不会返回, 只有配置, 并且启动一个未经询问的程序会与刚刚强制重新启动的用户想要的结果相反.",
+      "text": "重新打开一个力量重新启动保存的模块. 返回其密钥,或“”。\n\nTAKEN,不要阅读: `restart_state.take` 将状态删除,因为它通过它,所以在回头路上的故障不能离开 spaCR 每次发射后重新打开相同的折叠模块 - 这将使一个糟糕的下午变成一个永久破碎的安装。\n\n应用设置,不启动处理会话。  142 C: 运行程序不会返回, 只有配置, 并且启动一个未经询问的程序会与刚刚强制重新启动的用户想要的结果相反.",
       "translation_source_blocks_sha256": [
         "72c9f814a48b376d5b6ab323e9e57dc9bbb169214b7baeee5ae88d860b69e6b1",
         "01b904a163df41486895ca472c56069a7ebe6e118ddbad0b94ebfcbee32fe10c",
-        "6756c2a6a59bbabe2a0e29dbecaf05461d0bf021e05e1807cf67b4833952a9e4"
+        "9cfeea5ab0e28f8d33b24135fd46750fb895b2699182663c0fb3d86d82fc6ba3"
       ]
     },
     "spacr.qt.app.MainWindow.toggle_app_drawer": {
@@ -58982,7 +58982,7 @@
         "7e9daa0d6c3620add3dbcf74ee362238b1fbdcb43e6a7fc68892c6c287c21124"
       ],
       "source_sha256": "ee4d1de6cdf6e1520c3b01f6f812a3db4f8127338be9fa09d34733dc13cc038d",
-      "text": "Per-module drop 处理器。\n\n每个工作流应用程序都有不同的期望,对于一个 \"source\" 意味着什么. 该模块将这些政策编码为 :class:`DropHandler` 子类,该 AppScreen 在建设时启动。\n\n管理者地图(也以 ``get_handler`` 阅读):\n\n+-----------------+-------------------------------------------+\n| 应用              | 接受                                        |\n+=================+===========================================+\n| mask            | 文件夹 w/ 图像(自动输入 regex + 预览)                |\n| measure         | 文件夹名为 ``merged`` 或包含混合/                   |\n| external_masks  | 混合图像/标签文件或文件夹;任务表                         |\n| annotate        | 文件夹与 ``measurements/measurements.db``     |\n| classify        | 文件夹与 ``data/`` 或 ``measurements/``        |\n| make_masks      | 包含图像的文件夹 + 可选掩膜/                          |\n| map_barcodes    | 与 FASTQ 文件夹; 还有一个原始 .fastq.gz 滴           |\n| umap            | 文件夹与 ``measurements/measurements.db``     |\n| ml_analyze      | 就像上面的行一样。                                 |\n| regression      | ditto - 数据库连接到实验室微板ROW;                   |\n|                 | 折叠卡也需要分数 / gRNA 计算 CSVs                   |\n| recruitment     | 包含每微型样品位置招聘文件夹 CSVs                       |\n| activation      | 存储的启动地图文件夹或 CV 模型                         |\n| analyze_plaques | 文件夹与板图像                                   |\n| train_cellpose  | 包含图像 + 掩膜配对的文件夹                           |\n| cellpose_masks  | 文件夹与图像                                    |\n| cellpose_all    | ditto — \"Mask the whole folder\" 密钥,保持这样一个 |\n|                 | 下面的文件夹如图像而不是图像。                           |\n|                 | 只有源路                                      |\n| 其他模块            | 现有源文件夹或支持的数据文件                            |\n+-----------------+-------------------------------------------+\n\n每个交易者都会通过 :mod:`spacr.qt.dnd` 重新输入到 CSV 设置,因此用户也可以在任何应用程序视图上下载 CSV 的设置。",
+      "text": "Per-module drop 处理器。\n\n每个工作流应用程序都有不同的期望,对于一个 \"source\" 意味着什么. 该模块将这些政策编码为 :class:`DropHandler` 子类,该 AppScreen 在建设时启动。\n\n管理者地图(也以 ``get_handler`` 阅读):\n\n+-----------------+-------------------------------------------+\n| 应用              | 接受                                        |\n+=================+===========================================+\n| mask            | 文件夹 w/ 图像(自动输入 regex + 预览)                |\n| measure         | 文件夹名为 ``merged`` 或包含混合/                   |\n| external_masks  | 混合图像/标签文件或文件夹;任务表                         |\n| annotate        | 文件夹与 ``measurements/measurements.db``     |\n| classify        | 文件夹与 ``data/`` 或 ``measurements/``        |\n| make_masks      | 包含图像的文件夹 + 可选掩膜/                          |\n| map_barcodes    | 与 FASTQ 文件夹; 还有一个原始 .fastq.gz 滴           |\n| umap            | 文件夹与 ``measurements/measurements.db``     |\n| ml_analyze      | 就像上面的行一样。                                 |\n| regression      | ditto - 数据库连接到实验室微板行;                     |\n|                 | 折叠卡也需要分数 / gRNA 计算 CSVs                   |\n| recruitment     | 包含每微型样品位置招聘文件夹 CSVs                       |\n| activation      | 存储的启动地图文件夹或 CV 模型                         |\n| analyze_plaques | 文件夹与板图像                                   |\n| train_cellpose  | 包含图像 + 掩膜配对的文件夹                           |\n| cellpose_masks  | 文件夹与图像                                    |\n| cellpose_all    | ditto — \"Mask the whole folder\" 密钥,保持这样一个 |\n|                 | 下面的文件夹如图像而不是图像。                           |\n|                 | 只有源路                                      |\n| 其他模块            | 现有源文件夹或支持的数据文件                            |\n+-----------------+-------------------------------------------+\n\n每个交易者都会通过 :mod:`spacr.qt.dnd` 重新输入到 CSV 设置,因此用户也可以在任何应用程序视图上下载 CSV 的设置。",
       "translation_source_blocks_sha256": [
         "238df427ccdae90ee7090b58746653ca4449a2a6309d2a345875f2ae438e75f8",
         "d8821633a6e06e5f3054fa9f0e37013bca69256f6f032261b6c7b09264c229c0",
@@ -58998,7 +58998,7 @@
         "5cd649901849be7ac42280e4bc1a077ca924f814dcbf78b79ca22ede52d3c12d",
         "4e80c0a149c2e78b09fa0720fb03e5bb61a75fb3faade0eb87ff1a7a37c6f5b1",
         "ddd745ad9cc1c196920e8d97173f4bb619880c7f8bc81a475e598be7e9fda893",
-        "78e2edf5b68f6b55a13693b1578300c87eca800fd9e8912c92d9e6232c261e96",
+        "1b27fa91cde075200938e998e3d481a98277c6588dd61eaf24c9657d562a5ce5",
         "ebf69027cda5b8006ad3dd04eb21f411a0402f2f2b50fdeb027c15a5db82df64",
         "da825ac0b600e31ea5c2a54431fe55f26da58308efce61f780b12666be814d1c",
         "a4752176eff3ebb9b21f6f1ac2e7e7e327b34e1295e62ee41f58d7962a91f96e",
@@ -59149,10 +59149,10 @@
         "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36"
       ],
       "source_sha256": "ce1ac0341689a0e9b7b8f2bb94a4c7d84cb9e3ba4774d4fb30b316914f1714d4",
-      "text": "加载保存的软件工作列表,或者将每个设置添加为工作。\n\nA JSON 或 YAML 文件是软件工作列表,并加载它是整个动作;一个 CSV 或者文件夹将工作添加到已经存在的软件的工作列表中。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
+      "text": "加载保存的软件工作列表,或者将每个设置添加为工作。\n\n一个 JSON 或 YAML 文件是软件工作列表,并加载它是整个动作;一个 CSV 或者一个文件夹将工作添加到已经存在的软件的工作列表中。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
       "translation_source_blocks_sha256": [
         "3f5b49affbcbdea638e71781d97e04c355a5cb5814abbad7ffa4737d03e18b41",
-        "62479af90d76fdbd669ff59a7225becd1872c219203474853fe0a544633f93f1",
+        "6aef2cc2de84137295e39e30595a62a20fc0b366337c12c1037247a26d06f525",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "f7cb46644b7c1fa3a83ee0d188dc131933604a48d879883ccc1c3232e462e8f1"
       ]
@@ -59615,7 +59615,7 @@
         "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36"
       ],
       "source_sha256": "f4733a4f8c67685cf177a96c7f289bf1cd8bd225e736c81fad653bf24f7ed1f4",
-      "text": "将滴转向适当的模块中的任何输入。\n\nA CSV IS READ BEFORE IT IS PLACED. A mapping and a measurement table are both CSVs, and only the header says which -- so the header is checked rather than the extension trusted.\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
+      "text": "将滴转向适当的模块中的任何输入。\n\nCSV 会在放置之前先被读取。映射表和测量表都是 CSV，只有表头能区分二者 —— 因此检查的是表头，而不是轻信扩展名。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
       "translation_source_blocks_sha256": [
         "76a66d37778c7dc978af2e4bbe432c9564fa922020a32ada66b59712f194ebdb",
         "387ee4bbde54799a4d06a1cc9e99b0445fda1eb92b7a2beb6049e3d824f2cfbb",
@@ -60327,7 +60327,7 @@
       "text": "接受数据库、其测量文件夹或其板文件夹。\n\n如果筛选实验将其输入设为每实验室微孔板一行（目前仅通过 ``paired_data`` 表进行回归），则数据库将附加到实验室微孔板行而不是设置 ``src``。这不是应用程序结构化数据名称的特殊情况：它遵循筛选实验的形状，因此任何生成每个实验室微孔板输入表的面板都无需进行注册表编辑即可获得它。\n\n它很重要,因为两种行为被用来不同意. 落下``measurements.db``在退缩输入表将其粘贴到一个板; 落下的相同的文件两英寸更高,在扫描实验周围,降落在这里,并设置``src`` - 一个结构化数据名称的退缩面板甚至不显示。",
       "translation_source_blocks_sha256": [
         "0620cf8902cc3e683a7e424cab4c32e8e4800ea6c0112217860e49287c5bc7de",
-        "43b4cad5625f35dbf25c84d04818624706ec8647a6d9cca239d99619928587ef",
+        "c60e59ad610b58245efd79a74931963fa05d5db7d21b27a2e3ba877b332cdb3f",
         "6a09b545f3e88ad10b777a62d64ff30c3410fadac7c9ca9d2b918744eeb14ab3"
       ]
     },
@@ -60339,9 +60339,9 @@
         "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36"
       ],
       "source_sha256": "e1a5a6b04beb8ec958783267bd06ac80f4fc659eefbbbbb584c4b2b9458bc74e",
-      "text": "将数据库粘贴到实验室微板ROW,而不是 `src`。\n\n这个筛选的输入是每个实验室微板的一个行,因此数据库属于它所描述的行。 `src` 不是它的测量生活在哪里,并将其放在那里会让行空和运行没有输入。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
+      "text": "将数据库粘贴到实验室微板序列,而不是 `src`。\n\n这个筛选的输入是每个实验室微板的一个行,因此数据库属于它所描述的行。 `src` 不是它的测量生活在哪里,并将其放在那里会让行空和运行没有输入。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
       "translation_source_blocks_sha256": [
-        "f7b9bfb665b729e4841aadbe9534cdf791bcf67368949a938c1d0de07cfc87cf",
+        "96f9ad53765a4be51bbf9d4c66f8fba9a442d8c55bcf9769c51d5c6dfa3d8a03",
         "db3737a69113caa4b6bb7ccdd1cc347ca4ebb551c805f79a7ccafaa77469c8d0",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "f7cb46644b7c1fa3a83ee0d188dc131933604a48d879883ccc1c3232e462e8f1"
@@ -60734,7 +60734,7 @@
         "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36"
       ],
       "source_sha256": "69e9f4ecb71c35775e0a5424b5f4594e8031fcb31fe624ddfe55fc108f104707",
-      "text": "Set the source and scan it, raising the screen's own reason on failure.\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
+      "text": "设置来源并扫描它，失败时抛出该界面自己的原因。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
       "translation_source_blocks_sha256": [
         "53a335a11112815ccf884f310bbd2d45001adaa3e25845080cc3193d669a0b80",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
@@ -63596,11 +63596,11 @@
         "94d92d5ec987495e7146de3b6a46c5825d4699b197e82730491a90259bae4264"
       ],
       "source_sha256": "3666c51598cff42889538f84b340a42b55c55f330bd435acf0305c5f602b0082",
-      "text": "从图像文件和/或标签掩膜文件中创建一个粘贴。\n\n充电通过 :func:`spacr.qt.widgets.live_preview.load_preview_image`,这已经知道如何阅读 TIFFs 与 ``tifffile`` 所以16位微镜视野保持其点深度,而通道顺序通过 :func:`spacr.qt.widgets.timelapse_preview.frame_channel`,解决通道 - 第一对通道- 最后相同的方式,时间错误预测。\n\n:param spacing: 一个世界单位每像素的缺陷 - 对一个单个字段是正确的,并涉及到一个 z-stack 或一个 µm 加密的集成图像网络的时刻。",
+      "text": "从图像文件和/或标签掩膜文件中创建一个粘贴。\n\n充电通过 :func:`spacr.qt.widgets.live_preview.load_preview_image`,这已经知道如何阅读 TIFFs 与 ``tifffile`` 所以16位微镜视野保持其点深度,而通道顺序通过 :func:`spacr.qt.widgets.timelapse_preview.frame_channel`,解决通道 - 第一对通道- 最后相同的方式,时间错误预测。\n\n:param spacing: 一个世界单位每像素的缺陷 - 对一个单个字段是正确的,并且要超越时刻,一个 z-stack 或一个 µm 加密的粘贴图像网络涉及。",
       "translation_source_blocks_sha256": [
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
-        "29162f959d0b85d41205441f8992ff8dc667393f72a34282b00a8abe4b8234b9"
+        "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -66524,7 +66524,7 @@
         "7c14e5b5d070d29c2a80be952a232ccac0b1c38f838037670c4aa02a12a54fe9"
       ],
       "source_sha256": "75b2fe76e27f0b1c6d1aac31340c0a72e54ac401587841cfe9c207b3c6776888",
-      "text": "当主页的 ``which`` 面板最后被清除时,作为一个 UTC ISO 序列。\n\nA WATERMARK, NOT A DELETION, and that is the whole design. **Clear** on Recent runs and **Reset** on Totals sit beside the queue's Clear, but the queue holds plates waiting to start while these two read the run journal -- which is the record of what this installation has actually done, is what the Run History screen searches, and is what a run's `manifest.json` is for. Emptying a dashboard panel must not delete that.\n\n因此,面板记住了一段时间,只显示之后发生了什么。 该杂志是无触摸的,运行历史仍然拥有一切,一个随机清理的用户失去了视图而不是历史。\n\n:param which: ``runs`` or ``totals``.\n:returns: 存储的 ISO 字符串,或 ``\"\"`` 为从未清除。",
+      "text": "当主页的 ``which`` 面板最后被清除时,作为一个 UTC ISO 序列。\n\n这是一个水印，而不是删除，这正是整个设计的用意。“最近运行”上的 **Clear** 与“总计”上的 **Reset** 就挨着作业队列的 Clear，但作业队列装的是等待启动的板，而这两个读的是运行日志 —— 它记录了这套安装实际做过什么，是运行历史界面所搜索的对象，也是一次运行的 `manifest.json` 存在的意义。清空一块仪表板面板绝不能把它删掉。\n\n因此,面板记住了一段时间,只显示之后发生了什么。 该杂志是无触摸的,运行历史仍然拥有一切,一个随机清理的用户失去了视图而不是历史。\n\n:param which: ``runs`` or ``totals``.\n:returns: 存储的 ISO 字符串,或 ``\"\"`` 为从未清除。",
       "translation_source_blocks_sha256": [
         "35fc1e3ad4262398cbbc1ce08c44a6b7092cf34ddea6547c3188737f15d848d6",
         "4c22cefbb885b54a4b046fa890c3b4e0775465953d19425d846518f11b040892",
@@ -66962,11 +66962,11 @@
         "1c9f4ae1cfc9c68b73460370c7d4c2d7320fc614a9031c546d164e9606eebe02"
       ],
       "source_sha256": "3df019f506da48b836028da5b9c9ebcb994379b63b20f9fd3be3fbb6485a0887",
-      "text": "是否每对象设置显示为一个表。\n\n马斯克的209个设置中有78个是相同的二十个问题,每个对象类型一次提出,所以列出它们的表格在任何东西被分区之前提出203个问题。\n\n存储的结构数据名称不会以任何方式改变. 网络编辑相同的 widgets 平行行做,所以一个设置文件写在这个上是相同文件写与它打开。",
+      "text": "是否每对象设置显示为一个表。\n\n马斯克的209个设置中有78个是相同的二十个问题,每个对象类型一次提出,所以列出它们的表格在任何东西被分区之前提出203个问题。\n\n存储的结构化数据名称不会以任何方式改变. 网络编辑相同的 widgets 平行行做,所以一个设置文件写在这个上是相同文件写出它。",
       "translation_source_blocks_sha256": [
         "b2a24897cfac7596664bb13259d11719311ba9cad17269a1e2e28e5418d978ac",
         "9bc650fb8b31c8518e284286c61982825ca5900a4587ce94d75b989f26198b33",
-        "7e61ef3c6797e9c24edf044af2ce837fba2be0f94713acce3bf3bec82c91988d"
+        "14fa599dfd721dd2cb22683ceba73fc53358daa41dca4299f00aea1624241310"
       ]
     },
     "spacr.qt.preferences.get_pane_opacity": {
@@ -69579,12 +69579,12 @@
         "6ed7254c64ec2047e07fc2ed137bb7fa59252fc4171b83539d0a604a83707746"
       ],
       "source_sha256": "cfb771920292e2baf31c65047189b1e73944120ee6506451f22c064c3821e627",
-      "text": "项目触摸的每个驱动器都有免费空间. 阅读; 释放任何东西。\n\n由设备 ID 解复,因此在同一磁盘上的项目文件夹和主目录是单行而不是两个相同的线条 - 这种重复是导致磁盘重复停止阅读的。\n\n``os.stat`` 和 ``shutil.disk_usage`` 是唤醒睡眠的汽车的呼叫,没有存储可以回答它们,而没有发明数字,所以 Qt 呼叫器将整个功能转移到 :class:`~spacr.qt.job_runner.JobRunner`(:func:`spacr.qt.preferences._start_disk_report`)。在那里等待是无限的目的:一个工作进程被允许等待一座山醒来,驱动桌是完整的。\n\n在主 GUI 执行路径上被称为任何方式,它不会冻结它. 整个阅读则被 :data:`_GUI_DISK_BUDGET_S` 限制,而错过预算的文件夹在笔记中计算,就像无法阅读的那样 - 因为在接口的时间内,它可能不会。",
+      "text": "项目触摸的每个驱动器都有免费空间. 阅读; 释放任何东西。\n\n由设备 ID 解复,因此在同一磁盘上的项目文件夹和主目录是单行而不是两个相同的线条 - 这种重复是导致磁盘重复停止阅读的。\n\n``os.stat`` 和 ``shutil.disk_usage`` 是唤醒睡眠的汽车的呼叫,没有存储可以回答它们,而没有发明数字,所以 Qt 呼叫器将整个功能转移到 :class:`~spacr.qt.job_runner.JobRunner`(:func:`spacr.qt.preferences._start_disk_report`)。在那里等待是无限的目的:一个工作进程被允许等待一座山醒来,驱动桌是完整的。\n\n被称为主要的 GUI 执行路径,无论如何,它不会冻结它. 整个阅读被限制为 :data:`_GUI_DISK_BUDGET_S`,而一个错过预算的文件夹在笔记中计算,就像一个无法阅读的 - 因为在时间内,界面有,它不能。",
       "translation_source_blocks_sha256": [
         "1373396d24a8c1f0a2207ff502ab293446fd86308810a4a4a189a4524c91dad8",
         "5470233feea19faf47de2d1134ff8417f0bb7356a7cc3e3a6576ed87ee7f63d6",
         "749918e64920209a9358c25a8ce86b7fceb167c06c60100a5e2eebb15e9fb575",
-        "2a00bc0f35aab23eaa2775bef87efb9179a0b3486771ac790bee423032f0ac64"
+        "a93fdf6d307c9d8ed3773ed9301af6e0938984e2e544955c9a60c9ed91321e7b"
       ]
     },
     "spacr.qt.resource_cleanup.human_bytes": {
@@ -70503,10 +70503,10 @@
         "b0a6740955215c0b2348ee69f0a74620a727470d0e8650142f9132b49507f7dd"
       ],
       "source_sha256": "15e9d51011bb9fbf676e1cc79f60f2d6df297ffdaa1f1718b87a5dab0b29e9e5",
-      "text": "Align & Stitch - 查看布局,查找未登记的内容,然后写下。\n\n折叠是缺陷在输出中不可见的几个操作之一. 未登记的微镜图像字段被放置在其名称阶段位置; 结果仍然看起来像一个集成图像网,仍然有正确的尺寸,并且仍然是错误的,无论阶段有多远。\n\n因此,此筛选在写作前将 *plan* 放置:\n\n* 选择微镜图像字段的文件夹,按下 **Plan** - 没有写字,没有分配字段,只有微镜图片字段标题以及超层字段被阅读;\n* 布局由微镜图像字段绘制,由记录信任染色,与任何落后到警告颜色绘制的阶段位置和切割。\n* 所估计的字符串大小和所使用的 RAM 表示 *之前* 700 MB 写的按钮被启用;\n* **写字符** 然后连续编写,并可选地将坐标记录为 ``measurements.db``。\n\n每个漫长的操作都会在背景执行单位上执行,并通过连结方法回报,从来没有关闭 - 见 :meth:`AlignScreen._run_job`. 错误在内线状态标签中降落; QMessageBox 这里会吊头无图形界面的执行程,所以没有。",
+      "text": "Align & Stitch - 查看布局,查找未登记的内容,然后写下。\n\n扫描是缺陷在输出中看不见的几个操作之一. 未登记的微镜图像字段被放置在其名称阶段位置; 结果仍然看起来像一个扫描图像网,仍然有正确的尺寸,并且仍然是错误的,无论阶段有多远。\n\n因此,此筛选在写作前将 *plan* 放置:\n\n* 选择微镜图像字段的文件夹,按下 **Plan** - 没有写字,没有分配字段,只有微镜图片字段标题以及超层字段被阅读;\n* 布局由微镜图像字段绘制,由记录信任染色,与任何落后到警告颜色绘制的阶段位置和切割。\n* 所估计的字符串大小和所使用的 RAM 表示 *之前* 700 MB 写的按钮被启用;\n* **写字符** 然后连续编写,并可选地将坐标记录为 ``measurements.db``。\n\n每个漫长的操作都会在背景执行单位上执行,并通过连结方法回报,从来没有关闭 - 见 :meth:`AlignScreen._run_job`. 错误在内线状态标签中降落; QMessageBox 这里会吊头无图形界面的执行程,所以没有。",
       "translation_source_blocks_sha256": [
         "86adb1f932bc6fe3b4834648699bc302ccf1870ad5e7b3f6d0ff443c29d7e75b",
-        "b1e50b06df0c8242d4610481016034401bc5c68580d41d0edfa75dd2f4979a95",
+        "79aef6850ebe17b0b6f77358f0c15bd832dd19756e1ca0a67685d4bcd7233d22",
         "d297af4aba630d9daa147bee6a235ceef7a64366fb8d051eb0da8fd15292729c",
         "21c65e810d3173207e48fbfc64461511e1a7dcb88b6cb905efb17bb88b8c59b8",
         "3203cd2e7f6e7dba5f49132da808223417270aae557ccc538aaacfad02604227",
@@ -73211,7 +73211,7 @@
         "44841e4f84afcf12025446731d46a53b6f53d13e26dfd29224202ec969a0bd1b"
       ],
       "source_sha256": "4d377aa12e873f5fc735b427d130e200444b16c0e7ccd6e1d6626477113b87b2",
-      "text": "这是一个计划和不可逆转的删除之间的最后一件事。\n\n它显示了总数,项目列表和每一个会去的文件 - 相同的列表 :meth:`spacr.data_manager.PrunePlan.file_list` 返回,而不是一个总结 - 其接受按钮保持禁用,直到用户标记了说他们已经阅读的框。\n\nIT FILLS IN TWO STAGES, and the reason is the whole point of this exercise. The file list is not stored on the plan: every call to ``file_list`` runs ``os.walk`` over every candidate directory, because a plan for a project with millions of crops must not carry millions of strings. Doing that in ``__init__`` put a full recursive walk of the user's project on the GUI thread, at the one moment they are waiting for a window to appear — and on a share that is asleep it is the walk's FIRST stat that spends twenty seconds waking the mount, not the walk. So the dialog opens with the half that needs nothing from the disk (the totals, every candidate, every kept item and its reason) and the file list arrives behind it. Nothing is dropped: the user still reads every path before anything is deleted, which is why the acknowledgement is held disabled until the list is on screen — or, when the walk fails, until :meth:`_on_listing_failed` has said so in the list's place. The one thing that never happens is that box being armed over a placeholder.\n\n:param plan: 要确认的计划。\n:param parent: Qt 父母。\n:param threaded: 列出文件在主 GUI 执行路径。 ``False`` 走在线上,所以测试在构建器返回时有完成对话;两条路径产生相同的文本和相同启用状态。\n请用户确认删除,他们必须阅读的词语。\n\n:param plan: 什么要被删除。\n:param parent: 父母 Widget\n:param threaded: 除去是否会对工作进程进行执行。",
+      "text": "这是一个计划和不可逆转的删除之间的最后一件事。\n\n它显示了总数,项目列表和每一个会去的文件 - 相同的列表 :meth:`spacr.data_manager.PrunePlan.file_list` 返回,而不是一个总结 - 其接受按钮保持禁用,直到用户标记了说他们已经阅读的框。\n\n它分两个阶段填充，其中的原因正是这项工作的全部要点。文件清单并不存放在计划里：每次调用 ``file_list`` 都会对每一个候选目录执行 ``os.walk``，因为一个包含数百万张裁剪图的项目，其计划不可以携带数百万个字符串。把这件事放进 ``__init__`` 就等于把对用户项目的一次完整递归遍历放到了 GUI 主线程上，而那正是他们在等待窗口出现的时刻 —— 并且在一个已休眠的共享盘上，花掉二十秒去唤醒挂载的是遍历的第一次 stat，而不是遍历本身。因此对话框先以不需要磁盘的那一半打开（总计、每个候选项、每个保留项及其原因），文件清单随后到达。没有任何东西被丢弃：用户在删除任何内容之前仍会读到每一条路径，这也正是确认按钮要一直保持禁用、直到清单出现在界面上的原因 —— 或者在遍历失败时，直到 :meth:`_on_listing_failed` 在清单的位置说明了这一点。唯一绝不会发生的，是那个复选框在占位内容之上被启用。\n\n:param plan: 要确认的计划。\n:param parent: Qt 父母。\n:param threaded: 列出文件在主 GUI 执行路径。 ``False`` 走在线上,所以测试在构建器返回时有完成对话;两条路径产生相同的文本和相同启用状态。\n请用户确认删除,他们必须阅读的词语。\n\n:param plan: 什么要被删除。\n:param parent: 父母 Widget\n:param threaded: 除去是否会对工作进程进行执行。",
       "translation_source_blocks_sha256": [
         "8cccde524005c263d66c8d26b23dc318b6deb501d0eb49a7028e1aa465d2ea82",
         "a6d5a7b25e82024619378559d31fdabb975ae161a770980498b38f4e632b662b",
@@ -73244,7 +73244,7 @@
         "9c3b0c28cac9624b534add0d952c629d7358d43c82dd96371590336474e92619"
       ],
       "source_sha256": "60d88fcf1622f7a0f8945b6fad1ae81e337aac7953425e52a197a50aab0f2f3a",
-      "text": "整个文本 - 计划,然后每个文件 - 走在现在。\n\nWALKS THE PROJECT, AND THE DIALOG NO LONGER CALLS IT. :meth:`spacr.data_manager.PrunePlan.file_list` runs ``os.walk`` over every candidate each time it is asked, which is the twenty seconds this exercise removed, so nothing on the GUI thread may call this. The dialog builds the same string in two pieces instead: :meth:`_heading` at once, then :meth:`_with_the_files` on the walk that :meth:`_start_the_file_list` sent to a worker.\n\n它仍然是公开的,而且是封锁的,因为一个通话中的整个文本就是一个 Qt 以外的通话者想要的东西 - 一个测试,或者一个具有独立执行路径的 CLI。 阅读 :attr:`listing` 关于应用程序视图的实际内容。",
+      "text": "整个文本 - 计划,然后每个文件 - 走在现在。\n\n遍历整个项目，而对话框已不再调用它。:meth:`spacr.data_manager.PrunePlan.file_list` 每次被询问都会对每个候选目录执行 ``os.walk``，那正是这项工作所消除的二十秒，因此 GUI 主线程上任何代码都不得调用它。对话框改为分两段构建同一个字符串：先是 :meth:`_heading`，随后是 :meth:`_with_the_files`，后者建立在 :meth:`_start_the_file_list` 交给工作线程的那次遍历之上。\n\n它仍然是公开的,而且是封锁的,因为一个通话中的整个文本就是一个 Qt 以外的通话者想要的东西 - 一个测试,或者一个具有独立执行路径的 CLI。 阅读 :attr:`listing` 关于应用程序视图的实际内容。",
       "translation_source_blocks_sha256": [
         "3471e60e1a34aeaae6072ee86afb271391333dafc152cd1a83a212dd64dc863b",
         "d68ee6f6b34e18dcdda57a34a323d206d6e792ec380e196a52f22c42544ba574",
@@ -73258,7 +73258,7 @@
         "d5aead77d37c5348497408055f459de8fb8f26b500deb26f196fe2f82d797061"
       ],
       "source_sha256": "4863837ab620135cd4c3c83be4d97199e58d3ba9384ee41e7b2deef981d82e83",
-      "text": "关闭对话,首先停止行走。\n\nBoth Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.\n\n:param result: 对话代码要完成。",
+      "text": "关闭对话,首先停止行走。\n\n删除与取消都会走到这里，而且两者都不会发送关闭事件 —— ``QDialog.done`` 只是隐藏了控件 —— 因此模态对话框的清理必须写在这里，而不是 ``closeEvent`` 里。如果一个正在执行的 ``QThread`` 随其所有者一起被销毁，Qt 会直接中止进程，而当用户取消时，那次遍历可能仍在进行。\n\n:param result: 对话代码要完成。",
       "translation_source_blocks_sha256": [
         "79527dddd7373d4eec5e5c30705c92159e15ca2e5cf6bbdba83fab021c5f2628",
         "0cf2230cfe3bc434891ea68e9b6be39b1c3f0faa72026e7a37cdc17e4da64d5f",
@@ -75267,12 +75267,12 @@
         "b169148e7c61b90495cdd0a9b666e6e3f5c613070e54dd7a27e92801cf9f90fb"
       ],
       "source_sha256": "851ff381f676964d5af7f45d295d13bead714908f3f450ad6681a1aba36400a0",
-      "text": "设计板在购买之前,然后一次出口。\n\n应用程式显示了一半的 :mod:`spacr.qt.widgets.plate_layout`. 它拉动实验室微板,列出与布局有什么错误,并写下剩下的三个档案 spaCR 阅读 - 因此实验院微板地图被打印一次而不是一次为实验馆微板处理器,然后再次进入 ``treatment_plate_metadata`` 当数据回来时。\n\n警告是点而不是绘画,每一个发现都表明的是在收购后无法修复的东西:控制只坐在实验室微板边缘,一个控制限于一个列,一个单一复制的状态。\n\nONE 实验室微板 widget WHERE 可以有一个. 方形,它是固定在和序列 / 列头来自 :mod:`spacr.qt.widgets.plate_map_picker` 而不是被宣布第二次在这里; 两个实验室小板已经分开一次. 不能分享的是本,而差异是真实的,而不是历史的: picker 的好是可检查的 ``QPushButton`` 其检查状态是选择的,并从固定颜色,而这个是 ``QLabel`` 携带一个角色,一个边缘标志,一个名字和一个条件,由主题通过下面的属性绘制 - 一个实验室显板地图说,每个人都保持好,而不仅仅是选择。",
+      "text": "设计板在购买之前,然后一次出口。\n\n应用程式显示了一半的 :mod:`spacr.qt.widgets.plate_layout`. 它拉动实验室微板,列出与布局有什么错误,并写下剩下的三个档案 spaCR 阅读 - 因此实验院微板地图被打印一次而不是一次为实验馆微板处理器,然后再次进入 ``treatment_plate_metadata`` 当数据回来时。\n\n警告是点而不是绘画,每一个发现都表明的是在收购后无法修复的东西:控制只坐在实验室微板边缘,一个控制限于一个列,一个单一复制的状态。\n\n一个实验室微板 widget WHERE 可以有一个. 方形,它是固定在和序列 / 列头来自 :mod:`spacr.qt.widgets.plate_map_picker` 而不是被宣布第二次在这里; 两个实验室小板已经分开一次. 不能分享的是本,而差异是真实的,而不是历史的: 皮克的好是可验证的 ``QPushButton`` 其检查状态是选择的,并从固定一对颜色绘制自己,而这个是 ``QLabel`` 携带一个角色,一个边缘标志,一个名称和一个条件,由主题通过下面的属性绘制 - 实验室显板地图说,每个人都保持好,而不仅仅是选择。",
       "translation_source_blocks_sha256": [
         "ff4a955dff3528b48cca2dfdabd9b8764238f78fa411329bde89e21a99dc03fb",
         "12c11e9c81a1d6fe963cf746013fa77280f8f0696f7f61f8f8a4208e47244c58",
         "aafd5294cba073e62365bd5566dfff1b79204271e10195a649c0afd00e7e8026",
-        "98345cff1223293fa2999ede60164f024b082cfcf274e20542457d7f3f15a01e"
+        "31d3052fa9e66582f2adab39f1bf2e17f4fe015f264b485b4a5dbbaf4d1ddb0d"
       ]
     },
     "spacr.qt.screens.experiment_design.ExperimentDesignScreen": {
@@ -76186,7 +76186,7 @@
         "02855e568a643209bc9923cdee2e86a81e9dd2ca6e3b19141e3e460addf5e673"
       ],
       "source_sha256": "d6699d840553f875ec2b364a876993f6816c8442022e1deae2a18f5dd2edf75b",
-      "text": "什么是掩膜类被称为,与它被锁定的相反。\n\nNO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.\n\n:param role: 由 :data:`OBJECT_CHOICES` 组成。",
+      "text": "什么是掩膜类被称为,与它被锁定的相反。\n\n用户看不到字母，这是 2026-09-02 明确提出的要求：“i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles”。槽位在存储时带字母 —— ``organelle``、``organelleb``、``organellec`` —— 因为角色名是它所拥有的每一个设置名的前缀，而 ``organelle2`` 无法在 ``prcfo`` 键中往返而不与标号为 2 的对象相撞。那是一个存储上的决定，它与界面无关；在界面上，槽位是一个数字：Organelle 1、Organelle 2。\n\n:param role: 由 :data:`OBJECT_CHOICES` 组成。",
       "translation_source_blocks_sha256": [
         "82eceb4349461b812f2a1dc9dc77e97280ee1ea85b4e4ecc477cd997a2f489dc",
         "408772a8be8e79004fe74cbad71915ad96c66d7096a5e909353d84ba7bb7dd6d",
@@ -78983,11 +78983,11 @@
         "0344526cf125acaa46c1f7eda34503f34d26a406673297b9a0d2202875eef94b"
       ],
       "source_sha256": "da78ce9c14d79f6342473bfd16587c30ab1a45ec931c98451b65b8335b32e4e6",
-      "text": "一个包装模块,因为整个筛选是,加上主机添加什么。\n\n一个重新实施它所取代的模块将保留任何人做模块发生的事情思考,静静地放下其余的按钮打开模块的OWN widget:每个控制器,每个工作进程,每个滴目标它作为一个模块是到达的东西,唯一改变的事情是它从哪里打开。\n\n它是这个应用程序视图上的页面,而不是它上面的窗口. 一个窗口是一个字符串的最后一个源头,而这只是当主机没有身体来创建页面 - 见 :func:`spacr.qt.screens.map_barcodes.show_as_page`. 作为一个页面它是由选项卡的自己的关闭按钮关闭,所以默认接近按钮下面属于单独的窗口形状,并与它添加。\n\n:param key: 填写模块的登记密钥。\n:param screen: 模块本身的 widget,已经建立了。\n:param title: 页面标题和窗口标题 - 模块的名称。\n:param actions: 按钮顺序的额外按钮,每一个 ``(label, tooltip, callback)``. 这是一个功能的插入模块缺乏,其主机已经到达。\n:param parent: 父母 Widget;所有权仅。\n将一个包装模块的筛选与标题和其行动。\n\n:param key: 模块的登记密钥。\n:param screen: 筛选要包装。\n:param title: 关于它的标题。\n:param parent: 父母 Widget\n:param actions: 额外按钮为面板的顺序。",
+      "text": "一个包装模块,因为整个筛选是,加上主机添加什么。\n\n一个重新实施它所取代的模块将保留任何人做模块发生的事情思考,静静地放下其余的按钮打开模块的OWN widget:每个控制器,每个工作进程,每个滴目标它作为一个模块是到达的东西,唯一改变的事情是它从哪里打开。\n\n它是该应用程序视图上的页面,而不是它上面的窗口. 一个窗口是字符串的最后回报,这就是当主机没有身体来制作页面时才会发生的事情 - 见 :func:`spacr.qt.screens.map_barcodes.show_as_page`. 作为一个页面它是由选项卡本身的关闭按钮关闭的,因此下面的默认关闭键属于单独的窗口形状,并与它一起添加。\n\n:param key: 填写模块的登记密钥。\n:param screen: 模块本身的 widget,已经建立了。\n:param title: 页面标题和窗口标题 - 模块的名称。\n:param actions: 按钮顺序的额外按钮,每一个 ``(label, tooltip, callback)``. 这是一个功能的插入模块缺乏,其主机已经到达。\n:param parent: 父母 Widget;所有权仅。\n将一个包装模块的筛选与标题和其行动。\n\n:param key: 模块的登记密钥。\n:param screen: 筛选要包装。\n:param title: 关于它的标题。\n:param parent: 父母 Widget\n:param actions: 额外按钮为面板的顺序。",
       "translation_source_blocks_sha256": [
         "63ba35fd121dc8aa0d2d4c0090fd5fd9446c7ecaf91ab07f7cb09867a708fd50",
         "2a3931cb6f4fcea28874502bf45f670e7e3c54a1eb072a0e2fb817a3c9558c36",
-        "c75141d1dc619b13aa4221ea1c9a73205e914f2ab41d25745ebdaa0f27f038cc",
+        "aa260c8e302ff7791eff496a001a68a42cf83923ecd29998424a3f114a30761c",
         "ead69f296095fc7f56aedc29ee07abce5fd95b098c8ec93cdf2bf57f54c37085",
         "530e333952e4d4e97b7c4f7db8d45165e0692c07ef69091c273b0026a3754aac",
         "f13d79b05fd8ccaa55607c9e17a21cd4575aa4db565a7e6361b2fc3605915ece",
@@ -80869,7 +80869,7 @@
         "a8f21e6fbd8a72d23e65436561308dbab6c0f2b48d3f4237eae1aa86db632295"
       ],
       "source_sha256": "f3de18f70c449b0244c88fcff82acfde17801e5c9f1dd746171560c2e9d2df94",
-      "text": "向面板转向这个筛选。\n\n:param request: the hit's folder, gene, effect and guides.",
+      "text": "向面板转向这个筛选。\n\n:param request: 该命中的文件夹、基因、效应与向导序列。",
       "translation_source_blocks_sha256": [
         "35e3a7559fc655767135ca6e322617dec46390084acbdd1c1dfb6cbbaf2a1530",
         "a8f21e6fbd8a72d23e65436561308dbab6c0f2b48d3f4237eae1aa86db632295"
@@ -85140,12 +85140,12 @@
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ],
       "source_sha256": "2bd853a5640ea6ce66750f1e774ab5d028e6e5088a7d8ba8adb3f88cbfb59e92",
-      "text": "如何大合适的即将到来,阅读它被授予的计算文件。\n\n设计: “有用的线命名设计 - “适合389基因和823引导 RNA随机效果超过610个微板样本位置” - 因为这也是线,告诉一个用户他们的过滤器做了一些意想不到的事情。\n\n它读到 sgRNA 计算 CSVs 和没有别的东西,所以它是设计,因为输入文件保持它:在合并与分数数据之前,在 ``fraction_threshold`` 之前,并在微板样本位置过滤器之前。\n\n它运行将一个句子放在控制台旁边一个已经开始的匹配;一个扫描将采取运行自己的消息与它. 它不能工作回来作为 ``None`` 与一个 ``note`` 说为什么。\n\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
+      "text": "如何大合适的即将到来,阅读它被授予的计算文件。\n\n设计: “有用的线命名设计 - “适合389基因和823引导 RNA随机效果超过610个微板样本位置” - 因为这也是线,告诉一个用户他们的过滤器做了一些意想不到的事情。\n\n它读到 sgRNA 计算 CSVs 和没有别的东西,所以它是设计,因为输入文件保持它:在合并与分数数据之前,在 ``fraction_threshold`` 之前,并在微板样本位置过滤器之前。\n\n永远不会扔掉。 它正在运行,将一个句子放在控制台旁边一个已经开始的匹配; 一个投射的扫描将带走自己的消息。 它可能不起作用的回归为``None``与``note``说为什么。\n\n:returns: ``{'genes', 'guides', 'wells', 'rows', 'files', 'note'}``.",
       "translation_source_blocks_sha256": [
         "9b6c2f2f7b28da7693eab65e26845f116b0952aba25f2d37ec1dba9ea14c36b4",
         "c5d912a3f53cabdcb82a48b6ee5715038066b0e9c7b5b7e0a857d337a3ae0273",
         "81482eb87975579c80d9882e3f0e6ec54b5c891493d9f74c3269f09265f509f2",
-        "928c691fc977cdd25ba36e573fd3694df4f0d60f9c43db206b764bfe3e4068c5",
+        "6b87f9af6718b0791434a540603036c6afb3c0d7605dffa37c1cbc258487a743",
         "9ec366aca8635a0fd2e590ac42908ff75f5af7c094ac8ec359cb9378152aabc7"
       ]
     },
@@ -93108,7 +93108,7 @@
         "1ba043a9b2ec2a52078315843114427e6a4706c7f8c0c38cceb6045d6f658a8d"
       ],
       "source_sha256": "6c05adfea16ddd8f292e9b56d13643cc2605135b1af4f28584dcf0014ec30f31",
-      "text": "显示已关闭的 UMAP 标记细胞质量检查。\n\n该面板将计算分配为 :mod:`spacr.annotation_umap_qc`. 它将一个控制子组的插入调节,并评估对持外控制的分离,报告邻近的纯度而不是团体成员,并拒绝循环评估,当现象分数被用来选择标记的细胞时。\n\nTHE EMBEDDING IS DRAWN THROUGH THE SAME PLOT EVERY OTHER PANEL USES -- :class:`spacr.qt.widgets.fast_plots.FastPlot` beside :class:`~spacr.qt.widgets.fast_plots.ResultsTable` -- rather than on a canvas of its own. A scatter here needs exactly what those already carry: hovering a point to see which guide it came from, the right-click restyle menu, the export, and a table whose rows can be read against the picture. A second canvas would be a second set of all of that, drifting from the first.",
+      "text": "显示已关闭的 UMAP 标记细胞质量检查。\n\n该面板将计算分配为 :mod:`spacr.annotation_umap_qc`. 它将一个控制子组的插入调节,并评估对持外控制的分离,报告邻近的纯度而不是团体成员,并拒绝循环评估,当现象分数被用来选择标记的细胞时。\n\n该嵌入图通过其他每个面板都在用的同一套绘图组件绘制 —— :class:`spacr.qt.widgets.fast_plots.FastPlot` 搭配 :class:`~spacr.qt.widgets.fast_plots.ResultsTable` —— 而不是画在自己的画布上。这里的散点图所需要的，正是那两者已经具备的：悬停某个点即可看到它来自哪条向导序列、右键重设样式菜单、导出，以及一张可以对照图形逐行阅读的表。再来一块画布，就意味着再来一整套这些东西，并且会与第一套逐渐分道扬镳。",
       "translation_source_blocks_sha256": [
         "7cf260810460f5c6169f2ae799698d6be03ef137fbb9009059eeade81903cb75",
         "75d32b0ae7459428341059a629898feef9e314d2c0b4c6dbde0ccac013d54304",
@@ -93338,13 +93338,13 @@
         "b5172019c351d64bb3bbe4ceb8a22cce8e56ac68d66bef2bd8bf048cb7160e47"
       ],
       "source_sha256": "4853c267e20cfa1eab88bfcb3f931f0f1c6a4a214c79186e32e7ee9131ef5861",
-      "text": "请问一个字的布局,而不是整个句子。\n\n它用 ``setSizePolicy(QSizePolicy.Maximum, ...)`` 和 ``setMinimumWidth(0)`` 构建这个标签,并记录了意图 - 泡沫“可以缩小其理想宽度而不是强迫窗口更宽”。 没有呼叫实现它: ``qSmartMinSize`` 从 ``minimumSizeHint()`` 采取一个缩小 widget 的最低值,而对于一个不包围 ``QLabel`` 是 ENTIRE 句子的宽度,它只允许一个明确的 ``minimumWidth`` 超越,当值超过零。\n\n接下来的两件事,两者都在最大的字体规模偏好提供的冰岛语中的 Power 应用程序视图中测量:\n\n  * 该模块的标题是被切断的,标题需要1274张,有1168张,每张106张都出现在标题上――“Tölfræðilegt afl/hönnun”画在683张标题的577张,而泡沫坐在其旁边的全宽。\n  * 每个模块的应用程式观点底下放置地板. 最少的Masthead是1166 px 100%,这是大多数的1198 px最低的整个应用的观点报告 - 所以这个标签,单独,是为什么一个模块页面不能显示狭窄。\n\n一句话加上一句话,而不是一句话:它在标签本身的字体中被测量,所以它跟踪字体规模而不被告知,而在最狭窄的时刻,混乱仍然说它是关于什么而不是崩溃到一个点。\n\n只有当标签没有包装时,一个包装标签会为 HEIGHT 交易宽度,而 Qt 的最低值已经知道如何。",
+      "text": "请问一个字的布局,而不是整个句子。\n\n它用 ``setSizePolicy(QSizePolicy.Maximum, ...)`` 和 ``setMinimumWidth(0)`` 构建这个标签,并记录了意图 - 泡沫“可以缩小其理想宽度而不是强迫窗口更宽”。 没有呼叫实现它: ``qSmartMinSize`` 从 ``minimumSizeHint()`` 采取一个缩小 widget 的最低值,而对于一个不包围 ``QLabel`` 是 ENTIRE 句子的宽度,它只允许一个明确的 ``minimumWidth`` 超越,当值超过零。\n\n接下来的两件事,两者都在最大的字体规模偏好提供的冰岛语中的 Power 应用程序视图中测量:\n\n  * 该模块的标题是被切断的,标题需要1274张,有1168张,每张106张都出现在标题上――“Tölfræðilegt afl/hönnun”画在683张标题的577张,而泡沫坐在其旁边的全宽。\n  * 该模块的最低值为1166倍,百分之百,这大多是整个应用程序视图报告的1198倍最低值 - 所以这个标签,单独,是为什么一个模块页面不能显示狭窄。\n\n一句话加上一句话,而不是一句话:它在标签本身的字体中被测量,所以它跟踪字体规模而不被告知,而在最狭窄的时刻,混乱仍然说它是关于什么而不是崩溃到一个点。\n\n只有当标签没有包装时,一个包装标签会为 HEIGHT 交易宽度,而 Qt 的最低值已经知道如何。",
       "translation_source_blocks_sha256": [
         "ac42e81a246c86c4555fe1ac76fed80f1fd3a9368cc21c90f1e19a1b7134c1a1",
         "0d0d56e0e3689141a7f7529e4bef2f394c231afc1d27fa8114fad202248afd4c",
         "6a5226c4f97fdd671235695f5f53900c4071ef25fdd6cce5bbdb6b47378bb670",
         "7cd868703152f985850617cfe8a3f577d18860cc9393c79b661a89ff2e7ab725",
-        "3c17192a171ba950cec4135ded66a2573f3d55e8a926658de508270e1a5d82bf",
+        "3769488d5f4321e145d1673b5ea80576aed94d40b12aaa665c822d6490d4511d",
         "cb080459e395893fcc94a1e26ff6ac74f896f7e7cf7b03cbfae41c5db7b41abe",
         "b5172019c351d64bb3bbe4ceb8a22cce8e56ac68d66bef2bd8bf048cb7160e47"
       ]
@@ -94683,9 +94683,9 @@
         "fd39346482dc9ecd6c2af24b05a05061e1c206cc35a7e57a3109a0f6a7ee96ab"
       ],
       "source_sha256": "15705e520b6cc74e508933bfa924c37c4701023a86472a7cc0fb1c057d1c922a",
-      "text": "选项卡的名称: 微板样本位置 和 gRNA,两者。\n\n具有多个引导 RNA的基因将相同的细胞拉得多于一次,所以两个称为``p1_r3_c7``的选项卡是不可分割的 - 并且一个选项的整个点是将一个基因细胞与另一个细胞进行比较,一个标签只称为细胞是不可能的。\n\n因子也被命名,当引导 RNA单独不识别它时。 运行真正的选项卡发现了这个案例:引导 RNA级别的比例为``GRA14_1``,而GENE ``GRA14``显示了一个引导 RNA同时,两者都打开一个选项牌为``GRA14_1``在同一个好处 - 它们是不同的组合与不同的效果,不同的窗户和不同的细胞。 两者都阅读了``plate1_r1_c1 · GRA14_1``并没有在标签栏上告诉他们分别。\n\n:param well: 微板样本位置密钥,因为计划显示它。\n:param guides: 这些引导 RNA覆盖了这个组装。\n:param name: 指标本身的名称,当引导 RNA总结时使用,因此没有单一引导 RNA命名。\n:param level: ``'gene'`` 或 ``'grna'`` - 这个组合应对什么类型的比例。\n:returns: 例如 ``'plate1_r1_c1 · GRA14_1'`` 为引导 RNA术语, ``'plate1_r1_c1 · GRA14_1 (of GRA14)'`` 为同一引导 RNA在基因术语内, 或 ``'plate1_r1_c1 · GRA14 (2 guides)'`` 为金额。",
+      "text": "选项卡的名称:微板样本位置和 gRNA,两者。\n\n具有多个引导 RNA的基因将相同的细胞拉得多于一次,所以两个称为``p1_r3_c7``的选项卡是不可分割的 - 并且一个选项的整个点是将一个基因细胞与另一个细胞进行比较,一个标签只称为细胞是不可能的。\n\n因子也被命名,当引导 RNA单独不识别它时。 运行真正的选项卡发现了这个案例:引导 RNA级别的比例为``GRA14_1``,而GENE ``GRA14``显示了一个引导 RNA同时,两者都打开一个选项牌为``GRA14_1``在同一个好处 - 它们是不同的组合与不同的效果,不同的窗户和不同的细胞。 两者都阅读了``plate1_r1_c1 · GRA14_1``并没有在标签栏上告诉他们分别。\n\n:param well: 微板样本位置密钥,因为计划显示它。\n:param guides: 这些引导 RNA覆盖了这个组装。\n:param name: 指标本身的名称,当引导 RNA总结时使用,因此没有单一引导 RNA命名。\n:param level: ``'gene'`` 或 ``'grna'`` - 这个组合应对什么类型的比例。\n:returns: 例如 ``'plate1_r1_c1 · GRA14_1'`` 为引导 RNA术语, ``'plate1_r1_c1 · GRA14_1 (of GRA14)'`` 为同一引导 RNA在基因术语内, 或 ``'plate1_r1_c1 · GRA14 (2 guides)'`` 为金额。",
       "translation_source_blocks_sha256": [
-        "1d7cf2b9b0f58028eda6f6ef3db5f9c5e64b622e4af330257d1633b8c5811c0a",
+        "d613c9928a3b0dbd14427831f28beab370811a40a17926844ef6a7cb0a55991e",
         "ab8912cf8b49504d335b465a5df918bd55444c3fff998a1c6d0c191e3ff9e5fe",
         "596add49508a7e4526590d303d8af8466ddb2b98727c2852387432c764654f26",
         "aa5e88322938ed17a5a9df301421c2bdff5f1b71045d89a13172c4eddf518d3a",
@@ -98822,7 +98822,7 @@
         "0fcdc798edc02390f9655bb214c96a65554f04df3e6f4b1efa9da313206a4fcc"
       ],
       "source_sha256": "0c21f939b56d9adbec5e2f9b41b3888ea14775b5a1138d899ecbcdc767e2f3f4",
-      "text": "左导航插槽:一个图标,一个名称和一个类别标题。\n\n序列是具有图标和其名称的按钮,总是两者。指标变化的唯一东西是颜色,解释走向窗口底部的条纹,而不是进入一个点击。\n\n此取代的插槽是 ``Sidebar`` 和 ``_DockRow`` 在 ``spacr.qt.app`` 中跨的 1,116 行,几乎所有这些都是机械,存在于打败自己:\n\n* 以 ``paintEvent`` 绘制的透明板 - 四个单独的组合的 \"black box\",显然是图形本身而不是任何风格表;\n* 每个字符的图标大小模型(``resting_icon_px``,``_place_icon``, ``_set_icon_px``、``_forget_icon_sizes``、 ``_rest_every_icon``)在指示器下生长和积累图标,这就是使旋转重新安排列并闪烁;\n* 的名称仅在悬停时绘制,所以一个静止的码头是一列未标记的符号;\n* 其次,以其自己的扩展状态的模块分配的第二个,定位的水平(``_fold_children``, ``_open_hosts``( ) 哪个是 \"sub categories\".\n\nNone of that is here. A row is a button with an icon and its name, always both. The only thing the pointer changes is the colour.\n\nWHERE 解释去了. 不是在一个 popup 工具提示 — 这些是显而易见的不需要的。 — 但在窗口底部沿着条线, 它已经存在于 :mod:`spacr.qt.widgets.module_hint_bar` 并且已经保持了最后一个旋转的模块三十秒,其 API 和教程链接. 这只说哪个模块在指示器下方,通过 :attr:`Dock.module_hovered`; 栏决定如何解释它。\n\n什么是保留的,因为别的东西会读到它。 类别仍然崩溃 - 列表长于短屏。 轮子仍然携带 ``navKey`` 和标题仍然是 ``SidebarSection``,因为主题,教程脚本和成熟测试都通过这些名称到达道。 而且 :meth:`refresh_visibility` 仍然适用于 Alpha/Beta 成熟过滤器,并隐藏一个标题,其所有模块都被过滤,这是一个单独的原因,一个行从其部分被关闭。\n\n没有什么在这里进口 :mod:`spacr.qt.app`. 记录居住在那里,并将是一个圆形进口,所以列,图标查看和成熟预测都注入。",
+      "text": "左导航插槽:一个图标,一个名称和一个类别标题。\n\n序列是具有图标和其名称的按钮,总是两者。指标变化的唯一东西是颜色,解释走向窗口底部的条纹,而不是进入一个点击。\n\n此取代的插槽是 ``Sidebar`` 和 ``_DockRow`` 在 ``spacr.qt.app`` 中跨的 1,116 行,几乎所有这些都是机械,存在于打败自己:\n\n* 以 ``paintEvent`` 绘制的透明板 - 四个单独的组合的 \"black box\",显然是图形本身而不是任何风格表;\n* 每个字符的图标大小模型(``resting_icon_px``,``_place_icon``, ``_set_icon_px``、``_forget_icon_sizes``、 ``_rest_every_icon``)在指示器下生长和积累图标,这就是使旋转重新安排列并闪烁;\n* 的名称仅在悬停时绘制,所以一个静止的码头是一列未标记的符号;\n* 其次,以其自己的扩展状态的模块分配的第二个,定位的水平(``_fold_children``, ``_open_hosts``( ) 哪个是 \"sub categories\".\n\nNone 之类的东西在这里一概没有。一行就是一个按钮，带一个图标和它的名字，两者始终同时存在。指针唯一改变的只有颜色。\n\nWHERE 解释去了. 不是在一个 popup 工具提示 — 这些是显而易见的不需要的。 — 但在窗口底部沿着条线, 它已经存在于 :mod:`spacr.qt.widgets.module_hint_bar` 并且已经保持了最后一个旋转的模块三十秒,其 API 和教程链接. 这只说哪个模块在指示器下方,通过 :attr:`Dock.module_hovered`; 栏决定如何解释它。\n\n什么是保留的,因为别的东西会读到它。 类别仍然崩溃 - 列表长于短屏。 轮子仍然携带 ``navKey`` 和标题仍然是 ``SidebarSection``,因为主题,教程脚本和成熟测试都通过这些名称到达道。 而且 :meth:`refresh_visibility` 仍然适用于 Alpha/Beta 成熟过滤器,并隐藏一个标题,其所有模块都被过滤,这是一个单独的原因,一个行从其部分被关闭。\n\n没有什么在这里进口 :mod:`spacr.qt.app`. 记录居住在那里,并将是一个圆形进口,所以列,图标查看和成熟预测都注入。",
       "translation_source_blocks_sha256": [
         "41d41ef2e3065a993eed4df10615c17aa6c3f71e3f7f531eb09c14539d58fa95",
         "96c3da08db9bf82d83583e59089645234face79b7da045b28bb49cb26ca9022f",
@@ -101460,7 +101460,7 @@
       "text": "在 ``keys`` 中输入每个键,返回已找到和提取的数量。\n\n它可能缺少,因为它的点没有被插入 - 一个不可用的p值,一个麻烦的术语这个插图放弃 - 并将它从选择将使计算在应用程序视图与消费者得到什么不同意。",
       "translation_source_blocks_sha256": [
         "757dae32634185e104ed811305d6c01ca39868adbecc379f9abc2b9275ac014e",
-        "b3a49916f7053070e41ec877396535b9bbdc141cdf460f3c5c0c0124e3eb5e9a"
+        "b44de198659918860520fe4511febacb9ba3adae89047dbe50dca465520d0a64"
       ]
     },
     "spacr.qt.widgets.fast_plots.FastPlot.key_for_row": {
@@ -101944,7 +101944,7 @@
       "text": "设置页面为 PDF 或 SVG 写在,在毫米。\n\n这不会在应用程序视图上移动字符串. 查看 :meth:`set_screen_size`。\n\n:param width_mm: 页面宽 :data:`EXPORT_WIDTH_MM` 是日志的双列宽,是默认的。\n:param height_mm: 页面高度,或 None 跟随字符串本身的外观,以便没有任何延伸。",
       "translation_source_blocks_sha256": [
         "aaf63fd732c51e63612c3042ea2d7cc0f300e29c4fcb7762cd58dd4e84c569f3",
-        "6979c22311bac43ae274e3a010610779ecf8e94e3107447e51ec1de20782da71",
+        "cd5f0dd250a9b9a250cc93fea6964a5f3bd16acdb3225b1b96490555da3c6f4d",
         "b2f42b0d832ac03b3669257e8b0936f6672a070e4751e9bfb0c51d3f06075634",
         "a2e27507f0220c58e101b424d89857f37478828153bb067f49a930f0c4b7256f"
       ]
@@ -102353,12 +102353,12 @@
         "a370e64f6d0865476d361cbde6bdca79f99a24804f7090814cf041ccede2b558"
       ],
       "source_sha256": "3cced4193e879caf395fac5780f2eadb3ac379ddd11b69325b07b8189132ea8f",
-      "text": "每基因提取一个点,返回分配的基因数量。\n\n:param support: 框 :func:`spacr.guide_concordance.guide_support` 返回 - ``n_guides``、``concordance``、 ``single_guide`` 每基因 - 基因索引或携带 ``gene`` 列。\n:param keys: 每个列的标识器为 ``support``. 默认是 ``support[key_column]`` 当该列存在时。\n\n结构数据名称是基因级别的术语,而不是基因ID. 基因显示在对比表中为 ``gene_fraction:gene[244480]``,这就是火山、表和基因板所结合的。 使用这个字符串的``244480`` 将使第二个结构数据的名称空间,没有别的东西可以解决,所以呼叫器通过这个术语并点击一个基因在这里选择正确的行单点击其点在火山上。",
+      "text": "每基因提取一个点,返回分配的基因数量。\n\n:param support: 框 :func:`spacr.guide_concordance.guide_support` 返回 - ``n_guides``、``concordance``、 ``single_guide`` 每基因 - 基因索引或携带 ``gene`` 列。\n:param keys: 每个列的标识器为 ``support``. 默认是 ``support[key_column]`` 当该列存在时。\n\n结构化数据名称是基因级别的术语,而不是基因ID. 基因出现在对比表中为 ``gene_fraction:gene[244480]``,这就是火山、表和基因板所结合的。 携带这个字符串的``244480`` 将使第二个结构化的数据名名称空间无法解决,所以呼叫者通过这个术语并点击一个基因在这里选择正确的序列点击火山上的点。",
       "translation_source_blocks_sha256": [
         "c595056fb0c057a997fe452b75f0d93d2ecc9bdb0fca7a7f2a8f283c05dc6eaa",
         "9afe89c240626d005fd32812133ce92d5379d75e434bf5a1dcdd2781d7220129",
         "fd07eb10e71105737809d631dc96e3e2fa05400117abed3c47ba81f70813350b",
-        "55a8d7d67376bc9aa298b6e253745d635e5c7327c268c62d2fdf06cfee2201b3"
+        "2790e117ed9456f08c58e1922f824267ebf48ab27f8f7f82db84dad89ea9571a"
       ]
     },
     "spacr.qt.widgets.fast_plots.InfluencePlot": {
@@ -102370,10 +102370,10 @@
         "e340a2452f68f1e68fbb760be89c2e9b01e9bc5e3c5870fbe4d1b481547efeee"
       ],
       "source_sha256": "ecd8d3b5f1d37fb8ad53ef098df48b57c9bec36c5d005b4417b5ff36a671e9e8",
-      "text": "抵抗标准化残留物,库克的距离在顶部。\n\n交互式双胞胎 :func:`spacr.regression_qc._panel_influence`。 她回答的问题是一个扫描实验无法从火山中回答:这是一个打击数据的形状,还是一个微板样本位置的形式? 一个微板样本位置远向右有一个不寻常的引导 RNA组合; 微板样本位置远上或下是不太预测的; 一个微板样本位置,这两者都是一个,其移除移动的比例,库克的距离是产品这样说。\n\n超越4/n扫描规则的微板样本位置是唯一的颜色,这就是房子的规则 - 其他一切都是灰色,因为这里的句子是“这些值得回到显微镜”。\n\n:param parent: 父母 Widget\n建造地板及其控制。",
+      "text": "抵抗标准化残留物,库克的距离在顶部。\n\n交互式双胞胎 :func:`spacr.regression_qc._panel_influence`。 她回答的问题是一个扫描实验无法从火山中回答:这是一个打击数据的形状,还是一个微板样本位置的形态? 一个微板样本位置远向右有一个不寻常的引导 RNA组合; 微板样本位置远上或下是不太预测的; 一个微板样本位置,这两者都是一个,其移除移动的比例,库克的距离是产品这样说。\n\n超越4/n扫描规则的微板样本位置是唯一的颜色,这就是房子的规则 - 其他一切都是灰色,因为这里的句子是“这些值得回到显微镜”。\n\n:param parent: 父母 Widget\n建造地板及其控制。",
       "translation_source_blocks_sha256": [
         "077d942b233c989b26343fdf2a6cfe9b12eaf963d43b9388b5889da9e86ace41",
-        "7fc53e1521765ab72378d62d5ae3c56241937cb9417b3a30b6d671769553fe09",
+        "ce41ceb38a41c2fbf99d6238f9ec175b7600c971fccd242fa72340bd2cb7745b",
         "cf0385ddadcc4f4b9e713df3d8504bdd0e7d986d3137972c60cf83a1a1c76a7e",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "e340a2452f68f1e68fbb760be89c2e9b01e9bc5e3c5870fbe4d1b481547efeee"
@@ -105837,10 +105837,10 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
       "source_sha256": "1be9dae75de7fbf11a2aaa3bae6b864f47d9eb4950d079667528a450cd8f5811",
-      "text": "可编辑一卷每实验室微板分数 / 计算 / 数据库输入合同。\n\n一个序列是 ONE 实验室微板:其分数为 CSV,其计算为 CSV,以及测量数据库,实验室小板的对象表生活在其中。 所有三个列都被添加填满 - 每个到达都重新提议了整个表从字符号代码 - 因此数据库落在相反的顺序到 CSVs 仍然在正确的实验室微板上。 这就是规则,而第三列则服从它,而不是保持自己的列表。\n\n没有数据库的磁盘是合法的,并不是一个错误:逆转设置在分数和计算。 数据库是使该磁盘的测量可用于下流,因此它的缺席阻碍了磁盘在那里而不是失败运行。\n\n:param value: 所有随后到达的,都是从字符号代码的整个表,而不是打开,这使得数据库落在相反的顺序,到 CSVs 仍然在右板上。\n:param parent: 父母 Widget\n创建一个单环每实验室微板桌。\n\n:param value: 线路已经保存了。\n:param parent: 父母 Widget",
+      "text": "可编辑一卷每实验室微板分数 / 计算 / 数据库输入合同。\n\n一行是一个实验室微板:它的分数 CSV,它的数量 CSV,和测量资料库,实验院微板的每个对象表生活在其中. 所有三个列都充满了附加 - 每个到来重新提交整个表从字符标志 - 因此,数据库落在相反的顺序到 CSVs 仍然在正确的实验园微板上。\n\n没有数据库的磁盘是合法的,并不是一个错误:逆转设置在分数和计算。 数据库是使该磁盘的测量可用于下流,因此它的缺席阻碍了磁盘在那里而不是失败运行。\n\n:param value: 所有随后到达的,都是从字符号代码的整个表,而不是打开,这使得数据库落在相反的顺序,到 CSVs 仍然在右板上。\n:param parent: 父母 Widget\n创建一个单环每实验室微板桌。\n\n:param value: 线路已经保存了。\n:param parent: 父母 Widget",
       "translation_source_blocks_sha256": [
         "8477acf8545b7060d04a9a8b542c3fa485f249be178eb14114ea2cac18aea313",
-        "9e9f716706d32ff81dd62e134df83d6f794c418ae4f23765e20a2b2773f67494",
+        "a0bd34a9e3af45eac9c62d9f7a9bc79ee0aa1f2aa4234675f9c053e6361c9e05",
         "4744c9a7b9d536414a859f8db4e1f1f3508fc1335dc95f2ae761b07536aff97c",
         "d1129f27b3cb1feb1f7faa4cee63fa76dd57964f787cbba6a3d56553e0eb2262",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
@@ -106408,10 +106408,10 @@
         "f505999d4c9c4f8561244f35e44491a4b0c2eabc3163e7366e256dc70863b6fd"
       ],
       "source_sha256": "a8afc91cd70a0e694edbd698f52e7e9b985ff115e43c5063202b40089c05d301",
-      "text": "``(name, description, stage)`` 为一个密钥,从任何地方。\n\n一个有结构数据名称和需要词语的呼叫者的答案,无论是结构数据的名称的主人还是不,这个模块走路之一。 :func:`folded_modules`走路八个主人; 道克拖行列为十一,因为四个更长的字符串后来,并被命名为只有:data:`spacr.qt.app._EXTRA_FOLD_HOSTS` - 因此,七个模块在图形构建器上, QC 磁盘和数据库浏览器没有目录输入,他们的行列被阅读为原料结构数据名字: `lineage`、 `tabulate`、`control_chart`。\n\n添加这些主机在这里会修复行,并进口三个更多的应用程序视图模块,而窗口仍在建造,这正是该条线的开启成本是要避免的。",
+      "text": "``(name, description, stage)`` 为一个密钥,从任何地方。\n\n一个有结构化数据名称和需要词语的呼叫者的答案,无论是结构化的数据名的主人是这个模块走路之一。 :func:`folded_modules` 走路八个主人; 达克拖行列为十一,因为四个增加的字符串后,并被命名为只有 :data:`spacr.qt.app._EXTRA_FOLD_HOSTS` - 因此,七个模块在图形构建器, QC 磁盘和数据库浏览器没有目录输入,他们的行列被阅读为原始结构化信息名称: `lineage`,`tabulate`, `control_chart`。\n\n添加这些主机在这里会修复行,并进口三个更多的应用程序视图模块,而窗口仍在建造,这正是该条线的开启成本是要避免的。",
       "translation_source_blocks_sha256": [
         "b06275875ca00e2b001850eea8bbe937d78919b267a54111a2f54d64afc72f0d",
-        "3439e6b1d150b6ae94a5574cf9455227a99efee8c4f518c58b8baa9b4c031002",
+        "ee6c586454ad18b020370b35063af694a4e3e528db93f7f9d77f94d8c40339d8",
         "f796773307e781a2c4257e062f380ba91653b4010851ed817891d1c67411d64d"
       ]
     },
@@ -110495,11 +110495,11 @@
         "bf28abc9d368d1f5c5521a3197de82809b7673a25cdb57c4e649d43b8d55b050"
       ],
       "source_sha256": "3c1e8fd6eaf2e6d9337932de076dd7fe2cd2a49293e96c1456a2cf5e757fc769",
-      "text": "于卷的一个图像层上的椭圆,延伸至第三个层。\n\n用户在他们选择的图像层上拖动2D - 这是一个拖动具有微板样本定义的位置意义的唯一位置 - 并且形状沿着指向它的轴延伸。\n\n图像层以其列命名,而不是一行。 ``u_column`` 和 ``v_column`` 是两种,``axis_column``是正常的; 说哪个的 XY / XZ / YZ 是没有第二个显微镜的视野,可以与列不一致。 它也从每个摄像头的角度阅读相同,这是原则 :class:`BoxGate` 说:在旋转的投影上拖动的形状没有一个定义的范围沿着指向观众的轴,所以任何尝试阅读一个输出发现一个数字。\n\n一个没有边缘的轴是默认的,这是一个决定,而不是一个意外。 一个无边缘在其正常的长度意味着正确的2D排泄在图像层已经意味着什么,所以绘制一个在3D和绘制一个人在2D同意; 缩短它是那么一个明确的行为而不是用户必须放弃的东西。",
+      "text": "于卷的一个图像层上的椭圆,延伸至第三个层。\n\n用户在他们选择的图像层上拖动2D - 这是一个拖动具有微板样本定义的位置意义的唯一位置 - 并且形状沿着指向它的轴延伸。\n\n图像层以其列命名,而不是一行。 ``u_column`` 和 ``v_column`` 是两种,``axis_column``是正常的; 说哪个的 XY / XZ / YZ 是没有第二个显微镜的视野,可以与列不一致。 它也从每个摄像头的角度阅读相同,这是原则 :class:`BoxGate` 说:在旋转的投影上拖动的形状没有一个定义的范围,沿着轴指向观众,所以任何尝试阅读一个出发的数字。\n\n一个没有边缘的轴是默认的,这是一个决定,而不是一个意外。 一个无边缘在其正常的长度意味着正确的2D排泄在图像层已经意味着什么,所以绘制一个在3D和绘制一个人在2D同意; 缩短它是那么一个明确的行为而不是用户必须放弃的东西。",
       "translation_source_blocks_sha256": [
         "a811aa83ecc9672c332d928a11c5558b2994aded99edfc99c71486748260ae2f",
         "64676fe598caab223d5be584a6ac632bb569612d3a3ece0156af6dd8676b8b99",
-        "ee2583a7ab27aa1e84987d8494f3e0bda4e94af2a73140c774138562a84a25dc",
+        "5e592dd7fac3cccec58d68c5514f24663ee89a7e5d0e19e74715fbd6dfeb8bed",
         "8d2fcc4de28b43de437529128401068ac7ed5e8770f1dacfa42f131c94775adf"
       ]
     },
@@ -112580,16 +112580,16 @@
         "6a60f605f4cb18cb1e8a982b14042565a3a7e653817757243b30e007614c69cf"
       ],
       "source_sha256": "ba7e582b5cd7f9933ed300e7d40c2dbb1e98b3a27f11469c090dae61ef567746",
-      "text": "点击一个基因,看到所有的 spaCR 知道它 - 在一个面板上。\n\n两个模块已经占据了答案的两半,其中没有一个是 widget,这是故意的:可以WRONG的部分可以测试,没有窗口。\n\n    :mod:`spacr.gene_tile`    什么基因这个点是 - 引导 RNA到基因,\n                              的效果 / p / q / 引导,从已经在应用程序视图上的结果帧中读取。\n    :mod:`spacr.gene_facts`   什么是基因 - 产品, topology 与\n                              DeepTMHMM 协调, hyperLOPIT 组合,发布的 CRISPR 健身筛查实验和阶段表达,所有这些都来自 :mod:`spacr.annotation`。\n\n这个模块将它们放在对方的顶部,并且与数字没有别的作用. 面板不是第二个真理来源:比例,p值,q值和引导 RNA协议是什么表在应用程序视图上说他们是,因为两个地方计算一个数字是他们开始不同意的方式。\n\n主 GUI 执行路径不阅读文件\n----------------------------------\n\n冷,第一次点击花费360毫米的 CSV 阅读 - 五个包装的笔记表,深TMHMM的8140行,和 gRNA 参考和 meta 数据指数 :mod:`spacr.gene_tile` 保持 - 在鼠标印刷中。\n\n因此,:func:`warm_annotation`在背景执行单元上完成了这一切, 通过 :class:`spacr.qt.job_runner.JobRunner` 哪个模块已经得到执行竞争规则正确:工作进程的 ``finished`` 通过信号传输,其接收器是主要 GUI 执行路径对象的连接方法, 永远不会关闭, 因此,交易者在 GUI 主要执行路径上执行,而 QThread 则退休。 根据应用程序视图的定义,它加热每个基因在一个组合 - 400 基因花费相同的 21 ms 一个 - 然后一个点击是一个关键值地图的视图。\n\n直到它是温暖的,面板这样说,它控制的一个是与原因在它的灰色。 一个没有标记的基因也说“没有序列在包装标记”而不是显示一个形式的空的字段,它被称为“测量,找不到任何东西”。",
+      "text": "点击一个基因,看到所有的 spaCR 知道它 - 在一个面板上。\n\n两个模块已经占据了答案的两半,其中没有一个是 widget,这是故意的:可以WRONG的部分可以测试,没有窗口。\n\n    :mod:`spacr.gene_tile`    什么基因这个点是 - 引导 RNA到基因,\n                              模棱两可的原始间隔符,以及此应用视图自身的效果 / p / q / 引导,从已在应用视图上的结果帧中读取。\n    :mod:`spacr.gene_facts`   什么是基因 - 产品, topology 与\n                              DeepTMHMM 协调, hyperLOPIT 组合,发布的 CRISPR 健身筛查实验和阶段表达,所有这些都来自 :mod:`spacr.annotation`。\n\n这个模块将它们放在对方的顶部,并且与数字没有别的作用. 面板不是第二个真理来源:比例,p值,q值和引导 RNA协议是什么表在应用程序视图上说他们是,因为两个地方计算一个数字是他们开始不同意的方式。\n\n主 GUI 执行路径不阅读文件\n----------------------------------\n\n冷,第一次点击花费360毫米的 CSV 阅读 - 五个包装的笔记表,深TMHMM的8140行,和 gRNA 参考和 meta 数据指数 :mod:`spacr.gene_tile` 保持 - 在鼠标印刷中。\n\n因此,:func:`warm_annotation`在背景执行单元上完成了这一切, 通过 :class:`spacr.qt.job_runner.JobRunner` 哪个模块已经得到执行竞争规则正确:工作进程的 ``finished`` 通过信号传输,其接收器是主要 GUI 执行路径对象的连接方法, 永远不会关闭, 因此,交易者在 GUI 主要执行路径上执行,而 QThread 则退休。 根据应用程序视图的定义,它加热每个基因在一个组合 - 400 基因花费相同的 21 ms 一个 - 然后一个点击是一个关键值地图的视图。\n\n直到它是温暖的,面板这样说,它控制的一个是与原因在它的灰色。 一个没有标记的基因也说“没有序列在包装标记”而不是显示一个形式的空的字段,它被称为“测量,找不到任何东西”。",
       "translation_source_blocks_sha256": [
         "cb28034059e4dc6459faf50c65c8e491fe50b526018722e3bec8b6a85811503c",
         "39235a14472483b453c3218af9f632f96a485f577947861d93aad973bddd89a4",
         "43d68e4d6d45fb565904e9d3e6e28494d137692b7c37b72e70efd4483656e17f",
-        "1ad1827c7c90df3e9c416c53fbbe0613489c4636c9faa939b162fdf5269d66a3",
+        "57ae0955c6908fd267632ebeac08122d444aeb2956629541496224581fc74093",
         "5c5e80d7f03b8f6d31f8d5b17210369b380f241a425f7fd42d6a1938a8e0185f",
         "41bd343c299e815c88391ec53bb26fb7f04d40c6ba146f627dfac367507c9341",
         "cc827b38315edfc8b4203d7a5edd27dfe5a8d68678f54081b171ba42a1cac2be",
-        "bb2be4a3990831a010a8abd35ca73d5f4e06ed661c4beea617c044457da935bf",
+        "15f9e849c40fccd002826dd1ff4d900e4f9de06a86e7cf0fe22d7426d6d11a29",
         "5a2f5a50553850a97ad84fa16f22b50a35ae3edd376f1b433879bde5801a969e",
         "fdec2e476126e8f5ebb7df1d6faa5f49985f2b9a8baf784be7d60b9ccff62159",
         "6a60f605f4cb18cb1e8a982b14042565a3a7e653817757243b30e007614c69cf"
@@ -112822,9 +112822,9 @@
         "e82d8892be98d839f70d4413b9a37e6f5c2fabeda4087882baf292ba50d189fd"
       ],
       "source_sha256": "4234359a6dc71feb4e5fec51849be587f96ddd393acd79ee8f1e324cf244c7a9",
-      "text": "阅读每个表一个基因板需要. 执行在一个背景执行单位。\n\n:param features: 用户可以点击的条款 - 通过结果表的整个 ``feature`` 列,其中每个基因都加入一个通道,成本相当于加入一个。\n:returns: 出现在可用的标记列;空白,当包装表不安装时,这是一个状态,面板显示而不是隐藏。\n\n没有触摸 widget 并只返回数据 - 即交付给 :meth:`spacr.qt.job_runner.JobRunner.submit` 的任何东西的合同。\n\n它也加热 :mod:`spacr.gene_tile` ,通过解决一个术语. 该模块保持其自己的指标超过 gRNA 参考和处理的金属数据, 它们在第一点点击时和标记表一样冷;加热一个而不是另一个会移动冷却器,而不是移除它。",
+      "text": "阅读每个表一个基因字符串需要,在一个背景执行单元上执行。\n\n:param features: 用户可以点击的条款 - 通过结果表的整个 ``feature`` 列,其中每个基因都加入一个通道,成本相当于加入一个。\n:returns: 出现在可用的标记列;空白,当包装表不安装时,这是一个状态,面板显示而不是隐藏。\n\n没有触摸 widget 并只返回数据 - 即交付给 :meth:`spacr.qt.job_runner.JobRunner.submit` 的任何东西的合同。\n\n它也加热 :mod:`spacr.gene_tile` ,通过解决一个术语. 该模块保持其自己的指标超过 gRNA 参考和处理的金属数据, 它们在第一点点击时和标记表一样冷;加热一个而不是另一个会移动冷却器,而不是移除它。",
       "translation_source_blocks_sha256": [
-        "abe7dd7ce111c316b918452cdc23f6bdebd5457c5374da16c66addf3e6174a71",
+        "a860fdf6e96df64fccea0246ed60ce6e250d71632d5d0ec771ba2fb50e1a5158",
         "c7f55580a87eda21d7e5ec95b1b62ccfcbdd81344e942863591232fb1b8d6926",
         "66e61440c1c7f5fe64dd4698d58b249dd37f5776913441fe3155615d44bdb9d3",
         "d6f302e668b028c2dbf091426fe7e7bb20dad9850bba2e36aa0859318adad6c5",
@@ -115295,7 +115295,7 @@
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6"
       ],
       "source_sha256": "a8cd69e29f3c1af33994cc451db26791401a7662cf9e3eeeeb6a7b3b9b6f4372",
-      "text": "最后几行是由一个 REAL 模块运行;每个行都在导航。\n\n\"Real module\" is doing work here. The panel used to list whatever the run journal's newest manifests said, and those rows were clickable without representing runs -- they opened a ``_job`` module. On one machine the journal held 11,046 run folders of which 7,323 were written under the app_key ``_job`` or ``job``: a test fixture's key, written straight into the real `~/.spacr/runs` because nothing sandboxed it (fixed in ``tests/conftest.py``). So most rows named a module that does not exist, and clicking one asked the window to open it.\n\n污染现在停止在源头,但这里的过滤器仍然是正确的事情:这个面板NAVIGATES,所以一行它拖动是一个承诺,按它去某个地方。\n\n:param limit: 有多少报纸要展出。\n:param known_keys: 可呼叫返回现有模块结构数据名称,或者显示名称(或直接)的结构数据名字的地图。 ``None`` 不过滤任何东西,这就是一个独立的面板没有注册表需要做的事情。\n:param parent: 父母 Widget\n创建面板及其标签。\n\n:param parent: 父母 Widget",
+      "text": "最后几行是由一个 REAL 模块运行;每个行都在导航。\n\n\"Real module\" 在这里是有分量的说法。该面板过去会列出运行日志中最新清单所说的任何内容，而那些行虽然可以点击，却并不代表任何运行 —— 它们打开的是一个 ``_job`` 模块。在某台机器上，日志里有 11,046 个运行文件夹，其中 7,323 个是以 app_key ``_job`` 或 ``job`` 写入的：一个测试夹具的键，因为没有任何沙箱拦住它而被直接写进了真实的 `~/.spacr/runs`（已在 ``tests/conftest.py`` 中修复）。于是大多数行指名了一个并不存在的模块，点击其中一行就是在要求窗口去打开它。\n\n污染现在停止在源头,但这里的过滤器仍然是正确的事情:这个面板NAVIGATES,所以一行它拖动是一个承诺,按它去某个地方。\n\n:param limit: 有多少报纸要展出。\n:param known_keys: 可呼叫返回现有模块结构数据名称,或者显示名称(或直接)的结构数据名字的地图。 ``None`` 不过滤任何东西,这就是一个独立的面板没有注册表需要做的事情。\n:param parent: 父母 Widget\n创建面板及其标签。\n\n:param parent: 父母 Widget",
       "translation_source_blocks_sha256": [
         "b7bb881cacd1c768fd1b8426a0b72035003a2ae5005dc1dbfe113331137e6c33",
         "27248cd59bc4f8365caa438e176fa45adc1f46dd17d7d2becee554dd22671475",
@@ -115512,10 +115512,10 @@
         "4a686eb45cfb989a62d788654ed54ee43681daa37cebe054995b66f5ccf18fce"
       ],
       "source_sha256": "d14ef670be3caa07f64706d1b22734f475b9d805c51aaa1068db974a6b44457e",
-      "text": "现行 GPU 使用,作为显示文本。\n\n永远不会升起,一个失去的NVML,一个没有的机器 GPU 司机不匹配在这里都是常见的,其中没有一个是主页无法构建的原因。\n\n:returns: 读书,或者当它不能被取。",
+      "text": "现行 GPU 使用,作为显示文本。\n\n一个失踪的NVML,一个没有的机器 GPU 司机不匹配在这里都是常见的,其中没有一个是主页无法构建的原因。\n\n:returns: 读书,或者当它不能被取。",
       "translation_source_blocks_sha256": [
         "7e1615e55eee8a9dbd6ba41c1b87e905347ca361bd1d18285589bb8ae832796d",
-        "ee2779f40bfabc224b62e91fdf5ceb1daa58e65acb224438a6f9be1d72fc42da",
+        "362fcf3db8b9f5ff9d12ecbe28ae103d078f7bdd6da1dbea3317e6a145301c01",
         "4a686eb45cfb989a62d788654ed54ee43681daa37cebe054995b66f5ccf18fce"
       ]
     },
@@ -115934,7 +115934,7 @@
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6"
       ],
       "source_sha256": "93ec2910af7adbaddc5271a3601b7d9189422658a09a6c8cc37105edbdde1206",
-      "text": "桌子,雷格斯,角色和预览,在一个面板。\n\n:param filenames: 复制到链列表,因此一个发电机或一组路径被接受,呼叫者的序列不被消耗。\n:param regex: 空的开始是没有,这是一个常见的案例 - 工作模式是为什么。\n:param parent: 父母 Widget\n构建工作组:文件,模式,以及它会产生什么。\n\nThe walk over dropped paths runs on its own worker. A drop is a path the user chose, and a plate lives on the microscope's share: one ``os.path.exists`` under a sleeping autofs mount had not returned after twenty seconds, and a walk is thousands of those. Inline, the drop froze the application with no traceback -- a stalled event loop is not a crash, and it was reported as hover flicker and glimpses of other screens. The runner is marked not user-visible because dropping a folder is not starting a run, and it is safe to do so because that runner carries nothing but the walk.\n\n:param filenames: 文件开始了。\n:param regex: 模型要开始;空的等待提议。\n:param parent: 父母 widget 或 ``None``。",
+      "text": "桌子,雷格斯,角色和预览,在一个面板。\n\n:param filenames: 复制到链列表,因此一个发电机或一组路径被接受,呼叫者的序列不被消耗。\n:param regex: 空的开始是没有,这是一个常见的案例 - 工作模式是为什么。\n:param parent: 父母 Widget\n构建工作组:文件,模式,以及它会产生什么。\n\n对拖入路径的遍历运行在它自己的工作线程上。一次拖放就是用户选定的一条路径，而板存放在显微镜的共享盘上：在一个休眠的 autofs 挂载下，一次 ``os.path.exists`` 二十秒都没有返回，而一次遍历是成千上万次这样的调用。若放在内联执行，拖放会让整个应用冻结且没有任何回溯 —— 事件循环停滞并不是崩溃，它被报告成了悬停闪烁和瞥见其他界面。该运行器被标记为对用户不可见，因为拖入一个文件夹并不是启动一次运行；这样做是安全的，因为那个运行器除了这次遍历之外什么也不承载。\n\n:param filenames: 文件开始了。\n:param regex: 模型要开始;空的等待提议。\n:param parent: 父母 widget 或 ``None``。",
       "translation_source_blocks_sha256": [
         "6c608796292e52c2245013aba2f8da26e294e7d121fc3517465b792c8762046d",
         "038e6e76c758fa84e4e1bc78a0b85eb97fee53a5724e534a4c5250ec344e6413",
@@ -116175,12 +116175,12 @@
         "3d65f49eaa2eb6904ed015a2af1605a9e5043aebc10885fad794ef5248bead81"
       ],
       "source_sha256": "fa20b9181c846a91acc47a2babe117d6ab4ad90ca4bd1c665a9ee56d978483e4",
-      "text": "每个图像在 ``paths`` 中,沿着任何文件夹提供。\n\n:param paths: 从 drop 或 file picker 的文件和目录. 支持的文件是直接保存的,目录是重复进行的。\n:param limit: 一张板是数万个文件,桌子是预测 - 雷格斯是从一个合并的集合中得出的,集合不一定是全部。\n\n不是为 GUI 主要执行路径。 这里的每条路径都是用户选择的路径,这在显微镜上意味着共享直播的图像:`isdir`是唤醒`autofs`山,步行是其背后的数千个数字。 从 :func:`_walk` 打电话给一个工作进程 - :meth:`ImportWorkbench.add_files` 是这个模块中唯一的打电话,这就是它所做的事情。",
+      "text": "每个图像在 ``paths`` 中,沿着任何文件夹提供。\n\n:param paths: 从 drop 或 file picker 的文件和目录. 支持的文件是直接保存的,目录是重复进行的。\n:param limit: 一张板是数万个文件,桌子是预测 - 雷格斯是从一个合并的集合中得出的,集合不一定是全部。\n\n不是主要的 GUI 执行路径. 这里的每条路径都是用户选择的路径, 显微镜里格的意思是共享直播的图像。: `isdir` 是 `autofs` 山的起床, 走路是背后的数千个额外的统计数据,从:func:`_walk`上打电话给一个工作进程 -- :meth:`ImportWorkbench.add_files`是这个模块中唯一的呼叫器,这就是它所做的事情。",
       "translation_source_blocks_sha256": [
         "130fbe97964ca266abd867f4bd6e3b99f359558cb5ed766f120369b156afe034",
         "5ea6ab9f3fa9f8f694bcec339cf9e238249a9afa571489ce27971813069d89b3",
         "b1a503196f4533cc00cf79b68ca533c97b1a5f70ed356807441861b0e7e87d32",
-        "154eb2b61c667dbab09b68a460e67a3eac2a5cf73ca06432a53e295f601ec3b6"
+        "28b568c6d609307bd37050e893c19a17ba569c2955032cbcdf4b953688a99449"
       ]
     },
     "spacr.qt.widgets.info_link": {
@@ -117278,7 +117278,7 @@
         "cb2091f8c8bf8190a0f0d658f36f10784f27db2b89f7328e76fa38992cf42367",
         "1ea3854df57c90fcfdfbf282912d1a05ffb40def7a3ac840db3cf40048ab9018",
         "bdd3d5394e92c36ad4a9e16e175b274e9d5d6a2523cec4b470ac4e98b7618ccd",
-        "0516172b0233178c345203798ee07cec14fdc6512a239c932b2025845a5a27f3",
+        "0a64732d23a846fd092e426cfeafa8dd22b5bbd8c1aac1b632804723b3011f32",
         "2c9eefcb347dc122ca95612416cf5f9390878ecb7ede4de0369d9aeba04b332d",
         "ab785bba023f30cae46803a3068a7c11059277590389b1cc2f891de8a82cdfe0",
         "4959ebf9903198b9dfc2349e3335cc25f51aca2eb8b426c70cd32449e4c81ccd",
@@ -124859,10 +124859,10 @@
         "3d6bda99c6f2909ff21d1d7b1055b3270eaf203bff04d0e38d69935ceeaf6561"
       ],
       "source_sha256": "77f898e4604be060f1af41536c678281985aea970e978fbccfd401dd1b1e817b",
-      "text": "四角形或恢复现行字段;也连接到Q。\n\nTHE MOVE RUNS ON A WORKER. It did not until 2026-09-04, and that made the whole `path_probe` gate in `_sync_action` pointless: the poll in front of this button stopped freezing and the button itself still did, because `quarantine_dir_for` is a `Path.resolve()` realpath walk and the rename that follows adds a mkdir, a stat, a link, an ``fsync``-ed ledger write and an unlink -- on the plate path the user chose, which is the sleeping ``autofs`` share by assumption. See `_move_field`.",
+      "text": "四角形或恢复现行字段;也连接到Q。\n\n移动操作运行在工作线程上。在 2026-09-04 之前并非如此，这使得 `path_probe` 在 `_sync_action` 里的整个边界形同虚设：这个按钮前面的轮询不再冻结，而按钮本身仍然会冻结，因为 `quarantine_dir_for` 是一次 `Path.resolve()` 真实路径遍历，紧随其后的重命名还要再加上一次 mkdir、一次 stat、一次 link、一次带 ``fsync`` 的账本写入和一次 unlink —— 全都发生在用户选定的板路径上，而按假设那正是休眠的 ``autofs`` 共享盘。参见 `_move_field`。",
       "translation_source_blocks_sha256": [
         "618df2d3e67d2caf20cdcfb880a32aed40d9182c4aaaddd709d9b861a25928cb",
-        "bf2e540cdf8d8c7e7641f1de5cda394379da791ecbfc52de5bb1a0a40f386c0f"
+        "c76dd4cea16f0e89b8f7358afa93efd1cd4bc08c0cbbec8ce3b27303098083a2"
       ]
     },
     "spacr.qt.widgets.qc_field_browser.QCFieldImage": {
@@ -125370,10 +125370,10 @@
         "b86b8d404eb6aed9875ebab3bc2ea0255c1ad18e38f92229d02eaa417f447003"
       ],
       "source_sha256": "cae461aba9004af73db798d6aef9174bfa584a1dba60b446d1b69fb6ae3cd0c1",
-      "text": "一个运行被删除:放下它的视图,并清除面板,如果它是IT。\n\n命令是整个点,并且失败的序列是明确的146之前存在:“删除处理会议目前在应用程序视图上也必须清除面板,或者让该处理会议重新释放已被遗忘的状态。 `set_frame` 呼叫 `_remember_plot_state` 在处理会议的道路上,所以忘记第一和清除第二文件的删除再次运行,在同一个密钥下,与状态它只是放松。\n\n因此,面板允许从运行第一 - `_path` 和 `_frame` 手清清,而不是通过 `set_frame`,这是一个路线 INTO 一个运行和重新在路上 - 然后忘记。\n\n:param source: 处理会议的文件夹,或其内部的任何路径。\n:returns: 无论什么都落下:一个国家,桌子,或者两者。",
+      "text": "一个运行被删除:放下它的视图,并清除面板,如果它是IT。\n\n命令是整个点,并且失败的序列是明确的146之前存在:“删除处理会议目前在应用程序视图上也必须清除面板,或者让该处理会议重新保存已被遗忘的状态。 `set_frame` 呼叫 `_remember_plot_state` 在处理会议的道路上,所以忘记第一和清除第二文件的删除运行再次,在同一个密钥下,与状态它只是放松。\n\n因此,面板允许从运行第一 - `_path` 和 `_frame` 手清清,而不是通过 `set_frame`,这是一个路线 INTO 一个运行和重新在路上 - 然后忘记。\n\n:param source: 处理会议的文件夹,或其内部的任何路径。\n:returns: 无论什么都落下:一个国家,桌子,或者两者。",
       "translation_source_blocks_sha256": [
         "36c95844ce088c01114d4f8ae10bca15c73ddfb3772b33d25f922d3f991a36f0",
-        "9859293214cfa0e5e9759c5c8ade5c382c8b4a9da94ff1017ae174226e87657c",
+        "1b5cb14e3b80737733b37bdb86b00279a36dc50829b9cf70297c07dc45b1621b",
         "5977ed3b42274c0c213741c618a3dec4cd3005819b298454249b4aeb43eb8ab9",
         "5e65819c3d3506eb549713b7a088dfc09d4dbb742841202479a000916ff6f29c",
         "b86b8d404eb6aed9875ebab3bc2ea0255c1ad18e38f92229d02eaa417f447003"
@@ -125630,13 +125630,13 @@
         "2e0a69d0757b0e473283d76cf857001b41e878a9db50cd4ee603d6f388998109"
       ],
       "source_sha256": "b0404b6bfe21d8aa8bd2a8ff19331584628ea7451b8f6ba30c50fa66e4e55483",
-      "text": "填写模型的剩余选项卡,一个处理会议刚刚设置。\n\n:param model: 固定模型,直接退出 ``perform_regression`` 的返回负载. ``None`` 清除选项卡并说明为什么。\n:returns: True 当选项卡被填写时。\n\n每个数字都来自 :mod:`spacr.regression_qc`. 剩余的,标准化,流量和库克的距离是模组已经计算到它写到磁碟的报告 - 因此,直播表和保存的 PDF 无法不同意什么是有影响力,他们在一周内会做什么,如果这个面板做了自己的算法。\n\n永远不会上去 GUI 一个无法诊断的模型类 - 被处罚的背景没有设计矩阵 - 将其原因放在三个选项卡上,因为 \"这个合适的答案不能\" 和 \"this tab is broken\" 不要看起来相同。",
+      "text": "填写模型的剩余选项卡,一个处理会议刚刚设置。\n\n:param model: 固定模型,直接退出 ``perform_regression`` 的返回负载. ``None`` 清除选项卡并说明为什么。\n:returns: True 当选项卡被填写时。\n\n每个数字都来自 :mod:`spacr.regression_qc`. 剩余的,标准化,流量和库克的距离是模组已经计算到它写到磁碟的报告 - 因此,直播表和保存的 PDF 无法不同意什么是有影响力,他们在一周内会做什么,如果这个面板做了自己的算法。\n\n永远不会把它扔进 GUI 一个无法诊断的模型类 - 被处罚的背景没有设计矩阵 - 将其原因放在三个选项卡上,因为 \"这个合适的答案不能\" 和 \"this tab is broken\" 不要看起来相同。",
       "translation_source_blocks_sha256": [
         "510cb3186930298b5a2aecbbe2fef18ca6815fd705e327ea44e127a7db6fb7e6",
         "8446745a593e6b08b2d6db5103771d0c094f1be7dcd6b885af98d00c0ade27bc",
         "e5e7671194a9ff62ce8418065d4285976a1b6eeae841f66b6e146cae5088c4e5",
         "c8361108b8a2654052eabd6248c99e16c678781ecbd3524f7d9333e82ac583a7",
-        "6d87c0fbcc21447f53716e04bc7bc465d63a7910b2af5a0e2855cf140c3dea06"
+        "adef9b8b9a3de7978b5485df03907d60e3958489e6ee3cb72ec58dd638778537"
       ]
     },
     "spacr.qt.widgets.regression_results.RegressionResultsPanel.set_frame": {
@@ -127327,10 +127327,10 @@
         "2dccb246ccc40f1a86d24b8f6eaaa2aeaaa2b6dcd349781a543c4c6d986c9d9a"
       ],
       "source_sha256": "a22dcfec66bc8057bdcaa7b74be110cff78f465821e5caeeee4d7b65205ba014",
-      "text": "总是``True``:在旋转时,接受不被打破。\n\n扫描数据选择边界已经消失. 将扫描栏拖到长文档的底部并不证明它被阅读,所以扫描不是接受的条件。\n\n未完成的是接受,完整的文本仍然在页面上,对于任何想要它的人来说仍然可以扫描,检查箱仍然是明确的,并且:func:`spacr.qt.terms.record_agreement`仍然记录了版本和时刻。\n\n作为一个方法而不是被删除,因为幻灯片,下一个按钮和测试都问这个问题,一个答案在一个地方比一个数据选择边界从四个更容易确定。",
+      "text": "总是``True``:在旋转时,接受不被打破。\n\n将扫描栏拖到长文件底部并不证明它被阅读,所以扫描不是接受的条件。\n\n未完成的是接受,完整的文本仍然在页面上,对于任何想要它的人来说仍然可以扫描,检查箱仍然是明确的,并且:func:`spacr.qt.terms.record_agreement`仍然记录了版本和时刻。\n\n作为一个方法而不是被删除,因为幻灯片,下一个按钮和测试都问这个问题,一个答案在一个地方比一个数据选择边界从四个更容易确定。",
       "translation_source_blocks_sha256": [
         "569a220467d0cf3799c53fd0688d9654ecb155ce45cf9e2035ecfad181b610b8",
-        "b2f1d0867a3ab6d6dffac06d524c36da1384033c2ef8f8db737516f8a7a3cfb9",
+        "f6aaaf0827d347fe0c5207fb9f441e0e718a4e13f31bccd49b7278744e15188d",
         "ec722882049860dd74e69e4b0b5ed8e6cb7f7841e797654d884987d87c531571",
         "074af557954fe25975878a0f0fdb592c80fdd9798bbfee535f33aaa16641fb81"
       ]
@@ -127666,11 +127666,11 @@
         "8578c3c9996db12e7ea48d42bafc119422204daf7dca222286afe3883952ebdc"
       ],
       "source_sha256": "c6ad7541865ea226d18bab28a365f66c923a3efe12d5e1c7d79526dfebbfb6d3",
-      "text": "一个按钮:每个基因对每个测量。\n\n发动机是 :mod:`spacr.gene_measurement_sweep`;这就是它的薄板,它是薄的目的 - 使答案可靠的三个纠正(排除识别,本杰米尼 - 霍克伯格在网络上,循环性顺序)生活在引擎中,所以一个设置 CSV,一个宏和这个按钮不能不同意他们。\n\nIT 执行 GUI 主要执行路径,原因是今天的崩溃而不是虚假:一个重复构建 Qt 维吉特的工作进程自己,过程在其他地方完全分裂。 因此,这里的工作进程触摸 NO widget 并返回清晰的数据,而这个数字是由 matplotlib 的 Agg 插槽提供的,它没有 Qt 对象。",
+      "text": "一个按钮:每个基因对每个测量。\n\n发动机是 :mod:`spacr.gene_measurement_sweep`;这就是它的薄板,它是薄的目的 - 使答案可靠的三个纠正(排除识别,本杰米尼 - 霍克伯格在网络上,循环性顺序)生活在引擎中,所以一个设置 CSV,一个宏和这个按钮不能不同意他们。\n\n它执行 GUI 主要执行路径, 原因是今天的崩溃,而不是礼貌。: 一个回归构建的 Qt 维吉特在自己的工作进程和过程分裂在其他地方完全. 因此,工作进程在这里触摸 NO widget 并返回清晰的数据, 这个数字是由 matplotlib 的 Agg 管道呈现的,它没有 Qt 对象的所有权。",
       "translation_source_blocks_sha256": [
         "e396a44ba9bee96e8a64840133aad525454d49b1438626ef4c8358ae0e207ac1",
         "30bf05a56eca6546a2114e5c52c21d3e11e4d364b09dc21ed6478df5112a6545",
-        "29d800241110b1969a97a258311e7af97baccba988f1633d604512e0fbb3370f"
+        "7297a61cf7b6922de31b373110aaaf13d22dfe3ff0cb9b00ceb098624188b664"
       ]
     },
     "spacr.qt.widgets.sweep_panel.SweepPanel": {
@@ -127806,7 +127806,7 @@
       "text": "``(wells, fractions, plates, scores)`` 从合并框架和计算。\n\n实验室微板名称在两侧均可通化。 CSV 真实的筛选说 `pplate1` 其测量数据库说 `plate1`因此,一个未经频道化的合伙人根本不打得好 - 结果是所有 -NaN 循环列称为 \"nothing here is circular\"这是最有信心的方式,不能说什么。",
       "translation_source_blocks_sha256": [
         "00b88bf78f1c32f8e3685b3a0be7aa5ba9710d7b0e4fe56690e38da88f9f0ea0",
-        "bb97c8c4c8b0abb05518030d6f76fc31cf94c525266264fb8c056e6634f24035"
+        "1c929251bdb9efa8c2d6fecbf97d9ebeb50b4512beb523f1a3695460f0087177"
       ]
     },
     "spacr.qt.widgets.sweep_runs": {
@@ -127817,7 +127817,7 @@
         "1a8b1fbb0ef2dbfd40d78893e0172ee74b3b90ff82c339216f868a8822b1d2f6"
       ],
       "source_sha256": "dd823eb12ed0fca37a9b804f2a3539273f7e8273e141e1c8cc4289b98723d82d",
-      "text": "显示 regression 运行和 parameter-sweep 测试在一个 Runs 选项卡中。\n\n面板共享主要逆转筛选的结果和图表表面. 选择一个序列负载,处理会议的结果,并取代图表旁边的选项卡. 常规运行,重定向和旋转测试使用相同的列,以便他们的设置,状态,输出文件夹和数字可以直接比较。\n\n跑步在开始时被记录,并在完成时更新。 存储的滑板可以与会议记录一起加载; 交换行向每个依赖视图宣布一个单一的活跃跑步。\n\nNOTHING ON THIS TAB TOUCHES A RUN FOLDER FROM THE GUI THREAD. Measured on one workstation: one ``os.path.exists`` on a path under ``/nas_mnt`` -- an ``autofs`` mount whose share was asleep -- had NOT RETURNED AFTER TWENTY SECONDS. Every row here carries a folder the user chose, and this panel used to walk, stat, read and delete those folders in the click that asked for it: the chooser's start directory, the sweep table read on a tab change, ``describe_folder``'s ``os.walk`` inside the delete confirmation, ``shutil.rmtree`` after it, and ``workspace.has_workspace`` while the row menu was being built. Each of those is a frozen application with no traceback for as long as the mount takes to wake -- reported as \"opening map barcodes crashes spacr\", as hover flicker, and as glimpses of other screens. They run on a :class:`spacr.qt.job_runner.JobRunner` now, and the one bare existence question left -- which folder to open the chooser in -- is answered from :mod:`spacr.qt.path_probe`'s cache.",
+      "text": "显示 regression 运行和 parameter-sweep 测试在一个 Runs 选项卡中。\n\n面板共享主要逆转筛选的结果和图表表面. 选择一个序列负载,处理会议的结果,并取代图表旁边的选项卡. 常规运行,重定向和旋转测试使用相同的列,以便他们的设置,状态,输出文件夹和数字可以直接比较。\n\n跑步在开始时被记录,并在完成时更新。 存储的滑板可以与会议记录一起加载; 交换行向每个依赖视图宣布一个单一的活跃跑步。\n\n本标签页上没有任何东西会从 GUI 主线程去碰一个运行文件夹。在一台工作站上实测：一次 ``os.path.exists``，针对的是 ``/nas_mnt`` 下的某条路径 —— 那是一个共享盘已休眠的 ``autofs`` 挂载 —— 二十秒都没有返回。这里的每一行都带着用户选定的一个文件夹，而这块面板过去会在请求它的那一次点击里遍历、stat、读取并删除这些文件夹：选择器的起始目录、切换标签页时读取的扫描表、删除确认里 ``describe_folder`` 的 ``os.walk``、其后的 ``shutil.rmtree``，以及构建行菜单时的 ``workspace.has_workspace``。只要挂载还没醒来，其中每一项都是一个冻结且没有回溯的应用 —— 被报告为“打开 map barcodes 会让 spacr 崩溃”、悬停闪烁，以及瞥见其他界面。它们现在运行在 :class:`spacr.qt.job_runner.JobRunner` 上，而仅剩的那一个裸的存在性问题 —— 该在哪个文件夹里打开选择器 —— 由 :mod:`spacr.qt.path_probe` 的缓存来回答。",
       "translation_source_blocks_sha256": [
         "b7edb471af37f33da7313fe9331f6fea3aad84ab700a01bbb33fddf231d0c010",
         "4c9d0f4a44b00e287b66f3c61d13007b51b8663da09c45ddc64d0ed2b64da6c4",
@@ -132764,7 +132764,7 @@
         "8732d86e478d942173af36dac714269008142f1070f4028305baf64227f57bd1"
       ],
       "source_sha256": "09286953b907b759c94a3644d0b078107ed4f1ef334ff676e624fa50aa99b3ff",
-      "text": "如何按下 **Install** 在一个灰色输出后端输入应该做。\n\nTHE ENVIRONMENT IS ASKED FIRST, before spaCR's own wiring, because the answer a user can act on is about their machine. \"cuML needs Python 3.11 and this is 3.10\" is a thing they can go and do; \"spaCR routes no fit through it yet\" is a thing only spaCR can fix, and saying that instead would hide the part they could have acted on.\n\n:param name: 背景名称或标签。\n:param regression_type: 只用于消息,永远不会决定安装性 - 家庭错误是通过选择另一个家庭,而不是安装任何东西来解决。\n:returns: a :class:`spacr.updater.InstallOffer`.",
+      "text": "如何按下 **Install** 在一个灰色输出后端输入应该做。\n\n先问环境，再问 spaCR 自己的接线，因为用户能据以行动的答案是关于他们机器的。“cuML 需要 Python 3.11，而这是 3.10”是他们可以去动手解决的事；“spaCR 还没有把任何拟合路由到它”则只有 spaCR 能修，改说后者就会把他们本可以着手的那一部分藏起来。\n\n:param name: 背景名称或标签。\n:param regression_type: 只用于消息,永远不会决定安装性 - 家庭错误是通过选择另一个家庭,而不是安装任何东西来解决。\n:returns: a :class:`spacr.updater.InstallOffer`.",
       "translation_source_blocks_sha256": [
         "5ca9412460a2b07a6bb9c8ded569c2794bdc598cde947747a0289aa6510e7206",
         "db3677749bef69cae05a86dd3a51ea2458fc4f9de2ecdbe523840c3827a52516",
@@ -135875,7 +135875,7 @@
         "ff7df5a8dcda2db2e8baad7db63c94c73180609e6e3b5d4db0ab94b6d553a756"
       ],
       "source_sha256": "868a5557bf01a8a1eef3a442bfc0444bc9c7e3199ebbdd8ed059880041a6d68c",
-      "text": "重定向 / 检查点为 spaCR 的两个长段。\n\n实验室微板是一千个显微镜的视野和几个小时。当一个处理会议死于显微镜视野900 - 一个完整的磁盘,一个被OOM杀死的工作进程,一个笔记本电脑带 - spaCR 目前扔掉所有 900 并重新启动。\n\n半分决定是否重复是 *安全* 是这里的一切:\n\n存在的 **A 文件不是完成的文件.** ``spacr.io._load_and_concatenate_arrays`` 写 ``merged/<field>.npy`` 与直线 ``np.save`` 到目的地路径,因此,一个中间写的破坏将留下一个短暂的,结构性有效的 ``.npy`` 显示在磁盘上。 一个重复,在``os.path.exists``上滑雪会接受这个破碎的田野,测量任何比特发生在陆地上,并将结果放在相同的表格与好田野。 因此,:func:`completed_fields_in_merged` *validates*:它打破了``.npy``标题,并检查文件实际上是只要其自己的形状声称。 每件短暂的事情,都被拒绝和重复,从来没有被忽略。 (io.py 现在也写合并的序列原子,所以从这里产生的文件不能被打破 - 但从以前的处理会议的磁盘上已经存在的文件可以是。\n\n**测量工作流添加行,因此在继续中断运行之前必须删除现有行。** ``_merge_and_save_to_database`` 和 ``filepaths_to_database`` 两者都呼叫 ``to_sql(..., if_exists='append')``. 再次测量一个字段不会取代现有的行; 它 *输入额外的行*. 这使得下流对好集成太大,没有警告。 :func:`clear_field_rows` 删除旧行,所以重复测量产生一个一致的结果。\n\n**measurements.db 不是尺寸的私人文件** ``convert`` 写 ``conversion_map`` 在它, ``align`` 写 ``align_coordinates``, ``foreign`` 写 ``foreign_*``, ``timelapse`` 写其轨道表 - 所有密钥在相同的四个列与尺寸,故意,所以他们加入。 因此,发现 \"tables to clear\" 结构上发现了所有这些,并从每一个视图序列中删除了一份回复,其中唯一的记录是提供者文件变成 ``plate1_A01_1``,每一个微观图像字段被粘贴,另一个人的进口测量。 None 的它可以从数据库中重新计算。 可以删除的回复表现在是一个明确的允许列表, :data:`MEASURE_OWNED_TABLES`,在列表被发现时检查并在DELETE准备前立即按表重新检查。\n\n**以名称为所有者,实际上不属于所有者。 因此,所有权按顺序决定** 一个名称允许列表的答案“可以测量写到这个表吗?” 有一个案例,对“做了吗?”的诚实答案是没有: ``foreign.run_import``将进口行复制到``cell`` / ``nucleus`` / ``pathogen``图表中,当没有其他人在那里时, 因此,一个纯粹进口的项目可以通过每个 spaCR 工具阅读。 这些行位于允许列表的表中,在 spaCR 的单独代码列下,并使用一个重复来清除它们,并与悬挂字段一起。\n\n告诉他们分开的信号已经在数据库中,现在正在阅读: ``foreign_columns``,由每个输入者的发行编写,每个进口者在每个表中放置的每个列的名称。 它的表面使用 - ``foreign._importer_owns``,“这个表的列是进口商记录的东西的子组吗?” - 有一个序列的双胞胎,这就是这里的规则: **a 序列属于进口商,每一个列它是非NULL 是其中一个进口商注册为这个表**. 一个 ``measure_crop`` 行总是携带至少自己的区域和强度列,进口商从未写过; 进口序列只包含``foreign_``预定的数据和测量。 因此,一个表可以是另一半半,每个行仍然可归分,这很重要,因为一个项目被进口,然后测量正是这样。 看:func:`measure_rows_clause`。\n\n此企图阅读 ``foreign_import.canonical_table_written`` 并拒绝从记录的表中删除任何内容: 表切割,因此从未覆盖的进口领域也无法清除,并且项目从未可以重复; 无法访问的流程它存在; 并在数据库上最可能打击错误,因为第一个进口商没有这个标记写了副本。 ``foreign_columns`` 没有这些属性 - 它是每张桌子,它是每个列,它像进口商一样古老。\n\n**一个没有人会保留的副本被释放,不留在混合中。** ``measure_crop`` 天下,那一刻 spaCR 测量一个显微镜的视野到一个可口可乐表一个进口填满,其行和他们的座位在同一表中没有标记标签,每个微型样品位置计算成为两个人口的总数。 :func:`supersede_imported_copies` 执行之前的第一次输入和手复制 - 但只有当它覆盖的每一个显微镜视野已经被测量到该表或可测量现在,而只有之后 :func:`spacr.foreign.release_canonical_copy` 它已经证明,顺序顺序,它所移除的每一行仍然存在于 ``foreign_<object>``. 一张半释放的桌子比一张未释放更糟糕,所以任何不完整的,无损的释放都被拒绝,并可能相反,与两条线相结合。\n\n什么限制了这一切:每个进口的序列在频道表中都有一个相同的双胞胎在``foreign_<object>``,而``foreign_<object>``是*not*在允许列表上,所以没有重复可以触摸它。 这被检查而不是假设 - 没有双胞胎的序列停止释放。\n\n其中一半仍然开放,并且不存在于此模块中: ``_merge_and_save_to_database`` 添加到一个频道表中一个未注意的进口,因此测量这样一个项目 *wit* 的用户仍然在一个表中获得两种人口。 ``tests/test_resume_owned_tables.py`` 用 ``xfail(strict=True)`` 插入它,并命名 ``spacr/utils.py`` 需要的变更。\n\n数据库已被早期复制损坏,无法在阅读中修复 - 行已消失,并且文件中没有记录它们是什么。 它可以从数据库外的来源 *重写*,并且所有三位作家都使用 ``if_exists='replace'``,因此重新执行一个是一个完整的修复,而不是第二代行: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` 恢复地图从 CSV 位于转换图像旁边, ``align.save_coordinates`` 修复曲线坐标, 并恢复 ``foreign.run_import`` 进口测量。\n\n**一个显微镜的视野是由它的良好坐标识别,从来没有一个名称预定。** 删除与 ``LIKE 'plate1_A01_f1%'`` 也匹配 ``f10`` ... ``f19`` - 十九个无辜的显微镜的视场被摧毁清理一个. 每个声明在这里匹配的平等超过 ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (加上 ``timeID`` 时间表),并拒绝触摸一个表,不携带所有四个。\n\n**不同设置之间的简历不是简历。** 将使用一种通道/直径/提取图像区域配置测量的显微镜视场连接到使用另一种配置进行测量时,会产生一半是一回事,一半是另一回事的数据集。 下游都看不出来。  :func:`check_settings_compatible` 将当前设置与之前处理会话记录的设置进行比较,并提出 :class:`ResumeRefused` 命名确切的差异。 环境漂移(numpy 版本凸起)不会阻塞。\n\n简介是 **opt-in**:这里的一切都是无效的,除非 ``settings['resume']``是真实的,而一个没有它的处理会议就像以前一样行事。\n\nThe module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.\n\n典型使用,从 ``measure_crop``::\n\n    from .resume import plan_measure_resume\n    plan = plan_measure_resume(settings)      # None when resume is off\n    files = [f for f in os.listdir(src) if f.endswith('.npy')]\n    if plan is not None:\n        files = plan.filter_files(files)",
+      "text": "重定向 / 检查点为 spaCR 的两个长段。\n\n实验室微板是一千个显微镜的视野和几个小时。当一个处理会议死于显微镜视野900 - 一个完整的磁盘,一个被OOM杀死的工作进程,一个笔记本电脑带 - spaCR 目前扔掉所有 900 并重新启动。\n\n半分决定是否重复是 *安全* 是这里的一切:\n\n存在的 **A 文件不是完成的文件.** ``spacr.io._load_and_concatenate_arrays`` 写 ``merged/<field>.npy`` 与直线 ``np.save`` 到目的地路径,因此,一个中间写的破坏将留下一个短暂的,结构性有效的 ``.npy`` 显示在磁盘上。 一个重复,在``os.path.exists``上滑雪会接受这个破碎的田野,测量任何比特发生在陆地上,并将结果放在相同的表格与好田野。 因此,:func:`completed_fields_in_merged` *validates*:它打破了``.npy``标题,并检查文件实际上是只要其自己的形状声称。 每件短暂的事情,都被拒绝和重复,从来没有被忽略。 (io.py 现在也写合并的序列原子,所以从这里产生的文件不能被打破 - 但从以前的处理会议的磁盘上已经存在的文件可以是。\n\n**测量工作流添加行,因此在继续中断运行之前必须删除现有行。** ``_merge_and_save_to_database`` 和 ``filepaths_to_database`` 两者都呼叫 ``to_sql(..., if_exists='append')``. 再次测量一个字段不会取代现有的行; 它 *输入额外的行*. 这使得下流对好集成太大,没有警告。 :func:`clear_field_rows` 删除旧行,所以重复测量产生一个一致的结果。\n\n**measurements.db 不是尺寸的私人文件** ``convert`` 写 ``conversion_map`` 在它, ``align`` 写 ``align_coordinates``, ``foreign`` 写 ``foreign_*``, ``timelapse`` 写其轨道表 - 所有密钥在相同的四个列与尺寸,故意,所以他们加入。 因此,发现 \"tables to clear\" 结构上发现了所有这些,并从每一个视图序列中删除了一份回复,其中唯一的记录是提供者文件变成 ``plate1_A01_1``,每一个微观图像字段被粘贴,另一个人的进口测量。 None 的它可以从数据库中重新计算。 可以删除的回复表现在是一个明确的允许列表, :data:`MEASURE_OWNED_TABLES`,在列表被发现时检查并在DELETE准备前立即按表重新检查。\n\n**以名称为所有者,实际上不属于所有者。 因此,所有权按顺序决定** 一个名称允许列表的答案“可以测量写到这个表吗?” 有一个案例,对“做了吗?”的诚实答案是没有: ``foreign.run_import``将进口行复制到``cell`` / ``nucleus`` / ``pathogen``图表中,当没有其他人在那里时, 因此,一个纯粹进口的项目可以通过每个 spaCR 工具阅读。 这些行位于允许列表的表中,在 spaCR 的单独代码列下,并使用一个重复来清除它们,并与悬挂字段一起。\n\n告诉他们分开的信号已经在数据库中,现在正在阅读: ``foreign_columns``,由每个输入者的发行编写,每个进口者在每个表中放置的每个列的名称。 它的表面使用 - ``foreign._importer_owns``,“这个表的列是进口商记录的东西的子组吗?” - 有一个序列的双胞胎,这就是这里的规则: **a 序列属于进口商,每一个列它是非NULL 是其中一个进口商注册为这个表**. 一个 ``measure_crop`` 行总是携带至少自己的区域和强度列,进口商从未写过; 进口序列只包含``foreign_``预定的数据和测量。 因此,一个表可以是另一半半,每个行仍然可归分,这很重要,因为一个项目被进口,然后测量正是这样。 看:func:`measure_rows_clause`。\n\n此企图阅读 ``foreign_import.canonical_table_written`` 并拒绝从记录的表中删除任何内容: 表切割,因此从未覆盖的进口领域也无法清除,并且项目从未可以重复; 无法访问的流程它存在; 并在数据库上最可能打击错误,因为第一个进口商没有这个标记写了副本。 ``foreign_columns`` 没有这些属性 - 它是每张桌子,它是每个列,它像进口商一样古老。\n\n**一个没有人会保留的副本被释放,不留在混合中。** ``measure_crop`` 天下,那一刻 spaCR 测量一个显微镜的视野到一个可口可乐表一个进口填满,其行和他们的座位在同一表中没有标记标签,每个微型样品位置计算成为两个人口的总数。 :func:`supersede_imported_copies` 执行之前的第一次输入和手复制 - 但只有当它覆盖的每一个显微镜视野已经被测量到该表或可测量现在,而只有之后 :func:`spacr.foreign.release_canonical_copy` 它已经证明,顺序顺序,它所移除的每一行仍然存在于 ``foreign_<object>``. 一张半释放的桌子比一张未释放更糟糕,所以任何不完整的,无损的释放都被拒绝,并可能相反,与两条线相结合。\n\n什么限制了这一切:每个进口的序列在频道表中都有一个相同的双胞胎在``foreign_<object>``,而``foreign_<object>``是*not*在允许列表上,所以没有重复可以触摸它。 这被检查而不是假设 - 没有双胞胎的序列停止释放。\n\n其中一半仍然开放,并且不存在于此模块中: ``_merge_and_save_to_database`` 添加到一个频道表中一个未注意的进口,因此测量这样一个项目 *wit* 的用户仍然在一个表中获得两种人口。 ``tests/test_resume_owned_tables.py`` 用 ``xfail(strict=True)`` 插入它,并命名 ``spacr/utils.py`` 需要的变更。\n\n数据库已被早期复制损坏,无法在阅读中修复 - 行已消失,并且文件中没有记录它们是什么。 它可以从数据库外的来源 *重写*,并且所有三位作家都使用 ``if_exists='replace'``,因此重新执行一个是一个完整的修复,而不是第二代行: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` 恢复地图从 CSV 位于转换图像旁边, ``align.save_coordinates`` 修复曲线坐标, 并恢复 ``foreign.run_import`` 进口测量。\n\n**一个显微镜的视野是由它的良好坐标识别,从来没有一个名称预定。** 删除与 ``LIKE 'plate1_A01_f1%'`` 也匹配 ``f10`` ... ``f19`` - 十九个无辜的显微镜的视场被摧毁清理一个. 每个声明在这里匹配的平等超过 ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (加上 ``timeID`` 时间表),并拒绝触摸一个表,不携带所有四个。\n\n**不同设置之间的简历不是简历。** 将使用一种通道/直径/提取图像区域配置测量的显微镜视场连接到使用另一种配置进行测量时,会产生一半是一回事,一半是另一回事的数据集。 下游都看不出来。  :func:`check_settings_compatible` 将当前设置与之前处理会话记录的设置进行比较,并提出 :class:`ResumeRefused` 命名确切的差异。 环境漂移(numpy 版本凸起)不会阻塞。\n\n简介是 **opt-in**:这里的一切都是无效的,除非 ``settings['resume']``是真实的,而一个没有它的处理会议就像以前一样行事。\n\n本模块刻意**只依赖标准库** —— 导入时只有 ``os``/``sqlite3``/``ast``，别无其他。它在 ``measure_crop`` 的最开头就会被查询，远在任何模型被加载之前，因此绝不能成为把 torch 或 cellpose 拖进进程的那个东西。\n\n典型使用,从 ``measure_crop``::\n\n    from .resume import plan_measure_resume\n    plan = plan_measure_resume(settings)      # None when resume is off\n    files = [f for f in os.listdir(src) if f.endswith('.npy')]\n    if plan is not None:\n        files = plan.filter_files(files)",
       "translation_source_blocks_sha256": [
         "ca65c2e84b84bb3e47626969495deaf674ce9e1108a30d6c878c6f2e14632ce5",
         "af5d96a381b6e00a4b9a9570fb9d67e9d3ad6a9e113885408562f8e0f140a259",
@@ -138249,7 +138249,7 @@
         "db1a41a9e431850c8324c3d9e40ded89e3c253be7ce94399d2607ff3b4b86568"
       ],
       "source_sha256": "b807d14942498930211d077ac5b032357d2b8c76c963817ba5dab33a54887c15",
-      "text": "返回最常见的 ``limit`` 运行最新的第一个。\n\n由示范的 ``start_utc`` 时间表(分为 :class:`datetime.datetime`)命令,所以在相同的墙壁上打开的行程 - 时钟第二仍然正确排序 - 单独的文件夹名称会分裂到几秒钟,并产生连接。 只有最新的 ``max(limit * 4, limit + 64)`` 文件夹按名称完全打开(对于非负面 ``limit``),所以启动成本不会随着日志的大小增加。\n\nPASS ``None`` FOR \"EVERY RUN\",从来没有一个负数. 结尾的折叠是 ``all_entries[:limit]``,所以 ``limit=-1`` 阅读整个日志,然后手回所有,但旧的输入 - 观察到 2026-09-03 在一个 11.027 处理会议日志上,返回了 11.026. 没有 ``manifest.json`` 的文件夹被安静地切断; 一个不能被切断的显而易见的文件夹通过登录警告切断。\n\nEach entry is a dict with keys ``dir`` (Path), ``app_key`` (str), ``status`` (str), ``start_utc`` (ISO str), ``elapsed_s`` (float), and the raw ``manifest`` (dict, best-effort).",
+      "text": "返回最常见的 ``limit`` 运行最新的第一个。\n\n由示范的 ``start_utc`` 时间表(分为 :class:`datetime.datetime`)命令,所以在相同的墙壁上打开的行程 - 时钟第二仍然正确排序 - 单独的文件夹名称会分裂到几秒钟,并产生连接。 只有最新的 ``max(limit * 4, limit + 64)`` 文件夹按名称完全打开(对于非负面 ``limit``),所以启动成本不会随着日志的大小增加。\n\nPASS ``None`` FOR \"EVERY RUN\",从来没有一个负数. 结尾的折叠是 ``all_entries[:limit]``,所以 ``limit=-1`` 阅读整个日志,然后手回所有,但旧的输入 - 观察到 2026-09-03 在一个 11.027 处理会议日志上,返回了 11.026. 没有 ``manifest.json`` 的文件夹被安静地切断; 一个不能被切断的显而易见的文件夹通过登录警告切断。\n\n每个字典包含 ``dir``（Path）、``app_key``（str）、``status``（str）、``start_utc``（ISO 字符串）、``elapsed_s``（float），以及在可用时的原始 ``manifest`` 字典。",
       "translation_source_blocks_sha256": [
         "372ebf2e5dc2ed1883450d955b46d04837b4b3d95e4da558a0d5afd895e5c3d4",
         "ae978810cec117dd88330255456506ab171aa95a761b0e78821f153d808b8590",
@@ -144614,9 +144614,9 @@
         "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
       ],
       "source_sha256": "8b0224fcfcb4e0710077a87b9be6683ec44d8341d8dc0c2374d674d368b8be4e",
-      "text": "返回默认设置为构建多频道每微型样品位置集成图像网。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
+      "text": "返回默认设置为构建多频道每微型样品位置粘贴图像网。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
       "translation_source_blocks_sha256": [
-        "04239d214f4bf7f96669896ffe9cc18d5d4c8ef8e3774dc4e36cc99db55a7484",
+        "751bfa6c0b20214877b8288913c8ecbe5edba0623f878fc06073f6e76b49a65a",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
         "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
@@ -144685,10 +144685,10 @@
         "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
       ],
       "source_sha256": "20d8a3afe48882a0cb33777c428f2f69eb6c0c9f33d283ba9b64435a5fc1c47b",
-      "text": "返回默认设置为微镜图像字段工作流。\n\n涵盖功能检测、RANSAC、外线覆盖、功能存储和每微型样品位置组合图像网输出参数。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
+      "text": "返回默认设置为微镜图像字段工作流。\n\n涵盖功能检测、RANSAC、排序过度、功能存储和每微型样品位置的图像网输出参数。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
       "translation_source_blocks_sha256": [
         "7faa6cbeccabfc40aa906c6cfac593066cd727c02612f7797a222d56fe5aa60f",
-        "b539e83387613a4645b2230a3c80ce6048c708de4ef119d1886703d0b7d8bb69",
+        "6e33125c42ad09ca6b4630626447d8d38030e75fe51b072eb14b7c961ed43b23",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
         "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
@@ -146332,10 +146332,10 @@
         "bf5f038b7cb1ab8747bd8fe14f87b0d70bcc673a339aa36c0bc03b9c5c938af5"
       ],
       "source_sha256": "a97af1e95ac4be7cdb68153bf396302464fba6a7c3b7986130fe02e3229b38a3",
-      "text": "将个体 FOVs (微镜视野) 调整到一个粘贴的集成图像网,并将 FOV 框架输出。\n\nFor each FOV, saves a ``.npy`` with shape ``(C_fov + C_mosaic, H_fov, W_fov)`` (native FOV channels stacked with the mosaic channels warped into the FOV frame) and a CSV row with the transform, score and mosaic bbox.\n\n将属性/匹配助理分配到 :class:`StitchedMultiAligner`。\n\n:param detector: 关键点探测器(``'ORB'``或``'SIFT'``)。默认 ``'ORB'``。\n:param nfeatures: 为检测器提供预算。\n:param max_keypoints: 硬封在检测后保留关键点。\n:param downsample: 下例因子为属性/分数过渡。\n:param ransac_thresh_px: RANSAC 重复边界(像素、下载空间)。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param outdir: 输出目录. 默认 ``'./fov_out'``。\n:param opencv_threads: OpenCV 内部独立执行路径。\n:param arr_axes: TIFF 轴解释(``'AUTO'`` 或 ``TCZYX`` 字符串)。\n:param mip: max-project Z 当存在时。\n:param z_index: Z 插图,选择如果 ``mip`` 是虚假的。\n:param t_index: 点击 T 选择 T 是否存在。\n:param squeeze_singleton: 折叠后切割长度1轴。\n:param folder_image_scale: 默认情况下 FOV - 集成图像网络像素规模因子使用 :meth:`run`。\n启动 FOV (显微镜视野) 调整器. 查看论点的课堂文本。",
+      "text": "将 FOVs 个体(微镜视野)调整到粘贴的图像网,并出口 FOV 框架。\n\n对每一个 FOV（视野），保存一个 ``.npy``，其形状为 ``(C_fov + C_mosaic, H_fov, W_fov)``（该 FOV 的原生通道，与被变换到该 FOV 坐标系中的拼接图通道堆叠在一起），以及一行包含变换、评分与拼接图边界框的 CSV。\n\n将属性/匹配助理分配到 :class:`StitchedMultiAligner`。\n\n:param detector: 关键点探测器(``'ORB'``或``'SIFT'``)。默认 ``'ORB'``。\n:param nfeatures: 为检测器提供预算。\n:param max_keypoints: 硬封在检测后保留关键点。\n:param downsample: 下例因子为属性/分数过渡。\n:param ransac_thresh_px: RANSAC 重复边界(像素、下载空间)。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param outdir: 输出目录. 默认 ``'./fov_out'``。\n:param opencv_threads: OpenCV 内部独立执行路径。\n:param arr_axes: TIFF 轴解释(``'AUTO'`` 或 ``TCZYX`` 字符串)。\n:param mip: max-project Z 当存在时。\n:param z_index: Z 插图,选择如果 ``mip`` 是虚假的。\n:param t_index: 点击 T 选择 T 是否存在。\n:param squeeze_singleton: 折叠后切割长度1轴。\n:param folder_image_scale: 默认 FOV- 到 粘贴图像网 像素规模因子 使用 :meth:`run`。\n启动 FOV (显微镜视野) 调整器. 查看论点的课堂文本。",
       "translation_source_blocks_sha256": [
-        "2afc5628e789b3ff028bfed021bcad34662c3a48009b7d72f9e09b06594f6f5e",
-        "887f7c0a8475c1fbc26d63677d5265b629bd9d7348e4ceadc3ae11b1aa27cf99",
+        "bbcc395c208d1ef6071f516baa77720a6481d20f3feb705aaa137444f3a6327d",
+        "5fea54d2fe03a136d74baf65adaa9f942649ed0a6f5d6086ff0049f15b9d28b0",
         "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
         "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
         "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
@@ -146351,7 +146351,7 @@
         "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
         "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
         "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "2693ed5bf747fdd2641d8f90f8dbf464689eb40b64bea8b8a0f330057f7c0c73",
+        "7b578edb4031d4d110c5d2095807118f85d00ad3b448dcf4439b5b155ace5524",
         "339a2e6e1c71f34e412aa94ec72c9de6d6bed4a05e7c66a0b8da95d53364122e"
       ]
     },
@@ -146371,19 +146371,19 @@
         "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
       ],
       "source_sha256": "03f31f8ed996ce235e97f33ee76ef1d3b3a9b5015b5c37b6dde2c846659a0d80",
-      "text": "将每个 FOV (显微镜视野) 在 ``folder`` 与 ``stitched_path`` 调整并输出 FOV 框架。\n\n使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。\n\n:param stitched_path: 路径到参考粘贴的集成图像网。\n:param folder: 将 FOV (微镜视野) TIFFs 列为调整。\n:param stitched_nuclei_idx: 的核通道指数在组装的图像网格中。  默认值为 ``0``。\n:param fov_nuclei_idx: 每个 FOV（显微镜视野）中的细胞核通道索引。默认值为 ``0``。\n:param exts: 已接受 FOV (显微镜视野) 扩展。\n:param recursive: 返回下载者。\n:param csv_path: 输出表示 CSV 路径;默认为 ``<outdir>/fov_align_manifest.csv``。\n:param npy_dir: 输出文件夹为 per-FOV(显微镜视野) ``.npy`` 字符串;默认为 ``<outdir>/npy``。\n:param folder_image_scale: FOV - 集成图像网络像素尺寸因素; 返回 ``self.folder_image_scale``。\n:returns: 路径到“CSV”的显而易见。",
+      "text": "将每个 FOV (显微镜视野) 在 ``folder`` 与 ``stitched_path`` 调整并输出 FOV 框架。\n\n使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。\n\n:param stitched_path: 路径到参考粘贴粘贴图像网。\n:param folder: 将 FOV (微镜视野) TIFFs 列为调整。\n:param stitched_nuclei_idx: 的核通道指数在缝合的图像网格中。  默认值为 ``0``。\n:param fov_nuclei_idx: 每个 FOV（显微镜视野）中的细胞核通道索引。默认值为 ``0``。\n:param exts: 已接受 FOV (显微镜视野) 扩展。\n:param recursive: 返回下载者。\n:param csv_path: 输出表示 CSV 路径;默认为 ``<outdir>/fov_align_manifest.csv``。\n:param npy_dir: 输出文件夹为 per-FOV(显微镜视野) ``.npy`` 字符串;默认为 ``<outdir>/npy``。\n:param folder_image_scale: FOV - 粘贴图像网络像素尺寸因素; 返回 ``self.folder_image_scale``。\n:returns: 路径到“CSV”的显而易见。",
       "translation_source_blocks_sha256": [
         "68c1e979c762099a84f1570f2e7594f4c0ca981ed621e220feef249597e9bc7f",
-        "7fcca5f6dffe910fadaa81a62e955e52ff47c4865bb76df54815d0102276688e",
-        "434758b1d5eadf68973cc66dbc302078242a56738da10f5f5fe9e65c60143c23",
+        "abe9d196beb0ffca92b5a9fcb20fb4fb1254f2e6e77ae2a20dbef051d70d435f",
+        "0a8cdf0c78ec963e41d136a84e8c47efdb35e808aeb08fe134701bdd98e74c2f",
         "f21c5ba9d83e96bd905982818f950f416cb2c1b7218bc3fdd3cc8d47ca23420e",
-        "940e34a692fd80d8698f0ea917eb9ad1b58be1f727154983967905e7662f8b06",
+        "241d0fe87852dd0a11ddd1d01d8419534c2f620acc586b56a5a70457cf844386",
         "2258b1979ba4c53709336595a482eb356a0ff83b19ae803659411452ffc64b4f",
         "3cab289636faeda21164d2104e2d62843bdcd6052dca4db9545fcfd24b3b777e",
         "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
         "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
         "bfe814a2dd7a1038dbe407725c1677e4bfc359ca340596f6fdc554916abe5892",
-        "1e0b9c4b3969e16eaa85c3adf242d2a7fcc5eb7314942c42ce99fb567aba78ff",
+        "3fe9cd836f63ec0e1505c0366fb725f36ea81a2cf3ba3cd2d788c1de8b0d2ae6",
         "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
       ]
     },
@@ -146403,9 +146403,9 @@
         "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
       ],
       "source_sha256": "85f7b1992a03a2c05902fdd2efca7597d82183cee88864b7685b8527f699ea3f",
-      "text": "将任意数量的缝合拼接图像网格(多通道,任意轴)对齐到使用核/霍赫斯特通道的共同参考。  保存一个通道连接对齐堆栈和一个 CSV 清单,描述从输入通道到输出通道的映射以及估计的变换/得分。\n\n输出图像轴:CYX(提供按照输入顺序堆叠的图像数据通道 ) 。\n\n参数\n----------\ndetector : {\"ORB\",\"SIFT\"} Keypoint 探测器 nfeatures : int 探测器功能预算。 max_keypoints : 可选的硬封在检测后保留的关键点上,使用检测器的排名。 downsample : float in (0,1) 函数检测和分数的因素。 ransac_thresh_px : float 像素重复限制,以便在下载空间中进行精确估计。 allow_scale : bool 如果 False 允许旋转和翻译,但没有扩展; 如果 allow_rotation = False,则允许翻译。 allow_rotation : bool 如果 False,只允许翻译。 outdir : str 图像和 csv 输出目录。 opencv_threads : int OpenCV 线条限制用于防止过度订阅。\n\n# 轴 / Z / 时间处理(为 TIFF 阅读)\n\narr_axes : \"AUTO\" 或超过 {T,C,Z,Y,X} 的行列\n\nmip : bool 如果 True 和 Z 存在, max-project Z. z_index : int 如果 mip=False,选择 Z 滑板。 t_index : int 选择 T 指数,如果 T 存在. squeeze_singleton : bool 滑滑板后切割 1 长轴。\n\n笔记\n-----\n- 与第一个图像相匹配,在 `paths`(参考)中。\n- 图像,您可以通过`nuclei_channel_indices`提供每个图像核的图像数据通道索引。  None,默认值为0。\n设置探测器和对跨采购调整的宽容。\n\n与 :class:`spacrStitcher` 相同的合同:匹配发生在 ``downsample`` 规模,而 ``ransac_thresh_px`` 是全尺寸的像素。",
+      "text": "使用核/霍赫斯特通道将任意数量的缝合图像网格(多通道,任意轴)对齐到一个共同参考。  保存一个通道连接对齐堆栈和一个 CSV 清单,描述从输入通道到输出通道的映射以及估计的变换/得分。\n\n输出图像轴:CYX(提供按照输入顺序堆叠的图像数据通道 ) 。\n\n参数\n----------\ndetector : {\"ORB\",\"SIFT\"} Keypoint 探测器 nfeatures : int 探测器功能预算。 max_keypoints : 可选的硬封在检测后保留的关键点上,使用检测器的排名。 downsample : float in (0,1) 函数检测和分数的因素。 ransac_thresh_px : float 像素重复限制,以便在下载空间中进行精确估计。 allow_scale : bool 如果 False 允许旋转和翻译,但没有扩展; 如果 allow_rotation = False,则允许翻译。 allow_rotation : bool 如果 False,只允许翻译。 outdir : str 图像和 csv 输出目录。 opencv_threads : int OpenCV 线条限制用于防止过度订阅。\n\n# 轴 / Z / 时间处理(为 TIFF 阅读)\n\narr_axes : \"AUTO\" 或超过 {T,C,Z,Y,X} 的行列\n\nmip : bool 如果 True 和 Z 存在, max-project Z. z_index : int 如果 mip=False,选择 Z 滑板。 t_index : int 选择 T 指数,如果 T 存在. squeeze_singleton : bool 滑滑板后切割 1 长轴。\n\n笔记\n-----\n- 与第一个图像相匹配,在 `paths`(参考)中。\n- 图像,您可以通过`nuclei_channel_indices`提供每个图像核的图像数据通道索引。  None,默认值为0。\n设置探测器和对跨采购调整的宽容。\n\n与 :class:`spacrStitcher` 相同的合同:匹配发生在 ``downsample`` 规模,而 ``ransac_thresh_px`` 是全尺寸的像素。",
       "translation_source_blocks_sha256": [
-        "102973c1bd9aeed65bd5a43d4e8aedabeb54e8f009382f38b3d10ce686efaa7b",
+        "0c89b3adc8d9b2e5a3d7e4f138c0756a2be06d7ee4ce11b0989fd1f9ac4df0fd",
         "f0ac29e6d8c0d72eea1eb19438ecde5cb9cdcae58edf2ab39dbf711d35920e47",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "3b7b7579652ae4c42f9a84e6ede706f4ea78065585ccfeed32e3e3d22b51ac1d",
@@ -146431,9 +146431,9 @@
         "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
       ],
       "source_sha256": "e52db034e9eb74110ed64437bfe5e54881045599829f588c5e1272a893445205",
-      "text": "在 ``paths`` 中的每个粘贴的集成图像网络与第一个相匹配,并保存一个 CYX 插槽。\n\n使用每个图像指定的核图像数据通道; 结果堆栈按照给定的顺序连接所有输入图像数据通道。\n\n:param paths: 按 TIFFs 来调整; ``paths[0]`` 是参考。\n:param nuclei_channel_indices: 图像核图像数据通道指数；  默认值为零。\n:param out_tif: 输出均匀的滑板路径;默认为 ``<outdir>/aligned_allc.tif``。\n:param out_png_preview: 可选预览 PNG 路径。\n:param csv_path: manifest CSV 路径;默认为 ``<outdir>/aligned_manifest.csv``。\n:returns: ``(out_tif, out_png_preview, csv_path)`` 字符串",
+      "text": "在 ``paths`` 中的每个粘贴的粘贴图像网络与第一个相匹配,并保存一个 CYX 插槽。\n\n使用每个图像指定的核图像数据通道; 结果堆栈按照给定的顺序连接所有输入图像数据通道。\n\n:param paths: 按 TIFFs 来调整; ``paths[0]`` 是参考。\n:param nuclei_channel_indices: 图像核图像数据通道指数；  默认值为零。\n:param out_tif: 输出均匀的滑板路径;默认为 ``<outdir>/aligned_allc.tif``。\n:param out_png_preview: 可选预览 PNG 路径。\n:param csv_path: manifest CSV 路径;默认为 ``<outdir>/aligned_manifest.csv``。\n:returns: ``(out_tif, out_png_preview, csv_path)`` 字符串",
       "translation_source_blocks_sha256": [
-        "2bd642349f24d0bb0172c48cd2e57a88c562a0c36daa235d1ee4a3a9d934b04b",
+        "421e134e0139952a3c7a6c3d9c463e08a706dd3b0677c7064f6839f07a9defcb",
         "c47734da15a70d1eaeb7bd32f7261a4c30ae892c0e868963c49e2837faa6c3f4",
         "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
         "ecb3ff9aea04ecb204d1ba49c1ac96c90d0473ab4325cfcea66cb431e5525e0c",
@@ -146464,16 +146464,16 @@
         "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
       ],
       "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "将每个微板样本位置的更高值 FOVs(微镜视野)调整到微板模型位置的粘贴集成图像网。\n\n在 ``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif`` 组合图像网的每个孔中,将图像从 ``align_src`` 分组成孔,并运行 :class:`FOVAlignAndCropper` 以产生精心提取的图像区域示范和 ``.npy`` 提取图像区。\n\n:param stitch_dst_root: 根文件夹包含每微型样品位置粘贴的集成图像网。\n:param align_src: 文件夹上级图像以匹配。\n:param meta_regex: regex 从文件名中提取好/网站数据。\n:param well_group: 命名捕捉组持有微板样品位置识别器。\n:param channel_index: 核频道指数 默认 ``0``。\n:param relative_scale: FOV - 集成图像网络像素规模因素. 默认 ``2.0``。\n:param downsample: 函数通过下载样品因子. 默认 ``0.5``。\n:param nfeatures: 关键点预算为探测器。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param qc_outlines: 可接受通话兼容性,不使用。 ``*__qc_outlines.png`` 表面是由 :class:`spacrStitcher` 写的,数据选择将其限制在自己的 ``save_qc`` 上; :class:`FOVAlignAndCropper` 没有这样的论点,并且没有提取过度,所以这里没有什么可以改变。 使用 ``save_qc`` 代替冲动步骤。\n:param recursive_align_src: 在扫描 ``align_src`` 时重复。\n:param exts: 接受的图像扩展。\n:returns: 地图 ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``。",
+      "text": "将每个微板样本位置的较高值 FOVs(微镜视野)调整到微板模型位置的粘贴粘贴图像网。\n\n在 ``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif`` 的每个图像网格中,将图像从 ``align_src`` 组成,并运行 :class:`FOVAlignAndCropper` 以产生精心提取的图像区域示范和 ``.npy`` 提取图像区。\n\n:param stitch_dst_root: 根文件夹包含每微型样品位置粘贴的粘贴图像网。\n:param align_src: 文件夹上级图像以匹配。\n:param meta_regex: regex 从文件名中提取好/网站数据。\n:param well_group: 命名捕捉组持有微板样品位置识别器。\n:param channel_index: 核频道指数 默认 ``0``。\n:param relative_scale: FOV - 粘贴图像网络像素规模因素. 默认 ``2.0``。\n:param downsample: 函数通过下载样品因子. 默认 ``0.5``。\n:param nfeatures: 关键点预算为探测器。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param qc_outlines: 可接受通话兼容性,不使用。 ``*__qc_outlines.png`` 表面是由 :class:`spacrStitcher` 写的,数据选择将其限制在自己的 ``save_qc`` 上; :class:`FOVAlignAndCropper` 没有这样的论点,并且没有提取过度,所以这里没有什么可以改变。 使用 ``save_qc`` 代替冲动步骤。\n:param recursive_align_src: 在扫描 ``align_src`` 时重复。\n:param exts: 接受的图像扩展。\n:returns: 地图 ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``。",
       "translation_source_blocks_sha256": [
-        "bbd684f3a8459b91ebe7578e530bf12dc46346c2e181d89294555e191672c1cd",
-        "58bbc52fe0d7105c1aef4049b1b43bd42288a82b6fc2f42866796f80d82f7f76",
-        "93043071114f4cf7acfac11b8988dfb2f6c3d4a2848255b2ee0dddbfcea305df",
+        "51e29334d1cbc052640592af7a3dcec68f50e571ad0abe2d062c713052d6ec64",
+        "d8751427fa0713291bc7e4e8bbc2aef7f9e5ba052f8b90aa5c4d2f25d85ef5f0",
+        "fb695a89f2a7e75a173ec1b73efd05d732d2364b5573a7951c971d7aa8e3d6a9",
         "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
         "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
         "926e6ca699a69385fe3099113f2237c77f28f3816a309aeb814cca44e6a83acc",
         "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "5efb1e1b1ac655b78a8dcb29b4b4f7be14d480e1b43964d75af89f2fe660916e",
+        "bf5ae2c4fe95dc377e674d5130924b1b19d2e6f8bcc2030f2ede7c66b4224711",
         "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
         "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
         "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
@@ -146507,12 +146507,12 @@
         "68bd0cc36626d156a3b370df23f4146100a111ffa5d219b4478c851e367cb1b8"
       ],
       "source_sha256": "cff970872f4a3dc6eb32abd083aec4c0a8eff4977eaf8bc6b4db070b8fb92525",
-      "text": "执行完整的 ops 预处理工作流: per-genotype stitching + fenotype alignment。\n\n它在一个或多个基因组文件夹上播放,每个文件夹都称为 :func:`stitch_cycle_wells`,然后通过 :func:`align_image_to_stitch` 将基因型图像与结果收集的图像网相匹配。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 关键值地图为 ``stitch``(每个基因组合), ``align``(每基因型相匹配结果)和 ``npy_out_root``,在这里创建的 ``<phenotype_source>/output`` 文件夹,但从未写到 - 提取的 ``.npy`` 图像区域在每个微板样本位置的``crops_20x`` 文档旁边的收集图像网。",
+      "text": "执行完整的 ops 预处理工作流: per-genotype stitching + fenotype alignment。\n\n它在一个或多个基因组文件夹上播放,每个文件夹都称为 :func:`stitch_cycle_wells`,然后通过 :func:`align_image_to_stitch` 将基因型图像与结果的粘贴图像网相匹配。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 关键值地图为 ``stitch``(每个基因组总结), ``align``(每基因型相匹配结果)和 ``npy_out_root``,在这里创建的 ``<phenotype_source>/output`` 文件夹,但从未写到 — ``.npy`` 提取的图像区域在每个微板样本位置的``crops_20x`` 文档旁边的粘贴图像网。",
       "translation_source_blocks_sha256": [
         "b188404c3e1d8f2631501bd237c84e3004e01f1e7e1d1505b1141f51c04b3175",
-        "111c1d5b713c92efc4172ae33bc25f3994d00c0c74c831a07fcb37009f27324a",
+        "f9fa1f656c2d7402dec7f5c2f07c72941a579a09a006ac8c19b1ab97c85bc072",
         "a241201c853df05f3e5e5699a48d58287e5ed9012bc6a5ef82efd63b45a9ad4c",
-        "dcf34b68851a092a3712b09e71cf2edbb38a15902c7fd8ab5b41407e6001ebad"
+        "1824d234ebca71d6629d9df54d822ce62acbde3d4c83e7554b192608e3d40b5c"
       ]
     },
     "spacr.spacrops.spacrStitcher": {
@@ -146565,9 +146565,9 @@
         "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
       ],
       "source_sha256": "174d288834aec7e44b341b91dce5629d3c7457a7122f7d52f374c866dc80db89",
-      "text": "双式粘贴器与下调的分数和整合良好的图像网组合。\n\n记忆和竞争对手对非常大的数据集进行控制:\n  - feature_cache_mode: \"disk\" (默认) 用 LRU RAM 封面将 DS 功能写入磁盘\n  - pair_batch_size:竞争对手未来对手的限制数量\n  - stream_csv:立即编写双顺序(低 RAM)\n  - opencv_threads:限制OpenCV内部执行竞争,以避免过度订阅\n\n:param detector: 关键点探测器, ``'ORB'`` 或 ``'SIFT'``;任何其他值增加 ``ValueError`` 和 ``'SIFT'`` 需要一个 opencv-contrib 构建。\n:param nfeatures: 关键点预算交给探测器. 默认 ``6000``。\n:param max_keypoints: 按图像保留的关键点; ``None`` 保留所有。\n:param downsample: 尺寸因子下列函数/排序通道。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计转型中的规模。\n:param allow_rotation: 允许旋转,当 ``allow_scale`` 是 ``False``。\n:param outline_source: 如何找到 QC 输出: ``'otsu'`` (默认), ``'cellpose'`` 或 ``'none'``。\n:param cellpose_model: Cellpose 模型名称或检查点路径;只在 ``outline_source`` ``'cellpose'`` 时阅读。\n:param cellpose_diameter: 预计对象直径转移到 Cellpose; ``None`` 允许 Cellpose 选择。\n:param canny: ``(low, high)`` Canny 限制将前面面掩膜转化为外线。\n:param blur_sigma: 在 Otsu 边界之前,加西亚的 Sigma 被应用; ``0`` 阻止了泡沫。\n:param dilate_ksize: 用于扩展前面面掩膜的弹性核心大小; ``0`` 阻止扩展。\n:param line_thickness: 输出厚度; ``1`` 以上的值扩展边缘图像。\n:param outline_alpha: 在 QC 表面提取的列表的可见性。\n:param outdir: 输出文件夹,在建设中创建并用于 QC 图像,粘贴双输出和默认功能缓存; 双式 CSVs 写在呼叫器的 ``csv_path`` 点的地方。\n:param save_qc: 字符为 QC 输出 PNGs. 默认 ``True``。\n:param save_stitched_default: 假设写一对夫妇的 TIFF 字符; 这个论点超越了它。\n:param all_scores: 还计算了较慢的全分辨率测量(全边 ZNCC 和前方相互关系/IoU/Dice/XOR)。\n:param score_threshold: 默认最小得分需要写一个粘贴图像; ``None`` 意味着没有默认限制。\n:param verbose: 打印进展消息。\n:param feature_cache_mode: ``'disk'`` 或 ``'ram'``;任何其他值增加 ``ValueError``。\n:param feature_cache_dir: 在哪里存储磁盘模式功能. 缺点为 ``<outdir>/feat_cache``。\n:param max_ram_features: LRU 尺寸,在图像中,在磁盘功能商店前的 RAM 存储器。\n:param n_workers_features: 属性提取条数;默认数为 CPU 数的一半。\n:param pair_batch_size: 配对交付到线池每包,有``1024``的地板。\n:param stream_csv: 被接受和存储,但从未阅读;双重序列总是按得分写的。\n:param opencv_threads: 值转换为 ``cv2.setNumThreads``。\n:param arr_axes: 输入的轴顺序 TIFFs;必须包含 ``Y`` 和 ``X`` 除非它是 ``'AUTO'``。\n:param mip: 超过 Z 的 max-intensity 计划,而不是采取 1 个滑板。\n:param z_index: 使用 Z 幻灯片,当 ``mip`` 是 ``False``。\n:param t_index: 使用时间指数,当T轴存在时。\n:param squeeze_singleton: 放下单片轴后轴选择。\n\n转型控制\n-----------------\n  allow_scale:如果 True → 使用 RANSAC 相同(旋转 + 规模 + 翻译) 如果 False → 执行单位规模(参见 allow_rotation) allow_rotation: 如果 True → 旋转+ 翻译 如果 False → 翻訳- 仅限于\n\n图像 摩萨克\n-----------\n  使用拓扑感知修剪 + 最大跨度树对成对得分来构建一个有凝聚力的网格。  导出组装的图像网格图像和 mosaic.csv 清单。\n\n轴与Z处理\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\n设置功能检测器和对比容量。\n\n``downsample`` 是每场比赛进行的规模; 它所产生的转型以全尺寸表达,因此降低它的成本是准确的,而不是改变产量地质。 ``ransac_thresh_px`` 是全尺寸的像素。",
+      "text": "双式粘贴器与下调的分数和全好粘贴的图像网组合。\n\n记忆和竞争对手对非常大的数据集进行控制:\n  - feature_cache_mode: \"disk\" (默认) 用 LRU RAM 封面将 DS 功能写入磁盘\n  - pair_batch_size:竞争对手未来对手的限制数量\n  - stream_csv:立即编写双顺序(低 RAM)\n  - opencv_threads:限制OpenCV内部执行竞争,以避免过度订阅\n\n:param detector: 关键点探测器, ``'ORB'`` 或 ``'SIFT'``;任何其他值增加 ``ValueError`` 和 ``'SIFT'`` 需要一个 opencv-contrib 构建。\n:param nfeatures: 关键点预算交给探测器. 默认 ``6000``。\n:param max_keypoints: 按图像保留的关键点; ``None`` 保留所有。\n:param downsample: 尺寸因子下列函数/排序通道。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计转型中的规模。\n:param allow_rotation: 允许旋转,当 ``allow_scale`` 是 ``False``。\n:param outline_source: 如何找到 QC 输出: ``'otsu'`` (默认), ``'cellpose'`` 或 ``'none'``。\n:param cellpose_model: Cellpose 模型名称或检查点路径;只在 ``outline_source`` ``'cellpose'`` 时阅读。\n:param cellpose_diameter: 预计对象直径转移到 Cellpose; ``None`` 允许 Cellpose 选择。\n:param canny: ``(low, high)`` Canny 限制将前面面掩膜转化为外线。\n:param blur_sigma: 在 Otsu 边界之前,加西亚的 Sigma 被应用; ``0`` 阻止了泡沫。\n:param dilate_ksize: 用于扩展前面面掩膜的弹性核心大小; ``0`` 阻止扩展。\n:param line_thickness: 输出厚度; ``1`` 以上的值扩展边缘图像。\n:param outline_alpha: 在 QC 表面提取的列表的可见性。\n:param outdir: 输出文件夹,在建设中创建并用于 QC 图像,粘贴双输出和默认功能缓存; 双式 CSVs 写在呼叫器的 ``csv_path`` 点的地方。\n:param save_qc: 字符为 QC 输出 PNGs. 默认 ``True``。\n:param save_stitched_default: 假设写一对夫妇的 TIFF 字符; 这个论点超越了它。\n:param all_scores: 还计算了较慢的全分辨率测量(全边 ZNCC 和前方相互关系/IoU/Dice/XOR)。\n:param score_threshold: 默认最小得分需要写一个粘贴图像; ``None`` 意味着没有默认限制。\n:param verbose: 打印进展消息。\n:param feature_cache_mode: ``'disk'`` 或 ``'ram'``;任何其他值增加 ``ValueError``。\n:param feature_cache_dir: 在哪里存储磁盘模式功能. 缺点为 ``<outdir>/feat_cache``。\n:param max_ram_features: LRU 尺寸,在图像中,在磁盘功能商店前的 RAM 存储器。\n:param n_workers_features: 属性提取条数;默认数为 CPU 数的一半。\n:param pair_batch_size: 配对交付到线池每包,有``1024``的地板。\n:param stream_csv: 被接受和存储,但从未阅读;双重序列总是按得分写的。\n:param opencv_threads: 值转换为 ``cv2.setNumThreads``。\n:param arr_axes: 输入的轴顺序 TIFFs;必须包含 ``Y`` 和 ``X`` 除非它是 ``'AUTO'``。\n:param mip: 超过 Z 的 max-intensity 计划,而不是采取 1 个滑板。\n:param z_index: 使用 Z 幻灯片,当 ``mip`` 是 ``False``。\n:param t_index: 使用时间指数,当T轴存在时。\n:param squeeze_singleton: 放下单片轴后轴选择。\n\n转型控制\n-----------------\n  allow_scale:如果 True → 使用 RANSAC 相同(旋转 + 规模 + 翻译) 如果 False → 执行单位规模(参见 allow_rotation) allow_rotation: 如果 True → 旋转+ 翻译 如果 False → 翻訳- 仅限于\n\n图像 摩萨克\n-----------\n  使用拓扑感知修剪 + 最大跨度树对成对得分来构建一个有凝聚力的网格。  导出缝合图像网格图像和 mosaic.csv 清单。\n\n轴与Z处理\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\n设置功能检测器和对比容量。\n\n``downsample`` 是每场比赛进行的规模; 它所产生的转型以全尺寸表达,因此降低它的成本是准确的,而不是改变产量地质。 ``ransac_thresh_px`` 是全尺寸的像素。",
       "translation_source_blocks_sha256": [
-        "5cd4c1eba502b3400b142ee5e418de0ac6c7aea56117c5aeab9fded68ed9f132",
+        "6b4b0c4fcee68abd687b76ceef22482c74d86c70b425df15d0731b48e84d6301",
         "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
         "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
         "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
@@ -146609,7 +146609,7 @@
         "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
         "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
         "55d50e4f2f478cfbd02e7630d84474322bd87c20b720222eb91a7e921abe7d3b",
-        "c241bdf28c1d5a743996ed95d7d05af78c49955ddf6199f7e132a916cd6a359c",
+        "571e7eba420d8659bb6f4f4ffc388d9b38c9af567a08e74e3bd4d789245a09c3",
         "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
         "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
         "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
@@ -146635,13 +146635,13 @@
         "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
       ],
       "source_sha256": "247553b1ee13543b3498c0acef33be44032369aab838351b0e9f904d7b1a2ca7",
-      "text": "创建一个 CYX BigTIFF 集成图像网从 'mosaic.csv' 标志写为 spacrStitcher.render_mosaic_from_csv(...).\n\n预期的 CSV 列(按字符串):\n  - 路,H,W,M00,M01,M02,M10,M11,M12,canvas_x,canvas_y, best_pair_score\n\n:param manifest_csv: 收集图像网显而易见阅读; 缺少所需列或一行,其大小/附属将不会分裂投``RuntimeError``。\n:param out_tif: CYX 集成图像网络的目的地路径 TIFF。\n:param out_png: 图像数据通道 0 的可选预览 PNG；当值为 ``None`` 时不写预览。\n:param channel_indices: 编辑频道; ``None`` 使用第一个可用的字符串的每个频道。\n:param blend: ``'max'`` 或 ``'overwrite'``;任何其他值增加 ``ValueError``。\n:param tmp_dir: 工作空间在磁盘上的记忆图. 默认情况为 ``mosaic_tmp`` 在 ``self.feature_cache_dir`` 下,如果设置,否则与 ``out_tif`` 旁边。\n:param preview_downsample: 因子为预览 PNG 缩小;值为 ``1`` 或更少,保持完整尺寸。\n:returns: 已写的 ``out_tif`` 路径。\n\n笔记\n-----\n* 在示范中使用 2x3 字符串(已经包括全球折扣)。\n* 如果 `channel_indices` 是 None,则从第一个有效的字符串中输入频道计算。\n* `blend=\"max\"` 接收超越微镜图像字段的每像素最大; `blend=\"overwrite\"` 写下最新的微镜图片字段超过以前的字段,其中覆盖>0。\n* 如果 `tmp_dir` 提供(或从 self.feature_cache_dir 中可用),则输出工作空间使用磁盘记忆图来减少 RAM。",
+      "text": "创建一个 CYX BigTIFF 粘贴图像网从 'mosaic.csv' 标志上写的 spacrStitcher.render_mosaic_from_csv(...).\n\n预期的 CSV 列(按字符串):\n  - 路,H,W,M00,M01,M02,M10,M11,M12,canvas_x,canvas_y, best_pair_score\n\n:param manifest_csv: 粘贴图像网显而易见阅读;缺少所需列或一行,其大小/附属将不会分裂,投``RuntimeError``。\n:param out_tif: 目的地路径为 CYX 粘贴图像网 TIFF。\n:param out_png: 图像数据通道 0 的可选预览 PNG；当值为 ``None`` 时不写预览。\n:param channel_indices: 编辑频道; ``None`` 使用第一个可用的字符串的每个频道。\n:param blend: ``'max'`` 或 ``'overwrite'``;任何其他值增加 ``ValueError``。\n:param tmp_dir: 工作空间在磁盘上的记忆图. 默认情况为 ``mosaic_tmp`` 在 ``self.feature_cache_dir`` 下,如果设置,否则与 ``out_tif`` 旁边。\n:param preview_downsample: 因子为预览 PNG 缩小;值为 ``1`` 或更少,保持完整尺寸。\n:returns: 已写的 ``out_tif`` 路径。\n\n笔记\n-----\n* 在示范中使用 2x3 字符串(已经包括全球折扣)。\n* 如果 `channel_indices` 是 None,则从第一个有效的字符串中输入频道计算。\n* `blend=\"max\"` 接收超越微镜图像字段的每像素最大; `blend=\"overwrite\"` 写下最新的微镜图片字段超过以前的字段,其中覆盖>0。\n* 如果 `tmp_dir` 提供(或从 self.feature_cache_dir 中可用),则输出工作空间使用磁盘记忆图来减少 RAM。",
       "translation_source_blocks_sha256": [
-        "630e1ff0bcd6efcb6bb4e313b0f7375426c44fc4d90ba4a130978c92dd009b10",
+        "9cc0a90e56df66d80b3c801492a0e791041a09f031b2a77062827e4db676cdd5",
         "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
         "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "0586e383520dcb5d760c607ae411bc01de2ec020112d8cfff3fb6b31af03b3c6",
-        "69c6b194a7105a20a7f3cb52862e73c1b16df76d87c7bf946a558242ad431b6f",
+        "b995f604aac6482116c2e441b5c5c0a97efca4de1be09dd24facbd1d75ad7fe9",
+        "2441c2bb0292f7450cfb41291248b679e823161350536016a9a8625e9219428a",
         "591b3b5862166de4beae57beefc65a9c35c429bac8851889e3165369d692f121",
         "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
         "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
@@ -146673,13 +146673,13 @@
         "e3968366b2dcf54efbed8fee6ef77b303e5449785b6c9204ce22cef171a3858c"
       ],
       "source_sha256": "78adc956ab1e07247878cd3c2fcc832e8d5e010a0d58cf6cc1dcb382dfaded4b",
-      "text": "通过在通道之间重复使用对变换来组装多通道 CYX 组装图像网格。\n\n通过 ``out_tif=None`` 与 ``out_csv`` 在显现模式下运行(计算转换和转换地质,写显现,滑动演示)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 收集图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param min_score: 组合图像网的最低双分数保持(当 ``None`` 时自动检测)。\n:param channel_count: 强制此许多频道;当 ``None`` 时自动检测。\n:param channel_index_order: 明确的频道指数为输出订单。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的每条路径表现为 CSV 路径。\n:returns: 路径到集成图像网 TIFF(或 ``None``在 manifest-only模式)。",
+      "text": "通过在通道之间重复使用对变换来组装多通道 CYX 缝合图像网格。\n\n通过 ``out_tif=None`` 与 ``out_csv`` 在显现模式下运行(计算转换和转换地质,写显现,滑动演示)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 粘贴图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param min_score: 最小双重分数保留为粘贴图像网(当 ``None`` 时自动检测)。\n:param channel_count: 强制此许多频道;当 ``None`` 时自动检测。\n:param channel_index_order: 明确的频道指数为输出订单。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的每条路径表现为 CSV 路径。\n:returns: 路径到粘贴图像网 TIFF(或 ``None``在 manifest-only模式)。",
       "translation_source_blocks_sha256": [
-        "d75203deb0d803b1a3a8509dae3c8354286a2c1759c26be1aa78e64ea8ffe788",
+        "c7f2ebf344c6c23ac30a86120ab8c96a3a19c059a67da333a0e4b95d5d4cd82b",
         "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
         "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "1eb3eab5f9c79ce14eaf8eb8a557a734c88b580f8cf2e156de8648ba5d8f3a4e",
-        "e8b4ca8c422f6253f21d391d1247d25cf1a96713cbc9481c5e467876cf8f5965",
+        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
+        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
         "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
         "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
         "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
@@ -146688,7 +146688,7 @@
         "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
         "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
         "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "b2c61078baf7f9548e175b908088a3b0f3ac2e7c64f066a1643de20282bdf554"
+        "6bd6f66b06f1da0b39b9d2dc59e47e98163d7e8b41cacf4aaa294a4fa05876c5"
       ]
     },
     "spacr.spacrops.spacrStitcher.prepare_features": {
@@ -146729,15 +146729,15 @@
         "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
       ],
       "source_sha256": "db6fa5e26ac74a7ec4d829f9acd1a497f164252f74507e347eb8fcbf24834201",
-      "text": "收集集的图像网络图像(和显现)从双形测量 CSV。\n\n通过 ``out_tif=None`` 和 ``out_csv`` 在显现模式下运行(转换计算和写作,但没有图像进行传输)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 收集图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param out_png: 可选预览 PNG 输出路径。\n:param channel_index: 使用播放的频道. 默认 ``0``。\n:param min_score: 组合图像网的最低双分数保持(当 ``None`` 时自动检测)。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的路径到每表明 CSV。\n:returns: ``(out_tif, out_png)`` 字符串",
+      "text": "收集一个粘贴的图像网图像(和显现)从一对式测量 CSV。\n\n通过 ``out_tif=None`` 和 ``out_csv`` 在显现模式下运行(转换计算和写作,但没有图像进行传输)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 粘贴图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param out_png: 可选预览 PNG 输出路径。\n:param channel_index: 使用播放的频道. 默认 ``0``。\n:param min_score: 最小双重分数保留为粘贴图像网(当 ``None`` 时自动检测)。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的路径到每表明 CSV。\n:returns: ``(out_tif, out_png)`` 字符串",
       "translation_source_blocks_sha256": [
-        "eff1923ab42e0b59eb6319a8ed548f093ed9024027aad5b8b0af29a6077eab76",
+        "331a55658a9589944bcbe455fa4d55a02dff2edb2b84f5199d771ab9cc96aac9",
         "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
         "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "1eb3eab5f9c79ce14eaf8eb8a557a734c88b580f8cf2e156de8648ba5d8f3a4e",
+        "90ca02df5ca6824da7e6edc514abc48046679935acadf5386f4c3085d2e66d70",
         "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
         "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "e8b4ca8c422f6253f21d391d1247d25cf1a96713cbc9481c5e467876cf8f5965",
+        "1de54315d3ee808f8d1673a9c0e384e39826db2f48f2bef7cd77f4d6c52cc6c4",
         "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
         "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
         "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
@@ -146774,9 +146774,9 @@
         "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
       ],
       "source_sha256": "cfc121333b39358d6311adab55cbcc6d92e1b5e42d441010696eecb8aedbfe15",
-      "text": "按 ``folder`` 评分每个候选人对,并可选构建整合良好的图像网。\n\n当候选人数量超过 ``qc_pairs_threshold``, QC 在第一行中排行,并仅重新排行为其分数在第二行中清除自动限制的对手。\n\n:param folder: 扫描的字符串目录。\n:param csv_path: 目的地 CSV 用于双式测量。\n:param channel_index: 使用的频道为函数评分. 默认 ``0``。\n:param exts: 接受的图像扩展。\n:param recursive: 重定向到字符串:默认 ``False``。\n:param same_well_only: 限制配对到相同的配对好. 默认 ``True``。\n:param max_site_gap: 候选人邻居之间的最大位置指数差距 默认 ``3``。\n:param n_workers: 工作进程行由得分通道使用,默认为 ``8``。\n:param stitch: 保存点数为 TIFFs 对比超过分数边界的对比。\n:param score_threshold: 最小得分是为了保存图像。\n:param meta_regex: 在扫描之前,将Filename regex上传。\n:param mosaic: 结束后构建一个单通道组装图像网格。\n:param mosaic_out: 输出 TIFF 组合图像网格的路径(单图像数据通道模式 ) 。\n:param mosaic_min_score: 使用的最小边缘分数在打印集成图像网络边缘时。\n:param mosaic_csv_out: 输出 CSV 路径为集成图像网络显现。\n:param mosaic_all_channels: 在所有渠道上建立一个 CYX 集成图像网络。\n:param mosaic_channel_count: 强制多通道组合图像网格使用此数量的通道。\n:param mosaic_channel_index_order: 通道顺序为多通道拼接图像网格。\n:param qc_pairs_threshold: 双数在哪个 QC 折叠被关闭。\n:param qc_only_above_threshold_when_many: 允许第二通,得分为 QC 输出。\n:returns: 路径到 pairwise-metrics CSV。",
+      "text": "按 ``folder`` 评分每个候选人对,并可选地创建一个完整的图像网。\n\n当候选人数量超过 ``qc_pairs_threshold``, QC 在第一行中排行,并仅重新排行为其分数在第二行中清除自动限制的对手。\n\n:param folder: 扫描的字符串目录。\n:param csv_path: 目的地 CSV 用于双式测量。\n:param channel_index: 使用的频道为函数评分. 默认 ``0``。\n:param exts: 接受的图像扩展。\n:param recursive: 重定向到字符串:默认 ``False``。\n:param same_well_only: 限制配对到相同的配对好. 默认 ``True``。\n:param max_site_gap: 候选人邻居之间的最大位置指数差距 默认 ``3``。\n:param n_workers: 工作进程行由得分通道使用,默认为 ``8``。\n:param stitch: 保存点数为 TIFFs 对比超过分数边界的对比。\n:param score_threshold: 最小得分是为了保存图像。\n:param meta_regex: 在扫描之前,将Filename regex上传。\n:param mosaic: 结束后构建一个单通道拼接图像网格。\n:param mosaic_out: 输出 TIFF 路径为粘贴图像网(单图像数据渠道模式)。\n:param mosaic_min_score: 使用的最小边缘分数在打印粘贴图像网端时。\n:param mosaic_csv_out: 输出 CSV 路径为粘贴图像网显现。\n:param mosaic_all_channels: 在所有渠道上建立一个 CYX 粘贴图像网络。\n:param mosaic_channel_count: 为多通道拼接图像网格强制使用这么多的通道。\n:param mosaic_channel_index_order: 通道顺序为多通道拼接图像网格。\n:param qc_pairs_threshold: 双数在哪个 QC 折叠被关闭。\n:param qc_only_above_threshold_when_many: 允许第二通,得分为 QC 输出。\n:returns: 路径到 pairwise-metrics CSV。",
       "translation_source_blocks_sha256": [
-        "025537383948c380ef5dd29ddec0980d3c194b1696b436a29ad6be2c6f3e8078",
+        "ec34ce3c0c2907ad52cf332ccf367c095b730ad8b302cff28e4c1f592aa46a1c",
         "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
         "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
         "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
@@ -146789,13 +146789,13 @@
         "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
         "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
         "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "6c20347d46363a1e6f2346f66a607a825e1a844113c0cfd03d239b25537144e9",
-        "4242f1700482376d5ddd5c56a890e3b0397b75b3c3a2e8a2870faa7d15e26ed6",
-        "32bef6c303e473dbe97da19efd2741d78b8dc623e768044375ea062dd61786c0",
-        "3ecbf49719ebeefa9f3da978481da789fa5254e9f0bb9ff657f55fe2ca8947de",
-        "34d4aac446ca13a1d98f3efd2fffb2947c8a449f6037cd011fa8ebb3c7c90cc6",
-        "ae003b50904cd697f2547b86653de367a79c60228abd10db6be3696cebd62915",
-        "d3cb9819b881c2d2a25d218f96a4351de8ed3897d20725556a5b28e49217a123",
+        "44f3739314aea17c8b16b57d8502047cc29200aaf89bce856afb246ebfc5768d",
+        "6965fbf9fb189cccb9223da7c67a979520ecaa5f0cb44f0727374f3bce577cd9",
+        "4ae04e79046e2ad3b78c5d7a78de4db1ee728f98a994431fa1e9f6eeaedd91a5",
+        "740febcc641829f70516bc1c859fcce6df69e1d06ce0b0b1428a2a40771dfbde",
+        "f21be2ad17686db5ddb937896c4a7969ee1a947d063419caaf3006544d69394f",
+        "f686a55fecf53c6389c029a8645a0829f64b1a1ae4e23010435e1de69ce6f052",
+        "ebc6786604033556971653b878aa8541217c9ab57e5fd4810e23ead9d6ef2f96",
         "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
         "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
         "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
@@ -146848,11 +146848,11 @@
         "a461890ecbdfa56af39153e64f160445b45ac7e286e31241c10123b6ea2bcac5"
       ],
       "source_sha256": "384a6b243901630139ba6a3c7fbbec27a5dd5db1dd71caebf58c6f072ce0584d",
-      "text": "安排一个实验室微板 TIFFs 在每微板样本位置文件夹中,并插入每个微板模型位置。\n\n根据文件名元数据按孔分组图像,可选择将它们移动或符号链接到每孔文件夹中,然后在每个孔上运行 :class:`spacrStitcher` 以生成成对的 CSVs,并在询问时生成单个或多个图像数据通道组装的图像网格。\n\n收集的图像网络已被 opt-in。 设置 ``write_mosaic`` (或其同义词 ``mosaic``) 构建一个。 它默认关闭,因为收集集的图像网会出现,当太少的显微镜图像字段被覆盖,以便放置任何,而无法粘贴的微孔板不应该成为无法组织的板。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 基值地图与结构化数据名称 ``organized`` (移动/symlink 总结) 和 ``wells`` (每微型样品位置输出路径)。",
+      "text": "安排一个实验室微板 TIFFs 在每微板样本位置文件夹中,并插入每个微板模型位置。\n\n根据文件名元数据按孔分组图像,可选择将它们移动或符号链接到每孔文件夹中,然后在每个孔上运行 :class:`spacrStitcher` 以生成成对的 CSVs,并在询问时生成单个或多个图像数据通道拼接的图像网格。\n\n插图图像网是 opt-in。 设置 ``write_mosaic`` (或其同义词 ``mosaic``) 以构建一个。 它默认情况下关闭,因为收集一个粘贴图像网会出现,当太少的显微镜图像字段被粘贴到任何位置时,而无法粘贴的微孔板不应该成为无法组织的板。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 基值地图与结构化数据名称 ``organized`` (移动/symlink 总结) 和 ``wells`` (每微型样品位置输出路径)。",
       "translation_source_blocks_sha256": [
         "e9cd9ab6a7e5a803c9e5647f2139ae04d4f962a2f63437d2f384d12d0ab1cf91",
-        "4701692fc0a6e5224ba46831cf44eb35ddf229e4056ffacfb06ce242ffcf7ac4",
-        "a4007275e2d34d34021ee27a512392b3da4ada3d81fe85e031a6eaf9d8cf4211",
+        "1f25af89ed183bdbc8dd262ae7cbbe457750474fbbd500e46700cf180498bc7e",
+        "23581abc7e159bfa927f2327c3f34ddbd11591e5400e00ee0c360a6052c42c0b",
         "2fb7dd35975183db0f2521dff4e686926bf51534c83675e0904fb1a7ed6b8d4a",
         "77979a302d60b30163651be882c442cd157020d2730fa063dde15da88601a41b"
       ]
@@ -147325,7 +147325,7 @@
         "dbf1132097de0e4bee1e65c88fc745780dfff94b013b9fb1d2e445e7907d0c1d"
       ],
       "source_sha256": "aa6c432601bf6cc8c559fa546288007c0bfa876380e4b777f49537d5aadf7d68",
-      "text": "运行板,招聘,入侵和复制测试。\n\n它是为了什么\n==============\n四 spaCR 天花板目前共享这个登陆页面,但它们回答了不同的生物问题。 :func:`analyze_plaques` 分区板图像,并总结板号和区域。 :func:`analyze_recruitment` 测量周围的病原体或 vacuoles 与托管细胞膜相关的 fluorescent 标志。 :func:`analyze_invasion` 使用差异性预/后可行化,以将寄生虫分类为外部粘贴或入侵主细胞内部。 :func:`analyze_replication` 它在每个寄生虫的真空中计算寄生素,并比较结果的复制状态分布。 Cellpose 培训、测试和模型应用工具也在这里生活,但它们并不是这些四个测试输入点的替代品。\n\n它需要什么\n=============\nPlaque analysis accepts a folder of TIFF images, or existing masks beneath that folder, plus Cellpose settings and a bundled, catalogue, or local plaque model.  Recruitment starts from a spaCR ``measurements.db`` containing joined cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence channel, object filters, and plate metadata that assign cell type, pathogen, and treatment.  Invasion and Replication both need one row per segmented parasite in a measurement table and condition metadata.  Invasion additionally needs the outside- and total-stain channels and preferably known control wells; Replication needs a defensible ``vacuole_key`` or spatial-linking distance. The Cellpose utilities require paired images and masks for training/testing, or an image folder and model path for inference.\n\n它所产生的\n================\n板块分析 写作 ``<src>/masks/plaques_analysis.db`` 与 ``summary``, ``stats``,和 ``details`` 招聘回归为对象和对好 DataFrames 写下他们的 CSVs 侵入返回对寄生虫的分类,对显微镜的视野边界和 QC, per-well 效率,条件总结和比较,控制,和数字; 保存的运行地点 这些物品在下方 ``results/analyze_invasion``复制返回每个真空计算,福和条件分布,双式和 omnibus 统计数据,数字,以及实际使用的组合方法,与节省的产量下 ``results/analyze_replication``. 模型工具根据适当情况生产训练重量、评估表、掩膜和对象摘要。\n\n接下来的要做什么\n================\n对于斑块,在解释计数或区域之前检查掩模。  对于\"招募 \", 在比较处理之前验证对象过滤器、条件注释和每个显微镜板样本位置分母。  对于侵入,在使用效率表之前查看视图级别阈值的显微镜视场、控制一致性、双模态和灵敏度标志。  对于\"复制 \", 在比较加倍分布之前检查液泡分组和报告的非二的幂分数。 功能链接,直到四个显微镜图像区域收到单独的 API 目的地。\n\n分析单元。 浸润是从外染色的*absence*推断出来的,所以弱染色只能膨胀浸润分数; 记录阈值,统计数据使用微板样本位置,而不是将来自某个微板采样位置的寄生虫作为独立重复处理。 细胞,因为一个细胞可以包含多个液泡;  3、5、6 和 7 寄生虫保留在显式的非二阶 QC 桶中,而不是四舍五入到生物预期类中。 面积是根据微板样品位置尺度校准的,因此比较时应保留定义该尺度的采集元数据。",
+      "text": "运行板,招聘,入侵和复制测试。\n\n它是为了什么\n==============\n四 spaCR 天花板目前共享这个登陆页面,但它们回答了不同的生物问题。 :func:`analyze_plaques` 分区板图像,并总结板号和区域。 :func:`analyze_recruitment` 测量周围的病原体或 vacuoles 与托管细胞膜相关的 fluorescent 标志。 :func:`analyze_invasion` 使用差异性预/后可行化,以将寄生虫分类为外部粘贴或入侵主细胞内部。 :func:`analyze_replication` 它在每个寄生虫的真空中计算寄生素,并比较结果的复制状态分布。 Cellpose 培训、测试和模型应用工具也在这里生活,但它们并不是这些四个测试输入点的替代品。\n\n它需要什么\n=============\n空斑分析接受一个装有 TIFF 图像的文件夹，或该文件夹下已有的掩膜，外加 Cellpose 设置以及一个随附的、目录中的或本地的空斑模型。招募分析从一个 spaCR ``measurements.db`` 开始，其中含有已连接的细胞、细胞核、病原体与细胞质特征；它需要一个荧光图像通道、对象过滤条件，以及为细胞类型、病原体与处理赋值的板元数据。侵染与复制两者都需要测量表中每个已分割寄生虫一行，以及条件元数据。侵染还额外需要外部染色与总染色两个图像通道，最好还有已知的对照孔；复制则需要一个站得住脚的 ``vacuole_key`` 或空间关联距离。Cellpose 工具要么需要成对的图像与掩膜用于训练/测试，要么需要一个图像文件夹与模型路径用于推理。\n\n它所产生的\n================\n板块分析 写作 ``<src>/masks/plaques_analysis.db`` 与 ``summary``, ``stats``,和 ``details`` 招聘回归为对象和对好 DataFrames 写下他们的 CSVs 侵入返回对寄生虫的分类,对显微镜的视野边界和 QC, per-well 效率,条件总结和比较,控制,和数字; 保存的运行地点 这些物品在下方 ``results/analyze_invasion``复制返回每个真空计算,福和条件分布,双式和 omnibus 统计数据,数字,以及实际使用的组合方法,与节省的产量下 ``results/analyze_replication``. 模型工具根据适当情况生产训练重量、评估表、掩膜和对象摘要。\n\n接下来的要做什么\n================\n对于斑块,在解释计数或区域之前检查掩模。  对于\"招募 \", 在比较处理之前验证对象过滤器、条件注释和每个显微镜板样本位置分母。  对于侵入,在使用效率表之前查看视图级别阈值的显微镜视场、控制一致性、双模态和灵敏度标志。  对于\"复制 \", 在比较加倍分布之前检查液泡分组和报告的非二的幂分数。 功能链接,直到四个显微镜图像区域收到单独的 API 目的地。\n\n分析单元。 浸润是从外染色的*absence*推断出来的,所以弱染色只能膨胀浸润分数; 记录阈值,统计数据使用微板样本位置,而不是将来自某个微板采样位置的寄生虫作为独立重复处理。 细胞,因为一个细胞可以包含多个液泡;  3、5、6 和 7 寄生虫保留在显式的非二阶 QC 桶中,而不是四舍五入到生物预期类中。 面积是根据微板样品位置尺度校准的,因此比较时应保留定义该尺度的采集元数据。",
       "translation_source_blocks_sha256": [
         "f17be6d876a4401393ac8efcbc787df1914526343a3e070effd5aa02b914022a",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -152902,14 +152902,14 @@
         "72ef7de469e4964de04d498a599c587ab0a370e3c53b6b74312e7462182b1375"
       ],
       "source_sha256": "3ed232be49b796e3fa4685c247d044d7c74e98011bd99ebb44720550996d17cf",
-      "text": "将 DataFrame 转换为 spaCR 名称和表标识符。\n\n一个呼叫到 :func:`spacr.schema.canonicalise_frame`,这是整个词典在一个地方:\n\n* 每个遗产分子都被重新命名,合并案例 *和* 点数,因此 ``Plate``/``PLATE`` / ``plate``/ ``plateid`` /``plate_name`` 所有都以 ``plateID`` 和相同的序列,列,显微镜视野和显微板样本位置;\n* **一个**列为结构化数据名称. 持有 ``well``和 ``wellID`` 的文件有两个观点,其中一个顺序来自; 它们是按顺序进行比较,因为切断的线条(所以 ``1``, ``1.0``和``' 1 '``同意,而一个 dtype 差异不是分歧),一个保持,其余的被放弃。\n* ``pp`` 实验室微板修复,在每个列上插入实验室小板ID。\n\n``pp`` REPAIR 在改名后执行,并在每个实验室的微板带列上进行执行,它最初只在 ``plateID``/``prcfo`` 上执行,这意味着它对真正携带作品的文件没有任何作用:一个遗产分数 CSV 具有 ``plate`` 列和 NO ``plateID`` 单,所以警卫是虚假的,修复被打破,而下一行则将未修复的 ``plate`` 值复制为 ``plateID``。\n\n得分文件打印 ``pplate1`` 满足计算文件打字 ``plate1``,每一个 ``prc`` 由一个字符分开,合并产生零行,并且跑步死了几步后在一个``KeyError: 0`` - 没有任何地方靠近错误,并且没有任何应用程序视图称为实验室微板。\n\n:param df: 甲数据 DataFrame 仍然可以使用遗产名称。\n:returns: 与 DataFrame 相同的频道。",
+      "text": "将 DataFrame 转换为 spaCR 名称和表标识符。\n\n一个呼叫到 :func:`spacr.schema.canonicalise_frame`,这是整个词典在一个地方:\n\n* 每个遗产分子都被重新命名,合并案例 *和* 点数,因此 ``Plate``/``PLATE`` / ``plate``/ ``plateid`` /``plate_name`` 所有都以 ``plateID`` 和相同的序列,列,显微镜视野和显微板样本位置;\n* **一个**列为结构化数据名称. 持有 ``well``和 ``wellID`` 的文件有两个观点,其中一个顺序来自; 它们是按顺序进行比较,因为切断的线条(所以 ``1``, ``1.0``和``' 1 '``同意,而一个 dtype 差异不是分歧),一个保持,其余的被放弃。\n* ``pp`` 实验室微板修复,在每个列上插入实验室小板ID。\n\n``pp``修复在改名后进行,并在每个实验室的微板带列上进行。 它最初和仅在 ``plateID``/``prcfo`` 上进行,这意味着它对实际携带文档的文件没有任何作用:一个遗产分数 CSV 具有 ``plate`` 列和 NO ``plateID`` 分,所以保镖是虚假的,修复被打破,而下一行则将未修复的 ``plate`` 值复制为 ``plateID``。\n\n得分文件打印 ``pplate1`` 满足计算文件打字 ``plate1``,每一个 ``prc`` 由一个字符分开,合并产生零行,并且跑步死了几步后在一个``KeyError: 0`` - 没有任何地方靠近错误,并且没有任何应用程序视图称为实验室微板。\n\n:param df: 甲数据 DataFrame 仍然可以使用遗产名称。\n:returns: 与 DataFrame 相同的频道。",
       "translation_source_blocks_sha256": [
         "8fbb01deaaa7613c3d4428e58bb2e15cb13c9a56372beefd07330755760e80b0",
         "d4f8fd96add27aae968a28c7d27a6ca9dee6be8586b2756fb929aca45d097f03",
         "7f059673e9f8291aa8f9c62087b8de9d83cdb207d245252f1293e2fa154f6816",
         "e6027908543f74a0b2e9851c410a79d9d5cfd1b8f716976897d8a466f4f1ade7",
         "c93157d6d3129c9a01e44fa28f3a7d8c2afcd5ddc951ae28b1cee72ccf3de923",
-        "c1405aaac4aae8d83ba4d18fe79023f651badba12dbd11babaf3b06d202e7092",
+        "b2f6bb6655ec17bb7ee7c98c97347919fe4cbd0b4bc83119a8bc0ea320aded9d",
         "6d5407d44a0ca2c91e73780b8d31af407561aec0a415da0f25f4c2394564083e",
         "36b57229a79deb291ccf2bd228bec06331261ddeaf15b327fb8d64315be828c7",
         "72ef7de469e4964de04d498a599c587ab0a370e3c53b6b74312e7462182b1375"
