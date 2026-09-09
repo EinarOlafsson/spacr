@@ -2344,3 +2344,43 @@ NEXT: fold this into the pipeline as A3 proper, with PART 9 hole 1's
 acceptance recorded per cycle per site -- peak ratio and residual into
 `ops_geometry`, a cycle that fails dropped from the reads and counted in
 `ops_barcodes.n_cycles` rather than failing the well.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE MAINTAINER MOVED IT: MASK GENERATION, NOT ALIGN AND STITCH
+--------------------------------------------------------------------------------
+
+Verbatim: "i think the OPS button should be in Mask generation instead of
+align."
+
+THAT CHANGES THIS INSTRUCTION'S TITLE AND ITS HOST. Everything above is
+written against Align & Stitch as the host screen; the button, its fold, its
+gate and its settings category all move to Mask Generation. The file is not
+retitled here because the session that owns 372 is mid-implementation and a
+rename under them would be worse than a note.
+
+WHY IT IS PLAUSIBLY THE RIGHT MOVE, recorded so the owner does not have to
+re-derive the reasoning: OPS is a segmentation-adjacent step and Mask
+Generation is where a user is already choosing objects, channels and models.
+Align & Stitch is an import-time concern -- it puts tiles into a mosaic --
+and a user who has finished stitching has left it. But this is inference; the
+instruction is the instruction.
+
+WHAT THE OWNER SHOULD CHECK BEFORE MOVING IT:
+
+  * Mask Generation ALREADY HOSTS A FOLD -- the Timelapse fold, through
+    `spacr/qt/screens/mask.py`'s `FOLD_GATES` and `CategoryFoldSet`. A second
+    fold arrives into a mechanism that already exists rather than one that
+    has to be built, and `FOLD_IMPLIES` is there for exactly the case of one
+    fold needing another.
+  * That same mechanism just produced a duplicate-control regression (382,
+    fixed in 37b4ce323): a fold mounts the categories the host does not
+    already offer, and "does not offer" is computed from the host's built
+    widgets. OPS settings that Mask also has will need the same
+    `keys_hidden_by_their_object` treatment.
+  * `tests/qt/test_the_mask_folds_are_settings_categories.py` asserts the
+    EXACT set of categories the Mask folds mount. Adding OPS changes that
+    set, and the test is written to fail when it does -- deliberately.
+
+NOT MINE. 372 belongs to the other session; this note exists because the
+instruction ledger is where a decision has to live, and because the message
+arrived in a session that does not own the item.
