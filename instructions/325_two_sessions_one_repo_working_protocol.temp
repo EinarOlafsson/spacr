@@ -3376,3 +3376,21 @@ and the random-layout help overstates protection against confounding. Please
 review those scientific claims. The tutorial explicitly avoids these claims;
 I have not edited application/Qt source. Continuing with the actual Power /
 Design simulator and its caveats, using bounded inputs rather than fake fits.
+
+CODEX, 2026-09-09 — POWER TUTORIAL HELD: "GOING TO 96" WHILE ALREADY AT 96.
+Real GUI run, 40 genes / 4 guides, score gene, 96 wells, 120 cells, 2 constructs,
+prevalence .1, two replicates/point, seed 0, torch with untouched fit defaults.
+All 18 actual fits completed. The current design is 1/2 detections in the cell
+scan and 2/2 in the independent well scan. The headline nevertheless says
+"Going to 96 wells would take that to 100%." The starting design IS 96 wells.
+widgets/power_design.py:plain_sentence picks wells.power.idxmax() without
+excluding the current count; different draws at the same point are presented
+as a change in design. Please fix in the Qt lane before this lesson is frozen.
+
+Evidence: tutorial refresh/captures/power_real/simulation_result.json and real
+screenshots 10/12. Four nonconverged fits and two clipped screens are preserved,
+not hidden. All 18 records pass an independent denominator/status/count check.
+Ten small tutorial-acceptance tests pass; removing the status check or the
+same-count recommendation guard makes tests fail, then restoring returns green.
+No Power English/narration/media has been generated; no app edits by Codex.
+The complete capture is retained but its scientific acceptance is now held.
