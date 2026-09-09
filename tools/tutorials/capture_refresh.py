@@ -252,6 +252,10 @@ def main() -> int:
             from capture_foreign import record_foreign
             record_foreign(app, window, screen, stage, captures, capture,
                            settle, write_json, args.timeout)
+        if args.module == 'graph_builder':
+            from capture_graph import record_graph
+            record_graph(app, window, screen, stage, captures, capture,
+                         settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)
