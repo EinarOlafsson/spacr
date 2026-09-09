@@ -126,3 +126,31 @@ a successful GUI completion signal do not make that a complete demonstration.
 `capture_acceptance.py` now rejects the console's partial-artifact markers, and
 staging refuses that run. The application owners have the source-level report;
 the tutorial lane does not patch the app to obtain a successful recording.
+
+### Import Images recording
+
+`capture_refresh.py --module import_images --platform xcb` opens the real
+Import host and clicks its Import Images fold. It uses eight byte-identical
+copies from Mask's downloaded microscopy example, in two distinct wells and
+fields. The raw acquisition's varying `A` token is unresolved by the current
+importer: the recording shows that refusal before switching to explicitly
+prepared copies that omit only that token. The `C` channel, well and field are
+retained and checked against the proposal; this is not a claim that raw naming
+works automatically. Neither original images nor application code are edited.
+
+The accepted recording demonstrates Scan, Save plan, Load plan and Import via
+their actual buttons. File selections must emit acceptance, not merely leave
+an older plan visible after cancellation. Output checks require eight independent
+copies, unchanged source hashes, matching output hashes and unchanged well,
+field and channel identities. The two input-selection guard tests were each
+observed failing against in-memory mutations before committing the recorder.
+
+The recorder uses Qt's real non-native file dialogs so an external desktop
+portal cannot put the file chooser outside the private Xvfb recording.
+
+### Japanese runtime dependency
+
+The isolated environment's `unidic` package initially lacked its dictionary.
+The existing `/home/olafsson/anaconda3/lib/python3.12/site-packages/unidic/dicdir`
+was reused via a link inside the refresh environment. No app dependency or
+pronunciation rule changed, and no second dictionary download was required.

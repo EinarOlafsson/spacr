@@ -90,6 +90,9 @@ def main() -> int:
                                       set_theme, set_font_scale)
     from spacr.qt.widgets.fold_strip import folded_modules
 
+    # A private Xvfb recording cannot capture a portal/GTK dialog in another
+    # desktop process. Use Qt's genuine file dialog, with identical operations.
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeDialogs)
     app = QApplication.instance() or QApplication([])
     mark_tour_seen()
     for key, *_ in gui.APPS:
@@ -198,15 +201,20 @@ def main() -> int:
         capture('07_help')
         help_menu.hide()
     if args.module != 'home':
-        window._on_nav_selected(args.module)
+        host_key = {'import_images': 'foreign'}.get(args.module, args.module)
+        window._on_nav_selected(host_key)
         deadline = time.monotonic() + 60
-        while window._screens.get(args.module) is None:
+        while window._screens.get(host_key) is None:
             if time.monotonic() > deadline:
                 raise TimeoutError(f'{args.module} did not open')
             settle(0.1)
         settle(2)
-        screen = window._screens[args.module]
+        screen = window._screens[host_key]
         capture('01_module')
+        if args.module == 'import_images':
+            from capture_image_import import record_import
+            screen = record_import(app, window, screen, stage, captures,
+                                   capture, settle, write_json, args.timeout)
         if args.download:
             buttons = [w for w in screen.findChildren(QAbstractButton)
                        if w.isVisible() and w.isEnabled()
