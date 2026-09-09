@@ -537,6 +537,18 @@ def _canvas_class():
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
     class OwnedTimerFigureCanvas(FigureCanvasQTAgg):
+        """A Matplotlib canvas whose redraw timer dies with the widget.
+
+        Matplotlib's own canvas schedules redraws on a timer it does not
+        parent to the widget, so a queued redraw can fire after the C++
+        object behind the Python wrapper is gone -- which is a hard crash
+        rather than an exception. Parenting the timer to the canvas makes
+        Qt destroy them together.
+
+        Defined inside the guard that imported Matplotlib's Qt backend, so
+        the name does not exist when that backend is unavailable rather
+        than raising at import for the whole module.
+        """
 
         def __init__(self, figure, *, panel: bool = True):
             """Wrap a figure in a canvas that owns its own redraw timer.

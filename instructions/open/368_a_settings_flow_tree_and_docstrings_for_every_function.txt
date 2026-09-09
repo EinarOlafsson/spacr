@@ -354,3 +354,50 @@ labelled "pre-existing", stepped over -- were all real defects:
 A swept package-wide check for that third-party-version shape found no other
 instance. "Known red" is not the same as "known", and re-reading three of them
 cost less than one docstring batch.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- PHASE 4 IS DONE. ZERO UNDOCUMENTED CALLABLES, PACKAGE-WIDE.
+--------------------------------------------------------------------------------
+
+    UNDOCUMENTED: 0   of 18,550 callables (1,307 classes, 17,243 functions)
+
+Measured with `ast.get_docstring` over every `spacr/**/*.py` except the
+tutorial engine, counting classes, functions and methods at every nesting
+depth. The command is in this file's history; run it rather than believing
+the number, which is the rule this file has had to state twice already.
+
+THE LAST 37 were written tonight: 35 private and, once those were done, the
+two public classes that remained -- `OwnedTimerFigureCanvas` and
+`LazySweepPanel`.
+
+THE PUBLIC PAIR MOVED NO RATCHET, which contradicts the 2026-09-04 note above
+saying the public half had to wait for the catalogs. That note was right about
+the mechanism and wrong about these two: `autoapi_python_class_content` is
+`'both'`, so a class whose `__init__` already carries a docstring is ALREADY
+in the API surface, and giving the class itself one adds prose to a symbol
+that was counted rather than adding a symbol. The surface stayed at 10,243
+and all three ratchets stayed green.
+
+That is worth recording rather than quietly benefiting from: the deferral cost
+this instruction five days of waiting for a condition that did not apply to
+the work that was left. What would have settled it in a minute is the check
+that settles most things here -- write one, run the ratchet, read the number.
+
+TWO REAL DEFECTS CAME OUT OF THE WRITING, neither of them a docstring:
+
+  * Six SQLite connections in `infection.py` and `suggest.py` opened with
+    `sqlite3.connect` and so took the five-second default. Against a
+    measurements.db a Measure run is still writing, that is a report or an
+    annotation write failing with "database is locked" for a reason that has
+    nothing to do with the data. All six now go through
+    `database_concurrency.connect`.
+
+  * A `#:` comment carrying "asked for on 2026-09-08" -- development history
+    in prose AutoAPI publishes to users.
+
+Both were found by gates that already existed and had never been run against
+these files. Phase 4's real yield was not the percentage.
+
+WHAT REMAINS OF 368: nothing in phase 4. The settings-flow page (phases 1-3)
+is published, reads its tooltips through `ast`, and 383 now links 182 settings
+to it. This instruction can close.

@@ -749,6 +749,17 @@ def _lazy_sweep_panel(host):
     from PySide6.QtWidgets import QVBoxLayout, QWidget
 
     class LazySweepPanel(QWidget):
+        """The sweep panel's place on screen, built the first time it shows.
+
+        A REAL WIDGET THAT IS NOT THE PANEL, so the screen can be
+        registered and laid out without paying for the panel's
+        construction. The sweep panel pulls in the optimiser and its
+        plotting stack, which is seconds of import on a cold interpreter,
+        and a user who never opens Parameter Sweep should never pay it.
+
+        It holds a layout and nothing else until `_ensure_panel` swaps the
+        real one in, so the surrounding screen sizes correctly either way.
+        """
 
         def __init__(self):
             """Stand in for the panel without building it."""
