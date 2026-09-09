@@ -1,0 +1,50 @@
+{
+  "lesson": "31_external_masks",
+  "status": "Staged technical checks passed; live production unchanged",
+  "canonical_english_sha256": "80368d2ffb0cfc6144db8a2d37d49e7ea160356888ef007a74c71b76bd7d4e08",
+  "scene_count_per_catalog": 24,
+  "catalog_languages": ["en", "es", "fr", "hi", "it", "pt-BR", "ja", "zh-CN", "da", "de", "is", "ko", "nb", "sv"],
+  "voice_counts": {"en": 24, "es": 3, "fr": 1, "hi": 4, "it": 2, "ja": 5, "pt-BR": 3, "zh-CN": 8},
+  "unique_tracks_fully_decoded_and_freshness_checked": 50,
+  "track_hashes_rechecked_after_all_verifiers_finished": true,
+  "final_artifact_checks_sha256": "f59c2ec482ada18ddce8b1f1b7c205b485a7c0c2cc9d754a21362ce2f724c088",
+  "final_reconciliation": "check_completed_matrix.py verifies all50 final hashes, narration/timing identities, source-pinned translations, all14 browser reports and captured-image hashes. Its24 focused tests pass; disabling the actual stale-audio guard produced1 expected failure with23 other passes, then restoration returned24 passes. Existing completed Training Runs28 also passes this reconciliation.",
+  "shared_english_gui_master": {
+    "resolution": [3840, 2160], "fps": 30, "frames": 14190,
+    "duration_seconds": 473.0, "audio_streams": 0, "bytes": 28217600,
+    "sha256": "d6be51180ff31d9891063c98ff0c9f4139077b6b40612428e308f4b8377a21a5",
+    "poster_sha256": "a4d9bfbb2ded000f1ec644300d7fe7ad9d6d20c694edf092faa7cc1c6e0d1544",
+    "full_ffmpeg_decode_exit_code": 0,
+    "encoded_sample_visually_inspected_seconds": 285,
+    "sample_observation": "Actual59-cell montage in the native Save-figure preview, with the retained focus treatment; no blank overview substituted for the output. Export is cancelled, not saved."
+  },
+  "browser_checks": {
+    "representative_voice_per_spoken_language": 8,
+    "independent_caption_only_languages": 6,
+    "all_final_reports_match_final_audio_hashes": true,
+    "checks": ["Actual fetched narration bytes", "Chapter seek and scene-clock mapping", "Current Import submodule route", "Scene links", "Desktop and390px mobile layout", "No JavaScript errors", "Independent captions match all24 scenes and produce WebVTT without switching voice"],
+    "retries_required": false
+  },
+  "capture": {
+    "directory": "refresh_2026-09-09/captures/external_masks_final_console",
+    "app_commit": "56941b22221cc2b2b05ea455718d605ae22f64ba",
+    "version": "1.5.0.4",
+    "receipt": "2026-09-09_external_masks_capture_receipt.json",
+    "real_fields": 2, "independently_checked_cells": 103, "png_links": 103,
+    "duplicate_cell_only_cytoplasm_rows": 103, "genuine_figures": 6,
+    "source_inputs_unchanged_at_capture": true
+  },
+  "evidence_scope": "Real acquired images and supplied labels, not certified segmentation ground truth. Every output intensity/label pixel, full cell identity, pixel area and raw mean matches independent input calculations. Cell-only cytoplasm duplicates cell geometry and values; the103 PNGs are display crops, not a claim of raw-pixel preservation. Assigned A01 fields are demonstration coordinates, not reconstructed acquisition wells.",
+  "subsequent_use_disclosure": "A later Report scan of the generated project added an empty artifacts.db-wal and32768-byte artifacts.db-shm without changing any pre-existing file. This does not change original microscopy inputs or the accepted measurement result; the separate Report capture records the bookkeeping side effect and now uses a full private copy.",
+  "synthesis": "All50 preserved voices; one CUDA writer with10% allocator cap,110GiB host memory guard and two threads. Existing pronunciation rules unchanged.",
+  "translation_review": "All13 translations independently checked against frozen English, including indexing contexts, non-writing preview, duplicate compartment and five cancelled native figure exports; not native-speaker certification",
+  "catalog_preservation_at_completion": {"catalogs": 14, "lessons": 75, "scenes": 662, "refreshed": 17, "unselected_unchanged": 58, "report_sha256": "9df68b7846f1213827d2759aa7e9dcff2fc8615b42e2c897354d62613ab9fe14"},
+  "completed_staged_matrices_at_checkpoint": 17,
+  "total_completed_voice_tracks_at_checkpoint": 850,
+  "total_completed_browser_checks_at_checkpoint": 238,
+  "evidence_directory": "refresh_2026-09-09/production/31_external_masks and refresh_2026-09-09/browser/31_external_masks in the tutorial workspace",
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false
+}
