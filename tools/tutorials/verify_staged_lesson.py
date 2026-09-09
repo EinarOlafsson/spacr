@@ -83,6 +83,7 @@ def main():
     parser.add_argument('--lesson', default='05_home')
     parser.add_argument('--language', default='en')
     parser.add_argument('--voice', default='af_heart')
+    parser.add_argument('--caption-language', help='Independently test a staged caption language with this voice')
     args = parser.parse_args()
     english = read(DEFAULT_STAGE / 'catalog/lessons_en.json')
     lesson = next(item for item in english['lessons'] if item['id'] == args.lesson)
@@ -93,7 +94,10 @@ def main():
     production = '/' + str(DEFAULT_STAGE.relative_to(WORKSPACE)) + '/production'
     for attribute in ('production-root', 'audio-root', 'video4k-root'):
         source = re.sub(rf'data-{attribute}="[^"]*"', f'data-{attribute}="{production}"', source)
-    output = DEFAULT_STAGE / 'browser' / args.lesson / f'{args.language}-{args.voice}'
+    tag = f'{args.language}-{args.voice}'
+    if args.caption_language:
+        tag += f'-captions-{args.caption_language}'
+    output = DEFAULT_STAGE / 'browser' / args.lesson / tag
     output.mkdir(parents=True, exist_ok=True)
     errors = []
     server = http.server.ThreadingHTTPServer(('127.0.0.1', 0),
@@ -116,6 +120,13 @@ def main():
                 localized = read(DEFAULT_STAGE / 'catalog' / f'lessons_{args.language}.json')
                 context.route(f'**/web/catalog/lessons_{args.language}.json*',
                               lambda route: route.fulfill(json=localized))
+            caption_lesson = None
+            if args.caption_language:
+                prefix = 'captions' if args.caption_language in {'da', 'de', 'is', 'ko', 'nb', 'sv'} else 'lessons'
+                filename = f'{prefix}_{args.caption_language}.json'
+                captions = read(DEFAULT_STAGE / 'catalog' / filename)
+                caption_lesson = next(item for item in captions['lessons'] if item['id'] == args.lesson)
+                context.route(f'**/web/catalog/{filename}*', lambda route: route.fulfill(json=captions))
             page = context.new_page()
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(base + '/web/#lesson=' + args.lesson, wait_until='domcontentloaded')
@@ -146,6 +157,22 @@ def main():
                             'audio' / args.language / f'{args.voice}.m4a').read_bytes()).hexdigest()
             assert audio_hash == expected_hash, (audio_hash, expected_hash)
             evidence['loaded_audio_sha256'] = audio_hash
+            if caption_lesson is not None:
+                page.locator('#caption-settings-button').click()
+                page.select_option('#caption-language-select', args.caption_language)
+                page.wait_for_function('(language) => effectiveCaptionLanguage() === language && elements.chapters.lang === language',
+                                       arg=args.caption_language, timeout=30000)
+                texts = page.evaluate('chapterData.map(chapter => chapter.text)')
+                assert texts == [scene['narration'] for scene in caption_lesson['scenes']], texts
+                assert page.evaluate('elements.language.value') == args.language
+                assert page.evaluate('audioTimings.voice') == args.voice
+                evidence['caption_language'] = args.caption_language
+                evidence['caption_scenes_match_staging'] = True
+                # Check the actual generated WebVTT, not just the selector.
+                vtt = page.evaluate('async () => await (await fetch(elements.captionTrack.src)).text()')
+                assert vtt.startswith('WEBVTT') and '-->' in vtt, vtt[:100]
+                evidence['caption_webvtt_sha256'] = hashlib.sha256(vtt.encode()).hexdigest()
+                page.locator('#caption-settings-close').click()
             evidence['scene_count'] = page.locator('.chapter-button').count()
             expected = sorted({identity for scene in lesson['scenes'] for identity in scene.get('related_lessons', [])})
             actual = page.locator('#chapter-list [data-related-lesson]').evaluate_all(
