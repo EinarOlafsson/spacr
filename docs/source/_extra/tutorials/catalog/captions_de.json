@@ -1891,6 +1891,193 @@
           "narration": "Nach Abschluss des Workflows protokolliert die fortsetzbare Ergebnistabelle für jeden Versuch die Einstellungen, den Status, die Anzahl der Entdeckungen, den Rang der Positivkontrolle, die Dauer, den Ausgabeordner und den Fehlergrund."
         }
       ]
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images: den Plan vor dem Import prüfen",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "Öffnen Sie Import Images innerhalb von Import, prüfen Sie einen kleinen echten Mikroskopiedatensatz vor dem Schreiben und speichern Sie einen wiederverwendbaren Plan. Das Beispiel unterscheidet nicht unterstützte Originalnamen von vorbereiteten Kopien.",
+      "objectives": [
+        "Import Images in Import finden und vom Import vorhandener Messwerte und Masken unterscheiden.",
+        "Bildidentitäten und ungeklärte Namensbestandteile vor dem Schreiben prüfen.",
+        "Kopien oder Verknüpfungen wählen, einen Plan speichern und laden und den Import überprüfen."
+      ],
+      "prerequisite": "Laden Sie zuerst das echte Mask-Beispiel herunter. Die Aufnahme verwendet Kopien der Bildfelder E01/F001 und L01/F009 mit jeweils vier C-Kanälen. Nur der A-Bestandteil direkt vor Z wird in den vorbereiteten Kopien weggelassen; die Originale bleiben unverändert. Das ist ein geprüftes Einzelbeispiel, keine allgemeine Aufforderung zum Löschen unbekannter Metadaten.",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "Öffnen Sie Import in der Kategorie Data von Home und wählen Sie Import Images. Dieses untergeordnete Werkzeug bereitet rohe Bilddateien vor. Import Project, Format Converter und External Masks sind verwandte Abläufe mit eigenen Tutorials.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "Die acht Bilder sind echte Mikroskopiedaten aus dem herunterladbaren Mask-Beispiel: je ein Bildfeld aus zwei Wells mit vier Kanälen pro Bildfeld. Wir arbeiten mit separaten Kopien und lassen die heruntergeladenen Originale unverändert.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan zeigt einen ungeklärten Aufnahmebestandteil in den Originalnamen. Import bleibt deaktiviert und nichts wird geschrieben. Raten Sie keine Kanalzuordnung: Zwei verschiedene Kanäle teilen diesen Aufnahmewert; eine solche Zuordnung würde ihre Identität verfälschen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "Für dieses geprüfte Beispiel lassen die vorbereiteten Kopien nur den redundanten Aufnahmebestandteil weg. Well-, Bildfeld- und Kanalnamen bleiben erhalten. Scan zeigt nun acht Zeilen, zwei Wells, zwei Bildfeldnummern und vier Kanäle. Das bedeutet nicht, dass die Originalnamen akzeptiert wurden.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "Vergleichen Sie den Vorschlag vor dem Import mit den Dateinamen. Read inside each file prüft zusätzlich die eingebetteten Achsenmetadaten. Sample begrenzt die untersuchten Dateien; prüfen Sie, ob der Vorschlag die gewünschten Bilder umfasst. Klären Sie Fragen anhand der Aufnahmeprotokolle statt durch Vermutungen.",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Wählen Sie ein Ziel außerhalb des Eingabeordners und setzen Sie den Plattennamen. Für ein unabhängiges Projekt schalten wir Link instead of copy aus. Verknüpfungen sparen Speicherplatz, benötigen aber dauerhaft erreichbare Originale an ihren bisherigen Speicherorten.",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Diese Beispieldateien sind keine Mosaikkacheln. Lesen Sie bei gekachelten Aufnahmen die Auswahl Tiles genau: Zusammenfügen rekonstruiert Bildfelder, getrennte Kacheln verändern die Bedeutung eines Bildfelds und Überspringen verliert diese Bilder. Prüfen Sie Bericht und unbestätigte Übergänge vor der Messung.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan schreibt Quelle und Zuordnungsantworten in eine JSON-Datei, nicht in eine Sicherung der Bilder. Bewahren Sie sie mit dem Aufnahmeprotokoll auf. Derselbe Plan lässt sich über die Python-API für den Bildimport lesen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan liest den Quellordner erneut und verwendet die gespeicherten Antworten wieder. Prüfen Sie den neuen Vorschlag vor dem Import: Ein gespeicherter Plan garantiert nicht, dass eine veränderte Aufnahme korrekt ist. Hier werden dieselben acht geprüften Bildidentitäten wiederhergestellt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "Drücken Sie Import und lesen Sie die Zusammenfassung. Dieser Lauf schrieb acht unabhängige Bildkopien ohne ausgelassene Dateien; ihr Inhalt entspricht den Quellen. Wählen Sie das Projekt anschließend in Mask und prüfen Sie die Live-Vorschau vor der Segmentierung. Der Import allein erzeugt weder Masken noch Messwerte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: die Belege hinter den Ergebnissen verstehen",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Öffnen Sie die Diagnosedateien einer echten Analyse des Beispiel-Screens, unterscheiden Sie Warnungen zum Versuchsdesign von Permutationsergebnissen und erkennen Sie die Grenzen eines kurzen Demonstrationslaufs.",
+      "objectives": [
+        "Diagnostics in Regression öffnen und den untersuchten Ausgabeordner prüfen.",
+        "Identifizierbarkeit des Designs, Vorkommen der Guides und Inferenzdiagramme im Kontext der gewählten Analyse interpretieren.",
+        "Fehlende Anpassungsresiduen und begrenzte Permutationsauflösung erkennen, ohne eine Modellanpassung zu unterstellen."
+      ],
+      "prerequisite": "Führen Sie das Regression-Beispiel mit den vier herunterladbaren Paaren aus Score- und Zähltabellen aus. Diese Aufnahme untersucht einen begrenzten nichtparametrischen Lauf mit 199 Permutationen, mindestens zwei Wells und Ergebnissen auf Guide- und Genebene. Sie erklärt Software und Diagnostik, nicht eine abschließende Inferenz für belastbare Entdeckungen.",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "Zeigen Sie in Regression auf Diagnostics und öffnen Sie es nach Abschluss einer Analyse. Die Schaltfläche liest gespeicherte Ausgaben; sie passt kein weiteres Modell an. Sie öffnet den neuesten Diagnoseordner im Projekt. Prüfen Sie deshalb den Pfad, wenn mehrere Läufe vorliegen.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Der Dateimanager des Systems zeigt die tatsächlichen Dateien unserer Analyse des heruntergeladenen Beispiel-Screens. Als Grafikformat war hier PNG eingestellt. Der Ordner enthält Diagramme zur Identifizierbarkeit, zum Design und zur Inferenz sowie eine Zusammenfassung und eine Tabelle kollinearer Guide-Paare.",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ]
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Das Design hat 606 Wells, 793 Parameter und Rang 599. Es kann nicht für jeden Guide gleichzeitig einen eindeutigen Koeffizienten bestimmen. Diese Warnung erklärt, warum wir eine Permutationsanalyse verwendet haben; sie bedeutet nicht, dass ein simultanes Modell erfolgreich angepasst wurde.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Die Guides sind ungleich vertreten: 355 kommen in diesem Design nur in einem Well vor. Ein geringes Vorkommen begrenzt die Aussagekraft des Experiments. Prüfen Sie die Abdeckung vor der Interpretation von Effekten und unterscheiden Sie das vollständige Design von der gefilterten Familie tatsächlich getesteter Guides.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "Das Designdiagramm hilft, geringe Abdeckung und Abhängigkeiten zwischen Guide-Prädiktoren zu erkennen. Stets gemeinsam auftretende Guides lassen sich statistisch schwer unterscheiden. Untersuchen Sie konkrete Paare in der Kollinearitätstabelle, statt ein Warnsymbol als vollständige Erklärung anzusehen.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Das Inferenzdiagramm fasst 434 Guide-Tests zusammen: die Verteilung der p-Werte, den Vergleich mit einer Gleichverteilung unter der Nullhypothese und Entdeckungen bei verschiedenen korrigierten Schwellen. Dieser kurze Lauf hat an der angezeigten Schwelle keine Entdeckungen. Eine Kalibrierungswarnung fordert zur Untersuchung auf; sie beweist keinen biologischen Effekt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Für die kurze Demonstration haben wir nur 199 Permutationen verwendet. Der kleinste erreichbare empirische p-Wert beträgt deshalb 0,005. Nach Korrektur für multiples Testen kann diese Auflösung unzureichend sein. Planen Sie für die eigentliche Analyse eine angemessene Permutationszahl.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Dieser Permutationslauf hat kein Diagramm mit Anpassungsresiduen, weil er das simultane Regressionsmodell nicht angepasst hat. Der eben gezeigte p-Wert-Vergleich ist keine Residuendiagnostik. Andere Analysemodi können Residuendiagramme schreiben, wenn sie beobachtete und angepasste Werte liefern.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Die Zusammenfassung enthält die Bewertung jedes Diagramms und die schlechteste Bewertung der gesamten Diagnostik. Lesen Sie jede Bewertung im Kontext, statt die Gesamtanzeige als Softwarefehler zu verstehen. Die Python-API für Regressionsdiagnostik schreibt dieselben Arten von Diagrammen aus den übergebenen Eingaben.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "Kehren Sie zu Regression zurück, um Eingaben zu untersuchen oder eine Analyseentscheidung bewusst zu ändern. Eine Änderung verlangt einen neuen Lauf und neue Diagnosen; das Öffnen dieses Ordners aktualisiert niemals alte Ergebnisse. Das Regression-Tutorial erklärt den vollständigen Datensatz, die Konsole, interaktive Ergebnisse und die Assistenzfunktionen.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ]
+        }
+      ]
     }
   ]
 }

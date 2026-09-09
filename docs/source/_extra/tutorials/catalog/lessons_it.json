@@ -4709,6 +4709,213 @@
           "speech_text": "Al termine del flusso di lavoro, la tabella dei risultati riprendibile registra, per ogni prova, le impostazioni, lo stato, il numero di scoperte, la posizione dei controlli positivi, la durata, la cartella di output e il motivo dell’errore."
         }
       ]
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images: controllare il piano prima di importare",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "Apri Import Images dentro Import, controlla un sottoinsieme reale di immagini prima di scrivere i file e salva un piano riutilizzabile. L’esempio distingue i nomi originali non supportati dalle copie preparate.",
+      "objectives": [
+        "Trovare Import Images dentro Import e distinguerlo dall’importazione di misure e maschere esistenti.",
+        "Controllare l’identità delle immagini e le parti dei nomi non risolte prima di scrivere il progetto.",
+        "Scegliere copie o collegamenti, salvare e ricaricare un piano e verificare l’importazione."
+      ],
+      "prerequisite": "Scarica prima l’esempio reale di Mask. Il video usa copie dei campi E01/F001 e L01/F009, ciascuno con quattro canali C. Nelle copie preparate viene omessa solo la parte A subito prima di Z; gli originali non cambiano. È un esempio verificato, non un invito generale a eliminare metadati sconosciuti.",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "Apri Import nella categoria Data di Home, poi scegli Import Images. Questo strumento integrato prepara i file delle immagini grezze. Import Project, Format Converter ed External Masks sono procedure collegate con tutorial dedicati.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ],
+          "speech_text": "Apri Import nella categoria Data di Home, poi scegli Import Images. Questo strumento integrato prepara i file delle immagini grezze. Import Project, Format Converter ed External Masks sono procedure collegate con tutorial dedicati."
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "Le nostre otto immagini sono dati reali di microscopia dell’esempio scaricabile di Mask: un campo per ciascuno di due pozzetti, con quattro canali per campo. Lavoriamo su copie separate senza modificare gli originali scaricati.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ],
+          "speech_text": "Le nostre otto immagini sono dati reali di microscopia dell’esempio scaricabile di Mask: un campo per ciascuno di due pozzetti, con quattro canali per campo. Lavoriamo su copie separate senza modificare gli originali scaricati."
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan rileva una parte del nome relativa all’acquisizione che non riesce a interpretare. Import resta disabilitato e non viene scritto nulla. Non indovinare la corrispondenza dei canali: due canali diversi condividono questo valore di acquisizione, quindi quella risposta ne altererebbe l’identità.",
+          "hold_after": 0.7,
+          "speech_text": "Scan rileva una parte del nome relativa all’acquisizione che non riesce a interpretare. Import resta disabilitato e non viene scritto nulla. Non indovinare la corrispondenza dei canali: due canali diversi condividono questo valore di acquisizione, quindi quella risposta ne altererebbe l’identità."
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "Per questo esempio verificato, le copie preparate omettono solo la parte ridondante relativa all’acquisizione. Conservano i nomi di pozzetto, campo e canale. Scan mostra ora otto righe, due pozzetti, due numeri di campo e quattro canali. Non significa che i nomi originali siano stati accettati.",
+          "hold_after": 0.7,
+          "speech_text": "Per questo esempio verificato, le copie preparate omettono solo la parte ridondante relativa all’acquisizione. Conservano i nomi di pozzetto, campo e canale. Scan mostra ora otto righe, due pozzetti, due numeri di campo e quattro canali. Non significa che i nomi originali siano stati accettati."
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "Confronta la proposta con i nomi dei file prima di importare. Read inside each file controlla anche i metadati degli assi interni. Sample limita i file esaminati: verifica che la proposta includa le immagini da importare. Risolvi i dubbi consultando i registri di acquisizione, non tirando a indovinare.",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ],
+          "speech_text": "Confronta la proposta con i nomi dei file prima di importare. Read inside each file controlla anche i metadati degli assi interni. Sample limita i file esaminati: verifica che la proposta includa le immagini da importare. Risolvi i dubbi consultando i registri di acquisizione, non tirando a indovinare."
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Scegli una destinazione esterna alla cartella di ingresso e imposta il nome della piastra. Disattiviamo Link instead of copy per creare un progetto indipendente. I collegamenti risparmiano spazio, ma gli originali devono restare accessibili nelle posizioni attuali.",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ],
+          "speech_text": "Scegli una destinazione esterna alla cartella di ingresso e imposta il nome della piastra. Disattiviamo Link instead of copy per creare un progetto indipendente. I collegamenti risparmiano spazio, ma gli originali devono restare accessibili nelle posizioni attuali."
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Questi file non sono tessere di un mosaico. Per acquisizioni a tessere, controlla Tiles: l’unione ricostruisce i campi, mantenere le tessere separate cambia il significato di campo e ignorarle perde quelle immagini. Esamina il rapporto e le giunzioni non verificate prima di misurare.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ],
+          "speech_text": "Questi file non sono tessere di un mosaico. Per acquisizioni a tessere, controlla Tiles: l’unione ricostruisce i campi, mantenere le tessere separate cambia il significato di campo e ignorarle perde quelle immagini. Esamina il rapporto e le giunzioni non verificate prima di misurare."
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan scrive un file JSON con la sorgente e le risposte di mappatura, non un backup delle immagini. Conservalo con le note di acquisizione. Lo stesso piano può essere letto dall’API Python di importazione delle immagini.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "speech_text": "Save plan scrive un file JSON con la sorgente e le risposte di mappatura, non un backup delle immagini. Conservalo con le note di acquisizione. Lo stesso piano può essere letto dall’API Python di importazione delle immagini."
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan legge nuovamente la cartella sorgente e riutilizza le risposte salvate. Controlla la nuova proposta prima di importare: un piano salvato non garantisce che un’acquisizione modificata sia corretta. Qui ripristina le stesse otto identità verificate.",
+          "hold_after": 0.7,
+          "speech_text": "Load plan legge nuovamente la cartella sorgente e riutilizza le risposte salvate. Controlla la nuova proposta prima di importare: un piano salvato non garantisce che un’acquisizione modificata sia corretta. Qui ripristina le stesse otto identità verificate."
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "Premi Import e leggi il riepilogo. Questa esecuzione ha scritto otto copie indipendenti senza saltare file; il contenuto coincide con le sorgenti. Seleziona poi il progetto in Mask e controlla l’anteprima dal vivo prima della segmentazione. La sola importazione non genera maschere o misure.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ],
+          "speech_text": "Premi Import e leggi il riepilogo. Questa esecuzione ha scritto otto copie indipendenti senza saltare file; il contenuto coincide con le sorgenti. Seleziona poi il progetto in Mask e controlla l’anteprima dal vivo prima della segmentazione. La sola importazione non genera maschere o misure."
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: leggere le evidenze dietro i risultati",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Apri i diagnostici di una vera analisi dello screening di esempio, distingui gli avvisi sul disegno dai risultati delle permutazioni e riconosci i limiti di una breve esecuzione dimostrativa.",
+      "objectives": [
+        "Aprire Diagnostics dentro Regression e verificare la cartella dei risultati esaminata.",
+        "Interpretare identificabilità, presenza delle guide e inferenza nel contesto dell’analisi scelta.",
+        "Riconoscere l’assenza dei residui del modello e la risoluzione limitata delle permutazioni senza inventare un modello adattato."
+      ],
+      "prerequisite": "Completa l’esempio Regression con le quattro coppie scaricabili di tabelle dei punteggi e dei conteggi. Il video esamina un’analisi non parametrica limitata a 199 permutazioni, almeno due pozzetti e risultati per guida e per gene. Dimostra il software e i diagnostici, non un’inferenza definitiva per individuare effetti.",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "Dentro Regression, passa su Diagnostics e aprilo dopo aver completato un’analisi. Il pulsante legge risultati salvati, senza adattare un altro modello. Apre la cartella diagnostica più recente del progetto: verifica il percorso se esistono più esecuzioni.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "speech_text": "Dentro Regression, passa su Diagnostics e aprilo dopo aver completato un’analisi. Il pulsante legge risultati salvati, senza adattare un altro modello. Apre la cartella diagnostica più recente del progetto: verifica il percorso se esistono più esecuzioni."
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Il gestore di file del sistema mostra i veri file dell’analisi dello screening scaricato. Qui il formato delle figure era PNG. La cartella contiene identificabilità del disegno, diagnostici del disegno e dell’inferenza, una tabella riepilogativa e una tabella di coppie di guide collineari.",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ],
+          "speech_text": "Il gestore di file del sistema mostra i veri file dell’analisi dello screening scaricato. Qui il formato delle figure era PNG. La cartella contiene identificabilità del disegno, diagnostici del disegno e dell’inferenza, una tabella riepilogativa e una tabella di coppie di guide collineari."
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Il disegno ha seicentosei pozzetti, settecentonovantatré parametri e rango cinquecentonovantanove. Non consente di identificare un unico coefficiente simultaneo per ogni guida. L’avviso spiega perché abbiamo usato le permutazioni; non significa che sia stato adattato correttamente un modello simultaneo.",
+          "hold_after": 0.7,
+          "speech_text": "Il disegno ha seicentosei pozzetti, settecentonovantatré parametri e rango cinquecentonovantanove. Non consente di identificare un unico coefficiente simultaneo per ogni guida. L’avviso spiega perché abbiamo usato le permutazioni; non significa che sia stato adattato correttamente un modello simultaneo."
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "La presenza delle guide è disomogenea: trecentocinquantacinque compaiono in un solo pozzetto di questo disegno. Una presenza scarsa limita ciò che l’esperimento può stabilire. Esamina la copertura prima degli effetti e distingui il disegno completo dalla famiglia filtrata di guide effettivamente testate.",
+          "hold_after": 0.7,
+          "speech_text": "La presenza delle guide è disomogenea: trecentocinquantacinque compaiono in un solo pozzetto di questo disegno. Una presenza scarsa limita ciò che l’esperimento può stabilire. Esamina la copertura prima degli effetti e distingui il disegno completo dalla famiglia filtrata di guide effettivamente testate."
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "Il pannello del disegno aiuta a individuare una presenza insufficiente e dipendenze tra predittori delle guide. Guide sempre presenti insieme sono difficili da distinguere statisticamente. Esamina le coppie specifiche nella tabella di collinearità: un indicatore di avviso non costituisce una spiegazione completa.",
+          "hold_after": 0.7,
+          "speech_text": "Il pannello del disegno aiuta a individuare una presenza insufficiente e dipendenze tra predittori delle guide. Guide sempre presenti insieme sono difficili da distinguere statisticamente. Esamina le coppie specifiche nella tabella di collinearità: un indicatore di avviso non costituisce una spiegazione completa."
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Il pannello di inferenza riassume quattrocentotrentaquattro test per guida: distribuzione dei valori p, confronto con una distribuzione nulla uniforme e scoperte alle varie soglie corrette. Questa breve esecuzione non trova scoperte alla soglia mostrata. Un avviso di calibrazione invita a indagare, non dimostra effetti biologici.",
+          "hold_after": 0.7,
+          "speech_text": "Il pannello di inferenza riassume quattrocentotrentaquattro test per guida: distribuzione dei valori p, confronto con una distribuzione nulla uniforme e scoperte alle varie soglie corrette. Questa breve esecuzione non trova scoperte alla soglia mostrata. Un avviso di calibrazione invita a indagare, non dimostra effetti biologici."
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Abbiamo usato solo centonovantanove permutazioni per mantenere breve la dimostrazione. Il valore p empirico minimo possibile è quindi zero virgola zero zero cinque. La risoluzione può essere insufficiente dopo la correzione dei test multipli: pianifica un numero adeguato di permutazioni per l’analisi reale.",
+          "hold_after": 0.7,
+          "speech_text": "Abbiamo usato solo centonovantanove permutazioni per mantenere breve la dimostrazione. Il valore p empirico minimo possibile è quindi zero virgola zero zero cinque. La risoluzione può essere insufficiente dopo la correzione dei test multipli: pianifica un numero adeguato di permutazioni per l’analisi reale."
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Questa esecuzione per permutazione non ha un pannello dei residui del modello perché non ha adattato la regressione simultanea. Il confronto dei valori p appena visto non è un diagnostico dei residui. Altri modi possono produrre questi pannelli se forniscono valori osservati e stimati dal modello.",
+          "hold_after": 0.7,
+          "speech_text": "Questa esecuzione per permutazione non ha un pannello dei residui del modello perché non ha adattato la regressione simultanea. Il confronto dei valori p appena visto non è un diagnostico dei residui. Altri modi possono produrre questi pannelli se forniscono valori osservati e stimati dal modello."
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Il riepilogo registra le valutazioni dei singoli pannelli e la peggiore dell’insieme. Leggile nel loro contesto invece di interpretare l’indicatore complessivo come un errore del software. L’API Python dei diagnostici di regressione scrive gli stessi tipi di pannelli dagli input ricevuti.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "speech_text": "Il riepilogo registra le valutazioni dei singoli pannelli e la peggiore dell’insieme. Leggile nel loro contesto invece di interpretare l’indicatore complessivo come un errore del software. L’API Python dei diagnostici di regressione scrive gli stessi tipi di pannelli dagli input ricevuti."
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "Torna a Regression per esaminare gli input o cambiare deliberatamente una scelta di analisi. Una modifica richiede una nuova esecuzione e nuovi diagnostici; aprire la cartella non aggiorna i vecchi risultati. Il tutorial Regression tratta dati, console, risultati interattivi e assistenza.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ],
+          "speech_text": "Torna a Regression per esaminare gli input o cambiare deliberatamente una scelta di analisi. Una modifica richiede una nuova esecuzione e nuovi diagnostici; aprire la cartella non aggiorna i vecchi risultati. Il tutorial Regression tratta dati, console, risultati interattivi e assistenza."
+        }
+      ]
     }
   ],
   "language": "it"

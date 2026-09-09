@@ -1891,6 +1891,193 @@
           "narration": "Þegar verkflæðinu lýkur skráir endurheimtanlega niðurstöðutaflan stillingar, stöðu, fjölda uppgötvana, sæti jákvæðrar viðmiðunar, keyrslutíma, úttaksmöppu og ástæðu bilunar fyrir hverja tilraun."
         }
       ]
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images: skoðaðu áætlunina áður en þú flytur inn",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "Opnaðu Import Images innan Import, skoðaðu lítið úrval raunverulegra smásjármynda áður en skrár eru skrifaðar og vistaðu endurnýtanlega áætlun. Dæmið greinir á milli upprunalegra nafna sem ekki eru studd og undirbúinna afrita.",
+      "objectives": [
+        "Finna Import Images innan Import og greina það frá innflutningi fyrirliggjandi mælinga og gríma.",
+        "Athuga auðkenni mynda og óleysta hluta skráarheita áður en verkefnið er skrifað.",
+        "Velja afrit eða tengla, vista og endurhlaða áætlun og sannreyna innflutninginn."
+      ],
+      "prerequisite": "Sæktu fyrst raunverulega Mask-dæmið. Upptakan notar afrit af myndsviðunum E01/F001 og L01/F009, með fjórum C-rásum á hvoru sviði. Í undirbúnu afritunum er aðeins A-hlutanum beint á undan Z sleppt; frumritin breytast ekki. Þetta er sérstaklega yfirfarið dæmi, ekki almenn ráðlegging um að eyða óþekktum lýsigögnum.",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "Opnaðu Import í Data-flokknum á Home og veldu Import Images. Þetta undirverkfæri undirbýr hráar myndskrár. Import Project, Format Converter og External Masks eru tengd verkferli með eigin kennsluefni.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "Myndirnar átta eru raunveruleg smásjárgögn úr Mask-dæminu sem hægt er að sækja: eitt myndsvið úr hvorum tveggja brunna, með fjórum rásum á sviði. Við vinnum með sérstök afrit og látum sóttu frumritin vera óbreytt.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan finnur óleystan myndtökuhluta í upprunalegu heitunum. Import er áfram óvirkt og ekkert er skrifað. Ekki giska á rásavörpun: Tvær ólíkar rásir deila þessu myndtökugildi og slík vörpun myndi rugla auðkennum þeirra.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "Í þessu yfirfarna dæmi sleppa undirbúnu afritin aðeins óþarfa myndtökuhlutanum. Heiti brunns, myndsviðs og rásar haldast óbreytt. Scan sýnir nú átta línur, tvo brunna, tvö myndsviðsnúmer og fjórar rásir. Það þýðir ekki að upprunalega nafngiftin hafi verið samþykkt.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "Berðu tillöguna saman við skráarheitin áður en þú flytur inn. Read inside each file kannar innbyggð ásalýsigögn auk heitanna. Sample takmarkar fjölda skoðaðra skráa; gakktu úr skugga um að tillagan nái yfir myndirnar sem þú ætlar að flytja inn. Svaraðu spurningum út frá myndtökuskráningum, ekki ágiskunum.",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Veldu áfangastað utan inntaksmöppunnar og stilltu heiti plötunnar. Við slökkvum á Link instead of copy til að búa til sjálfstætt verkefni. Tenglar spara diskpláss, en frumritin þurfa áfram að vera aðgengileg á núverandi stöðum.",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Þessar dæmismyndir eru ekki hlutar af myndflísamósaík. Lestu Tiles vandlega við slíka myndtöku: Samsetning endurbyggir myndsvið, að halda flísum aðskildum breytir því hvað myndsvið merkir og að sleppa þeim tapar þessum myndum. Athugaðu skýrsluna og óstaðfest samskeyti áður en þú mælir.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan skrifar uppruna og vörpunarsvör þín í JSON-skrá, ekki öryggisafrit af myndunum. Geymdu hana með myndtökunótunum. Sama áætlun má lesa í gegnum Python-forritaskilin fyrir myndainnflutning.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan les upprunamöppuna aftur og endurnýtir vistuðu svörin. Skoðaðu nýju tillöguna áður en þú flytur inn; vistuð áætlun tryggir ekki að breytt myndtaka sé rétt túlkuð. Hér endurheimtir hún sömu átta yfirförnu myndauðkennin.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "Ýttu á Import og lestu samantektina. Þessi keyrsla skrifaði átta sjálfstæð myndafrit án þess að sleppa skrám; innihaldið samsvarar upprunanum. Veldu síðan verkefnið í Mask og skoðaðu lifandi forskoðun áður en myndirnar eru hlutaðar. Innflutningur einn og sér býr hvorki til grímur né mælingar.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: skildu forsendurnar að baki niðurstöðunum",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Opnaðu greiningarskrár úr raunverulegri úrvinnslu skimunar með dæmigögnum, greindu á milli viðvarana um tilraunasniðið og niðurstaðna umröðunarprófa og þekktu takmarkanir stuttrar sýnikeyrslu.",
+      "objectives": [
+        "Opna Diagnostics í Regression og staðfesta hvaða úttaksmappa er skoðuð.",
+        "Túlka auðkennanleika tilraunasniðs, tíðni leiðsöguraða og ályktunarmyndir í samhengi við valda greiningu.",
+        "Þekkja ástæðu þess að leifamyndir vantar og takmarkaða upplausn umröðunarprófa án þess að gera ráð fyrir að líkan hafi verið aðlagað."
+      ],
+      "prerequisite": "Ljúktu Regression-dæminu með fjórum niðurhalanlegum pörum af skor- og talningarskrám. Upptakan skoðar afmarkaða óstikaða keyrslu með 199 umröðunum, að lágmarki tveimur brunnum og niðurstöðum fyrir bæði leiðsöguraðir og gen. Hún sýnir hugbúnaðinn og túlkun greiningarmynda, ekki fullnægjandi lokagreiningu til að staðfesta uppgötvanir.",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "Haltu bendlinum yfir Diagnostics í Regression og opnaðu það þegar greiningu er lokið. Hnappurinn les vistað úttak; hann aðlagar ekki annað líkan. Hann opnar nýjustu greiningarmöppuna í verkefninu, svo athugaðu slóðina ef margar keyrslur eru til.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Skráastjóri kerfisins sýnir raunverulegar skrár úr greiningu niðurhalaðra skimunardæmigagna. Hér var myndasniðið stillt á PNG. Mappan inniheldur myndir um auðkennanleika tilraunasniðsins, greiningu sniðsins og tölfræðilega ályktun, ásamt yfirlitstöflu og töflu yfir samlínuleg pör leiðsöguraða.",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ]
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Tilraunasniðið hefur 606 brunna, 793 stika og fylkisröð 599. Ekki er hægt að ákvarða ótvíræðan stuðul fyrir hverja leiðsöguröð samtímis. Viðvörunin skýrir hvers vegna við notuðum umröðunargreiningu; hún þýðir ekki að sameiginlegt líkan hafi verið aðlagað með árangri.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Leiðsöguraðirnar koma misoft fyrir: 355 þeirra eru aðeins í einum brunni í þessu sniði. Fá tilvik takmarka hvað tilraunin getur sýnt. Skoðaðu þekjuna áður en áhrif eru túlkuð og greindu á milli alls sniðsins og síaða hópsins sem var raunverulega prófaður.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "Myndin af tilraunasniðinu hjálpar til við að finna litla þekju og háð milli skýribreyta leiðsöguraða. Erfitt er að aðgreina tölfræðilega raðir sem koma alltaf saman fyrir. Skoðaðu tiltekin pör í samlínuleikatöflunni í stað þess að líta á viðvörunartákn sem fullnægjandi skýringu.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Ályktunarmyndin tekur saman 434 próf á leiðsöguröðum: dreifingu p-gilda, samanburð við jafna dreifingu undir núlltilgátunni og uppgötvanir við leiðrétt viðmið. Þessi stutta keyrsla hefur engar uppgötvanir við sýnt viðmið. Viðvörun um kvörðun kallar á athugun, en er ekki sönnun fyrir líffræðilegum áhrifum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Við notuðum aðeins 199 umröðanir til að hafa sýnikeyrsluna stutta. Lægsta mögulega reynslubundna p-gildið er því 0,005. Þessi upplausn getur verið ófullnægjandi eftir leiðréttingu fyrir mörgum prófum. Veldu vel skipulagðan fjölda umröðana fyrir raunverulegu greininguna.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Þessi umröðunarkeyrsla hefur enga mynd af leifum aðlagaðs líkans því hún aðlagaði ekki sameiginlega aðhvarfslíkanið. Samanburður p-gildanna sem við sáum var ekki leifagreining. Aðrar greiningaraðferðir geta skrifað leifamyndir þegar þær skila mældum og aðlöguðum gildum.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Yfirlitið skráir mat á hverri mynd og versta matið fyrir greininguna í heild. Lestu hvert mat í samhengi í stað þess að túlka heildartáknið sem hugbúnaðarvillu. Python-forritaskilin fyrir aðhvarfsgreiningarmyndir skrifa sams konar myndir út frá gögnunum sem þau fá.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "Farðu aftur í Regression til að skoða inntakið eða breyta greiningarvali af ásettu ráði. Breyting krefst nýrrar keyrslu og nýrra greiningarmynda; það uppfærir aldrei eldri niðurstöður að opna möppuna. Regression-leiðbeiningarnar fara yfir allt gagnasafnið, stjórnborðið, gagnvirkar niðurstöður og aðstoðina.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ]
+        }
+      ]
     }
   ]
 }

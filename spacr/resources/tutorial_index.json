@@ -120,6 +120,10 @@
       "lesson": "55_image_scatter",
       "title": "Image Scatter"
     },
+    "import_images": {
+      "lesson": "74_import_images",
+      "title": "Import Images: inspect the plan before importing"
+    },
     "invasion": {
       "lesson": "26_invasion",
       "title": "Invasion Assay"
@@ -223,6 +227,10 @@
     "regression": {
       "lesson": "13_regression",
       "title": "Regression"
+    },
+    "regression_diagnostics": {
+      "lesson": "75_regression_diagnostics",
+      "title": "Regression Diagnostics: read the evidence behind the results"
     },
     "replication": {
       "lesson": "27_replication",

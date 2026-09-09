@@ -1,7 +1,7 @@
 "use strict";
 window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
   "schema": 1,
-  "source_commit": "1c970e3a4ce19333f3f76cfbbc39003cb1276c7d",
+  "source_commit": "4ad8072d95873f840d9088f48d49e0eeda0e9be2",
   "labels": {
     "en": [
       "Main modules",
@@ -260,7 +260,8 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
             "53_prediction_profiler",
             "71_investigate_hit",
             "72_volcano_explorer",
-            "73_parameter_sweep"
+            "73_parameter_sweep",
+            "75_regression_diagnostics"
           ]
         },
         {
@@ -271,7 +272,8 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
           "help_host": false,
           "lessons": [
             "31_external_masks",
-            "35_converter"
+            "35_converter",
+            "74_import_images"
           ]
         },
         {
@@ -730,26 +732,28 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
       "host_app_key": "regression",
       "host_lesson": "13_regression",
       "host_title": "Regression"
+    },
+    "74_import_images": {
+      "kind": "submodule",
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "host_lesson": "36_import",
+      "host_title": "Import"
+    },
+    "75_regression_diagnostics": {
+      "kind": "submodule",
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "host_lesson": "13_regression",
+      "host_title": "Regression"
     }
   },
   "missing_tutorials": [
-    {
-      "app_key": "import_images",
-      "title": "Import Images",
-      "host_app_key": "foreign",
-      "status": "needs_tutorial"
-    },
     {
       "app_key": "ops",
       "title": "OPS",
       "host_app_key": "align",
       "status": "deferred_unvalidated_workflow"
-    },
-    {
-      "app_key": "regression_diagnostics",
-      "title": "Diagnostics",
-      "host_app_key": "regression",
-      "status": "needs_tutorial"
     }
   ],
   "preserved_lesson_ids": [
@@ -825,6 +829,8 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
     "70_explain_cv",
     "71_investigate_hit",
     "72_volcano_explorer",
-    "73_parameter_sweep"
+    "73_parameter_sweep",
+    "74_import_images",
+    "75_regression_diagnostics"
   ]
 });

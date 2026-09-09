@@ -27,7 +27,7 @@ def _catalog(prefix: str, locale: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_all_authored_catalogs_match_the_73_lesson_inventory_and_routes():
+def test_all_authored_catalogs_match_the_75_lesson_inventory_and_routes():
     """Every locale must carry the complete lesson and folded-host topology."""
     english = _catalog("lessons", "en")["lessons"]
     ids = [lesson["id"] for lesson in english]
@@ -37,8 +37,8 @@ def test_all_authored_catalogs_match_the_73_lesson_inventory_and_routes():
         for lesson in english
         if lesson.get("host_app_key") is not None
     }
-    assert len(ids) == len(set(ids)) == 73
-    assert len(expected_routes) == 23
+    assert len(ids) == len(set(ids)) == 75
+    assert len(expected_routes) == 25
 
     for locale in FULL_LOCALES:
         lessons = _catalog("lessons", locale)["lessons"]

@@ -1891,6 +1891,193 @@
           "narration": "Når arbejdsgangen er fuldført, registrerer den genoptagelige resultattabel hvert forsøgs indstillinger, status, antal fund, rangering af positiv kontrol, varighed, outputmappe og fejlårsag."
         }
       ]
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images: kontrollér planen før import",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "Åbn Import Images i Import, kontrollér et lille udsnit af rigtige mikroskopibilleder før filer skrives, og gem en genbrugelig plan. Eksemplet skelner mellem oprindelige navne, der ikke understøttes, og forberedte kopier.",
+      "objectives": [
+        "Find Import Images i Import, og skeln det fra import af eksisterende målinger og masker.",
+        "Kontrollér billedidentiteter og uafklarede navneled, før projektet skrives.",
+        "Vælg kopier eller links, gem og genindlæs en plan, og kontrollér importen."
+      ],
+      "prerequisite": "Hent først det rigtige Mask-eksempel. Optagelsen bruger kopier af billedfelterne E01/F001 og L01/F009 med fire C-kanaler hver. I de forberedte kopier udelades kun A-leddet umiddelbart før Z; originalerne ændres ikke. Det er et specifikt kontrolleret eksempel, ikke en generel anvisning om at slette ukendte metadata.",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "Åbn Import fra kategorien Data på Home, og vælg Import Images. Dette indlejrede værktøj forbereder rå billedfiler. Import Project, Format Converter og External Masks er beslægtede arbejdsgange med egne vejledninger.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ]
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "Vores otte billeder er rigtige mikroskopidata fra Mask-eksemplet, som kan downloades: ét billedfelt fra hver af to brønde med fire kanaler pr. felt. Vi arbejder med separate kopier og lader de downloadede originaler være urørte.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ]
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan finder et uafklaret optagelsesled i de oprindelige navne. Import er fortsat deaktiveret, og intet skrives. Gæt ikke på en kanalkobling: To forskellige kanaler deler denne optagelsesværdi, så den kobling ville forvanske deres identiteter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "I dette kontrollerede eksempel udelader de forberedte kopier kun det overflødige optagelsesled. Navnene for brønd, billedfelt og kanal bevares. Scan viser nu otte rækker, to brønde, to feltnumre og fire kanaler. Det betyder ikke, at de oprindelige navne blev accepteret.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "Sammenlign forslaget med filnavnene før import. Read inside each file kontrollerer indlejrede aksemetadata ud over navnene. Sample begrænser antallet af undersøgte filer; kontrollér, at forslaget omfatter de ønskede billeder. Afklar spørgsmål ud fra optagelsesnoterne, ikke ved at gætte.",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Vælg en destination uden for inputmappen, og angiv pladens navn. Vi slår Link instead of copy fra for at få et selvstændigt projekt. Links sparer diskplads, men kræver, at originalerne forbliver tilgængelige på deres nuværende placeringer.",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ]
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "Disse eksempelfiler er ikke mosaikfelter. Læs Tiles omhyggeligt ved mosaikoptagelser: Sammenføjning gendanner billedfelter, separate delbilleder ændrer betydningen af et felt, og overspringning mister disse billeder. Kontrollér rapporten og ubekræftede samlinger før måling.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ]
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan skriver kilden og dine koblingssvar til en JSON-fil, ikke en sikkerhedskopi af billederne. Gem den sammen med optagelsesnoterne. Den samme plan kan læses gennem Pythons API til billedimport.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan læser kildemappen igen og genbruger de gemte svar. Kontrollér det nye forslag før import; en gemt plan garanterer ikke, at en ændret optagelse er korrekt. Her genskabes de samme otte kontrollerede billedidentiteter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "Tryk Import, og læs oversigten. Denne kørsel skrev otte selvstændige billedkopier uden at springe filer over; indholdet svarer til kilderne. Vælg derefter projektet i Mask, og undersøg livevisningen før segmentering. Import alene genererer hverken masker eller målinger.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics: forstå grundlaget for resultaterne",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "Åbn diagnostikfiler fra en faktisk analyse af eksempelscreeningen, skeln mellem advarsler om forsøgsdesignet og permutationsresultater, og forstå begrænsningerne ved en kort demonstration.",
+      "objectives": [
+        "Åbn Diagnostics i Regression, og kontrollér den outputmappe, du undersøger.",
+        "Fortolk designets identificerbarhed, guidernes forekomst og inferenspanelerne i den valgte analyses sammenhæng.",
+        "Forstå manglende tilpassede residualer og begrænset permutationsopløsning uden at antage, at en model blev tilpasset."
+      ],
+      "prerequisite": "Gennemfør Regression-eksemplet med de fire downloadbare par af score- og optællingsfiler. Optagelsen undersøger en afgrænset ikke-parametrisk kørsel med 199 permutationer, mindst to brønde og resultater for både guider og gener. Den demonstrerer softwaren og diagnostikken, ikke endelig inferens til pålidelige fund.",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "Hold markøren over Diagnostics i Regression, og åbn det, når en analyse er færdig. Knappen læser gemt output; den tilpasser ikke en ny model. Den åbner projektets nyeste diagnostikmappe, så kontrollér stien, hvis der er flere kørsler.",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ]
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Systemets filhåndtering viser de faktiske filer fra analysen af den downloadede eksempelscreening. Figurformatet var her indstillet til PNG. Mappen indeholder designets identificerbarhed, designdiagnostik, inferensdiagnostik, en oversigtstabel og en tabel over kollineære guidepar.",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ]
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Designet har 606 brønde, 793 parametre og rang 599. Det kan ikke bestemme en entydig koefficient for hver guide samtidigt. Advarslen forklarer, hvorfor vi brugte en permutationsanalyse; den betyder ikke, at en simultan model blev tilpasset med succes.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "Guiderne er ujævnt repræsenteret: 355 forekommer kun i én brønd i dette design. Få forekomster begrænser, hvad forsøget kan påvise. Undersøg dækningen før effekterne, og skeln mellem hele designet og den filtrerede familie af guider, som faktisk blev testet.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "Designpanelet hjælper med at finde lav dækning og afhængigheder mellem guideprædiktorer. Guider, som altid optræder sammen, er svære at skelne statistisk. Undersøg bestemte par i tabellen over kollinearitet i stedet for at betragte et advarselsmærke som en fuld forklaring.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Inferenspanelet opsummerer 434 guidetests: p-værdiernes fordeling, sammenligningen med en uniform nulfordeling og fund ved forskellige korrigerede grænser. Den korte kørsel har ingen fund ved den viste grænse. En kalibreringsadvarsel er en opfordring til at undersøge nærmere, ikke bevis for biologiske effekter.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "Vi brugte kun 199 permutationer for at holde demonstrationen kort. Den mindste opnåelige empiriske p-værdi er derfor 0,005. Den opløsning kan være utilstrækkelig efter korrektion for multiple tests. Planlæg et passende antal permutationer til den egentlige analyse.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Denne permutationskørsel har intet panel med tilpassede residualer, fordi den ikke tilpassede den simultane regressionsmodel. Sammenligningen af p-værdier var ikke residualdiagnostik. Andre analysetilstande kan skrive residualpaneler, når de leverer observerede og tilpassede værdier.",
+          "hold_after": 0.7
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "Oversigten registrerer vurderingen af hvert panel og den dårligste vurdering for hele diagnostikken. Læs vurderingerne i deres sammenhæng i stedet for at tolke det samlede mærke som en softwarefejl. Python-API'et til regressionsdiagnostik skriver de samme typer paneler ud fra de modtagne input.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ]
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "Gå tilbage til Regression for at undersøge input eller bevidst ændre et analysevalg. En ændring kræver en ny kørsel og ny diagnostik; åbning af mappen opdaterer aldrig gamle resultater. Regression-vejledningen gennemgår hele datasættet, konsollen, interaktive resultater og hjælpefunktionerne.",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ]
+        }
+      ]
     }
   ]
 }

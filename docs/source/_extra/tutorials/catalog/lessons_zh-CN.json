@@ -4709,6 +4709,213 @@
         }
       ],
       "host_app_key": "regression"
+    },
+    {
+      "id": "74_import_images",
+      "number": 74,
+      "slug": "import_images",
+      "title": "Import Images：导入前先检查方案",
+      "series": 2,
+      "app_key": "import_images",
+      "host_app_key": "foreign",
+      "section": "spaCR",
+      "description": "在Import中打开Import Images，写入文件前检查一小组真实显微图像，并保存可复用的方案。本示例明确区分无法识别的原始命名与经过准备的副本。",
+      "objectives": [
+        "在Import中找到Import Images，并将其与导入已有测量数据和掩膜的流程区分开。",
+        "写入项目前检查图像身份，以及文件名中尚未解析的部分。",
+        "选择复制或链接，保存并重新加载方案，最后验证导入结果。"
+      ],
+      "prerequisite": "先下载Mask的真实示例数据。录像使用E01/F001和L01/F009两个视野的副本，每个视野有4个C通道。准备好的副本只省略紧接Z之前的A字段，原始文件不变。这是经过核对的特定示例，并非让您随意删除不认识的文件名元数据。",
+      "scenes": [
+        {
+          "visual": "02_import_fold",
+          "narration": "从Home的Data类别打开Import，然后选择Import Images。这个嵌套工具用于准备原始图像文件。Import Project、Format Converter和External Masks是相关但不同的流程，各有专门教程。",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "36_import",
+            "35_converter",
+            "31_external_masks"
+          ],
+          "speech_text": "从主页的Data类别打开Import，然后选择Import Images。这个嵌套工具用于准备原始图像文件。Import Project、Format Converter和External Masks是相关但不同的流程，各有专门教程。"
+        },
+        {
+          "visual": "04_source_options",
+          "narration": "这8张图像来自Mask提供下载的真实显微数据：两个孔各取一个视野，每个视野包含4个通道。我们使用单独复制的文件，不修改下载得到的原始文件。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask"
+          ],
+          "speech_text": "这8张图像来自Mask提供下载的真实显微数据：两个孔各取一个视野，每个视野包含4个通道。我们使用单独复制的文件，不修改下载得到的原始文件。"
+        },
+        {
+          "visual": "04a_unresolved_acquisition_token",
+          "narration": "Scan发现原始文件名中有一个尚未解析的采集字段。Import仍然禁用，没有写入任何文件。不要猜测通道映射：两个不同通道共用这个采集值，把它当成通道会弄错图像身份。",
+          "hold_after": 0.7,
+          "speech_text": "Scan发现原始文件名中有一个尚未解析的采集字段。Import仍然禁用，没有写入任何文件。不要猜测通道映射：两个不同通道共用这个采集值，把它当成通道会弄错图像身份。"
+        },
+        {
+          "visual": "05_scan_proposal",
+          "narration": "在这个已核对的例子中，准备好的副本只省略冗余的采集字段，保留孔、视野和通道名称。Scan现在显示8行、两个孔、两个视野编号和4个通道。这不代表原始命名格式已经被接受。",
+          "hold_after": 0.7,
+          "speech_text": "在这个已核对的例子中，准备好的副本只省略冗余的采集字段，保留孔、视野和通道名称。Scan现在显示8行、两个孔、两个视野编号和4个通道。这不代表原始命名格式已经被接受。"
+        },
+        {
+          "visual": "06_check_filename",
+          "narration": "导入前逐项对照方案与文件名。Read inside each file除检查名称外，还读取文件内部的轴元数据。Sample限制检查的文件数量；请确认方案包含您要导入的图像。根据采集记录解决问题，不要猜测。",
+          "hold_after": 0.7,
+          "focus": [
+            350,
+            665,
+            1770,
+            675
+          ],
+          "speech_text": "导入前逐项对照方案与文件名。Read inside each file除检查名称外，还读取文件内部的轴元数据。Sample限制检查的文件数量；请确认方案包含您要导入的图像。根据采集记录解决问题，不要猜测。"
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "在输入文件夹之外选择目标位置，并设置孔板名称。这里关闭Link instead of copy，建立独立副本组成的项目。链接可以节省磁盘空间，但要求原始文件一直能在当前路径访问。",
+          "hold_after": 0.7,
+          "focus": [
+            345,
+            1600,
+            3420,
+            210
+          ],
+          "speech_text": "在输入文件夹之外选择目标位置，并设置孔板名称。这里关闭Link instead of copy，建立独立副本组成的项目。链接可以节省磁盘空间，但要求原始文件一直能在当前路径访问。"
+        },
+        {
+          "visual": "07_copy_destination",
+          "narration": "这些示例文件不是拼接图块。对于分块采集，请仔细阅读Tiles选项：拼接会还原视野，分别保留图块会改变一个视野的含义，而跳过则会丢弃这些图像。测量前检查报告和未经验证的拼接边缘。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "32_align_stitch"
+          ],
+          "speech_text": "这些示例文件不是拼接图块。对于分块采集，请仔细阅读Tiles选项：拼接会还原视野，分别保留图块会改变一个视野的含义，而跳过则会丢弃这些图像。测量前检查报告和未经验证的拼接边缘。"
+        },
+        {
+          "visual": "09_saved_plan",
+          "narration": "Save plan把数据来源和您的映射答案写入JSON文件，并不备份图像。请与采集记录一起保存。Python的图像导入API也可以读取同一方案。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "speech_text": "Save plan把数据来源和您的映射答案写入JSON文件，并不备份图像。请与采集记录一起保存。Python的图像导入API也可以读取同一方案。"
+        },
+        {
+          "visual": "11_reloaded_plan",
+          "narration": "Load plan会重新读取来源文件夹，并复用保存的答案。导入前仍须检查新方案：保存过方案，并不能保证变更后的采集数据仍然正确。这里恢复了同样8张已核对图像的对应关系。",
+          "hold_after": 0.7,
+          "speech_text": "Load plan会重新读取来源文件夹，并复用保存的答案。导入前仍须检查新方案：保存过方案，并不能保证变更后的采集数据仍然正确。这里恢复了同样8张已核对图像的对应关系。"
+        },
+        {
+          "visual": "12_import_complete",
+          "narration": "点击Import并阅读摘要。本次运行写入8份独立图像副本，没有跳过文件，内容与来源一致。随后在Mask中选择这个项目，在分割前检查实时预览。仅导入文件不会生成掩膜或测量数据。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "07_mask",
+            "08_measure"
+          ],
+          "speech_text": "点击Import并阅读摘要。本次运行写入8份独立图像副本，没有跳过文件，内容与来源一致。随后在Mask中选择这个项目，在分割前检查实时预览。仅导入文件不会生成掩膜或测量数据。"
+        }
+      ]
+    },
+    {
+      "id": "75_regression_diagnostics",
+      "number": 75,
+      "slug": "regression_diagnostics",
+      "title": "Regression Diagnostics：读懂结果背后的证据",
+      "series": 2,
+      "app_key": "regression_diagnostics",
+      "host_app_key": "regression",
+      "section": "spaCR",
+      "description": "打开真实示例筛选分析生成的诊断文件，区分实验设计警告与置换分析结果，并认识简短演示的局限。",
+      "objectives": [
+        "在 Regression 中打开 Diagnostics，核对当前查看的输出文件夹。",
+        "结合所选分析，解读设计可识别性、向导出现情况和推断面板。",
+        "认识拟合残差面板缺失的原因和置换分辨率的限制，不虚构模型拟合。"
+      ],
+      "prerequisite": "先使用四组可下载的得分与计数文件完成 Regression 示例。本录像检查一次限定规模的非参数分析：199 次置换、至少两个孔，同时输出向导和基因层面的结果。它用于演示软件和诊断解读，并非足以支持最终发现的正式推断。",
+      "scenes": [
+        {
+          "visual": "02_diagnostics_button",
+          "narration": "在 Regression 中，将鼠标移到 Diagnostics 上，并在分析完成后打开它。这个按钮读取已保存的输出，不会再拟合一个模型。它会打开项目中最新的诊断文件夹，因此存在多次运行时，请核对路径。",
+          "hold_after": 0.7,
+          "focus_buttons": "FoldButton",
+          "related_lessons": [
+            "13_regression"
+          ],
+          "speech_text": "在 Regression 中，将鼠标移到 Diagnostics 上，并在分析完成后打开它。这个按钮读取已保存的输出，不会再拟合一个模型。它会打开项目中最新的诊断文件夹，因此存在多次运行时，请核对路径。"
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "系统文件管理器显示下载的示例筛选分析所生成的真实文件。这里选择的图片格式是 PNG。文件夹包含设计可识别性图、设计诊断图、推断诊断图、汇总表以及共线向导配对表。",
+          "hold_after": 0.7,
+          "focus": [
+            535,
+            230,
+            1420,
+            285
+          ],
+          "speech_text": "系统文件管理器显示下载的示例筛选分析所生成的真实文件。这里选择的图片格式是 PNG。文件夹包含设计可识别性图、设计诊断图、推断诊断图、汇总表以及共线向导配对表。"
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "该设计有六百零六个孔、七百九十三个参数，秩为五百九十九。它无法同时为每个向导确定唯一的系数。这条警告说明了我们选择置换分析的原因，并不表示已成功拟合包含所有向导的模型。",
+          "hold_after": 0.7,
+          "speech_text": "该设计有六百零六个孔、七百九十三个参数，秩为五百九十九。它无法同时为每个向导确定唯一的系数。这条警告说明了我们选择置换分析的原因，并不表示已成功拟合包含所有向导的模型。"
+        },
+        {
+          "visual": "04_design_identifiability",
+          "narration": "向导的出现情况并不均匀：该设计中有三百五十五个向导仅出现在一个孔中。出现次数少会限制实验能够得出的结论。解读效应前先检查覆盖情况，并区分完整设计与经过筛选、实际接受检验的向导集合。",
+          "hold_after": 0.7,
+          "speech_text": "向导的出现情况并不均匀：该设计中有三百五十五个向导仅出现在一个孔中。出现次数少会限制实验能够得出的结论。解读效应前先检查覆盖情况，并区分完整设计与经过筛选、实际接受检验的向导集合。"
+        },
+        {
+          "visual": "05_design_diagnostics",
+          "narration": "设计面板有助于定位出现次数不足的向导，以及向导预测变量之间的依赖关系。始终一起出现的向导很难在统计上区分。请查看共线配对表中的具体组合，不要把警告标记当作完整解释。",
+          "hold_after": 0.7,
+          "speech_text": "设计面板有助于定位出现次数不足的向导，以及向导预测变量之间的依赖关系。始终一起出现的向导很难在统计上区分。请查看共线配对表中的具体组合，不要把警告标记当作完整解释。"
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "推断面板汇总四百三十四项向导检验，包括 p 值分布、与均匀零假设分布的比较，以及不同校正阈值下的发现数。这次简短运行在显示的阈值下没有发现。校准警告提示需要调查，并不证明存在生物学效应。",
+          "hold_after": 0.7,
+          "speech_text": "推断面板汇总四百三十四项向导检验，包括 p 值分布、与均匀零假设分布的比较，以及不同校正阈值下的发现数。这次简短运行在显示的阈值下没有发现。校准警告提示需要调查，并不证明存在生物学效应。"
+        },
+        {
+          "visual": "06_inference_diagnostics",
+          "narration": "为了缩短演示，我们只进行了 一百九十九次置换。因此，能够得到的最小经验 p 值为零点零零五。经过多重检验校正后，这种分辨率可能不足；正式分析应事先合理规划置换次数。",
+          "hold_after": 0.7,
+          "speech_text": "为了缩短演示，我们只进行了 一百九十九次置换。因此，能够得到的最小经验 p 值为零点零零五。经过多重检验校正后，这种分辨率可能不足；正式分析应事先合理规划置换次数。"
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "这次置换运行没有拟合同时包含所有向导的回归模型，因此没有拟合残差面板。刚才看到的 p 值比较不是残差诊断。其他分析模式在提供观测值和拟合值时，可以输出残差面板。",
+          "hold_after": 0.7,
+          "speech_text": "这次置换运行没有拟合同时包含所有向导的回归模型，因此没有拟合残差面板。刚才看到的 p 值比较不是残差诊断。其他分析模式在提供观测值和拟合值时，可以输出残差面板。"
+        },
+        {
+          "visual": "03_diagnostics_folder",
+          "narration": "汇总表记录各面板的评估，以及整套诊断中最差的评估。请结合上下文理解各项评估，不要把总体标记视为软件错误。Python 回归诊断接口也会根据收到的输入生成同类面板。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "06_api"
+          ],
+          "speech_text": "汇总表记录各面板的评估，以及整套诊断中最差的评估。请结合上下文理解各项评估，不要把总体标记视为软件错误。Python 回归诊断接口也会根据收到的输入生成同类面板。"
+        },
+        {
+          "visual": "07_back_to_regression",
+          "narration": "返回 Regression，检查输入，或者有意识地更改分析选项。更改之后需要重新运行并生成新诊断；打开这个文件夹绝不会更新旧结果。完整的数据集、控制台、交互式结果和辅助功能流程，请参阅 Regression 教程。",
+          "hold_after": 0.7,
+          "related_lessons": [
+            "13_regression",
+            "48_hit_list",
+            "72_volcano_explorer"
+          ],
+          "speech_text": "返回 Regression，检查输入，或者有意识地更改分析选项。更改之后需要重新运行并生成新诊断；打开这个文件夹绝不会更新旧结果。完整的数据集、控制台、交互式结果和辅助功能流程，请参阅 Regression 教程。"
+        }
+      ]
     }
   ],
   "language": "zh-CN"

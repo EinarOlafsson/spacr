@@ -56,8 +56,8 @@ def test_release_audit_parsers_pin_the_current_inventory():
     languages, voices = live._voice_inventory(
         (tutorial_root / "voice_catalog.js").read_text(encoding="utf-8")
     )
-    assert len(catalog["lessons"]) == 73
-    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 508
+    assert len(catalog["lessons"]) == 75
+    assert sum(len(lesson["scenes"]) for lesson in catalog["lessons"]) == 528
     assert len(languages) == 8
     assert len(voices) == 50
     assert not (live.RETIRED_VOICES & set(voices))
