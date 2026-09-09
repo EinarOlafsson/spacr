@@ -1148,3 +1148,57 @@ that the plaque bug was a single defect rather than the visible end of a
 class. A candidate list that comes back empty is a result, and leaving it
 unchecked would have left seven open questions reading as seven suspected
 bugs.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE MAINTAINER APPROVED ALL THREE GROUPS
+--------------------------------------------------------------------------------
+
+Asked with the eight audit files summarised into one list, he approved:
+
+  1. the silent-divergence bugs   organelle_min_size/_min_area and its two
+                                  siblings, plus gradient_accumulation
+  2. the eleven renames
+  3. the retirements
+
+And added one instruction that is not about settings at all:
+
+    "any changes you make that impact the tutorials please tell codex via the
+     instructions list or in any other way you can. so codex knows to redo
+     those later."
+
+>>> FOR CODEX: SETTINGS RENAMES ARE LANDING, AND THEY INVALIDATE RECORDINGS.
+
+Every rename below changes a VISIBLE LABEL on a settings panel. Any tutorial
+frame showing one of these rows shows a name that will no longer exist, and
+any narration that reads the label aloud is wrong from the moment it lands.
+This is written here rather than only messaged because the ledger is the
+thing a later session reads.
+
+    <object>_FT               -> <object>_flow_threshold
+    <object>_CP_prob          -> <object>_cellprob_threshold
+    <object>_Signal_to_noise  -> <object>_signal_to_noise
+    <object>_min_object_area  -> <object>_min_split_area
+    positive_control          -> positive_control_id
+    negative_control          -> negative_control_id
+    controls                  -> nontargeting_control_grnas
+    control_wells             -> stain_baseline_wells
+    min_n                     -> min_observations_per_hit
+    min_cell_count            -> min_cells_per_well
+    expected_end              -> window_length
+
+`<object>` expands over cell, nucleus, pathogen, cytoplasm and the organelle
+slots, so the first four are many rows rather than four.
+
+WHICH MODULES' TUTORIALS ARE AFFECTED: Mask and Measure (the four per-object
+names), Regression (the six control and threshold names), Map Barcodes
+(`expected_end`). A tutorial that never opens a settings panel is untouched.
+
+THE RETIREMENTS remove rows entirely rather than renaming them --
+`barcodes`, `grna`, `Toxoplasma`, `cell_mask_dim`, `nucleus_mask_dim`,
+`pathogen_mask_dim`, `prefs/space_variant`, `prefs/space_seed`, and
+`img_size` folded into `image_size`. A frame showing one of those shows a
+control that is gone.
+
+Nothing is applied yet as this note is written. Each group will be committed
+separately so the tutorial impact can be read off one commit rather than
+reconstructed from a range.
