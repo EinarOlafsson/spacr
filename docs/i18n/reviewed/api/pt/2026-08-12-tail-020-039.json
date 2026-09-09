@@ -62,7 +62,7 @@
       "label": "spacr.layers.Spacing#3",
       "source_sha256": "1c59948a4c975d2852603eff73c766c4db1d6b8a972dc6787be29bfef3c97d4f",
       "source": "world coordinate of element 0 along each axis. Defaults to zeros. This is the crop offset — a tile cut out of a mosaic keeps its place in the mosaic by carrying it here.",
-      "context": "world coordinate of element 0 along each axis. Defaults to zeros. This is the extracted image region offset — a tile cut out of a mosaic keeps its place in the mosaic by carrying it here.",
+      "context": "world coordinate of element 0 along each axis. Defaults to zeros. This is the extracted image region offset — a microscope image field cut out of a assembled image grid keeps its place in the assembled image grid by carrying it here.",
       "translation": "coordenada no espaço físico do elemento 0 ao longo de cada eixo. O padrão é zero. Este é o deslocamento da região de imagem extraída: um bloco recortado de um mosaico preserva sua posição no mosaico ao registrar aqui esse deslocamento."
     },
     {

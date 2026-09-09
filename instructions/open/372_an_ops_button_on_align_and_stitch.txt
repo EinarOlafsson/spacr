@@ -2297,3 +2297,50 @@ THE WHOLE PROGRESSION, so the next reader can see what each step bought:
 A2 IS DONE. What remains before the module can be believed on this plate is
 A3 (cycle registration on the SBS channels, per PART 10), A4 (phenotype to
 SBS), and then Phases B and C.
+
+
+--------------------------------------------------------------------------------
+PART 12 -- A3 REGISTERS ON THE SEQUENCING CHANNELS, AND BETTER THAN DAPI EVER
+DID. 2026-09-09.
+--------------------------------------------------------------------------------
+
+PART 10 forced this: cycles 2..11 hold no Hoechst, so the cycle axis cannot
+be registered on it. The reference's answer is `SBS_mean` -- max across the
+four base channels, normalised by the 70th percentile, clipped. Measured on
+well A1, cycles 2..11 against c1, at two sites:
+
+    site 100    peak/mean 169 to 236     shift ( -6..-27,  0..10)
+    site 200    peak/mean 218 to 281     shift ( -4..-25, 11..21)
+
+    20 of 20 cycles registered.
+
+THREE THINGS THIS SETTLES.
+
+1. IT IS NOT A FALLBACK, IT IS THE BETTER CHANNEL. A2's tile-to-tile
+   registration on DAPI peaks at 23 to 85. The cycle registration on
+   SBS_mean peaks at 169 to 281 -- two to three times the contrast. Spots
+   are punctate and abundant; nuclei are smooth and few. Losing the Hoechst
+   after c1 costs nothing on this axis, and PART 10's correction is an
+   improvement rather than a compromise.
+
+2. NO UNWRAPPING IS NEEDED HERE. The stage returns to the same field between
+   cycles, so the displacements are 4 to 27 px against a 1,480 px tile --
+   nowhere near the wrap. A2's unwrap machinery is for the tile axis, where
+   neighbours are a whole pitch apart, and applying it here would be a
+   correction looking for a problem.
+
+3. THE OFFSET IS PER SITE, NOT PER CYCLE. Site 100 sits at x = 0..10 across
+   the eleven cycles and site 200 at x = 11..21. A single per-cycle rigid
+   transform for the whole well would carry that difference into every
+   field. Register EACH SITE against its own c1, which is also what the
+   reference does -- `_align_SBS` works on one field's cycle stack.
+
+   The per-cycle drift is real but not monotonic (-26, -14, -12, -9, -6,
+   -17, -18, -27, -19, -23 at site 100), which is the microscope
+   repositioning rather than a slow creep, and is another reason not to fit
+   one number per cycle.
+
+NEXT: fold this into the pipeline as A3 proper, with PART 9 hole 1's
+acceptance recorded per cycle per site -- peak ratio and residual into
+`ops_geometry`, a cycle that fails dropped from the reads and counted in
+`ops_barcodes.n_cycles` rather than failing the well.

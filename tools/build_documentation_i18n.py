@@ -1429,6 +1429,80 @@ API_TRANSLATION_CONTEXT.update({
 })
 
 
+# A TILE IS A FIELD OF VIEW HERE, AND A MOSAIC IS A GRID OF THEM. Both words
+# have a stronger everyday sense that the models reach for first: zh_CN
+# returned 瓷砖 (a ceramic floor tile) for the microscope field and 马赛克
+# (mosaic art) for the assembled image, which is fluent Chinese about the
+# wrong subject. Measured 2026-09-09, that class is about a sixth of the
+# blocks the gates refuse.
+#
+# spaCR ALSO HAS TILES THAT REALLY ARE TILES -- the Home screen's module
+# tiles -- so the rewrite is gated on imaging context and refused outright
+# when the block is about the interface. This is the same shape as
+# `_SCIENTIFIC_PLATE_SOURCE`, which exists because a plate is a dish and not
+# a plate.
+_IMAGE_TILE_SOURCE = (
+    r"(?is)\A(?=.*\b(?:tiles?|mosaics?)\b)"
+    r"(?=.*\b(?:mosaics?|stitch(?:ed|es|ing)?|site|sites|"
+    r"overlap(?:s|ped|ping)?|"
+    r"field of view|fields|well|wells|microscope|acquisition|canvas|"
+    r"registration|transform)\b)"
+    r"(?!.*\b(?:home screen|dashboard|launcher|button|toolbar|card|"
+    r"masthead|menu)\b)"
+)
+
+
+# SHOUTED EMPHASIS IS PROSE, AND EVERY MODEL READS IT AS A NAME. spaCR's
+# docstrings put their strongest claim in capitals -- "A WORKER OUTLIVING ITS
+# PANEL writes results into a widget whose C++ half is gone" -- and MADLAD
+# returns that clause in English, sometimes corrupted ("A WORKER OVERLIVING
+# ITS PANEL"), while translating the rest of the sentence perfectly. The gates
+# are right to refuse it: a Spanish reader gets an English claim. Measured
+# 2026-09-09, this is 100 of the 401 failing API blocks across nine locales.
+#
+# TWO WORDS MINIMUM, and one of them at least four letters. A single capital
+# word is as likely to be a literal the docstring means byte-for-byte --
+# ``DEFAULT`` as a policy value, ``KEPT``, ``MIT``, ``RST`` -- and a run of
+# short capitals is usually acronyms. The rule takes only what is
+# unambiguously a shouted English clause.
+_SHOUTED_PROSE_RE = re.compile(
+    r"(?<![\w`])[A-Z][A-Z0-9'+-]*(?:\s+[A-Z][A-Z0-9'+-]*)+(?![\w`])"
+)
+
+
+def _lower_shouted_emphasis(text: str) -> str:
+    """Lower a shouted English clause so the model translates it as prose.
+
+    The emphasis is lost in the target and that is the intended trade: a
+    lower-case Spanish sentence carries the claim, and an upper-case English
+    one does not carry it at all. ``_preserve_initial_prose_case`` puts the
+    block's opening capital back afterwards.
+    """
+    def lower(match: "re.Match[str]") -> str:
+        run = match.group(0)
+        words = [word for word in run.split() if word]
+        if len(words) < 2:
+            return run
+        # A PRODUCT NAME IN A SHOUTED RUN IS STILL A PRODUCT NAME.
+        # "Is this genuinely NVIDIA CUDA." is two capital words and neither
+        # is emphasis; `_PROTECT_RE` already knows both, and lowering them
+        # changed a protected literal and stopped the whole build. Each word
+        # is judged on its own and only the unprotected ones are lowered.
+        def is_prose(word: str) -> bool:
+            return _PROTECT_RE.sub(" ", word).strip() == word
+
+        prose = [word for word in words if is_prose(word)]
+        if len(prose) < 2:
+            return run
+        if not any(sum(c.isalpha() for c in word) >= 4 for word in prose):
+            return run
+        return " ".join(
+            word.lower() if is_prose(word) else word for word in words
+        )
+
+    return _SHOUTED_PROSE_RE.sub(lower, str(text))
+
+
 def _api_translation_source(block: str) -> str:
     """Return the deterministic, target-neutral English model input.
 
@@ -1672,6 +1746,17 @@ def _api_translation_source(block: str) -> str:
             (r"\b(?-i:Raise)(?=\s*$)", "Throw"),
             (r"\b(?-i:raise)(?=\s*$)", "throw"),
         ))
+    if re.search(_IMAGE_TILE_SOURCE, prose, re.IGNORECASE):
+        transforms.extend((
+            (r"\bmosaics\b", lambda m: _initial_case(
+                m, "assembled image grids")),
+            (r"\bmosaic\b", lambda m: _initial_case(
+                m, "assembled image grid")),
+            (r"\btiles\b", lambda m: _initial_case(
+                m, "microscope image fields")),
+            (r"\btile\b", lambda m: _initial_case(
+                m, "microscope image field")),
+        ))
     if re.search(_SCIENTIFIC_PLATE_SOURCE, prose, re.IGNORECASE):
         transforms.extend((
             (r"\b(?-i:A)\s+(?i:plate)\b", "A laboratory microplate"),
@@ -1891,20 +1976,36 @@ def _api_translation_source(block: str) -> str:
             (r"\bhuman\s+reference\b", "user-facing reference"),
         ))
 
-    if not transforms:
-        return source
-
     def rewrite(fragment: str) -> str:
         return _replace_alternatives_once(fragment, transforms)
 
-    contextual = _rewrite_unprotected_prose(source, rewrite)
-    contextual = _preserve_initial_prose_case(source, contextual)
-    if not _syntax_preserved(source, contextual):
-        raise ValueError(
-            "API sense context changed a protected literal: "
-            f"{source!r} -> {contextual!r}"
-        )
-    return contextual
+    contextual = source
+    if transforms:
+        contextual = _rewrite_unprotected_prose(source, rewrite)
+    # AFTER the sense transforms, so a term they rewrite is rewritten in the
+    # case the docstring wrote it in, and BEFORE the initial-case restore,
+    # which puts the block's opening capital back.
+    # THE LOWERING IS AN OPTIMISATION, NOT A CONTRACT, so it is offered and
+    # withdrawn rather than asserted. A shouted run can hold a literal the
+    # protection view does not recognise in capitals -- `TORCH` where the
+    # pattern knows `torch`, `NONE` where it knows `None` -- and there is no
+    # list of those worth maintaining. The shouted form is tried first and
+    # the plain one is the fallback; a block that cannot take it keeps its
+    # capitals, which leaves a block not yet translated rather than a build
+    # that will not run.
+    shouted = _rewrite_unprotected_prose(
+        contextual, _lower_shouted_emphasis)
+    for candidate in ((shouted, contextual) if shouted != contextual
+                      else (contextual,)):
+        if candidate == source:
+            return source
+        cased = _preserve_initial_prose_case(source, candidate)
+        if _syntax_preserved(source, cased):
+            return cased
+    raise ValueError(
+        "API sense context changed a protected literal: "
+        f"{source!r} -> {contextual!r}"
+    )
 
 # Shorter English model inputs for prose that OPUS repeatedly decoded only in
 # part. These retain the complete semantic contract and every protected API

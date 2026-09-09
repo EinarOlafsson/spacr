@@ -1613,19 +1613,19 @@
         "def30ca32159c3b40b48d311b96a952ec26d093809eeb9f6227f8521c6b7d52f"
       ],
       "source_sha256": "75811db7be0825861f43c27469f725c3b921490ea418c79a49671c92225056f4",
-      "text": "将随意的图像板数分成一个管道。\n\n一个由 10x10 个 2048x2048 uint16 显微镜视野组成的网格会形成 20480x20480 的画布：单通道占 800 MB，四通道占 3.2 GB。本模块从不把这张画布——也不把整套输入——完整保存在 RAM 中。这里的每一项设计决策都由这一约束决定：\n\n* :func:`scan_tiles` 只读 **头**。 ``.npy`` 通过 :func:`numpy.lib.format.read_magic` 加上公共 ``read_array_header_*`` 对; TIFF 到 ``tifffile.TiffFile`` 的序列数据。 一千个板块花费一千个``seek``\\s,没有像素。\n* :func:`estimate_offsets` 记录在 **overlap 条仅** 连接,通过相同的窗口访问模式从记忆地图上阅读 :class:`spacr.crops.MergedField` 用于按要求提取的图像区域。 在2048x2048字符串上有10%的折叠是2048 x205字符号 - 0.8 MB,而不是8 MB。\n* :func:`plan_canvas`从*之前的*任何东西都被分配,因此不可能的字符串在算法上被拒绝,而不是由OOM杀手发现。\n* :func:`write_stack` 填充输出 **一条水平带在一个时间**. 顶级工作组是单条的 float32 积累器加上一条绳子窗,两者都由 ``max_buffer_bytes`` 限制,两者的管道大小独立。\n\n问题的另一半是对什么注册和什么没有做的事情诚实。\n\n**Offsets 是全球解决的,从未积累过.** 连锁网路到网路的转换沿着一行 10x10 网路添加了每对错误,所以最后的网路将数十个像素放出,输出中没有什么可说的。 相比之下,每对邻居一对都有一个 ``p_j - p_i = d_ij`` 方程式的贡献,整个集合同时作为对夫妇图表的重量较少的四分之一问题解决(见 :func:`solve_positions`)。 旋转的边缘 - 网络的直径邻居,一个重折的序列的 ``i``/``i+2`` 对 - 然后是 *cancel* 错误而不是组合它,每条绳子得到一个 **residual**:它的解决位置从自己的对话中坐得多远。 一个大残留物是信号,一支板没有登记,它写在桌子上,而不是平均。\n\n**不登记的对称被报告,不猜测。** 白色或近空的过渡的阶段相互关系返回一个看起来很自信的峰值,这是纯噪音. 因此,每个对称被两条线的正常交叉相互关系所得分 *之后* 测量转换被应用; 下面 ``min_confidence`` 对称被推翻,没有生存的对称的对称保持其名称阶段位置,并被标记为 ``method='nominal'``. 名称位置的对称不像一个登记的对称和 :data:`ALIGN_TABLE` 说的是,每对称。\n\n**图像数据通道共享一个解决方案。** 注册仅在 ``reference_channel`` 上运行,并且所产生的放置应用于该站点的每个图像信息通道。  独立对齐图像数据通道会剪切复合图像 — 核蒙版及其自身的 DAPI 图像信息通道将不再对齐 — 因此不提供此选项。\n\n**z 是没有缝合的。** 平铺是 2-D ``(H, W)`` 或图像通道最后的 3- D ``(H, W, C)``,这是 spaCR 的 ``merged/*.npy`` 已经使用的布局。 图层必须首先投影,或者通过对每个图层调用此模块来一次对齐一个z图像层;  4-D 数组被拒绝时会显示一条消息,而不是被默认重新解释。\n\n典型使用::\n\n    from spacr import align\n\n    tiles = align.scan_tiles('plate1/tiles', grid=(10, 10), overlap=0.1)\n    plan = align.estimate_offsets(tiles)\n    print(align.format_plan(plan))\n    result = align.write_stack(plan, 'plate1/stitched')\n    align.save_coordinates(plan, 'plate1/measurements/measurements.db',\n                           canvas=result.canvas, stack_path=result.stack_path)\n\n或在设置关键值地图中的一个呼叫中,每个其他 spaCR 模块的格式::\n\n    align.align_folder({'src': 'plate1/tiles', 'dst': 'plate1/stitched',\n                        'grid': (10, 10), 'db_path': '.../measurements.db'})\n\n坐标表是正确的方式,每个测量表在 ``measurements.db`` 是密钥 - ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` 加上 ``prc`` / ``prcf`` 组合,通过 :mod:`spacr.schema` 构建,这是一个定义 ``spacr.utils`` 写它们也 - 所以::\n\n    SELECT c.*, a.y, a.x, a.method, a.confidence, a.residual\n    FROM cell AS c\n    JOIN align_coordinates AS a USING (plateID, rowID, columnID, fieldID)\n\n它将每个测量对象放在微观视野的粘贴质量旁边,这就是让一个可疑的攻击群体被追踪到“这三个微观观点落后到名称”的结合。\n\n该模块是故意免费的 torch、 cellpose、Qt 和 TensorFlow:它是通过一个 GUI 应用程序视图和仅由标题扫描进口,也不应该支付一个深度学习支票。",
+      "text": "插入并将图像显微镜图像字段的任意数量调整到一个管道。\n\n一个由 10x10 个 2048x2048 uint16 显微镜视野组成的网格会形成 20480x20480 的画布：单通道占 800 MB，四通道占 3.2 GB。本模块从不把这张画布——也不把整套输入——完整保存在 RAM 中。这里的每一项设计决策都由这一约束决定：\n\n* :func:`scan_tiles` 只读 **头**。 ``.npy`` 通过 :func:`numpy.lib.format.read_magic` 加上公共 ``read_array_header_*`` 对; TIFF 到 ``tifffile.TiffFile`` 的序列数据。 一千个板块花费一千个``seek``\\s,没有像素。\n* :func:`estimate_offsets` 记录在 **overlap 条仅** 连接,通过相同的窗口访问模式从记忆地图显微镜图像字段中阅读 :class:`spacr.crops.MergedField` 用于按要求提取图像区域。 在2048x2048显微镜图像字段上占10%的覆盖范围为2048 x205条线 - 0.8 MB,而不是8 MB。\n* :func:`plan_canvas`从*之前的*任何东西都被分配,因此不可能的字符串在算法上被拒绝,而不是由OOM杀手发现。\n* :func:`write_stack` 填充输出 **一个水平带在一个时间**. 顶级工作组是一个带的 float32 积累器加上一个显微镜图像字段窗口,两者都被 ``max_buffer_bytes`` 限制,并且两者独立于管道大小。\n\n问题的另一半是对什么注册和什么不做的诚实。\n\n**Offsets 是全球解决的,从未积累.** 连锁微镜图像字段到微镜图片字段沿着一行 10x10 网络添加每个双重错误,所以最后一个微镜视频字段将数十个像素放出,输出中没有什么说。 相比之下,每对邻居一对都有一个 ``p_j - p_i = d_ij`` 方程式的贡献,整个集合同时作为对夫妇图表的重量较少的四分之一问题解决(见 :func:`solve_positions`)。 旋转边缘 - 一个网的直径邻居,``i``/``i+2``一对重过的序列 - 然后*取消*错误而不是组合它,每个显微镜图像字段得到一个**剩余**:它的解决位置从自己的对话所要求的位置有多远。\n\n未登记的 **A 对已被报告,未被猜测.** 白色或近空的表面上方的阶段相互关系返回了一个自信的顶峰,这是纯粹的噪音。 因此,每对是通过两条线的正常交叉相互关系*after*的分数,适用于测量转换; 在 ``min_confidence`` 以下,一对是落下的,一个微镜图像字段留下没有生存的对保持其名称阶段位置,并被标记为 ``method='nominal'``。 一个名称位置的显微镜图像字段并不像一个注册字段和:data:`ALIGN_TABLE`说什么是,每个显微镜图形字段。\n\n**图像数据通道共享一个解决方案。** 注册仅在 ``reference_channel`` 上运行,并且所产生的放置应用于该站点的每个图像信息通道。  独立对齐图像数据通道会剪切复合图像 — 核蒙版及其自身的 DAPI 图像信息通道将不再对齐 — 因此不提供此选项。\n\n**z is not stitched.** Tiles are 2-D ``(H, W)`` or channel-last 3-D ``(H, W, C)``, which is the layout spaCR's ``merged/*.npy`` already uses. A z-stack must be projected first, or aligned one z-plane at a time by calling this module per plane; a 4-D array is refused with a message that says so rather than being silently reinterpreted.\n\n典型使用::\n\n    from spacr import align\n\n    tiles = align.scan_tiles('plate1/tiles', grid=(10, 10), overlap=0.1)\n    plan = align.estimate_offsets(tiles)\n    print(align.format_plan(plan))\n    result = align.write_stack(plan, 'plate1/stitched')\n    align.save_coordinates(plan, 'plate1/measurements/measurements.db',\n                           canvas=result.canvas, stack_path=result.stack_path)\n\n或在设置关键值地图中的一个呼叫中,每个其他 spaCR 模块的格式::\n\n    align.align_folder({'src': 'plate1/tiles', 'dst': 'plate1/stitched',\n                        'grid': (10, 10), 'db_path': '.../measurements.db'})\n\n坐标表是正确的方式,每个测量表在 ``measurements.db`` 是密钥 - ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` 加上 ``prc`` / ``prcf`` 组合,通过 :mod:`spacr.schema` 构建,这是一个定义 ``spacr.utils`` 写它们也 - 所以::\n\n    SELECT c.*, a.y, a.x, a.method, a.confidence, a.residual\n    FROM cell AS c\n    JOIN align_coordinates AS a USING (plateID, rowID, columnID, fieldID)\n\n它将每个测量对象放在微观视野的粘贴质量旁边,这就是让一个可疑的攻击群体被追踪到“这三个微观观点落后到名称”的结合。\n\n该模块是故意免费的 torch、 cellpose、Qt 和 TensorFlow:它是通过一个 GUI 应用程序视图和仅由标题扫描进口,也不应该支付一个深度学习支票。",
       "translation_source_blocks_sha256": [
-        "52e287e8c26388be3ca3e46fae2e36d17c2c8841a5d09b92c741110c0295af47",
+        "ac1c69940c19e0d39361e9a266b9d6c88bf8fed938bb88c6bd8bb5fdef37d72d",
         "ac3feec1e13e92cb7fc071584c5dae841368a75bd988e2ae17ef2eddad33ea5e",
         "b3745fde443fd2ee18e3b356e7032c22481a335be905dbc0660363870c4d3ae3",
-        "64cbb6594067c41c627aeae0cc80d20b7459e08cf9cf9fcaad2c0807263a0b5e",
+        "34a61b43242c9dcd7c5418e6d4e046b790392cf07b5c2ebd5eca735a0cfba2f7",
         "cbffd9f9d1b8fc77c3f82a35d620231015aab3ed9a04b2f027ed083bc202b335",
-        "0da3eb307994038a94289e89aef83a7043a71750c1e7bd2baf73b018e427bdab",
+        "d28d92447949f6fc53b38150bb8ddd80ad5d91676cf24fef25f91a7efa77b3f5",
         "5c511414da37fdc573017ade39afb5c224d8a84497bb93fb2181b24837f506c5",
-        "eba5634f5f7a97d800aab80c79ae69b4e6027d764c5d4967858fe82e63cfbc4e",
-        "85e2094aca68a00a1bca5fa8435883d8b359bdf127fa349d101f248b19de8802",
+        "90f1cee934745d033b8daba31a0d466c3bed4c48d5b51be9c131190f77da0c45",
+        "9ea72dbbb7777699bd4d6deac3f34ea81f6dfa3fb755a99510382b8c0e4180c4",
         "250a3ccefe0860319a250ca4191308128ba27fc39ab94a7f603de949306822c4",
-        "c5af39eaa8a6aec332c63cce417b623d4604dd2172ebb64b200440e16e415db6",
+        "cd146c49938063f17710e5d702de55c987b8b1eae0bdeb9d81a47b402e4f8ac2",
         "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8",
         "4fb8b298cc661174421437b6f81aa5d59dc1d52ae982477bc9d3c6cab9fffae8",
         "a340f22856cd0a67fa4479b90c36e3902e2df916091f9a61c82fc7f0298877d7",
@@ -1638,9 +1638,9 @@
         "d34d507dd82114bd9ad1e4912c3d609f8e9eb2dad785d32bf7f3912155c0cc6e"
       ],
       "source_sha256": "d34d507dd82114bd9ad1e4912c3d609f8e9eb2dad785d32bf7f3912155c0cc6e",
-      "text": "一个字不能读,或者一个字不可以写。",
+      "text": "一个显微镜图像字段不能被阅读,或者一个字符串不能被写成。",
       "translation_source_blocks_sha256": [
-        "d34d507dd82114bd9ad1e4912c3d609f8e9eb2dad785d32bf7f3912155c0cc6e"
+        "0de3c48af820c0c9f3855ede9e424a4f1efd538790acb23334fa59bf1c614c04"
       ]
     },
     "spacr.align.AlignPlan": {
@@ -1658,15 +1658,15 @@
         "af7127ffee764dc40161ccf73e4a2dc6102e1776d671046265801e3c323a5b36"
       ],
       "source_sha256": "a269ff53711ee46318f93add985d2f436acf8ec287a9f2045a3c6ca8d67ae5e3",
-      "text": "答案:什么是走向哪里,一切都错了。\n\n:ivar tiles: 每张文件都可以阅读,或者不读。\n:ivar placements: 每片可读的,按片序。\n:ivar canvas_shape: ``(H, W, C)`` 将占据的。\n:ivar overlaps: 每个候选人,接受或拒绝。\n:ivar warnings: 非致命问题 - 混合的 dtypes,分离的组件,没有过渡的板块。\n:ivar unplaced: ``(tile, reason)`` 对于任何不能放置的板块,这些都被排除在管道上,不静静地切断。\n:ivar origin: ``(y, x)`` 是通道在全球框架中的起源。\n:ivar feather: 海洋拉姆宽度在像素,从真正的超越而不是猜测。\n:ivar dtype: 那时,将写下这张字符。\n:ivar reference_channel: 频道登记被测量。",
+      "text": "完整的解决方案:什么去哪里,一切都错了。\n\n:ivar tiles: 每一张文件,可读或不读。\n:ivar placements: 每片可读的片段,按片段顺序。\n:ivar canvas_shape: ``(H, W, C)`` 会占据。\n:ivar overlaps: 每个候选人,接受或拒绝。\n:ivar warnings: 非致命问题 - 混合的 dtypes,分离的组件,微镜图像字段,没有任何过渡。\n:ivar unplaced: ``(tile, reason)`` 对于任何未能放置的微镜图像字段,这些字段被排除在字符串中,而不是静静地排除。\n:ivar origin: ``(y, x)``在全球框架中产生的管道。\n:ivar feather: seam ramp 宽度在像素中,源于真实的超越,而不是猜测。\n:ivar dtype: dtype 将被写入的字符串。\n:ivar reference_channel: 频道登记已被测量。",
       "translation_source_blocks_sha256": [
         "2a15d7a7d0ad1ef223da280e4672ad60c4b4b806f7f2e32e4c5d11a78adfe968",
         "d9624179171b2d943ee582279f1763878e563f6353c3ad0014f5dc52d3c7df3c",
         "440fd9a96ee254deede247228febbb9c652f04c2a94e8e9a8cfb7b50d4bdde14",
         "65ddbb896836b6e3a1cda0942ffa406f4e95fe762163262689ee29aa3b2b6906",
         "edebed62de75ba3a5f57741ba102bcf61edecae650edbf14cf7d6dbb66b8e662",
-        "d4a22a4569514ddb783885635d2bc642336062111c68a60134e52d5823f13be0",
-        "2337a315fe11045930ff1a108a91d559412006f9572d3d3fbaf812f3606107a9",
+        "19084a2bcfcce002d0c286ae8ed88030fa741c546e91e1f027b0d1f6000c8dd4",
+        "1d724cfd4a53c4241edf748339d5e042422dbbb5658c4152848034377d5791c2",
         "5d19638f2c15c757c9cabc1d2023aceca21804cad4a9b9a613ceb7f4ed6c02ae",
         "c7ed0f3fd2088ff19406599d296e769b76cc5bfe78fd3cda40a13bf25063f4f1",
         "18a4462e0086a57d4ab477e1eb16c979e84d77fae4405ea164edf61b32089440",
@@ -1718,9 +1718,9 @@
         "d5d75bde113a78ab6b046f23788c4c7e14eff80711551117b02ced079e44f784"
       ],
       "source_sha256": "d5d75bde113a78ab6b046f23788c4c7e14eff80711551117b02ced079e44f784",
-      "text": "通过登记的插件。",
+      "text": "微镜图像字段通过登记。",
       "translation_source_blocks_sha256": [
-        "d5d75bde113a78ab6b046f23788c4c7e14eff80711551117b02ced079e44f784"
+        "b19a5564ad798413f50e48a1a5ca1b7a954b99ef3085341a9c17dec0a2f5e310"
       ]
     },
     "spacr.align.AlignPlan.nominal_placements": {
@@ -1759,13 +1759,13 @@
         "1d3426906e16124c463e545c45f2aaed0a986af1405515b52d85f9305144089a"
       ],
       "source_sha256": "98fa2a7c8214302cfa5b6a41087f651e4c1358cad28c8a6817535e3c25ba1d4c",
-      "text": "“:func:`write_stack`”实际上是怎么做的。\n\n:param plan: 与写作相匹配的计划,或由预览结果保留。\n:param canvas: 计划的输出-canvas 地质学。\n:param stack_path: 写的 ``.npy`` 字符串的路径,或 ``\"\"`` 为干运行,预览,或空写。\n:param n_written: 各式各样的板块的数量,至少有1个像素对管道的贡献。\n:param n_skipped: 读者或窗口阅读在写作时失败的板数;每个板数最多一次。\n:param peak_buffer_bytes: 预测的最大比特被带电池和重量图像层占用。\n:param band_rows: 最多数量的字符串在一个写作带中保持。\n:param writer: 选为运行的字符串编辑器, ``\"stream\"`` 或 ``\"memmap\"``。\n:param status: 写出结果: ``\"empty\"`` 在像素写作之前, ``\"complete\"`` 没有字符串阅读失败时,或 ``\"partial\"`` 至少有一字符被错过时。\n:param warnings: 非致命的干行,空白的漏洞,阅读错误,放置,或 artefact-stamping 消息。\n:param db_path: 坐标数据库编写为 :func:`save_coordinates`,或 ``\"\"``,当坐标没有保存。",
+      "text": ":func:`write_stack` 实际上是怎么做的。\n\n:param plan: 与写作相匹配的计划,或由预览结果保留。\n:param canvas: 计划的输出-canvas 地质学。\n:param stack_path: 写的 ``.npy`` 字符串的路径,或 ``\"\"`` 为干运行,预览,或空写。\n:param n_written: 不同微镜图像字段的数量,其中至少有一个像素对容器作出贡献。\n:param n_skipped: 读者或窗口阅读在写作时失败的板数;每个板数最多一次。\n:param peak_buffer_bytes: 预测的最大比特被带电池和重量图像层占用。\n:param band_rows: 最多数量的字符串在一个写作带中保持。\n:param writer: 选为运行的字符串编辑器, ``\"stream\"`` 或 ``\"memmap\"``。\n:param status: 写出结果: ``\"empty\"`` 在像素写作之前, ``\"complete\"`` 没有字符串阅读失败时,或 ``\"partial\"`` 至少有一字符被错过时。\n:param warnings: 非致命的干行,空白的漏洞,阅读错误,放置,或 artefact-stamping 消息。\n:param db_path: 坐标数据库编写为 :func:`save_coordinates`,或 ``\"\"``,当坐标没有保存。",
       "translation_source_blocks_sha256": [
         "7875bc7a34bb2186bc04a5c3b9e5a7a27784bb6768b439c1764792a302054091",
         "44116bd2ccbfab2a9458a4f6c6e8c56ad0fbdf143cc79ad46b7509155b74d2b0",
         "4a92548d6abce4ff3f17e128d75c10b5533d60310628d8353eba87b626585e89",
         "e423959070625829ee72dcbc001c40182120d32ffc5495a03d67f71df51d5732",
-        "0dadb8e671d476587f7a19de885c291c80077ebd3124ec2be2b227fe351579c7",
+        "24f5dcd4845af374cc13b7595f57471321bee48c9f0366928cd445db18406a52",
         "88c1fa65927cea00905896badbebdabff73b4e53d57f38038019ee723e0feaf1",
         "21fb20dd2f6b7b079e0054e225f0d7bfe10f08e52f3926834ab087255db4a726",
         "7a376d7c5c87fab798087872fc7f32a48450b6ed019ca097b383b5c95fb61d60",
@@ -1890,7 +1890,7 @@
         "692647483f852f94105210381b8fc4c2534b84a465f97cd349b4b6057204be49"
       ],
       "source_sha256": "e3ac35de41bac26df7bd33f5c67f8784f3a14f5a25efeae0d1f359b7e4a21481",
-      "text": "一个点点去哪里,这个位置是多少值。\n\n:param tile: 源 :class:`Tile` 由此结果放置。\n:param y: 在全球范围内解决了顺序折扣;负面位置保留到管道规划。\n:param x: 在全球范围内解决了列折扣。\n:param confidence: 最大的接受的双重信任支持这个字符,零为名义落后,或一个为单字符案例。\n:param method: 放置方法,其中一个是 :data:`METHOD_REGISTRATION`, :data:`METHOD_NOMINAL`,或 :data:`METHOD_SINGLE`。\n:param note: 否认或拒绝的证据。\n:param residual: root-mean-square 不一致,在像素中,解决的位置和接受的事件对。\n:param n_pairs: 已接受的登记对比事件的数量在此页面上。",
+      "text": "一个点点去哪里,这个位置是多少值。\n\n:param tile: 源 :class:`Tile` 由此结果放置。\n:param y: 在全球范围内解决了顺序折扣;负面位置保留到管道规划。\n:param x: 在全球范围内解决了列折扣。\n:param confidence: 最大的接受的双重信任支持这个字符,零为名义落后,或一个为单字符案例。\n:param method: 放置方法,其中一个是 :data:`METHOD_REGISTRATION`, :data:`METHOD_NOMINAL`,或 :data:`METHOD_SINGLE`。\n:param note: 否认或拒绝的证据。\n:param residual: root-mean-square 不一致,在像素中,解决的位置和接受的事件对。\n:param n_pairs: 在这个显微镜图像字段上的已接受登记对的事件数量。",
       "translation_source_blocks_sha256": [
         "0da02f224b75bce7b9db7e113c6c2694c9a8dcf973a89e90ac5ed0f1890c32fc",
         "83f94c2b900408bc11583e04d3b762bb2af209237b840c707c3e76dcc5370046",
@@ -1900,7 +1900,7 @@
         "81a3caef8bfd4f38a8999b90163773ba8fd70bad0fb67b635d1a1f7e982f4259",
         "2eaacb751505424d10a0657005a0f23c6f02ae9f51aa2a5e17b57fbd80c33b4e",
         "162d453e5570576cdb79dc6a20464240c0310e1a1e4bfc3373457604a2c7f606",
-        "692647483f852f94105210381b8fc4c2534b84a465f97cd349b4b6057204be49"
+        "4ef818839d1964ce11d1999dba76e3fb111a57e1ecb80869cd38473371f4e2c0"
       ]
     },
     "spacr.align.Tile": {
@@ -1923,9 +1923,9 @@
         "6735d9ed4ecc2ca918af8d113126948be9781ee08edd850f3471612f13ddb664"
       ],
       "source_sha256": "cdbf4dc0367df111d009b4afcff561bf9f75e4885bb8abca88a7e7bcae64b60f",
-      "text": "一个网站:关于一块纸板的一切,没有阅读它的像素。\n\n\"site\" 表示载物台上的一个位置，而不是一个文件。若每个图像数据通道各自存于一个文件中——例如 Yokogawa 数据——同一位置的其他通道路径保存在 :attr:`channel_paths` 中，:attr:`path` 则是参考图像数据通道的路径；若各图像数据通道是同一个 ``(H, W, C)`` 数组中的图像层——例如 spaCR 的 ``merged/*.npy``——则 :attr:`channel_paths` 为空，:attr:`path` 是唯一的文件。无论哪种情况，每个载物台位置都恰好对应一个 :class:`Tile`，因而也恰好对应一个 :class:`Placement`。\n\n:param path: 参考图像数据通道文件的绝对路径,或者当所有图像信息通道都是一个数组的图像层时的唯一文件。\n:param index: 基于零的标签指数,由双结果、全球解决方案和读者存储器使用。\n:param plate: 平板图标从字体名称,或 ``\"\"`` 如果缺席。\n:param well: 在缺席时,从字体名称,如 ``\"B07\"`` 或 ``\"\"`` 出发。\n:param field: 一个基于微镜的视野识别器在扫描过程中分配;零仅在手动构建的板上,没有分配微镜视野。\n:param channel: 以零为基础的集合频道指数选择以驱动登记。\n:param shape: 集合位置形状 ``(height, width, channels)``;不可阅读的标题保持零高度和宽度。\n:param dtype: NumPy dtype 名称由参考标题表示,或 ``\"uint16\"`` 作为不可读的标题落后。\n:param grid_row: 在采购网络中以零为基础的名义顺序。\n:param grid_col: 在采购网络中以零为基础的名称列。\n:param nominal_y: 以像素的垂直名称位置。\n:param nominal_x: 以像素的名称水平阶段位置。\n:param channel_paths: 在集合频道顺序中,或 ``()`` 当所有频道生活在 :attr:`path` 内。\n:param error: 标题阅读故障文本,或 ``\"\"`` 当字符串可阅读时。",
+      "text": "一个网站:关于微镜图像字段的所有知识,而不读其像素。\n\n\"site\" 表示载物台上的一个位置，而不是一个文件。若每个图像数据通道各自存于一个文件中——例如 Yokogawa 数据——同一位置的其他通道路径保存在 :attr:`channel_paths` 中，:attr:`path` 则是参考图像数据通道的路径；若各图像数据通道是同一个 ``(H, W, C)`` 数组中的图像层——例如 spaCR 的 ``merged/*.npy``——则 :attr:`channel_paths` 为空，:attr:`path` 是唯一的文件。无论哪种情况，每个载物台位置都恰好对应一个 :class:`Tile`，因而也恰好对应一个 :class:`Placement`。\n\n:param path: 参考图像数据通道文件的绝对路径,或者当所有图像信息通道都是一个数组的图像层时的唯一文件。\n:param index: 基于零的标签指数,由双结果、全球解决方案和读者存储器使用。\n:param plate: 平板图标从字体名称,或 ``\"\"`` 如果缺席。\n:param well: 在缺席时,从字体名称,如 ``\"B07\"`` 或 ``\"\"`` 出发。\n:param field: 一个基于微镜的视野识别器在扫描过程中分配;零仅在手动构建的板上,没有分配微镜视野。\n:param channel: 以零为基础的集合频道指数选择以驱动登记。\n:param shape: 集合位置形状 ``(height, width, channels)``;不可阅读的标题保持零高度和宽度。\n:param dtype: NumPy dtype 名称由参考标题表示,或 ``\"uint16\"`` 作为不可读的标题落后。\n:param grid_row: 在采购网络中以零为基础的名义顺序。\n:param grid_col: 在采购网络中以零为基础的名称列。\n:param nominal_y: 以像素的垂直名称位置。\n:param nominal_x: 以像素的名称水平阶段位置。\n:param channel_paths: 在集合频道顺序中,或 ``()`` 当所有频道生活在 :attr:`path` 内。\n:param error: 标题阅读故障文本,或 ``\"\"`` 当字符串可阅读时。",
       "translation_source_blocks_sha256": [
-        "9b3278d9596018bf8a44bae7a0a1ed4bc8e0e18ac1aacb203d1fa53f9aed8372",
+        "2247209d0ad10c870e9a8ef0c8cf6386b23fe28eb98b2e0a51682204316f3155",
         "f3330ebb1b25592b0aa0fb7d6a0d3946f8383bf879c7d2f249bf727796b65ebe",
         "f75cbd14352f6de9fbca3bc6fd3257d46c67e4f3989f5a806c767fd72ca92e38",
         "02e4a87ee7ab6816e180c3229cd3612fa2c5501ce73e5f2ed7c6ab0d8c10c0d9",
@@ -2046,19 +2046,19 @@
         "a95fc12b8424aadd28bf947f99489882aed7d0a88f4925f48a3c4a90c7997d1a"
       ],
       "source_sha256": "50d1dc734703b15e610df2e5d06a93a7860380219b9af2a38703350716e41244",
-      "text": "记录每个超越邻居的夫妇,并同时解决整个组。\n\n记忆体:顶部分配为两个超层线,为2048x2048板的10%超层,是2 x 0.8 MB,无论管道显然是什么。\n\n:param tiles: 从 :func:`scan_tiles` 或手工制作。\n:param reference_channel: 用于测量配准的图像层。同一视野的所有图像数据通道随后共享该视野的同一个解；若分别配准各通道，会使合成图像产生剪切。``None``（默认值）使用图块自身携带的图像数据通道，也就是 :func:`scan_tiles` 选择的通道。此参数过去默认为 ``0``，因此先调用 ``scan_tiles(reference_channel=2)`` 再按文档调用 ``estimate_offsets(tiles)`` 时，会在没有提示的情况下改用图像数据通道 0 配准；所选通道虽存储在每个图块上，却从未被读取。若各图块记录的通道不一致，则回退到 ``0``；最终解析出的值会写入配准方案，并由 :func:`format_plan` 输出，因此实际采用的通道清晰可见，而不是依靠假定。\n:param min_confidence: 正常化交叉关系,其中一对被拒绝,条落返回名称。\n:param min_overlap_px: 超越的狭窄比这在任何轴都没有尝试。\n:param upsample: 微小精炼因子; 10 分辨 0.1 px。\n:param neighbour_radius: 切比塞夫网距离考虑. 1 是周围的八个板块. 升高它,当超越50%,所以 ``i``/``i+2`` 对变成解决方案中的真正的回收。\n:param max_shift: 拒绝任何一对,其纠正超过了这个多像素。\n:param anchor_weight: 看 :func:`solve_positions`。\n:param dtype: 强制子 dtype;默认推进每个子的dtype。\n:param max_open_tiles: 一个列条错误在整个序列大板,所以留下每个板地图会使居民设置输入文件夹的尺寸; 8 覆盖附近正在注册。\n:param ledger: 可选 :class:`spacr.errors.RunLedger` 以记录每次成功/失败。\n:returns: 一个 :class:`AlignPlan`;没有任何分配或写作。\n:raises ConfigurationError: 没有可读的字符。",
+      "text": "记录每对邻居夫妇,并同时解决整个组合。\n\n记忆体:顶部分配为两个超层线,在2048x2048微镜图像字段上有10%的超层,是2 x 0.8 MB,无论管道显然是什么。\n\n:param tiles: 从 :func:`scan_tiles` 或手工制作。\n:param reference_channel: 用于测量配准的图像层。同一视野的所有图像数据通道随后共享该视野的同一个解；若分别配准各通道，会使合成图像产生剪切。``None``（默认值）使用图块自身携带的图像数据通道，也就是 :func:`scan_tiles` 选择的通道。此参数过去默认为 ``0``，因此先调用 ``scan_tiles(reference_channel=2)`` 再按文档调用 ``estimate_offsets(tiles)`` 时，会在没有提示的情况下改用图像数据通道 0 配准；所选通道虽存储在每个图块上，却从未被读取。若各图块记录的通道不一致，则回退到 ``0``；最终解析出的值会写入配准方案，并由 :func:`format_plan` 输出，因此实际采用的通道清晰可见，而不是依靠假定。\n:param min_confidence: 正常化的交叉通道,其中一对被拒绝,条落返回名称。\n:param min_overlap_px: 超越比这更紧,在任何轴都没有尝试。\n:param upsample: sub-pixel refinement 因子; 10 分解 0.1 px。\n:param neighbour_radius: 1是周围的八个显微镜图像字段,当超层超过50%时,提高它,所以 ``i``/``i+2`` 对变成溶液中的真正回收。\n:param max_shift: 拒绝任何一对,其纠正超过了这个多像素。\n:param anchor_weight: 看 :func:`solve_positions`。\n:param dtype: 强制插槽 dtype;默认推进每个显微镜图像字段的dtype。\n:param max_open_tiles: 一个列列错误在整个序列大列,所以留下每个列地图将使居民设置输入文件夹的尺寸; 8 覆盖邻居被注册。\n:param ledger: 可选 :class:`spacr.errors.RunLedger` 以记录每次成功/失败。\n:returns: 一个 :class:`AlignPlan`;没有任何分配或写作。\n:raises ConfigurationError: 没有可读的字符。",
       "translation_source_blocks_sha256": [
         "f3a0f29e294fb1d936f5f1b5052231b3a195fef13602395d484a6d4d3bcf08d0",
-        "37b51a75e6f8995a17f4177cbfdfd3c8e7f1df056bea20839b880cb36499d9fc",
+        "2643c03cb6bed0fe348f897765e0a851d8a05d7f11b56115d471c6bcd25953ba",
         "2ef87651b63df73c89029d882b8423b9394ec074cee27bba38b97c4e3ea6bdc1",
-        "77276458e5cadab358d12e5673b1a9de833bf3697278221a924dace1e87cf127",
+        "fb33c7bab13a58b4d5fe4486dd36f98a561d512225456af5487c1dd233e2752c",
         "511c1fd327e46cce53a7b8e0c3c483291d3f771c19fe236de7fc5b46e3930a88",
         "34c231313751eb789804c0e5cabf509b66f9ca0e1d425760825c630878d02373",
         "daa6ba7710e1df897fe4044c07081a25b015386fe5bf80ad37e631f2e844b7b2",
-        "c3dc3e0e1f17b8ed84698ea1ac8217a60678c21492cc73995287f42d3ecf0a10",
+        "0b1cadfe51ea8038657db71b93a60633d16ce1679b7e16b282bb1e6a4a9de826",
         "a3cd5c3508cc8f19e6e616c98b14ab7685a42606dcdb7fb618550fc8100d34ef",
         "656051289caf9586997caa4dc888ae79bf1468ca4969afa7f202543c99505abc",
-        "bdc6911ccf990a7f3ce100c628dda228c6efbd36a0ec0a6588fccfa0a8e8f24c",
+        "c71aa096a2b0d42fe021856f84cc33921435b11d99953524a84d0c05a4e22bb8",
         "ef394b32dcdf6682689ebf4a4f9330619fa1abc9fa3232acd5af1346d5e6f8bb",
         "34c5d9348a0847b76ee37fb91affe73930873b49c2e956cd063bdf645d14597d",
         "9ab9534cbe9aed936c772355d13a669e33cb0a5fe8bead3c65d3afb7f6fbb2c7",
@@ -2099,13 +2099,13 @@
         "1749bf8f018e92debf55ec5585ee3f0aca84364d661d53309417bdbc5a32ad51"
       ],
       "source_sha256": "94f3fda1b8e2222dcc92a19229e33d2176e6a1b2991ecf64d24b430d00ed623f",
-      "text": "把管道的地质从外套中计算起来,分配什么都没有。\n\n消极的折叠是正常的情况 - 溶液将折叠到名称中心,这样一支绳子可以从起源的顶部或左侧降落。 绳子尺寸到每个放置的绳子的边缘盒子,并且 :attr:`CanvasSpec.origin_y` / :attr:`~CanvasSpec.origin_x` 将地图带回全球框架,所以什么都没有被剪断。\n\n:param placements: 从 :attr:`AlignPlan.placements`。\n:param dtype: canvas dtype; defaults 促进每个字符。\n:param channels: canvas 图像层;默认到最宽的板块。\n:returns: :class:`CanvasSpec`. ``height``/``width`` 是 0 的空位列表。",
+      "text": "把管道的地质从外套中计算起来,分配什么都没有。\n\n消极分子是正常情况 - 溶液将分子调整到名称中心,因此微镜图像字段可以在起源的顶部或左侧着陆。 管道尺寸到每个放置的微镜图像字段的边缘框,:attr:`CanvasSpec.origin_y` / :attr:`~CanvasSpec.origin_x`将地图带回全球框架,所以没有什么被剪辑。\n\n:param placements: 从 :attr:`AlignPlan.placements`。\n:param dtype: canvas dtype;默认可促进每个显微镜图像字段。\n:param channels: canvas 图像层;默认到最宽的显微镜图像字段。\n:returns: :class:`CanvasSpec`. ``height``/``width`` 是 0 的空位列表。",
       "translation_source_blocks_sha256": [
         "60575d3f9a29ef348b9806770288a77ac7e409ebec3bb5317322db94a4131a05",
-        "8709a0a32caa9b499cdd1292644185573676efb66b0eca1e296e6a4db28325e6",
+        "582c897e1a955c6a95fcc7d2b6d93848a54d6d2464d360c33c3724d45043a8a9",
         "307baddafd94687ff2ade72c7174a091eec45c7b7708ad11fbf9f5185fa34ceb",
-        "f18f939e435e3bcbd06bfe5a28da1e5c614bf4d46b46ef72c7aa6fa7c6c4bda8",
-        "07cafba0e45e4017cd4f05ce183f00ca673a766f09dc76e5593786ae684846c5",
+        "8ac7a7daeec16cc8b77379ccb381579cf11bdb519e6a70f82b645ce246bc1a9d",
+        "dbf4ad77eca45db0ef02ba4e08de142dde7b0e03b52037b2c8c872104cf045a1",
         "1749bf8f018e92debf55ec5585ee3f0aca84364d661d53309417bdbc5a32ad51"
       ]
     },
@@ -2147,10 +2147,10 @@
         "eb01c8ea0b1c69a771634742917b73542068d628493d62f7ef5238225bd2ba4b"
       ],
       "source_sha256": "c32095c130d26b00fb1a7dc6ad5eaa7d9c1b7a5b30b6976e1a285fd9f0a8d0a8",
-      "text": "按字符串写一个行,以 ``measurements.db``。\n\n该表的点是,一个字符串是*claim*:“显微镜视野47的B07座位在线3641,列8192”。 下流,一个微板样本位置的一个角落的奇怪测量群体是生物学或沉默地落到其名称位置的绳子,只有这个表可以分开两者。 因此,每行都携带``method``,``confidence``和``residual``在坐标旁边。\n\n它按正确的方式 ``conversion_map`` 键,每个测量表都按键,所以它在相同的四个列上加入。::\n\n    SELECT c.*, a.canvas_y, a.canvas_x, a.method, a.residual\n    FROM cell AS c\n    JOIN align_coordinates AS a\n      ON  c.plateID  = a.plateID\n      AND c.rowID    = a.rowID\n      AND c.columnID = a.columnID\n      AND c.fieldID  = a.fieldID\n\n或在单个 ``prcf`` 列上,该列被索引。 相同的合并对 ``nucleus`` / ``pathogen`` / ``cytoplasm`` / ``png_list`` 和对 ``conversion_map`` 本身工作,这连接了一个紧密的坐标,整个方式返回原始的供应商文件。\n\n无法阅读的图也被写成,有 ``method='unreadable'`` 和 NULL 坐标 - 缺少的显微镜视野必须在表中可见,而不是缺席。\n\n:param plan: 一个 :class:`AlignPlan` 或多个(每个微板样本位置为一个)。\n:param db_path: SQLite 数据库; 如果缺席,创建。\n:param table: 桌子名称\n:param canvas: 地质学实际上是写的,当它与计划不同时。\n:param stack_path: 这些坐标的 ``.npy`` 将被指数到。\n:param if_exists: 如 ``'replace'``(默认), ``'append'``或 ``'fail'``。\n:returns: 写的行列数。",
+      "text": "每个字符串写一个行为 ``measurements.db``。\n\n这个表格的要点是,一个缝线是一个*claim* : \" B07的显微镜视场47位于画布行3641,列8192 \" 。 下游,在微板样品位置的一个角落的奇数测量值集群是生物学或显微镜图像场静默地回落到其标称位置,只有此表可以区分两者。 在坐标旁边的每一行都有 ``method``, ``confidence`` 和 ``residual`` 。\n\n它按正确的方式 ``conversion_map`` 键,每个测量表都按键,所以它在相同的四个列上加入。::\n\n    SELECT c.*, a.canvas_y, a.canvas_x, a.method, a.residual\n    FROM cell AS c\n    JOIN align_coordinates AS a\n      ON  c.plateID  = a.plateID\n      AND c.rowID    = a.rowID\n      AND c.columnID = a.columnID\n      AND c.fieldID  = a.fieldID\n\n或在单个 ``prcf`` 列上,该列被索引。 相同的合并对 ``nucleus`` / ``pathogen`` / ``cytoplasm`` / ``png_list`` 和对 ``conversion_map`` 本身工作,这连接了一个紧密的坐标,整个方式返回原始的供应商文件。\n\n无法阅读的图也被写成,有 ``method='unreadable'`` 和 NULL 坐标 - 缺少的显微镜视野必须在表中可见,而不是缺席。\n\n:param plan: 一个 :class:`AlignPlan` 或多个(每个微板样本位置为一个)。\n:param db_path: SQLite 数据库;如果缺席,则创建。\n:param table: 桌子名称\n:param canvas: 地质学实际上是写的,当它与计划不同时。\n:param stack_path: ``.npy`` 这些坐标在索引中。\n:param if_exists: ``'replace'``(默认), ``'append'``或 ``'fail'``。\n:returns: 写的行数。",
       "translation_source_blocks_sha256": [
         "d0953204037895c0eea32242c670fabe4585873bbf6d1b81fa00544e41d223e8",
-        "3df30a3fa13532fd6d3181b1698f3d149874d3926d09419303a44006b636a67a",
+        "35854c8f666232f713cf6d15054b3277505478f6a26dc81a6b1d1d836b55134d",
         "cbf06d72afe36bfc7ca504ad97e4878ae795eaa2d44cd1b3e49c2446479331b2",
         "ec5579d8cea22a176e3f7119b6fe342d3f910ef436c628e837970d0bf1fa5254",
         "b02d0a3043fb4f576b47214c87aa1d170597e720e048a6e307ea2c59e1549fb4",
@@ -2180,19 +2180,19 @@
         "b7a16b12d3231774e49c8ee4d437cfa15ea42c0fd85f6f549bccc24de151b230"
       ],
       "source_sha256": "19c1ef06bb241f779b70154f020f3e9a153cf52efe869b6cd60e65942b6ffb36",
-      "text": "返回一个 :class:`Tile` 每个阶段位置, **没有阅读像素**。\n\n每个文件的格式和dtype来自其标题,一张1000字符的文件夹在打开1000个文件时被扫描,这就是“显示我之前写800MB”的可能性。\n\n共享 ``(plate, well, field)`` 的文件被折叠成一个图像图层,每个图像数据通道:每个显微镜视场具有四个图象数据信道的 Yokogawa 孔产生一个 :class:`Tile` 视场,而不是四个。\n\n:param src: 文件夹,单个文件,或明确的路径列表(设置命令 - 有用,当文件名携带没有显微镜字段视图号)。\n:param grid: 收购的 ``(rows, cols)``. 被忽略时从字符数中取消。\n:param overlap: 名称邻居作为叶片的碎片,仅用于种植搜索;登记纠正它。\n:param order: 如何在网上进行平板字段序列地图 - 见 :data:`ORDERS`. Serpentine 收购需要 ``'snake-row'``。\n:param recursive: 也行下滑板。\n:param positions: 可选的 ``{field: (y, x)}`` *已知* 阶段位置在像素中. 完全超越网 - 通过微镜的实际坐标,当你有它们。\n:param reference_channel: 哪个频道驱动注册? 缺点到最低的频道。\n:param group_by_well: 莱斯 ``grid`` 外出 **一次按微板样本位置** 一个网是收购的属性,收购是微板样本位置 - 相同的微镜场景模式在每个微板模型位置重复 - 因此,一个持有两个微板图像样本地点的文件夹图2x2是两个2x2,而不是一个2x4。 \"网 2x2 有空间 4 张,但 8 发现\",和 ``grid=None`` 完成了一个单一的2x4将每个微板样本置于1x4条线的位置,并将其垂直邻居放在外面。 :func:`align_folder` 通过自己的 ``group_by_well`` 通过设置。\n:returns: 网格顺序,每个设置为 ``index``。\n:raises ConfigurationError: ``src`` 不存在,或者 ``grid`` 对于所发现的板块太小。",
+      "text": "返回一个 :class:`Tile` 每个阶段位置, **没有阅读像素**。\n\n每个文件的格式和dtype来自其标题,在打开1000个文件时扫描一张1000字符的文件夹,这使得“在写800MB之前向我展示计划”是可能的。\n\n共享 ``(plate, well, field)`` 的文件被折叠成一个显微镜图像场,每个图像数据通道有一个图像层:一个 Yokogawa 孔每个显微镜视场有四个图片数据通路,每一个显密镜视场产生一个 :class:`Tile`,而不是四个。\n\n:param src: 文件夹,单个文件,或明确的路径列表(设置命令 - 有用,当文件名携带没有显微镜字段视图号)。\n:param grid: ``(rows, cols)`` 收购. 从微镜图像字段计算中输入,当被忽略时。\n:param overlap: 名称邻居作为显微镜图像字段的一部分,仅用于种植搜索;注册纠正它。\n:param order: 如何平板字段序列地图到网 — 见 :data:`ORDERS`. Serpentine 收购需要 ``'snake-row'``。\n:param recursive: 走路的分子也。\n:param positions: 可选 ``{field: (y, x)}`` *已知* 段落位置在像素. 完全超越网络 - 通过微镜的实际坐标,当你有它们。\n:param reference_channel: 哪个频道驱动登记. 缺点到最低频道现有。\n:param group_by_well: 莱斯 ``grid`` 外出 **一次按微板样本位置** 一个网是收购的属性,收购是微板样本位置 - 相同的微镜场景模式在每个微板模型位置重复 - 因此,一个持有两个微板图像样本地点的文件夹图2x2是两个2x2,而不是一个2x4。 \"网络 2x2 有空间 4 微镜图像字段 但 8 发现\",和 ``grid=None`` 完成了一个单一的2x4将每个微板样本置于1x4条线的位置,并将其垂直邻居放在外面。 :func:`align_folder` 通过自己的 ``group_by_well`` 通过设置。\n:returns: 按网格顺序,每个设置为 ``index``。\n:raises ConfigurationError: ``src`` 不存在, 或 ``grid`` 太小了找到的板块。",
       "translation_source_blocks_sha256": [
         "cbc4c43ee185ed9686e125019886c77f65252c2256f220a52b22f728b62905c7",
         "cfafd9a2816ac52c524382009f497840f54de1007decd3da922fc4f019c50f9c",
-        "6660935bde26dcce9e82ef517d9320e894ea94bbec3d4eefdee13807a2707d34",
+        "072de67aaef0a62b7f0153576bac720ae36f5700519286859089995ba334e84b",
         "0673fa859b3120654b8fda43aa012ff0f244280da47ebec6396b0a1ad846288e",
-        "7e28613931d262ddc918850707f847ee6acf61fb7646f578015ab289a0d4f3c9",
-        "73483fa0503b6404647a41bab1a882d3b5b6a0f22ddd741491895c6d6d16b70a",
+        "ae5aa458de0d1b2aa14e4347e92b68de8dec4657eadee44e962e5fb744093e75",
+        "3e11d280f948fe99a4e50095b8303f1e554a66d85196adab1e06748334bbf14d",
         "901990686170937bdb4814314a40fd4cf576cbcdc1d14c512701a0917154f564",
         "ee50840c1ff53c7ea22812780540ee6b7c60e82a8e2e43de6f775ec435a3b86d",
         "ca2c71afa8a22baed5f399eec78495c0aea7cc716a2d1ebbb1e57f95768398e5",
         "bff513c27e9c2fc98a38a8ac28cf7ecc6fcb830a6b18235d1264417a5a9c8cc0",
-        "bd7a2be17bab8323394d543e6ab60b832928ef36b61df78ce7b682111910588c",
+        "8f654273de802e3833826a7a0107997d906e71168dec303f93b17e6912809e2a",
         "83852872dd4b363fb3c355af8a3fdb378bfe83b242befe405578af488718b882",
         "b7a16b12d3231774e49c8ee4d437cfa15ea42c0fd85f6f549bccc24de151b230"
       ]
@@ -2246,11 +2246,11 @@
         "1c24d0e2faac96b5ec6ef8d7bcebe4122672f300e4b2403757efb639f1d021bb"
       ],
       "source_sha256": "285c8e161d47306180f7fb2b1b08cdebce4b425c55b88d6622573bdc02d7373c",
-      "text": "将计划组成一个 ``.npy``,同时一个水平带。\n\n的画布不是一个内存数组。 创建全大小的输出文件(因此磁盘不能容纳它的时候会立即失败,而不是在90 % ),然后逐个填充带宽; ,唯一的堆分配是带的 float32 累积器、其重量图像层和一个 tile 窗口。  所有三个都被 ``max_buffer_bytes`` 所包围,并且没有一个与画布进行缩放。\n\n序列是 **feathered**:每个字符串的贡献是由一个线性拉姆重,从字符号边缘上升到 :attr:`AlignPlan.feather` 像素,带是由总重量分裂的。 硬切断将留下一个直,高对比边缘,在那里两个显微镜的视野相遇 - 和一个直边是唯一最可靠的事情一个下流分区将找到和称为一个对象边缘。 收集成本额外的 float32 图像层每字符组,并使合成一个格拉迪安特而不是。 ``blend='average'`` 重量每个贡献者平等和 ``blend='none'`` 是最后的作家胜利,两者主要保持,所以差异可以测量。\n\n:param plan: 从 :func:`estimate_offsets`。\n:param dst: 输出 ``.npy``,或文件夹要写入。\n:param blend: 是“:data:`BLEND_MODES`”的。\n:param band_rows: 强制带高度;通常由 ``max_buffer_bytes`` 衍生。\n:param max_buffer_bytes: 天花板上RAM的写作可以用于带. 这是节点; 查看 :data:`DEFAULT_MAX_BUFFER_BYTES` 为何默认是小。\n:param feather: 将拉姆宽度转换为像素。\n:param dtype: 把D型的子放下。\n:param subpixel: 按默认方式关闭:每个窗口需要一个交换,而字符串子部分在表中以任何方式记录。\n:param writer: ``'stream'``(默认;从未地图到磁带)或``'memmap'``(``open_memmap``加上每带的滑动和下降)。\n:param max_open_tiles: 可以同时地图多少条线? 跨越一带的线是工作组;旧的地图被放下,所以输入文件夹永远不会成为居住者。\n:param overwrite: 取代现有输出. False 拒绝。\n:param name: 输出文件名,当 ``dst`` 是一个文件夹时。\n:param dry_run: 计算地质和乐队计划,写什么。\n:param ledger: 可选的 :class:`spacr.errors.RunLedger`。\n:returns: 一个 :class:`AlignResult`,其 :attr:`~AlignResult.peak_buffer_bytes` 是从带地质预测的带泡大小,在任何东西被分配之前计算,并可能在 ``dry_run`` 路径上也。\n:raises ConfigurationError: 坏 ``blend``/``writer``,或没有 ``overwrite`` 的现有输出。",
+      "text": "将计划组成一个``.npy``,同时一个水平带。\n\n输出文件在全尺寸创建到前面(因此无法保持的磁盘立即失败,而不是90%) ,然后按带填充带;唯一的热分配是带的 float32 积累器,其重量图像层和一个显微镜图像字段窗口. 所有三个都是由 ``max_buffer_bytes`` 连接,其中没有一个与带的规模。\n\n序列是 **feathered**:每个显微镜图像字段的贡献被重量为一个线性拉姆,从显微镜图像框向内部超过 :attr:`AlignPlan.feather` 像素,带是由总重量分裂的。 硬切断将留下一个直,高对比的边缘,在那里两个显微观字段相遇 - 和直边是唯一最可靠的事情一个下流分区将找到和称为对象边界。 切割成本一个额外的 float32 图像层每带,并使加入一个格拉迪安特。 ``blend='average'`` 重量每个贡献者平等和 ``blend='none'`` 是最后的作家,两者主要保持差异可以测量。\n\n:param plan: 从 :func:`estimate_offsets`。\n:param dst: 输出 ``.npy``,或文件夹写入。\n:param blend: 是“:data:`BLEND_MODES`”的。\n:param band_rows: 强制带高度;通常由 ``max_buffer_bytes`` 衍生。\n:param max_buffer_bytes: 天花板上的RAM写作可以用于带. 这是节点; 见 :data:`DEFAULT_MAX_BUFFER_BYTES` 为何默认是小。\n:param feather: 超越Ramp的宽度在像素中。\n:param dtype: 超越 Dtype 管道。\n:param subpixel: 按默认方式关闭:它花费每个窗口的间隔,而子像素部分在表中以某种方式记录。\n:param writer: ``'stream'``(默认;从未地图到磁带)或``'memmap'``(``open_memmap``加上每带的滑动和下降)。\n:param max_open_tiles: 一带交叉的片段是工作组;旧的地图被抛弃,所以输入文件夹永远不会成为居住者。\n:param overwrite: 取代现有输出. False 拒绝。\n:param name: 输出文件名,当 ``dst`` 是一个文件夹时。\n:param dry_run: 计算地质学和乐队计划,写什么。\n:param ledger: 可选 :class:`spacr.errors.RunLedger`。\n:returns: 一个 :class:`AlignResult`,其 :attr:`~AlignResult.peak_buffer_bytes` 是从带地质预测的带泡大小,在任何东西被分配之前计算,并可能在 ``dry_run`` 路径上也。\n:raises ConfigurationError: 坏 ``blend``/``writer``,或没有 ``overwrite`` 的现有输出。",
       "translation_source_blocks_sha256": [
         "e236587ccb03aacb3be10fb1517f01469e2c2ba71507884160aa4861bfcf903a",
-        "f1b2e665b0778e777a859a91c329f8d3657a583ae0e787ba2c6f1694ad5c2c2a",
-        "24583ce55f0b8f67fafd678abc2aa4b76944aa9478300d42c114a520dc760598",
+        "5864d6378e76ce3b854aad6ca3c4f1c1c953aa08f241d3bd730b19da4fc81267",
+        "3345e02b5bc1c34c4953281039d792b7a2a60d7fe2539d23c845702c06bea33a",
         "c86c527a83fbee8d2cc709bb63c1320eecaaa197d2106ae4bef8c67457f06d74",
         "e09faf702d5274956e9b2fa0e9c9477e4007ee0b737079292032419d2bc118ec",
         "51c1b1d002ac136db4f3bf77e2718a402c3a6f49547f2a3a98ef0855080b2591",
@@ -30539,7 +30539,7 @@
         "6319a61f99c0f5cc93efa0cde50803a24ecab7c5fa4a50caa0470a12c39231ac"
       ],
       "source_sha256": "b8d263437ac15ad04644b4fc8c2c4621f6f167f146731fb92f412f3494fb091f",
-      "text": ":func:`apply_import` 做什么\n\n:param destination: 文件夹是写的。\n:param written: 现在该项目的名称是多少个图像。\n:param linked: 多少人被同链接而不是复制。\n:param bytes_saved: 源比特不通过链接重复。\n:param skipped: 出源路径,没有写的,有理由。\n:param stitched: 显微镜的视野从多个板块收集。\n:param unverified: 写的名称 -> 为什么它的标志不相信. 与任何东西相连的条纹仍然是最好的答案,这样说是微观视野之间的区别,用户可以检查和一个他们不能。",
+      "text": ":func:`apply_import` 做什么\n\n:param destination: 文件夹是写的。\n:param written: 现在该项目的名称是多少个图像。\n:param linked: 多少人被同链接而不是复制。\n:param bytes_saved: 源比特不通过链接重复。\n:param skipped: 出源路径,没有写的,有理由。\n:param stitched: 微镜视野从多个微镜图像字段组合。\n:param unverified: 写的名称 -> 为什么它的标志不相信. 一个字符串,其显微镜图像字段与什么都没有联系,仍然是最好的答案,这样说是显微镜视野之间的区别一个用户可以检查和一个他们不能。",
       "translation_source_blocks_sha256": [
         "37534c48b941a923f15a2327924b9d55562b50bace5e7cc302e93e60b820e5ca",
         "8c37599549bc4212da36066e53821286fed037e9d18202cdb1595019a872cdbe",
@@ -30547,8 +30547,8 @@
         "de7dae3ca475f4707f2e1ea91c1697273219fc6cac93cb692e3dc4003890885c",
         "f31a8a351e9577395188d1eff1cef9fc4f6b9d3e5abf575dbf0da31ef7466110",
         "359ca1e636cbf338af912fa7e8f16268f7a7b6dde509d2a44b255bcb290921cb",
-        "74499c72cec9cb6d147a76e9fe72d29850c8f9a7a69d19e9157234a64caf4730",
-        "0f57626f7788f72d6997144185a0d1d3242aaceee4b72342a128c3e0be293603"
+        "4fef45b0aa0c19dd803062ea9d519b3a0b02266cab33b9053a7e5e12c14fa7c2",
+        "90f78e19b38f33974d208191ecc3f156633346e8ea59d6aa7c15bb103a4dcda3"
       ]
     },
     "spacr.image_import.ImportResult.summary": {
@@ -30678,7 +30678,7 @@
         "0a6b7f80a4f32524d759aaa420d9825d22b91ad248747770c9fc13466fe1a2fe"
       ],
       "source_sha256": "601c5b7fc0c20442f1ace31f924c78c24c5f793e2dd9baff917a65c498a72e20",
-      "text": "写下 spaCR 项目 ``plan`` 描述。\n\n``consolidate`` - 最接近的点 spaCR 得到了这一点 - 复制每个图像重新安排它的名字,所以一个300GB的磁盘花费600GB的进口。\n\n一个进口是不可逆转的一半,计划所提出的每一个问题都是结果平静地错误的途径 - 一个无名的轴意味着无法分开描述的图像。\n\n:param plan: 一个计划,其中 :meth:`ImportPlan.problems` 是空的。\n:param destination: 要创建的文件夹。\n:param link: symlink 而不是复制. 返回复制文件。\n:param plate: 字符的名称要写在字符中。\n:param stitch_tiles: 将每个显微镜视野的片段重新聚集在一个图像中,显微镜视野是。 默认情况下:一个显微镜视野作为一个图像到达,并将其转换为例外而不是规则。\n\n    THIS IS WHY THE FILENAME NEEDS NO TILE SLOT. The convention the core modules read is plate/well/T/field/L/A/Z/channel, so four tiles of one field produce four images with one name and three would be overwritten. Stitching removes the question rather than answering it: a stitched field IS one image with one name, and nothing downstream has to learn what a tile is. See :mod:`spacr.image_stitch` for how the placement is worked out, and for what it does when the tiles give it nothing to work with.\n:param tiles_as_fields: 换句话说,给每个字体自己的显微镜字段视图号。\n\n    退出,它需要先行于 ``stitch_tiles`` 因为它是更具体的请求:一个呼叫者说“每个字符是显微镜的视野”已经说了他们想要的字符是什么。\n\n    既然是两张,图像是 SKIPPED 这是唯一的诚实答案,在推论存在之前,它被保留,因为拒绝写作仍然更好,而不是写三个四个图像。\n:raises ValueError: 当计划仍然有问题时",
+      "text": "写下 spaCR 项目 ``plan`` 描述。\n\n``consolidate`` - 最接近的点 spaCR 得到了这一点 - 复制每个图像重新安排它的名字,所以一个300GB的磁盘花费600GB的进口。\n\n一个进口是不可逆转的一半,计划所提出的每一个问题都是结果平静地错误的途径 - 一个无名的轴意味着无法分开描述的图像。\n\n:param plan: 一个计划,其中 :meth:`ImportPlan.problems` 是空的。\n:param destination: 要创建的文件夹。\n:param link: symlink 而不是复制. 返回复制文件。\n:param plate: 字符的名称要写在字符中。\n:param stitch_tiles: 将每个显微镜视野的片段重新聚集在一个图像中,显微镜视野是。 默认情况下:一个显微镜视野作为一个图像到达,并将其转换为例外而不是规则。\n\n    这就是为什么文件名不需要显微镜图像字段SLOT。 核心模块读取的惯例是实验室微板/微板样品位置/T/显微镜视场/L/A/Z/图像数据通道,因此一个显微视场的四个显微图像场产生四个图像,一个名称,三个会被覆盖。  缝合消除了问题,而不是回答它:一个缝合的显微镜视场是一个图像,有一个名称,没有下游需要学习什么是显微镜视场。  参见 :mod:`spacr.image_stitch` 来了解放置是如何完成的,以及当显微镜图像区域不提供任何工作时它会做些什么。\n:param tiles_as_fields: 换句话说,给每个字体自己的显微镜字段视图号。\n\n    退出,它需要先行于 ``stitch_tiles`` 因为它是更具体的请求:一个呼叫者说“每个字符是显微镜的视野”已经说了他们想要的字符是什么。\n\n    既然是两张,图像是 SKIPPED 这是唯一的诚实答案,在推论存在之前,它被保留,因为拒绝写作仍然更好,而不是写三个四个图像。\n:raises ValueError: 当计划仍然有问题时",
       "translation_source_blocks_sha256": [
         "02051c495a64f8cee12c408b9542e30caa34ab82f94b57c062ac9402a12f4460",
         "4818e13271967e587e6f678dd00d7fe34c3ab20a724cc22b41c2c8f50186cf70",
@@ -30688,7 +30688,7 @@
         "b69320ebb81b4e74da2deaba5fc531d6a291749349c4b7d22a24f2af907a0bdd",
         "678c02ebf2fe56b375ec80a0ba3f50a44c6e0512ee82e4996f6217c7c80840be",
         "c21b717100c356994f8eb5b12400a7e1c28c2bf0cd23d381d60cbd8fe5fb6853",
-        "4af7926be811d6c804ca7ab06012c6ee68408b7f4803511ab6003f0f30b1c2eb",
+        "d7874d6b667e137aacb7b2ebf378b0079e5d55b7e13ab765b09a06a81bdf9f7d",
         "c4444734a6d8416b6b43fc2ef1f0e5ad1cdd43bd5286772fe70163682fd23ebc",
         "bd96adc7f746d69ec270529e6a0879e301ec473f672851c45bad8e7b50b94f3b",
         "645321483555c46c7172751406b910b305f3012e74812122c65174858c158ec2",
@@ -30810,13 +30810,13 @@
         "4dd994e739aac1c353dad893b11ef360d9c1dfed5dc00f3d80ea8079a91ef3b4"
       ],
       "source_sha256": "f683904d8f59459bbd0acea5e45a83d65def083c545d867216983d8d827c0b06",
-      "text": "将一个显微镜视野的板块集成到一个图像中,显微镜视野实际上是。\n\nspaCR's filename convention -- ``plate_well_T####F###L##A##Z##C##`` -- has no tile slot, so a field split into four tiles produces four images with ONE canonical name and three of them would be overwritten. Three answers were possible: grow the convention a tile slot, give each tile its own field number, or put the field back together. spaCR stitches at import, with the option to turn it off, and that is the right answer: a stitched field IS one image with one name, so nothing downstream has to learn what a tile is.\n\n令人难以置信的是,指标不是一个位置。 ``tile03`` 说图像是某个数字的第三个; 它不说它去哪里,如何订购的指标,或者它们越过多远。\n\n1. 文件本身的阶段坐标,当它有它们. 一个 OME-TIFF 记录 ``PositionX``/``PositionY`` 在微小和像素大小旁边,所以布局是没有结束的 - 它是阅读的. 没有别的东西是那么好的. 2. 像素, 相反. 附近的板块上滑, 和上滑是相同的图像两次, 所以正确的转移是谁的暗示上滑相匹配 - 得分为每一个可接受的转折点,而不是从一个阶段上滑的顶点,这是一个小的上滑点。 白色板块,单像素板块和没有共享内容的图像不会产生任何相互关系,以便谈论。 板块然后在一个方形的网格中加入,摩萨克以其信任标记为``assumed``,因为一个用户在图像中被告知的标记与他们没有相同的东西不同。\n\n这个缺陷是要避免的是整个进口模块被写在反对:一个答案看起来可靠,是错误的. 一个摩萨克在错误上收集的是一个字段,通过它,每个测量在这个字段计算了两次,并且没有什么在应用程序视图这样说。",
+      "text": "将一个显微镜视野的板块集成到一个图像中,显微镜视野实际上是。\n\nspaCR 该条约的名称 - ``plate_well_T####F###L##A##Z##C##`` 没有微镜图像字段,所以一个字段分为四个微镜图片字段产生了四个图像,其中一个字母名称和三个将被过写。 spaCR 输入时,有打开的选项,这是正确的答案:一个插入的字段是一个名称的图像,所以没有下流需要了解微镜图像字段是什么。\n\n使这一点困难的是,微镜图像字段指数不是一个位置。 ``tile03`` 说图像是某个数字的第三个; 它不说它去哪里,如何命令微镜图片字段,或者它们越过多远。\n\n1. 文件的自己的阶段坐标,当它有它们. 一个 OME-TIFF 记录 ``PositionX``/``PositionY`` 在微小和像素大小旁边,所以布局是没有结束的 - 它是阅读的. 没有别的东西是那么好的. 2. 像素, 相反. 附近的微镜图像字段上滑, 和上滑是相同的图像两次, 因此,正确的转移是谁的暗示上滑相连 - 得分为每一个可接受的转换而不是从一个阶段上滑的顶部,这是一个小上滑。 白色显微镜图像字段,单像图表和没有共享内容的图像产生任何相互关系,以便谈论。 显微镜图像的字段随后在一个方形图像网和集成图像网络标记为 ``assumed`` 与其信任,因为一个图像中的标记一个用户被告知是与一个他们不是不同的东西。\n\n这个缺陷是要避免的是整个进口模块被写的反对:一个答案看起来可靠,是错误的。 收集的图像网在错误地板上是一个带有复制带的字段,每个测量在该带计算了两次,并且没有什么在应用程序视图这样说。",
       "translation_source_blocks_sha256": [
         "2dff1e66292135d18316006a758326480ff45aabbb1a9508a35fc45f6c8f3b0e",
-        "25cff0de10dddebadaf5a210144003569766e9862aa98ecf7e3b0218ac89769f",
-        "8e1532ff3a304c048b9941bbbbad83286d7b86bde0e1fdd8a09a98157c645169",
-        "0ea341c85bc15b9e557bc7a7d526bd025db5e7025bcd9f179747ab130e2f2936",
-        "088b17831216b808d13a6213e86cb05684cae5d9bdef615c2b37ed5594b87eb2"
+        "6db3a3471b24c9fb6610d76a2e9f97f3af9296ae492ffbd5091d009fa4afe88e",
+        "1b8db3cb213e5795d4fa1875c33a28e4acf96de4fd5145b1383cffeeb98fade3",
+        "06899e70338791815dd9e327a57ab921720ce12015ff0956222d52d1633eb2bd",
+        "9045f01c8c94e1ec47b68f2c42506a082d018299e771cf41ad210977c0bf7414"
       ]
     },
     "spacr.image_stitch.Mosaic": {
@@ -30833,12 +30833,12 @@
         "bf11a6f6493cc2cbc43c11a986799091a078a36b9e9b30758722be542038d28d"
       ],
       "source_sha256": "9752b4917f02db72dde91792edebfa74b2410b785576951d3fff4f7eb7d53b05",
-      "text": "一个显微镜视野的计划:每个线路去哪里,以及它是如何决定的。\n\n:param placements: 每片一片,按片顺序。\n:param height: 莫扎克高度在像素中。\n:param width: 摩萨克在像素的宽度。\n:param rows: 网上的线条。\n:param cols: 网中的列。\n:param arrangement: 使用的 :data:`ARRANGEMENTS` 密钥。\n:param how: ``\"single\"``(一片,没有什么可放置的), ``\"stage\"``, ``\"correlated\"``或 ``\"assumed\"`` - 证据的放置休息,在下降的信任顺序。\n:param confidence: 平均是正常的交叉相互关系,在没有任何相互关系的情况下,0。\n:param overlap: ``(y, x)``在邻居之间的像素中覆盖。",
+      "text": "一个显微镜视野的计划:每个线路去哪里,以及它是如何决定的。\n\n:param placements: 每片一片,按片顺序。\n:param height: 收集图像网格高度在像素。\n:param width: 收集图像网的宽度在像素。\n:param rows: 网上的线条。\n:param cols: 网中的列。\n:param arrangement: 使用的 :data:`ARRANGEMENTS` 密钥。\n:param how: ``\"single\"``(一片,没有什么可放置的), ``\"stage\"``, ``\"correlated\"``或 ``\"assumed\"`` - 证据的放置休息,在下降的信任顺序。\n:param confidence: 平均是正常的交叉相互关系,在没有任何相互关系的情况下,0。\n:param overlap: ``(y, x)``在邻居之间的像素中覆盖。",
       "translation_source_blocks_sha256": [
         "bb7416cc4843bc065294c7d06700ac536c7efc28dae8e2f51c695d37dc1ec562",
         "1023eab9ee93d153c8c9e771bca95c958f8fd3fd9ec095c424cf5896dc1375b9",
-        "d0a38559f59775ba4e72234d80353e133fde032702ff2b83ac1197ed59a02bca",
-        "dcbdce5c3f6c6a44836631ce1f878b3be64d9db5aa92d3bb7b7e158f78a35594",
+        "a43fcd502162393511f1b1a8505227ae23f0777d529a61eecef06af3678b284b",
+        "43cfca79ac9937ec94d9621a85d61e682d13da40f47b183b6f49b2cdb17e540a",
         "ba1a4d88fa6316a4140eef7d6c3b45d94fce8383018670ed4a7ac244958f44bc",
         "fc1291f705c7e59e3d25690d26d02cf497d333dd5220f5d6ac5cfc0ef0f9063d",
         "94c2b7935a3e774942cb3a837775dca93f71cb9bb6cf20a933fe1569c8a10aa7",
@@ -30877,14 +30877,14 @@
         "d1d5d75680aa6463628d1e028e3fe28f1b3919591e429b07eb9c192aa2fab5f4"
       ],
       "source_sha256": "a39596617b313eaa6d59e3ebc9817212325715d1f02b10ebfb50175217c4f811",
-      "text": "Where one tile goes in the mosaic.\n\n:param tile: 字母的指数,正如字母所给出的那样。\n:param row: 其序列在网络上。\n:param col: 它在网络中的列。\n:param y: 在摩萨克像素的顶端。\n:param x: 左边在摩萨克像素中。",
+      "text": "在一个显微镜图像字段进入集成图像网。\n\n:param tile: 字母的指数,正如字母所给出的那样。\n:param row: 其序列在网络上。\n:param col: 它在网络中的列。\n:param y: 在集成图像网像的顶端。\n:param x: 左边在集成图像网像素中。",
       "translation_source_blocks_sha256": [
-        "82a62cbedee529e3be1355bd35602e6e17f9d75bea5c488e62bb0db4baeedb11",
+        "c2c5775865abc4075678b781c50b1c80b054b6ae3babeace0ac29f32ad069d27",
         "1cef28027c45b595f4f0d51de3e8b24ffe669e93516ad9e9233a01e2b5015d3d",
         "c52c6779ad79b5c5367dd05daa346d787aae459b40db44c8050f05b137a1c572",
         "ff1d2833dc799c7bd6070af09b36070f8a6e3816a64073f8c241e00b6885822f",
-        "769eae7027c9f214a639e3126c7fbd3351aba073b07071cbdc6ca84d65e86986",
-        "d1d5d75680aa6463628d1e028e3fe28f1b3919591e429b07eb9c192aa2fab5f4"
+        "3a5251836cf2f15417301d8b29522922523cf15163e9a06802afe6a105e44e9a",
+        "f68dc5d3188f2e84ed8114b22ded2c6730a5b00dfd45ff37315aef0e8a6f2e99"
       ]
     },
     "spacr.image_stitch.arrangement_of": {
@@ -30917,12 +30917,12 @@
         "4145ac5ab809c1b0a2bd8c8e8f0e4aa5820eea9f3efd95905a6beb22895ce728"
       ],
       "source_sha256": "6ec88367014e35ab27772b7d131f2e99959fa75df6a500d596c6c03005642d82",
-      "text": "工作到一个显微镜视野的每个片段去哪里 阅读;写不写。\n\n:param paths: 图像,以图像顺序。\n:param tiles: 标签指数,为记录. 缺点到 1..n。\n:returns: 摩萨克,或 None 时,板块根本无法读取。",
+      "text": "工作到一个显微镜视野的每个片段去哪里 阅读;写不写。\n\n:param paths: 图像,以图像顺序。\n:param tiles: 标签指数,为记录. 缺点到 1..n。\n:returns: 收集的图像网,或 None 当微镜图像字段根本无法阅读。",
       "translation_source_blocks_sha256": [
         "4cdc3681a92f0c857bdfb608458a20f1e17fa315adba73bd882f4e43080554b1",
         "4bf518cd8d99f392f3a3aa89d3f5e4406e97e7ceab90b53516643bc3ead666e4",
         "cf48d89d29994ec42a74ec57833a894d0db09f7fb0d3a0db9dd62c0e3fc1dcd6",
-        "4145ac5ab809c1b0a2bd8c8e8f0e4aa5820eea9f3efd95905a6beb22895ce728"
+        "98e3d5dfb20a9561871f579618681a573f44321f013a2787400270f6a34501b0"
       ]
     },
     "spacr.image_stitch.read_stage_positions": {
@@ -30932,10 +30932,10 @@
         "f2406c5bc463edb495f63e5fa6551668633b4841dad50a7466251b44d5425dfb"
       ],
       "source_sha256": "9f79d12bb80947ef62bc7a849099e6924a629761715ec4ebe3987fcc6d3ba104",
-      "text": "``(y, x)`` 在 PIXELS 每个路径,或 None 当任何文件缺乏它们。\n\n一半的摩萨克从舞台坐标和一半的相互关系是两个坐标系统在一个图像中,它们之间的结合正是没有什么检查的地方。\n\n返回 None 而不是扔到无法阅读的文件:失去的位置是常见的案例,而不是错误,呼叫者有第二种方法来回归。",
+      "text": "``(y, x)`` 在 PIXELS 每个路径,或 None 当任何文件缺乏它们。\n\n半个集成图像网从舞台坐标和半个相互关系是两个坐标系统在一个图像,它们之间的连接正是没有什么检查的地方。\n\n返回 None 而不是扔到无法阅读的文件:失去的位置是常见的案例,而不是错误,呼叫者有第二种方法来回归。",
       "translation_source_blocks_sha256": [
         "10128b1e42cba974a272a74fb86504264a5677bc795a4d851b038c96952ac531",
-        "8a87ba82d6ddcc883966a24281f87e99ad0f3006c2cc0a2812881201f52c75ad",
+        "69ca0303eec5b7ef0a083f18eefeaeb98d473a0155cf6776aff20f762c4eabbc",
         "67d3824d633d7350cc38c00d4c5af0c7b95c091f46accecafb27c12af3ff1d27"
       ]
     },
@@ -30949,10 +30949,10 @@
         "2b6136bc1c64e2a128c7d32cd6903c2831bfe32f3c60b09acbb50a96a8d24e13"
       ],
       "source_sha256": "83dde62556080d0b2a283916f8ca423320b78e24e5f287a45e05b096765fa1fd",
-      "text": "一个显微镜视野的板块,集成到一个序列。\n\n覆盖是平均的,而不是过度写的,在两个板块覆盖相同的像素,它们是它的两个测量,并采取最后一个写出一个可见的步骤在每个字符串,一个分区器读到作为一个边缘。\n\n:param paths: 图像,以图像顺序。\n:param tiles: 标签指数,为记录。\n:param mosaic: 从 :func:`plan_mosaic` 的计划;当被忽略时计算。\n:returns: ``(array, mosaic)``,或 ``(None, None)``,当图表无法阅读时。",
+      "text": "一个显微镜视野的板块,集成到一个序列。\n\n在两个显微镜图像字段覆盖相同的像素,它们是它的两个测量,并采取最后一个写出一个可见的步骤在每个字段,一个分区器阅读作为一个边缘。\n\n:param paths: 图像,以图像顺序。\n:param tiles: 标签指数,为记录。\n:param mosaic: 从 :func:`plan_mosaic` 的计划;当被忽略时计算。\n:returns: ``(array, mosaic)``,或 ``(None, None)``,当图表无法阅读时。",
       "translation_source_blocks_sha256": [
         "cc47b71556cc71f1621083307343671e2ca0186b5ce17a37c12b205f08aae6b1",
-        "b815d2f25039dca39a0c9c03f8130635ff705246dd91ddedb5f18f0659441982",
+        "a4f004ca43bf92fe63a2d10ed61d49adb5c4dcc2e0a57c7cba8ddd3fe2da4041",
         "4bf518cd8d99f392f3a3aa89d3f5e4406e97e7ceab90b53516643bc3ead666e4",
         "11a0e980ae8fe7d929cdcbccc7d8c31b54fdc6fc9435795f7321b42a03bffb84",
         "1df74ef0a2df8972743920969a0f41d3ba9b3315a382b2e99a5aaa0a625ae22d",
@@ -35512,12 +35512,12 @@
         "97f46c61ba94ec37f9bd306b53ba5f0ded88c819e6802f57886b4d016f00c864"
       ],
       "source_sha256": "81b8c97105e6bd8084d61a52fadf926033339333a92766ad996f589f7e9d329d",
-      "text": "一个层的序列元素坐在世界。\n\n``world = translate + scale * index``,按轴,有轴命名,以便两层可以同意 \"z\" 是什么意思,而不同意序列形状。\n\n:param scale: 每个轴的一个元素的世界大小 - 声音大小. 非零和终端,每个轴:一个零会崩溃的轴,每个世界问答它将以元素0 ,这引出错误的滑板的可靠图像。\n:param translate: 每个轴的元素0的世界坐标. 缺点到零. 这是提取的图像区域的折扣 - 从摩萨克中切断的绳子保持其位置在摩西克,将其带到这里。\n:param axes: 轴名称,最先是 ``(\"z\", \"y\", \"x\")`` 的缺点,被``len(scale)`` 折叠。\n:param units: 相比之下,当层被粘贴时,因为“0.65”意味着什么,直到你知道它是 µm。\n\n麻醉是正常情况,而不是例外。::\n\n    Spacing.from_map({\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}, units=\"um\")",
+      "text": "一个层的序列元素坐在世界上。\n\n``world = translate + scale * index``,按轴,有轴命名,以便两层可以同意 \"z\" 是什么意思,而不同意序列形状。\n\n:param scale: 非零和终端,每个轴:一个零将崩溃的轴,每个世界的问答将以元素0回答,这引出一个可靠的图像错误的滑板。\n:param translate: 这个是提取图像区域的折扣 - 一个微镜图像字段从收集图像网中切断保持其位置在收集的图像网络通过携带它在这里。\n:param axes: 轴名称,主要是第一. ``(\"z\", \"y\", \"x\")`` 的缺陷被``len(scale)`` 折叠。\n:param units: 相比之下,当层被粘贴时,因为“0.65”意味着什么,直到你知道它是 µm。\n\n麻醉是正常情况,而不是例外。::\n\n    Spacing.from_map({\"z\": 2.0, \"y\": 0.65, \"x\": 0.65}, units=\"um\")",
       "translation_source_blocks_sha256": [
         "b5b7bd38776cdc77711078d00f664712f0febcd84bc5acb0aeed8718d9f6a2b2",
         "6340ddc001940d20f5386491afad9b66e8c4d7ce0ce30c9461475c115081660b",
         "f4b4175f69fb53fa571129624370981b978fb0e08a53f6f7af21074daaee523f",
-        "85d5f3ae41e6f8b75f2a2d9f84c69344151349c4fb08420b77ab3fb1428caf27",
+        "e19d5528c1e33fa10e5e1998e3df06363a574d668210f413cd072b00592af428",
         "83777dfebd76bfd11747e55b4c9a53d3ace993b071687d7136bb3ca66066adfe",
         "729568d5bf1200f6eb71c355f144230270ce1cf74e267e5ab2bba148c70d6644",
         "97f46c61ba94ec37f9bd306b53ba5f0ded88c819e6802f57886b4d016f00c864"
@@ -39059,11 +39059,11 @@
         "dd82f29f4c8273b8974672206afa51ba15377faef24a655d5c0c26f952975867"
       ],
       "source_sha256": "ccfdccb5bac996ada658b13dbb4bc0f87c16e0eb64abc1062a0df822cf694037",
-      "text": "查找扫描实验现象和测试,指导或基因解释它们。\n\n它是为了什么\n==============\n**Regression** 板打开这个模块,因为 :func:`perform_regression` 是它的主要输入点:它将每微型样品位置图像分数加入序列计算和估计引导 RNA或基因级的组合,用于集成筛选。 该模块还包含一个单独的经典机器学习工作流,:func:`generate_ml_scores`,它训练一个机器学习分类模型测量单个对象特性,并将这些预测转化为一个可消耗的回归表。\n\n它需要什么\n=============\nA regression run is configured with ``paired_data``: ordered score/count CSV pairs whose plate and well identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control wells, plate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.\n\n它所产生的\n================\n回归结果进入一个新的,不过度编写的 ``<output root>/results/<analysis kind>[_n]`` 目录。 ``results.csv`` 是主要组合表; ``results_grna.csv`` 和 ``results_gene.csv`` 使定位级别明确,而 ``results_significant.csv`` 记录了边界攻击。 相同的目录包含总结、诊断、火山和实验室微板数字、可选出版面板包、资源测量或详细的失败报告。 没有固定行的要求级别被保留为一个标题 - 仅为 CSV 因此下流工具可以区分“测试,没有行”与缺乏的艺术品。 经典ML编写预测、功能重要表、评估结果和实验室微板温度图在``results``下方。\n\n接下来的要做什么\n================\n阅读诊断和失败/资源记录之前排名打击,然后检查与完整的级别表旁边的重要表,并检查引导 RNA和基因效果是否一致。 打开创建的结果面板为视觉 QC 并保留设置/示威与任何报告的打击列表. 如果分数还不存在,运行 :func:`generate_ml_scores`;如果分数尚未存在,使用 :func:`spacr.sequencing.generate_barecode_mapping` 创建它们。\n\n一些统计区别是故意的。 引导 RNA和基因匹配是单独的多重测试家庭,并获得单独纠正; 名称 ``alpha``,效应尺寸边界和纠正的含义分数不可交换。 混合模型报告指示效果,如缩小BLUP预测没有指示p或q值,所以它们不应该被阅读为第二个引导 RNA意义测试。 诊断或报告代故障不会删除成功的科学结果,而实际的逆转故障被记录,然后重新升起不变,所以呼叫者不能错过完成的处理会议。",
+      "text": "查找扫描实验现象和测试,指导或基因解释它们。\n\n它是为了什么\n==============\n**Regression**显微镜图像字段打开这个模块,因为:func:`perform_regression`是它的主要输入点:它将每微型样品位置图像分数连接到序列计算和估计引导 RNA或基因级的组合为一个集成筛选。 该模块还包含一个单独的经典机器学习工作流,:func:`generate_ml_scores`,它训练一个机器学习分类模型测量单个对象特性,并将这些预测转化为一个可消耗的回归表。\n\n它需要什么\n=============\nA regression run is configured with ``paired_data``: ordered score/count CSV pairs whose plate and well identities agree.  Older ``score_data`` and ``count_data`` lists are migrated positionally, but explicit pairs are safer. Choose the score column with ``dependent_variable`` and provide the relevant control wells, plate metadata, analysis ``level`` (guide, gene, or both), multiple-testing threshold, and either a supported ``regression_type`` or ``None`` for distribution-based selection.  Family-specific settings are validated rather than silently ignored.  The classical-ML path instead needs one or more ``measurements.db`` files, labelled positive and negative controls or an annotation column, and a model choice such as XGBoost, logistic regression, or random forest.\n\n它所产生的\n================\n回归结果进入一个新的,不过度编写的 ``<output root>/results/<analysis kind>[_n]`` 目录。 ``results.csv`` 是主要组合表; ``results_grna.csv`` 和 ``results_gene.csv`` 使定位级别明确,而 ``results_significant.csv`` 记录了边界攻击。 相同的目录包含总结、诊断、火山和实验室微板数字、可选出版面板包、资源测量或详细的失败报告。 没有固定行的要求级别被保留为一个标题 - 仅为 CSV 因此下流工具可以区分“测试,没有行”与缺乏的艺术品。 经典ML编写预测、功能重要表、评估结果和实验室微板温度图在``results``下方。\n\n接下来的要做什么\n================\n阅读诊断和失败/资源记录之前排名打击,然后检查与完整的级别表旁边的重要表,并检查引导 RNA和基因效果是否一致。 打开创建的结果面板为视觉 QC 并保留设置/示威与任何报告的打击列表. 如果分数还不存在,运行 :func:`generate_ml_scores`;如果分数尚未存在,使用 :func:`spacr.sequencing.generate_barecode_mapping` 创建它们。\n\n一些统计区别是故意的。 引导 RNA和基因匹配是单独的多重测试家庭,并获得单独纠正; 名称 ``alpha``,效应尺寸边界和纠正的含义分数不可交换。 混合模型报告指示效果,如缩小BLUP预测没有指示p或q值,所以它们不应该被阅读为第二个引导 RNA意义测试。 诊断或报告代故障不会删除成功的科学结果,而实际的逆转故障被记录,然后重新升起不变,所以呼叫者不能错过完成的处理会议。",
       "translation_source_blocks_sha256": [
         "2bfa32509013c612894e8cd0375023a84daf173ad9e3618e5d2ab602bbba0b07",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
-        "484bb64605a23bfe88c5292687e2adeed72234b4fd2518ebfc05e8e2d78be6d3",
+        "de57a180fb53d5615a2105b71cb3a382ae0c3325b3edea1f7b0e0fac34391ce2",
         "2ba4b43ad7886d87af0f0b34232519ac26fc6e881ac8f2583cd4c5033577d599",
         "854c5a2643a538ccf0aaad05d77ad6b4fe59fe70505b27ef5848c84ef060526c",
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
@@ -50076,11 +50076,11 @@
         "c4d678d6639a078fb92b83e08919b849b7a893e2926b1c330427c8a2e1a0100b"
       ],
       "source_sha256": "1b80d8f50d92637689686f39ee5e588e5103b78eccfa222049065e3fb9b09dd3",
-      "text": "将每个实验室筛选的微板作为一个面板,微板样本位置平方,在一个颜色规模。\n\n布局、颜色尺寸和未测量的微板样本位置的处理生活在 :mod:`spacr.figures.plates`;这个功能是工作流已经进行的呼叫,保留在自己的签名。\n\n改变了什么,以及为什么(设计 - “收集的图表上看起来很小”):实验室微板在40 x 5 英寸图表中放出四个字符,一个 8:1 条线,在图表网中使用大约八个平方条,与微板样本位置为 1.14:1 而不是平方条。 他们现在是一个小多元 - 2 x 2 为四个实验室微板筛选 - 这是一个 1.3:1 组合,数字是从微板样本位置网大小,所以微板模板位置出现在准确的平方。\n\n两件事与图像和不仅仅是它的尺寸是错误的:每个实验室微板携带了它的OWN颜色尺寸,所以相同的蓝色意味着在实验室小板旁边的另一个数字;而一个从未被测量的孔被绘制为零的测量,在一个筛选上使用的155个384个微板样本位置超过了一半的面板 - 并设置了尺寸的底部。\n\n:param df: 长格式 DataFrame 与 ``prc`` 表格 ``plateID_rowID_columnID`` 的列和 ``variable`` 命名的列。\n:param variable: 要集合的列(参见 :func:`generate_plate_heatmap`)。\n:param grouping: 合并模式: ``'count'``、 ``'mean'`` 或 ``'sum'``。\n:param min_max: 彩色尺寸特征(``'all'``,``'allq'``, ``[vmin, vmax]``),应用于每张板上一次而不是每张盘上一次。\n:param cmap: Matplotlib colormap 名称或对象. ``None`` - 或遗产 ``'viridis'`` 字面 - 使用房子的单曲架。\n:param min_count: 将微板样品置于较少的位置,在插入之前排列很多行。 默认 ``0``。\n:param verbose: 如果 True ,请在创建数字后拨打 ``plt.show()``. 默认情况下 ``True``。\n:param dst: 如果有,请将数字保存为 ``<dst>/plate_heatmap_<variable>.pdf``。\n:returns: 创建的 matplotlib ``Figure``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.plot import plot_plates\n        fig = plot_plates(\n            df, variable='recruitment', grouping='mean',\n            min_max='allq', cmap=None, min_count=20,\n        )\n\n: :func:`spacr.figures.plates.build_plates` — 面板本身,也会返回其图例句。  :func:`spacr.ml.generate_ml_scores` — 生成通常传输到此绘图器的分数数据帧。",
+      "text": "将每个实验室筛选的微板作为一个面板,微板样本位置平方,在一个颜色规模。\n\n布局、颜色尺寸和未测量的微板样本位置的处理生活在 :mod:`spacr.figures.plates`;这个功能是工作流已经进行的呼叫,保留在自己的签名。\n\n什么改变, 为什么(为什么)设计 -- “Lpates在收集的数字上看起来超小”: 实验室微板在40 x 5 英寸的图像上放出四分之一,一个 8:1 条,在图像网中使用大约八分之一的平方微镜图像字段,微板样本位置为 1.14:1 而不是平方。 -- 2 x 2 为四个实验室显微板筛选 -- 由 1.3:1 组成, 这个数字是从微板样本位置网的尺寸,所以微板模型位置出现在正确的方形。\n\n两件事与图像和不仅仅是它的尺寸是错误的:每个实验室微板携带了它的OWN颜色尺寸,所以相同的蓝色意味着在实验室小板旁边的另一个数字;而一个从未被测量的孔被绘制为零的测量,在一个筛选上使用的155个384个微板样本位置超过了一半的面板 - 并设置了尺寸的底部。\n\n:param df: 长格式 DataFrame 与 ``prc`` 表格 ``plateID_rowID_columnID`` 的列和 ``variable`` 命名的列。\n:param variable: 要集合的列(参见 :func:`generate_plate_heatmap`)。\n:param grouping: 合并模式: ``'count'``、 ``'mean'`` 或 ``'sum'``。\n:param min_max: 彩色尺寸特征(``'all'``,``'allq'``, ``[vmin, vmax]``),应用于每张板上一次而不是每张盘上一次。\n:param cmap: Matplotlib colormap 名称或对象. ``None`` - 或遗产 ``'viridis'`` 字面 - 使用房子的单曲架。\n:param min_count: 将微板样品置于较少的位置,在插入之前排列很多行。 默认 ``0``。\n:param verbose: 如果 True ,请在创建数字后拨打 ``plt.show()``. 默认情况下 ``True``。\n:param dst: 如果有,请将数字保存为 ``<dst>/plate_heatmap_<variable>.pdf``。\n:returns: 创建的 matplotlib ``Figure``。\n\n示例：\n    .. code-block:: python\n\n        from spacr.plot import plot_plates\n        fig = plot_plates(\n            df, variable='recruitment', grouping='mean',\n            min_max='allq', cmap=None, min_count=20,\n        )\n\n: :func:`spacr.figures.plates.build_plates` — 面板本身,也会返回其图例句。  :func:`spacr.ml.generate_ml_scores` — 生成通常传输到此绘图器的分数数据帧。",
       "translation_source_blocks_sha256": [
         "bc2a462a402f4c22ec0d85733dfa1ee8dc5e894a6b1535df877e02cc1fb47cc8",
         "751e9b950bf13e307e3691cec7b402282de09138faaa8b90489a6f357f851125",
-        "fd5e2dd485e2bfa5cd9996c617b8fc7a2828ff42dc75e8e951cd78543126a16e",
+        "eaf0ad713dcc8bc782da7729628ce6626948a615b0f0b46a33a737d5e448e872",
         "c6d22381e7c61715a37c75cc2332dd125e392b9debbfe53dbf007b4a85093baf",
         "2fc9a4731730dc9773c943a6edbe9a8b57de071b7ef87528e8c3d8684009e486",
         "977be72879680fd08385635cad50fd84e1b43ca21196ecf3f939dd0e41781dbd",
@@ -56167,10 +56167,10 @@
         "eda0583561e405941645b217d45ef57f03edf6e6b027a440695bdac9cdb36a43"
       ],
       "source_sha256": "599525c3f6f702b64a9576c3dd97ab4bdc446e072ecdd2ec13ed1ecff66d1912",
-      "text": "将应用程序 ``key`` 从注册表中删除. 如果有一个,则将应用于 ``True``。\n\n对称为 :func:`register_app`,对于下载的插件和不必泄漏注册到下一个测试的测试 - :data:`APPS`中的序列是每个测试的序列,序列侧输入和序列Ctrl+N连接。",
+      "text": "从注册表中删除 ``key`` 应用程序. ``True`` 如果有一个。\n\n对称为 :func:`register_app`,对于下载的插件和不必泄漏登记到下一个的测试 - :data:`APPS`中的序列是序列显微镜图像字段,序列侧输入和序列 Ctrl+N 连接,每个接下来的测试。",
       "translation_source_blocks_sha256": [
         "47ef83461ebe47558f2f6a56833ca2d6ff89444f6847e116a7d92ad83e5cb8d8",
-        "eda0583561e405941645b217d45ef57f03edf6e6b027a440695bdac9cdb36a43"
+        "d5380f24b0b0a7ab4db8ef4ac600fd3af066059345eb1a5d6c03312613733c1f"
       ]
     },
     "spacr.qt.app.visible_apps": {
@@ -59018,9 +59018,9 @@
         "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
       ],
       "source_sha256": "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074",
-      "text": "使用下载图像文件夹(或一个字符串)作为 Align & Stitch 输入。",
+      "text": "使用丢失的图像文件夹(或一个显微镜图像字段)作为 Align & Stitch 输入。",
       "translation_source_blocks_sha256": [
-        "b0460c84577a9c83782a7f3d9db1a2ce5aeabd57ed6380eb03c2152b06233074"
+        "b5d1aef621c991bde10670ab5fdc262a0746cf49f8ed3dc05e8a73550ad18149"
       ]
     },
     "spacr.qt.dnd_handlers.AlignDropHandler.apply": {
@@ -59030,9 +59030,9 @@
         "2d5d1a58bc22edf4692211bb7b5a1950895d254603cc1f8e40467bf9c3f32c36"
       ],
       "source_sha256": "9a38583e4e1ab03ec2486a567be56d69c9d6893088161a21f6fa76a0f89e1097",
-      "text": "在文件夹中点 `src`. 丢失的文件给了其父母,因为打破一个字符串不是你可以要求的事情。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
+      "text": "在文件夹中点 `src`. 丢失的文件会给出其父母,因为插入一个显微镜图像字段不是你可以要求的事情。\n\n:param path: 丢失的文件或文件夹。\n:param screen: 应用程序视图将滴入线。",
       "translation_source_blocks_sha256": [
-        "c907de57f083c02d098a4ebfe3c804b960d15690bfbd689a384afdef1329100b",
+        "d64edbe54a3ae39b4fe10f8d22d07e93ea2a12ea7b3d2fcec25ad434c241f002",
         "1f800f7819df1dab2291037c2ed19a7e327af6aa03c46a42b5915f92048a45f9",
         "f7cb46644b7c1fa3a83ee0d188dc131933604a48d879883ccc1c3232e462e8f1"
       ]
@@ -63596,11 +63596,11 @@
         "94d92d5ec987495e7146de3b6a46c5825d4699b197e82730491a90259bae4264"
       ],
       "source_sha256": "3666c51598cff42889538f84b340a42b55c55f330bd435acf0305c5f602b0082",
-      "text": "创建一个图像文件和/或标签掩膜文件的粘贴。\n\n充电通过 :func:`spacr.qt.widgets.live_preview.load_preview_image`,这已经知道如何阅读 TIFFs 与 ``tifffile`` 所以16位微镜视野保持其点深度,而通道顺序通过 :func:`spacr.qt.widgets.timelapse_preview.frame_channel`,解决通道 - 第一对通道- 最后相同的方式,时间错误预测。\n\n:param spacing: 一个世界单位每像素的缺陷 - 对一个单个字段是正确的,并且要超越时刻,一个 z-stack 或一个 µm 加密的 mosaic 涉及。",
+      "text": "从图像文件和/或标签掩膜文件中创建一个粘贴。\n\n充电通过 :func:`spacr.qt.widgets.live_preview.load_preview_image`,这已经知道如何阅读 TIFFs 与 ``tifffile`` 所以16位微镜视野保持其点深度,而通道顺序通过 :func:`spacr.qt.widgets.timelapse_preview.frame_channel`,解决通道 - 第一对通道- 最后相同的方式,时间错误预测。\n\n:param spacing: 一个世界单位每像素的缺陷 - 对一个单个字段是正确的,并涉及到一个 z-stack 或一个 µm 加密的集成图像网络的时刻。",
       "translation_source_blocks_sha256": [
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
-        "94d92d5ec987495e7146de3b6a46c5825d4699b197e82730491a90259bae4264"
+        "29162f959d0b85d41205441f8992ff8dc667393f72a34282b00a8abe4b8234b9"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -70503,13 +70503,13 @@
         "b0a6740955215c0b2348ee69f0a74620a727470d0e8650142f9132b49507f7dd"
       ],
       "source_sha256": "15e9d51011bb9fbf676e1cc79f60f2d6df297ffdaa1f1718b87a5dab0b29e9e5",
-      "text": "Align & Stitch - 查看布局,点击未注册的内容,然后写下。\n\n打破是缺陷在输出中不可见的几个操作之一. 未登记的打破被放置在其名称阶段位置; 结果仍然看起来像一个摩萨克,仍然有正确的尺寸,并且仍然错误的,到哪里是阶段已经消失。\n\n因此,此筛选在写作之前将 *计划* 放置:\n\n* 选择一张板的文件夹,按下 **Plan** - 没有写什么,没有分配的字符串,只有板头和超层条纹被阅读;\n* 布局是由布局拉的,颜色是注册信任,任何落后到舞台位置拉在警告颜色和切割。\n* 估计的字符串大小和所使用的 RAM 表示 *之前* 已启用 700 MB 的按钮;\n* **写字符** 然后复合,并选修记录坐标为 ``measurements.db``。\n\n每个漫长的操作都会在背景执行单位上执行,并通过连结方法回报,从来没有关闭 - 见 :meth:`AlignScreen._run_job`. 错误在内线状态标签中降落; QMessageBox 这里会吊头无图形界面的执行程,所以没有。",
+      "text": "Align & Stitch - 查看布局,查找未登记的内容,然后写下。\n\n折叠是缺陷在输出中不可见的几个操作之一. 未登记的微镜图像字段被放置在其名称阶段位置; 结果仍然看起来像一个集成图像网,仍然有正确的尺寸,并且仍然是错误的,无论阶段有多远。\n\n因此,此筛选在写作前将 *plan* 放置:\n\n* 选择微镜图像字段的文件夹,按下 **Plan** - 没有写字,没有分配字段,只有微镜图片字段标题以及超层字段被阅读;\n* 布局由微镜图像字段绘制,由记录信任染色,与任何落后到警告颜色绘制的阶段位置和切割。\n* 所估计的字符串大小和所使用的 RAM 表示 *之前* 700 MB 写的按钮被启用;\n* **写字符** 然后连续编写,并可选地将坐标记录为 ``measurements.db``。\n\n每个漫长的操作都会在背景执行单位上执行,并通过连结方法回报,从来没有关闭 - 见 :meth:`AlignScreen._run_job`. 错误在内线状态标签中降落; QMessageBox 这里会吊头无图形界面的执行程,所以没有。",
       "translation_source_blocks_sha256": [
         "86adb1f932bc6fe3b4834648699bc302ccf1870ad5e7b3f6d0ff443c29d7e75b",
-        "2db32f0a58ea0230dd671ecfa68bf883cff357c3d58128ad5ea13fa4436cb5f2",
+        "b1e50b06df0c8242d4610481016034401bc5c68580d41d0edfa75dd2f4979a95",
         "d297af4aba630d9daa147bee6a235ceef7a64366fb8d051eb0da8fd15292729c",
-        "4a11936781a37d493c5408f2c1f802ded752a076327231a6394d1d251e927967",
-        "dcbc01397bd9299e5d30a6c91ffc34c470628a72381f79f3f3588af6cf86f729",
+        "21c65e810d3173207e48fbfc64461511e1a7dcb88b6cb905efb17bb88b8c59b8",
+        "3203cd2e7f6e7dba5f49132da808223417270aae557ccc538aaacfad02604227",
         "8114f03639fa02520e5b1b0fd6f9f80a696a22ba908f831a5984189dcd1034ed",
         "ca9502de32add87b1b4bc35eef882f601605f33333ee883d9f3155bbc4ee905a",
         "24d82b7e9be9382e0531a45b0d73aa673c799ed07d2db76641a37eb5c6817f73"
@@ -70655,10 +70655,10 @@
         "76824b407add65cf6714d2f261e6fc933013e0ec154fc937432cab4c0cf36bcd"
       ],
       "source_sha256": "ec2cdea0b89234cd94c48a3c3866ef2e9cd5e6f7472e8422d21224b74cd8e9da",
-      "text": "字符串布局:每个字符的一个直角,以信任为颜色。\n\n拖动 *plan*,而不是像素 - 它从来没有打开图像,所以显示 700 MB 字符串的布局不花费任何代价。\n\n:param parent: 父母 Widget\n创建一个空白的布局视图,大小扩展与其面板。",
+      "text": "图形布局:每个显微镜图像字段的一个直角,以信任为颜色。\n\n拖动 *plan*,而不是像素 - 它从来没有打开图像,所以显示 700 MB 字符串的布局不花费任何代价。\n\n:param parent: 父母 Widget\n创建一个空白的布局视图,大小扩展与其面板。",
       "translation_source_blocks_sha256": [
-        "97c69e4494b3b5b7cac116d152a884f4fbeb6fa6402b72e29bd844142a16e977",
-        "f97aac81dd02a9a756859db97701381af11f17cf82bd6d798347ac61237a5a27",
+        "2e1dd8eb0a4b0e3bab2fdf264bc614f405e22bba10e99389003e00a512c0fc71",
+        "768153f69442ada38e68d39cb47b3a5091e642a4270a35eb3dde55a2738c36c6",
         "8d27ca95573770e1e401b5d06673bc10e4e24740d8803523a08ba224a8f47fc6",
         "76824b407add65cf6714d2f261e6fc933013e0ec154fc937432cab4c0cf36bcd"
       ]
@@ -78194,9 +78194,9 @@
         "6ebb3a6a8ddfb83586275618579006ce5af8bfeb85cdd02071ce2e421c761d97"
       ],
       "source_sha256": "6ebb3a6a8ddfb83586275618579006ce5af8bfeb85cdd02071ce2e421c761d97",
-      "text": "是否将作为显微镜的视野写作。",
+      "text": "显微镜图像字段是否会被写成显微镜视图字段。",
       "translation_source_blocks_sha256": [
-        "0931ad3dc64ec484b94062bd3505f8109e4b40031dc9016e6888ff68627f37dd"
+        "233c7c1d89e73bfe6d3f51432c8f7ef4f224d0bb7404516863b548061325258c"
       ]
     },
     "spacr.qt.screens.image_import.ProposalModel": {
@@ -128495,10 +128495,10 @@
         "de155c10a5bebeba75eb07db8918718c9a52ea13e0a5699725119950c0e5942e"
       ],
       "source_sha256": "6c824cdec878489c820774fefbb8cc1a4b90466dafedd023e9bb72e0cf257433",
-      "text": "正确地将 ``pixmap`` 插入,以便它在自己的外观上填写 ``box``。\n\n提取图像区域而不是字母框 - 剪辑路径传递过流 - 因此,一张纸板总是一个完整的圆形方块,没有在角落显示的线条。",
+      "text": "正确地将 ``pixmap`` 插入,以便它在自己的外观上填写 ``box``。\n\n提取图像区域而不是字母框 - 剪辑路径传输过流 - 因此,微镜图像字段总是一个完整的圆形广场,没有在角落显示的线条。",
       "translation_source_blocks_sha256": [
         "4304bb00bc7be4dcee2d4ce116588e07ae7db6b220f4ac220d9f6cd498a115e8",
-        "54484da6e10addce173c1097e09aee4b9e896acbad7167c57e847e1908c7bc5e"
+        "637fc807958abd8e4b06e6b1934a854f73d9edd02689f84a65dd65750007a87e"
       ]
     },
     "spacr.qt.widgets.tile_chrome.paint_tile": {
@@ -135875,14 +135875,14 @@
         "ff7df5a8dcda2db2e8baad7db63c94c73180609e6e3b5d4db0ab94b6d553a756"
       ],
       "source_sha256": "868a5557bf01a8a1eef3a442bfc0444bc9c7e3199ebbdd8ed059880041a6d68c",
-      "text": "重定向 / 检查点为 spaCR 的两个长段。\n\n实验室微板是一千个显微镜的视野和几个小时。当一个处理会议死于显微镜视野900 - 一个完整的磁盘,一个被OOM杀死的工作进程,一个笔记本电脑带 - spaCR 目前扔掉所有 900 并重新启动。\n\n半分决定是否重复是 *安全* 是这里的一切:\n\n存在的 **A 文件不是完成的文件.** ``spacr.io._load_and_concatenate_arrays`` 写 ``merged/<field>.npy`` 与直线 ``np.save`` 到目的地路径,因此,一个中间写的破坏将留下一个短暂的,结构性有效的 ``.npy`` 显示在磁盘上。 一个重复,在``os.path.exists``上滑雪会接受这个破碎的田野,测量任何比特发生在陆地上,并将结果放在相同的表格与好田野。 因此,:func:`completed_fields_in_merged` *validates*:它打破了``.npy``标题,并检查文件实际上是只要其自己的形状声称。 每件短暂的事情,都被拒绝和重复,从来没有被忽略。 (io.py 现在也写合并的序列原子,所以从这里产生的文件不能被打破 - 但从以前的处理会议的磁盘上已经存在的文件可以是。\n\n**测量工作流添加行,因此在继续中断运行之前必须删除现有行。** ``_merge_and_save_to_database`` 和 ``filepaths_to_database`` 两者都呼叫 ``to_sql(..., if_exists='append')``. 再次测量一个字段不会取代现有的行; 它 *输入额外的行*. 这使得下流对好集成太大,没有警告。 :func:`clear_field_rows` 删除旧行,所以重复测量产生一个一致的结果。\n\n**measurements.db 不是尺寸的私人文件** ``convert`` 写 ``conversion_map`` 在它, ``align`` 写 ``align_coordinates``, ``foreign`` 写 ``foreign_*``, ``timelapse`` 写其轨道表 - 所有密钥在相同的四个列与尺寸,故意,所以他们加入。 因此,发现 \"tables to clear\" 结构上发现了所有这些,并从每个视角序列中删除了一份重复,其中唯一的记录是 ``plate1_A01_1`` ,其中每个字符都被打破,另一个人的进口测量。 None 的它可以从数据库中重新计算。 可以删除的回复表现在是一个明确的允许列表, :data:`MEASURE_OWNED_TABLES`,在列表被发现时检查并在DELETE准备前立即按表重新检查。\n\n**以名称为所有者,实际上不属于所有者。 因此,所有权按顺序决定** 一个名称允许列表的答案“可以测量写到这个表吗?” 有一个案例,对“做了吗?”的诚实答案是没有: ``foreign.run_import``将进口行复制到``cell`` / ``nucleus`` / ``pathogen``图表中,当没有其他人在那里时, 因此,一个纯粹进口的项目可以通过每个 spaCR 工具阅读。 这些行位于允许列表的表中,在 spaCR 的单独代码列下,并使用一个重复来清除它们,并与悬挂字段一起。\n\n告诉他们分开的信号已经在数据库中,现在正在阅读: ``foreign_columns``,由进口商的每份出版物写的,每个进口商在每个桌子上放置的每个列的名称。 ``foreign._importer_owns``,“这张桌子的列是进口商记录的子组吗?” - 有一个序列的双胞胎,这就是这里的规则: **一行是进口商的,当每个列它是非 NULL 在是其中一个进口商记录为此表**. A ``measure_crop`` 行总是携带至少自己的区域和强度列,进口商从未写过;进口行只携带代数据。 ``foreign_``因此,一个表可以是另一半和另一半,每个行仍然是可归分的,这很重要,因为一个项目被进口,然后测量是正确的。 :func:`measure_rows_clause`.\n\n此企图阅读 ``foreign_import.canonical_table_written`` 并拒绝从记录的表中删除任何内容: 表切割,因此从未覆盖的进口领域也无法清除,并且项目从未可以重复; 无法访问的流程它存在; 并在数据库上最可能打击错误,因为第一个进口商没有这个标记写了副本。 ``foreign_columns`` 没有这些属性 - 它是每张桌子,它是每个列,它像进口商一样古老。\n\n**一个没有人会保留的副本被释放,不留在混合中。** ``measure_crop`` 天下,那一刻 spaCR 测量一个显微镜的视野到一个可口可乐表一个进口填满,其行和他们的座位在同一表中没有标记标签,每个微型样品位置计算成为两个人口的总数。 :func:`supersede_imported_copies` 执行之前的第一次输入和手复制 - 但只有当它覆盖的每一个显微镜视野已经被测量到该表或可测量现在,而只有之后 :func:`spacr.foreign.release_canonical_copy` 它已经证明,顺序顺序,它所移除的每一行仍然存在于 ``foreign_<object>``. 一张半释放的桌子比一张未释放更糟糕,所以任何不完整的,无损的释放都被拒绝,并可能相反,与两条线相结合。\n\n什么限制了这一切:每一个进口的序列在频道表中都有一个相同的双胞胎。 ``foreign_<object>``,和 ``foreign_<object>`` 是 *不* 在允许列表上,所以没有重复可以触摸它. 它被检查而不是假设 - 没有双胞胎的序列停止释放。\n\n其中一半仍然是开放的,并且不存在于此模块中: ``_merge_and_save_to_database`` 添加到一个频道表一个进口填满,没有注意到,这样一个用户测量这样的项目 *没有* 一个回归仍然得到两个人口在一个桌子上。 ``tests/test_resume_owned_tables.py`` 把它与 ``xfail(strict=True)`` 命名变革 ``spacr/utils.py`` 需要。\n\n数据库已被早期复制损坏,无法在阅读中修复 - 行已消失,并且文件中没有记录它们是什么。 它可以从数据库外的来源 *重写*,并且所有三位作家都使用 ``if_exists='replace'``,因此重新执行一个是一个完整的修复,而不是第二代行: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` 恢复地图从 CSV 位于转换图像旁边, ``align.save_coordinates`` 修复曲线坐标, 并恢复 ``foreign.run_import`` 进口测量。\n\n**一个显微镜的视野是由它的良好坐标识别,从来没有一个名称预定。** 删除与 ``LIKE 'plate1_A01_f1%'`` 也匹配 ``f10`` ... ``f19`` - 十九个无辜的显微镜的视场被摧毁清理一个. 每个声明在这里匹配的平等超过 ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (加上 ``timeID`` 时间表),并拒绝触摸一个表,不携带所有四个。\n\n**不同设置之间的简历不是简历。** 将使用一种通道/直径/提取图像区域配置测量的显微镜视场连接到使用另一种配置进行测量时,会产生一半是一回事,一半是另一回事的数据集。 下游都看不出来。  :func:`check_settings_compatible` 将当前设置与之前处理会话记录的设置进行比较,并提出 :class:`ResumeRefused` 命名确切的差异。 环境漂移(numpy 版本凸起)不会阻塞。\n\n简介是 **opt-in**:这里的一切都是无效的,除非 ``settings['resume']``是真实的,而一个没有它的处理会议就像以前一样行事。\n\n模块是故意的。 **Stdlib - 单独** — ``os``/``sqlite3``/``ast`` 但是,在进口时间上没有别的东西,它在顶部进行咨询。 ``measure_crop``,在任何模型被加载之前很久,并且永远不应该是拖动的东西。 torch 或 cellpose 进入一个过程。\n\n典型使用,从 ``measure_crop``::\n\n    from .resume import plan_measure_resume\n    plan = plan_measure_resume(settings)      # None when resume is off\n    files = [f for f in os.listdir(src) if f.endswith('.npy')]\n    if plan is not None:\n        files = plan.filter_files(files)",
+      "text": "重定向 / 检查点为 spaCR 的两个长段。\n\n实验室微板是一千个显微镜的视野和几个小时。当一个处理会议死于显微镜视野900 - 一个完整的磁盘,一个被OOM杀死的工作进程,一个笔记本电脑带 - spaCR 目前扔掉所有 900 并重新启动。\n\n半分决定是否重复是 *安全* 是这里的一切:\n\n存在的 **A 文件不是完成的文件.** ``spacr.io._load_and_concatenate_arrays`` 写 ``merged/<field>.npy`` 与直线 ``np.save`` 到目的地路径,因此,一个中间写的破坏将留下一个短暂的,结构性有效的 ``.npy`` 显示在磁盘上。 一个重复,在``os.path.exists``上滑雪会接受这个破碎的田野,测量任何比特发生在陆地上,并将结果放在相同的表格与好田野。 因此,:func:`completed_fields_in_merged` *validates*:它打破了``.npy``标题,并检查文件实际上是只要其自己的形状声称。 每件短暂的事情,都被拒绝和重复,从来没有被忽略。 (io.py 现在也写合并的序列原子,所以从这里产生的文件不能被打破 - 但从以前的处理会议的磁盘上已经存在的文件可以是。\n\n**测量工作流添加行,因此在继续中断运行之前必须删除现有行。** ``_merge_and_save_to_database`` 和 ``filepaths_to_database`` 两者都呼叫 ``to_sql(..., if_exists='append')``. 再次测量一个字段不会取代现有的行; 它 *输入额外的行*. 这使得下流对好集成太大,没有警告。 :func:`clear_field_rows` 删除旧行,所以重复测量产生一个一致的结果。\n\n**measurements.db 不是尺寸的私人文件** ``convert`` 写 ``conversion_map`` 在它, ``align`` 写 ``align_coordinates``, ``foreign`` 写 ``foreign_*``, ``timelapse`` 写其轨道表 - 所有密钥在相同的四个列与尺寸,故意,所以他们加入。 因此,发现 \"tables to clear\" 结构上发现了所有这些,并从每一个视图序列中删除了一份回复,其中唯一的记录是提供者文件变成 ``plate1_A01_1``,每一个微观图像字段被粘贴,另一个人的进口测量。 None 的它可以从数据库中重新计算。 可以删除的回复表现在是一个明确的允许列表, :data:`MEASURE_OWNED_TABLES`,在列表被发现时检查并在DELETE准备前立即按表重新检查。\n\n**以名称为所有者,实际上不属于所有者。 因此,所有权按顺序决定** 一个名称允许列表的答案“可以测量写到这个表吗?” 有一个案例,对“做了吗?”的诚实答案是没有: ``foreign.run_import``将进口行复制到``cell`` / ``nucleus`` / ``pathogen``图表中,当没有其他人在那里时, 因此,一个纯粹进口的项目可以通过每个 spaCR 工具阅读。 这些行位于允许列表的表中,在 spaCR 的单独代码列下,并使用一个重复来清除它们,并与悬挂字段一起。\n\n告诉他们分开的信号已经在数据库中,现在正在阅读: ``foreign_columns``,由每个输入者的发行编写,每个进口者在每个表中放置的每个列的名称。 它的表面使用 - ``foreign._importer_owns``,“这个表的列是进口商记录的东西的子组吗?” - 有一个序列的双胞胎,这就是这里的规则: **a 序列属于进口商,每一个列它是非NULL 是其中一个进口商注册为这个表**. 一个 ``measure_crop`` 行总是携带至少自己的区域和强度列,进口商从未写过; 进口序列只包含``foreign_``预定的数据和测量。 因此,一个表可以是另一半半,每个行仍然可归分,这很重要,因为一个项目被进口,然后测量正是这样。 看:func:`measure_rows_clause`。\n\n此企图阅读 ``foreign_import.canonical_table_written`` 并拒绝从记录的表中删除任何内容: 表切割,因此从未覆盖的进口领域也无法清除,并且项目从未可以重复; 无法访问的流程它存在; 并在数据库上最可能打击错误,因为第一个进口商没有这个标记写了副本。 ``foreign_columns`` 没有这些属性 - 它是每张桌子,它是每个列,它像进口商一样古老。\n\n**一个没有人会保留的副本被释放,不留在混合中。** ``measure_crop`` 天下,那一刻 spaCR 测量一个显微镜的视野到一个可口可乐表一个进口填满,其行和他们的座位在同一表中没有标记标签,每个微型样品位置计算成为两个人口的总数。 :func:`supersede_imported_copies` 执行之前的第一次输入和手复制 - 但只有当它覆盖的每一个显微镜视野已经被测量到该表或可测量现在,而只有之后 :func:`spacr.foreign.release_canonical_copy` 它已经证明,顺序顺序,它所移除的每一行仍然存在于 ``foreign_<object>``. 一张半释放的桌子比一张未释放更糟糕,所以任何不完整的,无损的释放都被拒绝,并可能相反,与两条线相结合。\n\n什么限制了这一切:每个进口的序列在频道表中都有一个相同的双胞胎在``foreign_<object>``,而``foreign_<object>``是*not*在允许列表上,所以没有重复可以触摸它。 这被检查而不是假设 - 没有双胞胎的序列停止释放。\n\n其中一半仍然开放,并且不存在于此模块中: ``_merge_and_save_to_database`` 添加到一个频道表中一个未注意的进口,因此测量这样一个项目 *wit* 的用户仍然在一个表中获得两种人口。 ``tests/test_resume_owned_tables.py`` 用 ``xfail(strict=True)`` 插入它,并命名 ``spacr/utils.py`` 需要的变更。\n\n数据库已被早期复制损坏,无法在阅读中修复 - 行已消失,并且文件中没有记录它们是什么。 它可以从数据库外的来源 *重写*,并且所有三位作家都使用 ``if_exists='replace'``,因此重新执行一个是一个完整的修复,而不是第二代行: ``convert.populate_db_from_map(db, '<converted>/conversion_map.csv')`` 恢复地图从 CSV 位于转换图像旁边, ``align.save_coordinates`` 修复曲线坐标, 并恢复 ``foreign.run_import`` 进口测量。\n\n**一个显微镜的视野是由它的良好坐标识别,从来没有一个名称预定。** 删除与 ``LIKE 'plate1_A01_f1%'`` 也匹配 ``f10`` ... ``f19`` - 十九个无辜的显微镜的视场被摧毁清理一个. 每个声明在这里匹配的平等超过 ``plateID`` / ``rowID`` / ``columnID`` / ``fieldID`` (加上 ``timeID`` 时间表),并拒绝触摸一个表,不携带所有四个。\n\n**不同设置之间的简历不是简历。** 将使用一种通道/直径/提取图像区域配置测量的显微镜视场连接到使用另一种配置进行测量时,会产生一半是一回事,一半是另一回事的数据集。 下游都看不出来。  :func:`check_settings_compatible` 将当前设置与之前处理会话记录的设置进行比较,并提出 :class:`ResumeRefused` 命名确切的差异。 环境漂移(numpy 版本凸起)不会阻塞。\n\n简介是 **opt-in**:这里的一切都是无效的,除非 ``settings['resume']``是真实的,而一个没有它的处理会议就像以前一样行事。\n\nThe module is deliberately **stdlib-only** — ``os``/``sqlite3``/``ast`` and nothing else at import time. It is consulted at the very top of ``measure_crop``, long before any model is loaded, and must never be the thing that drags torch or cellpose into a process.\n\n典型使用,从 ``measure_crop``::\n\n    from .resume import plan_measure_resume\n    plan = plan_measure_resume(settings)      # None when resume is off\n    files = [f for f in os.listdir(src) if f.endswith('.npy')]\n    if plan is not None:\n        files = plan.filter_files(files)",
       "translation_source_blocks_sha256": [
         "ca65c2e84b84bb3e47626969495deaf674ce9e1108a30d6c878c6f2e14632ce5",
         "af5d96a381b6e00a4b9a9570fb9d67e9d3ad6a9e113885408562f8e0f140a259",
         "cdca567a3d161567ae79d3cedb03de7ba4c157011fde0d788e896bbf565cbc08",
         "e9708974177a7eb7b564336dc3b3c4bfd43263941367566d8d2cc30723ba08c5",
         "f7fbaae4a38618e9f9164b50935e7b45223b487a719c0b26f7c965de19260c7f",
-        "7f10fc6667f89f581b0d0317531974781f439c4e4f3286a7b9e91ff3fcf37a30",
+        "2191be2853030d5ef833efb312c015131b66c0c6df76048461050d103b7eef36",
         "a88f0caf6d5c1d4daafe901f25d5d36facf670da8b36ebdc0a972b46d5455f70",
         "bf8bc68b1cfe3bb7371d469191e71559390f4e24399cff5f5384572c787a4643",
         "33686608a51f1684479f9338cd1be92f7f22a066ed0790f979614cad6964c8b1",
@@ -144614,9 +144614,9 @@
         "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
       ],
       "source_sha256": "8b0224fcfcb4e0710077a87b9be6683ec44d8341d8dc0c2374d674d368b8be4e",
-      "text": "返回默认设置,以建造多频道每微型样品位置摩萨克。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
+      "text": "返回默认设置为构建多频道每微型样品位置集成图像网。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
       "translation_source_blocks_sha256": [
-        "95c967c07736996f2a7d9952d8f762c9dbdb23a77ce001f254da53bc08e0735e",
+        "04239d214f4bf7f96669896ffe9cc18d5d4c8ef8e3774dc4e36cc99db55a7484",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
         "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
@@ -144685,10 +144685,10 @@
         "1e1b5d57469767ee9a0859af73aeb0e35c5ce0abe09d3225ba33ffdcf5adadd4"
       ],
       "source_sha256": "20d8a3afe48882a0cb33777c428f2f69eb6c0c9f33d283ba9b64435a5fc1c47b",
-      "text": "返回默认设置,以便为标签粘贴的工作流。\n\n涵盖功能检测、RANSAC、外线覆盖、功能存储和微型样品位置摩萨克输出参数。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
+      "text": "返回默认设置为微镜图像字段工作流。\n\n涵盖功能检测、RANSAC、外线覆盖、功能存储和每微型样品位置组合图像网输出参数。\n\n:param settings: 可选的关键值地图填写;如果 None 创建一个新的关键价值地图。\n:returns: 设置与默认应用的关键值地图(输入的微小的副本)。",
       "translation_source_blocks_sha256": [
-        "cbeed1e3083771bd2537edb6feb3859b8dd62c7d9348512c705b88a570a11d44",
-        "1a93a7e61962014195201b7679df1161f77bc67dbfab616b5e6fcfe18cce6c6c",
+        "7faa6cbeccabfc40aa906c6cfac593066cd727c02612f7797a222d56fe5aa60f",
+        "b539e83387613a4645b2230a3c80ce6048c708de4ef119d1886703d0b7d8bb69",
         "13265c4c0ecb9fb8f2c201938a58aff388d1259c2723336af9d9be079ecc8290",
         "85df11cdeb2cac1b1ee279f56632e1e6588cc24f01bf57189380e2de90aab240"
       ]
@@ -146332,10 +146332,10 @@
         "bf5f038b7cb1ab8747bd8fe14f87b0d70bcc673a339aa36c0bc03b9c5c938af5"
       ],
       "source_sha256": "a97af1e95ac4be7cdb68153bf396302464fba6a7c3b7986130fe02e3229b38a3",
-      "text": "将 FOVs 个体(微镜视野)调整到一个粘贴的摩萨克,并出口 FOV 框架。\n\n每个 FOV (微镜视野) 保存 ``.npy`` 的形状 ``(C_fov + C_mosaic, H_fov, W_fov)`` (原生 FOV (微镜视野 ) 渠道 与 摩萨克 通道 插入 FOV (微观光场 ) 框架 和 CSV 连结 转换, 得分 和 摩萨克 bbox 。\n\n将属性/匹配助理分发到 :class:`StitchedMultiAligner`。\n\n:param detector: 关键点探测器(``'ORB'``或 ``'SIFT'``)。默认 ``'ORB'``。\n:param nfeatures: 预算为探测器。\n:param max_keypoints: 硬点在检测后保持关键点。\n:param downsample: 下例因子为属性/分数通道。\n:param ransac_thresh_px: RANSAC 重复边界(像素、下载空间)。\n:param allow_scale: 可在估计的平面上进行规模。\n:param allow_rotation: 允许在估计的平面旋转。\n:param outdir: 输出目录. 默认 ``'./fov_out'``。\n:param opencv_threads: OpenCV 内部独立执行路径。\n:param arr_axes: TIFF 轴解释(``'AUTO'``或字符串超过 ``TCZYX``)。\n:param mip: max-project Z 当存在时。\n:param z_index: Z 插图,选择 ``mip`` 是否是虚假的。\n:param t_index: 选择 T 是否存在。\n:param squeeze_singleton: 滑板后,长度1轴。\n:param folder_image_scale: 默认情况下,使用 :meth:`run` 的 FOV 到 mosaic 像素尺寸因子。\n启动 FOV (显微镜视野) 调整器. 查看论点的课堂文本。",
+      "text": "将个体 FOVs (微镜视野) 调整到一个粘贴的集成图像网,并将 FOV 框架输出。\n\nFor each FOV, saves a ``.npy`` with shape ``(C_fov + C_mosaic, H_fov, W_fov)`` (native FOV channels stacked with the mosaic channels warped into the FOV frame) and a CSV row with the transform, score and mosaic bbox.\n\n将属性/匹配助理分配到 :class:`StitchedMultiAligner`。\n\n:param detector: 关键点探测器(``'ORB'``或``'SIFT'``)。默认 ``'ORB'``。\n:param nfeatures: 为检测器提供预算。\n:param max_keypoints: 硬封在检测后保留关键点。\n:param downsample: 下例因子为属性/分数过渡。\n:param ransac_thresh_px: RANSAC 重复边界(像素、下载空间)。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param outdir: 输出目录. 默认 ``'./fov_out'``。\n:param opencv_threads: OpenCV 内部独立执行路径。\n:param arr_axes: TIFF 轴解释(``'AUTO'`` 或 ``TCZYX`` 字符串)。\n:param mip: max-project Z 当存在时。\n:param z_index: Z 插图,选择如果 ``mip`` 是虚假的。\n:param t_index: 点击 T 选择 T 是否存在。\n:param squeeze_singleton: 折叠后切割长度1轴。\n:param folder_image_scale: 默认情况下 FOV - 集成图像网络像素规模因子使用 :meth:`run`。\n启动 FOV (显微镜视野) 调整器. 查看论点的课堂文本。",
       "translation_source_blocks_sha256": [
-        "edb3ad6f9263230013234a36eea21553de7906873e9084eea577c4f6235d34b7",
-        "3592d5703c8ed8a1e8aa1dc74a1de6e5b237e523742e5e7160594463ff3a9044",
+        "2afc5628e789b3ff028bfed021bcad34662c3a48009b7d72f9e09b06594f6f5e",
+        "887f7c0a8475c1fbc26d63677d5265b629bd9d7348e4ceadc3ae11b1aa27cf99",
         "0ab8c3d071ff240d6c0efb1e28365ba047f6d293bbbc976134a1444e00c972c5",
         "07a2e08a7efa3e10f54e91528fab5a04277ef6f6a837201d267aa1a85a5d4dcb",
         "2e75f2fa10296c08cfe1718383e29f5aa36a5dfef906bad1726b3ec6796e150e",
@@ -146351,7 +146351,7 @@
         "9fcdd798da2d6a76bb6219ab93a42369af5e954110fa22c6ec3c2e76a25e997b",
         "69dac81b05e99c7b442f25a2c94178610d22dccabafb0de0fded589178de7993",
         "094a3627396b79f8197e394e8b707e9a1af6380f1af7a31d6d6d02c145aca3ed",
-        "caa7f595de623037e2d4a864766eff2012eb8624e55b60414876bb1c45b31e76",
+        "2693ed5bf747fdd2641d8f90f8dbf464689eb40b64bea8b8a0f330057f7c0c73",
         "339a2e6e1c71f34e412aa94ec72c9de6d6bed4a05e7c66a0b8da95d53364122e"
       ]
     },
@@ -146371,19 +146371,19 @@
         "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
       ],
       "source_sha256": "03f31f8ed996ce235e97f33ee76ef1d3b3a9b5015b5c37b6dde2c846659a0d80",
-      "text": "将每个 FOV (显微镜视野) 在 ``folder`` 与 ``stitched_path`` 调整并输出 FOV 框架。\n\n使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。\n\n:param stitched_path: 路到参考的摩萨克。\n:param folder: 将 FOV (微镜视野) TIFFs 列为调整。\n:param stitched_nuclei_idx: 原子频道指数在摩萨克. 默认 ``0``。\n:param fov_nuclei_idx: 每个 FOV（显微镜视野）中的细胞核通道索引。默认值为 ``0``。\n:param exts: 已接受 FOV (显微镜视野) 扩展。\n:param recursive: 回到下载者。\n:param csv_path: 输出显示 CSV 路径;默认为 ``<outdir>/fov_align_manifest.csv``。\n:param npy_dir: 输出文件夹为 per-FOV(显微镜视野) ``.npy`` 字符串;默认为 ``<outdir>/npy``。\n:param folder_image_scale: FOV 到 摩萨式像素尺寸因子; 返回 ``self.folder_image_scale``。\n:returns: 路径到“CSV”的显而易见。",
+      "text": "将每个 FOV (显微镜视野) 在 ``folder`` 与 ``stitched_path`` 调整并输出 FOV 框架。\n\n使用细胞核通道进行对齐，并为每个 FOV（显微镜视野）写出一个 ``.npy``；其中包含该 FOV（显微镜视野）的各通道，以及变换到该 FOV（显微镜视野）坐标框架的马赛克通道。\n\n:param stitched_path: 路径到参考粘贴的集成图像网。\n:param folder: 将 FOV (微镜视野) TIFFs 列为调整。\n:param stitched_nuclei_idx: 的核通道指数在组装的图像网格中。  默认值为 ``0``。\n:param fov_nuclei_idx: 每个 FOV（显微镜视野）中的细胞核通道索引。默认值为 ``0``。\n:param exts: 已接受 FOV (显微镜视野) 扩展。\n:param recursive: 返回下载者。\n:param csv_path: 输出表示 CSV 路径;默认为 ``<outdir>/fov_align_manifest.csv``。\n:param npy_dir: 输出文件夹为 per-FOV(显微镜视野) ``.npy`` 字符串;默认为 ``<outdir>/npy``。\n:param folder_image_scale: FOV - 集成图像网络像素尺寸因素; 返回 ``self.folder_image_scale``。\n:returns: 路径到“CSV”的显而易见。",
       "translation_source_blocks_sha256": [
         "68c1e979c762099a84f1570f2e7594f4c0ca981ed621e220feef249597e9bc7f",
-        "146d711aa2e4fff523c7a6cd3913d96ac531dee7d2cc40abf146862560d5a199",
-        "a74f190b656dfdf121c01502d4eb64fb3798d9221a9c4cc16f328a09ef2e1288",
+        "7fcca5f6dffe910fadaa81a62e955e52ff47c4865bb76df54815d0102276688e",
+        "434758b1d5eadf68973cc66dbc302078242a56738da10f5f5fe9e65c60143c23",
         "f21c5ba9d83e96bd905982818f950f416cb2c1b7218bc3fdd3cc8d47ca23420e",
-        "507feb990ce32715b040a571bdffb914ec55df491ad1dd6c28dc7356a7256fee",
+        "940e34a692fd80d8698f0ea917eb9ad1b58be1f727154983967905e7662f8b06",
         "2258b1979ba4c53709336595a482eb356a0ff83b19ae803659411452ffc64b4f",
         "3cab289636faeda21164d2104e2d62843bdcd6052dca4db9545fcfd24b3b777e",
         "b05e42a57f56a102aef34bceeed1dc79478e10ee44afd6900d95e4073f6fb701",
         "e010571dedf337c9048e2b530dd9d57dac6f87230e77a27a40986d9b349e84ab",
         "bfe814a2dd7a1038dbe407725c1677e4bfc359ca340596f6fdc554916abe5892",
-        "5b70ad667bab94abf455600ebe4cca2a83d68e4dd175197c970e319b6d3e360e",
+        "1e0b9c4b3969e16eaa85c3adf242d2a7fcc5eb7314942c42ce99fb567aba78ff",
         "fe40ba907288fb2b73b534924c630fcdce5a1a9a61e520a92440c9fae598b73f"
       ]
     },
@@ -146403,9 +146403,9 @@
         "4fa1e78840efd45869af805629939cf075f65b2fd6233756601f99ec4ab5f9bd"
       ],
       "source_sha256": "85f7b1992a03a2c05902fdd2efca7597d82183cee88864b7685b8527f699ea3f",
-      "text": "将随意数量的粘贴摩萨克(多频道,随意轴)与使用核/霍赫斯特频道的常见参考相匹配,节省一个频道合并的平衡板和一个 CSV 显而易见,描述从输入频道到输出频道和估计的转换/分数的地图。\n\n输出图像轴:CYX(提供按照输入顺序堆叠的图像数据通道 ) 。\n\n参数\n----------\ndetector : {\"ORB\",\"SIFT\"} Keypoint 探测器 nfeatures : int 探测器功能预算。 max_keypoints : 可选的硬封在检测后保留的关键点上,使用检测器的排名。 downsample : float in (0,1) 函数检测和分数的因素。 ransac_thresh_px : float 像素重复限制,以便在下载空间中进行精确估计。 allow_scale : bool 如果 False 允许旋转和翻译,但没有扩展; 如果 allow_rotation = False,则允许翻译。 allow_rotation : bool 如果 False,只允许翻译。 outdir : str 图像和 csv 输出目录。 opencv_threads : int OpenCV 线条限制用于防止过度订阅。\n\n# 轴 / Z / 时间处理(为 TIFF 阅读)\n\narr_axes : \"AUTO\" 或超过 {T,C,Z,Y,X} 的行列\n\nmip : bool 如果 True 和 Z 存在, max-project Z. z_index : int 如果 mip=False,选择 Z 滑板。 t_index : int 选择 T 指数,如果 T 存在. squeeze_singleton : bool 滑滑板后切割 1 长轴。\n\n笔记\n-----\n- 与第一个图像相匹配,在 `paths`(参考)中。\n- 图像,您可以通过`nuclei_channel_indices`提供每个图像核的图像数据通道索引。  None,默认值为0。\n设置探测器和对跨采购调整的宽容。\n\n与 :class:`spacrStitcher` 相同的合同:匹配发生在 ``downsample`` 规模,而 ``ransac_thresh_px`` 是全尺寸的像素。",
+      "text": "将任意数量的缝合拼接图像网格(多通道,任意轴)对齐到使用核/霍赫斯特通道的共同参考。  保存一个通道连接对齐堆栈和一个 CSV 清单,描述从输入通道到输出通道的映射以及估计的变换/得分。\n\n输出图像轴:CYX(提供按照输入顺序堆叠的图像数据通道 ) 。\n\n参数\n----------\ndetector : {\"ORB\",\"SIFT\"} Keypoint 探测器 nfeatures : int 探测器功能预算。 max_keypoints : 可选的硬封在检测后保留的关键点上,使用检测器的排名。 downsample : float in (0,1) 函数检测和分数的因素。 ransac_thresh_px : float 像素重复限制,以便在下载空间中进行精确估计。 allow_scale : bool 如果 False 允许旋转和翻译,但没有扩展; 如果 allow_rotation = False,则允许翻译。 allow_rotation : bool 如果 False,只允许翻译。 outdir : str 图像和 csv 输出目录。 opencv_threads : int OpenCV 线条限制用于防止过度订阅。\n\n# 轴 / Z / 时间处理(为 TIFF 阅读)\n\narr_axes : \"AUTO\" 或超过 {T,C,Z,Y,X} 的行列\n\nmip : bool 如果 True 和 Z 存在, max-project Z. z_index : int 如果 mip=False,选择 Z 滑板。 t_index : int 选择 T 指数,如果 T 存在. squeeze_singleton : bool 滑滑板后切割 1 长轴。\n\n笔记\n-----\n- 与第一个图像相匹配,在 `paths`(参考)中。\n- 图像,您可以通过`nuclei_channel_indices`提供每个图像核的图像数据通道索引。  None,默认值为0。\n设置探测器和对跨采购调整的宽容。\n\n与 :class:`spacrStitcher` 相同的合同:匹配发生在 ``downsample`` 规模,而 ``ransac_thresh_px`` 是全尺寸的像素。",
       "translation_source_blocks_sha256": [
-        "798e36bf3b81569b026ce08f4e19a7e14288debe49ddc692b9601e166e9bf3c0",
+        "102973c1bd9aeed65bd5a43d4e8aedabeb54e8f009382f38b3d10ce686efaa7b",
         "f0ac29e6d8c0d72eea1eb19438ecde5cb9cdcae58edf2ab39dbf711d35920e47",
         "e68b36b17cbd990802f57741cb75cf3a73fa66a61999b0cd70e3cf7d26cfb25f",
         "3b7b7579652ae4c42f9a84e6ede706f4ea78065585ccfeed32e3e3d22b51ac1d",
@@ -146431,9 +146431,9 @@
         "b9c9ac86e9483e2b26985b79313a4b00d090886e44fe996c514f8bab7d7dcfe5"
       ],
       "source_sha256": "e52db034e9eb74110ed64437bfe5e54881045599829f588c5e1272a893445205",
-      "text": "将每个``paths``中的粘贴摩萨克合并到第一个,并保存一个CYX插槽。\n\n使用每个图像指定的核图像数据通道; 结果堆栈按照给定的顺序连接所有输入图像数据通道。\n\n:param paths: 按 TIFFs 来调整; ``paths[0]`` 是参考。\n:param nuclei_channel_indices: 图像核图像数据通道指数；  默认值为零。\n:param out_tif: 输出调整的滑板路径;默认为 ``<outdir>/aligned_allc.tif``。\n:param out_png_preview: 可选预览 PNG 路径。\n:param csv_path: 显明 CSV 路径;默认为 ``<outdir>/aligned_manifest.csv``。\n:returns: 双子座 ``(out_tif, out_png_preview, csv_path)``.",
+      "text": "在 ``paths`` 中的每个粘贴的集成图像网络与第一个相匹配,并保存一个 CYX 插槽。\n\n使用每个图像指定的核图像数据通道; 结果堆栈按照给定的顺序连接所有输入图像数据通道。\n\n:param paths: 按 TIFFs 来调整; ``paths[0]`` 是参考。\n:param nuclei_channel_indices: 图像核图像数据通道指数；  默认值为零。\n:param out_tif: 输出均匀的滑板路径;默认为 ``<outdir>/aligned_allc.tif``。\n:param out_png_preview: 可选预览 PNG 路径。\n:param csv_path: manifest CSV 路径;默认为 ``<outdir>/aligned_manifest.csv``。\n:returns: ``(out_tif, out_png_preview, csv_path)`` 字符串",
       "translation_source_blocks_sha256": [
-        "59f1f5041fbf750f4d9a934690bd2ae67358f212e528956d8ab25a43640f3d39",
+        "2bd642349f24d0bb0172c48cd2e57a88c562a0c36daa235d1ee4a3a9d934b04b",
         "c47734da15a70d1eaeb7bd32f7261a4c30ae892c0e868963c49e2837faa6c3f4",
         "93ece25a31c6b29b2cd4990e533f2db4f0285f2b1fd378f1604d40d977ac665b",
         "ecb3ff9aea04ecb204d1ba49c1ac96c90d0473ab4325cfcea66cb431e5525e0c",
@@ -146464,16 +146464,16 @@
         "adfee6c1cca6b6811e3b3169b222c2245db5d902871c464805ece1fcc2ce9a40"
       ],
       "source_sha256": "0bcda96dbca175d39bb2c56d2ad700bc2051b6df593725b14c38f1a553060f8b",
-      "text": "调整每个微板样本位置的更高强度 FOVs (微镜视野)到该微板样本位置的粘贴摩萨克。\n\n对于每个带有``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif``的图像,将图像从``align_src``组成,并运行:class:`FOVAlignAndCropper`,以产生全方位提取图像区域的显而易见和``.npy``提取图片区域。\n\n:param stitch_dst_root: 根文件夹包含 per-microplate 样品位置粘贴的摩萨克。\n:param align_src: 包含待对齐高倍图像的文件夹。\n:param meta_regex: 从文件名中提取孔位和视野元数据的正则表达式。\n:param well_group: 命名捕捉组持有微板样品位置识别器。\n:param channel_index: 细胞核通道索引。默认值为 ``0``。\n:param relative_scale: FOV 与镶嵌图之间的像素尺度因子。默认值为 ``2.0``。\n:param downsample: 特征检测阶段的下采样因子。默认值为 ``0.5``。\n:param nfeatures: 检测器的关键点数量上限。\n:param ransac_thresh_px: RANSAC 重投影误差阈值（像素）。\n:param allow_scale: 允许估计的仿射变换包含缩放。\n:param allow_rotation: 允许估计的仿射变换包含旋转。\n:param qc_outlines: 可接受通话兼容性,不使用。 ``*__qc_outlines.png`` 表面是由 :class:`spacrStitcher` 写的,数据选择将其限制在自己的 ``save_qc`` 上; :class:`FOVAlignAndCropper` 没有这样的论点,并且没有提取过度,所以这里没有什么可以改变。 使用 ``save_qc`` 代替冲动步骤。\n:param recursive_align_src: 扫描 ``align_src`` 时递归搜索。\n:param exts: 接受的图像扩展名。\n:returns: 映射 ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``。",
+      "text": "将每个微板样本位置的更高值 FOVs(微镜视野)调整到微板模型位置的粘贴集成图像网。\n\n在 ``<stitch_dst_root>/<WELL>/_stitch/mosaic_allc.tif`` 组合图像网的每个孔中,将图像从 ``align_src`` 分组成孔,并运行 :class:`FOVAlignAndCropper` 以产生精心提取的图像区域示范和 ``.npy`` 提取图像区。\n\n:param stitch_dst_root: 根文件夹包含每微型样品位置粘贴的集成图像网。\n:param align_src: 文件夹上级图像以匹配。\n:param meta_regex: regex 从文件名中提取好/网站数据。\n:param well_group: 命名捕捉组持有微板样品位置识别器。\n:param channel_index: 核频道指数 默认 ``0``。\n:param relative_scale: FOV - 集成图像网络像素规模因素. 默认 ``2.0``。\n:param downsample: 函数通过下载样品因子. 默认 ``0.5``。\n:param nfeatures: 关键点预算为探测器。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计的平面上进行尺寸。\n:param allow_rotation: 允许旋转在估计的平面。\n:param qc_outlines: 可接受通话兼容性,不使用。 ``*__qc_outlines.png`` 表面是由 :class:`spacrStitcher` 写的,数据选择将其限制在自己的 ``save_qc`` 上; :class:`FOVAlignAndCropper` 没有这样的论点,并且没有提取过度,所以这里没有什么可以改变。 使用 ``save_qc`` 代替冲动步骤。\n:param recursive_align_src: 在扫描 ``align_src`` 时重复。\n:param exts: 接受的图像扩展。\n:returns: 地图 ``{well: {'mosaic': path, 'align_folder': path, 'manifest_csv': path}}``。",
       "translation_source_blocks_sha256": [
-        "ac53f368ed32a61f33d33be37cf18326c40208b593707c2f7b64956c49a0e5ad",
-        "aeaf509bad25c5449f9e241b79f2d34bde8ab485b5d6176634f320b65dfb5830",
-        "bff989fcd646e2876b517018560cc886cfc8b4ca30fc4f6012e7f278dfa1c019",
+        "bbd684f3a8459b91ebe7578e530bf12dc46346c2e181d89294555e191672c1cd",
+        "58bbc52fe0d7105c1aef4049b1b43bd42288a82b6fc2f42866796f80d82f7f76",
+        "93043071114f4cf7acfac11b8988dfb2f6c3d4a2848255b2ee0dddbfcea305df",
         "726a002ea5203bff5b406e3895d306841c32d5a45aa02c29f320def1dc3a15b5",
         "5cf5adcf3e92f78b76ce11e63607754835de02232634b6a451455471c1f6e5bb",
         "926e6ca699a69385fe3099113f2237c77f28f3816a309aeb814cca44e6a83acc",
         "cef73dab9156bce65271dfcae7f89f6318bb285308b1fb17d314917a035d7076",
-        "e9dd476454f9362f8383a673c616e921cbb2c118dfbad1629cb8e54503793cfa",
+        "5efb1e1b1ac655b78a8dcb29b4b4f7be14d480e1b43964d75af89f2fe660916e",
         "7ae796410e7b4cfe1763aecaeda918dc436aed1c4124c5b85762b13babea8563",
         "d1c407a8380ff798a6a6806f0d1b96bdc856cc92c3368cc3265ad9f5daff6d71",
         "e7728e5291e05aaa2f26227ce428e5bda013c07d8cd5f34dfe08870d70a71f09",
@@ -146507,12 +146507,12 @@
         "68bd0cc36626d156a3b370df23f4146100a111ffa5d219b4478c851e367cb1b8"
       ],
       "source_sha256": "cff970872f4a3dc6eb32abd083aec4c0a8eff4977eaf8bc6b4db070b8fb92525",
-      "text": "执行完整的 ops 预处理工作流: per-genotype stitching + fenotype alignment。\n\n它在一个或多个基因组文件夹上进行标记,每个文件夹中都会被称为 :func:`stitch_cycle_wells` ,然后通过 :func:`align_image_to_stitch` 将基因图像与结果的摩萨克相匹配。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 关键值地图为 ``stitch``(每个基因组总结), ``align``(每基因型相匹配结果)和 ``npy_out_root``,在这里创建的 ``<phenotype_source>/output`` 文件夹,但从未写到 — ``.npy`` 提取的图像区域在每个微板样本位置的 ``crops_20x`` 文档旁边它的摩西克。",
+      "text": "执行完整的 ops 预处理工作流: per-genotype stitching + fenotype alignment。\n\n它在一个或多个基因组文件夹上播放,每个文件夹都称为 :func:`stitch_cycle_wells`,然后通过 :func:`align_image_to_stitch` 将基因型图像与结果收集的图像网相匹配。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 关键值地图为 ``stitch``(每个基因组合), ``align``(每基因型相匹配结果)和 ``npy_out_root``,在这里创建的 ``<phenotype_source>/output`` 文件夹,但从未写到 - 提取的 ``.npy`` 图像区域在每个微板样本位置的``crops_20x`` 文档旁边的收集图像网。",
       "translation_source_blocks_sha256": [
         "b188404c3e1d8f2631501bd237c84e3004e01f1e7e1d1505b1141f51c04b3175",
-        "bbade32699c9d517e34e4902d5c422cabd3ba444b94ee9330b71e279d5375c2a",
+        "111c1d5b713c92efc4172ae33bc25f3994d00c0c74c831a07fcb37009f27324a",
         "a241201c853df05f3e5e5699a48d58287e5ed9012bc6a5ef82efd63b45a9ad4c",
-        "0f0547d69f316174201973a581b68d9c74b6916d6b621fd51ea2a15c901218d2"
+        "dcf34b68851a092a3712b09e71cf2edbb38a15902c7fd8ab5b41407e6001ebad"
       ]
     },
     "spacr.spacrops.spacrStitcher": {
@@ -146565,9 +146565,9 @@
         "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
       ],
       "source_sha256": "174d288834aec7e44b341b91dce5629d3c7457a7122f7d52f374c866dc80db89",
-      "text": "双式粘贴器与下调分数和全好摩萨克组合。\n\n记忆和竞争对手对非常大的数据集进行控制:\n  - feature_cache_mode: \"disk\" (默认) 用 LRU RAM 封面将 DS 功能写入磁盘\n  - pair_batch_size:竞争对手未来对手的限制数量\n  - stream_csv:立即编写双顺序(低 RAM)\n  - opencv_threads:限制OpenCV内部执行竞争,以避免过度订阅\n\n:param detector: 关键点探测器, ``'ORB'`` 或 ``'SIFT'``;任何其他值增加 ``ValueError`` 和 ``'SIFT'`` 需要一个 opencv-contrib 构建。\n:param nfeatures: 关键点预算交给探测器. 默认 ``6000``。\n:param max_keypoints: 按图像保留的关键点; ``None`` 保留所有。\n:param downsample: 尺寸因子下列函数/排序通道。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计转型中的规模。\n:param allow_rotation: 允许旋转,当 ``allow_scale`` 是 ``False``。\n:param outline_source: 如何找到 QC 输出: ``'otsu'`` (默认), ``'cellpose'`` 或 ``'none'``。\n:param cellpose_model: Cellpose 模型名称或检查点路径;只在 ``outline_source`` ``'cellpose'`` 时阅读。\n:param cellpose_diameter: 预计对象直径转移到 Cellpose; ``None`` 允许 Cellpose 选择。\n:param canny: ``(low, high)`` Canny 限制将前面面掩膜转化为外线。\n:param blur_sigma: 在 Otsu 边界之前,加西亚的 Sigma 被应用; ``0`` 阻止了泡沫。\n:param dilate_ksize: 用于扩展前面面掩膜的弹性核心大小; ``0`` 阻止扩展。\n:param line_thickness: 输出厚度; ``1`` 以上的值扩展边缘图像。\n:param outline_alpha: 在 QC 表面提取的列表的可见性。\n:param outdir: 输出文件夹,在建设中创建并用于 QC 图像,粘贴双输出和默认功能缓存; 双式 CSVs 写在呼叫器的 ``csv_path`` 点的地方。\n:param save_qc: 字符为 QC 输出 PNGs. 默认 ``True``。\n:param save_stitched_default: 假设写一对夫妇的 TIFF 字符; 这个论点超越了它。\n:param all_scores: 还计算了较慢的全分辨率测量(全边 ZNCC 和前方相互关系/IoU/Dice/XOR)。\n:param score_threshold: 默认最小得分需要写一个粘贴图像; ``None`` 意味着没有默认限制。\n:param verbose: 打印进展消息。\n:param feature_cache_mode: ``'disk'`` 或 ``'ram'``;任何其他值增加 ``ValueError``。\n:param feature_cache_dir: 在哪里存储磁盘模式功能. 缺点为 ``<outdir>/feat_cache``。\n:param max_ram_features: LRU 尺寸,在图像中,在磁盘功能商店前的 RAM 存储器。\n:param n_workers_features: 属性提取条数;默认数为 CPU 数的一半。\n:param pair_batch_size: 配对交付到线池每包,有``1024``的地板。\n:param stream_csv: 被接受和存储,但从未阅读;双重序列总是按得分写的。\n:param opencv_threads: 值转换为 ``cv2.setNumThreads``。\n:param arr_axes: 输入的轴顺序 TIFFs;必须包含 ``Y`` 和 ``X`` 除非它是 ``'AUTO'``。\n:param mip: 超过 Z 的 max-intensity 计划,而不是采取 1 个滑板。\n:param z_index: 使用 Z 幻灯片,当 ``mip`` 是 ``False``。\n:param t_index: 使用时间指数,当T轴存在时。\n:param squeeze_singleton: 放下单片轴后轴选择。\n\n转型控制\n-----------------\n  allow_scale:如果 True → 使用 RANSAC 相同(旋转 + 规模 + 翻译) 如果 False → 执行单位规模(参见 allow_rotation) allow_rotation: 如果 True → 旋转+ 翻译 如果 False → 翻訳- 仅限于\n\n图像 摩萨克\n-----------\n  使用拓扑感知修剪 + 最大跨度树对成对得分来构建一个有凝聚力的网格。  导出马赛克图像和 mosaic.csv 清单。\n\n轴与Z处理\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\n设置功能检测器和对比容量。\n\n``downsample`` 是每场比赛进行的规模; 它所产生的转型以全尺寸表达,因此降低它的成本是准确的,而不是改变产量地质。 ``ransac_thresh_px`` 是全尺寸的像素。",
+      "text": "双式粘贴器与下调的分数和整合良好的图像网组合。\n\n记忆和竞争对手对非常大的数据集进行控制:\n  - feature_cache_mode: \"disk\" (默认) 用 LRU RAM 封面将 DS 功能写入磁盘\n  - pair_batch_size:竞争对手未来对手的限制数量\n  - stream_csv:立即编写双顺序(低 RAM)\n  - opencv_threads:限制OpenCV内部执行竞争,以避免过度订阅\n\n:param detector: 关键点探测器, ``'ORB'`` 或 ``'SIFT'``;任何其他值增加 ``ValueError`` 和 ``'SIFT'`` 需要一个 opencv-contrib 构建。\n:param nfeatures: 关键点预算交给探测器. 默认 ``6000``。\n:param max_keypoints: 按图像保留的关键点; ``None`` 保留所有。\n:param downsample: 尺寸因子下列函数/排序通道。\n:param ransac_thresh_px: RANSAC reprojection threshold 在像素中。\n:param allow_scale: 允许在估计转型中的规模。\n:param allow_rotation: 允许旋转,当 ``allow_scale`` 是 ``False``。\n:param outline_source: 如何找到 QC 输出: ``'otsu'`` (默认), ``'cellpose'`` 或 ``'none'``。\n:param cellpose_model: Cellpose 模型名称或检查点路径;只在 ``outline_source`` ``'cellpose'`` 时阅读。\n:param cellpose_diameter: 预计对象直径转移到 Cellpose; ``None`` 允许 Cellpose 选择。\n:param canny: ``(low, high)`` Canny 限制将前面面掩膜转化为外线。\n:param blur_sigma: 在 Otsu 边界之前,加西亚的 Sigma 被应用; ``0`` 阻止了泡沫。\n:param dilate_ksize: 用于扩展前面面掩膜的弹性核心大小; ``0`` 阻止扩展。\n:param line_thickness: 输出厚度; ``1`` 以上的值扩展边缘图像。\n:param outline_alpha: 在 QC 表面提取的列表的可见性。\n:param outdir: 输出文件夹,在建设中创建并用于 QC 图像,粘贴双输出和默认功能缓存; 双式 CSVs 写在呼叫器的 ``csv_path`` 点的地方。\n:param save_qc: 字符为 QC 输出 PNGs. 默认 ``True``。\n:param save_stitched_default: 假设写一对夫妇的 TIFF 字符; 这个论点超越了它。\n:param all_scores: 还计算了较慢的全分辨率测量(全边 ZNCC 和前方相互关系/IoU/Dice/XOR)。\n:param score_threshold: 默认最小得分需要写一个粘贴图像; ``None`` 意味着没有默认限制。\n:param verbose: 打印进展消息。\n:param feature_cache_mode: ``'disk'`` 或 ``'ram'``;任何其他值增加 ``ValueError``。\n:param feature_cache_dir: 在哪里存储磁盘模式功能. 缺点为 ``<outdir>/feat_cache``。\n:param max_ram_features: LRU 尺寸,在图像中,在磁盘功能商店前的 RAM 存储器。\n:param n_workers_features: 属性提取条数;默认数为 CPU 数的一半。\n:param pair_batch_size: 配对交付到线池每包,有``1024``的地板。\n:param stream_csv: 被接受和存储,但从未阅读;双重序列总是按得分写的。\n:param opencv_threads: 值转换为 ``cv2.setNumThreads``。\n:param arr_axes: 输入的轴顺序 TIFFs;必须包含 ``Y`` 和 ``X`` 除非它是 ``'AUTO'``。\n:param mip: 超过 Z 的 max-intensity 计划,而不是采取 1 个滑板。\n:param z_index: 使用 Z 幻灯片,当 ``mip`` 是 ``False``。\n:param t_index: 使用时间指数,当T轴存在时。\n:param squeeze_singleton: 放下单片轴后轴选择。\n\n转型控制\n-----------------\n  allow_scale:如果 True → 使用 RANSAC 相同(旋转 + 规模 + 翻译) 如果 False → 执行单位规模(参见 allow_rotation) allow_rotation: 如果 True → 旋转+ 翻译 如果 False → 翻訳- 仅限于\n\n图像 摩萨克\n-----------\n  使用拓扑感知修剪 + 最大跨度树对成对得分来构建一个有凝聚力的网格。  导出组装的图像网格图像和 mosaic.csv 清单。\n\n轴与Z处理\n-----------------\n\n::\n\n  arr_axes : str in {\"AUTO\"} or a string over {T,C,Z,Y,X} (e.g. \"CZYX\", \"CYX\", \"ZYX\").\n             Determines how to interpret multi-dimensional TIFFs.\n  mip      : bool. If True and Z exists, perform max-intensity projection over Z.\n  z_index  : int  (if mip=False) choose Z slice index.\n  t_index  : int  choose time index if T exists.\n设置功能检测器和对比容量。\n\n``downsample`` 是每场比赛进行的规模; 它所产生的转型以全尺寸表达,因此降低它的成本是准确的,而不是改变产量地质。 ``ransac_thresh_px`` 是全尺寸的像素。",
       "translation_source_blocks_sha256": [
-        "eb651b31ef0c1b2680b6ec6def3843cdab04f4a56ed7a6cbcb26341c12665e48",
+        "5cd4c1eba502b3400b142ee5e418de0ac6c7aea56117c5aeab9fded68ed9f132",
         "7354bd1b3ba1608f191f2cc05657459dc2a390c21b252c708d78fa14cacf3be9",
         "72be77fbd490dfa861ba9739272be320edafd2628b856414e1f7a48e2be841d5",
         "54555b19eca1e44879d93e87cabd48215bf9bcf997eda8f891bac1d4e6ee235c",
@@ -146609,7 +146609,7 @@
         "105d0b72aeb0774a715289c302c5accc4059d08a9e57006300f81612a9c66526",
         "7298d22c9768b94e67ca1a88d7939754eb6e178d0e2516faa08a7be4f83e9527",
         "55d50e4f2f478cfbd02e7630d84474322bd87c20b720222eb91a7e921abe7d3b",
-        "6a34c1d1b4c851473f83caeac3fefb18fd135b2888842f39e151dae796e1630c",
+        "c241bdf28c1d5a743996ed95d7d05af78c49955ddf6199f7e132a916cd6a359c",
         "59ecadb05aaf55ca70829b1b3d152e6ba1750cb5a1cabafbcaf9150b07f187f6",
         "ee0269f2647e48daa28c791316f0a664ff884bcaf414847c195b77f00fe57bf7",
         "9e3522554f77218fb9ed4cbb795d59e130b822024ca2f49ecf8b16a9a734e2bc"
@@ -146635,13 +146635,13 @@
         "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
       ],
       "source_sha256": "247553b1ee13543b3498c0acef33be44032369aab838351b0e9f904d7b1a2ca7",
-      "text": "从 'mosaic.csv' 显示器中建立一个 CYX BigTIFF 摩萨克,写下 spacrStitcher.render_mosaic_from_csv(...).\n\n预计的 CSV 列(按字符串):\n  - 路,H,W,M00,M01,M02,M10,M11,M12,canvas_x,canvas_y, best_pair_score\n\n:param manifest_csv: 莫扎克显现读书; 缺少的所需列或一行,其大小/附属不会分裂,将投下 ``RuntimeError``。\n:param out_tif: 目的地路径为CYX摩萨克 TIFF。\n:param out_png: 图像数据通道 0 的可选预览 PNG；当值为 ``None`` 时不写预览。\n:param channel_indices: 通道编辑; ``None`` 使用第一可用的字符串的每个频道。\n:param blend: ``'max'`` 或 ``'overwrite'``;任何其他值增加 ``ValueError``。\n:param tmp_dir: 工作空间在磁盘上的记忆图. 默认情况为 ``mosaic_tmp`` 在 ``self.feature_cache_dir`` 下,如果设置,否则与 ``out_tif`` 旁边。\n:param preview_downsample: 因子为预览 PNG 缩小;值为 ``1`` 或更少,保持完整尺寸。\n:returns: 写的路径是“``out_tif``”。\n\n笔记\n-----\n* 使用 2x3 相容在示范中(已经包括全球折扣)。\n* 如果 `channel_indices` 是 None,则从第一个有效的字符串中输入频道计算。\n* `blend=\"max\"` 接收每像素的最大在超越的板块上; `blend=\"overwrite\"` 写下最新的板块在以前的板片上,其中覆盖>0.\n* 如果 `tmp_dir` 提供(或从 self.feature_cache_dir 中可用),则输出工作空间使用磁盘记忆图来减少 RAM。",
+      "text": "创建一个 CYX BigTIFF 集成图像网从 'mosaic.csv' 标志写为 spacrStitcher.render_mosaic_from_csv(...).\n\n预期的 CSV 列(按字符串):\n  - 路,H,W,M00,M01,M02,M10,M11,M12,canvas_x,canvas_y, best_pair_score\n\n:param manifest_csv: 收集图像网显而易见阅读; 缺少所需列或一行,其大小/附属将不会分裂投``RuntimeError``。\n:param out_tif: CYX 集成图像网络的目的地路径 TIFF。\n:param out_png: 图像数据通道 0 的可选预览 PNG；当值为 ``None`` 时不写预览。\n:param channel_indices: 编辑频道; ``None`` 使用第一个可用的字符串的每个频道。\n:param blend: ``'max'`` 或 ``'overwrite'``;任何其他值增加 ``ValueError``。\n:param tmp_dir: 工作空间在磁盘上的记忆图. 默认情况为 ``mosaic_tmp`` 在 ``self.feature_cache_dir`` 下,如果设置,否则与 ``out_tif`` 旁边。\n:param preview_downsample: 因子为预览 PNG 缩小;值为 ``1`` 或更少,保持完整尺寸。\n:returns: 已写的 ``out_tif`` 路径。\n\n笔记\n-----\n* 在示范中使用 2x3 字符串(已经包括全球折扣)。\n* 如果 `channel_indices` 是 None,则从第一个有效的字符串中输入频道计算。\n* `blend=\"max\"` 接收超越微镜图像字段的每像素最大; `blend=\"overwrite\"` 写下最新的微镜图片字段超过以前的字段,其中覆盖>0。\n* 如果 `tmp_dir` 提供(或从 self.feature_cache_dir 中可用),则输出工作空间使用磁盘记忆图来减少 RAM。",
       "translation_source_blocks_sha256": [
-        "6eaa51c0d3b7f6059ab9a8e5882a4d0041615677f16733e3d1f086733558c031",
+        "630e1ff0bcd6efcb6bb4e313b0f7375426c44fc4d90ba4a130978c92dd009b10",
         "8410fd2cde8963cf34bd66b720b4631e7ed6cc01ba2ce557d1c6c4a7c2ebdb3b",
         "4efca5537d14d609ae49a2875d332aafa15d42112f3105c84ee8aa15d4bd3c62",
-        "7d845954bdd21d2340fe15ad2da8fbfaf03db061fef06c039677cd242ed89121",
-        "2a977ac7b09d399cb964788e8531d70ef144f16884a42bfd500a739619cc6ab6",
+        "0586e383520dcb5d760c607ae411bc01de2ec020112d8cfff3fb6b31af03b3c6",
+        "69c6b194a7105a20a7f3cb52862e73c1b16df76d87c7bf946a558242ad431b6f",
         "591b3b5862166de4beae57beefc65a9c35c429bac8851889e3165369d692f121",
         "b9f0a6cfe36c8dfcea82be568708a42b59a081118bfbd53ed4f77e48c687d33c",
         "5ed85010fa6eb06ca795c2a868d6a2378614a9c4b7d3aaad45b68bdd0fa77477",
@@ -146651,7 +146651,7 @@
         "8a7525b1492fb84833f5c4a69b30f4bfbb134f9b666b61a2c1872d63d234c085",
         "c59a02cd4935798766fe05129cc323c38e0b778eb03d52092ed67fe25d0e893e",
         "427e05f1a0b114094f0bb301a9f912a9e34d6e1abaa3f2c072268593f6be3e15",
-        "cdb58a1a7d30fad5d7be5820e999c146cae9705418432a378a5acf59d2b4a42b",
+        "b6b0f9c1803ba1cd66fbc5e4a5ddf0bbace8520fd9c5d194c5c58eb3c4b730c6",
         "1d1a1b1ef3c105fb46b40cecdb123120a638920cb37534b0bdd8f1fcbc6e70a0"
       ]
     },
@@ -146673,13 +146673,13 @@
         "e3968366b2dcf54efbed8fee6ef77b303e5449785b6c9204ce22cef171a3858c"
       ],
       "source_sha256": "78adc956ab1e07247878cd3c2fcc832e8d5e010a0d58cf6cc1dcb382dfaded4b",
-      "text": "将多频道的CYX摩萨克集成,通过通过频道重新使用双向转换。\n\n通过 ``out_tif=None`` 与 ``out_csv`` 在显现模式下运行(计算转换和转换地质,写显现,滑动演示)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 摩萨克 TIFF 输出路径(``None`` 仅为显现)。\n:param min_score: 对摩萨克保持的最低双分(当 ``None`` 时自动检测)。\n:param channel_count: 强制此许多频道;当 ``None`` 时自动检测。\n:param channel_index_order: 明确的频道指数订单出发。\n:param angle_tol_deg: 对分类边缘的宽容,以 R/L/U/D 双重分类。\n:param step_tol_frac: 周围的分裂宽容,估计是网路步骤。\n:param rot_tol_deg: 可在旋转中限制旋转时允许旋转。\n:param scale_tol: 可允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的每条路径显示 CSV 路径。\n:returns: 走向摩西的路 TIFF (或 ``None`` 只在示范模式下。",
+      "text": "通过在通道之间重复使用对变换来组装多通道 CYX 组装图像网格。\n\n通过 ``out_tif=None`` 与 ``out_csv`` 在显现模式下运行(计算转换和转换地质,写显现,滑动演示)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 收集图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param min_score: 组合图像网的最低双分数保持(当 ``None`` 时自动检测)。\n:param channel_count: 强制此许多频道;当 ``None`` 时自动检测。\n:param channel_index_order: 明确的频道指数为输出订单。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的每条路径表现为 CSV 路径。\n:returns: 路径到集成图像网 TIFF(或 ``None``在 manifest-only模式)。",
       "translation_source_blocks_sha256": [
-        "1f42d9c45c7f834056020a637b1ff3eed83ace75f59a53ad2fc124ad055fbd52",
+        "d75203deb0d803b1a3a8509dae3c8354286a2c1759c26be1aa78e64ea8ffe788",
         "7cde582f5fc0afa1abd7b72e4e245c0e4d2741183bec16e9adf0d0bca82cee93",
         "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
+        "1eb3eab5f9c79ce14eaf8eb8a557a734c88b580f8cf2e156de8648ba5d8f3a4e",
+        "e8b4ca8c422f6253f21d391d1247d25cf1a96713cbc9481c5e467876cf8f5965",
         "f91f29f50f7711fc3dc5d53956dfff3452a07eb60c20cc244cec893a3cd0efee",
         "41401e7ead1fce4958e46e9591efc3dd9dfb27f649ea94e791cabfc54960b81e",
         "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
@@ -146688,7 +146688,7 @@
         "b32dfff0d62cf8d607b3c297eaf6744dc3754cfbe894dd8bfc20c6b7a3a4f1e2",
         "98cae00bcab35fb2cb2c2da438510ca5896396eb73333027f74c09f4928ed1cd",
         "4f59d5ef657320e399f6a06d9c4695ee519b6840803db32293d0e34fa1d9a12a",
-        "e3968366b2dcf54efbed8fee6ef77b303e5449785b6c9204ce22cef171a3858c"
+        "b2c61078baf7f9548e175b908088a3b0f3ac2e7c64f066a1643de20282bdf554"
       ]
     },
     "spacr.spacrops.spacrStitcher.prepare_features": {
@@ -146729,15 +146729,15 @@
         "4bf59fa16d56ba883de96a18212d4ffc19a3a38d2eba6393b41465b7aad3db45"
       ],
       "source_sha256": "db6fa5e26ac74a7ec4d829f9acd1a497f164252f74507e347eb8fcbf24834201",
-      "text": "收集一张从双视测量 CSV 的摩萨图像(和显现图像)。\n\n通过 ``out_tif=None`` 和 ``out_csv`` 在显现模式下运行(转换计算和写作,但没有图像进行传输)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 摩萨克 TIFF 输出路径(``None`` 仅为显现)。\n:param out_png: 可选预览 PNG 输出路径。\n:param channel_index: 使用的频道为播放。 默认 ``0``。\n:param min_score: 对摩萨克保持的最低双分(当 ``None`` 时自动检测)。\n:param angle_tol_deg: 对分类边缘的宽容,以 R/L/U/D 双重分类。\n:param step_tol_frac: 周围的分裂宽容,估计是网路步骤。\n:param rot_tol_deg: 可在旋转中限制旋转时允许旋转。\n:param scale_tol: 可允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选路径到每表明 CSV。\n:returns: 双子座 ``(out_tif, out_png)``.",
+      "text": "收集集的图像网络图像(和显现)从双形测量 CSV。\n\n通过 ``out_tif=None`` 和 ``out_csv`` 在显现模式下运行(转换计算和写作,但没有图像进行传输)。\n\n:param csv_path: 输入双重尺寸 CSV。\n:param out_tif: 收集图像网 TIFF 输出路径(``None`` 仅为显而易见)。\n:param out_png: 可选预览 PNG 输出路径。\n:param channel_index: 使用播放的频道. 默认 ``0``。\n:param min_score: 组合图像网的最低双分数保持(当 ``None`` 时自动检测)。\n:param angle_tol_deg: 容忍分为R/L/U/D的边缘。\n:param step_tol_frac: 周围估计的网络步骤的分裂宽容。\n:param rot_tol_deg: max 允许旋转,当旋转被阻止时。\n:param scale_tol: max 允许的尺寸偏差,当尺寸被阻止时。\n:param cap_one_per_dir: 保持最多一个边缘,每条线的方向。\n:param out_csv: 可选的路径到每表明 CSV。\n:returns: ``(out_tif, out_png)`` 字符串",
       "translation_source_blocks_sha256": [
-        "fde71e1166a00bdd7a2e22acbda81447ba2e497899ec5ea7b4764704cc79cd55",
+        "eff1923ab42e0b59eb6319a8ed548f093ed9024027aad5b8b0af29a6077eab76",
         "166d036880d99ede7585fea0a6294267675d04e68c3d23fc77114a4afb074917",
         "2bbbb2a4a770985e0f470dade7f3aee715e85eb8ea3fb3b8de7035cea3a2c127",
-        "e6b8423bbee352a917aab01048b339a8919e6899b2abafd0e0bb8e19f3dd422f",
+        "1eb3eab5f9c79ce14eaf8eb8a557a734c88b580f8cf2e156de8648ba5d8f3a4e",
         "876ec5bf0028b64c752319271cebce6b206d78838970cdc8fdf9b4bd2357a072",
         "b78d64d4c21e5fab3148d460d40ab6d6a3bd2d7c3a3d3b39345bcbbb650349c6",
-        "88983bf23176842902ce1aade1c5ee1ea2cfca560f44ba89f89eace37aca4107",
+        "e8b4ca8c422f6253f21d391d1247d25cf1a96713cbc9481c5e467876cf8f5965",
         "ecc6129b0ca2c2997ceacfaa7c537e5822e533ad61c2daf41f7edda3628af2f1",
         "175d16a3f8c5ae44fa5c8a481c79eb8e0f3372852ab0294be4e64f18e81a48d5",
         "a9d4647a792171bcb19fbe0b3a86ca4a56e4041225dbcecaff4194217a2b09b8",
@@ -146774,9 +146774,9 @@
         "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
       ],
       "source_sha256": "cfc121333b39358d6311adab55cbcc6d92e1b5e42d441010696eecb8aedbfe15",
-      "text": "按 ``folder`` 分数每个候选人对,并可选构建一个全好摩萨克。\n\n当候选人数量超过 ``qc_pairs_threshold``, QC 在第一行中排行,并仅重新排行为其分数在第二行中清除自动限制的对手。\n\n:param folder: 扫描的字符串。\n:param csv_path: 目的地 CSV 为双重测量。\n:param channel_index: 使用的频道为功能分数。 默认 ``0``。\n:param exts: 接受的图像扩展。\n:param recursive: 重定向为“``False``”的默认字符。\n:param same_well_only: 限制对比到相同的分配好. 默认 ``True``。\n:param max_site_gap: 候选邻居之间的最大位置指数差距 默认 ``3``。\n:param n_workers: 工作进程行由得分通道使用,默认为 ``8``。\n:param stitch: 保存点数为 TIFFs 对比超过分数边界的对比。\n:param score_threshold: 最低得分是为了保存图像。\n:param meta_regex: 扫描之前将Filename Regex上传。\n:param mosaic: 建立一个单频道的摩萨克,一旦双分完成。\n:param mosaic_out: 输出 TIFF 马赛克路径(单图像数据通道模式 ) 。\n:param mosaic_min_score: 使用的最小边缘分数在喷射摩萨克边缘时。\n:param mosaic_csv_out: 出路 CSV 路径为摩萨克显现。\n:param mosaic_all_channels: 建立在所有频道上的一种CYX摩萨克。\n:param mosaic_channel_count: 强迫这个多频道为多频路摩萨克。\n:param mosaic_channel_index_order: 明确频道命令为多频道摩萨克。\n:param qc_pairs_threshold: 双数在哪个 QC 折叠被关闭。\n:param qc_only_above_threshold_when_many: 可启用第二通,得分为 QC 的输出。\n:returns: 路径到双重测量 CSV。",
+      "text": "按 ``folder`` 评分每个候选人对,并可选构建整合良好的图像网。\n\n当候选人数量超过 ``qc_pairs_threshold``, QC 在第一行中排行,并仅重新排行为其分数在第二行中清除自动限制的对手。\n\n:param folder: 扫描的字符串目录。\n:param csv_path: 目的地 CSV 用于双式测量。\n:param channel_index: 使用的频道为函数评分. 默认 ``0``。\n:param exts: 接受的图像扩展。\n:param recursive: 重定向到字符串:默认 ``False``。\n:param same_well_only: 限制配对到相同的配对好. 默认 ``True``。\n:param max_site_gap: 候选人邻居之间的最大位置指数差距 默认 ``3``。\n:param n_workers: 工作进程行由得分通道使用,默认为 ``8``。\n:param stitch: 保存点数为 TIFFs 对比超过分数边界的对比。\n:param score_threshold: 最小得分是为了保存图像。\n:param meta_regex: 在扫描之前,将Filename regex上传。\n:param mosaic: 结束后构建一个单通道组装图像网格。\n:param mosaic_out: 输出 TIFF 组合图像网格的路径(单图像数据通道模式 ) 。\n:param mosaic_min_score: 使用的最小边缘分数在打印集成图像网络边缘时。\n:param mosaic_csv_out: 输出 CSV 路径为集成图像网络显现。\n:param mosaic_all_channels: 在所有渠道上建立一个 CYX 集成图像网络。\n:param mosaic_channel_count: 强制多通道组合图像网格使用此数量的通道。\n:param mosaic_channel_index_order: 通道顺序为多通道拼接图像网格。\n:param qc_pairs_threshold: 双数在哪个 QC 折叠被关闭。\n:param qc_only_above_threshold_when_many: 允许第二通,得分为 QC 输出。\n:returns: 路径到 pairwise-metrics CSV。",
       "translation_source_blocks_sha256": [
-        "50ad0a1cb7dbbf6b87799a7bd51b6cf6566e0a99d4894d49a254d3281bfd5638",
+        "025537383948c380ef5dd29ddec0980d3c194b1696b436a29ad6be2c6f3e8078",
         "51d9e5f7d20d7d6e34cf0e87166c1a76516ded41899f239269077a54763f1c06",
         "b67998529733a49ffa7f510b74e4843a03cf901bd88a77134a8c6067bf8060ab",
         "cf73934177dd8956a194b0a6e31c9dc5e598622b2c2aba1d81cacc7a1f7b7243",
@@ -146789,13 +146789,13 @@
         "4f4737f6000fc7bdf0e1ce4de0da2354a9a1eba4a73ac46c71d80edc59532642",
         "c19362a8369c06f6443090f2f0937a3e5f6a535d213aa4c11aa96f46a8adad64",
         "f1a8b6c26d0deb9272b697d948362c856f607b0231659200ae5cedfdaa872975",
-        "944cd8a745fc9c05ae096fc410516cf88a89baa57e785f4c7cad9a27525da8b9",
-        "eef0d64f3ab148f7714e4777434c2327163339953f4915084116c864a598be96",
-        "f023b72f1bae967e5d84b2186c26722b111397cfc131062f1b1c36f755e065db",
-        "b359c0e88dc980c79c0efe1f75a51191f25ad0ff4c58ff58ca47dcfe649a64ac",
-        "9a3da0287619ba655373eec4fa4768e9df70369966daacab24afdb85604277b9",
-        "cf99ad4ba037d3bca6210aa39f36819c5e4b1029f4ded88a099d81137670cbcd",
-        "86a72d466a012da897aec32fa0f714e2b2d8aa256c825ada6b73d1a469632b5d",
+        "6c20347d46363a1e6f2346f66a607a825e1a844113c0cfd03d239b25537144e9",
+        "4242f1700482376d5ddd5c56a890e3b0397b75b3c3a2e8a2870faa7d15e26ed6",
+        "32bef6c303e473dbe97da19efd2741d78b8dc623e768044375ea062dd61786c0",
+        "3ecbf49719ebeefa9f3da978481da789fa5254e9f0bb9ff657f55fe2ca8947de",
+        "34d4aac446ca13a1d98f3efd2fffb2947c8a449f6037cd011fa8ebb3c7c90cc6",
+        "ae003b50904cd697f2547b86653de367a79c60228abd10db6be3696cebd62915",
+        "d3cb9819b881c2d2a25d218f96a4351de8ed3897d20725556a5b28e49217a123",
         "48068c7c5d42c819507bce6ac90e912a9fb40cc31f8468566c182f2fcb873ed1",
         "914a5a86ee96ae60461cdc40b0c74b3cd7a8fccfbc6d39136163bf0ba67db618",
         "40bdd2ae551199551bca2f90834fe42cf89434e89ca4fbdc07544b1e7c78ef9c"
@@ -146848,11 +146848,11 @@
         "a461890ecbdfa56af39153e64f160445b45ac7e286e31241c10123b6ea2bcac5"
       ],
       "source_sha256": "384a6b243901630139ba6a3c7fbbec27a5dd5db1dd71caebf58c6f072ce0584d",
-      "text": "安排一个实验室微板 TIFFs 在每微板样本位置文件夹中,并插入每个微板模型位置。\n\n根据文件名元数据按孔分组图像,可选择将其移动或符号链接到每孔文件夹中,然后在每个孔上运行 :class:`spacrStitcher` 以生成对对 CSVs,并在询问时生成单个或多个图像数据通道马赛克。\n\nTHE MOSAIC IS OPT-IN. Set ``write_mosaic`` (or its synonym ``mosaic``) to build one. It is off by default because assembling a mosaic raises when too few tiles overlapped to place any, and a plate that cannot be stitched should not become a plate that cannot be organised.\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 基值地图与结构化数据名称 ``organized`` (移动/symlink 总结) 和 ``wells`` (每微型样品位置输出路径)。",
+      "text": "安排一个实验室微板 TIFFs 在每微板样本位置文件夹中,并插入每个微板模型位置。\n\n根据文件名元数据按孔分组图像,可选择将它们移动或符号链接到每孔文件夹中,然后在每个孔上运行 :class:`spacrStitcher` 以生成成对的 CSVs,并在询问时生成单个或多个图像数据通道组装的图像网格。\n\n收集的图像网络已被 opt-in。 设置 ``write_mosaic`` (或其同义词 ``mosaic``) 构建一个。 它默认关闭,因为收集集的图像网会出现,当太少的显微镜图像字段被覆盖,以便放置任何,而无法粘贴的微孔板不应该成为无法组织的板。\n\n:param settings: 提前处理设置的关键值地图; 请参见 :func:`get_preprocess_ops_settings` 支持的结构化数据名称。\n:returns: 基值地图与结构化数据名称 ``organized`` (移动/symlink 总结) 和 ``wells`` (每微型样品位置输出路径)。",
       "translation_source_blocks_sha256": [
         "e9cd9ab6a7e5a803c9e5647f2139ae04d4f962a2f63437d2f384d12d0ab1cf91",
-        "33fbc2e0271943c2cf48993d11183fbd848a5ef8bebac6bdf8af1578e38a7af3",
-        "d53e70ce696b27619516ba5bac7a7d4cbfc924e6724cf8f23b1d2d4802c3b8bd",
+        "4701692fc0a6e5224ba46831cf44eb35ddf229e4056ffacfb06ce242ffcf7ac4",
+        "a4007275e2d34d34021ee27a512392b3da4ada3d81fe85e031a6eaf9d8cf4211",
         "2fb7dd35975183db0f2521dff4e686926bf51534c83675e0904fb1a7ed6b8d4a",
         "77979a302d60b30163651be882c442cd157020d2730fa063dde15da88601a41b"
       ]
@@ -147325,7 +147325,7 @@
         "dbf1132097de0e4bee1e65c88fc745780dfff94b013b9fb1d2e445e7907d0c1d"
       ],
       "source_sha256": "aa6c432601bf6cc8c559fa546288007c0bfa876380e4b777f49537d5aadf7d68",
-      "text": "运行板,招聘,入侵和复制测试。\n\n它是为了什么\n==============\n四 spaCR 天花板目前共享这个登陆页面,但它们回答了不同的生物问题。 :func:`analyze_plaques` 分区板图像,并总结板号和区域。 :func:`analyze_recruitment` 测量周围的病原体或 vacuoles 与托管细胞膜相关的 fluorescent 标志。 :func:`analyze_invasion` 使用差异性预/后可行化,以将寄生虫分类为外部粘贴或入侵主细胞内部。 :func:`analyze_replication` 它在每个寄生虫的真空中计算寄生素,并比较结果的复制状态分布。 Cellpose 培训、测试和模型应用工具也在这里生活,但它们并不是这些四个测试输入点的替代品。\n\n它需要什么\n=============\nPlaque analysis accepts a folder of TIFF images, or existing masks beneath that folder, plus Cellpose settings and a bundled, catalogue, or local plaque model.  Recruitment starts from a spaCR ``measurements.db`` containing joined cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence channel, object filters, and plate metadata that assign cell type, pathogen, and treatment.  Invasion and Replication both need one row per segmented parasite in a measurement table and condition metadata.  Invasion additionally needs the outside- and total-stain channels and preferably known control wells; Replication needs a defensible ``vacuole_key`` or spatial-linking distance. The Cellpose utilities require paired images and masks for training/testing, or an image folder and model path for inference.\n\n它所产生的\n================\n板块分析 写作 ``<src>/masks/plaques_analysis.db`` 与 ``summary``, ``stats``,和 ``details`` 招聘回归为对象和对好 DataFrames 写下他们的 CSVs 侵入返回对寄生虫的分类,对显微镜的视野边界和 QC, per-well 效率,条件总结和比较,控制,和数字; 保存的运行地点 这些物品在下方 ``results/analyze_invasion``复制返回每个真空计算,福和条件分布,双式和 omnibus 统计数据,数字,以及实际使用的组合方法,与节省的产量下 ``results/analyze_replication``. 模型工具根据适当情况生产训练重量、评估表、掩膜和对象摘要。\n\n接下来的要做什么\n================\n对于斑块,在解读计数或区域之前检查掩模。  对于招募,在比较处理之前验证对象过滤器、条件注释和每个显微镜板样本位置分母。  对于侵入,在使用效率表之前检查视图级别阈值、控制一致性、双模态和灵敏度标志的显微镜视场。  对于\"复制 \", 在比较加倍分布之前检查液泡分组和报告的非二次分数。  按照上面的特定函数链接,直到四个磁贴收到单独的 API 目的地。\n\n分析单元。 浸润是从外染色的*absence*推断出来的,所以弱染色只能膨胀浸润分数; 记录阈值,统计数据使用微板样本位置,而不是将来自某个微板采样位置的寄生虫作为独立重复处理。 细胞,因为一个细胞可以包含多个液泡;  3、5、6 和 7 寄生虫保留在显式的非二阶 QC 桶中,而不是四舍五入到生物预期类中。 面积是根据微板样品位置尺度校准的,因此比较时应保留定义该尺度的采集元数据。",
+      "text": "运行板,招聘,入侵和复制测试。\n\n它是为了什么\n==============\n四 spaCR 天花板目前共享这个登陆页面,但它们回答了不同的生物问题。 :func:`analyze_plaques` 分区板图像,并总结板号和区域。 :func:`analyze_recruitment` 测量周围的病原体或 vacuoles 与托管细胞膜相关的 fluorescent 标志。 :func:`analyze_invasion` 使用差异性预/后可行化,以将寄生虫分类为外部粘贴或入侵主细胞内部。 :func:`analyze_replication` 它在每个寄生虫的真空中计算寄生素,并比较结果的复制状态分布。 Cellpose 培训、测试和模型应用工具也在这里生活,但它们并不是这些四个测试输入点的替代品。\n\n它需要什么\n=============\nPlaque analysis accepts a folder of TIFF images, or existing masks beneath that folder, plus Cellpose settings and a bundled, catalogue, or local plaque model.  Recruitment starts from a spaCR ``measurements.db`` containing joined cell, nucleus, pathogen, and cytoplasm features; it needs a fluorescence channel, object filters, and plate metadata that assign cell type, pathogen, and treatment.  Invasion and Replication both need one row per segmented parasite in a measurement table and condition metadata.  Invasion additionally needs the outside- and total-stain channels and preferably known control wells; Replication needs a defensible ``vacuole_key`` or spatial-linking distance. The Cellpose utilities require paired images and masks for training/testing, or an image folder and model path for inference.\n\n它所产生的\n================\n板块分析 写作 ``<src>/masks/plaques_analysis.db`` 与 ``summary``, ``stats``,和 ``details`` 招聘回归为对象和对好 DataFrames 写下他们的 CSVs 侵入返回对寄生虫的分类,对显微镜的视野边界和 QC, per-well 效率,条件总结和比较,控制,和数字; 保存的运行地点 这些物品在下方 ``results/analyze_invasion``复制返回每个真空计算,福和条件分布,双式和 omnibus 统计数据,数字,以及实际使用的组合方法,与节省的产量下 ``results/analyze_replication``. 模型工具根据适当情况生产训练重量、评估表、掩膜和对象摘要。\n\n接下来的要做什么\n================\n对于斑块,在解释计数或区域之前检查掩模。  对于\"招募 \", 在比较处理之前验证对象过滤器、条件注释和每个显微镜板样本位置分母。  对于侵入,在使用效率表之前查看视图级别阈值的显微镜视场、控制一致性、双模态和灵敏度标志。  对于\"复制 \", 在比较加倍分布之前检查液泡分组和报告的非二的幂分数。 功能链接,直到四个显微镜图像区域收到单独的 API 目的地。\n\n分析单元。 浸润是从外染色的*absence*推断出来的,所以弱染色只能膨胀浸润分数; 记录阈值,统计数据使用微板样本位置,而不是将来自某个微板采样位置的寄生虫作为独立重复处理。 细胞,因为一个细胞可以包含多个液泡;  3、5、6 和 7 寄生虫保留在显式的非二阶 QC 桶中,而不是四舍五入到生物预期类中。 面积是根据微板样品位置尺度校准的,因此比较时应保留定义该尺度的采集元数据。",
       "translation_source_blocks_sha256": [
         "f17be6d876a4401393ac8efcbc787df1914526343a3e070effd5aa02b914022a",
         "1ad944c4c5dd7731e2ad4bdbbfc3b0ddd2c83265365dfb48de8e6ea1ca45c3d2",
@@ -147335,7 +147335,7 @@
         "1b9e73ff367742a6893f9adda6659a509d41eb8e4a8cc60eb5f4c7ab862a3b47",
         "208cf95f61884cef2575bf304698145eb972ec84cfe3398b4bfeab19bb9189e9",
         "6164ad73de3089addfdf4320dbe9f6da259911427de5e8fbaae926809d0c3167",
-        "ad09269cdfbfa06c830f16edf32bb13d110451e58562acd76794b4977b6cd5a4",
+        "b93d1171fbdcda6cdca0e460a021ab2dc48d5131508ddd95b233abd7b8c0d5b8",
         "89208c888e763f8af04f5284301a7274b6bd61e0c5597feca02b052892160907"
       ]
     },
