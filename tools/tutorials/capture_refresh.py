@@ -40,7 +40,7 @@ def main() -> int:
     parser.add_argument('--platform', choices=('offscreen', 'xcb'), default='offscreen')
     parser.add_argument('--run', action='store_true', help='Record a bounded Plot-enabled real pipeline run')
     parser.add_argument('--ai-controls', action='store_true', help='Show the AI toggle and an UNSENT example question')
-    parser.add_argument('--settings-tour', action='store_true', help='Show bounded Regression or Classify choices through real settings searches')
+    parser.add_argument('--settings-tour', action='store_true', help='Show bounded analysis choices through real settings searches')
     parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
     parser.add_argument('--mask-editor-tour', action='store_true', help='Record actual reversible mask-editing gestures on private real-data copies')
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
@@ -52,8 +52,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
-    if args.settings_tour and (args.module not in {'regression', 'classify_merged', 'umap'} or not args.run):
-        parser.error('--settings-tour requires --module regression/classify_merged/umap --run')
+    if args.settings_tour and (args.module not in {'regression', 'classify_merged', 'umap', 'recruitment'} or not args.run):
+        parser.error('--settings-tour requires --module regression/classify_merged/umap/recruitment --run')
     if args.annotation_tour and args.module != 'annotate':
         parser.error('--annotation-tour requires --module annotate')
     if args.mask_editor_tour and args.module != 'make_masks':
@@ -657,6 +657,28 @@ def main() -> int:
                     'guide_min_wells': [2], 'guide_permutation_seed': 0,
                     'level': 'both', 'annotation_source': 'none',
                 }
+            if args.module == 'recruitment':
+                from recruitment_data import prepare_subset
+                source = WORKSPACE.parent / 'test_datasets/spacr/tutorials'
+                run_parent = stage / 'recruitment_runs'
+                run_parent.mkdir(parents=True, exist_ok=True)
+                destination = Path(tempfile.mkdtemp(prefix='example-', dir=run_parent)) / 'project'
+                write_json(captures / 'scientific_acceptance.json', {
+                    'accepted': False, 'reason': 'Real Recruitment outputs not yet independently checked',
+                    'published': False})
+                manifest = prepare_subset(source, destination)
+                write_json(captures / 'input_manifest.json', manifest)
+                recorded = json.loads((REPO / 'tools/tutorials/authoring/catalog/25_recruitment_settings.json').read_text())
+                # These old mask-plane controls no longer exist in Recruitment.
+                # Keep the recorded raw-channel and biological metadata, without
+                # treating those annotations as independently verified biology.
+                for key in ('cell_mask_dim', 'nucleus_mask_dim', 'pathogen_mask_dim'):
+                    recorded.pop(key, None)
+                recorded.update(src=str(destination), channel_dims=[1],
+                                cell_intensity_range=None, nucleus_intensity_range=None,
+                                pathogen_intensity_range=None, plot=True,
+                                plot_control=False, plot_nr=0)
+                presets['recruitment'] = recorded
             if args.module not in presets:
                 raise ValueError('No bounded recording preset for this module')
             bounded = presets[args.module]
@@ -741,6 +763,20 @@ def main() -> int:
                 queue.show_index(queue.count() - 1)
                 settle()
                 capture('24_batch_figure')
+            if args.module == 'recruitment':
+                # Preserve the genuine overlay and every calculated chart.
+                # The archived masks are NOT asserted to be the postprocessed
+                # masks behind the stored measurement rows.
+                if 'Failed to plot images with outlines' in '\n'.join(blocks):
+                    raise RuntimeError('The actual Recruitment overlay failed')
+                if queue.count() < 5:
+                    raise RuntimeError('Recruitment did not produce its overlay and four charts')
+                width = sum(screen._body_splitter.sizes())
+                screen._body_splitter.setSizes([width // 4, width - width // 4])
+                for index in range(queue.count()):
+                    queue.show_index(index)
+                    settle()
+                    capture(f'25_recruitment_figure_{index:02d}')
             if args.module == 'map_barcodes':
                 from capture_sequencing import inspect_mapping
                 write_json(captures / 'mapping_outputs.json',
@@ -791,6 +827,19 @@ def main() -> int:
                 source = Path(settings['src'][0])
                 proof = inspect_database_split(source / 'measurements/measurements.db',
                                                Path(generated[0]).parent)
+                write_json(captures / 'scientific_acceptance.json', proof)
+                if not proof['accepted']:
+                    raise RuntimeError(proof['reason'])
+            if args.module == 'recruitment':
+                from recruitment_evidence import inspect_results
+                from recruitment_data import _sha256
+                originals = [(Path(manifest['source_database']), manifest['source_database_sha256'])]
+                originals += [(Path(row['source']), row['sha256']) for row in manifest['arrays']]
+                unchanged = {str(path): _sha256(path) == digest for path, digest in originals}
+                write_json(captures / 'source_preservation_after_run.json', unchanged)
+                if not all(unchanged.values()):
+                    raise RuntimeError('An original Recruitment input changed during the run')
+                proof = inspect_results(Path(settings['src']), settings)
                 write_json(captures / 'scientific_acceptance.json', proof)
                 if not proof['accepted']:
                     raise RuntimeError(proof['reason'])

@@ -28,6 +28,11 @@ def record_settings(screen, captures, capture, settle, write_json):
                             'test', 'plot', 'apply_model_to_dataset'),
         'umap': ('src', 'tables', 'reduction_method', 'row_limit',
                  'n_neighbors', 'min_dist', 'random_seed', 'clustering', 'plot_images'),
+        'recruitment': ('src', 'target', 'channel_of_interest', 'channel_dims',
+                       'cell_chann_dim', 'pathogen_plate_metadata',
+                       'cell_size_range', 'nucleus_size_range', 'pathogen_size_range',
+                       'nuclei_limit', 'pathogen_limit', 'cells_per_well',
+                       'cell_intensity_range', 'plot', 'plot_nr'),
     }
     if screen.app_key not in keys_by_module:
         raise ValueError('No measured settings tour is configured for this module')
