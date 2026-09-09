@@ -40,10 +40,13 @@ def main() -> int:
     parser.add_argument('--platform', choices=('offscreen', 'xcb'), default='offscreen')
     parser.add_argument('--run', action='store_true', help='Record a bounded Plot-enabled real pipeline run')
     parser.add_argument('--ai-controls', action='store_true', help='Show the AI toggle and an UNSENT example question')
+    parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
         parser.error('--preview-variants requires --preview')
+    if args.module == 'regression_diagnostics' and args.diagnostics_from is None:
+        parser.error('Regression Diagnostics needs an already completed --diagnostics-from project')
     stage = args.stage.resolve()
     stage.mkdir(parents=True, exist_ok=True)
     # The current downloader intentionally uses Path.home(), not the older
@@ -134,12 +137,12 @@ def main() -> int:
             return None
         return [x, y, right - x, bottom - y]
 
-    def capture(name):
-        pixmap = window.grab()
+    def capture(name, *, desktop=False):
+        pixmap = app.primaryScreen().grabWindow(0) if desktop else window.grab()
         if (pixmap.width(), pixmap.height()) != (3840, 2160):
             raise RuntimeError(f'Unexpected capture size {pixmap.size()}')
         painter = QPainter(pixmap)
-        dialogs = [w for w in app.topLevelWidgets()
+        dialogs = [] if desktop else [w for w in app.topLevelWidgets()
                    if isinstance(w, (QDialog, QMenu)) and w.isVisible()]
         for dialog in dialogs:
             origin = dialog.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
@@ -158,6 +161,7 @@ def main() -> int:
                                 'nav_key': widget.property('navKey'),
                                 'module_key': widget.property('moduleAppKey')})
         frames[name] = {'image': path.name,
+                        'capture_surface': 'private_desktop' if desktop else 'application_window',
                         'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                         'buttons': buttons,
                         'dialogs': [{'title': d.windowTitle(), 'rect': rect(d),
@@ -205,7 +209,7 @@ def main() -> int:
         capture('07_help')
         help_menu.hide()
     if args.module != 'home':
-        host_key = {'import_images': 'foreign'}.get(args.module, args.module)
+        host_key = {'import_images': 'foreign', 'regression_diagnostics': 'regression'}.get(args.module, args.module)
         window._on_nav_selected(host_key)
         deadline = time.monotonic() + 60
         while window._screens.get(host_key) is None:
@@ -219,6 +223,10 @@ def main() -> int:
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
                                    capture, settle, write_json, args.timeout)
+        if args.module == 'regression_diagnostics':
+            from capture_diagnostics import record_diagnostics
+            record_diagnostics(window, screen, stage, args.diagnostics_from,
+                               captures, capture, settle, write_json)
         if args.download:
             buttons = [w for w in screen.findChildren(QAbstractButton)
                        if w.isVisible() and w.isEnabled()

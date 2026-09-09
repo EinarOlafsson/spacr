@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "fr",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial translation checked against English and the recorded operation", "native_speaker_signoff": false, "corrections": ["Keep raw-name rejection distinct from importing prepared copies.", "Preserve well/field/channel identities and all storage, sampling and tile caveats."]},
+  "title": "Import Images : vérifier le plan avant l’importation",
+  "description": "Ouvrez Import Images dans Import, vérifiez un sous-ensemble réel d’images avant toute écriture et enregistrez un plan réutilisable. L’exemple distingue les noms bruts non pris en charge des copies préparées.",
+  "objectives": ["Trouver Import Images dans Import et le distinguer de l’importation de mesures et de masques existants.", "Vérifier l’identité des images et les éléments de nom non résolus avant d’écrire un projet.", "Choisir la copie ou les liens, enregistrer et recharger un plan, puis vérifier l’importation."],
+  "prerequisite": "Téléchargez d’abord l’exemple réel de Mask. La vidéo utilise des copies des champs E01/F001 et L01/F009, avec quatre canaux C chacun. Les copies préparées omettent uniquement l’élément A juste avant Z ; les originaux restent inchangés. Cet exemple a été vérifié : il ne conseille pas de supprimer des métadonnées inconnues en général.",
+  "scenes": [
+    "Ouvrez Import dans la catégorie Data de Home, puis choisissez Import Images. Cet outil intégré prépare les fichiers d’images brutes. Import Project, Format Converter et External Masks sont des procédures voisines, expliquées dans leurs propres tutoriels.",
+    "Nos huit images sont de vraies données de microscopie issues de l’exemple téléchargeable de Mask : un champ dans chacun de deux puits, avec quatre canaux par champ. Nous travaillons sur des copies séparées sans modifier les originaux téléchargés.",
+    "Scan révèle un élément d’acquisition non résolu dans les noms bruts. Import reste désactivé et rien n’est écrit. Ne devinez pas une correspondance de canaux : deux canaux différents partagent cette valeur d’acquisition, et cette réponse fausserait leur identité.",
+    "Pour cet exemple vérifié, les copies préparées omettent seulement l’élément d’acquisition redondant. Les noms de puits, de champ et de canal sont conservés. Scan affiche maintenant huit lignes, deux puits, deux numéros de champ et quatre canaux. Cela ne signifie pas que les noms d’origine ont été acceptés.",
+    "Comparez la proposition aux noms de fichiers avant d’importer. Read inside each file vérifie les métadonnées d’axes internes en plus des noms. Sample limite les fichiers examinés ; assurez-vous que la proposition inclut les images à importer. Répondez aux questions à partir des notes d’acquisition, sans deviner.",
+    "Choisissez une destination hors du dossier d’entrée et donnez un nom à la plaque. Nous désactivons Link instead of copy pour obtenir un projet indépendant. Les liens économisent de l’espace, mais les originaux doivent rester accessibles à leur emplacement actuel.",
+    "Ces images ne sont pas des tuiles de mosaïque. Pour une acquisition en tuiles, lisez attentivement Tiles : l’assemblage reconstitue les champs, conserver les tuiles séparément change ce que représente un champ, et les ignorer perd ces images. Vérifiez le rapport et les raccords non validés avant de mesurer.",
+    "Save plan écrit un fichier JSON contenant la source et vos réponses de correspondance, pas une sauvegarde des images. Gardez-le avec les notes d’acquisition. L’API Python d’importation d’images peut lire le même plan.",
+    "Load plan relit le dossier source et réutilise les réponses enregistrées. Vérifiez la nouvelle proposition avant d’importer : un plan enregistré ne garantit pas la validité d’une acquisition modifiée. Ici, il retrouve les huit mêmes identités d’image vérifiées.",
+    "Appuyez sur Import et lisez le résumé. Cette exécution a écrit huit copies indépendantes sans omettre de fichier ; leur contenu correspond aux sources. Sélectionnez ensuite ce projet dans Mask et inspectez l’aperçu en direct avant la segmentation. Importer ne produit à lui seul ni masques ni mesures."
+  ]
+}

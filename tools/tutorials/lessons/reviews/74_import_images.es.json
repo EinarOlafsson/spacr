@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "es",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial translation checked against English and the recorded operation", "native_speaker_signoff": false, "corrections": ["Preserve the distinction between rejected original names and explicitly prepared copies.", "Retain well, field and channel identities, the scan limit, link dependency and tile-policy caveats."]},
+  "title": "Import Images: revisar el plan antes de importar",
+  "description": "Abre Import Images dentro de Import, comprueba un subconjunto real de imágenes antes de escribir archivos y guarda un plan reutilizable. El ejemplo distingue los nombres originales no admitidos de las copias preparadas.",
+  "objectives": ["Localizar Import Images dentro de Import y distinguirlo de la importación de mediciones y máscaras existentes.", "Comprobar la identidad de las imágenes y los fragmentos de nombre sin resolver antes de escribir el proyecto.", "Elegir entre copiar y enlazar, guardar y cargar un plan y verificar la importación."],
+  "prerequisite": "Descarga primero el ejemplo real de Mask. La grabación usa copias de los campos E01/F001 y L01/F009, con cuatro canales C cada uno. Las copias preparadas omiten únicamente el fragmento A inmediatamente anterior a Z; los originales no cambian. Es un ejemplo comprobado, no una recomendación general de eliminar metadatos desconocidos.",
+  "scenes": [
+    "Abre Import en la categoría Data de Home y elige Import Images. Esta herramienta anidada prepara los archivos de imagen originales. Import Project, Format Converter y External Masks son procesos relacionados con sus propios tutoriales.",
+    "Las ocho imágenes son datos reales de microscopía del ejemplo descargable de Mask: un campo de cada uno de dos pocillos, con cuatro canales por campo. Trabajamos con copias separadas y no modificamos los originales descargados.",
+    "Scan detecta un fragmento de adquisición sin resolver en los nombres originales. Import permanece desactivado y no se escribe nada. No adivines una correspondencia de canales: dos canales distintos comparten este valor de adquisición y esa respuesta alteraría sus identidades.",
+    "En este ejemplo comprobado, las copias preparadas omiten solo el fragmento de adquisición redundante. Conservan los nombres de pocillo, campo y canal. Scan muestra ahora ocho filas, dos pocillos, dos números de campo y cuatro canales. Eso no significa que se aceptaran los nombres originales.",
+    "Compara la propuesta con los nombres de archivo antes de importar. Read inside each file comprueba los metadatos de ejes internos además de los nombres. Sample limita los archivos inspeccionados; confirma que la propuesta incluye las imágenes que quieres importar. Resuelve las dudas con los registros de adquisición, no con suposiciones.",
+    "Elige un destino fuera de la carpeta de entrada y asigna el nombre de la placa. Desactivamos Link instead of copy para crear un proyecto independiente. Los enlaces ahorran espacio, pero necesitan que los originales sigan accesibles en sus ubicaciones actuales.",
+    "Estos archivos de ejemplo no son mosaicos. En adquisiciones por teselas, revisa Tiles: unirlas reconstruye campos, conservarlas por separado cambia el significado de campo y omitirlas pierde esas imágenes. Revisa el informe y las uniones no verificadas antes de medir.",
+    "Save plan guarda un archivo JSON con el origen y las respuestas de correspondencia, no una copia de seguridad de las imágenes. Consérvalo con las notas de adquisición. La API de importación de imágenes de Python también puede leer ese plan.",
+    "Load plan vuelve a leer la carpeta de origen y reutiliza las respuestas guardadas. Revisa la nueva propuesta antes de importar: un plan guardado no garantiza que una adquisición diferente sea correcta. Aquí recupera las mismas ocho identidades de imagen comprobadas.",
+    "Pulsa Import y lee el resumen. Esta ejecución escribió ocho copias independientes sin omitir archivos; su contenido coincide con el origen. Después, selecciona el proyecto en Mask y revisa la vista previa en vivo antes de segmentar. Importar por sí solo no genera máscaras ni mediciones."
+  ]
+}

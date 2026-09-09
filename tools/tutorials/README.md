@@ -154,3 +154,29 @@ The isolated environment's `unidic` package initially lacked its dictionary.
 The existing `/home/olafsson/anaconda3/lib/python3.12/site-packages/unidic/dicdir`
 was reused via a link inside the refresh environment. No app dependency or
 pronunciation rule changed, and no second dictionary download was required.
+
+### Regression and Diagnostics recording
+
+`capture_refresh.py --module regression --download --run --ai-controls
+--platform xcb` downloads the four actual example score/count pairs. A fresh
+output root is mandatory: the default form can contain an unrelated saved
+project path. The bounded demonstration uses 199 permutations, a two-well
+minimum and both guide and gene results. Its p-value floor is 0.005, so this
+is not a final discovery-quality analysis. PNG is selected in private figure
+preferences; this Regression route produces figures without a separate Plot
+setting. No spaCR AI prompt is submitted.
+
+`capture_diagnostics.py --project <private-regression-project>` opens the real
+Regression -> Diagnostics button and the generated PNGs in the system viewer.
+It launches a private Xvfb display and session bus with private XDG configuration,
+data, cache and runtime directories. The recorded file-manager/image-viewer
+windows are actual system applications, not fabricated spaCR panels. It reads
+the existing diagnostic summary and checks all three expected figures first;
+it does not recompute the analysis or turn statistical warnings into passes.
+
+A first guide-only example produced valid guide results but triggered a
+downstream Hit List worker error requiring gene coefficients. The capture gate
+now rejects that late worker error even after a main-pipeline success signal;
+the new test was observed red before implementing the guard. The both-level
+repeat completed without that error (434 guide and 325 gene results). This is
+a tutorial configuration change, not an application fix for guide-only runs.

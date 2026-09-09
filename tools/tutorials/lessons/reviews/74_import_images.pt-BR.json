@@ -1,0 +1,21 @@
+{
+  "lesson": "74_import_images", "language": "pt-BR",
+  "english_sha256": "2b314bf363eba221c9f45f079b32293bd0a1a8fca5de0d5f80b64fdc577c41d9",
+  "review": {"kind": "Editorial translation checked against English and the recorded operation", "native_speaker_signoff": false, "corrections": ["Retain the rejection of raw names and explicitly identify prepared copies, wells, fields and channels.", "Preserve sampling limits, link dependencies and tile-policy warnings."]},
+  "title": "Import Images: confira o plano antes de importar",
+  "description": "Abra Import Images dentro de Import, confira um subconjunto real de imagens antes de gravar arquivos e salve um plano reutilizável. O exemplo distingue os nomes originais não aceitos das cópias preparadas.",
+  "objectives": ["Encontrar Import Images dentro de Import e diferenciá-lo da importação de medições e máscaras existentes.", "Conferir a identidade das imagens e os trechos de nome não resolvidos antes de gravar o projeto.", "Escolher cópias ou links, salvar e recarregar um plano e verificar a importação."],
+  "prerequisite": "Baixe primeiro o exemplo real de Mask. A gravação usa cópias dos campos E01/F001 e L01/F009, com quatro canais C em cada um. As cópias preparadas omitem somente o trecho A imediatamente anterior a Z; os originais não mudam. É um exemplo verificado, não uma recomendação geral de apagar metadados desconhecidos.",
+  "scenes": [
+    "Abra Import na categoria Data de Home e escolha Import Images. Essa ferramenta aninhada prepara arquivos de imagens brutas. Import Project, Format Converter e External Masks são fluxos relacionados com tutoriais próprios.",
+    "Nossas oito imagens são dados reais de microscopia do exemplo disponível para download em Mask: um campo de cada um de dois poços, com quatro canais por campo. Trabalhamos com cópias separadas, sem alterar os originais baixados.",
+    "Scan identifica um trecho de aquisição não resolvido nos nomes originais. Import continua desativado e nada é gravado. Não adivinhe o mapeamento dos canais: dois canais diferentes compartilham esse valor de aquisição, então essa resposta alteraria suas identidades.",
+    "Neste exemplo verificado, as cópias preparadas omitem apenas o trecho redundante de aquisição. Os nomes de poço, campo e canal são preservados. Scan agora mostra oito linhas, dois poços, dois números de campo e quatro canais. Isso não significa que os nomes originais foram aceitos.",
+    "Compare a proposta com os nomes dos arquivos antes de importar. Read inside each file verifica os metadados dos eixos internos, além dos nomes. Sample limita os arquivos examinados; confirme que a proposta inclui as imagens que pretende importar. Resolva as dúvidas pelos registros de aquisição, não por suposições.",
+    "Escolha um destino fora da pasta de entrada e defina o nome da placa. Desativamos Link instead of copy para criar um projeto independente. Os links economizam espaço, mas dependem de os originais continuarem acessíveis nos mesmos locais.",
+    "Esses arquivos de exemplo não são peças de mosaico. Para aquisições em mosaico, leia Tiles com atenção: a união recompõe os campos, manter as peças separadas muda o significado de campo e ignorá-las perde essas imagens. Confira o relatório e as junções não verificadas antes de medir.",
+    "Save plan grava um arquivo JSON com a origem e suas respostas de mapeamento, não um backup das imagens. Guarde-o com as notas da aquisição. A API Python de importação de imagens também lê esse plano.",
+    "Load plan lê novamente a pasta de origem e reutiliza as respostas salvas. Confira a nova proposta antes de importar: um plano salvo não garante que uma aquisição modificada esteja correta. Aqui ele recupera as mesmas oito identidades de imagem verificadas.",
+    "Pressione Import e leia o resumo. Esta execução gravou oito cópias independentes sem ignorar arquivos; o conteúdo corresponde às fontes. Depois, selecione o projeto em Mask e examine a prévia ao vivo antes de segmentar. Importar, por si só, não gera máscaras nem medições."
+  ]
+}
