@@ -2212,3 +2212,57 @@ solves. `_pairs_by_site_window` and `max_site_gap` can both go.
   with a residual consistent with the 213 px overlap -- and a canvas near
   26,838 x 15,531, which is what PART 6-A found once its shifts were
   unwrapped.
+
+
+--------------------------------------------------------------------------------
+PART 11-C -- A2 RUNS. 333 OF 333, SUB-PIXEL. 2026-09-09.
+--------------------------------------------------------------------------------
+
+Well A1, cycle 1, DAPI, end to end: layout -> adjacency -> phase correlation
+-> unwrap -> least-squares solve.
+
+    pairs proposed      624
+    edges accepted      595     rejected weak 2     rejected (0,0) 27
+    TILES PLACED        333 OF 333
+    canvas              26,855 x 26,866 px
+    residual            median 0.2 px   p90 0.4   max 0.7
+    elapsed             131 s
+
+AGAINST WHAT CAME BEFORE:
+
+    ORB feature matching (PART 6)         26 of 333      409 s
+    windowed index offsets (PART 6-A)    181 of 333      406 s
+    the layout                           333 of 333      131 s
+
+THE CANVAS IS THE PROOF, NOT THE COUNT. 21 columns is 20 pitches plus one
+tile: 20 x 1267 + 1480 = 26,820, against 26,855 measured. PART 6-A's
+unwrapped estimate was 26,838 x 15,531 -- the first number lands within
+0.1 %, and the second was its own under-detected vertical extent.
+
+AND THE FIRST RUN OF THIS WAS WRONG WHILE LOOKING PERFECT, which is the
+lesson PART 6-A already filed arriving from a new direction. It reported
+
+    333 of 333 placed   residual median 0.2 px   canvas 35,374 x 35,367
+
+The driver negated the correlation's shift before unwrapping, on the
+assumption that it reported b->a. It does not: the measured `down` shift is
+already +1267. Negating made it -1267, and the unwrap then found the nearest
+representative to the expected +1267, which is 1693 -- one period too far,
+IDENTICALLY IN EVERY EDGE OF THAT DIRECTION. A uniform error is invisible to
+a residual, because every edge still agrees with every other edge. It shows
+up only in the canvas, which came out one pitch per column too large in both
+axes.
+
+  SO THE RUN PRINTS THE CANVAS AND THE RESIDUAL AND THE COUNT TOGETHER, and
+  none of the three is sufficient alone. PART 6-A said a placement count is
+  not a measure of a stitch; this says a residual is not either.
+
+STILL TO EXPLAIN: 27 OF 624 REAL NEIGHBOURS CORRELATE AT (0,0). They are
+pairs the layout says touch, rejected by the no-overlap rule. The graph stays
+connected without them so every tile is still placed, but 4 % of true
+adjacencies returning the no-overlap signature wants a reason -- most likely
+tiles at the well's edge whose overlap strip holds no nuclei. Worth a look
+before the acceptance thresholds are called settled.
+
+NEXT: A3, the cycle registration, which is the same machinery over the cycle
+axis -- on the SBS channels rather than DAPI, per PART 10.
