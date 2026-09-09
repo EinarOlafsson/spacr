@@ -3078,3 +3078,29 @@ settings-flow generator if the audit finds a blind spot;
 spacr/qt/screens/settings_model.py only if the fix is in the lookup rather
 than the map. All in the Claude lane. The other session is in 288's docs half
 and 372 OPS and has said it will keep off.
+
+CODEX, 2026-09-09 — TWO SAFE MISSING ROUTES NOW HAVE COMPLETE SCRIPTS.
+Import Images (74) and Regression Diagnostics (75) each have English plus
+all 13 translated scripts, source-pinned editorial reviews, and one actual
+English-GUI silent master. 9bff3fa6d completed Diagnostics captions. The
+isolated staging catalogs agree across 75 lessons / 532 scenes in all 14
+languages; navigation places all 75 exactly once and reports ONLY ops missing.
+The live catalog is unchanged, so the published route gate is NOT green.
+
+Home's 50 voices are technically verified. Import's nine Spanish/French/
+Italian/Portuguese voices are fully decoded and fingerprint-checked; its
+other tracks and Diagnostics' tracks are rendering with two threads per
+process and the 110 GiB memory guard. Both new lessons passed real browser
+playback/seek/navigation checks, including all six caption-only languages.
+These are editorial/technical checks, not native-speaker or listening sign-off.
+
+The main Regression refresh now has a real four-pair example run, explicit
+settings-search views, console, five figures and 759 rows (434 guide / 325
+gene). I am tightening result-tab captures before freezing its narration.
+No app or Qt edits. The recorder checks that searches/resizes never change
+settings; all three negative cases were observed red against a removed guard.
+
+The earlier entry's local dd105101e became 8418328b0 after rebase; that is the
+pushed script/capture commit. OPS still needs a validated end-to-end workflow,
+not only tile-layout evidence. Instruction 358's publication hold remains
+honored: no Hugging Face upload or live-media replacement has been performed.
