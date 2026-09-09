@@ -38,10 +38,27 @@ _EVENT_TYPES = (
 
 
 class _QueueSource(Protocol):
+    """Anything the feeder can read frames out of.
+
+    A Protocol rather than an import of `queue.Queue`, because the
+    producer is a multiprocessing queue in a run and a plain list-backed
+    stub in a test, and neither should have to inherit from the other.
+    Only `get` is required: the feeder never inspects size or emptiness,
+    it blocks and is cancelled.
+    """
+
     get: Callable[..., object]
 
 
 class _QueueSink(Protocol):
+    """Anything the feeder can hand frames to.
+
+    `put_nowait` and not `put`: the feeder must never block on a slow
+    consumer, because the thread it runs on is also the one draining the
+    source, and a stall there backs up into the run rather than into the
+    view.
+    """
+
     put_nowait: Callable[[object], None]
 
 

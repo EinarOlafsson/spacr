@@ -75,9 +75,21 @@ except ImportError:  # scikit-image 0.22-0.24
     from skimage.morphology import square as _legacy_square
 
     def _square_footprint(size):
+        """A square structuring element, on scikit-image 0.22 to 0.24.
+
+        `square(n)` was removed in 0.25 in favour of
+        `footprint_rectangle((n, n))`. Both spellings are wrapped rather
+        than pinning a version, because spaCR is installed alongside
+        whatever cellpose and torch have already chosen.
+        """
         return _legacy_square(size)
 else:
     def _square_footprint(size):
+        """A square structuring element, on scikit-image 0.25 and later.
+
+        The modern spelling. See the ImportError branch above for why both
+        exist.
+        """
         return footprint_rectangle((size, size))
 from skimage.measure import find_contours
 from skimage.segmentation import clear_border, find_boundaries

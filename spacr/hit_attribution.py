@@ -255,6 +255,18 @@ def build_hit_cell_frame(
 
 @dataclass
 class _Mixture:
+    """The fitted two-component mixture, per feature, held for reuse.
+
+    Kept as arrays rather than a fitted estimator object so it can be
+    written to and read back from the run record: the attribution has to
+    be reproducible from what was stored, and a pickled estimator ties
+    that to the library version that made it.
+
+    `median` and `scale` are the standardisation the components were fitted
+    in, and both are needed to score a new object -- storing the components
+    without them makes the numbers meaningless.
+    """
+
     median: np.ndarray
     scale: np.ndarray
     mu0: np.ndarray

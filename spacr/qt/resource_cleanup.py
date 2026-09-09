@@ -283,6 +283,18 @@ class BudgetSweep:
 
 @dataclass(frozen=True)
 class _BudgetEntry:
+    """One registered consumer of the interface's memory budget.
+
+    `last_used` is what makes the budget an LRU rather than a quota: when
+    the total is over, the least recently touched entries are released
+    first, which is almost always the screen the user navigated away from.
+    A quota alone would refuse the screen they are looking at.
+
+    `token` is the identity the owner releases by, and `label` is the one
+    a person reads in the diagnostics -- separate because the token has to
+    be stable and unique, and the label has to be legible.
+    """
+
     token: str
     label: str
     megabytes: float

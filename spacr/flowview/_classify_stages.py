@@ -51,6 +51,15 @@ _FALLBACK_NODES = {
 
 @dataclass
 class _RunState:
+    """Where one classify run has got to, as the stage view understands it.
+
+    `last_index` rather than a stage name so the view can tell FORWARD
+    progress from a repeat: stages emit their name each time they report,
+    and a name alone cannot say whether a run advanced or is still in the
+    stage it was in. -1 is "nothing has started", which is distinct from
+    index 0.
+    """
+
     current: str | None = None
     last_index: int = -1
     finished: bool = False

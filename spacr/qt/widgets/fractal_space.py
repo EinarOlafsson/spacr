@@ -237,11 +237,32 @@ void main() {
 if njit is not None:
     @njit(cache=True, fastmath=True, inline="always")
     def _hash2(x: float, y: float) -> float:
+        """A deterministic 0-1 value from a 2-D position.
+
+        The shader-idiom hash, kept because it needs no state and no table:
+        a real PRNG would have to be seeded and carried through a kernel
+        that has no place to put it, and a lookup table would be a memory
+        access in the innermost loop. The constants are arbitrary and only
+        have to be irrational-looking; what matters is that the SAME
+        position always yields the same star, so the field does not
+        shimmer between frames.
+        """
         value = math.sin(x * 127.1 + y * 311.7) * 43758.5453123
         return value - math.floor(value)
 
     @njit(cache=True, fastmath=True)
     def _object_color(x: float, y: float, t: float, speed: float, slot: int):
+        """The contribution of one drifting object at one point.
+
+        `slot` separates the three concurrent objects so they do not share
+        a birth time: without the `0.33 * slot` offset all three would
+        appear and fade together and read as one blinking shape rather
+        than as a field with depth.
+
+        The epoch/phase split is what lets an object be born, cross and
+        die without any per-object state -- the position IS the clock, so
+        nothing has to be stored between frames.
+        """
         travel = t * (0.35 + 1.05 * speed) / 520.0 + 0.33 * slot
         epoch = math.floor(travel)
         phase = travel - epoch

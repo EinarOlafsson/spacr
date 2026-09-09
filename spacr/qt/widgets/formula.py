@@ -208,6 +208,15 @@ _REJECTED = {
 
 @dataclass(frozen=True)
 class _Token:
+    """One lexed piece of a formula, with where it came from.
+
+    `at` is carried on every token so an error can point at the character
+    the user typed rather than describing the problem in the abstract --
+    "unexpected ) at 14" against a field they can see. Reconstructing the
+    offset later from the token text is impossible once the same text
+    appears twice in one formula.
+    """
+
     kind: str
     text: str
     at: int

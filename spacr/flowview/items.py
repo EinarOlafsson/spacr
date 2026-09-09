@@ -82,6 +82,13 @@ if not QT_AVAILABLE:
 else:
 
     def _colour(value: str, alpha: int = 255) -> QColor:
+        """A QColor from a stylesheet string, with alpha applied separately.
+
+        `QColor("#rrggbb")` cannot carry an alpha and `QColor("#aarrggbb")`
+        puts it first, which is the opposite of the CSS order the theme
+        files are written in. Taking alpha as an argument keeps the theme
+        strings readable as CSS and the ordering mistake unmakeable.
+        """
         colour = QColor(value)
         colour.setAlpha(alpha)
         return colour
@@ -96,6 +103,14 @@ else:
 
 
     def _load_thumbnail(path: str | None) -> QImage:
+        """The thumbnail at ``path``, or a null QImage when there is none.
+
+        Returns a null image rather than None for both the missing-path and
+        failed-load cases, so every caller can paint unconditionally --
+        Qt draws nothing for a null image. Distinguishing "no thumbnail
+        yet" from "thumbnail that would not load" is not something the
+        node can act on differently.
+        """
         image = QImage()
         if path is not None:
             image.load(path)

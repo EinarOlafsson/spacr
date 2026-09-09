@@ -782,6 +782,16 @@ def detach_all_dialogs(app) -> bool:
         # False and does nothing -- wins over the one below it. The filter
         # installed, reported success, and silently never fired.
         class _Filter(QObject):
+            """Applies the detacher to every dialog the application opens.
+
+            An application-wide event filter rather than a per-dialog
+            hook: dialogs are constructed all over the package, including
+            inside Qt itself, and any hook a caller has to remember will
+            be missed by the one that matters. Defined here rather than at
+            module scope so it holds the detacher by closure and there is
+            no second place to keep them in step.
+            """
+
             def __init__(self):
                 """Wrap the detacher this filter applies to every dialog."""
                 super().__init__()

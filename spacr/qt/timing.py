@@ -559,6 +559,19 @@ def watch_interactive(
         controls.insert(0, widget)
 
     class _InteractivePaintProbe(QObject):
+        """Watches a screen until it stops repainting, then reports.
+
+        MEASURES SETTLING, NOT FIRST PAINT. A screen that draws once and
+        then repaints eleven more times as its lazy sections arrive is
+        slow in the way a user notices, and a first-paint number calls it
+        fast. The probe therefore waits for quiet rather than for the
+        first frame.
+
+        Defined inside its factory so it can close over the widget and the
+        deadline instead of storing them on an instance that outlives the
+        measurement.
+        """
+
         def __init__(self) -> None:
             """Watch ``widget`` and its controls until the screen settles."""
             super().__init__(widget)

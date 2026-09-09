@@ -669,9 +669,9 @@ class ObjectSettingsGrid(QWidget):
 
     #: How long the pointer must rest on a cell before help appears, in ms.
     #:
-    #: Not instant, asked for on 2026-09-08. Dragging the pointer across a
-    #: row of twenty cells used to rewrite the band twenty times, which
-    #: reads as flicker rather than as help.
+    #: Deliberately not instant. Dragging the pointer across a row of
+    #: twenty cells rewrites the band twenty times when there is no delay,
+    #: which reads as flicker rather than as help.
     HELP_SHOW_DELAY_MS = 350
 
     #: How long the last help stays after the pointer leaves, in ms.

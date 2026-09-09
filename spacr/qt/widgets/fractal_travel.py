@@ -505,11 +505,28 @@ if njit is not None:
 
     @njit(inline="always", fastmath=True)
     def _fast_cos(value):
+        """Cosine by the quarter-turn identity, so there is one approximation.
+
+        Written as a shifted :func:`_fast_sin` rather than a second
+        polynomial: two independently fitted curves drift apart at the
+        joins, and a sine and cosine that disagree put a seam in the
+        picture where the orbit crosses an axis.
+        """
         return _fast_sin(value + 0.5 * _FAST_PI)
 
     @njit(inline="always", fastmath=True)
     def _orbit_sample(px, py, width, height, t, speed, dream, iterations,
                       pointer_x, pointer_y, pull, push):
+        """The colour of one pixel, in the plane's own coordinates.
+
+        Divides by the SHORT side so the picture keeps its proportions on
+        any window shape -- dividing by width alone stretches the orbit
+        when the dock is open and squashes it when it is not.
+
+        Returns the three channels as 0-255 integers rather than floats
+        because the caller writes them straight into a uint8 buffer, and
+        rounding once here is cheaper than rounding three times there.
+        """
         denominator = float(min(width, height))
         x = (2.0 * px - width) / denominator
         y = (height - 2.0 * py) / denominator
@@ -624,6 +641,18 @@ if njit is not None:
     @njit(cache=True, parallel=True, fastmath=True, nogil=True)
     def _render_into(output, t, speed, dream, iterations, jitter_x, jitter_y,
                      pointer_x, pointer_y, pull, push):
+        """Fill one whole frame, one row per worker thread.
+
+        WRITES INTO A BUFFER THE CALLER OWNS rather than returning an
+        array, because this runs every frame: allocating a new image per
+        frame is what the ring in :class:`_Canvas` exists to avoid, and
+        `nogil` lets the GIL go while it does, so the interface stays live
+        while a frame is drawn.
+
+        The jitter offsets arrive as scalars rather than being looked up
+        from :data:`JITTERS` in here, so the kernel has no Python object
+        to touch and stays compilable.
+        """
         height, width, _channels = output.shape
         for y in prange(height):
             for x in range(width):
@@ -654,9 +683,17 @@ if njit is not None:
 else:                                                        # pragma: no cover
 
     def _render_into(*_args, **_kwargs):
+        """Refuse clearly when numba is absent.
+
+        A stub that raised nothing and returned None would leave the
+        canvas showing an unexplained black rectangle; the backend chooser
+        catches this and falls back, so the message is for the developer
+        who bypassed it.
+        """
         raise RuntimeError("numba is required for the CPU fractal backend")
 
     def _blend_temporal(*_args, **_kwargs):
+        """Refuse clearly when numba is absent. See :func:`_render_into`."""
         raise RuntimeError("numba is required for the CPU fractal backend")
 
 
@@ -854,6 +891,19 @@ def _make_cpu_widget(settings: Settings, controls: RuntimeControls,
     base_pixels *= settings.scale * settings.scale
 
     class _Worker(QObject):
+        """Shades frames off the GUI thread and hands them over as arrays.
+
+        A QObject moved onto a QThread rather than a QThread subclass: the
+        moved-object form keeps `run` out of the thread's own `run()`, so
+        an exception here reaches a Python handler instead of escaping
+        `QThread::run` and aborting the process -- the crash shape that
+        took spaCR down from the SRA picker.
+
+        `frame_ready` carries the array by reference and the caller must
+        not hold it: the buffer is reused, and the ring in
+        :class:`_Canvas` is what makes reuse safe.
+        """
+
         frame_ready = Signal(object, float)
         failed = Signal(str)
 
@@ -1759,6 +1809,14 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
         return _PUBLISHED[name]
 
     class _Canvas(Canvas):
+        """The vispy canvas the GPU backend draws into.
+
+        Defined inside the `if` that imported vispy, so the name simply
+        does not exist when the GPU path is unavailable -- a module-level
+        class would need vispy at import time and make a missing optional
+        dependency an ImportError for the whole widget.
+        """
+
         def __init__(self) -> None:
             """Build the GL canvas, hidden until it is placed."""
             super().__init__(keys=None, size=(1200, 760), show=False)

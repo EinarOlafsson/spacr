@@ -239,6 +239,18 @@ class ReportContext:
 
 @dataclass
 class _Registry:
+    """Everything the loaded plugins contribute, in one immutable snapshot.
+
+    ONE OBJECT REPLACED WHOLESALE rather than several mutable collections
+    kept in step. A plugin that fails half way through contributing would
+    otherwise leave the registry holding its apps and not its models, and
+    nothing would say so; building a new `_Registry` and swapping it means
+    a partial load is discarded rather than published.
+
+    Tuples for the ordered contributions so plugin order is reproducible,
+    and a dict for `apps` because they are looked up by key.
+    """
+
     plugins: Tuple[SpacrPlugin, ...] = ()
     apps: Dict[str, AppContribution] = field(default_factory=dict)
     models: Tuple[Tuple[str, ModelProviderContribution], ...] = ()

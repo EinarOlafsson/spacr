@@ -36,6 +36,24 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
+
+def _connect_read_only(db_path):
+    """A read-only connection that WAITS for Measure rather than failing.
+
+    `sqlite3.connect(..., mode=ro)` takes SQLite's five-second default and
+    then raises "database is locked" -- which, against a measurements.db
+    a Measure run is still writing, is a report that fails for a reason
+    that has nothing to do with the data. `database_concurrency.connect`
+    sets `busy_timeout` from its own `timeout` and opens with
+    `query_only=ON`, so a reader waits out a writer's transaction instead
+    of racing it.
+
+    Pinned by `test_no_connection_relies_on_sqlites_five_second_default`.
+    """
+    from .database_concurrency import connect
+
+    return connect(db_path, readonly=True)
+
 #: The table holding one row per segmented host cell. THE DENOMINATOR.
 CELL_TABLE = "cell"
 
@@ -137,7 +155,7 @@ def parasites_per_cell(db_path: str) -> pd.DataFrame:
     """
     from .filters import OBJECT_COLUMN
 
-    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as db:
+    with _connect_read_only(db_path) as db:
         cells = _load(db, CELL_TABLE)
         pathogens = _load(db, PATHOGEN_TABLE)
 
@@ -291,7 +309,7 @@ def host_contrast(db_path: str, columns: Sequence[str], *,
     if per_cell.empty:
         return pd.DataFrame()
 
-    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as db:
+    with _connect_read_only(db_path) as db:
         cells = _load(db, CELL_TABLE)
     if cells.empty:
         return pd.DataFrame()

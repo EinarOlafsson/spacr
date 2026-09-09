@@ -4371,6 +4371,15 @@ def install_dialog_translation(app) -> None:
         return
 
     class _DialogTranslationFilter(QObject):
+        """Retranslates a dialog the first time it is shown.
+
+        ON SHOW, NOT ON CONSTRUCTION, because a dialog is routinely built
+        before its widgets are populated -- retranslating at construction
+        walks a tree that is not there yet and silently does nothing. Show
+        is the first moment the tree is complete and the last moment
+        before a person reads it.
+        """
+
         def eventFilter(self, watched, event):  # noqa: N802
             """Retranslate a dialog's tree the first time it is shown."""
             if event.type() == QEvent.Show and isinstance(watched, QDialog):

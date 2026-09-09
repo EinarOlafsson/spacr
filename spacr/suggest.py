@@ -39,6 +39,38 @@ from typing import Dict, List, Optional, Sequence
 import numpy as np
 import pandas as pd
 
+
+def _connect_writable(db_path):
+    """A WRITE connection that waits for Measure rather than failing.
+
+    Same reason as :func:`_connect_read_only`, from the other side: these
+    two write annotations back, and a Measure run holding the write lock
+    would otherwise turn "accept these suggestions" into "database is
+    locked" after five seconds. Accepting is a user action they will
+    simply repeat, so failing fast buys nothing and waiting costs nothing.
+    """
+    from .database_concurrency import connect
+
+    return connect(db_path)
+
+
+def _connect_read_only(db_path):
+    """A read-only connection that WAITS for Measure rather than failing.
+
+    `sqlite3.connect(..., mode=ro)` takes SQLite's five-second default and
+    then raises "database is locked" -- which, against a measurements.db
+    a Measure run is still writing, is a report that fails for a reason
+    that has nothing to do with the data. `database_concurrency.connect`
+    sets `busy_timeout` from its own `timeout` and opens with
+    `query_only=ON`, so a reader waits out a writer's transaction instead
+    of racing it.
+
+    Pinned by `test_no_connection_relies_on_sqlites_five_second_default`.
+    """
+    from .database_concurrency import connect
+
+    return connect(db_path, readonly=True)
+
 #: Added to a class value to mark it a suggestion rather than an answer. Ten,
 #: because the annotation column holds small integers: a suggested 1 becomes
 #: 11 and cannot collide with a real 2 or 3.
@@ -102,7 +134,7 @@ def suggest_from_scores(db_path: str, annotation_column: str, *,
     """
     from .active_learning import as_probabilities
 
-    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as db:
+    with _connect_read_only(db_path) as db:
         try:
             from .tabular import _read_query
             crops = _read_query(db, f'SELECT * FROM "{png_table}"',
@@ -201,7 +233,7 @@ def write_suggestions(db_path: str, annotation_column: str,
     if not rows:
         return 0
     written = 0
-    with sqlite3.connect(db_path) as db:
+    with _connect_writable(db_path) as db:
         for value, path in rows:
             cur = db.execute(
                 f'UPDATE "{png_table}" SET "{annotation_column}" = ? '
@@ -237,7 +269,7 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
         where += f" AND png_path IN ({','.join('?' * len(paths))})"
         params = list(paths)
 
-    with sqlite3.connect(db_path) as db:
+    with _connect_writable(db_path) as db:
         if keep:
             sql = (f'UPDATE "{png_table}" SET {column} = {column} - '
                    f"{SUGGESTION_OFFSET} WHERE {where}")
@@ -257,7 +289,7 @@ def pending_suggestions(db_path: str, annotation_column: str, *,
     :param png_table: the crop table.
     :returns: the count, or 0 when the column does not exist.
     """
-    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as db:
+    with _connect_read_only(db_path) as db:
         try:
             row = db.execute(
                 f'SELECT COUNT(*) FROM "{png_table}" '

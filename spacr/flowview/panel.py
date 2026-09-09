@@ -81,12 +81,29 @@ if not QT_AVAILABLE:
 else:
 
     def _topology_key(graph: RunGraph) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        """What has to change before the scene is rebuilt from scratch.
+
+        SHAPE, NOT STATE. A node going from running to finished changes the
+        graph but not this key, so the panel repaints the item it already
+        has instead of tearing down every item and losing selection, scroll
+        position and any animation in flight. Sorted so an ordering
+        difference in the source graph does not read as a new topology.
+        """
         nodes = tuple(sorted(graph.nodes))
         edges = tuple(sorted(repr(edge) for edge in graph.edges))
         return nodes, edges
 
 
     def _json_mapping(values: dict[str, object]) -> str:
+        """Settings as JSON a person reads in a panel, not as a wire format.
+
+        `sort_keys` so the same settings always render the same way and a
+        reader comparing two nodes sees only real differences;
+        `ensure_ascii=False` so a non-Latin path stays legible rather than
+        becoming escapes; `allow_nan=False` because a NaN here would be
+        written as the non-standard `NaN` token and silently produce a
+        document nothing else can read back.
+        """
         return json.dumps(
             values,
             ensure_ascii=False,

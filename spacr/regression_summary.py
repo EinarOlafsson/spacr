@@ -2577,6 +2577,15 @@ def model_identity_line(regression_type, settings=None, model=None,
         parts.append(f"backend: {where}")
 
     class _Holder:                       # what _hyperparameter_report reads
+        """The minimum surface `_hyperparameter_report` reads, and no more.
+
+        A stand-in rather than the real fitted object: the report wants a
+        handful of attributes, and constructing a genuine estimator to
+        carry them would tie this summary to whichever library fitted the
+        model. Defined at function scope because it is an argument shape,
+        not a type anybody else should hold.
+        """
+
         nonparametric = False
 
     holder = _Holder()

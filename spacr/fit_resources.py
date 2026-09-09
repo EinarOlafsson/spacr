@@ -63,6 +63,15 @@ _MEMORY_MEASURE_ORDER = ("pss", "uss", "rss")
 
 @dataclass(frozen=True)
 class _ModeSelection:
+    """What fitting mode was chosen, and whether the user got what they asked.
+
+    `requested` is kept beside `mode` rather than being overwritten so the
+    caller can tell "the user asked for this" from "we picked it": a
+    silent downgrade from a mode the hardware cannot serve is exactly the
+    thing a user needs told, and `warning` is where that sentence goes.
+    Empty warning means the request was honoured.
+    """
+
     mode: str
     source: str
     requested: Optional[str]

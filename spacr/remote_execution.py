@@ -963,6 +963,18 @@ class _Backend:
 
 
 class _SSHBackend(_Backend):
+    """Runs the job on a workstation over ssh, detached, tracked by PID.
+
+    THE ONE BACKEND WITH NO SCHEDULER BEHIND IT, which is what makes it
+    the awkward one: nothing else knows the job exists, so this has to
+    detach it from the ssh session that started it and remember the PID
+    itself. A job left attached dies when the connection drops, which on
+    a laptop lid is every time.
+
+    Liveness is therefore a signal-0 probe rather than a queue query, and
+    a recycled PID is the known limit of that -- see :meth:`poll`.
+    """
+
     def submit(
         self, profile: ExecutionProfile, job: RemoteJob, payload: str
     ) -> None:
@@ -1068,6 +1080,14 @@ class _SSHBackend(_Backend):
 
 
 class _SlurmBackend(_Backend):
+    """Submits through ``sbatch`` and asks Slurm what happened.
+
+    The easy backend: the scheduler owns the job's identity and its
+    state, so nothing here has to be remembered between calls. Its ids
+    are opaque strings rather than integers, because a Slurm id can carry
+    an array suffix and parsing it to an int loses the task.
+    """
+
     def submit(
         self, profile: ExecutionProfile, job: RemoteJob, payload: str
     ) -> None:
@@ -1187,6 +1207,20 @@ class _SlurmBackend(_Backend):
 
 
 class _CommandBackend(_Backend):
+    """Runs whatever the profile says, for a queue spaCR does not model.
+
+    THE ESCAPE HATCH, and deliberately the least helpful backend. A site
+    with LSF, PBS, a cloud CLI or a wrapper script gives its own submit,
+    poll and cancel commands with placeholders, and spaCR substitutes and
+    runs them. It cannot interpret the output beyond an id and an exit
+    code, so it reports less than the other two -- that is the trade for
+    not needing spaCR to know the scheduler.
+
+    Placeholders are substituted from :meth:`_context`, and a template
+    naming one that does not exist fails at submit rather than silently
+    running a command with a literal brace in it.
+    """
+
     @staticmethod
     def _context(
         profile: ExecutionProfile, job: RemoteJob

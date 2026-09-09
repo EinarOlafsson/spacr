@@ -229,6 +229,14 @@ if njit is not None:
 
     @njit(inline="always", fastmath=True)
     def _fast_sin(value):
+        """Bounded sine approximation, its own copy rather than an import.
+
+        The kernels are `njit(inline="always")` and numba inlines only what
+        it compiled in the same module, so sharing one definition across
+        the three fractal widgets would put a call in the innermost loop of
+        each. Three copies of nine lines, measured against one call per
+        pixel per iteration.
+        """
         value -= math.floor((value + _FAST_PI) / _FAST_TWO_PI) * _FAST_TWO_PI
         result = (1.2732395447351627 * value
                   - 0.4052847345693511 * value * abs(value))
@@ -236,6 +244,11 @@ if njit is not None:
 
     @njit(inline="always", fastmath=True)
     def _fast_cos(value):
+        """Cosine as a quarter-turn shift, so one approximation serves both.
+
+        Two separately fitted curves drift apart at the joins and leave a
+        seam where the pattern crosses an axis.
+        """
         return _fast_sin(value + 0.5 * _FAST_PI)
 
     @njit(inline="always", fastmath=True)
@@ -279,6 +292,19 @@ if njit is not None:
                 stretch_x, stretch_y, rotation_cs, rotation_sn,
                 constant_x, constant_y, scale_a, scale_b, blend,
                 palette_phase):
+        """One pixel of the cascade, as three 0-255 channels.
+
+        THE CAMERA ARRIVES PRE-RESOLVED -- as a cosine/sine pair, an
+        offset, a shear and a stretch -- rather than as an angle this
+        recomputes. Every pixel shares one camera, so the trigonometry is
+        done once per frame by the caller; doing it here would repeat it a
+        million times for the same answer.
+
+        `scale_a`, `scale_b` and `blend` are the two octaves and their
+        mix: the cascade evaluates the layer twice per pixel and
+        cross-fades, which is why it renders about a quarter of the pixels
+        the orbit pattern does for the same wall-clock.
+        """
         denominator = float(min(width, height))
         x = (2.0 * px - width) / denominator * 1.08
         y = (height - 2.0 * py) / denominator * 1.08

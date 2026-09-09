@@ -747,6 +747,13 @@ def download_chosen_screen_data(parent, dest: Path, archives, repo: str,
 
 
 class _MeasureTarWorker(_TarExampleWorker):
+    """Fetches the Measure example, then expands its compressed arrays.
+
+    The only example set that needs work after extraction: it ships as
+    `.npz` to keep the download near 390 MB, and Measure reads `.npy`.
+    See :meth:`after_extract`.
+    """
+
     repo = MEASURE_EXAMPLE_REPO
 
     def after_extract(self, dest) -> None:
@@ -761,6 +768,13 @@ class _MeasureTarWorker(_TarExampleWorker):
 
 
 class _AnnotateTarWorker(_TarExampleWorker):
+    """Fetches the Annotate/Classify example: crops, database and labels.
+
+    Nothing to do after extraction -- the archive already contains the
+    measurements database that indexes the crops -- so this is the repo
+    name and the shared machinery.
+    """
+
     repo = ANNOTATE_EXAMPLE_REPO
 
 
