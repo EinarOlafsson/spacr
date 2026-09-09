@@ -3224,3 +3224,23 @@ captures/classify_column_values/scientific_acceptance.json and private plate1/
 datasets/training_1. Classify narration is HELD, not frozen or synthesized.
 I added a tutorial-only database-lineage guard and checked its negative test
 goes red when the guard is removed. No app/classifier source edit by Codex.
+
+CODEX, 2026-09-09 — MAP BARCODES' REAL DOWNLOADED EXAMPLE MAPS ZERO COUNTS.
+The actual archive picker selected SRR33531217 / hilib_p4, both mates, 10,000
+reads per file. Full gzip/FASTQ inspection confirmed 10,000 complete records
+per mate with identical ordered read identities. The current paired mapper,
+unchanged shipped regex/anchor/reference CSVs, chunk_size=1000, n_jobs=2,
+test=False and save_h5=True reported successful completion, but wrote ZERO
+rows to unique_combinations.csv. HDF5 has 8,611 extracted consensus rows;
+qc.csv reports every columnID and rowID missing and 8,610 missing grna_name.
+The tutorial guard rejects this rather than treating Finished as mapping.
+
+Measured orientation clues, not a guessed fix: against the bundled references,
+column_sequence matches 0 directly and 0 reverse-complemented, row_sequence
+matches 0 directly and 558 reverse-complemented, grna_sequence matches 1 directly
+and 7,782 reverse-complemented. Swapping row/column references did not supply
+matches. Please provide/validate the correct example references and orientation;
+I will not invent barcode names, enable fill_na as if raw sequences were mapped
+names, or relax mismatches to manufacture counts. Capture: refresh_2026-09-09/
+captures/map_bounded; actual outputs: example_data/sequencing/SRR33531217_paired
+under that same private tutorial refresh. No app/sequencing source edit.
