@@ -1,0 +1,27 @@
+{
+  "lesson": "36_import", "language": "zh-CN",
+  "english_sha256": "8f584353448403fe7ae7b043ea0b34938bf2ea0698159097f70bff6f161ed3f2",
+  "review": {"kind": "Editorial translation checked against English and the actual real-data import", "native_speaker_signoff": false, "corrections": ["Keep imported features distinct from a new measurement run and count objects separately from duplicated table rows.", "Preserve unknown calibration, exact object joins, conservative inferred names, the real reserved-name refusal and explicit acquisition-identity limitations."]},
+  "title": "Import Project：核查真实掩膜、测量值与来源",
+  "description": "导入包含两个真实显微视野的子集，在写入前核查对象关联和列名，并区分导入的测量值与 spaCR 重新执行测量的结果。",
+  "objectives": ["找到 Import Project 及其三个嵌套输入工具。", "以明确的单位和对象身份关联图像、实例掩膜与测量表。", "核查推断的名称，演示并解决保留名称冲突，然后保存和重新加载映射。", "验证导入的像素、逐对象数值及来源，不把导入描述成重新测量。"],
+  "prerequisite": "先下载 Measure 示例。tools/tutorials/capture_foreign.py 中的 prepare_inputs 从 plate1_E01_1_1 和 plate1_L02_9_1 原样提取 ER 强度平面 1 和细胞标签平面 4，再从这些相同标签计算精确的像素面积及原始平均强度，得到 103 行真实测量。中性的 fov01/fov02 TIFF 文件名必须结合保存的来源清单才能找回原始采集孔位，不能自动保留板布局。这里不声称具备像素物理标定。",
+  "scenes": [
+    "在 Home 的 Data 类别中打开 Import。这个父工作流接收已有图像、实例掩膜和测量值。它不同于从显微镜原始文件开始，再用 spaCR 生成新掩膜和测量值。",
+    "顶部现在提供 Import Images、Format Converter 和 External Masks。原始采集使用 Import Images；支持的格式转换使用 Format Converter；已有分割标签使用 External Masks。它们的专业课程仍位于 Submodules 部分的 Import 分类下。",
+    "本次录制复用 Measure 下载示例中的两个真实视野。独立 TIFF 副本保留原始强度和标签像素。准备步骤直接根据这些确切标签计算像素面积和平均强度，而不是把掩膜与独立版本的测量表混用。",
+    "选择图像文件夹，再选择 Cell 掩膜文件夹并按 Add。这些是实例标签，不是二值前景图。本例包含一个强度通道和一个掩膜类别。只有当其他类别确实对应这些视野时才添加它们。",
+    "选择真实的测量 CSV。ImageNumber 标识每张准备好的图像，ObjectNumber 标识该视野中的对象标签。单独的标签编号在不同图像间并不唯一。表中有一百零三个实测对象，不是为让关联通过而补入的合成行。",
+    "标定未知时，将每像素微米数留空。本例面积列明确使用平方像素，强度是图像原始值的均值。不要编造尺度。物理单位列需要单独核查；不能把未标定的值称为已转换成像素单位的测量。",
+    "Preview 不写入项目数据。当前导入器保守地建议带 foreign 前缀的列名，包括将原本已叫 cell_area 的来源列映射到 foreign_cell_area。这条提示不是阻止导入的错误：推断避免了覆盖 spaCR 特征，但科学含义仍需核查。",
+    "选择目标单元格并按 F 二进行编辑。这里故意将面积目标改为保留名称 cell_area。选择 Refuse the import 时，这个真实冲突会禁用 Import。尚未写入任何内容；演示用目标不代表推荐映射。",
+    "选择 Rename 策略即可在不覆盖 spaCR 特征的情况下解决冲突。阅读关联报告：一百零三行全部匹配真实掩膜对象，子集中没有缺少测量的对象。仅看行数无法发现数值被分配给错误视野或标签的问题。",
+    "为面积指定明确且经过核查的目标 foreign_reviewed_area_px2。映射会原位更新。请一起检查来源、目标、变换和单位：重命名一列并不能证明两个实验室测量了相同的生物学量。",
+    "Save mapping 将核查后的列定义保存为 CSV。它不是图像备份，也不是完整采集清单。除映射外，还应保留源文件和身份记录，以便日后审计这些决定。",
+    "Load mapping 将定义读回当前计划。我们先临时修改目标而不保存；随后选择已保存的 CSV，恢复核查过的名称。源文件、标签或单位变化时，应重新检查计划。可复用映射不等于自动批准新实验。",
+    "对核查后的计划按 Import，并检查真实报告。本次运行转换两张图像，写入两个掩膜和两个合并数组，然后在两张对象表中各存入一百零三行。状态中的二百零六合计了两张表，不表示不同对象的数量翻倍。",
+    "摘要明确说明 spaCR 没有重新提取测量值。foreign_columns 表记录哪些数值来自本次导入。我们的检查确认像素、标签以及每个对象的面积和平均强度均被保留；这与验证生物学解释是两回事。",
+    "中性的 fov 名称被转换成 A 零一中的新视野，并不会重建原始采集孔位。请保留准备清单和转换映射。真实板实验应在下游分析前确认采集身份，不要把新分配的坐标当作原始元数据。",
+    "在 Python 中，spacr.foreign 提供 plan_import、save_column_map、load_column_map 和 run_import，保持相同的先核查后应用边界。将核查后的映射与完整项目一起保存。确实需要 spaCR 计算新特征时使用 Measure，不要假定导入已经完成了这一步。"
+  ]
+}
