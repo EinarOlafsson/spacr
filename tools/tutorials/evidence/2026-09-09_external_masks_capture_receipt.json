@@ -1,0 +1,314 @@
+{
+  "schema": 1,
+  "date": "2026-09-09",
+  "lesson": "31_external_masks",
+  "scope": "Accepted current-GUI import-and-measure demonstration using preserved real microscopy TIFFs and existing cell labels; no segmentation-accuracy or biological-validation claim.",
+  "capture": {
+    "directory": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/external_masks_final_console",
+    "commit": "56941b22221cc2b2b05ea455718d605ae22f64ba",
+    "version": "1.5.0.4",
+    "parent_reported_exit_code": 0,
+    "completed_capture": true,
+    "scientific_acceptance": true,
+    "batch_acceptance": true,
+    "worker_finished": true,
+    "worker_ok": true,
+    "figure_count": 6,
+    "frame_count": 68,
+    "all_frame_hashes_recomputed_and_matching": true,
+    "app_source_modified": false,
+    "download_requested": false,
+    "evidence_sha256": {
+      "provenance.json": "888acaff4d766b83992ac5c078107a23218b690ce5bbdac222384e91969c0951",
+      "frames.json": "6c5bff1b031997c0917279214f5959a7126ac0b24654f3574b276d7572d13b84",
+      "scientific_acceptance.json": "6eadd0ec61f0f6eeeee42aed60e2edc6fef983623c063f4e4f08fbd97dea6b33",
+      "preview_evidence.json": "569b7365461356961efe837133aadac73ba2a061d179f6e1f40bc1b383adbb22",
+      "output_evidence.json": "9de0d0f4bea481298076ce796d750e0ce84011b97ccf4589bf58a05e435a47fb",
+      "readable_tour.json": "6d4fd3d289aa1a2ff7a714e61b18fb4fdee3e65055af08568aa4a9e879163e3c",
+      "input_manifest.json": "00d9b3913b486c7b44bdc44a4e365c412eb62ac8dd32650f526c480f93096d5a",
+      "configured_settings.json": "d1a4ddcb49e8837b7984d757a2fe4f6286f58f20b3593ae4e1d9981200b07fc7",
+      "batch_acceptance.json": "313adfbf101471d779ee7c99713baaaa60e8950934f27658306a19db68572121",
+      "batch_figures.json": "c7dd4f148670119e7e5c3b7e52931aaed6abaa775e8edca1e993b0accdb46d1a"
+    }
+  },
+  "source_code_sha256": {
+    "tools/tutorials/capture_external_masks.py": "eef51ef359b4d456992a16a913fa6bff31ed7843c7bc86782f713d8fac81ee64",
+    "tools/tutorials/external_evidence.py": "357da9f7b2e0e9dbcd49b274444c0d6a71a63346aba016d3a928422c6c4f2d99",
+    "spacr/external_masks.py": "0211269c971cc079e8bdeda89601044c0c923fec6ade6009a445b877fe568a5f",
+    "spacr/qt/screens/foreign.py": "ce8226871fb30f85c694979bf283a7bdfd6a5d5da020d141a8329cb21fbc784e",
+    "spacr/qt/widgets/external_mask_inputs.py": "5209306c35c99cbf018174395b3ec750f63048a584cceacb8c693c87712da64b"
+  },
+  "inputs": {
+    "provenance": "Reuse the accepted foreign_release_v2 inputs.json; real acquired fields from the downloaded Measure example previously prepared for Import Project.",
+    "reused_manifest": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/foreign_release_v2/inputs.json",
+    "reused_manifest_sha256": "6b7c7218e6b9e896731be185df24dd49c892fef03f4af93b9cf4e23f1241df09",
+    "prepared_root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/foreign_runs/example-13nt_fa4",
+    "groups": 2,
+    "tiff_files": 4,
+    "shape": [
+      1994,
+      1994
+    ],
+    "original_shape": [
+      1994,
+      1994,
+      7
+    ],
+    "dtype": "uint16",
+    "original_intensity_plane": 1,
+    "original_cell_label_plane": 4,
+    "tiff_intensity_plane": 0,
+    "fields": [
+      {
+        "original_stem": "plate1_E01_1_1",
+        "neutral_stem": "fov01",
+        "assigned_stem": "plate1_A01_1",
+        "objects": 44,
+        "source_sha256": "92aa7ea259b948be275163b27c68de1eb9dc97a3c7d2502717868ea6560dde97",
+        "image": "images/fov01_C1.tif",
+        "image_sha256": "cf7ffd130adcd84afb7c25770d97abe2321cae1a5dca170e0d28ca76a7e8448c",
+        "mask": "cell_masks/fov01_cell_mask.tif",
+        "mask_sha256": "bbc1d55c4fd57e0476bc3761ec385bede0a20b5895a8cb7b2d0b008ab75bd6ee"
+      },
+      {
+        "original_stem": "plate1_L02_9_1",
+        "neutral_stem": "fov02",
+        "assigned_stem": "plate1_A01_2",
+        "objects": 59,
+        "source_sha256": "ef2f1ef4cd4657df9b3addd358d2c6ba09970d5f24577b93ce11831b82389002",
+        "image": "images/fov02_C1.tif",
+        "image_sha256": "e9ae8fe15224699a3148a5459649fa9cdc6bf5dd5f9a2b0bcfae45713c39a6f0",
+        "mask": "cell_masks/fov02_cell_mask.tif",
+        "mask_sha256": "03574376bfcdadb4543b59538deaa7e1c2a0d9f7bbd643ffce6ee2cfe5c59b52"
+      }
+    ],
+    "source_inputs_unchanged": true,
+    "preservation_check": "Capture and independent verifier checked SHA256 identity of accepted original arrays and prepared TIFFs; no regeneration or copying of those inputs.",
+    "identities_are_demonstration_coordinates": true,
+    "original_wells_reconstructed": false,
+    "measurement_csv_imported": false,
+    "ground_truth_certified": false
+  },
+  "actual_workflow": {
+    "entry": "Import -> External Masks, using the actual FoldButton and nested AppScreen.",
+    "inputs": "Both groups obtained through actual Add folder… dialogs; Use as Image and Mask, Mask type Cell.",
+    "ignore_restore": "Image -> Ignore drops that group from submitted settings without deleting files; Image restores the original assignments before any run.",
+    "settings": {
+      "layout": "flat",
+      "z_handling": "first",
+      "plate_naming": "index",
+      "recursive": false,
+      "overwrite": false,
+      "channels": [
+        0
+      ],
+      "normalize": false,
+      "cell_min_size": 0,
+      "cell_max_size": null,
+      "cytoplasm": true,
+      "uninfected": true,
+      "n_jobs": 1,
+      "plot": true,
+      "save_measurements": true,
+      "save_png": true,
+      "crop_mode": [
+        "cell"
+      ],
+      "png_size": [
+        224,
+        224
+      ],
+      "png_dims": [
+        0
+      ],
+      "png_channel_mapping": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "resume": false,
+      "dry_run": false,
+      "test_mode": false
+    },
+    "preview": {
+      "preview_only": true,
+      "actual_Run": true,
+      "destination_exists": false,
+      "figures": 0,
+      "fields": 2,
+      "intensity_mappings": 2,
+      "intensity_channels": 1,
+      "cell_mask_pairs": 2,
+      "merged_mask_plane": 1,
+      "frame": "07_preview_plan_no_project_written",
+      "scope": "No project data written; pipeline bookkeeping is not claimed to be absent."
+    },
+    "measurement": {
+      "only_pre_run_change": "preview_only True -> False",
+      "actual_Run": true,
+      "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/external_mask_runs/example-pj_qwr_5/project",
+      "conversion_and_standard_Measure_executed": true,
+      "segmentation_rerun": false
+    }
+  },
+  "outputs": {
+    "field_count": 2,
+    "cell_rows": 103,
+    "png_rows": 103,
+    "merged_shape": [
+      1994,
+      1994,
+      2
+    ],
+    "layout": {
+      "version": 1,
+      "intensity_channels": [
+        0
+      ],
+      "mask_plane_order": [
+        "cell"
+      ],
+      "mask_dims": {
+        "cell": 1
+      }
+    },
+    "tables": [
+      "cell",
+      "cytoplasm",
+      "intensity_rescale",
+      "png_list",
+      "run_status",
+      "settings",
+      "settings_history"
+    ],
+    "all_converted_image_stack_merged_and_label_pixels_match_sources": true,
+    "all_full_cell_identities_match_sources": true,
+    "all_pixel_areas_exact": true,
+    "area_units": "pixel area; no physical calibration asserted",
+    "mean_intensity_units": "unscaled source uint16 counts",
+    "max_cell_mean_absolute_error": 0,
+    "cytoplasm_rows_verified": 103,
+    "cytoplasm_matches_cell": true,
+    "max_cytoplasm_mean_absolute_error": 0,
+    "cytoplasm_limit": "Cell-only masks provide no interior regions to subtract; derived cytoplasm repeats the cell region and does not identify a distinct compartment.",
+    "png_evidence": "All 103 files readable with exact complete per-cell links; display crops are not claimed to preserve raw pixels.",
+    "independent_verifier": "No spaCR calculation, reader, naming or merge helper imported. Reads original arrays/TIFFs, independently sums raw label intensities, compares complete identities and output pixels; SQLite mode=ro/query_only."
+  },
+  "figure_tour": {
+    "all_six_actual_frames_visually_inspected": true,
+    "first_five_viewer": "Actual Save figure with a preview… dialog, each cancelled without pressing Save; never described as the embedded viewer.",
+    "export_dialog_array_identity_checks": [
+      2,
+      3,
+      59,
+      2,
+      3
+    ],
+    "export_dialog_canvas": [
+      3718,
+      1438
+    ],
+    "export_written": false,
+    "figures": [
+      {
+        "index": 0,
+        "frame": "10_external_figure_00_export_preview",
+        "content": "59-cell field: intensity and supplied cell labels"
+      },
+      {
+        "index": 1,
+        "frame": "10_external_figure_01_export_preview",
+        "content": "59-cell field: intensity, cell and duplicate derived cytoplasm"
+      },
+      {
+        "index": 2,
+        "frame": "10_external_figure_02_export_preview",
+        "content": "59-object cell montage"
+      },
+      {
+        "index": 3,
+        "frame": "10_external_figure_03_export_preview",
+        "content": "44-cell field: intensity and supplied cell labels"
+      },
+      {
+        "index": 4,
+        "frame": "10_external_figure_04_export_preview",
+        "content": "44-cell field: intensity, cell and duplicate derived cytoplasm"
+      },
+      {
+        "index": 5,
+        "frame": "10_external_figure_05",
+        "content": "44-object cell montage",
+        "viewer": "ordinary embedded Figures queue",
+        "visible_canvas": [
+          2298,
+          503
+        ]
+      }
+    ],
+    "figure_order_is_not_field_numbering": true
+  },
+  "final_console": {
+    "font_scale_changes_percent": [
+      [
+        200,
+        125
+      ],
+      [
+        125,
+        100
+      ]
+    ],
+    "preference_frames": [
+      "11_console_preferences_font_scale_125",
+      "11_console_preferences_font_scale_100"
+    ],
+    "actual_preferences_Save_and_host_tab_returns": 2,
+    "measurement_settings_identical": true,
+    "complete_ordered_console_history_identical": true,
+    "six_ordered_figure_images_identical": true,
+    "preference_scope": "Private External Masks recording configuration",
+    "summary_frame": "11_external_measurement_summary",
+    "viewport_height": 428,
+    "font_point_size": 10,
+    "font_line_height": 18,
+    "complete_prepared_summary_and_table_names_visible": true,
+    "final_summary_focus": [
+      990,
+      1330,
+      2440,
+      90
+    ],
+    "later_input_plan_frame": "11a_external_input_plan",
+    "later_input_plan_is_post_write": true,
+    "AI_control_present": true,
+    "AI_request_sent": false
+  },
+  "api": {
+    "module": "spacr.external_masks",
+    "plan_external_masks": "Returns ExternalMaskPlan; no project writes.",
+    "run_external_masks": "Accepts a valid ExternalMaskPlan plus optional settings; writes and measures the project, returns ExternalMaskResult.",
+    "prepare_external_masks": "Returns ExternalMaskPlan when preview_only is true; otherwise returns ExternalMaskResult."
+  },
+  "english": {
+    "file": "tools/tutorials/lessons/31_external_masks.json",
+    "canonical_sha256": "80368d2ffb0cfc6144db8a2d37d49e7ea160356888ef007a74c71b76bd7d4e08",
+    "canonicalization": "sha256(json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode())",
+    "scenes": 24,
+    "narration_words": 1094,
+    "objectives": 4,
+    "all_selected_frame_hashes_and_3840x2160_dimensions_verified": true,
+    "all_focus_boxes_within_actual_frame_bounds": true
+  },
+  "limits": {
+    "scientific_segmentation_validation": false,
+    "biological_validation": false,
+    "model_training": false,
+    "original_wells_recovered": false,
+    "raw_PNG_pixel_equivalence": false,
+    "whole_lesson_complete": false,
+    "audio_or_render_verified": false,
+    "native_speaker_signoff": false,
+    "published": false
+  }
+}

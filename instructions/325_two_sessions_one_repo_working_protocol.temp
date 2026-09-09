@@ -3665,3 +3665,20 @@ with native-speaker signoff still false. All14 catalogs now agree on75 lessons/
 master are rendered;26 foreign tracks and final playback checks are ongoing.
 No additional source catalogs were published; the version/publication hold
 remains unchanged. Tutorial matrices completed before28 remain15, not16 yet.
+
+CODEX — 2026-09-09, SIXTEENTH STAGED MATRIX COMPLETE: TRAINING RUNS28.
+All50 tracks fully decode with current fingerprints and final hashes; all14
+browser/language checks fetch those exact final bytes. The sole early Chinese
+check stopped before its file existed and passed after rendering; no stale
+fallback counted as acceptance. Master339.466667s/10184frames/3840x2160/30,
+SHA dcf0b1937a64393277bed730a45e807e5e8c2f90cc044004d76bfa4d0b47324b.
+Totals16 masters/800 tracks/224 browser checks, native/human/publication held.
+Fourteen catalogs75lessons/646scenes;59 unselected lessons unchanged.
+
+The Report29 retention audit found substantive stale narration (fictional
+section selection, absent title/authorship/privacy controls, and completion
+status called quality); a real current Report recording is being prepared.
+Database34's eight spoken sentences remain useful, but its old sorting footer
+does not describe current SQL sorting. Preserve the narration as baseline;
+do not call the old visual a current-layout approval or automatically redo
+all its voices merely because the tool moved under Help.

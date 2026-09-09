@@ -1,0 +1,138 @@
+{
+  "schema": 1,
+  "date": "2026-09-09",
+  "lesson": "29_report",
+  "verdict": "Substantive narration correction required; not a navigation-only update.",
+  "scope": "Read-only inspection of the retained English lesson, original assembly recipe and source manifest, all seven bound keyframes, three decoded local silent-master frames, and the current Report GUI/backend/navigation source. No live application run, browser launch, report generation, source-data scan, audio review, remote-media comparison, model or biological validation.",
+  "native_speaker_signoff": false,
+  "release_acceptance": false,
+  "original_assets_modified": false,
+  "published_english": {
+    "path": "docs/source/_extra/tutorials/catalog/lessons_en.json",
+    "catalog_sha256_at_inspection": "0595c3c4e9ee0e49820e7ea1fc27a1ca2bf04c44ba6453aacf379af622a0d696",
+    "lesson_canonical_sha256": "c75b6006081cd341af46dd27b5e6d3e4cf60bd1f9a120564c453754537972775",
+    "canonicalization": "sha256(json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode())",
+    "scene_count": 7,
+    "metadata_assessment": "The general HTML/PDF report description and prerequisite remain reasonable. The objective 'Select relevant report evidence' must not imply GUI section selection; 'Resolve quality and provenance gaps' is advice, not a demonstrated completed action. The historical Results and quality control navigation is now Help > Report."
+  },
+  "source_sha256": {
+    "spacr/qt/screens/report.py": "a2d6f4cb581c0011f3b8ef87265f97e0c0ceee0be20a65db1448c46867267b05",
+    "spacr/report.py": "70e199985981bad2830d05705749eb4124c773bf0c81af15f94d788118172d8a",
+    "spacr/qt/app.py": "2828f527abc52802af7297db7712096e6f347600cf0da634e4036b32b8068974",
+    "docs/source/_extra/tutorials/module_navigation.js": "31ba27ecd0ebda7c4002cda3d18636157680b720639dd3aa076ec2f6ee9ff3aa",
+    "tools/tutorials/evidence/2026-09-09_retained_media_assembly_inventory.json": "e0bb7185d5c57166081190b51f67e53c6ab9db7c107b06755e660de6619cc324"
+  },
+  "current_navigation": {
+    "path": "Help > Report",
+    "app_key": "report",
+    "source": [
+      "spacr/qt/app.py:822-825 (tileless Help entries)",
+      "spacr/qt/app.py:1465-1478 (_HELP_MODULES)",
+      "docs/source/_extra/tutorials/module_navigation.js:481-483 (kind help, app_key report)"
+    ],
+    "old_capture": "Report is in the Results & QC sidebar; visible version is spaCR 1.4.9.9."
+  },
+  "scene_assessment": [
+    {
+      "scene": 1,
+      "narration": "Report assembles a traceable project summary rather than asking you to copy figures and settings by hand.",
+      "assessment": "Broadly accurate capability statement. It collects available recorded artifacts; it does not establish their scientific validity or reconstruct absent evidence.",
+      "source": "spacr/report.py:1877-1911 (collect_report)"
+    },
+    {
+      "scene": 2,
+      "narration": "Choose a completed project or run folder and scan its available evidence.",
+      "assessment": "Accurate as a recommended workflow, not a requirement enforced by the application. Choose run folder and Scan exist; scan collects without writing. Incomplete/missing evidence can also be reported.",
+      "source": "spacr/qt/screens/report.py:176-183,322-348"
+    },
+    {
+      "scene": 3,
+      "narration": "Review the detected quality verdict and missing inputs before choosing report sections.",
+      "assessment": "Incorrectly equates the highlighted run-completion status with a quality verdict, and implies section selection. The visible Complete banner is based on processing stamps/journal failures, not segmentation/plate QC passing. Both QC sections are unavailable in this example.",
+      "correction": "Review the recorded run status and the sections found or unavailable. Completion of stamped processing steps is not a quality-control pass.",
+      "source": "spacr/report.py:781-800; spacr/qt/screens/report.py:377-403; bound 03_verdict.png and decoded master at 15 seconds"
+    },
+    {
+      "scene": 4,
+      "narration": "Include only the quality checks, figures, statistics, settings, and provenance needed by the audience.",
+      "assessment": "Unsupported GUI instruction. The section list is unselectable; it reports availability, not inclusion choices. Missing core sections remain in the report with an explanation. collect_report has no section-selection parameter.",
+      "correction": "Inspect the read-only section inventory. Missing sections remain visible in the generated report and identify evidence that was not found.",
+      "source": "spacr/qt/screens/report.py:190-195,389-403; spacr/report.py:1877-1911"
+    },
+    {
+      "scene": 5,
+      "narration": "Set title, authorship, output format, figure limits, and any privacy-sensitive exclusions.",
+      "assessment": "Title, authorship and privacy-exclusion controls do not exist in this GUI. Actual controls are Format, Embed at most, and the output path. A title keyword exists in the Python collect_report API, but the GUI does not pass it. There is no authorship/redaction keyword in this API signature.",
+      "correction": "Choose the output format, maximum number of embedded raster figures, and destination. Review the generated document for sensitive paths and metadata before sharing; do not imply automatic redaction.",
+      "source": "spacr/qt/screens/report.py:197-233,427-434; spacr/report.py:1877-1906,2482-2505; bound 05_options.png and decoded master at 27 seconds"
+    },
+    {
+      "scene": 6,
+      "narration": "Generate after resolving missing files and failed quality checks that would make the document misleading.",
+      "assessment": "Reasonable advice, but resolution is not demonstrated: segmentation QC and plate QC remain unavailable before Generate and in the final report. Generation is not gated on a QC pass or on every section being available.",
+      "correction": "Generate the report after reviewing the limitations, then check that missing evidence and recorded failures are disclosed accurately. Do not claim this example resolved its missing QC.",
+      "source": "spacr/qt/screens/report.py:410-434; original source_manifest.json; bound 07_generate.png and 11_report_top.png"
+    },
+    {
+      "scene": 7,
+      "narration": "Preview the finished report and verify conclusions, versions, and links before sharing it.",
+      "assessment": "Reasonable review advice. The actual control is Open, which hands the written file to the desktop default opener, not a built-in Preview panel. The final captured page shows real report content, but this audit has not verified its conclusions or links. The dense version list is too small for a full-reading claim at normal scaled playback.",
+      "source": "spacr/qt/screens/report.py:227-228,451-468; bound 11_report_top.png and decoded master at 40 seconds"
+    }
+  ],
+  "api_limits": [
+    "build_report(src, out, fmt='html', **kwargs) forwards kwargs to collect_report and supports html/pdf/both; GUI generation passes only fmt and max_figures.",
+    "The eight core sections are retained, with optional plugin additions. This is an availability inventory, not an include/exclude checklist.",
+    "Run status is derived from processing stamps and journal failures, separately from the segmentation/plate QC sections.",
+    "When no matching journalled run exists, provenance explains that fallback versions describe the report-generating machine, not necessarily the data-producing machine (spacr/report.py:921-955)."
+  ],
+  "original_media": {
+    "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/production/29_report",
+    "scenes_json_sha256": "aaae57aacd41e369912ad83b9919c70e0c0ceee0be20a65db1448c46867267b05",
+    "source_manifest_sha256": "af0342314bf97305f5fe6f6f1ecc6fa5007935bdc3ed4423de7201698a152c21",
+    "source_manifest_generated_utc": "2026-08-05T08:16:46.567293+00:00",
+    "historical_source_path_recorded_only": "/media/carruthers/mnt3/claude/toxoplasma_projects/test_datasets/spacr/tutorials/test",
+    "historical_output_path_recorded_only": "/media/carruthers/mnt3/claude/tutorials/generated/report/tutorial_test_report.html",
+    "found_sections": ["run_status", "provenance", "figures", "statistics", "settings", "appendix"],
+    "missing_sections": ["segmentation_qc", "plate_qc"],
+    "figures_found": 17,
+    "figures_embedded": 0,
+    "bound_scene_count": 7,
+    "distinct_bound_image_paths": 7,
+    "distinct_bound_image_sha256_count": 7,
+    "missing_bound_images": 0,
+    "all_bound_images_visually_inspected": true,
+    "assembly_assessment": "Not the single-generic-overview assembly failure. Seven distinct existing images are bound, and sampled encoded frames contain the relevant highlighted scan status, actual options, and final report. This structural pass does not cure the narration defects.",
+    "bound_image_sha256": {
+      "keyframes/01_overview.png": "ded9ab2a62c2753b10073d425b80e14190e8b26fc11a3843f82f2f0696395185",
+      "keyframes/02_source.png": "ef7a2f01227340334fe84f2ed06e6e32cba2b0455b59cb2c37840cae7e313019",
+      "keyframes/03_verdict.png": "4e7b76e6cfb6ddc0e193a7285eac10ae615a821229a5294affa28bb0411fce03",
+      "keyframes/04_sections.png": "49aeabd027e8460f7cd63fb8561f0c27b5122a5f47c2827a86f7e339e22cae3f",
+      "keyframes/05_options.png": "a8df88ab01a26b96279387588a48f27afa523156bcdafc9ef1a3bf278fe115fd",
+      "keyframes/07_generate.png": "245f460188fb8c7fe2a18a070cbd30c31056328eee4e4dde01b8bc628ed10223",
+      "keyframes/11_report_top.png": "54824b46c8bd4842e19ef2929a50f79876f29947edca84254b0e07599b6ef920"
+    },
+    "silent_master": {
+      "path": "video/29_report_silent.mp4",
+      "sha256": "2aae24a3748cac5582a6d6babd4c9a5081c00c7df64dd124061f6054c681e0a6",
+      "bytes": 2526976,
+      "codec": "h264",
+      "dimensions": [3840, 2160],
+      "fps": "30/1",
+      "frames": 1308,
+      "duration_seconds": 43.6,
+      "decoded_samples": [
+        {"seconds": 15, "scene": 3, "png_sha256": "f41db89500d083a13acf950c6f033ec8ca3ca15ab91fc8f4236518c8a980a56f", "observation": "Highlight surrounds Complete — every stamped step processed every item; missing QC rows remain visible outside focus."},
+        {"seconds": 27, "scene": 5, "png_sha256": "9fccc6c063e4f26f72496b07bd6f5297bc721a885adc93f559de464c51f34456", "observation": "Highlight surrounds HTML format and Embed at most 12 figures; no title, author or privacy control exists in the frame."},
+        {"seconds": 40, "scene": 7, "png_sha256": "dea95de5436518cbc88488389e67099d04e618232dfd4cd180fbad0b63607f31", "observation": "Final report top shows 0 of 17 figures embedded, missing segmentation/plate QC, and a measure_crop stamp with attempted 5, succeeded 5, failed 0. Dense version text occupies a narrow central column; full report/links not reviewed."}
+      ],
+      "decode_method": "ffmpeg -v error -ss <seconds> -i <unchanged local silent master> -frames:v 1 <temporary PNG>; no video/audio regenerated or original asset overwritten.",
+      "timing_json_used_only_to_choose_sample_scenes": "audio/en/af_heart.json",
+      "timing_json_sha256": "c3692ee672905fa27f1c071d7f7913fe760a6dbac57527a1ef406873f08a757f",
+      "audio_content_reviewed": false,
+      "remote_equivalence_checked": false,
+      "all_frames_or_encodes_checked": false
+    }
+  },
+  "recommended_next_step": "Refresh the English operational script and demonstrate current Help > Report on an existing genuinely recorded private run. Show the read-only section inventory, honest run-completion/QC distinction, actual format/figure-cap/output controls, and a legible report with missing evidence disclosed. Do not synthesize successful run status or claim unresolved QC was fixed."
+}
