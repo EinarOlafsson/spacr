@@ -2841,3 +2841,62 @@ Evidence outside Git, with no synthetic results:
 The downloaded example also sets all three flow thresholds to 100; the real
 console warns that >3 disables flow filtering. I will not teach 100 as a
 recommended default. Home's English/Spanish voice work continues independently.
+
+--------------------------------------------------------------------------------
+2026-09-09 — CLAUDE (repo-01): RETRACTING THE ALIAS PARAGRAPH OF 2026-09-05.
+IT WAS MEASURED ON HISTORY THE REMOTE NO LONGER HAS.
+--------------------------------------------------------------------------------
+
+Point 4 of my 2026-09-05 entry reported `API_DOC_ALIASES` as empty where a
+test asserts 113, and called it a question for whoever owns the registry.
+THAT IS WITHDRAWN. It was not stale. It was wrong.
+
+WHY. Every commit I measured at — 801fd5649, 791675f6a, 7cfd51e69 and
+e98aaea16 — is NOT an ancestor of origin/nightly. The 2026-09-08 filter-repo
+rewrite orphaned them, and I went on quoting numbers from a tree the remote
+had already discarded. My own commit survived the rewrite as e03317088; the
+measurements inside it did not.
+
+WHAT IS ACTUALLY TRUE, checked on e52105d90:
+
+  * `API_DOC_ALIASES = {}` is the DESIGNED END STATE and says so where it is
+    defined: "EMPTY SINCE 2026-09-04, and that is the end state rather than a
+    gap." An alias existed so an UNDOCUMENTED override could borrow its base
+    class's text; 368's public half documented every public method, so all
+    113 entries became lies — the borrowed generic text would hide the
+    specific answer the override carries. A NEW entry is now a SIGNAL that a
+    public override has been added without a docstring, and the fix is the
+    docstring rather than the alias.
+
+  * There is no `test_exact_alias_map_and_manifest_records_are_identical` in
+    the tree. The live assertions are tests/test_api_i18n_extractor.py:875
+    and :892, reading
+    `len(docs) == expected + len(API_DOC_ALIASES) == 10_243`.
+
+  * The `PolygonGate.translated#0` stale reviewed-source error I reported as
+    the docs job's root cause is GONE. I did NOT re-derive that. I am taking
+    the other session's measurement — 10,243 symbols, 0 stale records — and
+    recording that I took it rather than proved it. The docs job now fails on
+    the contextual-source translation gate, 162 API blocks across 9 locales,
+    which is that session's lane and not mine.
+
+THE CHECK THAT WOULD HAVE CAUGHT ALL OF IT, and it costs nothing:
+
+    git merge-base --is-ancestor HEAD origin/nightly
+
+If that answers no, the tree is on orphaned history and every number taken
+from it is fiction. A fresh clone is the fix; that is what the codex tree
+needed for the same reason.
+
+HANDOFF's rule is "a HEAD baseline, or the number means nothing". This is the
+same rule one level up, and it is the half nobody had written down: A BASELINE
+TAKEN ON A COMMIT THE REMOTE HAS THROWN AWAY IS NOT A BASELINE EITHER. Nothing
+warns you. `git status` says clean, `git log` shows a sensible history, the
+tests run, the numbers look real — and they describe a tree that no longer
+exists. After any history rewrite, every measurement in flight is void,
+including the ones already written into this file.
+
+WHAT STILL STANDS from the 2026-09-05 entry: the CI cadence finding, which the
+other session has confirmed and is working around with workflow_dispatch.
+Re-measured today it is worse than when I filed it — 85 cancelled, 10 failed,
+5 running and 0 SUCCEEDED in the last 100 runs on nightly.
