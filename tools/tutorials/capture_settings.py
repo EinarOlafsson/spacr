@@ -96,18 +96,21 @@ def record_results(screen, captures, capture, settle, write_json):
     settle()
     detail_tabs = screen._results_panel.tabs
     detail_observations = []
-    for title in ('p-values', 'Q-Q', 'Coefficients'):
-        matches = [i for i in range(detail_tabs.count()) if detail_tabs.tabText(i) == title]
-        if len(matches) != 1:
-            raise RuntimeError(f'Expected exactly one result detail tab: {title}')
-        index = matches[0]
+    # Family selection adds suffixes to these labels. Resolve the actual
+    # public result surface, then click its real tab; never guess by text.
+    for title, page in (('p-values', screen._results_panel.p_values),
+                        ('Q-Q', screen._results_panel.qq),
+                        ('Coefficients', screen._results_panel.table)):
+        index = detail_tabs.indexOf(page)
+        if index < 0:
+            raise RuntimeError(f'The result detail surface is not mounted: {title}')
         QTest.mouseClick(detail_tabs.tabBar(), Qt.LeftButton,
                          pos=detail_tabs.tabBar().tabRect(index).center())
         settle()
         if detail_tabs.currentIndex() != index:
             raise RuntimeError(f'Detail tab did not open: {title}')
         capture('26_detail_' + title.lower().replace('-', '_'))
-        detail_observations.append(title)
+        detail_observations.append({'surface': title, 'displayed_label': detail_tabs.tabText(index)})
     require_unchanged_settings(before, screen._settings_model.collect())
     write_json(captures / 'results_tour.json', {
         'settings_unchanged': True, 'tabs': observations, 'detail_tabs': detail_observations,

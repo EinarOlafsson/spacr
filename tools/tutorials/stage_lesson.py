@@ -39,7 +39,7 @@ def union(rectangles):
     return [x, y, right - x, bottom - y]
 
 
-def stage_lesson(lesson_path, capture_module, stage):
+def stage_lesson(lesson_path, capture_module, stage, *, check_only=False):
     from PIL import Image
     lesson = read(lesson_path)
     catalog_path = stage / 'catalog/lessons_en.json'
@@ -103,6 +103,9 @@ def stage_lesson(lesson_path, capture_module, stage):
         if lesson['number'] != expected:
             raise ValueError(f'New lesson must append with number {expected}')
         catalog['lessons'].append(lesson)
+    if check_only:
+        print(f"Validated {lesson['id']}: {len(scenes)} real capture scenes; catalogs unchanged.")
+        return
     write(catalog_path, catalog)
     write(destination / 'visual.json', {'size': [3840, 2160], 'fps': 30,
           'capture_source': provenance, 'scenes': scenes})
@@ -122,8 +125,9 @@ def main():
     parser.add_argument('lesson', type=Path)
     parser.add_argument('--capture-module', required=True)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--check-only', action='store_true', help='Validate all captures and links without changing any catalog')
     args = parser.parse_args()
-    stage_lesson(args.lesson, args.capture_module, args.stage.resolve())
+    stage_lesson(args.lesson, args.capture_module, args.stage.resolve(), check_only=args.check_only)
 
 
 if __name__ == '__main__':

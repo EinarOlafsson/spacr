@@ -52,6 +52,23 @@ def test_stages_only_selected_lesson_with_measured_tile_geometry(project):
     assert status['translation_review_complete'] is False
 
 
+def test_check_only_preserves_existing_catalog_and_media_metadata(project):
+    root, capture, lesson, changed, retained = project
+    stage.write(root / 'production/home/visual.json', {'existing': 'must survive'})
+    before = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob('*') if p.is_file()}
+    stage.stage_lesson(lesson, 'home', root, check_only=True)
+    after = {str(p.relative_to(root)): p.read_bytes() for p in root.rglob('*') if p.is_file()}
+    assert after == before
+
+
+def test_check_only_still_rejects_changed_lesson_identity(project):
+    root, capture, lesson, changed, retained = project
+    changed['number'] = 77
+    stage.write(lesson, changed)
+    with pytest.raises(ValueError, match='retain its existing number'):
+        stage.stage_lesson(lesson, 'home', root, check_only=True)
+
+
 @pytest.mark.parametrize('defect', ['failed_capture', 'changed_image', 'missing_link',
                                    'missing_control', 'changed_number', 'bad_focus',
                                    'partial_pipeline'])

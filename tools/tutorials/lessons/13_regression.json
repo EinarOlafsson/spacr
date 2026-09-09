@@ -1,0 +1,130 @@
+{
+  "id": "13_regression",
+  "number": 13,
+  "slug": "regression",
+  "title": "Regression: a real example from paired tables to results",
+  "series": 1,
+  "app_key": "regression",
+  "section": "Core",
+  "description": "Load the downloadable example screen, configure a bounded guide-permutation analysis, inspect its real console and figures, and find the specialist tools now nested inside Regression.",
+  "objectives": [
+    "Load four paired score/count tables through the visible test-data control and choose a separate output folder.",
+    "Distinguish inference method, reported level and analysis unit, and reproduce the bounded example without treating its permutation count as a final-analysis recommendation.",
+    "Inspect real results, figures and diagnostic limitations; distinguish interactive inspection from a live analysis preview.",
+    "Locate Regression's nested tools, optional AI assistance and current Python entry point."
+  ],
+  "prerequisite": "Open spaCR and choose Regression from the Core modules. The example downloads or reuses cached score/count files. No measurement database, image crops, external annotation service or AI subscription is required for the recorded analysis. The short permutation run demonstrates the workflow, not definitive biological discovery.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "Open Regression from the Core modules. It connects phenotype scores with guide abundance, then reports associations using the inference method you choose. The tools across the top now belong inside this module; they are not separate Home tiles.",
+      "focus_buttons": "FoldButton", "hold_after": 0.7
+    },
+    {
+      "visual": "02_cached_load",
+      "narration": "In Input Tables, choose Load test data. The application downloads the example screen or reuses verified cached files; this recording uses the cache. The console reports four score tables and four count tables, paired by plate.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_paired_data",
+      "narration": "Inspect all four paired rows. Each plate needs its matching score and count file; the optional measurement-database column is empty here. Widen the settings panel if needed, and use a new output directory so this demonstration does not mix with an existing analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_inference",
+      "narration": "Switch from Essentials to All settings and use the search box to find a setting by its label or API key. Here inference is nonparametric: guide permutation testing. This differs from fitting all predictors together in a parametric regression, which needs an identifiable design.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_level",
+      "narration": "Level answers a different question: what should be reported? Choose both for separate guide and gene results. That choice does not itself select the inference method. Guide and gene results are different testing families, so inspect the intended family before interpreting adjusted significance.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_analysis_unit",
+      "narration": "Use well as the analysis unit for this example. The loaded preset supplies the response column, transformations, controls and exclusions; inspect those assumptions before adapting the workflow to your own screen. A downloaded preset is an example design, not a universal recommendation.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_guide_min_wells",
+      "narration": "Set the minimum guide support to two wells for this bounded run. This is a filter on the guides tested, not proof of adequate statistical power. A guide represented in very few wells still needs careful interpretation.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_guide_permutations",
+      "narration": "Set one hundred and ninety-nine permutations to reproduce the short demonstration. That limits the smallest attainable empirical p-value to zero point zero zero five, which may be too coarse after multiple-testing correction. Plan a suitable permutation count for your real experiment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_guide_permutation_seed",
+      "narration": "Set the permutation seed to zero for the demonstrated run. Keep the example's plate blocks and row and column nuisance terms unless your design justifies changing them. A fixed seed supports reproducibility; it does not repair invalid exchangeability assumptions.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_regression_backend",
+      "narration": "The Regression backend field is not a universal accelerator switch. It applies to supported fitted estimators; this guide-permutation demonstration does not turn into a GPU regression by changing that field. Other spaCR modules expose their own device choices, so follow the controls and console for the operation actually running.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_setting_annotation_source",
+      "narration": "Choose none for the annotation source in this self-contained example. The statistical results do not require an external gene-annotation lookup. On your own screen, use annotations appropriate to the organism and identifier system instead of assuming that every guide label will resolve.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_batch_running",
+      "narration": "Clear the search, check the output folder, and press Run. Follow the real console as it aligns inputs, applies the selected filters and calculates the results. Regression produces diagnostic figures directly; there is no separate Plot switch to enable for this recording.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_batch_finished",
+      "narration": "The completed example produced four hundred and thirty-four guide results and three hundred and twenty-five gene results, with five figures. Finished means the software completed; it does not certify the experimental design or establish biological discoveries. Read the diagnostic warnings as well as the completion line.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "25_result_runs",
+      "narration": "Runs identifies the saved analysis; Results displays the selected run. Confirm the folder and settings when comparing runs. Changing a form value does not recompute the result you are looking at: run the analysis again when you intend to test a new choice.",
+      "hold_after": 0.7,
+      "related_lessons": ["73_parameter_sweep"]
+    },
+    {
+      "visual": "25_result_results",
+      "narration": "Results contains the coefficient table and interactive views beside the generated figures. The run contains seven hundred and fifty-nine rows across both levels; this view selects the four hundred and thirty-four guide results. Use Level to choose the testing family. Inspecting saved output interactively does not rerun inference.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "26_detail_p_values",
+      "narration": "Open the p-values view to inspect the result distribution. Interpret it together with the selected testing family, permutation resolution and diagnostics, not as automatic evidence of an effect. The separate Diagnostics tutorial explains the saved design and inference panels in detail.",
+      "hold_after": 0.7,
+      "related_lessons": ["75_regression_diagnostics"]
+    },
+    {
+      "visual": "25_result_measurements",
+      "narration": "Measurements provides the controls for examining additional measurement responses. This example has no measurement database attached, and opening the tab does not create one or perform a measurement sweep. Supply the required measured data before using those tools on your own experiment.",
+      "hold_after": 0.7,
+      "related_lessons": ["08_measure"]
+    },
+    {
+      "visual": "25_result_cells",
+      "narration": "Cells can connect selected results with underlying objects when suitable measurement data and images are available. Here the database column is empty, so there is no cell montage to show. Do not confuse an unavailable object view with a failed score-and-count analysis.",
+      "hold_after": 0.7,
+      "related_lessons": ["71_investigate_hit"]
+    },
+    {
+      "visual": "26_detail_coefficients",
+      "narration": "The nested tools are Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler, and Diagnostics. Hover over their icons to identify them. Their linked tutorials cover each workflow; for example, a prediction profiler needs suitable fitted-model output, which this permutation run does not provide.",
+      "focus_buttons": "FoldButton", "hold_after": 0.7,
+      "related_lessons": ["72_volcano_explorer", "48_hit_list", "49_methods_results", "71_investigate_hit", "53_prediction_profiler", "75_regression_diagnostics"]
+    },
+    {
+      "visual": "30_ai_unsent_question",
+      "narration": "The AI control enables optional assistance through the provider configured in Preferences, under AI. Ask a focused question about the output or settings, and review any advice against the data. This is an unsent example question: no provider was contacted and no answer was generated for the recording.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "26_detail_coefficients",
+      "narration": "For scripted work, use the perform_regression function in the spaCR machine-learning module with the corresponding settings, and consult its current API documentation. Keep the input tables, saved settings, outputs and diagnostic interpretation together. Use Parameter Sweep deliberately for comparisons, and keep exploratory choices separate from final analysis decisions.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api", "73_parameter_sweep"]
+    }
+  ]
+}
