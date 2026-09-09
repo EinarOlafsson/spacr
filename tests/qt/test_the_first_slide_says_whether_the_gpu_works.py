@@ -71,6 +71,17 @@ class TestTheNoteIsOnTheCard:
             "unwrapped hint produced")
 
     def test_it_sits_in_its_band_when_there_is_room(self, slides):
+        # MAKE THE ROOM THIS TEST IS NAMED FOR. The band is a ceiling, not
+        # a position: `_place_the_gpu_note` lifts the note off the nav row
+        # when the band plus the wrapped height would run into it, because
+        # the note answers "can this machine run spaCR" and a short window
+        # must not be the reason it is missed. The note grew a per-task
+        # capability table, so at the default card height the clamp now
+        # wins and this measured the clamp rather than the placement.
+        # Measured 2026-09-08: the note wraps to 146 px, and the band
+        # decides from a card height of about 1000 up.
+        slides.card.resize(max(slides.card.width(), 600), 1000)
+        slides._place_the_gpu_note()
         top = slides._gpu_note.geometry().top()
 
         assert top == int(slides.card.height() * S.GPU_NOTE_BAND)

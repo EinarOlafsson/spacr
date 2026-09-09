@@ -1110,13 +1110,6 @@ _BUILTIN_APPS = [
     ("classify_merged", "Classify",      "Train classifiers on image crops with PyTorch or on measured features with gradient boosting", SECTION_CORE),
     ("map_barcodes",   "Map Barcodes",   "Map sequencing barcodes to screen data",                      SECTION_CORE),
     ("regression",     "Regression",     "Regression analysis of screen scores",                        SECTION_CORE),
-    # RESULTS, NOT CORE. Core is the pipeline and its order IS the pipeline
-    # -- it is the category the dock opens by default and the first thing a
-    # new user reads. Training Runs compares finished runs, which is a
-    # result rather than a step, and it is ALSO a folded child of Classify,
-    # so it was on Home twice. Moved on the maintainer's instruction,
-    # 2026-09-08, with Prediction Profiler and Investigate Hit.
-    ("train_compare",  "Training Runs",  "Compare training curves and settings across multiple runs", SECTION_TOOLS),
     ("convert",        "Format Converter", "Convert ND2, CZI, LIF and OME-TIFF images to Yokogawa TIFF layout and record source mappings", SECTION_DATA),
     ("foreign",        "Import",         "Bring images, masks and measurement tables into a spaCR project -- converting microscope formats, mapping source columns, or adopting masks made elsewhere", SECTION_DATA),
     ("external_masks", "External Masks", "Import images and externally generated label masks as a measured spaCR project ready for annotation", SECTION_DATA),
@@ -1137,6 +1130,13 @@ _BUILTIN_APPS = [
     ("report",         "Report",         "Generate shareable HTML or PDF reports containing QC results, figures, statistics, settings and software versions", SECTION_DATA),
     # -- Data & batch runs: get images and tables into a spaCR project,
     #    run many plates unattended, get the numbers back out.
+    # RESULTS, NOT CORE. Core is the pipeline and its order IS the pipeline
+    # -- it is the category the dock opens by default and the first thing a
+    # new user reads. Training Runs compares finished runs, which is a
+    # result rather than a step, and it is ALSO a folded child of Classify,
+    # so it was on Home twice. Moved on the maintainer's instruction,
+    # 2026-09-08, with Prediction Profiler and Investigate Hit.
+    ("train_compare",  "Training Runs",  "Compare training curves and settings across multiple runs", SECTION_TOOLS),
     ("align",          "Align & Stitch", "Register and stitch image tiles into an incrementally written mosaic with bounded memory use", SECTION_TOOLS),
     # -- Segmentation models: build, train, pick and check the Cellpose
     #    models the Mask step runs.

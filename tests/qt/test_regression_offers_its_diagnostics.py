@@ -106,7 +106,11 @@ def test_the_button_describes_itself_without_a_registry_row():
 
     name, detail, stage = fold_description(reg.DIAGNOSTICS_KEY)
     assert name == "Diagnostics"
-    assert detail and stage == "beta"
+    # ALPHA, from `map_barcodes.FOLD_FALLBACK`, which `fold_description`
+    # reaches before regression's own copy. f37f7d553 added the shared
+    # record deliberately matching the registry row's stage; regression's
+    # copy still said "beta" and has been brought into step.
+    assert detail and stage == "alpha"
 
 
 def test_it_is_on_the_masthead_with_the_other_folds():

@@ -497,11 +497,18 @@ BUILDERS: Dict[str, Callable[..., Optional[QWidget]]] = {
 #: the shared fold records -- and this is in none of them, because it is a
 #: view of files a run wrote rather than a module.
 FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
+    # SHADOWED SINCE f37f7d553, and kept in step rather than deleted.
+    # `map_barcodes.FOLD_FALLBACK` gained a `regression_diagnostics` row
+    # that `fold_description` reaches first, so this one no longer decides
+    # anything -- but two tables answering the same question must not
+    # DISAGREE, and this said "beta" where the registry row and the shared
+    # record both say "alpha". A reader comparing them would not know which
+    # was current.
     DIAGNOSTICS_KEY: (
         "Diagnostics",
-        "Whether the fit can be believed: design rank, residuals, "
-        "leverage and the P-value distribution",
-        "beta"),
+        "Show the diagnostic panels the last regression run wrote beside "
+        "its results",
+        "alpha"),
 }
 
 

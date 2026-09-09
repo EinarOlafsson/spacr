@@ -76,20 +76,22 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: and content taller than the fixed canvas. Module folds reduce this set;
 #: longer labels or new visible apps can increase it.
 KNOWN_LAYOUT_DEFECTS: dict = {
-    # The shipped baseline joined this ledger on 2026-09-07, and the cause is
-    # registry growth rather than a layout change: `train_compare`, `profiler`
-    # and `investigate_hit` joined Core, so the tallest column got three rows
-    # longer and variant 01's minimum height passed 900.
+    # VARIANT 1 LEFT THIS LEDGER ON 2026-09-08, and deleting its line is the
+    # ledger's own rule: a fix has to remove its entry or the record stops
+    # being one.
     #
-    # THE SHIPPED HOME IS NOT AFFECTED, and that is the fact worth carrying
-    # here rather than leaving for the next reader to re-derive. Measured the
-    # same day through a real `MainWindow` at 1440x900: HomePage's layout
-    # minimum is 814x662, well inside the canvas, because the real screen puts
-    # its categories in a scroll area and these generators draw them flat.
-    # These variants are REVIEW SURFACES -- they exist to compare candidate
-    # Home designs -- so an entry here is a fact about a design study, not a
-    # defect a user can reach.
-    1: {"overflow": 1},
+    # It joined on 2026-09-07 for a reason that has since been undone. The
+    # cause was registry growth, not layout: `train_compare`, `profiler` and
+    # `investigate_hit` had joined Core, the tallest column got three rows
+    # longer, and variant 01's minimum height passed 900. Those three moved
+    # to Tools the next day on the maintainer's instruction -- for an
+    # unrelated reason, that taking the host's section put them on Home
+    # twice -- and the column is three rows shorter again.
+    #
+    # Worth keeping as a note rather than a line: the shipped Home was never
+    # affected either way. Measured through a real `MainWindow` at 1440x900,
+    # HomePage's layout minimum is 814x662, because the real screen puts its
+    # categories in a scroll area and these generators draw them flat.
     # The stage-banded review candidate still needs one vertical scrollbar.
     # All earlier clipping and elision disappeared after the module folds and
     # the QSS/layout work; retaining those old entries would hide a real win.

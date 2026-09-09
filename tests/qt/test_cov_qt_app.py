@@ -299,7 +299,12 @@ EXPECTED_SECTIONS = {
     'gate_editor': 'Tools',
     'graph_builder': 'Tools',
     'invasion': 'Assays',
-    'investigate_hit': 'Core',
+    # investigate_hit, profiler and train_compare moved Core -> Tools in
+    # 571b6e77c, which split `app_is_visible` from the new `tiled_apps()`
+    # so folding a module stopped DELETING its door in the command
+    # palette. The move was deliberate and the table was not updated in
+    # the same commit, which is the whole reason this table exists.
+    'investigate_hit': 'Tools',
     'layer_viewer': 'Data',
     'lineage': 'Data',
     'make_masks': 'Tools',
@@ -309,7 +314,7 @@ EXPECTED_SECTIONS = {
     'pipeline_graph': 'Data',
     'plate_view': 'Tools',
     'power': 'Data',
-    'profiler': 'Core',
+    'profiler': 'Tools',
     'project_browser': 'Data',
     'qc_dashboard': 'Data',
     'queue': 'Data',
@@ -320,7 +325,7 @@ EXPECTED_SECTIONS = {
     'run_compare': 'Data',
     'run_history': 'Data',
     'tabulate': 'Data',
-    'train_compare': 'Core',
+    'train_compare': 'Tools',
     'umap': 'Tools',
 }
 
@@ -2311,10 +2316,27 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
 
 
 def test_shortcuts_are_installed_when_the_module_is_available(win):
-    from PySide6.QtGui import QShortcut
+    # BOTH HOLDERS, because a key can legitimately live on either. The menu
+    # builds Home and Preferences as QActions carrying Ctrl+H and Ctrl+P so
+    # it can print the accelerator beside the item -- which binds them -- and
+    # `shortcuts.BOUND_ELSEWHERE` keeps `install` from binding a QShortcut
+    # for the same sequence. Qt answers a key with two holders by firing
+    # neither and logging "QAction::event: Ambiguous shortcut overload", so
+    # before that both keys were DEAD. Looking only at QShortcut made the
+    # fix read as a missing binding.
+    from PySide6.QtGui import QAction, QShortcut
     bound = {sc.key().toString() for sc in win.findChildren(QShortcut)}
+    bound |= {seq.toString() for act in win.findChildren(QAction)
+              for seq in act.shortcuts()}
     for keys in ("Ctrl+H", "Ctrl+K", "Ctrl+1", "Ctrl+9", "F1"):
         assert keys in bound, f"{keys} was never bound"
+    # And exactly one holder each, or they are ambiguous again.
+    from spacr.qt import shortcuts as _sc
+    shortcut_keys = [s.key().toString() for s in win.findChildren(QShortcut)]
+    for keys in _sc.BOUND_ELSEWHERE:
+        assert keys not in shortcut_keys, (
+            f"{keys} has a QShortcut as well as its action; Qt will fire "
+            "neither and log an ambiguous shortcut overload")
 
 
 def test_the_main_window_does_not_preload_pipelines_by_default(win):

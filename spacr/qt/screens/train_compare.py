@@ -98,7 +98,15 @@ APP_NAME = "Training Runs"
 #: is a separate axis and lives in ``spacr.qt.app.APP_STAGE`` — it is
 #: alpha, and the Home tile says so in colour rather than by filing it
 #: somewhere else.
-APP_SECTION = "Core"
+#: TOOLS SINCE 2026-09-08, on the maintainer's instruction, with Prediction
+#: Profiler and Investigate Hit. Core is the pipeline and its order IS the
+#: pipeline; Training Runs compares FINISHED runs, which is a result rather
+#: than a step, and it is also a folded child of Classify, so it was on Home
+#: twice. `spacr.qt.app` was moved and this constant was not, so the two
+#: declarations of one fact disagreed --
+#: `test_registration_matches_the_app_registry_when_it_is_wired_up` exists
+#: for exactly that and is what caught it.
+APP_SECTION = "Tools"
 APP_INTRO = (
     "Compare loss and accuracy curves from multiple training runs on shared "
     "axes. The adjacent settings comparison separates model and training "

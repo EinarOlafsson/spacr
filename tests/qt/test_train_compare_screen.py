@@ -139,16 +139,20 @@ def test_registration_constants_put_it_where_home_draws_it():
     off, while the subject says what it does and does not.
 
     It said "Results & QC" until the 2026-08-31 restructure, which left
-    Core/Data/Tools/Assays. This screen folds onto Classify, so it takes
-    Core with its host. Asserted against SECTION_ORDER rather than
-    against a literal, because a section Home does not draw is one this
+    Core/Data/Tools/Assays, and then Core because this screen folds onto
+    Classify and took its host's section. TOOLS since 2026-09-08, on the
+    maintainer's instruction and with Prediction Profiler and Investigate
+    Hit: taking the host's section put it on Home TWICE, once as a Core
+    tile and once as a fold of Classify, and comparing finished runs is a
+    result rather than a pipeline step. Asserted against SECTION_ORDER as
+    well as the literal, because a section Home does not draw is one this
     screen is silently dropped from.
     """
     from spacr.qt.app import SECTION_ORDER
 
     assert APP_KEY == "train_compare"
     assert APP_NAME == "Training Runs"
-    assert APP_SECTION == "Core"
+    assert APP_SECTION == "Tools"
     assert APP_SECTION in SECTION_ORDER, (
         f"{APP_SECTION!r} is not a section Home draws")
     assert APP_INTRO.strip()

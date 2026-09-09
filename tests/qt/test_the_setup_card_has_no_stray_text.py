@@ -91,12 +91,27 @@ def test_showing_the_note_places_it(slides):
 
 
 def test_the_note_stays_in_its_band_when_the_card_is_resized(slides, qtbot):
-    """A resize re-places it rather than stranding it at the old height."""
+    """A resize re-places it rather than stranding it at the old height.
+
+    Asserted as "at or below the band, and moved with the card", not as an
+    equality. The band is a CEILING: the clamp lifts the note when the
+    wrapped height would put it over the nav row, and since the note grew
+    its capability table that happens at any card shorter than about 1000
+    px -- including the 820 this resizes to. Demanding the exact band here
+    tested the clamp and called it a stranding.
+    """
+    slides.resize(1100, 620)
+    qtbot.wait(30)
+    slides._place_the_gpu_note()
+    before = slides._gpu_note.geometry().y()
+
     slides.resize(1100, 820)
     qtbot.wait(30)
     slides._place_the_gpu_note()
     note, card = slides._gpu_note, slides.card
-    assert note.geometry().y() == int(card.height() * GPU_NOTE_BAND)
+    assert note.geometry().y() != before, "the note did not follow the resize"
+    assert 0 < note.geometry().y() <= int(card.height() * GPU_NOTE_BAND)
+    assert note.geometry().bottom() <= card.height(), "it hangs off the card"
 
 
 def test_the_note_carries_the_requirement_sentence(slides):
