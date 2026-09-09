@@ -167,8 +167,16 @@ def test_it_is_registered_under_results_and_qc_as_alpha():
         pytest.skip("plate_view not registered in spacr.qt.app.APPS yet")
     key, name, description, section = entry
     assert name == "Plate Viewer"
-    from spacr.qt.app import SECTION_RESULTS, app_stage
-    assert section == SECTION_RESULTS
+    # SECTION_TOOLS SINCE 00f166a7f, "Home is four categories and twenty-one
+    # tiles" -- the maintainer's 2026-08-31 reorganisation, written out tile
+    # by tile. "Results & QC" was retired as a PLACE: the constant is still
+    # spelled in app.py because screens and saved state use it, and the
+    # section vanished from the UI when its last app was re-filed. The
+    # argument in this docstring -- a plate heatmap reads a result whether or
+    # not the screen is finished -- is still true and no longer decides where
+    # the tile lives, because the section it named is gone.
+    from spacr.qt.app import SECTION_TOOLS, app_stage
+    assert section == SECTION_TOOLS
     # `spacr.qt.maturity` reassessed every alpha module against the
     # evidence in the repository and this one no longer qualifies; the
     # reason is recorded beside the decision. Applied here because the

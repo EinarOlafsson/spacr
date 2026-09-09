@@ -287,7 +287,15 @@ class TestWidgetConstruction:
             f"{len(setting_links)} API link dots are still on the settings "
             f"form; the help belongs to the label alone")
         for html in scr._html_tip_map.values():
-            assert "/api/" in html
+            # EITHER DESTINATION IS THE DOCUMENTATION. Most settings link
+            # to their consumer's AutoAPI page under /api/. A setting whose
+            # only consumer is private has no anchor to aim at there, so
+            # since 383 it links to the settings-flow page instead -- which
+            # names the setting, carries its help text and lists every
+            # function that reads it. Both are "Open spaCR API
+            # documentation"; asserting on /api/ alone made the better link
+            # look like a missing one.
+            assert "/api/" in html or "settings_flow.html#" in html, html
 
     def test_a_row_widget_the_model_does_not_own_keeps_its_own_tooltip(
             self, qtbot, monkeypatch):

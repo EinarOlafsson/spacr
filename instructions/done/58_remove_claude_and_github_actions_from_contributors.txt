@@ -675,3 +675,68 @@ WHAT STAYS TRUE AFTER THIS CLOSES, so it is not lost with the item:
     are unpublished and cannot re-enter the count.
 
 58 was the LAST item in the maintainer's ordering, after 82. Both are now done.
+
+--------------------------------------------------------------------------------
+2026-09-08 -- THE REWRITE WAS AUTHORISED, ATTEMPTED, AND FAILED IN PUBLIC
+--------------------------------------------------------------------------------
+
+The maintainer lifted the hold and chose "rewrite now" over holding until
+after 1.5.0.5 and over rescuing the Codex tree first, with the Codex cost in
+front of him. The rewrite itself was correct. The DELIVERY broke his repo for
+about twenty minutes and he found out by opening the GitHub page and seeing
+nightly as it was four and a half thousand commits ago.
+
+Nothing was lost. Restored to a7a55e65d, 6783 commits, tree 8ff7ca47, 115
+trailers -- verified fully reverted rather than partly, which is the state
+nobody could have reasoned about.
+
+FOUR THINGS THAT MUST BE IN THE PROCEDURE BEFORE ANYONE TRIES AGAIN.
+
+1.  SSH, OR IT DOES NOT START. This is a PRECONDITION, not a retryable
+    failure. The HTTPS remote is an OAuth token with no `workflow` scope:
+
+        ! [remote rejected] nightly -> nightly (refusing to allow an OAuth
+          App to create or update workflow `.github/workflows/_pytest-
+          suite.yml` without `workflow` scope)
+
+    A rewrite rewrites EVERY commit, including every one that touches
+    .github/workflows/. So a history rewrite can never complete over HTTPS on
+    this remote, at any size, however many times it is retried.
+
+2.  STAGE THE PUSH, MOVE THE BRANCH ONCE. GitHub rejects any pack over 2 GiB
+    and this history is 5.3 GB sharing no object with the remote, so it has
+    to go in slices. Slicing `nightly` itself walks the PUBLIC branch forward
+    a few hundred commits at a time, and it is broken at every intermediate
+    step. Push to `refs/heads/rewrite-staging` instead, take as many slices
+    as it needs, and move `nightly` once, atomically, at the end.
+
+3.  RE-FETCH AND RE-CUT IMMEDIATELY BEFORE THE FINAL MOVE, and verify the tip
+    you rewrote from is still the remote tip. The first attempt was cut from
+    f0c40444 while the other session's five 316 commits landed. Pushing it
+    would have deleted them. What stopped it was GitHub returning an
+    unrelated HTTP 500 -- a transport failure, not a check. Nothing in the
+    procedure would have noticed.
+
+4.  NAME THE EXPECTED HASH IN ANY INSTRUCTION TO ANOTHER SESSION. "Fetch and
+    reset when it lands" is not checkable. A reader cannot tell a landed
+    rewrite from a half-landed one, and their remote-tracking ref may ALREADY
+    have fetched the half: the other session's `origin/nightly` had picked up
+    890984521 from a routine fetch mid-slice, so `git reset --hard
+    origin/nightly` would have thrown away 5,063 commits in their clone at
+    any point during the run, not merely after the failure. They were saved
+    by not running the command they had been given. Say "reset once
+    origin/nightly reads <hash>, and not before".
+
+THE INSTRUMENT STORY, AND IT IS A DIFFERENT SPECIES FROM THE OTHERS.
+
+Six times today a checker hid the result it was built to show -- a grep
+swallowing an error, `echo $?` reading tail's exit, a detector reporting zero
+for the wrong reason, a per-record validator blind to a conflict between
+records, an unmeasured impression quoted as a measurement.
+
+This one is the opposite and worse. The slice pusher logged "ok" for every
+slice, and every one of those was TRUE. The log was accurate; the strategy
+was wrong. No amount of better reporting could have caught it, because the
+failure was not in the reporting layer at all. Hiding-the-result wants better
+checks. Faithfully-reporting-progress-into-a-broken-state wants a dry run or
+a staging ref -- something that makes the intermediate states private.
