@@ -72,6 +72,11 @@ def record_results(screen, captures, capture, settle, write_json):
     if tabs is None:
         raise RuntimeError('There are no real result tabs to demonstrate')
     before = screen._settings_model.collect()
+    # The wider form was useful for setup. Give the real result surfaces
+    # their space back for inspection, using the application's splitter.
+    width = sum(screen._body_splitter.sizes())
+    screen._body_splitter.setSizes([width // 4, width - width // 4])
+    settle()
     observations = []
     for title in ('Runs', 'Results', 'Measurements', 'Cells'):
         matches = [i for i in range(tabs.count()) if tabs.tabText(i) == title]
@@ -85,9 +90,27 @@ def record_results(screen, captures, capture, settle, write_json):
             raise RuntimeError(f'The {title} tab was not selected')
         capture(f'25_result_{title.lower()}')
         observations.append({'title': title, 'selected_index': index})
+    results_index = next(i for i in range(tabs.count()) if tabs.tabText(i) == 'Results')
+    QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                     pos=tabs.tabBar().tabRect(results_index).center())
+    settle()
+    detail_tabs = screen._results_panel.tabs
+    detail_observations = []
+    for title in ('p-values', 'Q-Q', 'Coefficients'):
+        matches = [i for i in range(detail_tabs.count()) if detail_tabs.tabText(i) == title]
+        if len(matches) != 1:
+            raise RuntimeError(f'Expected exactly one result detail tab: {title}')
+        index = matches[0]
+        QTest.mouseClick(detail_tabs.tabBar(), Qt.LeftButton,
+                         pos=detail_tabs.tabBar().tabRect(index).center())
+        settle()
+        if detail_tabs.currentIndex() != index:
+            raise RuntimeError(f'Detail tab did not open: {title}')
+        capture('26_detail_' + title.lower().replace('-', '_'))
+        detail_observations.append(title)
     require_unchanged_settings(before, screen._settings_model.collect())
     write_json(captures / 'results_tour.json', {
-        'settings_unchanged': True, 'tabs': observations,
+        'settings_unchanged': True, 'tabs': observations, 'detail_tabs': detail_observations,
         'new_analysis_requested': False,
         'measurement_database_attached': any(
             row.get('database') for row in before.get('paired_data', []))})

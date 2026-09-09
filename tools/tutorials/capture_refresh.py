@@ -635,6 +635,17 @@ def main() -> int:
                        'response_generated': False, 'toggle_enabled': screen._ai_switch.isChecked()})
             screen._console._input.clear()
             screen._ai_switch.setChecked(False)
+        if args.run:
+            # Opening result tabs can launch a reader after the main worker
+            # finished. Do not accept a lesson that then logs a late failure.
+            settle(2)
+            blocks = [text for _, _, text in screen._console._pipeline_console_blocks()]
+            write_json(captures / 'batch_console_after_tour.json', blocks)
+            final_acceptance = assess_pipeline(outcome, blocks, screen._figure_queue.count())
+            write_json(captures / 'batch_acceptance.json', final_acceptance)
+            if not final_acceptance['accepted']:
+                raise RuntimeError('The completed result tour exposed an error: '
+                                   + '; '.join(final_acceptance['reasons']))
     write_json(captures / 'provenance.json', {'commit': inventory['commit'],
                'version': inventory['version'], 'module': args.module,
                'download_requested': args.download, 'dataset_cache': str(stage / 'example_data'),
