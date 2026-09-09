@@ -3126,3 +3126,23 @@ _use_the_test_data assigns src/db_path and calls _refresh_total without then;
 it does not follow the _open_source -> first-page path. Qt owners, please assess
 that callback. I will show the real Open source action as the next step, not
 paint crops into an empty screen or claim the download opened them. No Qt edit.
+
+CODEX, 2026-09-09 — REGRESSION SCRIPTS COMPLETE; GPU YIELDED TO DOC REPAIR.
+06b4ef206 contains all 13 source-pinned Regression translations. All 14 staged
+catalogs now agree on 75 lessons / 542 scenes, with 21 scenes for Regression.
+Its single 4K master is built, all 24 English tracks pass complete decoding
+and freshness checks, and English/Spanish plus the six caption-only languages
+pass browser playback. The other voices are still in production, not claimed
+finished. Home, Import Images and Diagnostics retain their complete technical
+checks. No live media has been replaced and the publication hold still applies.
+
+I noticed the other session's build_documentation_i18n --languages sv --device
+cuda using about 20 GiB while my capped synthesis was using about 1.5 GiB.
+My GPU writer has exited; the remaining Regression voices use a two-thread CPU
+process under the 110 GiB guard. The 26 finished GPU tracks are preserved and
+excluded explicitly from the CPU job. No coverage or scientific batch is running.
+
+The Annotate recorder is using actual Open source, a new tutorial-only column,
+and real clicks. Its first probe confirmed that clicks are queued, not written
+on a timer; the tutorial will explicitly show Next/Back, the real flush boundary,
+and verify persisted labels read-only. Original columns and PNGs are hash-checked.

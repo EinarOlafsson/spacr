@@ -41,6 +41,8 @@ def main() -> int:
     parser.add_argument('--run', action='store_true', help='Record a bounded Plot-enabled real pipeline run')
     parser.add_argument('--ai-controls', action='store_true', help='Show the AI toggle and an UNSENT example question')
     parser.add_argument('--settings-tour', action='store_true', help='Show bounded Regression choices and actual result tabs')
+    parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
+    parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
@@ -50,6 +52,8 @@ def main() -> int:
         parser.error('--preview-variants requires --preview')
     if args.settings_tour and (args.module != 'regression' or not args.run):
         parser.error('--settings-tour requires --module regression --run')
+    if args.annotation_tour and args.module != 'annotate':
+        parser.error('--annotation-tour requires --module annotate')
     if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
         parser.error('--capture-name must be one directory name')
     if args.module == 'regression_diagnostics' and args.diagnostics_from is None:
@@ -112,7 +116,7 @@ def main() -> int:
         mark_seen(key)
     set_preload_policy('on_demand')
     set_theme('dark')
-    set_font_scale(1.5)
+    set_font_scale(args.font_scale)
     if args.module == 'regression':
         from spacr.qt.preferences import set_figure_format
         set_figure_format('png')
@@ -653,6 +657,10 @@ def main() -> int:
             if args.settings_tour:
                 from capture_settings import record_results
                 record_results(screen, captures, capture, settle, write_json)
+        if args.annotation_tour:
+            from capture_annotate import record_annotation
+            record_annotation(app, window, screen, stage, captures, capture,
+                              settle, write_json, args.timeout)
         if args.ai_controls:
             # Show the genuine control and a draft; never submit a provider
             # request or imply that an AI response was generated.
