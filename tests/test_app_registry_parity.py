@@ -123,11 +123,12 @@ FOLDED = {
                               "its output",
     "trellis": "a view folded off the dock; headless, call "
                "spacr.qt.widgets.trellis_spec.trellis",
-    "ops": "a button on the Align & Stitch masthead that opens the optical-"
-           "pooled-screening form as a page beside the tile aligner -- OPS "
-           "IS stitching, over a plate acquired in sequencing cycles, so it "
-           "is reached from the module it belongs to rather than competing "
-           "for a tile of its own (spacr.qt.screens.align)",
+    "ops": "a switch in Mask Generation's actions row, beside Live, that "
+           "opens the optical-pooled-screening form as a page on that "
+           "screen -- it was on the Align & Stitch masthead until "
+           "2026-09-09, because OPS IS stitching, and it is reached from "
+           "the segmentation screen instead because that is what the plate "
+           "it stitches is acquired for (spacr.qt.screens.mask.PAGE_FOLDS)",
     "activation": "a button on the Classify masthead that opens the "
                   "activation-map workbench as a page beside the training "
                   "settings -- an activation map is a view of what a "

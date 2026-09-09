@@ -62,10 +62,10 @@ def test_the_series_module_is_a_switch_on_the_mask_masthead(host):
     """One checkable icon button, and no caption beside it."""
     screen, strip = host
 
-    assert list(strip.keys()) == list(mask_folds.FOLDED_APPS)
+    assert list(strip.keys()) == list(mask_folds.CATEGORY_FOLDS)
     named = [button for button in strip.findChildren(QPushButton)
              if button.objectName() == BUTTON_NAME]
-    assert len(named) == len(mask_folds.FOLDED_APPS)
+    assert len(named) == len(mask_folds.CATEGORY_FOLDS)
     for button in named:
         assert button.isCheckable(), f"{button.app_key} is not a switch"
         assert not button.text(), f"{button.app_key} drew a caption"
@@ -82,7 +82,7 @@ def test_a_switch_carries_the_name_sentence_and_stage_its_tile_had(host):
     """
     _screen, strip = host
 
-    for key in mask_folds.FOLDED_APPS:
+    for key in mask_folds.CATEGORY_FOLDS:
         button = strip.button_for(key)
         name, description, stage = map_barcodes.fold_description(key)
         assert name and description
@@ -105,7 +105,7 @@ def test_the_recorded_stage_is_real_and_agrees_with_the_assessment(host):
     from spacr.qt import maturity
     from spacr.qt.theme import STAGE_HOVER
 
-    for key in mask_folds.FOLDED_APPS:
+    for key in mask_folds.CATEGORY_FOLDS:
         _name, _description, stage = map_barcodes.fold_description(key)
         assert stage in STAGE_HOVER, f"{key} records an unpaintable stage"
         assessed = (maturity.PROMOTIONS.get(key)
@@ -153,7 +153,7 @@ def test_the_categories_are_hidden_until_the_switch_is_pressed(host):
     """A Mask run is not a time series until somebody says so."""
     screen, strip = host
 
-    for key in mask_folds.FOLDED_APPS:
+    for key in mask_folds.CATEGORY_FOLDS:
         cards = _sections(screen, key)
         assert cards, f"{key} mounted no categories"
         assert not any(card.isVisibleTo(screen) for card in cards)
@@ -494,7 +494,7 @@ def test_the_stack_walk_routes_a_mask_screen_here(qtbot, qt_theme_applied):
     strip = map_barcodes.install_folds_on(screen)
 
     assert isinstance(strip, FoldStrip)
-    assert list(strip.keys()) == list(mask_folds.FOLDED_APPS)
+    assert list(strip.keys()) == list(mask_folds.CATEGORY_FOLDS)
 
 
 def test_a_strip_that_cannot_be_built_never_takes_the_host_down(

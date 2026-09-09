@@ -739,13 +739,13 @@ def test_a_fold_set_that_mounted_something_always_builds_a_strip(
 
     folds = CategoryFoldSet(
         screen,
-        {key: mask_mod.FOLD_GATES[key] for key in mask_mod.FOLDED_APPS},
+        {key: mask_mod.FOLD_GATES[key] for key in mask_mod.CATEGORY_FOLDS},
         implies=mask_mod.FOLD_IMPLIES,
     )
     assert folds.mount(), "Mask Generation mounted no folded settings"
     strip = folds.build_strip(header)
     assert strip is not None
-    assert list(strip.keys()) == list(mask_mod.FOLDED_APPS)
+    assert list(strip.keys()) == list(mask_mod.CATEGORY_FOLDS)
 
     # The only way to a None strip, and install_folds has already returned
     # by then.

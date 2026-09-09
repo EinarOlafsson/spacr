@@ -62,7 +62,7 @@ OPEN
   370  EVERY PUBLISHED MODEL CARRIES A SCORECARD: FINETUNED AGAINST VANILLA, ON A
        370_every_published_model_carries_its_scorecard.txt
 
-  372  AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
+  372  AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
        [unblocked 2026-09-04 -- the maintainer answered the stitch question; PART 0's survivability audit of 3,891 unreached lines still comes first]
        372_an_ops_button_on_align_and_stitch.txt
 

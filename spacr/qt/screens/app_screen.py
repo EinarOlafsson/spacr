@@ -6846,6 +6846,27 @@ class AppScreen(QWidget):
                     self._lp_switch = self._preview_switch
                 self._on_preview_switch(False)
 
+        # OPS -- Mask Generation only, beside Live and the dimension
+        # switches and in the same format, as asked. Optical pooled
+        # screening is folded onto this screen: it opens as a page rather
+        # than mounting settings on this form, so it is a switch here
+        # rather than a button on the masthead strip, which carries the
+        # folds that ARE settings. See `spacr.qt.screens.mask.PAGE_FOLDS`.
+        self._ops_switch = None
+        if self.app_key == "mask":
+            try:
+                from .mask import (OPS_TOGGLE_TEXT, OPS_TOGGLE_TOOLTIP,
+                                   install_ops_switch)
+
+                self._ops_switch = AiToggleLabel(
+                    text=OPS_TOGGLE_TEXT, tooltip=OPS_TOGGLE_TOOLTIP)
+                row.addWidget(self._ops_switch)
+                install_ops_switch(self, self._ops_switch)
+            except Exception:                            # noqa: BLE001
+                # A screen without the switch is a smaller screen; an
+                # exception here would be no Mask Generation at all.
+                LOG.debug("Could not install the OPS switch", exc_info=True)
+
         # Image UMAP has one GPU switch for both its main run and its search.
         # It deliberately lives in the action strip instead of being repeated
         # in the settings form, and precedes Hyperparameter search as requested.

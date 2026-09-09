@@ -1,4 +1,15 @@
-"""Timelapse segmentation and tracking controls integrated with Mask.
+"""The modules folded onto Mask Generation: Timelapse, and OPS.
+
+TWO KINDS OF FOLD MEET HERE, and the difference is what each one does to
+this screen. Timelapse is SETTINGS: switching it on mounts its categories
+on Mask's own form and sets the pipeline gate the run reads, so its switch
+belongs on the masthead strip beside the heading. OPS is a PAGE: it has 63
+settings of its own and its own run entry point, none of which is
+`preprocess_generate_masks`, so switching it on puts it on this screen's
+page strip instead and its switch sits in the actions row beside Live --
+"add the ops button to Mask add it beside the Live and 3D buttons in the
+same format", 2026-09-09. See :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS`
+and :func:`install_ops_switch`.
 
 The Timelapse switch enables ``timelapse=True`` for the standard mask
 pipeline and displays the additional time-series and tracking settings on the
@@ -26,7 +37,9 @@ from PySide6.QtWidgets import QWidget
 from ..widgets.fold_strip import (
     FoldStrip, mark_folded_categories, mark_folded_sections,
 )
-from .map_barcodes import CategoryFoldSet
+from .map_barcodes import (
+    CategoryFoldSet, FoldOpener, build_settings_screen, hide_as_page,
+)
 
 LOG = logging.getLogger(__name__)
 
@@ -43,7 +56,48 @@ HOST_KEY = "mask"
 #: MEASUREMENTS TABLE -- per-cell rows and per-track velocities into
 #: measurements/measurements.db -- which is Measure's job description with
 #: a time axis rather than this one's. It folds onto Measure.
-FOLDED_APPS: Tuple[str, ...] = ("timelapse",)
+#: OPS IS FOLDED HERE TOO, AND IT IS NOT A SETTINGS CATEGORY. Optical
+#: pooled screening was folded onto Align & Stitch when it was built,
+#: because it is stitching; it is reached from Mask Generation instead,
+#: because segmentation is what the plate it stitches is acquired for and
+#: this is the screen a user of it is already on. It opens a page of its
+#: own rather than mounting categories on this form -- its 63 settings and
+#: its own run entry point are not `preprocess_generate_masks` -- so it is
+#: in :data:`PAGE_FOLDS` below and not in :data:`FOLD_GATES`.
+FOLDED_APPS: Tuple[str, ...] = ("timelapse", "ops")
+
+#: The folds that ARE settings categories on this screen's own form.
+#:
+#: This is what the masthead strip is built from and what
+#: :class:`~spacr.qt.screens.map_barcodes.CategoryFoldSet` mounts. Every
+#: key here needs a row in :data:`FOLD_GATES`, because switching one on is
+#: exactly setting its gate.
+CATEGORY_FOLDS: Tuple[str, ...] = ("timelapse",)
+
+#: The folds that open a page of their own instead.
+#:
+#: A page fold has no gate and no mounted categories, so it is not on the
+#: strip: it is a switch in the actions row, beside Live and the dimension
+#: switches, and switching it on puts the module on this screen's page
+#: strip. See :func:`install_ops_switch`.
+PAGE_FOLDS: Tuple[str, ...] = ("ops",)
+
+#: Name, sentence and maturity for a fold with no registry row to carry
+#: them. Moved here with the fold itself, from `align.FOLD_FALLBACK`.
+#:
+#: ALPHA, HONESTLY. The stitching is measured correct against a plate with
+#: known geometry and the decode chain is validated against planted
+#: barcodes, but neither has met a real acquisition, one class in
+#: `spacrops` has never been run at all, and the phenotype alignment's
+#: geometry is unverified. A user opening this should know it is new.
+FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
+    "ops": (
+        "OPS",
+        "Stitch a low-magnification genotype acquisition into per-well "
+        "mosaics and place the high-magnification phenotype images onto "
+        "them, for optical pooled screening.",
+        "alpha"),
+}
 
 #: ``key -> the settings the pipeline reads to decide it should do this``.
 #:
@@ -320,6 +374,176 @@ def install_example_data_button(screen: QWidget):
     return button
 
 
+# ---------------------------------------------------------------------------
+# The OPS switch
+# ---------------------------------------------------------------------------
+
+#: The registry key of the page fold, so the switch and the declaration
+#: cannot drift apart.
+OPS_KEY: str = PAGE_FOLDS[0]
+
+#: What the switch says. AN ACRONYM, DELIBERATELY UNEXPANDED: "optical
+#: pooled screening" does not fit the actions row beside Live, and OPS is
+#: what the field calls it.
+OPS_TOGGLE_TEXT = "OPS"
+
+#: What it says on hover. The full name is here, where there is room for
+#: it, together with the maturity -- the button is the only place a user
+#: meets this module, and it is alpha.
+OPS_TOGGLE_TOOLTIP = (
+    "Show or hide the optical pooled screening page: stitch a "
+    "low-magnification genotype acquisition into per-well mosaics and "
+    "place the high-magnification phenotype images onto them. Alpha -- "
+    "no real acquisition has been through it yet."
+)
+
+
+def _build_ops(host_window: Optional[QWidget]) -> QWidget:
+    """OPS's own screen: the settings-driven module, unchanged."""
+    return build_settings_screen(OPS_KEY, host_window)
+
+
+class _OpsPage(QObject):
+    """Mask Generation's OPS switch and the page it opens.
+
+    A ``QObject`` parented to the host screen with bound-method slots,
+    rather than closures hung off the switch: the page strip's own close
+    mark can take the page down without telling the switch, so something
+    has to be connected to ``tabCloseRequested`` to put the switch back.
+    A closure doing that would keep the host alive through the switch.
+
+    The screen behind the page is built once and kept, the way every
+    other fold's is -- pressing the switch again puts the SAME OPS screen
+    back, with whatever it had loaded still loaded.
+
+    :param screen: the Mask Generation screen the switch sits on.
+    :param switch: the actions-row toggle.
+    """
+
+    def __init__(self, screen: QWidget, switch) -> None:
+        """Record the switch and how to build the page, building neither."""
+        super().__init__(screen)
+        self.screen = screen
+        self.switch = switch
+        self.opener = FoldOpener(screen, OPS_KEY, _build_ops)
+        self.page: Optional[QWidget] = None
+        self._watching = False
+
+    # -- the switch ----------------------------------------------------
+    def set_shown(self, on: bool) -> None:
+        """Open or close the OPS page.
+
+        Never raises: this is a slot on a user's click, and a module that
+        cannot be built must cost its own page and nothing else. A failed
+        open puts the switch back off rather than leaving it lit over
+        nothing.
+
+        :param on: the switch's new state.
+        """
+        if on:
+            try:
+                self.page = self.opener.open()
+            except Exception:                            # noqa: BLE001
+                LOG.debug("Could not open the %s page", OPS_KEY,
+                          exc_info=True)
+                self.page = None
+            if self.page is None:
+                self._restate(False)
+                return
+            self._watch_the_strip()
+            return
+        page = self.page or getattr(self.opener, "window", None)
+        self.page = None
+        if page is None:
+            return
+        try:
+            if not hide_as_page(page, self.screen):
+                # Shown as a window instead, because this host had no page
+                # strip to put it on. Hidden, not closed: same screen back.
+                page.hide()
+        except Exception:                                # noqa: BLE001
+            LOG.debug("Could not close the %s page", OPS_KEY, exc_info=True)
+
+    # -- the page strip ------------------------------------------------
+    def _watch_the_strip(self) -> None:
+        """Follow the page's own close mark, once the strip exists.
+
+        The strip is created by the first page opened on this host, so
+        this cannot be connected in ``__init__``.
+        """
+        if self._watching:
+            return
+        pages = getattr(self.screen, "_fold_pages", None)
+        if pages is None:
+            return
+        try:
+            pages.tabCloseRequested.connect(self._page_closed)
+        except Exception:                                # noqa: BLE001
+            LOG.debug("Could not follow the page strip for %s", OPS_KEY,
+                      exc_info=True)
+            return
+        self._watching = True
+
+    def _page_closed(self, index: int) -> None:
+        """Put the switch back when the page is closed by its own cross.
+
+        :param index: the page the strip is closing.
+        """
+        pages = getattr(self.screen, "_fold_pages", None)
+        if pages is None or self.page is None:
+            return
+        try:
+            ours = pages.indexOf(self.page)
+        except RuntimeError:            # Qt deleted the page under us
+            ours = -1
+        if ours not in (index, -1):
+            return
+        self.page = None
+        self._restate(False)
+
+    def _restate(self, on: bool) -> None:
+        """Move the switch without asking it to open or close anything.
+
+        :param on: the state the switch should show.
+        """
+        switch = self.switch
+        if switch is None or bool(switch.isChecked()) == bool(on):
+            return
+        blocked = switch.blockSignals(True)
+        try:
+            switch.setChecked(on)
+        finally:
+            switch.blockSignals(blocked)
+
+
+def ops_page(screen: QWidget) -> Optional["_OpsPage"]:
+    """The OPS switch installed on ``screen``, or None."""
+    page = getattr(screen, "_ops_page", None)
+    return page if isinstance(page, _OpsPage) else None
+
+
+def install_ops_switch(screen: QWidget, switch) -> Optional["_OpsPage"]:
+    """Wire an actions-row switch to the OPS page.
+
+    Idempotent: a second call on the same screen returns the first
+    installation and connects nothing further.
+
+    :param screen: the Mask Generation screen.
+    :param switch: the toggle to connect.
+    :returns: the installation, or None when this is not the host screen.
+    """
+    if getattr(screen, "app_key", None) != HOST_KEY or switch is None:
+        return None
+    existing = ops_page(screen)
+    if existing is not None:
+        return existing
+    page = _OpsPage(screen, switch)
+    switch.toggled.connect(page.set_shown)
+    # The installation outlives this call only because the screen holds it.
+    screen._ops_page = page
+    return page
+
+
 def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     """Put Mask Generation's fold switches on ``screen``'s masthead.
 
@@ -355,7 +579,7 @@ def install_folds(screen: QWidget) -> Optional[FoldStrip]:
     try:
         folds = CategoryFoldSet(
             screen,
-            {key: FOLD_GATES[key] for key in FOLDED_APPS},
+            {key: FOLD_GATES[key] for key in CATEGORY_FOLDS},
             implies=FOLD_IMPLIES,
         )
         if not folds.mount():

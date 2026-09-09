@@ -559,6 +559,32 @@ def _close_fold_page(pages: QTabWidget, index: int) -> None:
         page.setParent(None)
 
 
+def hide_as_page(screen: QWidget, host: Optional[QWidget]) -> bool:
+    """Take ``screen`` off ``host``'s page strip, keeping the screen.
+
+    The counterpart to :func:`show_as_page`, for a control that closes what
+    it opened. It takes the same route the strip's own close mark takes --
+    :func:`_close_fold_page` -- so a page closed by a switch and a page
+    closed by its cross leave the module in the same state, loaded and off
+    the strip rather than destroyed.
+
+    :param screen: the folded module's widget.
+    :param host: the host module's screen.
+    :returns: True when a page was taken off the strip, False when the host
+        has no strip or the widget is not on it.
+    """
+    pages = getattr(host, "_fold_pages", None) if host is not None else None
+    if not isinstance(pages, QTabWidget):
+        return False
+    index = pages.indexOf(screen)
+    # Never index 0: that is the host's own body, which has no close mark
+    # for the same reason -- there is nothing behind it.
+    if index <= 0:
+        return False
+    _close_fold_page(pages, index)
+    return True
+
+
 def show_as_page(screen: QWidget, host: Optional[QWidget],
                  title: str) -> Optional[QWidget]:
     """Add ``screen`` to ``host``'s page strip and select it.

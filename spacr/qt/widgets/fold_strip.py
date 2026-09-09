@@ -103,10 +103,12 @@ FOLD_HOST_MODULES = (
     "spacr.qt.screens.mask",
     "spacr.qt.screens.classify",
     "spacr.qt.screens.annotate",
-    # Align & Stitch grew a fold later than the rest: OPS is stitching, over
-    # a plate acquired in sequencing cycles, so it is reached from the module
-    # it belongs to rather than given a tile of its own.
-    "spacr.qt.screens.align",
+    # ALIGN & STITCH WAS HERE and is not any more. OPS was folded onto it
+    # -- stitching, over a plate acquired in sequencing cycles -- and moved
+    # to Mask Generation on 2026-09-09 at the user's request, taking the
+    # declaration with it. Align declares no `FOLDED_APPS` now, so it would
+    # contribute nothing to the walk; the entry is removed rather than left
+    # to read as a host that offers something.
     # THE THREE LATE HOSTS, ADDED 2026-09-08. They were deliberately left out
     # on the reasoning that they "fold modules that kept their rows, so the
     # registry still answers for them and adding them here would change which

@@ -1,5 +1,5 @@
 ================================================================================
-AN OPS BUTTON ON ALIGN AND STITCH, OVER CODE THAT IS ALREADY IN THE REPOSITORY
+AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
 ================================================================================
 
 Status:    BUILT, AND UNPROVEN ON REAL DATA. THE DATA IS NOW HERE AND
@@ -28,8 +28,55 @@ Requested: 2026-09-02 -- "for the allign and stitch module id like to add a
            is stil there. other wize take inspiration from this paper:
            https://www.nature.com/articles/s41467-026-73643-7 and its codebase
            https://github.com/cheeseman-lab/brieflow"
-Owner:     spacr/spacrops.py, spacr/qt/screens/ (the Align host), settings,
-           spacr/cli.py for the headless name, tests.
+Owner:     spacr/spacrops.py, spacr/qt/screens/ (the MASK host -- see
+           PART 3-B), settings, spacr/cli.py for the headless name, tests.
+
+--------------------------------------------------------------------------------
+PART 3-B -- THE BUTTON MOVED TO MASK GENERATION. DONE 2026-09-09.
+--------------------------------------------------------------------------------
+
+Requested 2026-09-09: "i think the OPS button should be in Mask generation
+instead of align", then "add the ops button to Mask add it beside the Live
+and 3D buttons in the same format".
+
+BOTH HALVES ARE DONE, and they are different changes:
+
+  * WHERE IT IS DECLARED. `FOLDED_APPS = ("ops",)` and the `FOLD_FALLBACK`
+    row moved out of `spacr/qt/screens/align.py` and into
+    `spacr/qt/screens/mask.py`. That is what the menu bar, the dock, the
+    API fold reference and `folded_children()` read, so all four now say
+    Mask Generation opens OPS. Align declares no folds at all any more and
+    was removed from `fold_strip.FOLD_HOST_MODULES` with a note saying why.
+  * WHAT THE CONTROL IS. An `AiToggleLabel` in Mask's ACTIONS ROW, which
+    now reads MIP - 3D - Time - Live - OPS - AI. Not an icon on the
+    masthead strip: that strip carries the folds that ARE settings on this
+    form, and OPS is not one. On puts OPS on Mask's page strip; off takes
+    it off; closing the page by its own cross puts the switch back.
+
+THE TWO KINDS OF FOLD NOW HAVE NAMES, because Mask hosts one of each and
+ten test sites had been reading `FOLDED_APPS` to mean the first kind:
+
+    FOLDED_APPS    = ("timelapse", "ops")   what is folded here at all
+    CATEGORY_FOLDS = ("timelapse",)         mounts settings, is on the strip
+    PAGE_FOLDS     = ("ops",)               opens a page, is in the row
+
+`install_folds` builds its `CategoryFoldSet` from CATEGORY_FOLDS -- a page
+fold has no entry in `FOLD_GATES` and would have raised KeyError -- and the
+ten tests that meant "the category folds" now say so.
+
+New: `map_barcodes.hide_as_page`, the counterpart to `show_as_page`, so a
+switch closes a page by the same route the close mark does.
+Tests: `tests/qt/test_the_ops_button_is_on_mask.py`, 8 of them, covering
+placement beside Live, open/close/reopen keeping the same screen, the cross
+putting the switch back, a failed build not leaving the switch lit, and the
+declaration having moved.
+
+  ==> TUTORIALS ARE AFFECTED. CODEX: the OPS route's host changed. Any
+      lesson or capture that reaches OPS from Align & Stitch's masthead is
+      now wrong -- the route is Mask Generation, and the control is a text
+      switch in the actions row beside Live, not an icon beside the
+      heading. Mask Generation's own captures also changed: its actions row
+      has one more switch in it.
 
 --------------------------------------------------------------------------------
 PART 0 -- THE CODE IS STILL THERE. IT IS 3,891 LINES AND NOTHING CAN REACH IT

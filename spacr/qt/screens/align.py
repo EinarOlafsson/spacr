@@ -63,30 +63,15 @@ __all__ = [
 #: The registry key this screen answers to; the fold reader looks for it.
 HOST_KEY = "align"
 
-#: Modules folded onto this masthead rather than given a tile of their own.
-#:
-#: OPTICAL POOLED SCREENING BELONGS HERE and not on Home. It is stitching --
-#: the same job this screen does, over a plate acquired in sequencing cycles
-#: -- so it is reached from the module it belongs to rather than competing
-#: for a tile beside it.
-FOLDED_APPS: Tuple[str, ...] = ("ops",)
-
-#: Name, sentence and maturity for each fold, since a folded module has no
-#: registry row of its own to carry them.
-#:
-#: ALPHA, HONESTLY. The stitching is measured correct against a plate with
-#: known geometry and the decode chain is validated against planted barcodes,
-#: but neither has met a real acquisition, one class in `spacrops` has never
-#: been run at all, and the phenotype alignment's geometry is unverified. A
-#: user opening this should know it is new.
-FOLD_FALLBACK: Dict[str, Tuple[str, str, str]] = {
-    "ops": (
-        "OPS",
-        "Stitch a low-magnification genotype acquisition into per-well "
-        "mosaics and place the high-magnification phenotype images onto "
-        "them, for optical pooled screening.",
-        "alpha"),
-}
+# NOTHING IS FOLDED ONTO THIS MASTHEAD ANY MORE. Optical pooled screening
+# was: OPS is stitching, which is this screen's job, so it was reached from
+# here. It is reached from MASK GENERATION instead, as asked on 2026-09-09 --
+# "i think the OPS button should be in Mask generation instead of align" --
+# and it is a switch in that screen's actions row beside Live rather than an
+# icon on a masthead. Its declaration, its name, its sentence and its
+# maturity moved with it: see `spacr.qt.screens.mask.PAGE_FOLDS` and
+# `mask.FOLD_FALLBACK`. This screen is consequently no longer a fold host,
+# which is why it is no longer in `fold_strip.FOLD_HOST_MODULES`.
 
 _PAD = 10
 

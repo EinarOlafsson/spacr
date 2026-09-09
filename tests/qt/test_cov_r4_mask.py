@@ -172,10 +172,10 @@ def test_the_offered_previews_are_handed_out_as_a_copy(host):
 
     previews = mask_module.fold_previews(screen)
 
-    assert set(previews) == set(mask_module.FOLDED_APPS)
+    assert set(previews) == set(mask_module.CATEGORY_FOLDS)
     assert previews == screen._fold_previews
     previews.clear()
-    assert set(screen._fold_previews) == set(mask_module.FOLDED_APPS), (
+    assert set(screen._fold_previews) == set(mask_module.CATEGORY_FOLDS), (
         "fold_previews handed out the screen's own dictionary")
     assert mask_module.fold_previews(_Screen()) == {}
 
@@ -454,7 +454,7 @@ def test_a_button_that_cannot_be_installed_does_not_cost_the_switches(
         strip = mask_module.install_folds(screen)
 
     assert strip is not None, "a broken button took the fold strip with it"
-    assert list(strip.keys()) == list(mask_module.FOLDED_APPS)
+    assert list(strip.keys()) == list(mask_module.CATEGORY_FOLDS)
     assert any("Could not install the example-plate button"
                in record.getMessage() for record in caplog.records), (
         caplog.text)
@@ -503,7 +503,7 @@ def test_a_strip_is_built_for_every_fold_set_that_mounted_something(
     qtbot.addWidget(header)
     folds = CategoryFoldSet(
         screen, {key: mask_module.FOLD_GATES[key]
-                 for key in mask_module.FOLDED_APPS},
+                 for key in mask_module.CATEGORY_FOLDS},
         implies=mask_module.FOLD_IMPLIES)
 
     mounted = folds.mount()
