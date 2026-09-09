@@ -369,6 +369,12 @@ def record_converter(app, window, screen, stage, captures, capture, settle,
                   application_resume_checks='Readable TIFF metadata/pages, not all pixel values',
                   independent_recorder_check='Every output pixel, dtype and source identity compared')
     capture('09_completed_fields_reused')
+    # Read the genuinely scrollable summary, including the checkpoint line
+    # below its three-line viewport; do not enlarge or replace app widgets.
+    screen._summary.setFocus()
+    QTest.keyClick(screen._summary, Qt.Key_End, Qt.ControlModifier)
+    settle(.2)
+    capture('10_resume_checkpoint_summary')
     write_json(captures / 'resume_evidence.json', second)
     for path, digest in originals.items():
         if _digest(path) != digest:
