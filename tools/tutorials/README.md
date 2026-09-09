@@ -63,3 +63,55 @@ The full tutorial-route gate remains open for missing lessons. Import Images
 and Regression Diagnostics need production; OPS is explicitly deferred because
 its real workflow has not been validated (325, 9 September). No placeholder OPS
 lesson or weakened route gate is a substitute for that validation.
+
+## Expanded demonstration requirement — 9 September
+
+The maintainer requests a real-data demonstration for **every module with a
+downloadable test dataset**, not only Core modules. For each such lesson:
+
+- Load the registered example through its visible UI control and identify the
+  dataset and what question the example addresses.
+- Enable plotting where supported, complete a bounded real operation, and show
+  the resulting figures and console output. Merely pointing at settings or
+  naming an output file does not satisfy the demonstration.
+- Explain the spaCR AI controls and how assistance relates to the workflow.
+  Do not imply that a response was obtained when no provider was used, expose
+  credentials, or send private datasets just to make a recording.
+- Demonstrate the live preview wherever one exists. In Mask, change filtering
+  controls and model options, rerun as required by the real UI, and show the
+  actual before/after segmentation or object counts. Distinguish display-only
+  controls from filters/settings that affect a saved batch run.
+
+The "move without remaking" exception remains for internally unchanged lessons
+that only moved. Audit an existing lesson against the demonstration requirements
+before deciding its current media can be retained. Do not silently treat a new
+real-data or live-preview requirement as satisfied by relocating its page.
+
+## Recording and staging commands
+
+Use the private refresh environment under the authoring workspace, never its
+old broken `.venv` symlink or an in-place dependency change to the app environment.
+`requirements-refresh.txt` records the additional renderer/browser dependencies.
+
+`capture_refresh.py --module mask --download --preview --preview-variants
+--platform xcb` runs the actual UI, using a private example-data bind mount and
+private preferences/logs. Launch it under `xvfb-run -a -s '-screen 0 3840x2160x24'`
+and the memory guard. The real 4K screen is important: an offscreen platform's
+small reported display can make dialogs open too narrow even when the main
+window is 4K. Loading example settings replaces a screen; the recorder must
+reacquire the visible screen before driving its preview.
+
+`stage_lesson.py lessons/05_home.json --capture-module home` validates capture
+hashes, focus geometry and specialist links before staging English. Set
+`SPACR_TUTORIAL_WORKSPACE` to the refresh directory when calling the external
+`render_all_voices.py`; model weights stay shared but narration outputs do not
+overwrite the published collection. `verify_staged_lesson.py` checks the actual
+player against staged files with HTTP byte ranges, including chapter seeking,
+scene links and mobile layout. It does not claim human listening acceptance.
+
+Translation drafts remain in `catalog-drafts`, separate from renderer inputs.
+The first whole-scene NLLB pass dropped complete sentences and mistranslated
+image crops as cultures; it was stopped and rejected. The replacement translates
+sentence chunks and reconstructs each scene, but still requires semantic review
+before any translated narration is generated. English text and the existing
+published multilingual catalogs remain untouched by draft generation.

@@ -1,0 +1,376 @@
+#!/usr/bin/env python3
+"""Capture the current, unmodified GUI for the tutorial refresh.
+
+Use one process per module. Configuration and downloaded data are isolated from
+the desktop user's files, while model/download caches can still be reused. No
+version strings, pipeline functions, download callbacks or results are mocked.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
+DEFAULT_STAGE = WORKSPACE / 'refresh_2026-09-09'
+
+
+def write_json(path: Path, value) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n',
+                    encoding='utf-8')
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--module', default='home')
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--download', action='store_true')
+    parser.add_argument('--preview', action='store_true')
+    parser.add_argument('--preview-variants', action='store_true')
+    parser.add_argument('--platform', choices=('offscreen', 'xcb'), default='offscreen')
+    parser.add_argument('--timeout', type=float, default=600)
+    args = parser.parse_args()
+    if args.preview_variants and not args.preview:
+        parser.error('--preview-variants requires --preview')
+    stage = args.stage.resolve()
+    stage.mkdir(parents=True, exist_ok=True)
+    # The current downloader intentionally uses Path.home(), not the older
+    # SPACR_EXAMPLE_DATA override. Bind ONLY its cache into this recording's
+    # private directory. The app, its UI callback and downloader stay genuine,
+    # and neither a user's cached experiments nor their HOME are changed.
+    if os.environ.get('SPACR_TUTORIAL_CACHE_ISOLATED') != '1':
+        private_cache = stage / 'example_data'
+        private_cache.mkdir(parents=True, exist_ok=True)
+        destination = Path.home() / '.cache/spacr/example_data'
+        os.environ['SPACR_TUTORIAL_CACHE_ISOLATED'] = '1'
+        os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
+                          '--dev-bind', '/dev', '/dev',
+                          '--bind', str(private_cache), str(destination), '--',
+                          sys.executable, str(Path(__file__).resolve()),
+                          *sys.argv[1:]])
+    for key, value in {
+        'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
+        'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
+        'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' / args.module),
+        'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
+        'SPACR_LOG_DIR': str(stage / 'logs'),
+        'MPLCONFIGDIR': str(stage / 'mpl'),
+        'OMP_NUM_THREADS': '2', 'OPENBLAS_NUM_THREADS': '2',
+        'MKL_NUM_THREADS': '2', 'NUMEXPR_NUM_THREADS': '2',
+    }.items():
+        os.environ[key] = value
+    sys.path.insert(0, str(REPO))
+    from PySide6.QtCore import QPoint, Qt, QTimer
+    from PySide6.QtGui import QPainter
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QLabel, QMenu
+    from shiboken6 import isValid
+    import spacr
+    import spacr.qt
+    spacr.qt.register_self_registering_modules()
+    from spacr.qt import app as gui
+    from spacr.qt.first_run import mark_tour_seen
+    from spacr.qt.walkthrough import mark_seen
+    from spacr.qt.preferences import (apply_preferences_to_app, set_preload_policy,
+                                      set_theme, set_font_scale)
+    from spacr.qt.widgets.fold_strip import folded_modules
+
+    app = QApplication.instance() or QApplication([])
+    mark_tour_seen()
+    for key, *_ in gui.APPS:
+        mark_seen(key)
+    for key in folded_modules():
+        mark_seen(key)
+    set_preload_policy('on_demand')
+    set_theme('dark')
+    set_font_scale(1.5)
+    apply_preferences_to_app(app)
+    window = gui.MainWindow()
+    window.apply_dock_mode('locked')
+    window.resize(3840, 2160)
+    window.show()
+    captures = stage / 'captures' / args.module
+    captures.mkdir(parents=True, exist_ok=True)
+    write_json(captures / 'provenance.json', {'module': args.module,
+               'completed_capture': False, 'status': 'capture_in_progress'})
+    frames = {}
+
+    def settle(seconds=0.6):
+        until = time.monotonic() + seconds
+        while time.monotonic() < until:
+            app.processEvents()
+            time.sleep(0.02)
+
+    def rect(widget):
+        if not widget.isVisible():
+            return None
+        point = widget.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
+        x, y = max(0, point.x()), max(0, point.y())
+        right = min(window.width(), point.x() + widget.width())
+        bottom = min(window.height(), point.y() + widget.height())
+        if right <= x or bottom <= y:
+            return None
+        return [x, y, right - x, bottom - y]
+
+    def capture(name):
+        pixmap = window.grab()
+        if (pixmap.width(), pixmap.height()) != (3840, 2160):
+            raise RuntimeError(f'Unexpected capture size {pixmap.size()}')
+        painter = QPainter(pixmap)
+        dialogs = [w for w in app.topLevelWidgets()
+                   if isinstance(w, (QDialog, QMenu)) and w.isVisible()]
+        for dialog in dialogs:
+            origin = dialog.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
+            painter.drawPixmap(origin, dialog.grab())
+        painter.end()
+        path = captures / f'{name}.png'
+        if not pixmap.save(str(path), 'PNG'):
+            raise RuntimeError(f'Cannot save {path}')
+        buttons = []
+        for widget in window.findChildren(QAbstractButton):
+            geometry = rect(widget)
+            if geometry is not None:
+                buttons.append({'text': widget.text(), 'name': widget.objectName(),
+                                'tooltip': widget.toolTip(), 'rect': geometry,
+                                'enabled': widget.isEnabled(),
+                                'nav_key': widget.property('navKey'),
+                                'module_key': widget.property('moduleAppKey')})
+        frames[name] = {'image': path.name,
+                        'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+                        'buttons': buttons,
+                        'dialogs': [{'title': d.windowTitle(), 'rect': rect(d),
+                                     'labels': [l.text() for l in d.findChildren(QLabel)]}
+                                    for d in dialogs]}
+        write_json(captures / 'frames.json', frames)
+        print(f'captured {args.module}/{name}', flush=True)
+
+    settle(2)
+    apps = gui.tiled_apps(gui.visible_apps())
+    inventory = {
+        'commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO,
+                                          text=True).strip(),
+        'version': spacr.__version__,
+        'registry': gui.APPS,
+        'home_bands': gui.home_bands(apps),
+        'home_categories': gui.home_categories(apps),
+        'core': [r for r in apps if r[3] == gui.SECTION_CORE],
+        'folds': folded_modules(),
+        'folded_children': gui.folded_children(),
+    }
+    write_json(stage / 'runtime_inventory.json', inventory)
+    capture('00_home')
+    if args.module == 'home':
+        home = window._startup
+        tabs = home._tabs
+        for index in range(1, tabs.count()):
+            QTest.mouseClick(tabs.tabBar(), Qt.LeftButton,
+                             pos=tabs.tabBar().tabRect(index).center())
+            settle()
+            capture(f'{index:02d}_{tabs.tabText(index).lower()}')
+        tabs.setCurrentIndex(1)
+        window._on_nav_selected('classify_merged')
+        settle(3)
+        capture('05_classify_host')
+        window._on_nav_selected('mask')
+        settle(3)
+        capture('06_mask_host')
+        window._on_nav_selected('__home__')
+        settle()
+        help_menu = next(a.menu() for a in window.menuBar().actions()
+                         if a.text().replace('&', '') == 'Help')
+        help_menu.popup(window.menuBar().mapToGlobal(QPoint(110, 30)))
+        settle()
+        capture('07_help')
+        help_menu.hide()
+    if args.module != 'home':
+        window._on_nav_selected(args.module)
+        deadline = time.monotonic() + 60
+        while window._screens.get(args.module) is None:
+            if time.monotonic() > deadline:
+                raise TimeoutError(f'{args.module} did not open')
+            settle(0.1)
+        settle(2)
+        screen = window._screens[args.module]
+        capture('01_module')
+        if args.download:
+            buttons = [w for w in screen.findChildren(QAbstractButton)
+                       if w.isVisible() and w.isEnabled()
+                       and w.text().replace('…', '').strip() == 'Load test data']
+            if len(buttons) != 1:
+                raise RuntimeError(f'Expected one visible test-data control, got {len(buttons)}')
+            button = buttons[0]
+            already_cached = any((stage / 'example_data/plate1').glob('*.tif'))
+            loading_frame = '02_cached_load' if already_cached else '02_download'
+            QTimer.singleShot(800, lambda: capture(loading_frame))
+            QTest.mouseClick(button, Qt.LeftButton)
+            deadline = time.monotonic() + args.timeout
+            while isValid(button) and not button.isEnabled():
+                if time.monotonic() > deadline:
+                    raise TimeoutError('Download did not finish')
+                settle(0.2)
+            settle(2)
+            # Applying the example settings may replace the entire screen.
+            # Never keep driving the detached pre-download screen: its preview
+            # can run successfully while the recording shows another widget.
+            screen = window._screens[args.module]
+            if not screen.isVisible():
+                raise RuntimeError('The current module screen is not visible after loading data')
+            capture('03_data_ready')
+            if hasattr(screen, '_settings_model'):
+                settings = screen._settings_model.collect()
+                write_json(captures / 'settings.json', settings)
+            if args.module == 'mask':
+                images = list((stage / 'example_data/plate1').glob('*.tif'))
+                if not images:
+                    raise RuntimeError('The UI did not download any real images')
+                write_json(captures / 'dataset.json', {
+                    'image_count': len(images), 'images': [p.name for p in images],
+                    'bytes': sum(p.stat().st_size for p in images)})
+        if args.preview:
+            if args.module != 'mask':
+                raise ValueError('The current preview capture supports Mask only')
+            panel = screen._live_preview
+            screen._preview_switch.setChecked(True)
+            settle()
+            if not panel.isVisible():
+                ancestors = []
+                ancestor = panel
+                while ancestor is not None:
+                    ancestors.append({'class': type(ancestor).__name__,
+                                      'name': ancestor.objectName(),
+                                      'visible': ancestor.isVisible(),
+                                      'hidden': ancestor.isHidden(),
+                                      'size': [ancestor.width(), ancestor.height()]})
+                    ancestor = ancestor.parentWidget()
+                write_json(captures / 'preview_visibility.json', ancestors)
+                capture('04_preview_visibility_failure')
+                raise RuntimeError('Live preview is not visible after enabling Live: '
+                                   f'checked={screen._preview_switch.isChecked()}, '
+                                   f'card={screen._preview_card_attr}')
+            deadline = time.monotonic() + 90
+            while getattr(panel, '_image', None) is None:
+                if time.monotonic() > deadline:
+                    raise TimeoutError(f'Preview image not loaded: {panel._status.text()}')
+                settle(0.1)
+            settle(1)
+            capture('04_live_image')
+            panel.open_live_settings()
+            settle(1)
+            dialog = panel._live_settings_dialog
+            dialog.resize(1650, 1100)
+            dialog.move(window.mapToGlobal(QPoint(50, 120)))
+            settle()
+            capture('05_live_settings')
+            dialog.close()
+            settle()
+            QTest.mouseClick(panel._run_btn, Qt.LeftButton)
+            settle(0.5)
+            capture('06_preview_running')
+            deadline = time.monotonic() + args.timeout
+            while not panel._raw_masks or (panel._worker and panel._worker.isRunning()):
+                if time.monotonic() > deadline:
+                    raise TimeoutError(f'Preview not finished: {panel._status.text()}')
+                if panel._worker is not None and not panel._worker.isRunning() and not panel._raw_masks:
+                    raise RuntimeError(f'Preview failed: {panel._status.text()}')
+                settle(0.2)
+            settle(1)
+            capture('07_preview_result')
+            import numpy as np
+            outputs = {}
+            for name, mask in panel._raw_masks.items():
+                output = captures / f'preview_{name}.npy'
+                np.save(output, mask)
+                outputs[name] = {'shape': list(mask.shape),
+                                 'objects': int(np.count_nonzero(np.unique(mask))),
+                                 'sha256': hashlib.sha256(output.read_bytes()).hexdigest()}
+            if not any(item['objects'] for item in outputs.values()):
+                raise RuntimeError('Preview completed but detected no objects')
+            write_json(captures / 'preview_outputs.json', outputs)
+            if args.preview_variants:
+                panel.open_live_settings()
+                settle()
+                dialog = panel._live_settings_dialog
+                dialog.resize(1650, 1100)
+                dialog.move(window.mapToGlobal(QPoint(50, 120)))
+                settle()
+                minimum = panel._compartment_widgets['cell']['min_area']
+                if not minimum.isVisible():
+                    raise RuntimeError('Cannot demonstrate a hidden minimum-area control')
+                original = minimum.value()
+                raw = panel._raw_masks['cell']
+                labels, areas = np.unique(raw[raw > 0], return_counts=True)
+                cutoff = int(np.median(areas)) + 1
+                before = int(np.count_nonzero(np.unique(panel._masks['cell'])))
+                raw_hash = hashlib.sha256(raw.tobytes()).hexdigest()
+                worker_before = panel._worker
+                capture('08_filters_before')
+                minimum.setFocus()
+                minimum.selectAll()
+                QTest.keyClicks(minimum, str(cutoff))
+                QTest.keyClick(minimum, Qt.Key_Tab)
+                settle(1)
+                after = int(np.count_nonzero(np.unique(panel._masks['cell'])))
+                if not 0 < after < before:
+                    raise RuntimeError(f'Live area filter had no demonstrated selective effect: {before} -> {after}')
+                if panel._worker is not worker_before or hashlib.sha256(panel._raw_masks['cell'].tobytes()).hexdigest() != raw_hash:
+                    raise RuntimeError('The filter changed/recomputed the raw segmentation')
+                capture('09_filters_after')
+                minimum.setValue(original)
+                settle()
+                restored = int(np.count_nonzero(np.unique(panel._masks['cell'])))
+                if restored != before:
+                    raise RuntimeError('Restoring the area threshold did not restore the original result')
+                capture('10_filters_restored')
+                available_models = [panel._model_box.itemText(i) for i in range(panel._model_box.count())]
+                old_diameter = panel._diameter.value()
+                panel._diameter.setFocus()
+                panel._diameter.selectAll()
+                QTest.keyClicks(panel._diameter, str(old_diameter * 2))
+                QTest.keyClick(panel._diameter, Qt.Key_Tab)
+                capture('11_model_diameter')
+                QTest.mouseClick(dialog._run_btn, Qt.LeftButton)
+                settle(0.3)
+                deadline = time.monotonic() + args.timeout
+                while panel._worker and panel._worker.isRunning():
+                    if time.monotonic() > deadline:
+                        raise TimeoutError('Model-option comparison did not finish')
+                    settle(0.2)
+                settle()
+                variant = panel._raw_masks['cell']
+                if hashlib.sha256(variant.tobytes()).hexdigest() == raw_hash:
+                    raise RuntimeError('The model-option comparison did not change the segmentation')
+                capture('12_model_result')
+                np.save(captures / 'preview_cell_diameter_variant.npy', variant)
+                write_json(captures / 'live_variants.json', {
+                    'filter': {'minimum_area': cutoff, 'original_minimum_area': original,
+                               'before': before, 'after': after, 'restored': restored,
+                               'raw_mask_unchanged': True, 'model_rerun': False},
+                    'model_option': {'model': panel._model_box.currentText(),
+                                     'available_models': available_models,
+                                     'diameter_before': old_diameter,
+                                     'diameter_after': panel._diameter.value(),
+                                     'objects_after': int(np.count_nonzero(np.unique(variant))),
+                                     'array_sha256': hashlib.sha256(variant.tobytes()).hexdigest(),
+                                     'rerun_completed': True},
+                })
+                dialog.close()
+    write_json(captures / 'provenance.json', {'commit': inventory['commit'],
+               'version': inventory['version'], 'module': args.module,
+               'download_requested': args.download, 'dataset_cache': str(stage / 'example_data'),
+               'app_source_modified': False, 'cache_isolated_with_bind_mount': True,
+               'completed_capture': True})
+    window.close()
+    settle(0.2)
+    app.quit()
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

@@ -1,0 +1,8 @@
+# Install ONLY in the isolated refresh .venv, which inherits the existing
+# spaCR environment's Qt/PyTorch. Never replace dependencies in the app env.
+playwright==1.58.0
+kokoro==0.9.4
+misaki[en,ja,zh]==0.9.4
+soundfile==0.13.1
+# Misaki also installs en_core_web_sm 3.8.0 on its first English run.
+# The existing Kokoro snapshot and approved voice packs are reused offline.

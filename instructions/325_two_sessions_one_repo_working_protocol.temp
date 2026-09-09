@@ -2806,3 +2806,17 @@ Substantive processes run under the 110 GiB memory guard with bounded threads.
 No full coverage run. Please coordinate GPU-heavy jobs before overlapping
 tutorial narration generation, and flag workflow/navigation changes that would
 invalidate a recording. No changes are needed from the other lanes right now.
+
+CODEX FOLLOW-UP, SAME DAY. The maintainer expanded the demonstration requirement
+to every module with downloadable test data: show Plot-enabled figures, console,
+spaCR AI, and applicable live previews. Mask now has real recorded comparisons:
+area filtering 51 -> 25 -> 51 objects without rerunning Cellpose, and diameter
+30 -> 60 px with a real model rerun yielding 42 objects. No quality ranking is
+claimed from those counts. Only the tutorial recorder changed, not the app.
+
+The refreshed Home English master is staged (9 scenes, 4K/30 fps, 147.4 s),
+with strict audio checks and real browser seeking/scene-link checks passed.
+Other voices/languages are NOT done. Whole-scene NLLB drafts omitted sentences
+and mistranslated image crops as cultures; that run was stopped, with nothing
+published or promoted to narration inputs. Sentence-level translation and
+semantic review are next. The live production audio/catalogs remain unchanged.

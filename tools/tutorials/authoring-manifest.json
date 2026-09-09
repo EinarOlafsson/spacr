@@ -244,8 +244,8 @@
     },
     {
       "path": "tools/render_all_voices.py",
-      "sha256": "b74c0a665afdd360b812a831fbb5101651d7a1ef8102768b60702f72d90b7b48",
-      "bytes": 27150
+      "sha256": "1f0fe2aa8d9c6ea85bbc0fd7346395e45b858f153ef24b8d4fa34ebfc2960081",
+      "bytes": 27402
     },
     {
       "path": "tools/render_install_keyframes.py",
@@ -329,8 +329,8 @@
     },
     {
       "path": "tests/test_web_player_contract.py",
-      "sha256": "c1becd4b8d3bf091388304c29dc97f4f0b749272ff48f2897e547e2a47171e8f",
-      "bytes": 11372
+      "sha256": "30745626c0e011f4499d593709c5ab96cf7c70827c7de17d77cebfddb5e80888",
+      "bytes": 12130
     },
     {
       "path": "catalog/10_classify_cv_override.json",
@@ -574,8 +574,8 @@
     },
     {
       "path": "web/app_v2.js",
-      "sha256": "2ffb5a767ce4f5e22cf88debebf02a5e63cf968b32e03245475d179cff4dc63a",
-      "bytes": 83268
+      "sha256": "2863f16dc6c214f477861edde70cabdf51bcf9e16ecc61dc4fd4d8dabc4d0106",
+      "bytes": 84337
     },
     {
       "path": "web/catalog/captions_da.json",
@@ -664,8 +664,8 @@
     },
     {
       "path": "web/styles.css",
-      "sha256": "fd33ba5a864c935a7ef1003d71cc81f350355b9a7fb7a71843872f4130b07f2f",
-      "bytes": 34893
+      "sha256": "8bb0f367a8809199610d3b12c5853b721dffa8055d45962caf6ae58d34a2262f",
+      "bytes": 35337
     },
     {
       "path": "web/voice_catalog.js",

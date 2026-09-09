@@ -276,3 +276,20 @@ def test_player_catalog_excludes_pause_heavy_retired_voices():
     catalog = VOICE_CATALOG.read_text(encoding="utf-8")
     for voice in ("af_nicole", "af_alloy", "af_kore", "af_nova"):
         assert f'id: "{voice}"' not in catalog
+
+
+def test_scene_links_reuse_existing_lessons_without_duplicate_or_self_links():
+    node = shutil.which('node')
+    if not node:
+        pytest.skip('Node.js is required for the player contract')
+    source = APP.read_text(encoding='utf-8')
+    helper = extract_simple_function(source, 'relatedLessonsForScene')
+    script = """
+const LESSONS = [{id: 'home'}, {id: 'classify'}, {id: 'training'}];
+const lesson = {id: 'home', scenes: [
+  {related_lessons: ['classify', 'training', 'classify', 'home', 'missing']}, {}
+]};
+if (JSON.stringify(relatedLessonsForScene(lesson, 0)) !== '["classify","training"]') process.exit(1);
+if (relatedLessonsForScene(lesson, 1).length !== 0) process.exit(2);
+"""
+    subprocess.run([node, '-e', helper + script], check=True)

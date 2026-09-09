@@ -1,0 +1,77 @@
+{
+  "id": "05_home",
+  "number": 5,
+  "slug": "home",
+  "title": "Home screen and navigation",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Find the six-step Core workflow, explore the current Home categories, and locate related tools inside their host modules.",
+  "objectives": [
+    "Follow the current Core workflow from images to regression results.",
+    "Find Data, Tools, and Assays without mistaking a folded action for a missing module.",
+    "Distinguish real test-data downloads from generated demos and find the matching specialist tutorials."
+  ],
+  "prerequisite": "Install spaCR and open the desktop application. The recording uses the dark theme with larger interface text.",
+  "scenes": [
+    {
+      "visual": "00_home",
+      "narration": "Home organizes spaCR into Core, Data, Tools, and Assays. These are workflow categories. Related tools can also live inside a parent module, so the tiles are not a list of every capability.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01_core  (6)",
+      "narration": "Core follows the screen-analysis pipeline: Mask, Measure, Annotate, Classify, Map Barcodes, and Regression. Start at the step that matches your inputs. You do not need to repeat segmentation when you already have compatible measurements or crops.",
+      "hold_after": 0.7,
+      "focus_modules": ["mask", "measure", "annotate", "classify_merged", "map_barcodes", "regression"],
+      "related_lessons": ["07_mask", "08_measure", "09_annotate", "41_classify", "12_map_barcodes", "13_regression"]
+    },
+    {
+      "visual": "02_data  (6)",
+      "narration": "Data brings together Import, Run Compare, Experiment Design, Power and Design, Dose Response, and quality control. Import is also the entry point for Import Images, Format Converter, and External Masks. Open the parent first to find those workflows.",
+      "hold_after": 0.7,
+      "focus_modules": ["foreign", "run_compare", "experiment_design", "power", "dose_response", "qc_dashboard"],
+      "related_lessons": ["36_import", "35_converter", "31_external_masks"]
+    },
+    {
+      "visual": "03_tools  (5)",
+      "narration": "Tools contains Make Masks, Align and Stitch, Image UMAP, Gate Editor, and Graph Builder. Each is a workbench with related actions. For example, Make Masks hosts model training and comparison, while Graph Builder hosts Plate Viewer and Small Multiples.",
+      "hold_after": 0.7,
+      "focus_modules": ["make_masks", "align", "umap", "gate_editor", "graph_builder"],
+      "related_lessons": ["14_make_masks", "32_align_stitch", "15_image_umap", "64_gate_editor", "58_graph_builder"]
+    },
+    {
+      "visual": "04_assays  (4)",
+      "narration": "Assays groups Plaque Assay, Recruitment, Invasion Assay, and Replication Assay. Choose a workflow that matches the experiment and its required inputs. A module's maturity color is separate from its category; read its tooltip before relying on an experimental feature.",
+      "hold_after": 0.7,
+      "focus_modules": ["analyze_plaques", "recruitment", "invasion", "replication"],
+      "related_lessons": ["24_plaque", "25_recruitment", "26_invasion", "27_replication"]
+    },
+    {
+      "visual": "05_classify_host",
+      "narration": "Classify is one module. Its Classifier family setting chooses image-based computer vision or machine learning from measured features. The older computer-vision and machine-learning tutorials remain focused walkthroughs of those two routes, not separate Home tiles.",
+      "hold_after": 0.7,
+      "focus": [345, 540, 1160, 170],
+      "related_lessons": ["41_classify", "10_classify_cv", "11_classify_ml"]
+    },
+    {
+      "visual": "05_classify_host",
+      "narration": "The icons at the top of Classify open Classifier Evaluation, Explain CV Model, Activation, Training Runs, and Feature Explorer. Hover for the name and description. Use the linked specialist lesson when you are ready to inspect a trained model or its results.",
+      "hold_after": 0.7,
+      "focus_buttons": "FoldButton",
+      "related_lessons": ["39_classifier_evaluation", "70_explain_cv", "16_activation", "28_training_runs", "65_feature_explorer"]
+    },
+    {
+      "visual": "06_mask_host",
+      "narration": "Core tutorials use the real datasets offered by Load test data. Downloading fills the relevant inputs and compatible settings. The generated demos under Help are a different option. In Mask, the Time and three-D switches reveal time-series and volumetric workflows; Live opens the preview.",
+      "hold_after": 0.7,
+      "related_lessons": ["07_mask", "17_timelapse"]
+    },
+    {
+      "visual": "07_help",
+      "narration": "Use Help to return to walkthroughs and tutorials. Keep the tutorial for your current module beside the application, and follow its dataset, settings, and output checks. The next lesson shows how the same workflows connect to the Python API and command line.",
+      "hold_after": 0.7,
+      "related_lessons": ["06_api"]
+    }
+  ]
+}

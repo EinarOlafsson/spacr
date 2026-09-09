@@ -56,10 +56,13 @@ def assert_frozen_sources_current() -> None:
     assert_cadence_profile_current()
 
 
-ROOT = Path(__file__).resolve().parents[1]
+AUTHORING_ROOT = Path(__file__).resolve().parents[1]
+# A refresh must not replace the currently published narration while only
+# some languages are ready. Keep models shared, but isolate scripts/output.
+ROOT = Path(os.environ.get("SPACR_TUTORIAL_WORKSPACE", AUTHORING_ROOT)).resolve()
 CATALOG = ROOT / "catalog"
 PRODUCTION = ROOT / "production"
-MODEL_CACHE = ROOT / "project" / "kokoro_models"
+MODEL_CACHE = AUTHORING_ROOT / "project" / "kokoro_models"
 SNAPSHOT = (
     MODEL_CACHE
     / "hub"

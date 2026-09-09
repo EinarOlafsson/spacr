@@ -1323,9 +1323,30 @@ function rebuildChapterData() {
       start,
       end,
       text: scene.narration,
+      related: relatedLessonsForScene(activeLesson, index),
       label: chapterLabel(scene.narration, index)
     };
   });
+}
+
+function relatedLessonsForScene(lesson, index) {
+  return [...new Set(lesson?.scenes?.[index]?.related_lessons || [])]
+    .filter(id => id !== lesson.id && LESSONS.some(item => item.id === id));
+}
+
+function makeRelatedLessons(ids) {
+  const links = document.createElement("div");
+  links.className = "related-lessons";
+  ids.forEach(id => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "related-lesson-link";
+    button.dataset.relatedLesson = id;
+    button.textContent = localizedLesson(id).title;
+    button.addEventListener("click", () => selectLesson(id, { focus: true }));
+    links.appendChild(button);
+  });
+  return links;
 }
 
 function clearCaptions() {
@@ -1455,6 +1476,7 @@ function renderChapters() {
     button.innerHTML = `<span class="chapter-time">${formatTime(chapter.start)}</span><span class="chapter-copy"><strong>${escapeHTML(chapter.label)}</strong><small>${escapeHTML(truncate(chapter.text, 82))}</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>`;
     button.addEventListener("click", () => seekTo(chapter.start));
     elements.chapters.appendChild(button);
+    if (chapter.related.length) elements.chapters.appendChild(makeRelatedLessons(chapter.related));
   });
 }
 
@@ -1463,6 +1485,10 @@ function renderTranscript() {
   elements.transcript.dir = "auto";
   elements.transcript.innerHTML = chapterData.map(chapter => `<div class="transcript-entry"><button type="button" data-seek="${chapter.start}">${formatTime(chapter.start)}</button><p>${escapeHTML(chapter.text)}</p></div>`).join("");
   elements.transcript.querySelectorAll("[data-seek]").forEach(button => button.addEventListener("click", () => seekTo(Number(button.dataset.seek))));
+  elements.transcript.querySelectorAll(".transcript-entry").forEach((entry, index) => {
+    const related = chapterData[index].related;
+    if (related.length) entry.appendChild(makeRelatedLessons(related));
+  });
 }
 
 function seekTo(audioSeconds) {
