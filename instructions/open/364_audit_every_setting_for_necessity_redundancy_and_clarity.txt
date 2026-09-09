@@ -1096,3 +1096,55 @@ nothing more:
 THE PLAQUE FINDING ITSELF IS UNAFFECTED and stands on its own evidence:
 `resolve_default_settings('analyze_plaques')` returns 22 keys, none of them
 the seven, checked again today.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- ALL SEVEN CANDIDATES CHECKED. NONE IS THE PLAQUE BUG.
+--------------------------------------------------------------------------------
+
+The candidate list above was explicitly "worth ten minutes, nothing more".
+Each was given its ten minutes. Every one is benign, and three of them were
+never a question -- which is a fact about the parser, not about the modules.
+
+    classify        extract_channels   RETIRED, and migrated on read
+    endodyogeny     20 keys            NOT AN APP
+    mask            timelapse          defaults applied before the bare reads
+    simulation      max_workers        NOT AN APP
+    train_cellpose  src                supplied by the runner, never a panel row
+    train_only      24 keys            NOT AN APP
+    umap            col_to_compare +3  popped ON PURPOSE, and it says so
+
+THE THREE NON-APPS ARE THE FINDING ABOUT THE INSTRUMENT. `endodyogeny`,
+`simulation` and `train_only` have `tile=False` -- they are not registered
+apps -- so `resolve_default_settings` falls through to its `{'src': ...}`
+default and returns ONE key. The parser compared "keys the module reads"
+against that one key and reported two dozen missing. `train_only` and
+`endodyogeny` were flagged above as "the two worth looking at first, on
+volume alone", and the volume was the fallback.
+
+MASK's timelapse was the one flagged as "cheapest to check and most alarming
+if real", because mask is the first module in the pipeline and three of the
+reads are bare subscripts -- `settings['timelapse']` at core.py:426, 554 and
+612, which raise KeyError on a dict without the key. They cannot:
+`set_default_settings_preprocess_generate_masks` runs at core.py:364, inside
+the per-source loop and above all three. `settings.setdefault('timelapse',
+False)` is settings.py:586. The panel not offering it is deliberate -- it is
+the mode switch that chooses `preprocess_generate_masks_timelapse` -- and the
+value is always present by the time it is read.
+
+UMAP's four are popped by name in `resolve_default_settings`, with the reason
+written beside them: `col_to_compare`, `pos`, `neg` and `mix` describe one
+lab's c1/c2/c3 plate convention, are kept as API-compatible backend defaults,
+and are replaced in the UI by `exclude_rows`, which works from the columns in
+the user's own database. `embedding_by_controls` and `exclude_conditions` go
+with them.
+
+CLASSIFY's `extract_channels` is retired. `deep_spacr_defaults` moves its
+value to `train_channels` when the new key is unset -- so a settings file in
+the wild keeps meaning what it meant -- and then pops it.
+
+WHY THIS IS WORTH THE SPACE. The plaque finding was real and this list was
+generated to find more like it. It found none, and the honest conclusion is
+that the plaque bug was a single defect rather than the visible end of a
+class. A candidate list that comes back empty is a result, and leaving it
+unchecked would have left seven open questions reading as seven suspected
+bugs.
