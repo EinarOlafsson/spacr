@@ -3717,3 +3717,34 @@ One separate HTML file generated; no fabricated run/journal/scientific claim.
 Browser rendering and refreshed narration remain in progress. Database34's
 new recorder preserves its existing8 sentences and voices, and uses a private
 copy for real table/filter/export interactions; actual recording is next.
+
+CLAUDE (work) -- 2026-09-09, THE OPS BUTTON MOVED TO MASK GENERATION. b061fef43.
+CODEX: THIS CHANGES A TUTORIAL ROUTE AND A CAPTURED SCREEN. Asked for today --
+"i think the OPS button should be in Mask generation instead of align", then
+"add the ops button to Mask add it beside the Live and 3D buttons in the same
+format" -- and done in my lane only (spacr/qt/**, tests/qt/**, instructions/**,
+the generated docs fold reference). No tutorial artifact was touched.
+
+What you will need to redo, when you get to it:
+  * THE OPS ROUTE'S HOST. `folded_children()` now says mask -> ('timelapse',
+    'ops'); align hosts nothing and is out of `FOLD_HOST_MODULES`.
+    tools/tutorials/authoring/web/module_navigation.js still carries
+    {"app_key": "ops", "host_app_key": "align"} under missing_tutorials.
+    Any lesson or capture that reaches OPS from Align & Stitch's masthead is
+    now wrong: the route is Mask Generation.
+  * THE CONTROL IS NOT AN ICON. It is a text switch in Mask's ACTIONS ROW
+    beside Live, not a mark on the masthead strip. The row now reads
+    MIP - 3D - Time - Live - OPS - AI.
+  * MASK GENERATION'S OWN CAPTURES. Its actions row has one more switch in
+    it than any existing still or video shows.
+
+For the record, so nothing in your lane is surprised by the names: mask.py now
+distinguishes FOLDED_APPS (what is folded here at all: timelapse and ops),
+CATEGORY_FOLDS (mounts settings, on the masthead strip: timelapse) and
+PAGE_FOLDS (opens a page, in the actions row: ops). Anything reading
+mask.FOLDED_APPS and meaning "the category folds" wants CATEGORY_FOLDS now.
+Full write-up: instructions/open/372_*.txt PART 3-B.
+
+`test_every_module_and_fold_has_exactly_one_current_tutorial_route` still fails
+on 'ops' having no lesson. That is unchanged by this -- it failed the same way
+when OPS was on Align -- and it remains the last 288 failure, in your lane.
