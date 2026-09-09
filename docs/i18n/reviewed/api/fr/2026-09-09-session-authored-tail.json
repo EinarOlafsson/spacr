@@ -1,0 +1,230 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "spacr.active_learning.retrain_round#26",
+      "source_sha256": "63847984f20d1551c402a08e99b8d8bebc463bf61ed94005e01c23ead6eb6311",
+      "source": "how many unannotated crops to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "context": "how many unannotated extracted image regions to draw at random and fit as the ABSENT class when only one class has been annotated. ``None`` (default) refuses instead, as before.",
+      "translation": "combien de vignettes non annotées tirer au hasard et ajuster comme la classe MANQUANTE lorsqu'une seule classe a été annotée. ``None`` (valeur par défaut) refuse à la place, comme auparavant."
+    },
+    {
+      "label": "spacr.checkpoint.CheckpointStore#13",
+      "source_sha256": "cc2fcfab7023f28374cdf79ce70f4665d719b15b4c0508fc709cbe07ca2eaf85",
+      "source": "read an existing file when true; a false value or absent file creates and atomically writes fresh state.",
+      "context": "read an existing file when true; a false value or absent file creates and atomically writes fresh state.",
+      "translation": "lit un fichier existant lorsque vrai ; une valeur fausse ou un fichier manquant crée un état neuf et l'écrit de façon atomique."
+    },
+    {
+      "label": "spacr.crop_source.resolve_source#1",
+      "source_sha256": "dad43e0a552e5659deb0d505a6df7d393a9d778d4a16fd6e56d4e7568508ab7e",
+      "source": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means LOAD IMAGES, which is the default everywhere the question is asked.",
+      "context": "Every spelling in :data:`CROP_SOURCE_ALIASES` resolves, so a settings file from any panel spaCR has shipped answers this question. Unset means load images, which is the default everywhere the question is asked.",
+      "translation": "Toutes les graphies de :data:`CROP_SOURCE_ALIASES` se résolvent, si bien qu'un fichier de réglages provenant de n'importe quel panneau livré par spaCR répond à cette question. Non renseigné signifie charger les images, ce qui est la valeur par défaut partout où la question se pose."
+    },
+    {
+      "label": "spacr.example_archives.ExampleSet.is_present#1",
+      "source_sha256": "55a44c3718b64f71f16d70d9020408a1ae98a848adb27b57f740b288c52c52a3",
+      "source": "Every marker has to match. A half-unpacked set -- a transfer that died between the images and the database -- is therefore reported as absent, which is the answer that gets it repaired.",
+      "context": "Every marker has to match. A half-unpacked set -- a transfer that died between the images and the database -- is therefore reported as absent, which is the answer that gets it repaired.",
+      "translation": "Chaque marqueur doit correspondre. Un jeu à moitié décompressé -- un transfert interrompu entre les images et la base de données -- est donc signalé comme manquant, ce qui est la réponse qui le fait réparer."
+    },
+    {
+      "label": "spacr.flowview.events.StageStarted#1",
+      "source_sha256": "401dae9811701b214af0fbecd85867e91f4467541a28d989b6d0ea419b8be4d5",
+      "source": "stage snapshot supplying its identifier, label, kind, and parameters. An absent node is declared; a prior node keeps its state while receiving the new snapshot's parameters.",
+      "context": "stage snapshot supplying its identifier, label, kind, and parameters. An absent node is declared; a prior node keeps its state while receiving the new snapshot's parameters.",
+      "translation": "instantané d'étape fournissant son identifiant, son libellé, son genre et ses paramètres. Un nœud manquant est déclaré ; un nœud déjà présent conserve son état tout en recevant les paramètres du nouvel instantané."
+    },
+    {
+      "label": "spacr.guide_attribution.attribute_well#5",
+      "source_sha256": "807d91ea27431b01cef720cfc674102b5d27a216da3f24f1467a4b62a58c986d",
+      "source": "an exact tie is broken AT RANDOM, and the generator is seeded: spaCR runs are reproducible, and a coin flip that landed differently on a re-run would annotate the same screen two ways.",
+      "context": "an exact tie is broken at random, and the generator is seeded: spaCR runs are reproducible, and a coin flip that landed differently on a re-run would annotate the same screen two ways.",
+      "translation": "une égalité parfaite est tranchée au hasard, et le générateur est initialisé avec une graine : les exécutions de spaCR sont reproductibles, et un tirage au sort qui tomberait autrement à la reprise annoterait le même criblage de deux façons."
+    },
+    {
+      "label": "spacr.illumination.validate_segmentation_illumination_resume#3",
+      "source_sha256": "52512129ab75392752103e0541d87b9ace021a7eab35a03dd8a0e95fa60dccbe",
+      "source": "for an absent or incompatible record, model, pipeline style, or completed-field set.",
+      "context": "for an absent or incompatible record, model, workflow style, or completed-field set.",
+      "translation": "pour un enregistrement, un modèle, un style de flux de travail ou un ensemble de champs terminés manquant ou incompatible."
+    },
+    {
+      "label": "spacr.macro.Recording#3",
+      "source_sha256": "b09e873d1dddabd0a3e532dd91e88e9a111f18802a1c5bdbb7c5353da7c3cdce",
+      "source": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "context": "run-journal directory copied to the recorded step and used to recover a fallback run id when no log record exposes one.",
+      "translation": "répertoire run-journal copié vers l'étape enregistrée et utilisé pour retrouver un identifiant d'exécution de repli lorsque aucune entrée de journal n'en expose."
+    },
+    {
+      "label": "spacr.model_zoo.catalogue#7",
+      "source_sha256": "0ee5130e10191bfbea8483a69c139ac2095ad7d01ebd60bcd09788ae9c97aedf",
+      "source": "passed to :func:`shared_catalogue`. ``False`` takes the community rows from its cache rather than waiting for the network; ``None`` lets that function decide from the thread it is on.",
+      "context": "passed to :func:`shared_catalogue`. ``False`` takes the community rows from its cache rather than waiting for the network; ``None`` lets that function decide from the thread it is on.",
+      "translation": "transmis à :func:`shared_catalogue`. ``False`` prend les lignes de la communauté dans son cache au lieu d'attendre le réseau ; ``None`` laisse cette fonction décider selon le fil d'exécution où elle se trouve."
+    },
+    {
+      "label": "spacr.ops_merge#7",
+      "source_sha256": "d4d8a6e566cdeff215297df74696c06d34071afbfa08304a3f72e4af3d9deb34",
+      "source": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "context": "Follows brieflow (Cheeseman lab; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose `merge` stage was read for the approach.",
+      "translation": "Suit brieflow (Cheeseman lab ; github.com/cheeseman-lab/brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), dont l'étape `merge` a été lue pour la démarche."
+    },
+    {
+      "label": "spacr.ops_sbs#9",
+      "source_sha256": "1b3711bef765ccbab04bc488e96ccd17c4e5a7cca94c7400e9b39d97ac3cc916",
+      "source": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "context": "The method here follows brieflow (Cheeseman lab; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), whose source was read for the three points above rather than reconstructed from its stage names.",
+      "translation": "La méthode employée ici suit brieflow (Cheeseman lab ; github.com/cheeseman-lab/ brieflow, MIT, Copyright 2025 Massachusetts Institute of Technology), dont le code source a été lu pour les trois points ci-dessus au lieu d'être reconstitué à partir des noms de ses étapes."
+    },
+    {
+      "label": "spacr.ops_settings#1",
+      "source_sha256": "f08fed5de009684f81a168b07db774b9a9e1149c9aea6cfa91981ca206e02b29",
+      "source": "WHY THIS FILE EXISTS. `spacr/spacrops.py` carries sixty-three settings and, until this, not one of them had a declared type, a category or a tooltip. A settings audit found what that costs: a module absent from the shared tables is never checked, and that is how a checkbox came to ship the string ``'False'`` -- truthy, silently, for the life of the release.",
+      "context": "Why this file exists. `spacr/spacrops.py` carries sixty-three settings and, until this, not one of them had a declared type, a category or a tooltip. A settings audit found what that costs: a module absent from the shared tables is never checked, and that is how a checkbox came to ship the string ``'False'`` -- truthy, silently, for the life of the release.",
+      "translation": "Pourquoi ce fichier existe. `spacr/spacrops.py` transporte soixante-trois réglages et, jusqu'ici, pas un seul n'avait de type déclaré, de catégorie ni d'infobulle. Un audit des réglages a montré ce que cela coûte : un module qui manque dans les tables partagées n'est jamais vérifié, et c'est ainsi qu'une case à cocher en est venue à livrer la chaîne ``'False'`` -- vraie au sens booléen, en silence, pour toute la durée de la version."
+    },
+    {
+      "label": "spacr.qt.live_zoom#6",
+      "source_sha256": "91a0ce25b3fe4f4ced20e7460e007c33c24ff8916b35d4251fc7251e816023f8",
+      "source": "WHAT IS LIVE INSTEAD. An explicit ``QWidget.setFont`` *does* beat the application sheet's ``font-size`` -- it is the same escape hatch that lets a per-widget sheet win -- and it costs one font assignment and one relayout rather than a global unpolish/repolish. So a notch snapshots each visible widget's font once, then re-scales every widget from that snapshot by the ratio the wheel has travelled. The role hierarchy survives because each widget is scaled from its own baseline: a 22 px title and a 13 px caption stay in proportion without this module knowing which is which.",
+      "context": "What is live instead. An explicit ``QWidget.setFont`` *does* beat the application sheet's ``font-size`` -- it is the same escape hatch that lets a per-widget sheet win -- and it costs one font assignment and one relayout rather than a global unpolish/repolish. So a notch snapshots each visible widget's font once, then re-scales every widget from that snapshot by the ratio the wheel has travelled. The role hierarchy survives because each widget is scaled from its own baseline: a 22 px title and a 13 px caption stay in proportion without this module knowing which is which.",
+      "translation": "Ce qui est vivant à la place. Un ``QWidget.setFont`` explicite *l'emporte bel et bien* sur le ``font-size`` de la feuille de style de l'application -- c'est la même échappatoire qui laisse gagner une feuille propre à un widget -- et il coûte une affectation de police et un réagencement plutôt qu'un unpolish/repolish global. Un cran photographie donc une fois la police de chaque widget visible, puis remet à l'échelle chaque widget à partir de cette photographie, selon le rapport parcouru par la molette. La hiérarchie des rôles survit parce que chaque widget est mis à l'échelle depuis sa propre base : un titre de 22 px et une légende de 13 px gardent leurs proportions sans que ce module ait à savoir lequel est lequel."
+    },
+    {
+      "label": "spacr.qt.regex_detect.MetadataRecord.get#2",
+      "source_sha256": "c8d360d8a850499131c46c4b4a5bd95932f62ce64059d4952c9db157daf0b058",
+      "source": "what to return when it is absent.",
+      "context": "what to return when it is absent.",
+      "translation": "ce qu'il faut renvoyer lorsqu'elle manque."
+    },
+    {
+      "label": "spacr.qt.screens.data_manager.ConfirmDeleteDialog.done#1",
+      "source_sha256": "171b741a27ac5f8c79dcff36d6d1c6a873682b0cc8917f85c19aa8918cf85d7e",
+      "source": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if a running ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "context": "Both Delete and Cancel come through here and NEITHER sends a close event — ``QDialog.done`` hides the widget — so this, not ``closeEvent``, is where a modal dialog's teardown has to live. Qt aborts the process outright if an executing ``QThread`` is destroyed with its owner, and the walk can still be out when the user cancels.",
+      "translation": "Supprimer comme Annuler passent tous deux par ici et AUCUN des deux n'envoie d'événement de fermeture — ``QDialog.done`` masque le widget —, de sorte que c'est ici, et non dans ``closeEvent``, que doit vivre le démontage d'une boîte de dialogue modale. Qt interrompt le processus sur-le-champ si un ``QThread`` en cours d'exécution est détruit avec son propriétaire, et l'exploration des fichiers peut encore ne pas avoir fini au moment de l'annulation."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.object_label#1",
+      "source_sha256": "31cdc0561481ab2027efae957cc4b220212afd41dac1f62cdbd0241a67abd9d9",
+      "source": "NO USER SEES A LETTER, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every settings key it owns and ``organelle2`` cannot round-trip through a ``prcfo`` key without colliding with the object LABELLED 2. That is a storage decision and it has no business on screen, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "context": "No user sees a letter, asked for in as many words on 2026-09-02: \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". The slots are stored lettered -- ``organelle``, ``organelleb``, ``organellec`` -- because a role name is the prefix of every setting name it owns and ``organelle2`` cannot round-trip through a ``prcfo`` structured-data name without colliding with the object LABELLED 2. That is a storage decision and it has no business on application view, where a slot is a NUMBER: Organelle 1, Organelle 2.",
+      "translation": "Aucun utilisateur ne voit de lettre, demandé en toutes lettres le 2026-09-02 : \"i dont want to see organelle a b c d anywhere, organelle number should always be controlled by number of organelles\". Les emplacements sont stockés avec une lettre -- ``organelle``, ``organelleb``, ``organellec`` -- parce qu'un nom de rôle est le préfixe de chaque nom de réglage qu'il possède et que ``organelle2`` ne peut pas faire l'aller-retour par une clé ``prcfo`` sans entrer en collision avec l'objet ÉTIQUETÉ 2. C'est une décision de stockage et elle n'a rien à faire à l'écran, où un emplacement est un NUMÉRO : Organelle 1, Organelle 2."
+    },
+    {
+      "label": "spacr.qt.screens.image_import.ImageImportScreen.set_tiles_as_fields#1",
+      "source_sha256": "4f42abf241ab238fd87e1eb7644fcb820fab5c9269e7916cd1d9e6b93b3c3379",
+      "source": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "context": "The older two-state spelling of :meth:`set_tile_policy`, kept because it is what a caller who has not heard of stitching means: off is now the DEFAULT policy rather than the skip it used to be, since a stitched field is what it always wanted.",
+      "translation": "L'ancienne graphie à deux états de :meth:`set_tile_policy`, conservée parce que c'est ce qu'entend celui qui appelle sans avoir jamais entendu parler d'assemblage : off est désormais la politique DEFAULT au lieu du skip qu'elle était, puisqu'un champ assemblé est ce que l'on a toujours voulu."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.render_space_frame#2",
+      "source_sha256": "8fb1fed8e28689b9c509739102f66e3bbed9ac6f6fdae808b545aa2239f383d3",
+      "source": "When Numba is unavailable, the public ``render_space_frame`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
+      "context": "When Numba is unavailable, the public ``render_space_frame`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
+      "translation": "Lorsque Numba n'est pas disponible, le nom public ``render_space_frame`` accepte à la place des arguments positionnels et nommés quelconques et lève ``RuntimeError``. Refuser : le moteur de rendu spatial sur CPU a besoin de Numba, qui manque."
+    },
+    {
+      "label": "spacr.qt.widgets.fractal_space.sample_space#2",
+      "source_sha256": "b3e1fed861320fe165842168cd0465a27d9090e70231c29aa3207bcb5e7cd302",
+      "source": "When Numba is unavailable, the public ``sample_space`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
+      "context": "When Numba is unavailable, the public ``sample_space`` name instead accepts arbitrary positional and keyword arguments and raises ``RuntimeError``. Refuse: the CPU space renderer needs Numba, which is absent.",
+      "translation": "Lorsque Numba n'est pas disponible, le nom public ``sample_space`` accepte à la place des arguments positionnels et nommés quelconques et lève ``RuntimeError``. Refuser : le moteur de rendu spatial sur CPU a besoin de Numba, qui manque."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.BoxGate.kind#0",
+      "source_sha256": "4f608a9078657c038688d730f01772689aa53046efebf2d11cd3d81e79d6e33f",
+      "source": "The tag a saved box gate carries.",
+      "context": "The tag a saved box data-selection boundary carries.",
+      "translation": "L'étiquette associée à une sélection en boîte enregistrée."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.CylinderGate.kind#0",
+      "source_sha256": "0e14d2a6ec1a210a5cb91ecc676b701886ec52c075929cdcf0e38a31a63c7fa0",
+      "source": "The tag a saved cylinder gate carries.",
+      "context": "The tag a saved cylinder data-selection boundary carries.",
+      "translation": "L'étiquette associée à une sélection cylindrique enregistrée."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.EllipseGate.kind#0",
+      "source_sha256": "a04bee242b10163ab5a1405ef87341372bc23e41f9d597e2ecf0ae487cb43fe5",
+      "source": "The tag a saved ellipse gate carries.",
+      "context": "The tag a saved ellipse data-selection boundary carries.",
+      "translation": "L'étiquette associée à une sélection elliptique enregistrée."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.PolygonGate.kind#0",
+      "source_sha256": "be10f952395f95d4556ca2fe5c9265c2fe236278a0e1b69af152a764162afff7",
+      "source": "The tag a saved polygon gate carries.",
+      "context": "The tag a saved polygon data-selection boundary carries.",
+      "translation": "L'étiquette associée à une sélection polygonale enregistrée."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.PrismGate.kind#0",
+      "source_sha256": "bafa8e716191161ddbf0a58756e1b8ca9928fcb7830f54ffe7d2a78a6c57dd89",
+      "source": "The tag a saved prism gate carries.",
+      "context": "The tag a saved prism data-selection boundary carries.",
+      "translation": "L'étiquette associée à une sélection prismatique enregistrée."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.RectGate.kind#0",
+      "source_sha256": "8fea1b299bcc118b2afa6515c801a76765de0607dd3f3246a74bece32544c168",
+      "source": "The tag a saved rect gate carries.",
+      "context": "The tag a saved rect data-selection boundary carries.",
+      "translation": "L'étiquette associée à une sélection rectangulaire enregistrée."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ThresholdGate.kind#0",
+      "source_sha256": "a4c5918c9a14ddd63c8337f4e5394a637b670edb461d57cfc7c536c561b04d02",
+      "source": "The tag a saved threshold gate carries.",
+      "context": "The tag a saved threshold data-selection boundary carries.",
+      "translation": "L'étiquette associée à une sélection par seuil enregistrée."
+    },
+    {
+      "label": "spacr.qt.widgets.motility_preview.MotilityPreviewPanel#5",
+      "source_sha256": "ad798692c75a931f7d9712a54c9059b4c60de253e1296721a2c1868083db9fb1",
+      "source": "Two job runners, and the separation is load-bearing twice: the pending work on the main one is what reports \"a plate is still being scanned\", and a plane-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
+      "context": "Two job runners, and the separation is load-bearing twice: the pending work on the main one is what reports \"a plate is still being scanned\", and an image layer-count read is not a plate scan; and the second is marked not user-visible so the Home run banner does not announce a read the user never started.",
+      "translation": "Deux exécuteurs de tâches, et la séparation porte deux charges : le travail en attente sur le premier est ce qui signale \"a plate is still being scanned\", et lire un nombre de plans n'est pas un balayage de plaque ; et le second est marqué comme non visible pour que la bannière d'exécution de l'accueil n'annonce pas une lecture que personne n'a lancée."
+    },
+    {
+      "label": "spacr.qt.widgets.object_settings_grid.ObjectSettingsGrid.set_settings#1",
+      "source_sha256": "f9b84851fc164eaeb2d91d44e75aabedfd097d2f9ccae56845eab2e8c5b90aa2",
+      "source": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own keys, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "context": "The rest is KEPT, not dropped: :meth:`settings` returns it unchanged beside the table's own structured-data names, so this widget can edit a corner of a settings file without holding the whole of it hostage.",
+      "translation": "Le reste est CONSERVÉ, non écarté : :meth:`settings` le renvoie inchangé à côté des clés propres au tableau, de sorte que ce widget peut modifier un coin d'un fichier de réglages sans retenir le fichier entier."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_explorer.UmapDisplaySettings#3",
+      "source_sha256": "593c9f527ba1e2ec07a79275d2200ca5f02df3ae00c00e3badadef2ba83e3fa0",
+      "source": "the settings to open on. Every key in :data:`FIELDS` is looked up here; one that is absent falls back to its control's own default rather than raising, so a settings file written before a field existed still opens.",
+      "context": "the settings to open on. Every structured-data name in :data:`FIELDS` is looked up here; one that is absent falls back to its control's own default rather than throwing, so a settings file written before a field existed still opens.",
+      "translation": "les réglages avec lesquels ouvrir. Chaque clé de :data:`FIELDS` est recherchée ici ; celle qui manque retombe sur la valeur par défaut de son propre contrôle au lieu de lever une erreur, si bien qu'un fichier de réglages écrit avant l'existence d'un champ s'ouvre encore."
+    },
+    {
+      "label": "spacr.qt.widgets.umap_search_viewer.UmapAppearanceDialog#4",
+      "source_sha256": "5f717b9fe451adcacc2e4aea40b1ec0008a3235a2486fe43d0479fedc18f7cea",
+      "source": "the current settings; each control opens on its value and falls back to the view's default when the key is absent.",
+      "context": "the current settings; each control opens on its value and falls back to the view's default when the structured-data name is absent.",
+      "translation": "les réglages courants ; chaque contrôle s'ouvre sur sa valeur et retombe sur la valeur par défaut de la vue lorsque la clé manque."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#3",
+      "source_sha256": "cf6f54837f4b7740b7728a619d640b06d780b5677f0fc67043eba4c82d553b12",
+      "source": "settings recovered from run-local ``settings.json`` or ``settings.csv``, or from a matching ancestor ``settings/*.csv``; empty when none is usable.",
+      "context": "settings recovered from run-local ``settings.json`` or ``settings.csv``, or from a matching ancestor ``settings/*.csv``; empty when none is usable.",
+      "translation": "réglages récupérés depuis les ``settings.json`` ou ``settings.csv`` propres à l'exécution, ou depuis un ``settings/*.csv`` ancêtre correspondant ; vide lorsque aucun n'est utilisable."
+    },
+    {
+      "label": "spacr.train_compare.TrainingRun#9",
+      "source_sha256": "3186785b00cdb3d155852b0c2121e5cd1f4675c042c1ebe996497b83e63844f5",
+      "source": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "context": "parsed run-journal manifest mapping, or an empty mapping when absent, unreadable, or not an object.",
+      "translation": "correspondance analysée du manifeste run-journal, ou une correspondance vide lorsqu'il manque, qu'il est illisible ou qu'il n'est pas un objet."
+    }
+  ]
+}
