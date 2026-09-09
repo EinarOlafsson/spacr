@@ -1,0 +1,28 @@
+{
+  "lesson": "32_align_stitch",
+  "language": "da",
+  "english_sha256": "c5ca1b87343bf3d9dc635ae146c77ffe5c57cb49886fdbcb1312ffdf69e6c5cc",
+  "review": {"kind": "Editorial caption translation checked against English and the actual captured workflow", "native_speaker_signoff": false},
+  "title": "Align & Stitch: undersøg en faktisk plan, og kontrollér den skrevne mosaik",
+  "description": "Kør den aktuelle mosaikgrænseflade på bevarede, virkelige mikroskopipixels, undersøg den beregnede opstilling, skriv billedstriber med afgrænset bufferstørrelse, og kontrollér både mosaikken og dens koordinatposter.",
+  "objectives": [
+    "Skeln mellem dette eksempel med udsnit og kendt geometri og et eksperiment med uafhængigt optagne billedfliser.",
+    "Indstil gitter, overlap, rækkefølge og referencekanal i den aktuelle brugergrænseflade.",
+    "Undersøg registreringen før skrivning, og skeln mellem budgettet for billedstribebufferen og det samlede hukommelsesforbrug.",
+    "Bevar det sammensatte billede, koordinatposterne og dokumentationen for kildens oprindelse sammen."
+  ],
+  "prerequisite": "Forbered til din egen kørsel billedfliser med kendt rækkefølge og overlap samt en brugbar registreringskanal; dine antal og resultater vil være anderledes. Optagelsen genbruger ni bevarede, præcise udsnit på 800 × 800 × 4 fra ét virkeligt billedfelt på 2.000 × 2.000 × 4 med en forskydning på 600 pixels. De efterligner en 3 × 3-optagelse, ikke ni uafhængigt optagne billedfelter. Navnene tutorial_A01 er demonstrationskoordinater, ikke den oprindelige plade og brønd. Align & Stitch har ingen særskilt knap til at downloade et eksempel.",
+  "scenes": [
+    "Åbn Align & Stitch i kategorien Tools på Home. Planlægning og skrivning er separate handlinger, så du kan undersøge en opstilling, før du opretter dens mosaik. Denne skærm viser en fliseopstilling og en tekstrapport; de farvede rektangler er ikke en forhåndsvisning af mikroskopibillederne.",
+    "Vælg mappen med de bevarede billedfliser til vejledningen. De ni fliser er præcise udsnit fra ét virkeligt firekanalsbillede, bevidst arrangeret for at efterligne en optagelse med kendt geometri. De er ikke ni uafhængige billedfelter, og vejledningens plade- og brøndnavne er demonstrationsidentifikatorer.",
+    "Indstil Grid til 3 × 3, Order til row-major og Overlap til 0,25. Disse fliser på 800 pixels forskydes med 600 pixels. Brug den faktiske optagerækkefølge og det nominelle overlap til dine egne data; en slangeformet skanning må ikke beskrives som row-major.",
+    "Indstil Ref. channel til 1, det andet plan i dette eksempel med nulbaseret indeksering. Registreringen bruger strukturen i dette plan og anvender én placering på alle fire kanaler. Vælg en meningsfuld registreringskanal; denne handling er ikke en uafhængig kromatisk justering af hver kanal.",
+    "Brug Min confidence 0,3, Neighbour radius 1 og Blend feather. Indstil RAM budget (MB), budgettet for billedstribebufferen, til 8 for dette afgrænsede eksempel. Indstillingen begrænser de billedstriber, der bruges ved skrivning; den sætter ikke et loft over hver hukommelsesallokering eller applikationens samlede hukommelsesforbrug.",
+    "Tryk på Plan. Alle ni eksempelfliser registreres uden at falde tilbage på nominelle positioner, og det foreslåede lærred er 2.000 × 2.000 pixels med fire kanaler. Der er endnu ikke skrevet noget outputbillede. Undersøg antallet af registrerede, nominelt placerede og ikke placerede fliser frem for at anse enhver færdig plan for acceptabel.",
+    "Klik på den midterste flise for at undersøge dens koordinater, konfidens, residual og bidragende par. Her ligger dens udgangspunkt ved 600 pixels i hver retning og svarer til den kendte opstilling af udsnit. Perfekt sammenfaldende overlap i dette konstruerede eksempel forudsiger ikke registreringskvaliteten ved en ny optagelse.",
+    "Vælg en ny outputmappe og en separat koordinatdatabase, og lad Overwrite være slået fra. Write stack aktiveres først, når der findes en plan, og en destination er angivet. Bevar kildefliserne uændrede; at angive en outputsti erstatter ikke en gennemgang af registreringen.",
+    "Tryk på Write stack. Det faktiske output indeholder alle ni fliser, og hver pixel i alle fire kanaler svarer til det oprindelige billedfelt i dette eksempel. Resultatet angiver outputstien og forbruget i billedstribebufferen. Dette er et målt resultat for disse kendte udsnit, ikke et løfte om tabsfri registrering af vilkårlige billeder.",
+    "Koordinatdatabasen indeholder ni poster. Vi kontrollerer hver kildefil, demonstrationsplade og -brønd, billedfeltidentifikator, position på lærredet og sti til outputstakken, ikke kun antallet af rækker. Bevar posterne sammen med billedet og kildemanifestet, så koordinaterne fortsat kan fortolkes ved senere brug.",
+    "I Python læser spacr.align.scan_tiles fliseopstillingen, og estimate_offsets opbygger planen. write_stack opretter mosaikken; save_coordinates og read_coordinates skriver og genindlæser dens koordinattabel. Den separate OPS-arbejdsgang valideres ikke af denne lille mosaik. Gennemgå den faktiske optagegeometri, før du bruger nogen af arbejdsgangene til videnskabelige konklusioner."
+  ]
+}
