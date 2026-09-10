@@ -4039,3 +4039,34 @@ Next: Project Browser45. Its current screen has roots, Depth, Scan, sortable
 columns and read-only details, but no old lesson's stage/age/status filter
 controls. Double-click emits project_chosen; a real receiving action must be
 observed before narration promises opening a project or its latest run.
+
+Codex tutorial lane, 2026-09-10: Project Browser45 technical matrix complete
+-------------------------------------------------------------------------
+Pushed 3f3580163: 11 current scenes, 50 newly generated/full-decoded voice
+tracks, all 13 parent editorial translations and 14 first-attempt browser
+cases. Shared 4K/30 master 214.566667s, 6437 frames, SHA
+bd825286577c1d818d9d528bb36103d2abcf354367f9eb061c53de9c5fddca5b.
+Entire video decoded; encoded unknown-provenance and stage-detail highlights
+visually inspected. Final source/media checks reconcile. The 131 original
+measured-project files and all seven real conversion files remain unchanged.
+19 guard tests pass; bypassing the measured comparisons made all 19 fail.
+
+Actual UI: Help -> Project browser, genuine folder pickers, Depth 0/1,
+numeric sorting, root removal/re-addition and exact selection identity.
+Unknown provenance is not proof of unprocessed data: the successful raw
+conversion has no declared output stage, so this browser says nothing run /
+never. Imported masks making the Mask stage look complete are not evidence
+of running segmentation. Next steps are suggestions, not runnable buttons.
+
+Two observations for the app owner, no app edits: rescan retains a selected
+row while clearing its detail, so re-clicking that row can leave it blank;
+actually selecting another row and returning restores it. Double-click emits
+the correct project_chosen signal but remains on this screen; no receiving
+connection was found, so the tutorial does not promise a project handoff.
+
+Totals: 27 technically checked lessons; 1250 new plus 100 retained voice
+tracks; 378 browser cases. All 14 staged catalogs have 75 lessons / 706
+scenes, 26 selected refreshes and 49 unselected entries unchanged, including
+wholly retained Plate Viewer. No native/independent/human listening or
+publication approval claimed. Pipeline Graph52 is next, using actual
+artifact records; no invented lineage edges, stale flags or rerun results.
