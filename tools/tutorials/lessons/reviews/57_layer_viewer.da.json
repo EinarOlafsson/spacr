@@ -1,0 +1,41 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "baa9efcdba48d277e8a0e1d5083527989563b55348b0eb88246a8eb655c6f978",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked real image-mask overlays, actual controls and display limitations; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "da",
+  "title": "Layer Viewer: rigtige billeder og masker, visningskontroller og uændrede kilder",
+  "description": "Åbn Layer Viewer i QC, læg et intensitetsbillede og dets cellemaske oven på hinanden, afprøv synlighed, opacitet, blanding og rækkefølge, og adskil navigation fra redigering og kalibrering.",
+  "objectives": [
+    "Find QC-undermodulet, og indlæs et ægte, sammenpassende billed-/maskepar.",
+    "Juster det valgte lag uden at ændre de oprindelige målinger.",
+    "Forstå Fits forvrængning, og kontroller zoom, panorering og aflæsning af labels.",
+    "Skeln mellem tomme hjælpelag, manglende identitet og funktioner i API'et."
+  ],
+  "prerequisite": "Genbrug de verificerede fov01-TIFF'er fra External Masks: et 1994×1994 uint16-intensitetsplan og 44 justerede cellelabels. De matcher præcist plan 1 og 4 i det optagne array plate1_E01_1_1, med 3.976.036 pixels og uden fysisk kalibrering. Neutrale filnavne er ikke optagelsesmetadata. Originaler og private kopier forbliver identiske. 19 små tests og mutationer, der faktisk blev set fejle, ledsager uafhængig kontrol af 5.041 skærmpixels i hver af 26 tilstande, uden RGB-byteafvigelser. Hele kildearrays, histogramafledte 2/98-percentiler, lagegenskaber og bevægelsesgeometri er også kontrolleret. Dette validerer ikke hver skærmpixel, vilkårlige lag, flerkanals-/3D-data, blød dækning, biologisk segmenteringskvalitet eller fysisk kalibrering. Fit kan strække billedet. Ingen pipeline, AI-forespørgsel, redigering, direkte eksport, objektkobling til andre visninger eller tegning i Points/Shapes blev udført. Kontrollerne adskiller sig fra andre forhåndsvisninger.",
+  "scenes": [
+    "Åbn QC fra Home, og vælg den indlejrede Layer Viewer-knap. Projektvælgeren tilhører QC-panelet; denne fremviser har sine egne billed- og maskeknapper. Vi bruger private kopier af det rigtige, verificerede par fra External Masks. Layer Viewer har ingen særskilt download af testdata.",
+    "Vælg plus Image, og åbn TIFF'en med én kanal. Feltet er 1994 pixels på hver led med 16-bit intensiteter. Visningen strækker 2.-98. percentil, her fra 118 til 23223. Lyse skærmpixels betyder ikke, at kildeværdier er overskrevet eller målinger konverteret til 8 bit.",
+    "I denne version fylder Fit lærredet og kan strække et kvadratisk felt i et bredt panel. Træk skillelinjen, til billedpanelet er omtrent kvadratisk, og vælg Fit igen. Udled ikke fysisk form fra den forvrængede visning. Her er én verdenskoordinatenhed én pixel, ikke en kalibreret mikrometerafstand.",
+    "Vælg plus Mask, og indlæs den tilhørende cellelabel-TIFF, ikke et andet intensitetsbillede. Den har 44 ikke-nul-labels justeret til samme felt. Nul er baggrund og gennemsigtig i overlejringen. Farverne skelner labels, ikke behandlinger, celletyper eller verificeret segmenteringskvalitet.",
+    "Vælg mask i laglisten, før du ændrer kontrollerne. Den valgte række bestemmer det ændrede lag; et nyt lag bliver ikke nødvendigvis valgt automatisk. Brug maskens afkrydsningsfelt til at skjule og vise den, mens du ser billedet nedenunder. Labels og intensitetsmålinger ændres ikke.",
+    "Sæt den valgte maskes Opacity til 0. Farverne forsvinder, men laget står stadig på listen, og alle 44 labels er i hukommelsen. Det er en visningsindstilling, ikke sletning, filtrering eller rettelse af segmenteringen. Kontrollér, hvilket lag skyderen styrer.",
+    "Sæt maskens Opacity til 100 %. Labelfarverne dækker billedet ved alle ikke-nul-labels, mens baggrunden forbliver gennemsigtig. Det hjælper med at se former, men skjuler intensitetsstrukturen nedenunder. Det opretter ikke nye målinger af de mærkede områder.",
+    "Gå tilbage til 50 % med blandingen translucent. Både billedet og labelfarven bidrager til overlejringen. De uafhængige kontroller sammenligner skærmprøver med kilderne; de beviser ikke biologisk korrekt segmentering. Brug råbilledet til at vurdere grænser.",
+    "Åbn blandingsmenuen, og vælg additive. Labelfarven lægges til billedet og kan mætte den viste komposit. Kildeintensiteterne ændres ikke. Dette er visningsoperationer, ikke intensitetsnormalisering til analyse. Vælg det rigtige lag, før du prøver andre blandinger.",
+    "multiply og minimum gør billedet mørkere på forskellige måder. multiply dæmper billedet med overlejringsfarven; minimum blander den mørkeste værdi i hver farvekanal ind. Her vises minimum. Sammenlign samme felt uden at fortolke en mørkere komposit som lavere målt fluorescens.",
+    "Vælg opaque, mens Opacity stadig er 50 %. Med denne binære dækningsmaske ligner det translucent ved samme opacitet: opaque tvinger ikke skyderen til 100. Heltalslabels viser ikke forskellen ved blød dækning. Gendan translucent, før du fortsætter.",
+    "Vælg image og derefter cyan i farvekortvælgeren. Enkanalsbilledet skifter farve, mens masken beholder objektfarverne. Målinger og kanalens biologiske identitet ændres ikke. Skærmen har hverken kanalvælger eller redigerbart kontrastinterval; lov ikke kontroller fra en anden forhåndsvisning. Gendan derefter gray.",
+    "Vælg mask, og brug pil ned til at flytte den under billedet. Listen er top-først: øverste element tegnes forrest. Det uigennemsigtige billede skjuler masken, selv om den stadig er sat til synlig og har intakte data. Flyt den op igen før inspektion eller objektklik.",
+    "Klik på et synligt labelområde. Status viser verdenspositionen og her label 9. En maske indlæst gennem denne filvælger har ingen feltnøgle, så klikket identificerer ikke et objekt på tværs af forsøget og åbner ikke dets udsnit andetsteds. Udled ikke plade og brønd af det neutrale eksempelnavn.",
+    "Rul musehjulet over objektet for at zoome. Tre trin op multiplicerer forstørrelsen med 1,2³ og bevarer verdenskoordinaten under markøren. Fremviseren tegner kildelagene igen ved den nye skala. Zoom ændrer visningen, ikke masken, pixelværdierne eller kalibreringen.",
+    "Hold Shift nede, og træk med venstre museknap for at panorere; midterknappen kan også bruges. Det viste felt flyttes uden ændrede kildekoordinater. Den testede bevægelse bevarer zoom. Panorering til et andet område er ikke flytning eller registrering af billeddata.",
+    "Vælg Fit for at se hele feltet i det aktuelle panel. Her gendannes visningen før zoom. Husk begrænsningen ved panelets form: Fit garanterer ikke i sig selv samme vandrette og lodrette skala. Kildeafstand og lærredets geometri er forskellige begreber; gæt dem ikke ud fra et skærmbillede.",
+    "Plus Points og plus Shapes opretter tomme hjælpelag; her ses det tomme shapes-lag. De aktiverer ikke et tegneværktøj på denne skærm, og almindelige klik tilføjede hverken punkter eller områder i kontrollen. Fjern det tomme lag bagefter. Se Make Masks for de faktiske maskeredigeringsværktøjer.",
+    "Vælg mask, og brug fjernkontrollen. Kun laget forlader visningen; billedet bliver, og maskens kildefil er uændret. At fjerne et lag er hverken at gemme en redigering eller slette en fil. Begge private TIFF'er og de optagne originaldata forblev uændrede.",
+    "I kode indlæser stack_from_paths i spaCR's Qt-modul layer_viewer lagene; LayerStack.render_uint8 returnerer et kompositarray til din eksportkode. Spacing og FieldKey kræver kendt kalibrering og identitet. Skærmen har ingen særlig eksportknap, analysekørsel, GPU-pipeline eller spaCR AI-konsol. Hold visning, målinger og gemt maskeredigering adskilt."
+  ]
+}
