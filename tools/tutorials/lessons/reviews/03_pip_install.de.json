@@ -1,0 +1,32 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "spaCR mit pip installieren",
+  "description": "Eine isolierte Python-Umgebung anlegen, das öffentliche Paket installieren, Abhängigkeiten prüfen und die installierte Qt-Anwendung starten.",
+  "objectives": [
+    "Die Abhängigkeiten von spaCR in einer eigenen Python-Umgebung halten.",
+    "Installiertes Paket, Qt und Warnungen zu optionalen Funktionen prüfen.",
+    "Home öffnen und gezielt die richtige Umgebung aktualisieren."
+  ],
+  "prerequisite": "Diese Lektion prüft spaCR 1.5.0.5 von PyPI unter Linux mit Python 3.12.13, keine editierbare Installation eines Checkouts. Die Befehlskarten sind Anleitungen, keine aufgezeichneten Terminalausgaben; Windows- und macOS-Befehle wurden hier nicht ausgeführt. Die Neuinstallation war vor den aufgezeichneten Prüfungen abgeschlossen. Die aktuellen Basisabhängigkeiten enthalten Qt. Doctor meldet eine optionale CZI-Warnung; die GPU-Speicherbelegungsprobe wird ausdrücklich ausgelassen. Die GUI-Aufnahme verwendet --no-setup, ein privates dunkles Profil mit Schriftfaktor 1.5 und eine bereits geschlossene Tour. Sie belegt normales Öffnen und Schließen von Home, nicht sämtliche Module, optionalen Formate, GPU-Berechnungen oder andere Plattformen.",
+  "scenes": [
+    "Installieren Sie spaCR in einer eigenen Python-Umgebung. Diese Demonstration verwendet Python 3.12 unter Linux und die öffentliche PyPI-Version, keinen Quellcode-Checkout. Prüfen Sie python --version, bevor Sie den Interpreter für Ihre Umgebung auswählen.",
+    "Erstellen Sie mit dem Befehl für Ihre Plattform eine neue virtuelle Umgebung. Hier ist .venv ein neuer Ordner im Arbeitsverzeichnis. Python 3.12 muss bereits installiert sein: Der Befehl erstellt eine Umgebung, installiert aber nicht Python selbst.",
+    "Aktivieren Sie die Umgebung mit dem Befehl für Ihre Shell. PowerShell, Command Prompt, bash und zsh benötigen unterschiedliche Aktivierungsbefehle. Blockiert PowerShell das Skript, verwenden Sie Command Prompt oder rufen Sie Python aus der Umgebung direkt auf; schwächen Sie nicht die Sicherheitsregeln des gesamten Rechners.",
+    "Führen Sie python -m pip --version aus. Der angegebene Speicherort sollte innerhalb der gewählten Umgebung liegen. Dieses echte Terminal zeigt den längeren privaten Aufnahmepfad. Mit python -m pip ist die Paketinstallation an diesen Interpreter gebunden.",
+    "Aktualisieren Sie pip und installieren Sie spacr. Mit der Festlegung auf 1.5.0.5 erhalten Sie die Version dieser Lektion. Die Neuinstallation war vor diesen aufgezeichneten Prüfungen abgeschlossen. Planen Sie Zeit und Speicherplatz für wissenschaftliche Abhängigkeiten ein; die aktuellen Basisabhängigkeiten enthalten bereits die Qt-Desktop-Komponenten.",
+    "Prüfen Sie die installierte spaCR-Version, die Qt-Version und den Paketpfad. Hier stammen alle drei aus der neuen Umgebung. Ein erfolgreicher Import beweist weder, dass jedes optionale Format oder jede Analyse funktioniert, noch dass sich das Fenster öffnen lässt.",
+    "Führen Sie python -m pip check aus. No broken requirements bedeutet, dass die deklarierten Abhängigkeiten der installierten Pakete zusammenpassen. Beheben Sie gemeldete Konflikte vor dem Fortfahren. Eine erfolgreiche Prüfung ist keine wissenschaftliche Validierung einer Analyse.",
+    "Führen Sie spacr-doctor aus und lesen Sie auch die Warnungen. Diese Installation meldet eine optionale CZI-Warnung samt Reparaturbefehl. Für die Aufnahme wird --no-gpu-probe verwendet: Das Gerät wird erkannt, aber keine GPU-Speicherbelegung erprobt. Übersprungene Prüfungen sind keine bestandenen Prüfungen.",
+    "Starten Sie spacr aus derselben aktivierten Umgebung. Beim normalen ersten Start können Einrichtungsfragen erscheinen. Diese begrenzte Überprüfung nutzt ausdrücklich --no-setup und ein vorbereitetes Aufnahmeprofil; sie zeigt nicht die Beantwortung dieser Fragen.",
+    "Dies ist das echte Home-Fenster des installierten Wheels mit sechs Kernmodulen und den Gruppen Data, Tools und Assays. Es wurde ohne Analyse normal geöffnet und geschlossen. Fahren Sie mit Home fort, um Navigation, verschachtelte Werkzeuge und die Modultutorials kennenzulernen.",
+    "Schließen Sie spaCR vor einem Update und aktivieren Sie die Umgebung, die Sie ändern möchten. Aktualisieren Sie das Paket, wiederholen Sie pip check und spacr-doctor und dokumentieren Sie die neue Version zusammen mit Ihrer Analyse. Updates können Abhängigkeiten und Verhalten ändern; verändern Sie eine für laufende Arbeiten verwendete Umgebung nicht stillschweigend."
+  ]
+}

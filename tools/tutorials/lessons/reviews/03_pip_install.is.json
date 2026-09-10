@@ -1,0 +1,32 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Setja spaCR upp með pip",
+  "description": "Búðu til aðskilið Python-umhverfi, settu opinbera pakkann upp, athugaðu kröfur pakkanna og ræstu uppsetta Qt-forritið.",
+  "objectives": [
+    "Halda þeim hugbúnaðarpökkum sem spaCR þarf í sérstöku Python-umhverfi.",
+    "Athuga uppsettan pakka, Qt og viðvaranir um valfrjálsa eiginleika.",
+    "Opna Home og uppfæra rétt umhverfi meðvitað."
+  ],
+  "prerequisite": "Þessi kennsla sannreynir spaCR 1.5.0.5 frá PyPI á Linux með Python 3.12.13, ekki breytanlega uppsetningu úr frumkóðageymslu. Skipanakortin eru leiðbeiningar, ekki upptaka af úttaki skipanalínu; Windows- og macOS-skipanirnar voru ekki keyrðar hér. Hreinni uppsetningu var lokið áður en athuganirnar voru teknar upp. Núverandi grunnkröfur fela í sér Qt. Doctor sýnir viðvörun um valfrjálsan CZI-stuðning; prófun á úthlutun GPU-minnis er sérstaklega sleppt. GUI-upptakan notar --no-setup, sérstakt dökkt stillingasnið með leturkvarða 1.5 og kynningu sem hefur þegar verið lokað. Hún staðfestir að Home opnast og lokast eðlilega, ekki að allar einingar, valfrjáls skráarsnið, GPU-útreikningar eða önnur stýrikerfi virki.",
+  "scenes": [
+    "Settu spaCR upp í eigin Python-umhverfi. Sýnikennslan notar Python 3.12 á Linux og opinberu útgáfuna á PyPI, ekki afrit úr frumkóðageymslu. Athugaðu python --version áður en þú velur Python-túlk fyrir umhverfið.",
+    "Búðu til nýtt sýndarumhverfi með skipuninni fyrir þitt stýrikerfi. Hér er .venv ný mappa í vinnumöppunni. Python 3.12 verður þegar að vera uppsett; skipunin býr til umhverfi en setur ekki Python sjálft upp.",
+    "Virkjaðu umhverfið með skipuninni fyrir þína skel. PowerShell, Command Prompt, bash og zsh nota ólíkar virkjunarskipanir. Ef PowerShell hindrar skriftuna skaltu nota Command Prompt eða kalla beint á Python í umhverfinu; ekki veikja öryggisstillingar allrar tölvunnar.",
+    "Keyrðu python -m pip --version. Staðsetningin ætti að vera innan umhverfisins sem þú valdir. Þessi raunverulega skipanalína sýnir lengri einkaslóðina sem notuð var við upptökuna. Með python -m pip er uppsetning pakkanna tengd við þann tiltekna túlk.",
+    "Uppfærðu pip og settu síðan spacr upp. Með því að festa útgáfu 1.5.0.5 færðu sömu útgáfu og í kennslunni. Hreinni uppsetningu var lokið áður en þessar athuganir voru teknar upp. Gerðu ráð fyrir tíma og diskplássi fyrir vísindahugbúnaðinn sem þarf; núverandi grunnkröfur innihalda þegar Qt-skjáborðshlutana.",
+    "Athugaðu uppsetta spaCR-útgáfu, Qt-útgáfu og slóð pakkans. Hér koma öll þrjú úr nýja umhverfinu. Innflutningur sem tekst sannar hvorki að öll valfrjáls snið eða greiningar virki né að glugginn opnist.",
+    "Keyrðu python -m pip check. No broken requirements merkir að yfirlýstar kröfur uppsettra pakka séu samrýmanlegar. Leystu árekstra áður en þú heldur áfram; staðist athugun er ekki vísindaleg sannprófun greiningar.",
+    "Keyrðu spacr-doctor og lestu viðvaranir jafnt sem staðist próf. Þessi uppsetning hefur viðvörun um valfrjálsan CZI-stuðning og sýnir viðgerðarskipunina. Upptakan notar --no-gpu-probe: tækið greinist en úthlutun GPU-minnis er ekki prófuð. Athuganir sem er sleppt teljast ekki staðist próf.",
+    "Ræstu spacr úr sama virka umhverfinu. Við venjulega fyrstu ræsingu geta komið upp spurningar um stillingar. Þessi afmarkaða sannprófun notar sérstaklega --no-setup og undirbúið upptökusnið; hún sýnir ekki hvernig spurningunum er svarað.",
+    "Þetta er raunverulegi Home-glugginn úr uppsetta wheel-pakkanum, með sex kjarnaeiningum og flokkunum Data, Tools og Assays. Hann opnaðist og lokaðist eðlilega án þess að greining væri ræst. Haltu áfram í Home-kennsluna fyrir leiðsögn, innfelld verkfæri og kennslu fyrir einingarnar.",
+    "Lokaðu spaCR fyrir uppfærslu og virkjaðu umhverfið sem þú ætlar að breyta. Uppfærðu pakkann, endurtaktu pip check og spacr-doctor og skráðu nýju útgáfuna með greiningunni. Uppfærslur geta breytt pakkakröfum og hegðun; ekki breyta án vitundar annarra umhverfi sem er notað í yfirstandandi vinnu."
+  ]
+}

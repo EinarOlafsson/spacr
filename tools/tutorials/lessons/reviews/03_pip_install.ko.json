@@ -1,0 +1,32 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "pip로 spaCR 설치하기",
+  "description": "독립된 Python 환경을 만들고 공개 패키지를 설치한 뒤 의존성을 확인하고 설치된 Qt 앱을 실행합니다.",
+  "objectives": [
+    "spaCR 의존성을 전용 Python 환경에 유지하기.",
+    "설치된 패키지, Qt 및 선택 기능 경고 확인하기.",
+    "Home을 열고 의도한 환경만 신중하게 업데이트하기."
+  ],
+  "prerequisite": "이 강의는 Linux와 Python 3.12.13에서 공개 PyPI의 spaCR 1.5.0.5를 검증하며, 소스 체크아웃의 편집 가능 설치가 아닙니다. 명령 카드들은 설명이며 녹화한 터미널 출력이 아닙니다. Windows와 macOS 명령은 여기서 실행하지 않았습니다. 새 설치는 검증 녹화 전에 완료되었습니다. 현재 기본 의존성에는 Qt가 포함됩니다. Doctor는 선택적 CZI 경고를 표시하며 GPU 메모리 할당 검사는 명시적으로 생략합니다. GUI 녹화는 --no-setup, 글꼴 배율 1.5의 전용 어두운 프로필, 이미 닫힌 둘러보기를 사용합니다. Home의 정상 시작과 종료를 확인한 것이며 모든 모듈, 선택 형식, GPU 계산 또는 다른 플랫폼을 검증한 것은 아닙니다.",
+  "scenes": [
+    "spaCR는 전용 Python 환경에 설치하세요. 이 시연은 Linux의 Python 3.12와 공개 PyPI 릴리스를 사용하며 소스 체크아웃이 아닙니다. 환경의 인터프리터를 선택하기 전에 python --version을 확인하세요.",
+    "플랫폼에 맞는 명령으로 새 가상 환경을 만드세요. 여기서 .venv는 작업 디렉터리의 새 폴더입니다. Python 3.12가 이미 설치되어 있어야 합니다. 이 명령은 환경을 만들 뿐 Python 자체를 설치하지 않습니다.",
+    "사용하는 셸의 명령으로 환경을 활성화하세요. PowerShell, Command Prompt, bash, zsh의 활성화 명령은 서로 다릅니다. PowerShell이 스크립트를 차단하면 Command Prompt를 사용하거나 환경의 Python을 직접 실행하세요. 컴퓨터 전체의 보안 설정을 약화하지 마세요.",
+    "python -m pip --version을 실행하세요. 표시된 위치는 선택한 환경 안에 있어야 합니다. 이 실제 터미널에는 녹화에 사용한 긴 전용 경로가 나옵니다. python -m pip를 사용하면 패키지 설치가 해당 인터프리터에 연결됩니다.",
+    "pip를 업데이트한 다음 spacr를 설치하세요. 1.5.0.5로 고정하면 이 강의에서 검증한 릴리스를 사용합니다. 새 설치는 이 검증 화면을 녹화하기 전에 끝났습니다. 과학 계산 의존성을 위한 시간과 디스크 공간을 확보하세요. 현재 기본 의존성에는 Qt 데스크톱 구성 요소가 이미 포함됩니다.",
+    "설치된 spaCR 버전, Qt 버전, 패키지 경로를 확인하세요. 여기서는 모두 새 환경에서 가져온 값입니다. 가져오기에 성공했다고 모든 선택 형식이나 분석이 작동하거나 창이 열린다는 뜻은 아닙니다.",
+    "python -m pip check를 실행하세요. No broken requirements는 설치된 의존성 선언들이 서로 일치한다는 뜻입니다. 충돌이 보고되면 먼저 해결하세요. 검사를 통과해도 분석의 과학적 타당성을 검증한 것은 아닙니다.",
+    "spacr-doctor를 실행하고 통과 항목뿐 아니라 경고도 읽으세요. 이 설치에는 선택적 CZI 경고와 수정 명령이 표시됩니다. 녹화에서는 --no-gpu-probe를 사용하므로 장치는 감지하지만 GPU 메모리 할당을 시험하지 않습니다. 생략한 검사는 통과한 검사가 아닙니다.",
+    "동일하게 활성화된 환경에서 spacr를 실행하세요. 일반적인 첫 실행에는 설정 질문이 나올 수 있습니다. 이 한정된 검증은 --no-setup과 녹화용 프로필을 명시적으로 사용하므로 질문에 답하는 과정을 보여 주지 않습니다.",
+    "설치된 wheel에서 실행한 실제 Home 창입니다. 여섯 핵심 모듈과 Data, Tools, Assays 그룹이 보입니다. 분석을 시작하지 않고 정상적으로 열고 닫았습니다. 탐색, 내부 도구 및 모듈 강의는 Home 강의에서 계속 확인하세요.",
+    "업데이트하려면 spaCR를 닫고 변경하려는 환경을 활성화하세요. 패키지를 업데이트한 뒤 pip check와 spacr-doctor를 다시 실행하고 분석과 함께 새 버전을 기록하세요. 업데이트는 의존성과 동작을 바꿀 수 있습니다. 진행 중인 작업을 지원하는 환경을 알리지 않고 바꾸지 마세요."
+  ]
+}

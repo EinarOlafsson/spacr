@@ -1,0 +1,80 @@
+{
+  "id": "03_pip_install",
+  "number": 3,
+  "slug": "pip_install",
+  "title": "Install spaCR with pip",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Create an isolated Python environment, install the public package, verify its dependencies, and launch the installed Qt application.",
+  "objectives": [
+    "Keep spaCR's dependencies in a dedicated Python environment.",
+    "Verify the installed package, Qt and optional-feature warnings.",
+    "Launch Home and update the intended environment deliberately."
+  ],
+  "prerequisite": "This lesson verifies public PyPI spaCR 1.5.0.5 on Linux with Python 3.12.13, not an editable checkout. Command-reference cards are instructions, not recorded terminal output; Windows and macOS commands were not executed here. The actual clean installation completed before the recorded verification. Current base dependencies include Qt. Doctor reports an optional CZI warning; its GPU allocation probe is explicitly skipped. The native GUI capture uses --no-setup, a private dark profile at font scale 1.5, and an already-dismissed tour. It proves a normal Home launch and close, not every module, optional format, GPU computation or another platform.",
+  "scenes": [
+    {
+      "visual": "01_python_version",
+      "narration": "Install spaCR in its own Python environment. This demonstration uses Python three point twelve on Linux and the public PyPI release, not a source checkout. Check python dash dash version before choosing the interpreter for your environment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_create_environment",
+      "narration": "Create a new virtual environment with the command for your platform. Here dot venv is a new folder in your working directory. Python three point twelve must already be installed; this command creates an environment, not Python itself.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_activate_environment",
+      "narration": "Activate that environment using the command for your shell. PowerShell, Command Prompt, bash and zsh use different activation commands. If PowerShell blocks the script, use Command Prompt or call the environment's Python directly; do not weaken machine-wide security settings.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_pip_environment",
+      "narration": "Run python dash m pip dash dash version. Its location should point inside the environment you chose. This actual terminal shows the longer private path used for the recording. Using python dash m pip ties package installation to that interpreter.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_install_package",
+      "narration": "Upgrade pip, then install spacr. Pinning one point five point zero point five reproduces this lesson's release. The clean installation completed before these verification frames. Allow time and disk space for scientific dependencies; current base dependencies already include the Qt desktop components.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_installed_versions",
+      "narration": "Check the installed spaCR version, Qt version and package path. All three come from the new environment here. An import alone does not prove that every optional format or analysis works, and it does not prove the window will open.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_dependency_check",
+      "narration": "Run python dash m pip check. No broken requirements means the installed dependency declarations are consistent. If it reports a conflict, resolve it before proceeding; a successful check is not a scientific validation of an analysis.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_doctor",
+      "narration": "Run spacr-doctor and read warnings as well as passes. This installation has an optional CZI warning, with its repair command shown. The recording uses dash dash no gpu probe, so it detects the device but does not test a GPU allocation. Skipped checks are not passes.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_launch_commands",
+      "narration": "Launch spacr from the same activated environment. A normal first launch may ask setup questions. This bounded verification explicitly uses dash dash no setup and a prepared recording profile, so it does not demonstrate answering those questions.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_installed_home",
+      "narration": "This is the actual Home window from the installed wheel, with the six core modules and the Data, Tools and Assays groups. It opened and closed normally without starting an analysis. Continue with Home for navigation, nested tools and the module tutorials.",
+      "related_lessons": [
+        "05_home"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_update_intentionally",
+      "narration": "For an update, close spaCR and activate the environment you intend to change. Upgrade the package, repeat pip check and spacr-doctor, and record the resulting version with your analysis. Upgrades can change dependencies and behaviour; do not silently change an environment supporting ongoing work.",
+      "related_lessons": [
+        "01_pypi_github",
+        "04_platform_installers"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

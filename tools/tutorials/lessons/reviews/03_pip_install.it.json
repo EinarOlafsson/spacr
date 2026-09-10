@@ -1,0 +1,32 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Installare spaCR con pip",
+  "description": "Crea un ambiente Python isolato, installa il pacchetto pubblico, verifica le dipendenze e avvia l’applicazione Qt installata.",
+  "objectives": [
+    "Mantenere le dipendenze di spaCR in un ambiente Python dedicato.",
+    "Verificare il pacchetto installato, Qt e gli avvisi sulle funzioni facoltative.",
+    "Aprire Home e aggiornare consapevolmente l’ambiente corretto."
+  ],
+  "prerequisite": "La lezione verifica spaCR 1.5.0.5 da PyPI su Linux con Python 3.12.13, non un’installazione modificabile del repository. Le schede dei comandi sono istruzioni, non output registrato; i comandi Windows e macOS non sono stati eseguiti qui. L’installazione pulita è terminata prima delle verifiche registrate. Le dipendenze di base attuali includono Qt. Doctor segnala un avviso CZI facoltativo; la prova di allocazione GPU è esplicitamente saltata. La cattura usa --no-setup, un profilo scuro privato con scala caratteri 1.5 e un tour già chiuso. Dimostra l’apertura e la chiusura normale di Home, non tutti i moduli, formati facoltativi, calcoli GPU o altre piattaforme.",
+  "scenes": [
+    "Installa spaCR nel suo ambiente Python. Questa dimostrazione usa Python tre punto dodici su Linux e la versione pubblica di PyPI, non una copia del codice sorgente. Controlla python, due trattini, version prima di scegliere l’interprete per l’ambiente.",
+    "Crea un nuovo ambiente virtuale con il comando per la tua piattaforma. Qui punto venv è una cartella nuova nella directory di lavoro. Python tre punto dodici deve essere già installato: questo comando crea un ambiente, non installa Python.",
+    "Attiva l’ambiente con il comando adatto alla shell. PowerShell, Command Prompt, bash e zsh usano comandi di attivazione diversi. Se PowerShell blocca lo script, usa Command Prompt oppure richiama direttamente Python dall’ambiente; non indebolire la sicurezza dell’intero computer.",
+    "Esegui python, trattino m, pip, due trattini, version. La posizione deve essere all’interno dell’ambiente scelto. Questo terminale reale mostra il percorso privato più lungo usato per la registrazione. Python, trattino m, pip associa l’installazione dei pacchetti a quell’interprete.",
+    "Aggiorna pip e installa spacr. Fissare uno punto cinque punto zero punto cinque riproduce la versione della lezione. L’installazione pulita era terminata prima di queste verifiche registrate. Prevedi tempo e spazio per le dipendenze scientifiche; quelle di base attuali includono già i componenti desktop Qt.",
+    "Controlla la versione installata di spaCR, quella di Qt e il percorso del pacchetto. Qui tutti e tre provengono dal nuovo ambiente. Un’importazione riuscita non dimostra che ogni formato o analisi facoltativa funzioni, né che la finestra si apra.",
+    "Esegui python, trattino m, pip check. No broken requirements indica che le dichiarazioni delle dipendenze installate sono coerenti. Se viene segnalato un conflitto, risolvilo prima di proseguire; questo controllo non è una validazione scientifica dell’analisi.",
+    "Esegui spacr-doctor e leggi gli avvisi oltre ai controlli superati. Questa installazione ha un avviso CZI facoltativo, con il comando di correzione. La registrazione usa no gpu probe, preceduto da due trattini: rileva il dispositivo ma non prova un’allocazione GPU. I controlli saltati non sono controlli superati.",
+    "Avvia spacr dallo stesso ambiente attivato. Il primo avvio normale può porre domande di configurazione. Questa verifica limitata usa esplicitamente no setup, preceduto da due trattini, e un profilo preparato per la registrazione; non mostra le risposte a quelle domande.",
+    "Questa è la vera finestra Home del pacchetto wheel installato, con i sei moduli principali e i gruppi Data, Tools e Assays. Si è aperta e chiusa normalmente senza avviare un’analisi. Continua con Home per la navigazione, gli strumenti annidati e i tutorial dei moduli.",
+    "Per aggiornare, chiudi spaCR e attiva l’ambiente che vuoi modificare. Aggiorna il pacchetto, ripeti pip check e spacr-doctor e annota la versione risultante insieme all’analisi. Gli aggiornamenti possono cambiare dipendenze e comportamento: non modificare silenziosamente un ambiente usato per un lavoro in corso."
+  ]
+}
