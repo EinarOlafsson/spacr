@@ -52,6 +52,7 @@ def main() -> int:
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
+    parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
@@ -296,7 +297,7 @@ def main() -> int:
     elif args.module == 'parameter_sweep':
         from capture_parameter_sweep import record_sweep
         record_sweep(app, window, stage, captures, capture,
-                     settle, write_json, args.timeout)
+                     settle, write_json, args.timeout, existing=args.sweep_from)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,

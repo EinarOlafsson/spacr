@@ -9,17 +9,21 @@ import time
 from build_evaluation_example import sha
 
 
-def prepare(stage):
+def prepare(stage,existing=None):
     settings=json.loads((stage/'captures/regression_release/batch_settings.json').read_text())
     parent=stage/'sweep_runs';parent.mkdir(exist_ok=True)
-    work=Path(tempfile.mkdtemp(prefix='REAL-two-ridge-trials-',dir=parent))
-    inputs=work/'inputs';inputs.mkdir()
+    work=Path(existing).resolve() if existing else Path(tempfile.mkdtemp(prefix='REAL-two-ridge-trials-',dir=parent))
+    if existing and (work.parent!=parent.resolve() or not (work/'trials/sweep_results.csv').is_file()):
+        raise ValueError('Replay must name an existing private tutorial sweep')
+    inputs=work/'inputs'
+    if not existing:inputs.mkdir()
     originals={};pairs=[]
     for row in settings['paired_data']:
         pair=dict(row)
         for key in ('score','count'):
             source=Path(row[key]);originals[str(source)]=sha(source)
-            copied=inputs/source.name;shutil.copy2(source,copied)
+            copied=inputs/source.name
+            if not existing:shutil.copy2(source,copied)
             if sha(copied)!=originals[str(source)]:raise ValueError('Private sweep input differs')
             pair[key]=str(copied)
         pairs.append(pair)
@@ -28,15 +32,16 @@ def prepare(stage):
     return work,settings,originals
 
 
-def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout):
+def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout,*,existing=None):
     from PySide6.QtCore import Qt,QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton,QScrollArea,QFileDialog,QLineEdit,QDialogButtonBox
 
-    stage=Path(stage);work,settings,originals=prepare(stage)
+    stage=Path(stage);work,settings,originals=prepare(stage,existing)
     proof=dict(lesson='73_parameter_sweep',accepted=False,private_folder=str(work),
         original_inputs=originals,published=False,synthetic=False,app_source_modified=False,
         maximum_trials=2,requested_workers=1,biological_hits_validated=False)
+    proof['new_sweep_requested']=existing is None
     write_json(captures/'scientific_acceptance.json',proof)
 
     def reveal(widget):
@@ -125,16 +130,22 @@ def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout):
         capture('06_actual_estimate')
         if '2 valid trials' not in panel.status.text():raise ValueError('Estimate does not confirm exactly two trials')
         write_json(captures/'scientific_acceptance.json',proof)
-        click(panel.start_button)
-        if panel.start_button.isEnabled():raise ValueError('The actual sweep did not start')
-        capture('07_actual_sweep_running')
-        deadline=time.monotonic()+timeout
-        while not panel.start_button.isEnabled():
-            if time.monotonic()>deadline:
-                raise TimeoutError('The bounded sweep exceeded its deadline; retain its partial trials')
-            settle(.2)
+        if existing:
+            click(panel.refresh_button);capture('07_load_existing_sweep_results')
+        else:
+            click(panel.start_button)
+            if panel.start_button.isEnabled():raise ValueError('The actual sweep did not start')
+            capture('07_actual_sweep_running')
+            deadline=time.monotonic()+timeout
+            while not panel.start_button.isEnabled():
+                if time.monotonic()>deadline:
+                    raise TimeoutError('The bounded sweep exceeded its deadline; retain its partial trials')
+                settle(.2)
         settle(1);proof['status']=panel.status.text()
         panel.table.resizeColumnsToContents();settle(.3)
+        proof['trial_table_geometry']=dict(height=panel.table.height(),
+            viewport_height=panel.table.viewport().height(),row_height=panel.table.rowHeight(0),
+            both_rows_visible=panel.table.viewport().height()>=sum(panel.table.rowHeight(i) for i in range(2)))
         capture('08_actual_sweep_finished')
         path=work/'trials/sweep_results.csv'
         if not path.is_file():raise ValueError('No sweep results table was saved')
@@ -152,6 +163,33 @@ def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout):
         proof['selected_trial_status']=panel.trial_status.text()
         proof['selected_trial_results_status']=panel.results._status
         capture('09_actual_saved_trial_results')
+        def result_snapshot(name):
+            result=panel.results;table=result.table.table;plot=result.volcano
+            snapshot=dict(level=result.level(),status=result._status,
+                headers=[table.horizontalHeaderItem(c).text() for c in range(table.columnCount())],
+                rows=[[table.item(r,c).text() for c in range(table.columnCount())]
+                      for r in range(table.rowCount())],
+                p_axis=plot.p_axis(),caption=plot._caption,
+                keys=list(plot._keys),points=[])
+            for item in plot._scatter_items():
+                snapshot['points'].extend([[float(p.pos().x()),float(p.pos().y()),int(p.data())]
+                                           for p in item.points()])
+            proof.setdefault('result_snapshots',{})[name]=snapshot
+            capture(name);write_json(captures/'scientific_acceptance.json',proof)
+
+        result_snapshot('10_saved_guide_family')
+        box=panel.results._level_box;index=box.findData('gene')
+        if index<0:raise ValueError('Actual saved-result gene selector unavailable')
+        click(box);QTest.keyClick(box.view(),Qt.Key_Home)
+        for _ in range(index):QTest.keyClick(box.view(),Qt.Key_Down)
+        QTest.keyClick(box.view(),Qt.Key_Return);settle(.6)
+        if panel.results.level()!='gene':raise ValueError('Actual selector did not choose genes')
+        result_snapshot('11_saved_gene_family')
+        index=box.findData('grna');click(box);QTest.keyClick(box.view(),Qt.Key_Home)
+        for _ in range(index):QTest.keyClick(box.view(),Qt.Key_Down)
+        QTest.keyClick(box.view(),Qt.Key_Return);settle(.6)
+        if panel.results.level()!='grna':raise ValueError('Actual selector did not restore guides')
+        result_snapshot('12_saved_guide_family_restored')
         if 'Nothing was re-fitted' not in panel.trial_status.text():
             raise ValueError('The selected saved trial did not use its existing results')
         if any(sha(p)!=h for p,h in trial_files.items()):raise ValueError('Opening saved results rewrote a trial')
