@@ -1,0 +1,38 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine scatter groups, limits, live filters and capped wrapping; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "zh-CN",
+  "title": "Small Multiples：真实分组、实时筛选与准确的坐标尺度",
+  "description": "在Graph Builder中打开Small Multiples，以共享或独立坐标范围比较下载的真实测量数据，检查空组与分面显示上限，并创建可撤销的派生列。",
+  "objectives": [
+    "找到当前子模块入口，用真实测量对象建立散点图网格。",
+    "比较共享、独立、按行和按列的坐标范围，区分尺度变化与数据变化。",
+    "实时筛选，区分真实空组和未使用的布局位置，并统计未显示的分面层级。",
+    "添加和删除内存中的数值缩放列，保护源数据并记录可复现的绘图选择。"
+  ],
+  "prerequisite": "使用Annotate可下载示例中measurements.db的逐字节相同的私有副本：2,341个对象、4个孔、13个视野标签以及51个实际存在的孔与视野组合。对象数不是独立实验重复数，空间标签也不是已确认的处理条件。演示的所有连续散点坐标、精确分组成员、坐标范围、标题和面板可见性均独立核对源数据。验证仅限此未抽样数据中的有限、非退化连续轴，不代表任意图形、跨视图框选、生物效应或物理单位校准均已验证。Small Multiples是Graph Builder内的表格子模块，没有专属下载、图像预览、GPU流程、AI控制台、运行级Plot开关或导出按钮。复用Annotate数据，并使用子模块自身的Load table按钮。",
+  "scenes": [
+    "从Home打开Graph Builder，再选择其中嵌套的Small Multiples按钮。这是当前子模块的入口，不是Home上的独立磁贴。我们使用Annotate真实可下载测量数据的私有副本。如何取得这个示例，请参阅Annotate教程。",
+    "使用Small Multiples内的Load table，选择测量数据库的私有副本，然后选择cell。表中包含四个孔的两千三百四十一个测量对象。外层Graph Builder也有一个Load table按钮。本流程要用Small Multiples标题旁边的按钮。",
+    "搜索cell_area并拖到X，再把cell_channel_1_mean_intensity放到Y。在Plot中选择Scatter。把rowID拖到向下的Facet，把columnID拖到向右的Facet。搜索只缩小列名列表，不筛选细胞群体。这里每个点都是一个已有测量对象。",
+    "两轴都选shared时，四个面板使用相同的横纵坐标范围。标题中的对象数分别为六百一十五、五百二十五、七百和五百零一。行列标签描述位置，不代表已验证的处理条件。这些细胞不是独立的实验重复。",
+    "把X scale和Y scale都设为free。每个面板现在使用自己的范围，便于观察组内分布形状。但看起来同样宽的点云，不一定跨越同样大小的测量值范围。比较之前先读刻度。改变坐标尺度不会改变源测量数据。",
+    "两轴都选择per row。同一网格行中的面板共享范围，不同行之间可以不同。这是按布局分组坐标尺度，不是统计校正。这里每一行中的两列可以在一致的坐标范围下直接比较。",
+    "两轴都选择per column。同一网格列中的面板共享范围。X和Y也能分别设置；本演示同时改变二者。比较四个孔之前，把两轴恢复为shared。共享是指当前网格内一致，不是指之后无论怎样筛选都固定不变。",
+    "在Filter标签页添加cell_area，把下限设为两万一千九百二十五。实际网格立即更新为一千一百七十一个对象。各面板的计数和散点一起变化。这是测量值的实时筛选，不是图像分割，也不是启动一次新的分析。",
+    "在Filter标签页选择Clear all。两千三百四十一个对象全部恢复，点的位置和共享坐标范围也回到原来状态。这个按钮清除筛选；左边的Clear all channels则清除图表通道分配。两种操作都不会删除数据库中的行。",
+    "要检查真实缺失的组合，把columnID仅保留c2，把fieldID仅保留f20和f21，必要时滚动类别列表。把向右的Facet换成fieldID，向下的Facet仍用rowID。剩下一百七十四个细胞。行标签五、视野二十的面板显示n等于零，表示没有源对象，不是测得强度为零。",
+    "清除筛选，把向右的Facet恢复为columnID。在两个分面通道都有分配时，把Wrap at设为五。网格仍是两行两列，提示说明折行设置已被忽略。Wrap只在使用一个分面通道时生效，不用于重排双向分面网格。",
+    "清空向下的Facet，把fieldID放到向右的Facet，保持Wrap at为五。保留的视野排成三行，每行五个位置。源数据有十三个层级，但只绘制十二个。三个未使用的位置是隐藏的布局空位，不同于显示n等于零的真实分组。",
+    "阅读网格下方的提示。视野二十一不在十二个显示层级中，所以有两百六十四个源对象未进入面板。实际绘制的是两千零七十七个点，而载入表仍有两千三百四十一行。载入行数不能证明每一行都已显示。",
+    "关闭Wrap，把两个分面恢复为rowID和columnID。在Columns中把名称设为area_k，表达式按画面输入cell_area除以一千。预览只检查前两千行。选择Add column后，会为整张表计算派生值，但不重写数据库。",
+    "把area_k拖到X。每个横坐标现在都是原细胞面积除以一千；Y值和分组成员不变。这只是数值缩放，不是校准为平方微米，不是新测量，也不是生物效应的证据。全部两千三百四十一个派生值都经过了核对。",
+    "先把cell_area放回X，再在Columns中选中area_k并选择Remove。原来的四面板图恢复，派生列消失。私有数据库和原始下载数据都保持不变。请记录变量、分组、筛选和坐标尺度，让其他人能够复现视图。",
+    "在代码中，spaCR的Qt trellis_spec模块里的trellis和TrellisSpec定义分组、坐标尺度与Wrap；GraphSpec定义图表通道。这个界面没有专用导出按钮或自己的可下载数据集。要导出已核对的汇总CSV，请使用Tabulate。图像预览、GPU流程和spaCR AI属于相应的分析教程，而不是这个纯表格视图。"
+  ]
+}
