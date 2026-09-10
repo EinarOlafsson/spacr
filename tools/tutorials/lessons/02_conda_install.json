@@ -1,0 +1,63 @@
+{
+  "id": "02_conda_install",
+  "number": 2,
+  "slug": "conda_install",
+  "title": "Installation with Conda",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Install the official conda-forge package in a separate environment, verify the actual channel version, and recognize when that version differs from the current module tutorials.",
+  "objectives": [
+    "Create and activate a dedicated Conda environment.",
+    "Verify the installed channel package, Qt and diagnostic results.",
+    "Choose the newer pip or desktop-installer route when the channel still has the older interface."
+  ],
+  "prerequisite": "A Conda-compatible manager must already be installed. This recording verifies conda-forge spaCR 1.5.0.4 on Linux, with Python 3.12.14 and Qt 6.11.2, on 2026-09-10. The clean installation used a new private prefix, only conda-forge, and the pinned channel version; command cards illustrate the corresponding named-environment workflow rather than replaying installation output. The actual GUI still has Home (63), not the new nested layout in PyPI/installer 1.5.0.5. Default spacr-doctor performed its small CUDA allocation check successfully but warned about optional CZI support; this is not a speed benchmark or verification of every analysis or format. The native capture uses a private dark profile at font scale 1.5 with the tour already dismissed, unchanged preload defaults and no unsupported --no-setup flag. Other platforms were not tested. Original authoring and published narration differ, so unchanged audio reuse is not claimed.",
+  "scenes": [
+    {
+      "visual": "02_conda_environment",
+      "narration": "Use a dedicated Conda environment for spaCR, and check which release the channel actually provides. At this recording, conda-forge installs one point five point zero point four. PyPI and the desktop installer already offer one point five point zero point five; these are not interchangeable version labels.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_create_conda",
+      "narration": "Open a Conda-enabled shell and create a new environment with Python three point twelve. The command card uses the name spacr-conda. Choose another unused name if it already exists, and keep this environment separate from ongoing analyses.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_activate_conda",
+      "narration": "Activate the environment and print sys dot prefix to confirm where Python belongs. The actual verification uses a longer private prefix instead of the short example name. A terminal prompt alone is not proof that you are using the intended interpreter.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_install_conda",
+      "narration": "Install the channel-qualified conda-forge package, then use conda list spacr to inspect the version and channel. Our recorded installation used only conda-forge and pinned the channel release. Its installation completed before the verification frames; these cards are instructions, not fabricated terminal output.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_installed_versions",
+      "narration": "Check the spaCR version, Qt version and package location in the installed environment. Here the package is one point five point zero point four and Qt imports successfully. This proves which package is active, not that every scientific workflow or optional format has been validated.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_doctor",
+      "narration": "Run spacr-doctor and read the warnings too. Here its small GPU allocation check succeeds, while optional CZI support has a missing dependency. Skipped checks are not passes. The suggested repair concerns that feature; assess any environment changes before applying it, especially when mixing package managers.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_installed_home",
+      "narration": "The installed Conda package opens and closes normally, but this is its older Home with sixty-three tiles. It does not have the new nested module layout. Do not assume that a successful installation means every screen matches tutorials for a newer release.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_current_release_choice",
+      "narration": "For the newer nested interface shown in the refreshed module tutorials, use the current pip or Platform installers lesson in a separate environment. If you need the Conda channel, keep track of its actual release and check again for updates. Preserve the version used for an ongoing analysis.",
+      "related_lessons": [
+        "01_pypi_github",
+        "03_pip_install",
+        "04_platform_installers"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

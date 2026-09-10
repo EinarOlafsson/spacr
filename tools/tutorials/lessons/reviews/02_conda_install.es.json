@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Instalación con Conda",
+  "description": "Instala el paquete oficial de conda-forge en un entorno independiente, verifica la versión real del canal y reconoce cuándo difiere de los tutoriales actuales de módulos.",
+  "objectives": [
+    "Crear y activar un entorno Conda dedicado.",
+    "Verificar el paquete del canal, Qt y los resultados de diagnóstico.",
+    "Elegir pip o el instalador de escritorio más reciente cuando el canal conserve la interfaz anterior."
+  ],
+  "prerequisite": "Debe haber un gestor compatible con Conda instalado. La grabación verifica spaCR 1.5.0.4 de conda-forge en Linux, con Python 3.12.14 y Qt 6.11.2, el 10 de septiembre de 2026. La instalación limpia usó una ruta privada nueva, solo conda-forge y la versión del canal fijada; las tarjetas ilustran el procedimiento equivalente con un entorno con nombre, no reproducen salidas de instalación. La GUI real conserva Home (63), no la estructura anidada de PyPI/instalador 1.5.0.5. spacr-doctor realizó su pequeña prueba de asignación CUDA correctamente, pero advirtió sobre CZI opcional; no es una prueba de velocidad ni valida todos los análisis o formatos. La captura usa un perfil oscuro privado con escala de fuente 1.5, el recorrido descartado, la precarga predeterminada y sin la opción --no-setup que esta versión no admite. No se probaron otras plataformas. La narración de autoría y la publicada difieren, por lo que no se afirma reutilizar audio idéntico.",
+  "scenes": [
+    "Usa un entorno Conda dedicado para spaCR y comprueba qué versión ofrece realmente el canal. En esta grabación, conda-forge instala uno punto cinco punto cero punto cuatro. PyPI y el instalador de escritorio ya ofrecen uno punto cinco punto cero punto cinco; no son etiquetas de versión intercambiables.",
+    "Abre una terminal preparada para Conda y crea un entorno nuevo con Python tres punto doce. La tarjeta usa el nombre spacr-conda. Si ya existe, elige otro nombre sin usar y mantén este entorno separado de los análisis en curso.",
+    "Activa el entorno e imprime sys punto prefix para confirmar a dónde pertenece Python. La verificación real usa una ruta privada más larga en lugar del nombre corto del ejemplo. El indicador de la terminal, por sí solo, no demuestra que uses el intérprete correcto.",
+    "Instala el paquete especificando conda-forge y usa conda list spacr para revisar la versión y el canal. Nuestra instalación registrada usó solo conda-forge y fijó la versión del canal. Terminó antes de grabar las comprobaciones; estas tarjetas son instrucciones, no salidas de terminal inventadas.",
+    "Comprueba la versión de spaCR, la de Qt y la ubicación del paquete en el entorno instalado. Aquí el paquete es uno punto cinco punto cero punto cuatro y Qt se importa correctamente. Esto demuestra qué paquete está activo, no que se hayan validado todos los análisis o formatos opcionales.",
+    "Ejecuta spacr-doctor y lee también las advertencias. Aquí su pequeña prueba de asignación GPU pasa, mientras que al soporte opcional de CZI le falta una dependencia. Las comprobaciones omitidas no son aprobadas. La reparación sugerida concierne a esa función; evalúa los cambios del entorno antes de aplicarla, sobre todo al mezclar gestores de paquetes.",
+    "El paquete Conda instalado abre y cierra normalmente, pero esta es su antigua Home con sesenta y tres mosaicos. No tiene la nueva estructura de módulos anidados. No supongas que una instalación correcta significa que todas las pantallas coinciden con los tutoriales de una versión más reciente.",
+    "Para la nueva interfaz anidada de los tutoriales actualizados, sigue el tutorial actual de pip o Platform installers en un entorno independiente. Si necesitas el canal Conda, registra su versión real y vuelve a comprobar las actualizaciones. Conserva la versión usada en un análisis en curso."
+  ]
+}

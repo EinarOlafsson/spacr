@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Installation avec Conda",
+  "description": "Installez le paquet officiel conda-forge dans un environnement séparé, vérifiez la version du canal et identifiez ses différences avec les tutoriels actuels des modules.",
+  "objectives": [
+    "Créer et activer un environnement Conda dédié.",
+    "Vérifier le paquet du canal, Qt et les diagnostics.",
+    "Choisir pip ou l’installateur de bureau plus récent lorsque le canal conserve l’ancienne interface."
+  ],
+  "prerequisite": "Un gestionnaire compatible Conda doit être installé. Cet enregistrement vérifie spaCR 1.5.0.4 de conda-forge sous Linux, avec Python 3.12.14 et Qt 6.11.2, le 10 septembre 2026. L’installation propre utilise un nouveau préfixe privé, uniquement conda-forge et la version du canal fixée ; les fiches illustrent la procédure équivalente avec un environnement nommé, sans rejouer des sorties d’installation. La véritable interface conserve Home (63), pas la disposition imbriquée de PyPI/installateur 1.5.0.5. spacr-doctor réussit son petit test d’allocation CUDA mais avertit d’un problème de prise en charge CZI optionnelle ; ce n’est ni un test de vitesse ni une validation de toutes les analyses ou de tous les formats. La capture utilise un profil sombre privé avec une échelle de police de 1.5, une visite déjà fermée et le préchargement par défaut, sans l’option --no-setup non prise en charge. Les autres plateformes ne sont pas testées. Les narrations d’origine et publiée diffèrent ; aucune réutilisation audio à l’identique n’est revendiquée.",
+  "scenes": [
+    "Utilisez un environnement Conda dédié à spaCR et vérifiez la version réellement proposée par le canal. À cet enregistrement, conda-forge installe un point cinq point zéro point quatre. PyPI et l’installateur de bureau proposent déjà un point cinq point zéro point cinq ; ces versions ne sont pas interchangeables.",
+    "Ouvrez un terminal configuré pour Conda et créez un nouvel environnement avec Python trois point douze. La fiche utilise le nom spacr-conda. S’il existe déjà, choisissez un autre nom inutilisé et séparez cet environnement des analyses en cours.",
+    "Activez l’environnement et affichez sys point prefix pour confirmer l’emplacement de Python. La véritable vérification utilise un préfixe privé plus long plutôt que le nom court de l’exemple. L’invite du terminal ne suffit pas à prouver que le bon interpréteur est utilisé.",
+    "Installez le paquet en précisant conda-forge, puis utilisez conda list spacr pour examiner la version et le canal. L’installation vérifiée utilisait uniquement conda-forge et fixait la version du canal. Elle était terminée avant les images de vérification ; ces fiches sont des instructions, pas des sorties de terminal fabriquées.",
+    "Vérifiez les versions de spaCR et de Qt ainsi que l’emplacement du paquet dans l’environnement installé. Ici, le paquet est en version un point cinq point zéro point quatre et Qt s’importe correctement. Cela identifie le paquet actif, sans valider toutes les analyses scientifiques ni tous les formats optionnels.",
+    "Exécutez spacr-doctor et lisez aussi les avertissements. Son petit test d’allocation GPU réussit ici, mais il manque une dépendance au support CZI optionnel. Les contrôles omis ne sont pas réussis. La correction suggérée concerne cette fonction ; évaluez les changements d’environnement avant de l’appliquer, surtout en mélangeant des gestionnaires de paquets.",
+    "Le paquet Conda installé s’ouvre et se ferme normalement, mais il s’agit de son ancienne Home à soixante-trois tuiles. Il n’a pas la nouvelle disposition des modules imbriqués. Une installation réussie ne signifie pas que tous les écrans correspondent aux tutoriels d’une version plus récente.",
+    "Pour l’interface imbriquée des tutoriels actualisés, suivez la leçon actuelle sur pip ou Platform installers dans un environnement séparé. Si vous avez besoin du canal Conda, consignez sa version réelle et vérifiez à nouveau les mises à jour. Préservez la version utilisée pour une analyse en cours."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "使用Conda安装",
+  "description": "在独立环境中安装官方conda-forge软件包，核实渠道的实际版本，并识别它与当前模块教程之间的差异。",
+  "objectives": [
+    "创建并激活专用Conda环境。",
+    "验证渠道软件包、Qt和诊断结果。",
+    "当渠道仍提供旧界面时，选择较新的pip或桌面安装器途径。"
+  ],
+  "prerequisite": "需要预先安装兼容Conda的环境管理器。本录制于2026年9月10日在Linux、Python 3.12.14和Qt 6.11.2上验证conda-forge的spaCR 1.5.0.4。全新安装使用新的私有路径，仅使用conda-forge并固定渠道版本；命令卡片说明对应的命名环境流程，不是安装输出回放。实际GUI仍是Home (63)，而非PyPI/安装器1.5.0.5的新嵌套布局。默认spacr-doctor的小型CUDA内存分配检查成功，但报告可选CZI支持警告；这不是速度测试，也没有验证所有分析或格式。录制使用字体缩放1.5的私有深色配置、已关闭的导览和未改动的预加载默认值，没有使用不受支持的--no-setup。其他平台未测试。制作文件与发布版旁白不同，因此不声称原样复用了音频。",
+  "scenes": [
+    "为spaCR使用专用Conda环境，并核实渠道实际提供哪个版本。录制时conda-forge安装的是一点五点零点四。PyPI和桌面安装器已经提供一点五点零点五；这些版本标签不能互换。",
+    "打开支持Conda的命令行，使用Python三点十二创建新环境。卡片使用spacr-conda这个名称。如果它已经存在，请选择另一个未使用的名称，并将这个环境与进行中的分析分开。",
+    "激活环境并输出sys点prefix，确认Python属于哪个环境。实际验证使用较长的私有路径，而不是示例中的短名称。仅看终端提示符，不能证明正在使用预期的解释器。",
+    "安装明确指定conda-forge渠道的软件包，再用conda list spacr检查版本与渠道。验证中的安装仅使用conda-forge，并固定了渠道发布版本。安装在录制验证画面前已完成；这些卡片是操作说明，不是伪造的终端输出。",
+    "检查已安装环境中的spaCR版本、Qt版本和软件包位置。这里的软件包为一点五点零点四，Qt导入成功。这确认了正在使用哪个包，不代表已经验证每一种科学分析流程或可选格式。",
+    "运行spacr-doctor，也要阅读警告。此处的小型GPU内存分配检查成功，但可选CZI支持缺少一个依赖。跳过的检查不等于通过。建议的修复针对该功能；应用之前请评估环境变化，尤其是在混用软件包管理器时。",
+    "安装的Conda软件包能够正常打开和关闭，但这是有六十三个入口的旧Home。它没有新的模块嵌套布局。不要认为安装成功就意味着所有界面都与较新版本的教程一致。",
+    "要使用更新后模块教程中的新嵌套界面，请在独立环境中按照当前pip或Platform installers课程操作。如果需要Conda渠道，请记录实际版本，并再次检查更新。保留进行中分析所用的版本。"
+  ]
+}

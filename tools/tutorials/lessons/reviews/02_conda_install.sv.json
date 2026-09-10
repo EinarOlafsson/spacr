@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Installation med Conda",
+  "description": "Installera det officiella conda-forge-paketet i en separat miljö, kontrollera kanalens faktiska version och identifiera skillnader mot de aktuella modulhandledningarna.",
+  "objectives": [
+    "Skapa och aktivera en separat Conda-miljö.",
+    "Kontrollera kanalpaketet, Qt och diagnostikresultaten.",
+    "Välj nyare pip eller skrivbordsinstallationsprogrammet när kanalen fortfarande har det gamla gränssnittet."
+  ],
+  "prerequisite": "En Conda-kompatibel pakethanterare måste redan vara installerad. Inspelningen kontrollerar spaCR 1.5.0.4 från conda-forge på Linux med Python 3.12.14 och Qt 6.11.2 den 10 september 2026. Den rena installationen använder ett nytt privat prefix, enbart conda-forge och en låst kanalversion; kommandokorten visar motsvarande arbetsgång med en namngiven miljö, inte återspelad installationsutmatning. Det verkliga gränssnittet har fortfarande Home (63), inte den nya nästlade strukturen i PyPI/installationsprogram 1.5.0.5. Standardkörningen av spacr-doctor klarade sitt lilla CUDA-minnesallokeringstest men varnade om valfritt CZI-stöd; detta är varken ett hastighetstest eller verifiering av alla analyser och format. Den faktiska inspelningen använder en privat mörk profil med teckensnittsskala 1.5, redan stängd introduktion och oförändrade förinläsningsinställningar, utan den flagga --no-setup som saknar stöd. Andra plattformar har inte testats. Ursprunglig och publicerad berättartext skiljer sig åt, så oförändrad återanvändning av ljud påstås inte.",
+  "scenes": [
+    "Använd en separat Conda-miljö för spaCR och kontrollera vilken utgåva kanalen faktiskt erbjuder. Vid denna inspelning installerar conda-forge ett punkt fem punkt noll punkt fyra. PyPI och skrivbordsinstallationsprogrammet erbjuder redan ett punkt fem punkt noll punkt fem; dessa versioner är inte utbytbara.",
+    "Öppna ett kommandoskal som är förberett för Conda och skapa en ny miljö med Python tre punkt tolv. Kommandokortet använder namnet spacr-conda. Välj ett annat oanvänt namn om det redan finns och håll miljön åtskild från pågående analyser.",
+    "Aktivera miljön och skriv ut sys punkt prefix för att bekräfta var Python hör hemma. Den faktiska kontrollen använder ett längre privat prefix i stället för det korta exempelnamnet. En terminalprompt bevisar inte ensam att rätt tolk används.",
+    "Installera paketet med conda-forge uttryckligen angivet som kanal och använd sedan conda list spacr för att granska version och kanal. Den inspelade installationen använde endast conda-forge och låste kanalversionen. Installationen var klar före kontrollbilderna; korten är instruktioner, inte fabricerad terminalutmatning.",
+    "Kontrollera spaCR-versionen, Qt-versionen och paketets plats i den installerade miljön. Här är paketet ett punkt fem punkt noll punkt fyra och Qt importeras korrekt. Det identifierar det aktiva paketet, men verifierar inte alla vetenskapliga arbetsflöden eller valfria format.",
+    "Kör spacr-doctor och läs även varningarna. Det lilla GPU-minnesallokeringstestet lyckas här, medan valfritt CZI-stöd saknar ett beroende. Överhoppade kontroller är inte godkända kontroller. Reparationsförslaget gäller den funktionen; bedöm miljöändringar innan de genomförs, särskilt när pakethanterare blandas.",
+    "Det installerade Conda-paketet öppnas och stängs normalt, men detta är dess äldre Home med sextiotre rutor. Det har inte den nya nästlade modulstrukturen. Anta inte att en lyckad installation innebär att varje skärmbild motsvarar handledningarna för en nyare utgåva.",
+    "För det nyare nästlade gränssnittet i de uppdaterade modulhandledningarna använder du den aktuella lektionen om pip eller Platform installers i en separat miljö. Behöver du Conda-kanalen, dokumentera dess faktiska utgåva och kontrollera efter uppdateringar igen. Bevara den version som används för en pågående analys."
+  ]
+}

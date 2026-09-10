@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Instalação com Conda",
+  "description": "Instale o pacote oficial do conda-forge em um ambiente separado, verifique a versão real do canal e reconheça diferenças em relação aos tutoriais atuais dos módulos.",
+  "objectives": [
+    "Criar e ativar um ambiente Conda dedicado.",
+    "Verificar o pacote do canal, Qt e os resultados de diagnóstico.",
+    "Escolher pip ou o instalador de desktop mais recente quando o canal ainda tiver a interface antiga."
+  ],
+  "prerequisite": "Um gerenciador compatível com Conda deve estar instalado. A gravação verifica spaCR 1.5.0.4 do conda-forge no Linux com Python 3.12.14 e Qt 6.11.2, em 10 de setembro de 2026. A instalação limpa usou um prefixo privado novo, apenas conda-forge e a versão do canal fixada; os cartões ilustram o procedimento correspondente com um ambiente nomeado, sem simular saídas de instalação. A GUI real mantém Home (63), não o layout aninhado do PyPI/instalador 1.5.0.5. O spacr-doctor passou no pequeno teste de alocação CUDA, mas avisou sobre suporte opcional a CZI; isso não mede velocidade nem valida todas as análises ou formatos. A captura usa um perfil escuro privado com escala de fonte 1.5, tour já dispensado e pré-carregamento padrão, sem a opção --no-setup não suportada. Outras plataformas não foram testadas. As narrações dos arquivos de produção e publicados diferem; não se declara reutilização de áudio idêntico.",
+  "scenes": [
+    "Use um ambiente Conda dedicado para o spaCR e confira qual versão o canal realmente oferece. Nesta gravação, conda-forge instala um ponto cinco ponto zero ponto quatro. PyPI e o instalador de desktop já oferecem um ponto cinco ponto zero ponto cinco; essas versões não são intercambiáveis.",
+    "Abra um shell preparado para Conda e crie um ambiente novo com Python três ponto doze. O cartão usa o nome spacr-conda. Se ele já existir, escolha outro nome ainda não usado e mantenha esse ambiente separado das análises em andamento.",
+    "Ative o ambiente e imprima sys ponto prefix para confirmar a qual ambiente o Python pertence. A verificação real usa um prefixo privado mais longo, em vez do nome curto do exemplo. O prompt do terminal, sozinho, não prova que você usa o interpretador correto.",
+    "Instale o pacote especificando conda-forge e use conda list spacr para conferir a versão e o canal. A instalação verificada usou apenas conda-forge e fixou a versão do canal. Ela terminou antes das imagens de verificação; os cartões são instruções, não saídas inventadas de terminal.",
+    "Confira as versões do spaCR e do Qt e a localização do pacote no ambiente instalado. Aqui o pacote é um ponto cinco ponto zero ponto quatro e o Qt é importado corretamente. Isso identifica o pacote ativo, mas não valida todo fluxo científico ou formato opcional.",
+    "Execute spacr-doctor e leia os avisos também. Aqui o pequeno teste de alocação GPU passa, mas falta uma dependência do suporte opcional a CZI. Testes ignorados não são aprovados. A correção sugerida diz respeito a esse recurso; avalie as mudanças no ambiente antes de aplicá-la, especialmente ao misturar gerenciadores de pacotes.",
+    "O pacote Conda instalado abre e fecha normalmente, mas esta é a Home antiga, com sessenta e três blocos. Ela não tem o novo layout de módulos aninhados. Não presuma que uma instalação bem-sucedida significa que todas as telas correspondem aos tutoriais de uma versão mais recente.",
+    "Para a interface aninhada dos tutoriais atualizados, siga a aula atual de pip ou Platform installers em um ambiente separado. Se precisar do canal Conda, acompanhe sua versão real e confira novamente as atualizações. Preserve a versão usada em uma análise em andamento."
+  ]
+}
