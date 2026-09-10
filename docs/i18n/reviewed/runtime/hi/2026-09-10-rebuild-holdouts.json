@@ -1,0 +1,13 @@
+{
+  "language": "hi",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "max_parasites_per_vacuole",
+      "source": "Max parasites per vacuole",
+      "source_sha256": "d04898bd2b02477b652a4855157dbe8ec717c07acb4d937f9874194896069ce9",
+      "translation": "प्रति रिक्तिका अधिकतम परजीवी"
+    }
+  ],
+  "schema": 1
+}
