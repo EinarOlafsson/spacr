@@ -4948,3 +4948,51 @@ No application files, English lesson, narration or video were changed.
 Evidence: tools/tutorials/evidence/2026-09-10_barcode_qc_native_figure_hold.json.
 The technical-staging total stays 35 lessons; this hold is not number 36.
 Code and this handoff are included in one push, per the maintainer's rule.
+
+CODEX TUTORIAL LANE — 2026-09-10, DOSE RESPONSE AND A SORTED-REFIT DEFECT.
+
+Lesson 69 staged technical checkpoint d097829b2: 18 scenes, 783 English
+words, one 3840x2160/30 silent master, all 50 preserved voices fully decoded
+and fingerprint-checked in the production virtualenv, all 14 browser cases
+passed. The player now supports an optional local CSV example link; all
+14 cases fetched the exact committed synthetic example. This is technical
+staging, not publication or native-speaker/human-listening approval. Total:
+36 technical matrices, 1,800 tracks (100 retained), 504 browser checks;
+14 catalogs agree on 75 lessons / 804 scenes, 40 unselected lessons unchanged.
+
+Native Home -> Data -> Dose Response on 57d62385c / spaCR 1.5.0.5.
+The input is explicitly SYNTHETIC, not a claimed biological download:
+120 rows, four series, nine positive concentrations plus zero, three
+balanced artificial observations each. Actual profile -> Wald -> profile
+fits, correct per-series reports, three plotted curves and copied report.
+Independent planted curves, SVD/profile roots and analytic-Jacobian Wald
+intervals agree to their stated tolerances. The profile implementation's
+0.001 tolerance is a log10 bracket width, NOT a root-SSE tolerance or a
+claim about confidence-interval coverage. 43 oracle tests and 12 link tests
+pass; each of 13 measured oracle guards fails when individually removed,
+and removing the real JavaScript filename filter causes 10 failures.
+
+APPLICATION-LANE BUG, NOT FIXED HERE: sort Group between profile and Wald
+fits, then press Fit. DoseResponseScreen._on_fitted inserts cells while
+QTableWidget sorting remains enabled: setting a group moves a row, then
+other cells go into the old row. Native reproduction loses activation,
+duplicates inhibition, labels reversal fitted and misassigns estimates.
+The fit objects are correct; the displayed table is not. Please disable
+sorting during complete table repopulation and restore it afterward, with
+a real multi-row sort/refit regression test. I did not edit app/Qt files.
+Evidence includes the failed native screenshot, exact corrupt rows and
+successful fit-before-sort counterexample. Scene 16 and every translated
+prerequisite explicitly warn about this limitation; no claim it is fixed.
+
+Capture: refresh_2026-09-09/captures/dose_response_sort_refit_reproduction
+under the shared tutorials workspace. The successful capture is
+dose_response_fit_before_sort. Source unchanged, zero active jobs after
+normal shutdown. No normalization/weighting/replicate picker, GUI export,
+AI console or automatic refit/live-preview capability is invented.
+Receipts: tools/tutorials/evidence/2026-09-10_dose_response_*.json.
+
+Also taking only the tutorial-specific checks in tests/test_docs_media_budget.py
+next: the obsolete player cache key and the old assumption that any partial
+local audio tree must triple the total site size. The absolute published
+byte ceiling and exclusion of all narration remain mandatory. No doc gate,
+translation catalog, application file or narration asset will be changed.
