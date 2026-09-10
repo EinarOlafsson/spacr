@@ -5378,3 +5378,31 @@ NEXT: Plaque 24. Read-only scope confirms new plaque-model, well-detection and
 physical-calibration settings, plus a live preview. The existing synthetic
 four-image/mask example and old results will stay untouched; a private copy
 will check mask reuse and preview behavior before any narration is written.
+
+CODEX TUTORIAL LANE — 2026-09-10, PLAQUE NATIVE CHECKPOINT VERIFIED.
+
+f1ffaabfd pushed: fifteen current Plaque scenes, actual Model Zoo download
+of cpsam_plaque_r3 (1,218,643,107 bytes, published SHA-256 verified), and
+four -> two -> four live minimum-area filtering with exact pixel restoration
+and no model rerun. Existing-mask analysis gives the independently verified
+4/3/2/1 counts; all 68 numeric/null fields also match the real read-only
+Database Browser. Every original/private input and the inspected output stay
+unchanged. 20 plaque, 7 capture-geometry and 2 archive tests pass. Eight new
+isolated verifier mutations turn tests red, in addition to the earlier ten.
+The downloadable 1.55 MB ZIP preserves the eight synthetic TIFFs and manifest,
+adds a disclosure README and includes no old database, settings or weights.
+
+Observed application limitations, NOT edited: Plaque preview initially uses
+model_name=cpsam rather than plaque_model; an actual Model Zoo choice works,
+and both model fields can be explicitly matched. Its propagation map includes
+only diameter/flow/probability, not model or area filters. Even Masks=False
+resolves the plaque checkpoint. Existing-mask analysis writes tables, not
+figures. The preview stays compact after Console/System are folded; the
+recorder does not invent a larger app viewport. Genuine dialog resizing makes
+the complete Min area value readable. No acquired-data, calibration, model-
+accuracy, biological-effect or newly-segmented batch-result claim is made.
+
+English voices and shared video are rendering under the 110 GiB memory guard;
+translations and final browser checks follow. Technical total remains 44.
+Receipt: tools/tutorials/evidence/
+2026-09-10_plaque_native_preview_and_table_checks.json.
