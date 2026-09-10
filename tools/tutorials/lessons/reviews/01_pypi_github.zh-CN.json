@@ -1,0 +1,29 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "PyPI、GitHub 和 conda-forge",
+  "description": "找到官方软件包和安装程序的来源，比较各渠道提供的版本，并选择相应的安装教程。",
+  "objectives": [
+    "识别 spaCR 在 PyPI、GitHub 和 conda-forge 上的官方页面。",
+    "区分发行文件、开发中的源代码以及独立更新的软件包渠道。",
+    "选择安装方式，并核实实际安装的版本。"
+  ],
+  "prerequisite": "本概览不执行安装。页面截取于 2026 年 9 月 10 日：PyPI 和 GitHub 提供 1.5.0.5，conda-forge 提供 1.5.0.4。各渠道版本和可用文件可能变化，请阅读当前页面并核实已安装版本。浏览器使用匿名配置，保留页面文字、徽章和发行历史，不作修改。各平台的安装步骤及硬件选择见链接的安装教程。",
+  "scenes": [
+    "安装 spaCR 前，先选择官方分发来源。PyPI 和 conda-forge 提供 Python 软件包；GitHub 提供源代码、发行记录和桌面安装程序。这些途径彼此相关，但不一定同时发布同一个版本。",
+    "在 PyPI 上，阅读发行版标题和安装命令。这里的标题是 spaCR 一点五点零点五。请核实当前页面显示的版本，不要根据旧截图、徽章或教程日期推断版本。",
+    "Project links 将软件包连接到文档、主页、问题跟踪和源代码仓库。通过这些链接在官方资源之间切换。软件包页面描述的是该已发布版本，并不保证所有正在开发的功能都已包含在内。",
+    "在 GitHub 上，分支选择器标明你正在阅读哪条代码分支。main 是发行分支，nightly 包含正在进行的开发。日常安装请选择已发布版本；只有明确需要较新开发内容且能接受变化时，才使用 nightly。",
+    "打开一个发行版并展开 Assets。选择适合 Windows、macOS 或 Linux 的安装程序。wheel 和源码分发包是 Python 软件包文件，不是桌面安装程序。请下载与所选版本及文件完全对应的校验和清单，不要拿另一渠道的哈希值来比较。",
+    "conda-forge 页面有自己的版本选择器。录制时，它提供一点五点零点四，而 PyPI 提供一点五点零点五。演示特意保留了这一真实差异，不要假定某个渠道的更新已经到达。",
+    "明确指定渠道的命令是 conda install conda-forge，接两个冒号，再接 spacr。请在你打算使用的环境中运行。Conda 教程介绍这条途径；创建 Conda 环境后用 pip 安装是另一条途径，虽然两者都使用环境管理器。",
+    "使用 Python 虚拟环境请选择 pip 教程，安装渠道软件包请选择 Conda 教程，需要由安装程序管理的私有运行环境则选择 Platform installers。随后核实已安装版本并运行 spacr-doctor，再继续学习模块教程。"
+  ]
+}

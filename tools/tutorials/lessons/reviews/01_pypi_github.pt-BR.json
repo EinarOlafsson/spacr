@@ -1,0 +1,29 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "PyPI, GitHub e conda-forge",
+  "description": "Encontre as fontes oficiais de pacotes e instaladores, compare a versão disponível em cada canal e escolha o tutorial de instalação correspondente.",
+  "objectives": [
+    "Identificar as páginas oficiais do spaCR no PyPI, GitHub e conda-forge.",
+    "Distinguir arquivos de uma versão publicada, código em desenvolvimento e canais de pacotes atualizados separadamente.",
+    "Escolher uma forma de instalação e conferir a versão realmente instalada."
+  ],
+  "prerequisite": "Nenhuma instalação é realizada nesta visão geral. As páginas foram capturadas em 10 de setembro de 2026: PyPI e GitHub oferecem 1.5.0.5, enquanto conda-forge oferece 1.5.0.4. As versões e os arquivos disponíveis podem mudar; leia a página atual e verifique sua versão instalada. As capturas usam um perfil anônimo e preservam o texto, os indicadores e o histórico de versões. A instalação específica de cada plataforma e as opções de hardware são explicadas nos tutoriais vinculados.",
+  "scenes": [
+    "Antes de instalar o spaCR, escolha sua fonte oficial de distribuição. PyPI e conda-forge fornecem pacotes Python; GitHub fornece código-fonte, registros de versões e instaladores de desktop. Essas opções estão relacionadas, mas não necessariamente publicam a mesma versão ao mesmo tempo.",
+    "No PyPI, leia o cabeçalho da versão e o comando de instalação. Aqui o cabeçalho mostra spaCR um ponto cinco ponto zero ponto cinco. Confira esse valor na página atual, em vez de deduzir a versão de uma captura antiga, de um indicador ou da data de um tutorial.",
+    "Project links conecta o pacote à documentação, à página principal, ao rastreador de problemas e ao repositório do código. Use esses links para navegar entre os recursos oficiais. A página de um pacote descreve aquela versão publicada; não garante que todos os recursos em desenvolvimento já estejam incluídos.",
+    "No GitHub, o seletor de branch identifica a linha de código que você está consultando. Main é a linha das versões publicadas, e nightly contém o desenvolvimento em andamento. Para uma instalação de rotina, escolha uma versão publicada; use nightly somente se precisar deliberadamente de trabalho mais recente e puder aceitar mudanças.",
+    "Abra uma versão publicada e expanda Assets. Escolha o instalador para Windows, macOS ou Linux. O wheel e a distribuição de código-fonte são arquivos de pacotes Python, não instaladores de desktop. Baixe a lista de somas de verificação da versão e do arquivo exatos, em vez de comparar hashes de outro canal.",
+    "A página conda-forge tem seu próprio seletor de versão. Nesta gravação, ela oferece um ponto cinco ponto zero ponto quatro, enquanto o PyPI oferece um ponto cinco ponto zero ponto cinco. Essa diferença real aparece intencionalmente na demonstração; não presuma que uma atualização do canal já chegou.",
+    "O comando que especifica o canal é conda install conda-forge, dois sinais de dois-pontos, spacr. Execute-o no ambiente que pretende usar. O tutorial de Conda explica essa opção; criar um ambiente Conda e instalar com pip é outra opção, embora ambas usem um gerenciador de ambientes.",
+    "Escolha o tutorial de pip para um ambiente virtual Python, o de Conda para o pacote do canal ou Platform installers para um ambiente de execução privado gerenciado pelo instalador. Depois, confira a versão instalada e execute spacr-doctor antes de acompanhar os tutoriais dos módulos."
+  ]
+}

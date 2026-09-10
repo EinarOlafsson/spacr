@@ -1,0 +1,29 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "ko",
+  "title": "PyPI, GitHub, conda-forge",
+  "description": "공식 패키지와 설치 프로그램의 출처를 찾고, 채널별 제공 버전을 비교한 뒤 알맞은 설치 강의를 선택합니다.",
+  "objectives": [
+    "spaCR의 공식 PyPI, GitHub, conda-forge 페이지를 확인합니다.",
+    "릴리스 파일, 개발 중인 소스, 별도로 갱신되는 패키지 채널을 구별합니다.",
+    "설치 경로를 선택하고 실제 설치된 버전을 확인합니다."
+  ],
+  "prerequisite": "이 개요에서는 설치를 실행하지 않습니다. 페이지는 2026년 9월 10일에 촬영했습니다. PyPI와 GitHub는 1.5.0.5를, conda-forge는 1.5.0.4를 제공합니다. 채널 버전과 제공 파일은 바뀔 수 있으므로 현재 페이지를 읽고 설치된 버전을 확인하세요. 익명 브라우저 프로필을 사용했으며 페이지의 글, 배지, 릴리스 기록을 그대로 유지했습니다. 플랫폼별 설치와 하드웨어 선택은 연결된 설치 강의에서 설명합니다.",
+  "scenes": [
+    "spaCR를 설치하기 전에 공식 배포 출처를 선택하세요. PyPI와 conda-forge는 Python 패키지를, GitHub는 소스 코드와 릴리스 기록, 데스크톱 설치 프로그램을 제공합니다. 서로 관련된 경로지만 항상 같은 버전을 동시에 공개하는 것은 아닙니다.",
+    "PyPI에서 릴리스 제목과 설치 명령을 읽으세요. 여기에는 spaCR 일 점 오 점 영 점 오가 표시됩니다. 오래된 스크린샷이나 배지, 강의 날짜로 버전을 추측하지 말고 현재 페이지의 값을 확인하세요.",
+    "Project links는 패키지를 문서, 홈페이지, 문제 추적기, 소스 저장소에 연결합니다. 이 링크로 공식 자료 사이를 이동하세요. 패키지 페이지는 해당 공개 버전을 설명하며, 개발 중인 모든 기능이 이미 포함되었다고 보장하지는 않습니다.",
+    "GitHub의 브랜치 선택기는 어떤 소스 계열을 읽고 있는지 보여 줍니다. main은 릴리스 계열이고 nightly에는 진행 중인 개발 내용이 담깁니다. 일반적인 설치에는 공개 릴리스를 선택하고, 더 새로운 개발 내용이 꼭 필요하며 변경을 감수할 수 있을 때만 nightly를 사용하세요.",
+    "릴리스를 열고 Assets를 펼칩니다. Windows, macOS 또는 Linux에 맞는 설치 프로그램을 고르세요. wheel과 소스 배포 파일은 Python 패키지 파일이지 데스크톱 설치 프로그램이 아닙니다. 다른 채널의 해시와 비교하지 말고 선택한 정확한 릴리스와 파일의 체크섬 목록을 내려받으세요.",
+    "conda-forge 페이지에는 별도의 버전 선택기가 있습니다. 촬영 당시에는 일 점 오 점 영 점 사를 제공하고 PyPI는 일 점 오 점 영 점 오를 제공합니다. 이 실제 차이를 의도적으로 그대로 보여 줍니다. 채널의 업데이트가 이미 도착했다고 가정하지 마세요.",
+    "채널을 명시하는 명령은 conda install conda-forge 뒤에 콜론 두 개와 spacr를 붙인 것입니다. 사용할 환경 안에서 실행하세요. Conda 강의에서 이 경로를 설명합니다. Conda 환경을 만든 다음 pip로 설치하는 것은 별도의 경로이며, 둘 다 환경 관리자를 쓴다고 같은 방법은 아닙니다.",
+    "Python 가상 환경에는 pip 강의를, 채널 패키지에는 Conda 강의를, 설치 프로그램이 관리하는 전용 런타임에는 Platform installers를 선택하세요. 설치 후에는 실제 버전을 확인하고 spacr-doctor를 실행한 다음 모듈 강의를 진행하세요."
+  ]
+}
