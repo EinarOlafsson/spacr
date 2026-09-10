@@ -912,7 +912,27 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #          change was about a clipped Portuguese caption, in a lane
     #          nowhere near the catalogs, and it added a symbol nine
     #          locales now owe a translation for.
-    expected = 10_279
+    #          10,279 -> 10,296 (2026-09-10). +17/-0, all of one night, and
+    #          the nine-language rebuild that pays for them ran with it:
+    #            4  `spacr.ops_cycles` -- the cycle registration that has no
+    #               Hoechst to work with: sbs_mean_target, register_cycles,
+    #               accepted_cycles, and the module.
+    #           10  `spacr.ops_phenotype` -- Phase A4: Alignment with apply
+    #               and degrees, align_phenotype_to_sbs, nuclear_points,
+    #               phenotype_site_map, refine_similarity,
+    #               seed_by_scaled_pairs, similarity_from_correspondences,
+    #               and the module.
+    #            1  `spacr.qt.i18n.ui_language_resolved_once`, from 380 --
+    #               the scope that stopped a Preferences build asking the
+    #               preference store 346 times what language it was in.
+    #            2  `spacr.qt.widgets.fractal_travel.tour_leg_seconds` and
+    #               `.tour_offset`, from 327(3), which finally gave
+    #               RegionTour a caller.
+    #          THE CATALOGS WERE REBUILT IN THE SAME CHANGE, in one pass
+    #          over all nine, which is what 288's batching rule now
+    #          requires: two of these symbols appeared mid-rebuild earlier
+    #          the same night and turned a green audit red.
+    expected = 10_296
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -930,7 +950,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_279
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_296
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1024,7 +1044,13 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # together and the boundary is unmoved. None of the four new modules is
     # generated, none is a per-language catalog, and none is a bridge --
     # so nothing about them belongs in the 213.
-    assert 10_492 - len(docs) == 213
+    # 10,492 -> 10,509 with the seventeen of 2026-09-10, and RE-MEASURED
+    # rather than inferred, because picking the number that makes the
+    # assertion pass is not a measurement. Run with the filter neutralised:
+    # pre-filter 10,509, post-filter 10,296, boundary 213 -- and every
+    # bucket below still reports the count printed beside it, which is the
+    # part that says nothing crossed.
+    assert 10_509 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

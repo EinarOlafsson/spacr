@@ -1664,3 +1664,65 @@ WHAT TO DO WITH THAT, in order:
   3. THEN try the single process again. If it completes, every future
      "the suite passes" means the whole suite in one process, which is a
      stronger claim than eight shards agreeing separately.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE LEAK COUNTER NAMED THEM: 72 TESTS, ONE RUNNER EACH, ACROSS
+SIXTEEN UNRELATED FILES
+--------------------------------------------------------------------------------
+
+The per-test counter added earlier tonight has its first result. `tests/qt`
+run in quarters, two of which completed:
+
+    quarter 00   69 test(s) ended with a QThread still running
+                 69 busy JobRunner(s), 0 parked
+    quarter 01    3 test(s), 3 busy JobRunner(s), 0 parked
+
+Sixty-nine in one quarter is why the whole directory in one process reaches
+108 threads and deadlocks: the quarters each carry a fraction of the leak
+and finish; the single process carries all of it and does not.
+
+AND THE SHAPE OF THE LIST IS THE FINDING, not the list. Every entry is
+exactly ONE runner, and they are spread across sixteen files that have
+nothing to do with each other:
+
+    4  test_ambient_wiring.py
+    2  test_force_restart_comes_back_where_you_were.py
+    2  test_cov_r3_qt_widgets_fast_plots_1.py / _2.py
+    2  test_chaining_gui.py
+    1  each: test_demo_menu, test_cov_r4_live_preview,
+       test_cov_r4_annotate_engine, test_cov_r4_ambient,
+       test_cov_r3_qt_widgets_qc_field_browser_1, test_cov_r3_qt_app_2,
+       test_cov_9_project_browser, test_column_picker,
+       test_cellpose_workbench, test_analysis_mode_is_a_dropdown_that_reads,
+       test_a_fold_is_a_page_not_a_window
+    ... and 49 more the report truncates
+
+A backdrop test, a plot test, a project browser test and a fold test do not
+share a bug. They share a FIXTURE. Sixty-nine independent authors did not
+each forget the same `shutdown()`; something they all use builds a
+`JobRunner` and does not stop it.
+
+    SO THE NEXT MOVE IS NOT SIXTY-NINE FIXES. It is to find what those
+    sixteen files have in common -- the screen-building fixture, most
+    likely -- and stop the runner there, once. That is one change against
+    seventy, and it is the difference between an afternoon and a week.
+
+TWO LIMITS OF THIS MEASUREMENT, stated so nobody over-reads it:
+
+  * THE REPORT TRUNCATES AT TWENTY and says "... and 49 more". Fine for a
+    test summary and not fine for this job; raise the cap or dump the full
+    dict before working from it.
+  * QUARTERS 02 AND 03 TIMED OUT at 90 minutes, having reached 44 % and
+    66 %, because four Qt suites and a nine-language catalog rebuild were
+    sharing the machine. Their leaks are not counted above, so 72 is a
+    FLOOR and the true number for the whole directory is larger.
+
+WHAT THE QUARTERS THAT DID FINISH SAY ABOUT THE SUITE ITSELF:
+
+    quarter 00   6 failed, 5,672 passed, 1 error
+    quarter 01  15 failed, 5,105 passed
+
+Eight of quarter 01's fifteen are `test_external_i18n_catalogs.py`, which is
+the RUNTIME catalog lane and was stale at the time -- the repair for it was
+running as those tests ran. The rest need a HEAD baseline before anybody
+attributes them to anything, which is this repository's own first rule.

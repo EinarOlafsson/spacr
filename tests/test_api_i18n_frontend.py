@@ -36,7 +36,13 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: accounting live in tests/test_api_i18n_extractor.py; this one exists
 #: to assert the BROWSER renders all of them, so it tracks the catalog
 #: file rather than the extractor.
-REAL_SYMBOL_COUNT = 10_243
+#:
+#: 10,243 -> 10,296 on 2026-09-10, from one night's public docstrings: the
+#: OPS modules `ops_cycles`, `ops_solve` and `ops_phenotype`, plus
+#: `i18n.ui_language_resolved_once` and the `fractal_travel` region-tour
+#: helpers. Every one of those cost a nine-language rebuild, which is why
+#: 288 now carries a rule about batching them.
+REAL_SYMBOL_COUNT = 10_296
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
