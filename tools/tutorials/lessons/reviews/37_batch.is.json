@@ -19,7 +19,7 @@
     "Save queue vistar raðaða áætlun sem JSON. Síðan fjarlægðum við þriðja verkið úr þessari tímabundnu biðröð í minni og endurheimtum þriggja verka áætlunina með Load queue. Verkefnismöppum var ekki eytt. Geymdu stillingaskrár og inntak með áætluninni.",
     "Ýttu á Stop þegar Run queue hefur ræst fyrsta raunverulega undirferlið. Virka verkinu lýkur áður en stöðvast: fyrsta línan sýnir success og hinar not run. Ferlinu er ekki slitið samstundis og þessi stýrða stöðvun sannar ekki endurheimt eftir tölvuhrun.",
     "Veldu Run queue aftur. Aðeins tvö verk sem eftir eru keyra í vistaðri röð; tímastimplar fyrsta verks breytast ekki. Öll sýna success. Aðskildir ferlar einangra venjulega keyrslu en þessi sýning tryggir ekki vernd gegn GPU- eða minnisbilun sem nær til alls kerfisins.",
-    "Veldu hverja línu til að lesa eigin annál. Umbreytirinn tilkynnir einn brunn, eitt myndsvið og fjögur rásaauðkenni, síðan fjórar umbreyttar skrár og lokakóða núll. Breytt nafn sést í úttaki annars verks. Annálar eru gögn til skoðunar, ekki sjálfvirk sönnun vísindalegrar réttmætis.",
+    "Veldu hverja línu til að lesa eigin annál. Umbreytirinn tilkynnir einn brunn, eitt myndsvið og fjögur rásaauðkenni, síðan fjórar umbreyttar skrár og lokakóða núll. Breytt nafn sést í úttaki annars verks. Annálar eru gögn til skoðunar, ekki sjálfvirk sönnun vísindalegs réttmætis.",
     "Tólf úttaksmyndir úr þremur verkum pössuðu við hvern upprunalegan myndpunkt og fyrirhuguð rásaauðkenni. Hver umbreytingarskrá sýnir fjórar tilraunir, fjórar heppnaðar og engar villur. Frumgögn eru óbreytt. Fyrir skriftur býður spacr.batch Job, Queue og run_queue; sjá API-leiðbeiningar og forskoðun umbreytisins."
   ]
 }
