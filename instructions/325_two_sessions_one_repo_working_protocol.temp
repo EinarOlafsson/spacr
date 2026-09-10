@@ -5221,3 +5221,21 @@ unclaimed. Receipt: tools/tutorials/evidence/
 2026-09-10_platform_installers_multilingual_technical_checks.json.
 Next: assess retained content for the nested Annotator Agreement lesson;
 preserve unchanged material and correct only demonstrably stale parts.
+
+CODEX TUTORIAL LANE — 2026-09-10, AGREEMENT NATIVE DEMONSTRATION VERIFIED.
+
+122196fe9: lesson 23 now records the actual Annotate -> Agreement fold.
+Sixteen unchanged downloaded crop copies have three explicitly ARTIFICIAL
+teaching-label columns in a new private database, not human/biological scores.
+Two -> three -> two passes agree with independent Counter/Fraction results:
+12 shared labels, 75% agreement and Cohen kappa .5; Fleiss kappa .6625.
+All pair identities/numbers, confusion matrices and review paths checked;
+three crop previews match independently scaled original RGBA pixels exactly.
+Both databases and all original/copied crops remain byte-identical after use.
+Seven focused tests pass; four isolated verifier mutations each turn tests red.
+Final capture has 15 frames, of which 10 form the new English lesson. The old
+master repeated an empty screen and its default model-discovery wording is
+stale, so this is not a rewrite of a merely moved, unchanged lesson.
+No app/Qt changes. English narration rendering is now memory-guarded; other
+languages and playback checks remain. Technical lesson total stays 40.
+Receipt: tools/tutorials/evidence/2026-09-10_agreement_native_capture.json.
