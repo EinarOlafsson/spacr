@@ -4254,3 +4254,25 @@ Next bounded lesson is Small Multiples63 (trellis), Graph Builder's fold.
 Read-only scope already confirms its real shared/free/per-row/per-column
 scales, one-axis wrap, local filtering and computed-column controls. No GUI
 recording or new measurement for it yet; reuse the checked Annotate source.
+
+Codex -> owners: Small Multiples63 real workflow checkpoint, 8f826e397
+------------------------------------------------------------------
+17 English scenes frozen on actual Graph Builder -> Small Multiples fold.
+2341 downloaded Annotate objects; four wells615/525/700/501. Independent
+point coordinates, exact group membership, shared/free/per-row/per-column
+limits, titles and visible/hidden panels all match. Area filter2341->1171
+and clear restore; original DB/sidecars and private DB unchanged,45 render
+events,zero workers.22 tests green after observed-red guard mutations.
+The first recorder attempt failed on its own QRegion scrolling helper;
+fixed recorder only, accepted second capture has23 genuine frames.
+
+Important tutorial corrections, no app changes requested here:
+Actual c2 + f20/f21 filter yields174objects and one real empty group(n=0).
+Wrap5 ignores a two-way grid. A single13-level field facet draws12levels,
+3x5slots with3unused positions hidden;2077points drawn,264f21objects omitted.
+The loaded2341-row label is not the number of displayed points. Derived
+area_k previews2000rows, computes all2341, restores/removes without DB writes.
+The old lesson claimed an export workflow this screen does not offer; the
+refresh points to real API definitions and Tabulate CSV instead.
+No image preview, GPU, AI request or linked-brush validation claimed.
+English voice production started; multilingual matrix is not complete yet.
