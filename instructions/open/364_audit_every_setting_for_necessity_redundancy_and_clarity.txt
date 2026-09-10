@@ -1556,3 +1556,99 @@ MIGRATION FOR THIS SETTING. Only the first is renamed. The other two are
 not exceptions to the rule -- they are what the rule cannot see, and the
 migration is the one that stings, because it is the code that exists to
 protect the user from the rename.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE CLASSIFICATION FOR THE TWO CONTROL IDENTIFIERS, SITE BY SITE
+--------------------------------------------------------------------------------
+
+The section above says each of the last three names wants its occurrences
+classified one at a time rather than by regex, and calls that an hour of
+judgement. Here is that hour spent for two of the three. The pass that runs
+the rename starts from this table; it does not start from a grep.
+
+    positive_control -> positive_control_id
+    negative_control -> negative_control_id
+
+WHAT WAS COUNTED. 130 and 141 occurrences in `spacr/` including the
+generated i18n catalogs, which are not edited by hand. Excluding those, and
+excluding the DIFFERENT settings that merely begin with the same word --
+`positive_control_wells`, `negative_control_wells`, and the `_rank` and
+`_df` locals -- what is left is the list below. Plus 149 occurrences across
+46 files in `tests/`, which follow whatever the source does.
+
+  THE SETTING. These are renamed.
+
+    settings.py            two setdefault pairs (1547/1548, 2505/2506),
+                           the expected_types rows (3519/3520), the two
+                           tooltips (4666, 4688), and the "Plate Layout &
+                           Controls" category membership
+    settings.py:1504       the merged module POPS the trio; the popped
+                           names are the setting
+    settings_model.py      three category lists (1192, 1568, 2495)
+    settings_flow_index.py two entries (583, 831)
+    setting_api_targets.py four entries (405, 661, 1231, 1334)
+    training_basis.py:81   the trio, as the basis's own list
+    classify_classes.py    53 and 373, the trio and the class translation
+    well_spec.py           WELL_SETTINGS, the "may contain wells" list
+    hyperparam.py:3450-1   settings.get with the 'c2'/'c1' defaults
+    trial_metrics.py:216-7 settings.get, keyed by role
+    regression_summary.py  _setting(run.settings, ...)
+    ml.py                  every settings.get / settings[...] read:
+                           435, 2051-2, 6808-9, 7016-7, 9172, 9641-2,
+                           10435, 10578-81, 10611, 10627-8
+    parameter_sweep.py     the Qt screen's base.get at 491
+    app_screen.py:10656    the trio inside the migration
+
+  NOT THE SETTING, AND EACH ONE BREAKS SOMETHING DIFFERENT IF RENAMED.
+
+    batch_correction.py:635   THE WORST OF THEM. `"negative_control"` here
+                              is an ALIAS FOR A BATCH-CORRECTION METHOD --
+                              `batch_correction=negative_control` resolves
+                              to `control_center`. It is a user-facing
+                              VALUE, not a key, so renaming it silently
+                              removes a documented spelling from a settings
+                              file and the run raises "Unknown
+                              batch_correction=" on a file that used to
+                              work.
+    plate_layout.py:49-50     ROLE_POSITIVE / ROLE_NEGATIVE, a Qt WIDGET
+                              ROLE token that spells the setting. Line 471
+                              maps role to setting on ONE LINE, so a
+                              regex sees the same string twice on that line
+                              meaning two different things.
+    experiment_design.py      299 and 304, a stylesheet selector
+                              `QLabel[spacrWellRole="negative_control"]`.
+                              Renaming it detaches the rule from the widget
+                              and the wells lose their colour, with no
+                              error anywhere.
+    ml.py:10744-11510         THE PUBLIC PARAMETER NAMES. `_resolve_controls`
+                              and `generate_ml_scores` take
+                              `positive_control='c2'` and
+                              `negative_control='c1'` as ARGUMENTS, and the
+                              whole body -- roughly 60 sites, including a
+                              commented-out block -- is those locals. The
+                              call sites already pass them as `pc=`/`nc=`
+                              in four places, so the setting name and the
+                              kwarg are ALREADY allowed to differ.
+    prose                     docstrings, error text and comments in
+                              classifier_evaluation, settings_advisor,
+                              control_names, cell_montage, ml and
+                              app_screen. These say the setting's name to a
+                              user, so they follow the rename -- but they
+                              follow it as PROSE, one read at a time, not as
+                              a token.
+
+THE PARAMETER QUESTION IS THE ONE REAL DECISION and it is not mechanical.
+`generate_ml_scores` is public API. Renaming the setting without renaming
+the parameter leaves a user reading `positive_control_id` in the panel and
+`positive_control=` in the signature; renaming both is a breaking change to
+a public function, in a module that is not this session's lane. The four
+`pc=`/`nc=` call sites are the evidence that the two names are already
+decoupled, which argues for renaming the SETTING ONLY and saying so in the
+tooltip.
+
+WHAT THIS LEAVES. `controls -> nontargeting_control_grnas` is still
+unclassified, and it is the hardest of the three: the word does four jobs
+and appears 1,593 times across the package, the overwhelming majority of
+them the ordinary English word in comments and in widget names. Its
+classification is a separate sitting.
