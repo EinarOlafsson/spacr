@@ -1,0 +1,34 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Beleuchtungskorrektur",
+  "description": "Schätzen Sie über Illumination in Measure ein Beleuchtungsfeld aus heruntergeladenen Bildern, prüfen Sie den tatsächlichen QC-Export und unterscheiden Sie numerische Verbesserung von biologischer Validierung.",
+  "objectives": [
+    "Die integrierte Seite öffnen und Intensitätskanäle zusammengeführter Bilder auswählen.",
+    "Ausgeschaltete und eingeschaltete Korrektur vergleichen sowie Modell und QC prüfen.",
+    "Ein geprüftes Modell wiederverwenden, ohne Diagnostik auf Anpassungsdaten mit unabhängiger Validierung zu verwechseln."
+  ],
+  "prerequisite": "Verwendet werden unveränderte Kopien von sechzehn heruntergeladenen plate1-Bildfeldern mit 1994 × 1994 Pixeln und sieben gespeicherten Ebenen. Kanal null ist ein Intensitätsindex, keine Färbungsidentität; Labelebenen sind keine Intensitäten. Originale und Kopien bleiben erhalten. Nach dem GUI-Lauf prüft eine unabhängige Formel 7.952.072 korrigierte Pixel über die öffentliche API, ohne GUI-Ergebnisse zu ersetzen. Modell und QC nutzen dieselben sechzehn Felder, keine unabhängige optische oder biologische Referenz. Der Dunkeloffset null ist kein gemessener Kalibrierwert. Figures bleibt leer; die tatsächliche PNG-Datei wird in einem getrennten Bildbetrachter geöffnet. Anwendungscode und Originalbilder bleiben unverändert. Die alte Simulation mit fünf Szenen wird ersetzt.",
+  "scenes": [
+    "Öffnen Sie Measure und dann dessen Illumination-Schaltfläche. Diese integrierte Seite schätzt ein Korrekturmodell vor einer größeren Analyse. Das unterscheidet sich vom bloßen Aktivieren der Korrektur in einem Messlauf und versetzt nicht die gesamte Anwendung in einen automatisch korrigierten Zustand.",
+    "Setzen Sie Source auf den Ordner merged mit den Bildarrays, nicht auf die Messdatenbank. Wir verwenden neue Kopien aller sechzehn Bildfelder des herunterladbaren Plattenbeispiels. Die Originale bleiben unverändert; das Beleuchtungsmodell wird neben diesem merged-Ordner gespeichert.",
+    "Channels bezeichnet Positionen im gespeicherten Intensitätsarray. Hier wählen wir Kanal null. Prüfen Sie Ihre eigene Aufnahmezuordnung, statt anzunehmen, null bezeichne immer dieselbe Färbung. Wählen Sie niemals eine Labelmaskenebene, als wäre sie Fluoreszenzintensität.",
+    "Zunächst ist die Korrektur ausgeschaltet. Run endet, aber die Konsole sagt ausdrücklich, dass kein Feld geschätzt wurde. Wir haben geprüft, dass kein Modell angelegt wurde. Eine erfolgreiche Abschlussmeldung allein beweist daher nicht, dass eine Korrektur stattgefunden hat.",
+    "Schalten Sie Illumination correction ein. Dieses Beispiel verwendet den polynomial-Schätzer mit Grad vier und lässt Illumination model leer, um ein neues Feld zu schätzen. Größere Flexibilität ist nicht automatisch besser: Eine Korrektur, die Zellen oder Behandlungsmustern folgt, kann die Biologie entfernen, die Sie messen wollten.",
+    "Trennen Sie Aufnahmegruppen mit Illumination per plate. Hier nutzen wir alle sechzehn verfügbaren Felder. Repräsentative Abdeckung ist wichtiger als das blinde Erhöhen einer Zahl. Ein Modell aus nur einer dicht besiedelten Ecke kann biologische Strukturen mit ungleichmäßiger Beleuchtung verwechseln.",
+    "Illumination dark ist ein additiver Kameraoffset in Rohzählwerten, kein erlernter biologischer Hintergrund. Null ist die Einstellung dieser Demonstration, kein Kalibrierergebnis. Wählen Sie den Offset anhand geeigneter Aufnahmekontrollen, statt ihn so lange zu ändern, bis ein Phänotyp verschwindet.",
+    "Lassen Sie Illumination QC eingeschaltet und prüfen Sie den Umgang mit fehlenden Modellen. Wir wählen error, damit eine nicht verfügbare Plattenkorrektur den Vorgang stoppt, statt stillschweigend korrigierte und unkorrigierte Felder zu mischen. Diese Prüfungen ersetzen nicht die Betrachtung des geschätzten Feldes.",
+    "Starten Sie erneut mit eingeschalteter Korrektur. Die Konsole meldet nun das angepasste Feld, diagnostische Steigungen und den Pfad des gespeicherten Modells. Dieser eigenständige Schritt lässt die Bilddateien unverändert; er hat weder die Segmentierung erneut ausgeführt noch neue Zellmessungen erzeugt.",
+    "In dieser Version wird das QC-Bild gespeichert, erscheint aber nicht im eingebetteten Figures-Bereich. Öffnen Sie illumination_qc_plate1.png aus dem illumination-Ordner in Ihrem Bildbetrachter. Hier sehen Sie die tatsächliche exportierte Abbildung in einem getrennten Programm, keinen simulierten spaCR-Bereich.",
+    "Links sehen Sie das geschätzte Beleuchtungsfeld mit Mittelwert eins. Die Korrektur zieht den Kameraoffset ab und dividiert durch dieses Feld. Obwohl der Titel es gain nennt, multiplizieren Sie Intensitäten nicht mit der gezeigten Karte: Die Korrektur verwendet deren Kehrwert. Achten Sie auf biologische Strukturen, die in die Schätzung eingeflossen sind.",
+    "Die radiale Steigung ändert sich von etwa −0,181 auf +0,026. Die gemeldete Reduktion um 85,4 Prozent stimmt mit unserer unabhängigen Berechnung überein, doch die Kurve danach ist nicht flach. Es sind dieselben Felder, mit denen das Modell angepasst wurde; das ist also keine unabhängige Validierung.",
+    "Für die spätere Wiederverwendung geben Sie den Pfad des gespeicherten Modells an und aktivieren die Korrektur ausdrücklich im vorgesehenen Mask- oder Measure-Ablauf. Bewahren Sie Modell, Kanalzuordnung, Plattenidentitäten und Einstellungen gemeinsam auf. Prüfen Sie unabhängige Felder und vermeiden Sie eine doppelte Korrektur bereits korrigierter Intensitäten, bevor Sie biologische Unterschiede interpretieren."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Belysningskorrigering",
+  "description": "Estimer et belysningsfelt fra nedlastede bilder via Illumination i Measure, undersøk eksportert kvalitetskontroll og skill numerisk forbedring fra biologisk validering.",
+  "objectives": [
+    "Åpne den integrerte siden og velge intensitetskanaler i sammenslåtte bilder.",
+    "Sammenligne avslått og påslått korrigering og undersøke modell og kvalitetskontroll.",
+    "Gjenbruke en vurdert modell uten å forveksle diagnostikk på tilpasningsdata med uavhengig validering."
+  ],
+  "prerequisite": "Eksemplet bruker uendrede kopier av seksten nedlastede plate1-felt, 1994 × 1994 piksler med sju lagrede plan. Kanal null er en intensitetsindeks, ikke en fargingsidentitet; etikettplan er ikke intensiteter. Originaler og kopier bevares. Etter GUI-kjøringen kontrollerer en uavhengig formel 7 952 072 korrigerte piksler via det offentlige API-et, uten å erstatte GUI-resultater. Modell og kvalitetskontroll bruker de samme seksten feltene, ikke uavhengige optiske eller biologiske referansedata. Mørkeoffset null er ingen målt kalibrering. Figures forblir tomt; den faktiske PNG-filen åpnes i en separat bildeviser. Ingen programkode eller originalbilder endres. Den gamle simuleringen med fem scener erstattes.",
+  "scenes": [
+    "Åpne Measure og deretter Illumination-knappen. Denne integrerte siden estimerer en korrigeringsmodell før en større analyse. Det er annerledes enn bare å aktivere korrigering i en målekjøring, og gjør ikke hele applikasjonsøkten automatisk korrigert.",
+    "Sett Source til merged-mappen med bildearrayene, ikke måledatabasen. Vi bruker nye kopier av alle seksten feltene fra plateeksemplet som kan lastes ned. Originalene forblir uendret, og belysningsmodellen lagres ved siden av merged-mappen.",
+    "Innstillingen Channels angir posisjoner i den lagrede intensitetsarrayen. Her velger vi kanal null. Kontroller din egen opptakstilordning i stedet for å anta at null alltid betyr samme farging. Velg aldri et etikettmaskeplan som om det var fluorescensintensitet.",
+    "Først er korrigering avslått. Run avsluttes, men konsollen sier uttrykkelig at ingen belysningsprofil ble estimert. Vi kontrollerte at ingen modell ble opprettet. En melding om vellykket fullføring beviser derfor ikke alene at korrigering skjedde.",
+    "Slå på Illumination correction. Eksemplet bruker polynomial-estimatoren med grad fire og lar Illumination model stå tomt for å estimere et nytt felt. Mer fleksibilitet er ikke automatisk bedre: En korrigering som følger celler eller behandlingsmønstre, kan fjerne biologien du ønsket å måle.",
+    "Hold opptaksgrupper atskilt med Illumination per plate. Her bruker vi alle seksten tilgjengelige felt. Representativ dekning er viktigere enn å øke et tall blindt; en modell tilpasset bare ett tettbefolket hjørne kan forveksle biologisk struktur med ujevn belysning.",
+    "Illumination dark er en additiv kameraoffset i rå telleenheter, ikke en innlært biologisk bakgrunn. Null er innstillingen i demonstrasjonen, ikke et kalibreringsresultat. Velg offset fra egnede opptakskontroller i stedet for å justere den til en fenotype forsvinner.",
+    "Behold Illumination QC aktivert og kontroller regelen for manglende modell. Vi bruker error slik at en utilgjengelig platekorrigering stopper operasjonen, i stedet for å blande korrigerte og ukorrigerte felt uten beskjed. Disse kontrollene erstatter ikke undersøkelse av det estimerte feltet.",
+    "Kjør på nytt med korrigering aktivert. Konsollen viser nå det tilpassede feltet, diagnostiske stigningstall og banen til den lagrede modellen. Dette selvstendige trinnet lar bildefilene være uendret; det har verken kjørt segmentering på nytt eller laget nye cellemålinger.",
+    "I denne versjonen lagres QC-bildet, men vises ikke i det innebygde Figures-panelet. Åpne illumination_qc_plate1.png fra illumination-mappen i bildeviseren din. Dette er den faktiske eksporterte figuren i en separat viser, ikke et simulert spaCR-panel.",
+    "Venstre panel viser det estimerte belysningsfeltet med gjennomsnitt én. Korrigeringen trekker fra kameraoffset og deler på dette feltet. Selv om tittelen kaller det gain, skal du ikke multiplisere intensitetene med kartet som vises: Korrigeringen bruker dets inverse. Se etter biologiske strukturer som har kommet med i estimatet.",
+    "Den radielle stigningen endres fra omtrent −0,181 til +0,026. Den rapporterte reduksjonen på 85,4 prosent samsvarer med vår uavhengige beregning, men kurven etter korrigering er ikke flat. Dette er de samme feltene som modellen ble tilpasset til, så det er ikke uavhengig validering.",
+    "For senere gjenbruk oppgir du banen til den lagrede modellen og aktiverer korrigering uttrykkelig i ønsket Mask- eller Measure-arbeidsflyt. Bevar modell, kanaltilordning, plateidentiteter og innstillinger sammen. Undersøk uavhengige felt og unngå å korrigere allerede korrigerte intensiteter to ganger før du tolker biologiske forskjeller."
+  ]
+}
