@@ -330,6 +330,28 @@ def _visible_header_section(columns, target):
     return list(columns).index(target)
 
 
+def _native_replace_text(widget, value, qtest, qt):
+    """Replace a visible editor using only ordinary keyboard gestures."""
+    widget.setFocus()
+    qtest.keyClick(widget, qt.Key_A, qt.ControlModifier)
+    # keyClicks('') emits no event; it cannot delete the selected old text.
+    qtest.keyClick(widget, qt.Key_Backspace)
+    qtest.keyClicks(widget, str(value))
+    qtest.keyClick(widget, qt.Key_Tab)
+
+
+def _column_view_snapshot(search_text, visible_columns, columns, rows):
+    """Bounded failure diagnostics: displayed names and full available keys."""
+    if len(rows) > 1000:
+        raise ValueError('Column diagnostic exceeds the bounded page budget')
+    keys = [key for key in IDENTITY if key in columns]
+    indices = [list(columns).index(key) for key in keys]
+    return {'column_search_text': search_text, 'visible_columns': list(visible_columns),
+            'loaded_rows': len(rows), 'identity_columns': keys,
+            'row_identities': [[row[index] for index in indices] for row in rows],
+            'snapshot_time': 'after actual database jobs retired'}
+
+
 def record_database(app, window, screen, stage, captures, capture, settle, write_json, timeout):
     """Record authentic interactions, then retire real jobs before returning."""
     def report(retirement, failure):
@@ -339,6 +361,11 @@ def record_database(app, window, screen, stage, captures, capture, settle, write
             write_json(Path(captures) / 'scientific_acceptance.json', {
                 'accepted': False, 'reason': str(failure), 'error_cleanup': evidence,
                 'published': False})
+            current = window._screens.get('db_browser')
+            if current is not None:
+                write_json(Path(captures) / 'column_view_error.json', _column_view_snapshot(
+                    current._col_search.text(), current.visible_columns(),
+                    current.preview_columns(), current.preview_rows()))
 
     with _database_job_lifecycle(lambda: window._screens.get('db_browser'), settle, report):
         return _record_database(app, window, screen, stage, captures, capture,
@@ -369,10 +396,7 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
     def fill(widget, text):
         if widget is None or not widget.isVisible() or not widget.isEnabled():
             raise RuntimeError('The actual editor is not usable')
-        widget.setFocus()
-        QTest.keyClick(widget, Qt.Key_A, Qt.ControlModifier)
-        QTest.keyClicks(widget, str(text))
-        QTest.keyClick(widget, Qt.Key_Tab)
+        _native_replace_text(widget, text, QTest, Qt)
         settle(.2)
 
     def choose(button, path, frame, *, save=False):

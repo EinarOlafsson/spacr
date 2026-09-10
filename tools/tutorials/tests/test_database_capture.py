@@ -397,3 +397,58 @@ def test_header_index_is_relative_to_visible_model_not_full_schema():
     for columns in [[], ['another_column'], ['cell_area', 'cell_area']]:
         with pytest.raises(ValueError, match='absent or ambiguous'):
             recorder._visible_header_section(columns, 'cell_area')
+
+
+class EditorKeys:
+    Key_A, Key_Backspace, Key_Tab, ControlModifier = 'A', 'Backspace', 'Tab', 'Control'
+
+
+class TextEditor:
+    def __init__(self, text):
+        self.text, self.selected, self.focused = text, False, False
+
+    def setFocus(self):
+        self.focused = True
+
+
+class KeyboardEvents:
+    """Unit-level keyboard semantics; no Qt application or result replacement."""
+    def __init__(self):
+        self.events = []
+
+    def keyClick(self, widget, key, modifier=None):
+        self.events.append((key, modifier))
+        if key == 'A' and modifier == 'Control':
+            widget.selected = True
+        elif key == 'Backspace' and widget.selected:
+            widget.text, widget.selected = '', False
+
+    def keyClicks(self, widget, text):
+        self.events.append(('type', text))
+        if text:
+            widget.text = text if widget.selected else widget.text + text
+            widget.selected = False
+
+
+@pytest.mark.parametrize('value,expected', [('', ''), ('cell_area', 'cell_area'), (10000, '10000')])
+def test_native_text_replacement_clears_old_text_for_empty_and_populated_values(value, expected):
+    editor, keyboard = TextEditor('cell_channel_1_mean_intensity'), KeyboardEvents()
+    recorder._native_replace_text(editor, value, keyboard, EditorKeys)
+    assert editor.text == expected
+    assert editor.focused is True
+    assert keyboard.events[0] == ('A', 'Control')
+    assert keyboard.events[1] == ('Backspace', None)
+    assert keyboard.events[-1] == ('Tab', None)
+
+
+def test_column_failure_diagnostic_records_actual_search_and_full_keys_without_mutation():
+    before = deepcopy(ROWS[:2])
+    snapshot = recorder._column_view_snapshot('cell_area', ['cell_area'], COLUMNS, ROWS[:2])
+    assert snapshot['column_search_text'] == 'cell_area'
+    assert snapshot['visible_columns'] == ['cell_area']
+    assert snapshot['loaded_rows'] == 2
+    assert snapshot['identity_columns'] == list(recorder.IDENTITY)
+    assert snapshot['row_identities'] == [list(row[:5]) for row in ROWS[:2]]
+    assert ROWS[:2] == before
+    with pytest.raises(ValueError, match='page budget'):
+        recorder._column_view_snapshot('', COLUMNS, COLUMNS, [ROWS[0]] * 1001)
