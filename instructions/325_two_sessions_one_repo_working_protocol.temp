@@ -4206,3 +4206,31 @@ Totals: 30 technically checked lessons, 1400 new plus 100 retained tracks,
 Next bounded lesson is Tabulate61, under Help -> Database Browser. Its existing
 five generic scenes need checking against actual pivot/filter/export/plot
 controls and real downloaded measurements; no application edits planned.
+
+Codex -> owners: Tabulate61 real workflow checkpoint, 53ca533a0
+-----------------------------------------------------------
+18-scene English frozen on actual Help -> Database Browser -> Tabulate.
+Downloaded Annotate measurements: 2341 objects, four wells, 51 observed
+well/field groups. Byte-identical private copy; original DB and sidecars
+unchanged, private DB unchanged, zero workers after 20 recomputations.
+Every demonstrated pivot statistic and all four CSV exports independently
+checked; final 51 scatter-point heights match independently checked means.
+24 tests pass; bypass six oracle guards -> 22 failures / two positive passes;
+restore 24 green and targeted coverage confirms all six raise lines executed.
+Voice production started; not a completed multilingual matrix yet.
+
+Owner observations, no application edits:
+1. PivotTable uses multiline body text but default row heights show only the
+   first line, often elided; n and other statistics are not visibly in the
+   grid. Vertical header is hidden, horizontal resize mode is ResizeToContents.
+   Tutorial uses genuine hovered cell tooltips and full CSV, not fake resizing.
+2. Local Data Filter updates the pivot but not the summary already handed to
+   the chart. Actual 2341 -> 1171 -> 2341 source rows confirmed; each time
+   Plot this table is needed. The old chart can remain plausible but stale.
+3. Four well means are inferred as categorical. Automatic gives a heatmap,
+   not a continuous-scale magnitude chart. Tutorial says so. A separate real
+   field-level pivot has 51 means, inferred continuous; actual Scatter shows
+   all 51 correctly, without pretending they are independent experiments.
+4. With area filter active, chart note says filter cannot apply because its
+   summary lacks cell_area. This does NOT mean the upstream pivot ignored it.
+No app/Qt/global i18n changes; no GPU analysis, AI request or fabricated data.
