@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "zh-CN",
+  "title": "Control Charts：用明确的对照和界限检查实验批次序列",
+  "description": "从 QC 打开专用工具，加载明确标注为合成数据的三十块板示例，核对所选对照与基线，并导出经过独立核验的图表数据点。",
+  "objectives": [
+    "在 QC 中找到 Control Charts 并加载附带的合成 CSV。",
+    "区分按孔记录的输入行与按板计算的均值，只选择一种对照。",
+    "比较规则，修改并恢复对照和基线，阅读结果中的警示。",
+    "导出实际的数据点表，不宣称导出了图像或完成了生物学验证。"
+  ],
+  "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv 完全是合成数据，改编自应用中使用固定随机种子的测试：三十块虚构的板，每块板每种对照有三个孔，第二十块板之后的上升漂移由程序设定。日期仅表示示例顺序，不是采集记录。此专用面板目前没有 Load test data 按钮；本课不下载显微图像，不运行模型或 GPU 分析，也不发送 AI 请求。旧视频只有两块板，应用拒绝估计界限，因此未被采用。设置栏较窄，关闭时会截断较长选项；打开真实下拉菜单即可看到全名。本课不演示 Z-prime 和重新估计模式。",
+  "scenes": [
+    "打开 QC，再点击其中的 Control Charts。这个专用流程显示一系列实验板上的重复对照。附带 CSV 明确属于合成数据，包括其中的漂移；它演示软件操作，而不是实际采集的实验或经过验证的检测。",
+    "选择 Load table，打开示例 CSV。文件有二百七十行孔级记录：三十块板，每块板含三个阴性对照孔、三个阳性对照孔和三个样本孔。图中每个点是每块板所选对照的均值，并非每个细胞一个点。",
+    "按照屏幕上的列名核对 Plate、Run order、Measurement 和 Control column。在 Control is 中只选择 neg。此列表支持多选；如果所有类别都未选中，图表会使用全部行。不要以为加载文件就已选好所需的对照。",
+    "打开 Sigma from，查看完整选项。这里每块板有三个选定的孔，因此 Auto 选择子组估计量。界限使用基线板内的变异，并按均值的样本量调整，而不是使用整个漂移序列的标准差。",
+    "Rules 提供常用的四条规则、全部八条规则和 Limits only。规则越多，出现误报的机会也越多。这里选择 Limits only，单独检查三西格玛规则；更改下拉选项会重新计算图表，无需另按 Run。",
+    "Baseline plates 为二十：P 零一到 P 二十用于估计界限，再将界限应用于剩余的板。P 二十二到 P 三十共九个点超过上限。报告和规则表会标明这些点；这些预先编程的信号不是生物学发现。",
+    "取消勾选 neg，只选择 pos。图表现在显示另一种对照的均值和它自身的基线界限，在本例中没有违反规则一的点。仅凭图表没有警报，不能证明检测有效。继续之前恢复 neg。",
+    "把 Baseline plates 改为十二，观察中心线和界限的变化，再恢复二十。应用至少要求八块基线板，但这只是最低限制，并不是建议采用的数量。应事先规划并说明基线的依据，不要仅为消除不想看到的警报而调整它。",
+    "恢复原来的对照和二十块板的基线后，选择 Export points，另存一个 CSV。三十行数据包含板标识、顺序、均值、子组大小与离散程度、界限、标准化距离、是否属于基线以及触发的规则。这不是图表图像或完整配置的导出。",
+    "已将导出的每个标识和数值字段与源 CSV 核对，包括规则一的标记。原始输入保持不变。编写脚本时，控制图部件模块提供 ControlChartSpec 和 control_chart，结果对象提供 points_frame。调查实际警报时，应一起保留输入、设置和采集记录。"
+  ]
+}
