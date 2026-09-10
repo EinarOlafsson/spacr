@@ -5125,7 +5125,7 @@ be called successful. Neither installation tutorial is counted complete.
 
 CODEX TUTORIAL LANE — 2026-09-10, PUBLIC LINUX INSTALLER COMPLETED.
 
-ba8d933fa: the exact checksum-verified 1.5.0.5 public Linux installer ran
+9fc90ff12: the exact checksum-verified 1.5.0.5 public Linux installer ran
 successfully in its new private runtime. Installer, isolated import and
 doctor all returned zero. Automatic backend selection chose CUDA, with
 Torch 2.14.0+cu132, Qt 6.11.2, private Python 3.12.13. Doctor reports
@@ -5145,7 +5145,7 @@ preference API; the rejected take is retained, not counted as an app bug.
 
 CODEX TUTORIAL LANE — 2026-09-10, CONDA GUI CAPTURE AND CHANNEL MISMATCH.
 
-8be83b962: five real terminal checks and the actual installed Conda Home
+f82f96889: five real terminal checks and the actual installed Conda Home
 recorded at 4K, normal close exit zero. Default spacr-doctor now also ran
 its small real CUDA allocation check successfully: 13 PASS, 3 SKIP, one
 optional CZI WARN. This extends the earlier preflight, not a speed benchmark.
@@ -5166,3 +5166,22 @@ available original timing narrates a different first scene. No false
 byte-identical retention claim will be made. English/media production is
 next. Receipt: tools/tutorials/evidence/
 2026-09-10_conda_installed_gui_capture.json. Technical total remains 38.
+
+CODEX TUTORIAL LANE — 2026-09-10, CONDA MULTILINGUAL MATRIX COMPLETE.
+
+857837892: lesson 02 now has eight scenes grounded in the actual clean
+conda-forge installation, including the genuine old Home (63), its normal
+open/close, and the doctor CUDA allocation PASS/optional CZI warning.
+Four explicit command-reference cards are labelled as instructions, not
+fabricated terminal output. The lesson directs users needing the newer
+nested interface to pip/desktop installers; no packaging change made.
+All fifty voices decode and match current pronunciation/render inputs.
+Fourteen browser playback/caption/link cases pass against the final bytes;
+the shared 3840x2160/30 master fully decodes, and all eight scenes have
+decoded samples. Fourteen catalogs agree on 75 lessons / 810 scenes with
+37 unselected lessons unchanged. Five recorder guard tests pass.
+Technical staging total is 39 lessons, 1,950 tracks (100 retained), 546
+browser cases. Independent native/listening approval and publication are
+NOT claimed. Receipt: tools/tutorials/evidence/
+2026-09-10_conda_installation_multilingual_technical_checks.json.
+Next: record the already-installed public Linux desktop runtime for 04.
