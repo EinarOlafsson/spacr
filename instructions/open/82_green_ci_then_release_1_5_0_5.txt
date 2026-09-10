@@ -2,7 +2,21 @@
 GET EVERY GITHUB TEST GREEN, THEN RELEASE 1.5.0.5 — AND DO NOTHING AFTER
 ================================================================================
 
-Status:    not started, 2026-08-11. SCHEDULED LAST, in two steps, in order.
+Status:    STEP 2 IS DONE, TWICE. 1.5.0.5 was tagged 2026-09-10 (DOI
+           10.5281/zenodo.22692340) and 1.5.0.6 the same evening (DOI
+           10.5281/zenodo.22695045) because 1.5.0.5's wheel could not be
+           installed on macOS or Windows -- see the case-collision section
+           below. Both branches carry 1.5.0.6.
+
+           STEP 1, "every GitHub test green", IS NOT DONE and is now 288's
+           to close rather than this file's: a full local run on 2026-09-10
+           was 62,400 tests with 87 reds, of which the great majority were
+           catalog staleness now fixed, environment artefacts, or xdist
+           worker crashes. This file no longer blocks anything.
+
+           WHAT THIS FILE SHOULD BE READ FOR is the ordering argument
+           against 58, which turned out to be moot -- see 58's own status.
+           (Was: not started, 2026-08-11. SCHEDULED LAST, in two steps.)
 Requested: 2026-08-11 — "all to instructions make sure Github test are all
            passing, then update to 1.5.0.5 these should be the last 2 things
            you do"
@@ -77,6 +91,38 @@ WHAT MADE THIS URGENT rather than a scheduling preference: the version DOI
 minted by this release is what the TSG101 Cell submission cites. The paper
 is the deadline, and 58 is a day of force-pushing across a branch two
 sessions are working in.
+
+--------------------------------------------------------------------------------
+PART 3 -- WHAT THE TWO RELEASES COST, 2026-09-10
+--------------------------------------------------------------------------------
+
+1.5.0.5 FAILED ITS FIRST DISPATCH on a workflow defect that had been latent
+since 2026-07-29. `online-installers.yml`'s `collect` job was gated on
+
+    github.event_name == 'workflow_call' && inputs.publish_to_repository
+
+and inside a REUSABLE workflow `github.event_name` is the CALLER's event --
+`workflow_dispatch` or `push`, never 'workflow_call'. The condition could not
+be true, so collect was skipped on every release, `release_commit` came back
+empty, and the tag step ran `git tag -a v1.5.0.5 ""`. No tag, no release, no
+DOI. v1.5.0.4 shipped only because it was cut from tutorial-deploy-20260814,
+a branch predating the change. A TEST ASSERTED THE BROKEN STRING, so the fix
+arrived red; both are corrected.
+
+1.5.0.6 EXISTS BECAUSE 1.5.0.5 COULD NOT BE INSTALLED. Its wheel carried both
+`cell_Signal_to_noise.gif` and `cell_signal_to_noise.gif`, and the same pair
+for nucleus and pathogen. On Linux those are three files; on macOS and
+Windows the filesystem folds case and the installer refuses the archive
+outright. EVERY CHECK IN THE PIPELINE RUNS ON LINUX -- packaging tests, sdist
+and wheel builds, twine check, the installer smoke test -- so all of them
+passed on an artefact that could not be installed. The maintainer found it on
+his own Mac. Two regression tests now forbid case-colliding tracked paths and
+require every shipped GIF to be one the manifest names.
+
+    THE LESSON WORTH KEEPING: a release pipeline that runs on one operating
+    system cannot certify a package for three. Neither defect was a mistake
+    anybody made twice; both were invisible to every automated check that
+    existed.
 
 --------------------------------------------------------------------------------
 STEP 1 — EVERY GITHUB TEST PASSING
