@@ -674,3 +674,76 @@ maintainer's behalf.
 
         NOT GUESSED AT. The other six renames are unambiguous and are being
         landed; this one is held.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- FOUR MORE FOR THE ANSWER SHEET, GATHERED OVERNIGHT
+--------------------------------------------------------------------------------
+
+Collected rather than asked, because the maintainer said not to ask anything
+overnight. They belong here so they go to him in ONE batch when he is back
+-- which is what this item exists for -- rather than in four separate
+messages across four sessions. Recommendation first in each, per the
+guidelines above.
+
+Q-327-A -- SHOULD THE REGION TOUR BE THE DEFAULT BACKDROP PATH?
+    327(3) is wired: the camera tours the twenty mapped coordinates as a
+    third Path in Preferences, "Tour the mapped regions", and it is NOT the
+    default -- `path` stays "fixed".
+      (a) LEAVE IT OFF. A mode that changes what every user sees is a
+          decision, not a side effect of wiring it up.
+      (b) MAKE IT THE DEFAULT. The request reads like it was meant to be on:
+          "have say 20 regions on the image that the camera will
+          automatically smoothely float towards."
+    RECOMMEND (b), with a caveat that makes it cheap to reverse: the tour is
+    smooth by construction -- smoothstep, zero velocity at both ends -- and
+    moves only at the surface between dives, so it cannot produce the
+    shaking that made "guided" a non-default. If it feels wrong, one
+    dropdown puts it back.
+
+Q-385-A -- WITH PREFERENCES OPEN, DOES THE UNCOVERED PART OF THE BACKDROP
+    KEEP MOVING?
+    This one question closes or reopens 385, and it takes five seconds at
+    the machine. Every mechanism named in that file is now measured and none
+    of them freezes anything: the modal nested loop, all six ambient
+    engines, the widget's own gates, `apply_ambient_preferences`, and
+    occlusion on a real X server for BOTH the CPU and the GPU renderer.
+      (a) THE UNCOVERED PART KEEPS MOVING. Then the report is about the
+          covered part, that is the window manager doing its job, and 385
+          closes.
+      (b) THE WHOLE THING STOPS. Then it is a driver-level buffer-swap
+          policy on a real NVIDIA context, and the fix is in the GL canvas.
+    NO RECOMMENDATION -- this is an observation, not a choice.
+    ONE REAL FREEZE WAS FOUND AND FIXED EITHER WAY: the first Preferences
+    open blocked the GUI thread for 902 ms with the backdrop stopped for all
+    of it, and is now 139 ms. See 380.
+
+Q-379-C -- SHOULD THE SUGGESTION OFFSET SCHEME EXTEND PAST TWO CLASSES?
+    Restated here because 379's own status line reads as though there is
+    code to write and there is not. The collision guard is already built and
+    refuses BOTH directions by name; the feature is SAFE at three classes,
+    it is simply refused with a sentence pointing at 379-C.
+      (a) TWO CLASSES ONLY, and the refusal is the answer. Zero work.
+      (b) EXTEND IT. Then the offset has to move above the largest class
+          value a user can enter, and the guard becomes a bound rather than
+          a refusal.
+    RECOMMEND (a) until somebody actually annotates three classes. (b) is
+    not hard and it is not free, and nothing has asked for it yet.
+
+Q-CI-A -- HOW SHOULD CI STOP CANCELLING ITSELF?
+    Measured: 0 successes in the last 100 runs on nightly, 94 of them
+    cancelled. The push rate exceeds CI throughput -- commits landing about
+    every ninety seconds, each cancelling the run before it.
+      (a) THE TUTORIAL LANE PUSHES ONCE PER LESSON rather than once per
+          translated caption. Nothing in CI changes; ten commits pushed
+          together are one run instead of ten cancellations, and the history
+          is identical.
+      (b) CI STOPS RUNNING ON EVERY nightly PUSH -- pull request to main, a
+          schedule, and workflow_dispatch instead. Costs the immediate
+          signal on nightly, which is where the work happens.
+    RECOMMEND (a). It is the cheapest by far and it is already asked for in
+    325. NOTE that flipping `cancel-in-progress` is NOT an option: GitHub
+    keeps at most one PENDING run per group and cancels the older pending
+    one regardless, which is why docs.yml is cancelled too despite already
+    having it false. And `paths-ignore` on the tutorial data is worse than
+    useless -- two tests read those files, so CI would go quiet on exactly
+    the change that happened.
