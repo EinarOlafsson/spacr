@@ -67,7 +67,7 @@ def record_evaluation(app, window, stage, captures, capture, settle, write_json,
             field = dialog.findChild(QLineEdit, 'fileNameEdit')
             click(field)
             QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
-            QTest.keyClicks(field, str(source))
+            QTest.keyClicks(field, str(source / 'evaluation'))
             capture('03_actual_bundle_folder')
             box = dialog.findChild(QDialogButtonBox)
             buttons = [b for b in box.buttons() if box.buttonRole(b) == QDialogButtonBox.AcceptRole]

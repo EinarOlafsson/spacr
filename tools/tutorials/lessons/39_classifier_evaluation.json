@@ -1,0 +1,185 @@
+{
+  "id": "39_classifier_evaluation",
+  "number": 39,
+  "slug": "classifier_evaluation",
+  "title": "Classifier evaluation",
+  "series": 3,
+  "app_key": "classifier_evaluation",
+  "section": "Tools",
+  "host_app_key": "classify_merged",
+  "description": "Inspect real saved classifier predictions inside Classify, use live table filters, and recognise a test split with known well overlap.",
+  "objectives": [
+    "Open Classify’s nested evaluation inspector with the downloadable saved-results bundle.",
+    "Read confusion counts, confidence lists, per-plate metrics and calibration without rerunning a model.",
+    "Distinguish an interactive results view from independent validation or evidence of incorrect labels."
+  ],
+  "example_files": [
+    "REAL_evaluation_known_overlap.zip"
+  ],
+  "prerequisite": "Extract REAL_evaluation_known_overlap.zip into a new folder and select the extracted root containing evaluation_manifest.json. This inspection-only archive contains 234 actual one-epoch test predictions and the native saved tables/PNGs, not a trained model, crops or an annotation database. The two inherited class names infected_1 and infected_2 do not establish infection status. Standard spacr.classifier_evaluation.evaluate_predictions and write_evaluation_bundle prepared the results from the original saved probabilities; load_evaluation_bundle is the inspector reader. Database identities expose all three test wells in the training split; no retraining or correction of that split occurred. Generic out-of-fold file names and plot titles do not turn a single test split into cross-validation. Counts [[104,11],[8,111]] give 215/234 correct; confidence threshold 0.75 -> 0.95 changes the selected eleven-disagreement cell from high/low 6/5 to 2/9 without altering class calls. The Predictions filter r5_c2 gives 234 -> 128 -> 234 rows after clearing. Calibration method none and five bins per class were fixed when the bundle was prepared, not entered in this GUI. Every numeric cell is preserved; only sample display paths became explicit crops-not-included references. The matching original experiment must already be open in Annotate for crop routing; this standalone example does not demonstrate that route. One plate cannot establish whether a disagreement is caused by the model, plate, well or a wrong annotation. Native calibration PNG is readable, but the confusion PNG has weak dark-on-blue number contrast; neither generic-OOF export is endorsed as publication-ready. No model inference, GPU benchmark or spaCR AI request occurs during inspection. Native-speaker/listening approval and publication remain separate from these technical checks.",
+  "scenes": [
+    {
+      "visual": "01_classify_host",
+      "narration": "Open Classify, then its Classifier Evaluation shortcut. This is a nested results inspector, not a separate Home module or a model-training form. The Classify lesson covers producing predictions; here we inspect an existing saved bundle.",
+      "focus": [
+        3510,
+        50,
+        320,
+        80
+      ],
+      "related_lessons": [
+        "41_classify"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_actual_bundle_folder",
+      "narration": "Download the saved-results example linked below and extract it into a new folder. Click Browse and choose the folder containing evaluation manifest dot json. This small archive includes real saved predictions and tables, but no crops, annotation database or trained model.",
+      "focus": [
+        1200,
+        750,
+        1420,
+        850
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_actual_summary",
+      "narration": "Summary reports two hundred thirty-four test predictions from a one-epoch run. The names infected one and infected two are inherited dataset labels, not newly verified infection states. Loading this bundle reads saved results; it does not train, predict or repair the dataset.",
+      "focus": [
+        255,
+        445,
+        2350,
+        570
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_actual_leakage_requires_review",
+      "narration": "Check Leakage audit before interpreting accuracy. All three test wells also occur in training, so the audit fails. Database identities revealed overlap that the older filename audit missed. These numbers demonstrate the inspector, not performance on independent wells or biological validation.",
+      "focus": [
+        255,
+        445,
+        1520,
+        1010
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_actual_confusion_counts",
+      "narration": "In Confusion matrix, rows are the recorded classes and columns are predictions. The diagonal counts are one hundred four and one hundred eleven. The other cells contain eleven and eight disagreements: nineteen in total. Agreement with these labels is not proof that the labels are correct.",
+      "focus": [
+        255,
+        435,
+        3535,
+        160
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_error_cell",
+      "narration": "Click the eleven-count cell: recorded infected one, predicted infected two. At confidence zero point seven five, six disagreements enter the high-confidence list and five the low-confidence list. These are two inspection queues for the same selected cell, not new classification results.",
+      "focus": [
+        255,
+        1030,
+        3535,
+        285
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_actual_confidence_threshold",
+      "narration": "Raise the confidence threshold to zero point nine five. The high list now contains two crops and the low list nine. Probabilities, class calls and the eleven-count cell remain unchanged. This live control partitions the queue; it does not recalibrate the model or rerun inference.",
+      "focus": [
+        255,
+        1030,
+        3535,
+        370
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_error_cell",
+      "narration": "Treat the automatic explanations cautiously. A confident disagreement does not prove a wrong annotation, and one plate cannot establish a plate-level cause. The displayed model-versus-well suggestions are hypotheses. Review acquisition, labels and genuinely independent data before deciding what needs correction.",
+      "focus": [
+        255,
+        1070,
+        3535,
+        150
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_per_plate",
+      "narration": "Per-plate metrics contains one row with all two hundred thirty-four predictions. It helps locate results by plate, but this example cannot compare plates or estimate a plate effect. The high accuracy does not remove the shared-well problem shown in Leakage audit.",
+      "focus": [
+        255,
+        420,
+        3535,
+        150
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_actual_calibration_table",
+      "narration": "Calibration compares mean predicted probability with observed class frequency in five bins per class. The count column matters: sparse bins are uncertain. This saved bundle used no calibration correction. There is no calibration-fitting control on this tab; the table describes results prepared earlier.",
+      "focus": [
+        255,
+        420,
+        3535,
+        460
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_actual_prediction_filter",
+      "narration": "In Predictions, type r five underscore c two to inspect that well. The table narrows from two hundred thirty-four to one hundred twenty-eight rows. This is a live text filter over saved records, not image filtering, segmentation or a change to the underlying result files.",
+      "focus": [
+        255,
+        420,
+        3535,
+        320
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_actual_filter_cleared",
+      "narration": "Clear the filter and all two hundred thirty-four rows return. The sample paths explicitly say crops not included. To open disagreement crops in your own project, first open its matching experiment in Annotate. This archive cannot supply that database, and its disabled buttons are not a demonstrated crop workflow.",
+      "focus": [
+        255,
+        420,
+        1800,
+        390
+      ],
+      "related_lessons": [
+        "09_annotate"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_actual_summary",
+      "narration": "The download also preserves the native calibration and confusion figures. Inspect their contrast before reporting them. Generic out-of-fold titles and filenames do not make this one test split cross-validated. The saved probabilities and counts are unchanged; only private sample paths were replaced by explicit references.",
+      "focus": [
+        255,
+        445,
+        2350,
+        570
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_actual_final_leakage",
+      "narration": "Finish by keeping the leakage warning with any exported metrics. The API reference explains bundle preparation and loading; Training Runs covers comparing saved progress logs. spaCR AI may help explain terminology, but it cannot certify labels or independence. No provider request was needed for this example.",
+      "focus": [
+        255,
+        445,
+        1520,
+        1010
+      ],
+      "related_lessons": [
+        "28_training_runs"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

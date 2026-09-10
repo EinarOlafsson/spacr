@@ -145,7 +145,7 @@ def main() -> int:
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
-            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility') else args.module)),
+            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation') else args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
