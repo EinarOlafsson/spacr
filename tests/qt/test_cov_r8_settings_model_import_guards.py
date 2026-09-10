@@ -44,9 +44,28 @@ def _restore_the_module():
 
     Saving the module objects and putting them back leaves the session
     exactly as it was found.
+
+    AND sys.modules IS NOT THE ONLY PLACE THE MODULE LIVES. `import_module`
+    also rebinds `settings_model` as an ATTRIBUTE of the `spacr.qt.screens`
+    package, and restoring sys.modules alone leaves the two disagreeing --
+    measured 2026-09-10, `spacr.qt.screens.settings_model is not
+    sys.modules["spacr.qt.screens.settings_model"]` after this file ran.
+
+    That is worse than either being wrong on its own, because the two
+    are reached by different syntax. `from .settings_model import X`
+    resolves through the package ATTRIBUTE; `monkeypatch.setattr(
+    "spacr.qt.screens.settings_model.X", ...)` resolves through
+    sys.modules. A spy installed by one is invisible to the other, and it
+    fails silently -- the code under test simply runs the unpatched
+    original. Three tests in test_the_spaceout_fractal.py were red for
+    exactly that reason, from the same pattern in
+    test_cov_r8_fractal_travel_tails.py.
     """
     saved = {name: module for name, module in sys.modules.items()
              if name == MODULE or name.startswith(MODULE + ".")}
+    package_name, _, leaf = MODULE.rpartition(".")
+    package = sys.modules.get(package_name)
+    attribute = getattr(package, leaf, None) if package is not None else None
     try:
         yield
     finally:
@@ -54,6 +73,8 @@ def _restore_the_module():
                      if n == MODULE or n.startswith(MODULE + ".")]:
             del sys.modules[name]
         sys.modules.update(saved)
+        if package is not None and attribute is not None:
+            setattr(package, leaf, attribute)
 
 
 class TestTheTrainingBasisInventory:
