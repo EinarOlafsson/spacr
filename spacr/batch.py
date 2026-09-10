@@ -95,6 +95,11 @@ from .cli import (
     resolve_module,
 )
 from .errors import DB_SUFFIXES, RUN_STATUS_SUFFIX, RunLedger, SpacrError, read_run_status
+from .cancellation import (
+    PipelineCancelled,
+    checkpoint as cancellation_checkpoint,
+    current_token,
+)
 from .validate import ERROR, WARNING, validate_settings
 
 __all__ = [

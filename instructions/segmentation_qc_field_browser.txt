@@ -1,0 +1,156 @@
+================================================================================
+SEGMENTATION QC -> FIELD BROWSER + QUARANTINE
+================================================================================
+
+Feature request, scoped against the code on 2026-08-06 but NOT built.
+
+What the user asked for:
+
+  The segmentation QC banner on the Measure screen is useful, but it only
+  names the fields it is complaining about. It should LINK to them. Clicking
+  a link opens a browser showing the image and its masks (from the merged
+  folder), lets you click through them, and offers to move bad files into a
+  quarantine folder so they are excluded from further analysis.
+
+The black-box styling half of that request is DONE (see the end of this file).
+What follows is the browser + quarantine, which is not.
+
+--------------------------------------------------------------------------------
+1. WHY THIS IS CHEAPER THAN IT LOOKS
+--------------------------------------------------------------------------------
+
+Four things already exist. None of them need inventing:
+
+  * Every finding already identifies its field.
+    `spacr/seg_qc.py`, class FieldQC:
+
+        field: str   # "the mask's name -- the .npy stem, so it can be
+                     #  found on disk and opened"
+
+    So the link target is already in the data the banner renders. No new
+    bookkeeping, no re-scoring, no second pass over the masks.
+
+  * The rendering half of the viewer exists.
+    `spacr/qt/mask_engine.py`:
+
+        load_image_and_mask(folder, filename) -> (image, mask)
+        normalize_uint16(image, ...)
+        overlay_mask(image, mask, alpha=0.5)
+
+    NOTE: load_image_and_mask() follows the MASK EDITOR convention --
+    <folder>/<file> plus <folder>/masks/<stem>.tif. The merged folder is
+    .npy stacks with masks in a separate stack folder, so this one needs
+    either a merged-aware sibling or a small adapter. Do not assume it
+    works unchanged.
+
+  * Mask locations are already resolvable.
+    `spacr/seg_qc.py::find_mask_stacks(root) -> {object_type: folder}`
+    Checks the plate root and one level below, because spacr.object writes
+    <src>/<object_type>_mask_stack where src is inside the plate.
+
+  * The quarantine idea works as the user described it.
+    `spacr/core.py` enumerates the merged folder directly (list_merged,
+    crop_source='merged', around lines 398-457). Moving a field's .npy out
+    of merged/ therefore excludes it from downstream analysis. There is no
+    exclusion list to maintain and no new mechanism to add -- the absence
+    of the file IS the exclusion.
+
+--------------------------------------------------------------------------------
+2. WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+(a) A browser dialog, e.g. spacr/qt/widgets/qc_field_browser.py
+
+    Shows, for one field:
+      - the merged image (channel picker, or a sensible default composite)
+      - its mask(s) overlaid, one layer per object type, toggleable
+      - the field's own QC verdict text and flags, so the user sees WHY it
+        was flagged while looking at it
+      - prev / next through the flagged fields only, not the whole plate
+      - a quarantine button, and an un-quarantine button when the field is
+        already quarantined
+
+    Keyboard: left/right to move, a single key for quarantine. A user
+    triaging 200 flagged fields will not click through them.
+
+(b) Clickable findings in the banner
+    `spacr/qt/prerun.py`, SegQCBanner. Findings currently render as plain
+    QLabels. Make each finding's field names links (QLabel with rich text
+    and linkActivated, or reuse spacr/qt/widgets/dot_link.py) that open the
+    browser positioned at that field.
+
+(c) Quarantine, in a small module of its own so it is testable without Qt
+
+        quarantine_field(merged_dir, field) -> new path
+        restore_field(quarantine_dir, field) -> new path
+        is_quarantined(merged_dir, field) -> bool
+        list_quarantined(merged_dir) -> [str]
+
+    Folder: <plate>/merged_quarantined/  (sibling of merged/, so a glob of
+    merged/*.npy cannot pick it up by accident).
+
+    Decisions taken, both reversible:
+      - Move ONLY the merged .npy. Masks stay where they are, so nothing is
+        destroyed and the only consequence is that measure skips the field.
+      - Write a small JSON sidecar per quarantined file recording who/when/
+        which QC flags, so a plate's exclusions are auditable later. A
+        quarantine with no record is indistinguishable from a lost file.
+
+--------------------------------------------------------------------------------
+3. THINGS THAT WILL BITE
+--------------------------------------------------------------------------------
+
+  * Merged arrays are .npy stacks, not images. imageio will not read them
+    and the mask-editor loader assumes TIFF siblings. Write the merged
+    reader deliberately.
+
+  * A field can be flagged for MORE THAN ONE object type (cell, nucleus,
+    pathogen each have their own scorecard). The browser should show all of
+    that field's verdicts together, not open three times.
+
+  * The banner is advisory by construction. `prerun.py` documents this at
+    length and BLOCKS_RUN is False with a test asserting it against the real
+    screen. Quarantining is a user action, not a gate -- do not let this
+    feature start blocking runs, and do not auto-quarantine anything.
+
+  * The digest is read from CSVs that may be OUT OF DATE relative to the
+    masks (read_digest dates each card against its mask stack). If the card
+    is stale, the browser is pointing at fields that may no longer exist.
+    Handle a missing file as "already gone", not as a crash.
+
+  * Quarantining changes what a re-run measures. If a measure run is in
+    flight, quarantining mid-run gives a half-excluded result. Either
+    disable it while a run is active or say so plainly in the dialog.
+
+--------------------------------------------------------------------------------
+4. TESTS WORTH WRITING
+--------------------------------------------------------------------------------
+
+  * quarantine/restore round-trips a file and leaves masks untouched
+  * a glob of merged/*.npy does not see quarantined files
+  * the browser opens at the field whose link was clicked
+  * a finding naming a field that no longer exists degrades gracefully
+  * BLOCKS_RUN is still False after the feature lands (the existing
+    tests/qt/test_prerun.py assertion must keep passing)
+
+--------------------------------------------------------------------------------
+5. ALREADY DONE -- the styling half
+--------------------------------------------------------------------------------
+
+The "black box behind the QC panel" is fixed in spacr/qt/prerun.py::_qss.
+
+It read palette['surface_alt'] directly, which returns RAW HEX, so it
+painted a fully opaque box that ignored the page-opacity preference -- a
+black slab on the dark theme while every container around it was
+translucent. It now goes through theme.pane_surface(), which is the
+accessor theme.py documents for exactly this case (see the worked example
+in the comment block near the end of theme.py).
+
+Verified: #161719 at opacity 1.0, rgba(22, 23, 25, 0.500) at 0.5.
+
+The same _qss block styles the diameter panel on the Mask screen, so that
+one had the identical bug and is fixed by the same change.
+
+If you add more registered widget stylesheets, use pane_surface() rather
+than the palette for any container background, or they will have this bug
+too.

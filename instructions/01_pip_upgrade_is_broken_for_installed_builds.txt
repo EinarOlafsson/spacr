@@ -1,0 +1,87 @@
+================================================================================
+THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
+================================================================================
+
+Status:   diagnosed, fix is already in the repo, has not reached users
+Severity: every install at or below 1.5.0.1, on every platform
+Reported: "pip returned exit code 1. Check the terminal for details."
+
+--------------------------------------------------------------------------------
+WHAT HAPPENS
+--------------------------------------------------------------------------------
+
+Help -> Check for updates offers the upgrade, the user says yes, and it
+fails with exit code 1 and a message naming a terminal that a desktop
+entry (Terminal=false) never opened.
+
+--------------------------------------------------------------------------------
+WHY
+--------------------------------------------------------------------------------
+
+The installers build their environment with `uv venv`, which does NOT seed
+pip. Confirmed on a real install:
+
+    $ ~/.local/share/spacr/venv/bin/python -m pip --version
+    No module named pip
+
+The updater in an old build runs `sys.executable -m pip install --upgrade
+spacr`, so it fails before it starts.
+
+`spacr/updater.py` already handles this. `find_uv()` looks for
+
+    <install root>/bootstrap/uv        <- the tool the installer used
+    <install root>/venv/               <- sys.prefix
+
+and `upgrade_command()` prefers it. On the machine this was diagnosed on,
+that file exists at exactly that path. The code is simply newer than the
+installed build:
+
+    $ ~/.local/share/spacr/venv/bin/python -c \
+        "import spacr.updater as u; print(hasattr(u, 'find_uv'))"
+    False
+
+So the fix cannot arrive by the route it fixes. That is the whole problem:
+it is a bootstrap trap, not a bug that will drain away as people update.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Ship a build containing `find_uv` / `upgrade_command` through a channel
+   that is NOT the in-app updater. The installers are that channel:
+   packaging/build_debian.sh, build_macos.sh, build_windows.ps1.
+
+2. Tell existing users the manual escape. One line, no sudo, no reinstall:
+
+     ~/.local/share/spacr/bootstrap/uv pip install --upgrade \
+       --python ~/.local/share/spacr/venv/bin/python spacr
+
+   On macOS and Windows the two paths differ; derive them the way
+   `find_uv` does -- `sys.prefix` for the venv, its parent + /bootstrap/uv
+   for the tool.
+
+3. Consider making a failed upgrade say this itself. The dialog already
+   shows the tail of pip's output rather than pointing at a terminal (that
+   part is fixed). A missing-pip failure is recognisable -- "No module
+   named pip" in the output -- and is the one case where the app knows the
+   exact command that would work.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+From an installed build, not from a checkout:
+
+    <venv>/bin/python -c "from spacr.updater import upgrade_command; \
+                          print(upgrade_command())"
+
+It must print the uv form, `[.../bootstrap/uv, 'pip', 'install', ...]`,
+and NOT `[<python>, '-m', 'pip', ...]`. If it prints the pip form on a
+machine whose venv has no pip, the upgrade will fail again.
+
+--------------------------------------------------------------------------------
+WHAT WAS ALREADY DONE
+--------------------------------------------------------------------------------
+
+Nothing in this file is a code change; the code is right. The only reason
+this is unfinished is distribution.

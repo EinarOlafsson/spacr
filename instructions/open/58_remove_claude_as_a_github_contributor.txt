@@ -1,0 +1,305 @@
+================================================================================
+CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
+================================================================================
+
+Status:    THE STATED GOAL IS MET -- Claude is not in the contributors
+           list, measured 2026-09-10; see MEASURED below. No history
+           rewrite remains. What is left is one going-forward push check
+           and some unpublished local backup branches.
+
+           (Previously: APPROVED, AND SCHEDULED LAST -- BUT NOW AFTER THE
+           1.5.0.5 TAG.
+           The maintainer has said to do the history rewrite -- Option A
+           below -- as the FINAL task in this folder. Do not start it while
+           anything else is open.
+
+           RESCHEDULED 2026-09-10. 82 had this running BEFORE the release,
+           so the tag could not land on a discarded SHA. Asked directly,
+           with that cost stated, the maintainer chose to release first and
+           rewrite after: the version DOI this release mints is what the
+           TSG101 Cell submission cites, and the paper is the deadline. See
+           82's ordering section for the reasoning and for why a Zenodo DOI
+           survives a later rewrite. So: tag 1.5.0.5 first, then this.
+           That reschedule turned out to be moot -- there is no rewrite
+           left to run.)
+Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
+           2026-08-08 — approving the rewrite, on being told it "changes
+           every commit hash after the earliest rewritten one": "i want you
+           to do this: changes every commit hash after the earliest
+           rewritten one / but do this last on the instructions list"
+           2026-08-12 — SCOPE WIDENED: "add to instructions remove claude and
+           github-actions[bot] from all commits so they are no longer
+           contributers"
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measured on `nightly`, last 400 commits:
+
+    author  = olafsson / Einar work / Einar Olafsson    (all Einar)
+    author  = github-actions[bot]                       (1)
+    NO commit is authored or committed by Claude.
+
+    38 commits carry a `Co-Authored-By: Claude ...` TRAILER.
+
+That trailer is the whole cause. GitHub reads `Co-Authored-By` and credits
+the named account in the contributors list and in per-commit attribution,
+exactly as if it were a second author.
+
+Going forward this is already prevented: the standing rule for this repo is
+that no commit carries a Co-Authored-By trailer and the maintainer is sole
+author. The 38 are historical, from before that rule.
+
+THAT RULE IS NOT SELF-ENFORCING, and 2026-09-10 proved it. The three commits
+merging nightly into main were each written with a `Co-Authored-By: Claude
+Opus 5` trailer, because the agent writing them is instructed by its own
+HARNESS to add one -- an instruction that arrives from outside the
+repository, where no hook, test or instruction file can reach it. They were
+caught before the push and stripped, and the branch is back to zero.
+
+    COUNT IT WITH THE PATTERN ANCHORED, or the number is wrong:
+
+        git log --format=%B <ref> | grep -cE "^[ \t]*Co-Authored-By:[ \t]*Claude"
+
+    Unanchored, that grep also counts commits that MENTION the trailer in
+    their prose -- including c0651ed93, e2ec65498 and 4a5c087c9, which are
+    commits about this very problem. Measured 2026-09-10, unanchored says
+    main=1 nightly=2; anchored says main=0 nightly=0. "38 trailers" and "38
+    commits discussing trailers" are different numbers and only the second
+    survives a careless re-count. The 38 in the section above were counted
+    before this distinction was written down and should be re-measured with
+    the anchored pattern before any rewrite is planned around them.
+
+    THE RANGE LOOKS CATASTROPHIC AND IS NOT. Stripping with
+
+        git filter-branch -f --msg-filter '...' origin/main..HEAD
+
+    traverses every commit in the range -- 5,313 of them here -- but a
+    commit whose message, tree, parents and author are all unchanged comes
+    out with its ORIGINAL SHA. Only the commits actually edited move. That
+    was verified rather than trusted: after the strip, the merge commit
+    still named 880638e26 and 6ac8285ed as its parents and
+    `HEAD..origin/nightly` was 0. Stated here because the next person will
+    otherwise refuse to run the command, or will reach for a narrower range
+    and miss commits.
+
+MEASURED 2026-09-10, AND THE HISTORICAL HALF IS DONE. The goal of this
+instruction -- "remove claude as a contributor on the spacr github page" --
+is already met, and it was met by the strip that has already happened
+rather than by anything still outstanding:
+
+    gh api "repos/EinarOlafsson/spacr/contributors?per_page=100&anon=1"
+        EinarOlafsson  2964
+        jak18015         18
+
+    No Claude. No bot. Every branch published on GitHub, anchored count:
+        364-renames 0   api-catalog-drift-check 0   main 0
+        nightly 0       rewrite-staging 0
+
+    Count them after `git fetch --prune`. Before pruning, this checkout
+    still had refs/remotes/origin/tutorial-deploy-20260814 and
+    origin/codex/pages-manual-nightly showing 38 each, and both branches
+    had already been DELETED from GitHub. A stale remote-tracking ref reads
+    exactly like a published one and will send you chasing work that does
+    not exist.
+
+WHAT IS ACTUALLY LEFT, and neither part is a history rewrite:
+
+  1. TWO PUBLISHED TAGS still reach commits carrying the trailer:
+     v1.5.0.4 (38) and v1.5.0.1 (14). These do NOT feed the contributors
+     graph, which GitHub computes from the default branch, and that is why
+     the listing above is clean. They cannot be cleaned without re-tagging
+     published releases, which would break the release assets and the
+     Zenodo records attached to them. RECOMMEND LEAVING THEM: the cost is
+     that a visitor opening one of those specific old commits sees a
+     co-author, and the cure is worse.
+
+  2. LOCAL BACKUP BRANCHES in individual checkouts carry them --
+     backup/pre-claude-trailer-strip (70), safety-nightly-20260908 (115),
+     backup-nightly-local (38), home-session-2026-09-03-backup (70),
+     wip/live-zoom-completeness (19), and a stale local `main` (38). None
+     is under refs/remotes; GitHub has never seen any of them. They are
+     backups of the strip that worked, they cost nothing to keep, and
+     deleting another checkout's safety net is the owner's call, not a
+     task. Whoever owns each checkout can drop theirs when they are
+     satisfied.
+
+SO THE ORDERING PROBLEM IN 82 IS MOOT. 82 held the release behind this
+instruction because a rewrite would discard the tagged SHA. There is no
+rewrite left to run, so the 1.5.0.5 tag is not sitting in front of one and
+will not be invalidated later. The reschedule recorded above stands, but it
+turns out to have cost nothing either way.
+
+The "38" in this file's opening section was measured unanchored and is not
+the historical figure; the real number of commits that ever carried one is
+70, all of them now only on unpublished local branches.
+
+THE REAL FIX IS A PRE-PUSH CHECK. A commit hook catches only the sessions
+that run it, and the instruction to add the trailer reaches the agent from
+outside this repository entirely -- so no amount of writing the rule into
+CONTRIBUTING, into the instruction folder, or into a session's context
+prevents the next one from arriving with it. A check at the push boundary is
+the only place that catches it regardless of who is committing or what they
+were told.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The contributors list is what a visitor reads as "who wrote this". For an
+academic tool, authorship is not decoration -- it is the thing citation and
+credit attach to, and a tool that appears to have a corporate co-author
+invites questions the maintainer should not have to answer.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+There is no way to remove a contributor through the GitHub UI. Attribution
+is computed from commits, so it changes only when the commits do.
+
+OPTION A -- rewrite history. The only fix that removes the existing 38.
+
+    git filter-repo --message-callback \\
+        'return re.sub(rb"\\n*Co-[Aa]uthored-[Bb]y: Claude[^\\n]*", b"", message)'
+
+    then force-push every affected branch, and re-push tags.
+
+    THIS IS DESTRUCTIVE AND PUBLIC. Every commit hash after the earliest
+    rewritten commit changes, which means:
+      * open pull requests against the old hashes break;
+      * anyone with a clone or fork must re-clone or hard-reset;
+      * a Codex session is working in this repo concurrently and would be
+        rebasing onto history that no longer exists.
+    DO NOT RUN IT without the maintainer saying so, and coordinate the
+    timing with whoever else has the repo checked out.
+
+    APPROVED. This is the option to take. See the ordering rule below
+    before doing it.
+
+OPTION B -- NOT CHOSEN. leave history, stop the bleeding. Already true: no new commit
+    adds the trailer. The 38 stay, and Claude stays in the list.
+
+RECOMMENDED SEQUENCE
+    1. Confirm the count against the DEFAULT branch too, not just nightly --
+       `git log --grep='Co-Authored-By: Claude' -i --oneline | wc -l` on
+       `main`/`master`. Contributor lists are computed from the default
+       branch, so the number that matters may differ from 38.
+    2. Get an explicit yes for the rewrite, and a time when no one else is
+       working in the repo.
+    3. Take a full backup clone first (`git clone --mirror`).
+    4. Rewrite, force-push, then confirm the contributors page updated --
+       GitHub can take a while and sometimes needs a support request for a
+       cached contributor entry.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+`git log --grep='Co-Authored-By: Claude' -i --oneline | wc -l` returns 0 on
+the default branch, and the repository's contributors page lists only the
+maintainer once GitHub recomputes.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not started, and not to be started unprompted. Rewriting published history
+is not reversible for anyone who has already cloned, and this session has a
+concurrent Codex session in the same repository. The measurement above is
+free and was done; the rewrite is a decision, not a task.
+
+--------------------------------------------------------------------------------
+2026-08-08 - APPROVED, AND WHY IT GOES LAST
+--------------------------------------------------------------------------------
+
+The rewrite is authorised. The ordering is part of the instruction, not a
+preference, and the reason is mechanical rather than cautious:
+
+REWRITING CHANGES EVERY COMMIT HASH AFTER THE EARLIEST REWRITTEN COMMIT.
+Any work committed before the rewrite is rewritten with it; any work
+committed after it is built on the new history. Doing it in the middle
+means every remaining task is done twice -- once on the old hashes, once
+after a forced reset -- and anyone else in the repository has to re-clone
+in the middle of their own work.
+
+So it is the last thing that happens to this repository, and NOTHING should
+be committed after it until the maintainer has re-cloned.
+
+BEFORE RUNNING IT, in this order:
+
+  1. Every other instruction in `open/` is finished or explicitly closed.
+     That includes 48, the tutorials task, which belongs to a CONCURRENT
+     CODEX SESSION -- its work has to be landed and pushed first, or the
+     rewrite discards it or strands that session on dead hashes.
+  2. Confirm the count on the DEFAULT branch, not just nightly. GitHub
+     computes contributors from the default branch, so the number that
+     matters may not be the 38 measured here:
+         git log --grep='Co-Authored-By: Claude' -i --oneline | wc -l
+  3. Full backup: `git clone --mirror` to somewhere off this disk. The
+     rewrite is not reversible from the working copy.
+  4. Confirm no open pull requests, or that their authors know.
+  5. Rewrite, force-push every branch AND tags.
+  6. Verify the count is 0 on the default branch, then check the
+     contributors page. GitHub caches it; a stale entry can need a support
+     request, so a page that still shows Claude an hour later is not a
+     failed rewrite.
+
+WHAT COULD STILL STOP IT. If, when the time comes, there are open PRs or
+another session is mid-work, say so and ask rather than proceeding -- the
+approval is for the rewrite, not for doing it at a moment that costs
+somebody else their work.
+
+--------------------------------------------------------------------------------
+2026-08-12 - SCOPE WIDENED TO github-actions[bot], AND MEASURED
+--------------------------------------------------------------------------------
+
+Requested: "add to instructions remove claude and github-actions[bot] from
+all commits so they are no longer contributers"
+
+MEASURED ON THE FULL HISTORY, not the last 400:
+
+    olafsson              1587      Einar
+    Einar work             955      Einar
+    Einar Olafsson         112      Einar
+    EinarOlafsson           44      Einar
+    SpaCr                   26      Einar
+    Lophorinus              82      SOMEBODY ELSE -- DO NOT TOUCH
+    jak18015                18      SOMEBODY ELSE -- DO NOT TOUCH
+    github-actions[bot]      6      to be rewritten
+
+    Co-Authored-By trailers 39      to be stripped
+
+THE TWO HUMAN CO-AUTHORS ARE NOT IN SCOPE. `Lophorinus` and `jak18015` are
+real contributors with 100 commits between them. The request names Claude and
+the bot; a rewrite that swept up "everyone who is not Einar" would erase two
+people's authorship, which is the opposite of what this instruction is for.
+Whoever runs this must filter on the two named identities and nothing else.
+
+WHAT THE BOT'S SIX COMMITS ARE: `chore(release): add spaCR <version>
+installers`, produced by the release workflows. They are real commits with
+real content; only the authorship is wrong.
+
+AND THE REWRITE ALONE WILL NOT HOLD. Three places configure that identity:
+
+    .github/workflows/online-installers.yml:250-251
+    .github/workflows/release.yml:98-99
+    .github/workflows/release.yml:274-275
+
+Each does `git config user.name "github-actions[bot]"`. Rewriting the six
+historical commits without changing these means the NEXT release puts the bot
+straight back in the contributors list, and the rewrite has to be done again
+-- after the hashes have already been published once. Change the workflows in
+the same change, or the work is temporary.
+
+The maintainer's own identity is the right replacement there:
+`Einar Olafsson <einar.olafsson@gmail.com>`, which is what every other commit
+in this repository uses.
+
+ORDER, unchanged: this whole instruction is still LAST. It rewrites every
+commit hash after the earliest rewritten one, so anything unpushed or
+unmerged at that moment is stranded. The workflow-file change is the one part
+that could safely land earlier -- it only affects FUTURE commits -- and doing
+it early is worth considering precisely because it stops the six from
+becoming seven.

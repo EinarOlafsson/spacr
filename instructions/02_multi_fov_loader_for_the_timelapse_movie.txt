@@ -1,0 +1,92 @@
+================================================================================
+THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
+================================================================================
+
+Status:   half done. The panel takes many, the loader supplies one.
+Severity: a requested feature that looks finished and is not
+
+--------------------------------------------------------------------------------
+WHAT EXISTS
+--------------------------------------------------------------------------------
+
+spacr/qt/widgets/timelapse_movie.py
+
+  TimelapseMoviePanel.set_fields(fields)
+      Takes a LIST of {"title", "images", "labels", "tracks", "channel"}.
+      Stacks one FovMovie per entry. Already tested with two.
+
+  TimelapseMoviePanel.set_max_fields(n)
+      The user's cap, bounded by MAX_FIELDS_CEILING (8). Lowering it drops
+      the surplus immediately -- it is a memory setting, and somebody
+      lowering it has just been told the machine is short.
+
+  The Fields spin box in the panel's control row is wired to it.
+
+So the display side is done and covered by tests
+(tests/qt/test_timelapse_movie.py).
+
+--------------------------------------------------------------------------------
+WHAT IS MISSING
+--------------------------------------------------------------------------------
+
+TimelapsePreviewPanel._push_to_movie() in
+spacr/qt/widgets/timelapse_preview.py builds a list of exactly one entry,
+from the sequence the preview happens to have loaded. Nothing ever loads a
+second field, so the cap has nothing to cap and the stack never stacks.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+The pieces are already in the repo:
+
+  spacr/qt/widgets/preview_controls.py :: sibling_sources(path, suffixes)
+      Lists comparable sources beside a path. This is how the other
+      previews find the rest of a plate.
+
+  spacr/qt/widgets/timelapse_preview.py :: open_sequence_payload(path, ...)
+      Opens one field as a FrameSequence.
+
+  segment_sequence() / link_tracks() / relabel_by_track()
+      The per-field work. Already used for the single field.
+
+So:
+
+1. In `_push_to_movie`, resolve up to `movie.max_fields()` sources with
+   `sibling_sources`, with the currently loaded one FIRST -- the field the
+   user chose must not be pushed off the bottom by alphabetical siblings.
+
+2. Segment and track each additional field. This is the expensive part and
+   it MUST NOT run on the GUI thread: a plate-scale field is seconds of
+   Cellpose per field. Reuse `_TimelapseWorker`, or a QThreadPool, and fill
+   the stack as each field lands rather than waiting for all of them.
+
+3. Feed `labels=` the RELABELLED stack, not the raw masks. The movie's
+   colours only mean a track if the labels ARE track ids -- that is the
+   whole reason the movie is worth watching. `_push_to_movie` already does
+   this correctly for the one field; keep it right for the rest.
+
+4. Lowering the cap mid-load should cancel the outstanding fields, not
+   load them and throw them away.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Two fields of one plate stack, each with its own play/scrub/filmstrip.
+  * The Fields spin box at 1 leaves one; raising it loads more without a
+    re-run of the first.
+  * The GUI stays responsive while the second field segments -- watch the
+    spinner, not the frame counter.
+  * A track id has the same colour in field 1 and field 2 only if it is
+    the same track; across fields the ids are independent, so do NOT
+    expect or assert cross-field colour agreement.
+
+--------------------------------------------------------------------------------
+WHAT NOT TO DO
+--------------------------------------------------------------------------------
+
+Do not raise MAX_FIELDS_CEILING to make a demo look better. Each field
+holds every rendered frame for every (objects, tracks) combination it has
+been asked for; eight 30-frame fields is already a substantial cache. If
+more are genuinely wanted, make the cache evict instead.

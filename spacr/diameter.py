@@ -117,6 +117,7 @@ from .validate import (
     _listdir,
     _peek_planes,
 )
+from .object_roles import SEGMENTED_ROLES
 
 __all__ = [
     "DiameterEstimate",
