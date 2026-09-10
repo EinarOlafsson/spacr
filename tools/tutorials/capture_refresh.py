@@ -244,6 +244,10 @@ def main() -> int:
         from capture_plate_queue import record_queue
         record_queue(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'batch':
+        from capture_batch_runner import record_batch
+        record_batch(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
