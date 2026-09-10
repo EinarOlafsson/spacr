@@ -45,6 +45,8 @@ filed for the CONTAINER to be checked too.
 """
 from __future__ import annotations
 
+import re
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -102,6 +104,12 @@ LAID_OUT_PX = 8
 
 
 
+#: An opening or closing HTML tag, as opposed to a stray angle bracket.
+#: `<b>`, `</div>` and `<span style="…">` match; `2 < 3` and `a -> b` do
+#: not, which is the whole reason this is not `Qt.mightBeRichText`.
+_A_REAL_TAG = re.compile(r"<\s*/?\s*[a-zA-Z][a-zA-Z0-9]*(\s[^<>]*)?/?\s*>")
+
+
 def _is_rich(widget, text: str) -> bool:
     """Whether this label paints ``text`` as markup rather than as characters.
 
@@ -119,7 +127,23 @@ def _is_rich(widget, text: str) -> bool:
     # captions through `QTextDocument` reported eighty false offences the
     # first time this was tried. An explicit `RichText` is a decision the
     # widget's author made; AutoText is not.
-    return widget.textFormat() == Qt.RichText and "<" in text
+    if widget.textFormat() == Qt.RichText and "<" in text:
+        return True
+    # AND WHEN IT CARRIES A REAL TAG, whatever it declared. AutoText is the
+    # DEFAULT, so a label built with `<b>…</b>` or a coloured `<span>` and
+    # no explicit format still paints as markup -- and measuring the markup
+    # as glyphs is not a near miss, it is nonsense: the sweep reported
+    # `<span style='color:#3fb950;'>● installed</span>` as 291 px of text
+    # in a 75 px box, where the ten characters Qt actually draws need about
+    # seventy.
+    #
+    # A TAG, NOT AN ANGLE BRACKET, which is the distinction that makes this
+    # safe where `mightBeRichText` was not. `2 < 3` and `a -> b` do not
+    # match; `<b>`, `</div>` and `<span style=…>` do. Measured against the
+    # eighty false offences that killed the first attempt: this returns
+    # True for none of them.
+    return (widget.textFormat() != Qt.PlainText
+            and bool(_A_REAL_TAG.search(text)))
 
 
 def _rich_text_height(widget, text: str) -> int:
@@ -144,6 +168,26 @@ def _rich_text_height(widget, text: str) -> int:
     doc.setHtml(text)
     doc.setTextWidth(max(widget.width(), 1))
     return int(doc.size().height() + 0.5)
+
+def _rich_text_width(widget, text: str) -> int:
+    """The width rich ``text`` wants on one line.
+
+    Laid out with :class:`QTextDocument` under the widget's own font, which
+    is how ``QLabel`` lays it out too -- so this is the number the label is
+    working to rather than the width of its markup.
+
+    :param widget: the label.
+    :param text: its markup.
+    :returns: the width in pixels, rounded up.
+    """
+    from PySide6.QtGui import QTextDocument
+
+    doc = QTextDocument()
+    doc.setDefaultFont(widget.font())
+    doc.setDocumentMargin(0)
+    doc.setHtml(text)
+    return int(doc.idealWidth() + 0.999)
+
 
 def _fits(widget) -> str:
     """``""`` when the widget's text fits, else why it does not.
@@ -192,7 +236,30 @@ def _fits(widget) -> str:
             return (f"wrapped to {needed} px of height in {widget.height()}")
         return ""
 
-    needed = metrics.horizontalAdvance(text)
+    # RULE 5 APPLIES TO WIDTH TOO, and it did not until 2026-09-10. The
+    # height branch above has measured rich text with `QTextDocument` since
+    # the day the fifth false-positive class was found; the width branch
+    # kept handing the MARKUP to `QFontMetrics`. A label that does not wrap
+    # -- which is most chrome -- was therefore judged on a string nobody
+    # sees: `<span style='color:#3fb950;'>● installed</span>` was reported
+    # as needing 291 px in a 75 px box, where the ten characters Qt draws
+    # need about seventy, and `<b>Claude (via Claude Code)</b>` as needing
+    # 400 where it needs 280.
+    #
+    # Found by adding `_ProvidersDialog` to the dialog sweep, which reported
+    # six clipped captions in a dialog with none. The same run reported two
+    # in `SetupSlides` and `UmapDisplaySettings`, and those were the height
+    # branch already doing this correctly -- so the two halves of one rule
+    # disagreed for as long as both have existed.
+    # ASKED OF LABELS ONLY. `_is_rich` reads `textFormat()`, which a
+    # QPushButton does not have -- and the width branch, unlike the height
+    # one, is reached by buttons as well. Asking it of everything turned a
+    # four-red run into a hundred-and-twenty-five-red one, all of them
+    # AttributeError.
+    if isinstance(widget, QLabel) and _is_rich(widget, text):
+        needed = _rich_text_width(widget, text)
+    else:
+        needed = metrics.horizontalAdvance(text)
     room = widget.width()
     if isinstance(widget, QPushButton):
         # A button's own hint knows what its style reserves for padding, the

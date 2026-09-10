@@ -118,7 +118,13 @@ class _ProvidersDialog(QDialog):
         from ..preferences import scaled_px
         
         self.setMinimumWidth(scaled_px(620))
-        self.setMinimumHeight(560)
+        # `scaled_px`, NOT 560. The width beside it was already scaled and
+        # the height was not, so at a doubled font the dialog kept its
+        # device-pixel floor while every caption in it grew -- and the
+        # intro paragraph was squeezed to 81 px of the 180 it needs. Same
+        # defect class as the seven settings columns capped in device
+        # pixels; found by adding this dialog to the text-fit sweep.
+        self.setMinimumHeight(scaled_px(560))
         outer = QVBoxLayout(self)
 
         tabs = QTabWidget()

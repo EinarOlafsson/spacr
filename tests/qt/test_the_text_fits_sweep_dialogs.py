@@ -59,6 +59,11 @@ DIALOGS = [
     ("spacr.qt.widgets.setup_dialog", "SetupDialog"),
     ("spacr.qt.widgets.test_data_chooser", "TestDataChooser"),
     ("spacr.qt.widgets.umap_search_viewer", "UmapGalleryDialog"),
+    # ADDED 2026-09-10. Both take no required argument and had simply
+    # never been tried -- which is the whole of why the count of
+    # uncovered dialogs was a number rather than a list.
+    ("spacr.qt.widgets.ai_chat_panel", "_ProvidersDialog"),
+    ("spacr.qt.widgets.setup_slides", "SetupSlides"),
 ]
 
 LOCALES = ("en", "de")
@@ -104,7 +109,34 @@ SCALES = (1.0, FONT_SCALE_MAX)
 #: and re-running is what showed six still failing. A ``<=`` ratchet cannot
 #: tell "fixed" from "unchanged" -- only tightening it can, which is why
 #: tightening it is part of claiming a fix here rather than a follow-up.
-KNOWN_OFFENDERS: dict = {}
+KNOWN_OFFENDERS: dict = {
+    # ONE ENTRY, ADDED 2026-09-10 WITH ITS DIAGNOSIS, and it is the first
+    # this file has ever carried. `_ProvidersDialog`'s intro paragraph
+    # wraps to 108 px of height in the 97 it is given -- eleven pixels, in
+    # German only, at 100 % only.
+    #
+    # WHAT WAS FIXED, and it closed the other three of the four
+    # combinations: the dialog set `setMinimumWidth(scaled_px(620))` and
+    # `setMinimumHeight(560)`. The height was a raw device-pixel constant
+    # beside a scaled width, so at a doubled font the floor stayed put
+    # while every caption in the dialog grew. Same defect class as the
+    # seven settings columns 350 already records.
+    #
+    # WHY THIS ONE IS LEFT: the dialog opens at exactly its minimum height,
+    # and the German text wraps to one line more than the English. The
+    # layout cannot discover that, because the page is inside a
+    # QTabWidget, and QTabWidget does not propagate `heightForWidth` --
+    # so the wrapped label's true height never reaches the dialog's own
+    # sizeHint. Giving the label a height-for-width size policy was tried
+    # and changed nothing for exactly that reason; it was reverted rather
+    # than left in as code that does nothing.
+    #
+    # THE FIX IS A SCROLL AREA around the providers page, which is 350's
+    # own rule ("a visible, accessible fallback rather than silently
+    # clipping") and is a layout change worth making with a display in
+    # front of the person making it.
+    ("_ProvidersDialog", "de", 1.0): 1,
+}
 
 
 #: Dialogs that take an argument the caller can supply GENUINELY.
@@ -154,6 +186,27 @@ def _axis_cutoff():
     return AxisCutoff(12.0, 980.0)
 
 
+def _a_figure():
+    """A live matplotlib figure with something on it to draw controls from.
+
+    NOT AN EMPTY ONE. `FigureSettingsDialog` builds its controls "from the
+    figure's current axes, artists, legends, and optional spaCR metadata",
+    so a blank figure would build a blank dialog and the sweep would
+    measure nothing while reporting a pass. The axes carry a labelled line
+    and a legend so there is a row per artist to lay out.
+    """
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(4, 3))
+    axes = figure.add_subplot(111)
+    axes.plot([0, 1, 2], [0, 1, 4], label="a labelled series")
+    axes.set_xlabel("An x axis with a long enough caption to lay out")
+    axes.set_ylabel("And a y axis")
+    axes.set_title("A figure the settings dialog has something to say about")
+    axes.legend()
+    return figure
+
+
 DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.annotate", "_SettingsDialog", _annotate_settings),
     ("spacr.qt.screens.annotate", "_GenerateAnnotationDatabaseDialog",
@@ -161,6 +214,14 @@ DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.annotate", "_AutoAnnotateDialog", _annotate_settings),
     ("spacr.qt.widgets.refit_dialog", "RefitDialog", dict),
     ("spacr.qt.hf_download", "_DownloadDialog", lambda: "Downloading model"),
+    # ADDED 2026-09-10. Three more whose one argument is honestly
+    # suppliable: two take a figure, and the third takes the settings it
+    # opens on -- and an EMPTY dict is the real case rather than a
+    # shortcut, because its own docstring promises that "a settings file
+    # written before a field existed still opens".
+    ("spacr.qt.widgets.figure_settings", "FigureSettingsDialog", _a_figure),
+    ("spacr.qt.widgets.save_figure_dialog", "SaveFigureDialog", _a_figure),
+    ("spacr.qt.widgets.umap_explorer", "UmapDisplaySettings", dict),
 ]
 
 #: Dialogs taking more than one genuinely-suppliable argument.
