@@ -45,3 +45,31 @@ def test_only_a_complete_private_installation_is_accepted(recorder, tmp_path):
         (root / 'receipt.json').write_text(json.dumps(modified))
         with pytest.raises(ValueError, match='six successful'):
             recorder.installation(tmp_path, root)
+
+
+def test_conda_uses_its_own_five_step_receipt_and_prefix(recorder, tmp_path):
+    root = tmp_path / 'installation_runs' / 'conda'
+    root.mkdir(parents=True)
+    receipt = dict(accepted=True, steps=[dict(returncode=0, completed=True) for _ in range(5)])
+    (root / 'receipt.json').write_text(json.dumps(receipt))
+    assert recorder.installation(tmp_path, root, 'conda')[1] == root / 'env'
+    with pytest.raises(ValueError, match='six successful'):
+        recorder.installation(tmp_path, root, 'pip')
+    receipt['steps'].append(dict(returncode=0, completed=True))
+    (root / 'receipt.json').write_text(json.dumps(receipt))
+    with pytest.raises(ValueError, match='five successful'):
+        recorder.installation(tmp_path, root, 'conda')
+
+
+def test_conda_commands_do_not_pretend_to_be_the_pip_environment(recorder, tmp_path):
+    rows = recorder.commands('conda', '1.5.0.4', tmp_path / 'env')
+    assert len(rows) == 5
+    assert rows[1][1][-4:] == ['list', '--prefix', str(tmp_path / 'env'), 'spacr']
+    assert rows[2][2] == 'spaCR: 1.5.0.4'
+    assert rows[3][2] == str(tmp_path / 'env')
+    assert rows[4][1] == ['spacr-doctor']
+    pip = recorder.commands()
+    assert pip[1][1] == ['python', '-m', 'pip', '--version']
+    assert pip[2][2] == 'spaCR: 1.5.0.5'
+    assert pip[3][1] == ['python', '-m', 'pip', 'check']
+    assert pip[4][1] == ['spacr-doctor', '--no-gpu-probe']
