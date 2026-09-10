@@ -107,9 +107,12 @@ prune spacr/notebooks/old
 prune spacr/resources/icons/backup_icons
 prune spacr/resources/home
 
-# Unreferenced spinner variants: 21.5 MB of the wheel between them, and
-# `grep -r` finds zero references to any of the three. Only
-# loading_spinner.gif is used (gui_core.py:69). Kept in git, not shipped.
+# Unreferenced spinner variants: 21.5 MB between them, and `grep -r` found
+# zero references to any of the three. DELETED from the tree in 1.5.0.5 --
+# these excludes stay as defence in depth, so a variant that comes back
+# cannot reach a wheel before someone notices. Only loading_spinner.gif is
+# used, by spacr/qt/widgets/activity_spinner.py; the old citation here named
+# gui_core.py, which the Qt rewrite deleted.
 exclude spacr/resources/icons/loading_spinner_1.gif
 # One glob is intentional: distutils splits manifest arguments on spaces, so
 # spelling ``loading_spinner_logo (1).gif`` literally treated it as two
