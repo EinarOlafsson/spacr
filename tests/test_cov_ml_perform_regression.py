@@ -945,7 +945,7 @@ def test_the_correction_is_actually_applied_to_the_parametric_fit():
     assert int((corrected < 0.05).sum()) == 0
 
 
-def test_min_n_filters_the_significant_hits(screen, stubs):
+def test_min_observations_per_hit_filters_the_significant_hits(screen, stubs):
     """results_significant_filtered.csv keeps only well-covered features."""
     from spacr.ml import perform_regression
 
@@ -963,7 +963,7 @@ def test_min_n_filters_the_significant_hits(screen, stubs):
     # would then pass for the wrong reason, asserting that a filter kept
     # nothing out of nothing. The cut has its own tests below; this one is
     # about min_n, so it says out loud that it does not want a cut.
-    settings = parametric_settings(screen, min_n=1000,
+    settings = parametric_settings(screen, min_observations_per_hit=1000,
                              multiple_testing_method="none",
                              fdr_alpha=0.999,
                              threshold_method="none")

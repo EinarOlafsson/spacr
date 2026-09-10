@@ -178,6 +178,11 @@ KEYS_RETIRED = frozenset({
     # one before any default is filled in, so a settings file in the wild
     # keeps working.
     "expected_end",
+    # RENAMED to `min_observations_per_hit` on 2026-09-09, instruction 364.
+    # "min_n" is the minimum of an unnamed n, and the tooltip had to say
+    # which n twice over: "gRNA hits need n_grna > min_n, gene hits need
+    # n_gene > min_n".
+    "min_n",
     # FOLDED into `gradient_accumulation_steps` on 2026-09-09, instruction
     # 364. The boolean sat beside the step count and could contradict it:
     # `gradient_accumulation: false` with the default four steps says two
@@ -308,6 +313,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_gpu",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
+    # and `min_observations_per_hit`, the new name for `min_n`.
+    "min_observations_per_hit",
     "opencv_threads", "out_png", "out_tif", "outline_alpha",
     "outline_source", "pair_batch_size", "phenotype_source",
     "preview_downsample", "ransac_thresh_px", "recursive",

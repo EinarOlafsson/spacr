@@ -1070,6 +1070,9 @@ RETIRED_SETTINGS: Dict[str, str] = {
     # the new one before any default is filled in, so a settings file in
     # the wild keeps working and this entry tells its owner what happened.
     "expected_end": "window_length",
+    # "min_n" is the minimum of an unnamed n. The n is OBSERVATIONS behind
+    # a hit -- wells -- which the tooltip had to spell out twice over.
+    "min_n": "min_observations_per_hit",
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
     "minimum_cell_count": "min_cell_count",

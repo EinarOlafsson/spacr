@@ -8082,7 +8082,8 @@ def _perform_regression(settings):
         - ``batch_correction`` — optional ``combat``, ``center``, ``zscore``,
           ``robust_zscore`` or reference-control ``control_center``
           normalization of the dependent variable before well aggregation.
-        - ``fraction_threshold``, ``min_n``, ``metadata_files``,
+        - ``fraction_threshold``, ``min_observations_per_hit``,
+          ``metadata_files``,
           ``volcano``, ``heatmap_feature``.
 
     :returns: Path to the merged, metadata-annotated results DataFrame
@@ -8236,7 +8237,8 @@ def _perform_regression(settings):
     # TWO guides and n_gene = 15. A reader comparing n_gene across genes is
     # comparing a product, not a count of anything.
     #
-    # Left as the product rather than quietly redefined: `min_n` filters on
+    # Left as the product rather than quietly redefined:
+    # `min_observations_per_hit` filters on
     # it and the results CSVs of every past run carry it, so changing what
     # the number MEANS is a separate decision from fixing WHICH ROWS it is
     # taken over. The guide-support table beside it already reports guides
@@ -8912,8 +8914,9 @@ def _perform_regression(settings):
     # take no part in the regression." Measured on a synthetic case with half
     # the wells unpaired, every count came out EXACTLY 2x too high.
     #
-    # It matters beyond the display. `min_n` filters the hit list on these
-    #     significant[significant['n_grna'] > settings['min_n']]
+    # It matters beyond the display. `min_observations_per_hit` filters the
+    # hit list on these
+    #     significant[significant['n_grna'] > settings['min_observations_per_hit']]
     # so an inflated count lets a guide through a filter it should fail --
     # which is a hit reported on evidence that is not there.
     _merged_for_counts, n_grna, n_gene = _count_variable_instances(
@@ -9402,8 +9405,9 @@ def _perform_regression(settings):
                   f"{type(error).__name__}: {error}")
 
     significant.to_csv(hits_path, index=False)
-    significant_grna_filtered = significant[significant['n_grna'] > settings['min_n']]
-    significant_gene_filtered = significant[significant['n_gene'] > settings['min_n']]
+    threshold = settings['min_observations_per_hit']
+    significant_grna_filtered = significant[significant['n_grna'] > threshold]
+    significant_gene_filtered = significant[significant['n_gene'] > threshold]
     significant_filtered = pd.concat([significant_grna_filtered, significant_gene_filtered])
     filtered_hit_path = os.path.join(os.path.dirname(hits_path), 'results_significant_filtered.csv')
     significant_filtered.to_csv(filtered_hit_path, index=False)

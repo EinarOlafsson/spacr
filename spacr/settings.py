@@ -1604,6 +1604,10 @@ RENAMED_SETTINGS = {
     # "window length, not an end coordinate" is what the parameter's own
     # docstring already had to say, which is the argument for the name.
     "expected_end": "window_length",
+    # "min_n" says the minimum of an unnamed n. The n is OBSERVATIONS --
+    # wells behind a hit -- and the tooltip had to spell that out twice
+    # over ("gRNA hits need n_grna > min_n, gene hits need n_gene > min_n").
+    "min_n": "min_observations_per_hit",
 }
 
 
@@ -2495,7 +2499,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('rra_permutations', 10000)
     settings.setdefault('positive_control','239740')
     settings.setdefault('negative_control','233460')
-    settings.setdefault('min_n',0)
+    settings.setdefault('min_observations_per_hit', 0)
     # THE GENE, NOT THIRTY OF ITS GUIDES (195). Asked for 2026-08-21:
     # "default for controlls in regression should be 000000".
     #
@@ -3789,7 +3793,7 @@ expected_types = {
     "count_data":list,
     "score_data":list,
     "paired_data":list,
-    "min_n":int,
+    "min_observations_per_hit": int,
     "controls":list,
     "Toxoplasma":bool,
     "metadata_files":list,
@@ -5069,7 +5073,7 @@ tooltips = {
     'loss_type': "(str) - Loss used to train the classifier. For a head with two or more classes: 'focal_loss' (down-weights easy examples), 'cross_entropy', 'label_smoothing' (epsilon 0.1), 'ce_weighted' (inverse-frequency class weights), 'logit_adjust_ce' and 'asl'. 'binary_cross_entropy_with_logits' is valid only for a single-logit head and raises otherwise. Use a weighted or focal loss for imbalanced classes. Default 'focal_loss'. Merged Classifier starts at 'auto', which resolves to cross_entropy for a multi-class head and binary_cross_entropy_with_logits for a single-logit head.",
     'metadata_files': "(list) - Gene-annotation CSVs, each with a 'Gene ID' column, that are joined onto the regression results by gene, writing an extra results CSV per file. These are gene tables, not plate/well metadata. When toxo is True the order matters: index 0 is read as the ME49 transcription table and index 1 as the GT1 phenotype table. Default [].",
     'paired_data': "(list of dicts) - Regression input table: each row explicitly pairs one score CSV with one count CSV. Plate identity comes from both files when they agree, from the partner when only one declares plateID, or from the row order when neither does. A conflict is refused. Legacy score_data/count_data lists are migrated positionally and logged. Default [].",
-    'min_n': "(int) - Observation count a significant hit must strictly exceed to appear in results_significant_filtered.csv: gRNA hits need n_grna > min_n, gene hits need n_gene > min_n. The unfiltered hit list is still written alongside it. Raise it to drop hits resting on one or two wells. Default 0, which filters nothing.",
+    'min_observations_per_hit': "(int) - Observation count a significant hit must strictly exceed to appear in results_significant_filtered.csv: gRNA hits need n_grna > min_observations_per_hit, gene hits need n_gene > min_observations_per_hit. The unfiltered hit list is still written alongside it. Raise it to drop hits resting on one or two wells. Default 0, which filters nothing.",
     'normalization_percentiles': "(list) - Two-element [low, high] percentile pair used to stretch each channel's non-zero pixels to the full display range in plot_merged; applied only when normalize is True. Narrowing the pair (e.g. [5, 95]) boosts contrast but saturates bright objects; widening it flattens the image. Default [2, 98].",
     'nr_imgs': "(int) - Number of object crops in each representative-image grid. The sampler selects this many per condition, or all available crops when fewer exist. Increase it for a more representative but larger and slower figure; decrease it for a faster preliminary view. Must be a positive integer; plotting helpers default to 16.",
     'nucleus_chann_dim': "(int) - Recruitment analysis only (analyze_recruitment): the image-channel index paired with the nucleus mask when drawing outline overlays, and the switch that enables nucleus_size_range / nucleus_intensity_range filtering. Set it to None to skip nucleus filtering. It plays no part in segmentation - use nucleus_channel for that. Default 0.",
@@ -5558,7 +5562,7 @@ categories = {
     # across the old list with the fitting knobs between them, so it was not
     # obvious that four separate settings each drop data.
     "Regression: Quality Filters": [
-        "min_cell_count", "min_n", "fraction_threshold",
+        "min_cell_count", "min_observations_per_hit", "fraction_threshold",
         "calibrate_fraction_threshold",
         # DIRECTLY UNDER THE THRESHOLD IT DIVIDES BY. It is only
         # meaningful in terms of what that threshold removed, so a

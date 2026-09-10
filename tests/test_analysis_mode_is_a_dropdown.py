@@ -138,7 +138,8 @@ def test_controls_and_filters_is_one_section():
     assert "Controls & Filters" in sections
     assert "Controls & Plate Design" not in sections
     assert "Quality Filters" not in sections
-    for key in ("min_cell_count", "min_n", "fraction_threshold",
+    for key in ("min_cell_count", "min_observations_per_hit",
+                "fraction_threshold",
                 "outlier_detection", "filter_column", "negative_control"):
         assert key in sections["Controls & Filters"], key
 

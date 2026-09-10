@@ -431,8 +431,14 @@ def test_distinct_settings_keep_distinct_swedish_labels():
     from spacr.qt.i18n import tr
     from spacr.qt.i18n_catalogs import sv
 
+    # `min_observations_per_hit` replaced `min_n` in 364's renames. It is
+    # here rather than a shorter key on purpose: the collision this test
+    # guards against is between SHORT names, and a rename that makes one
+    # long removes it from the risk -- so the test follows the key rather
+    # than keeping a name that no longer exists.
     labels = {key: sv.SETTING_LABELS[key]
-              for key in ("eps", "pos", "neg", "gpu", "min_n")}
+              for key in ("eps", "pos", "neg", "gpu",
+                          "min_observations_per_hit")}
     assert len(set(labels.values())) == len(labels), labels
     captions = {key: tr(key, "sv")
                 for key in ("Radius", "organelle", "tsne", "umap", "png")}

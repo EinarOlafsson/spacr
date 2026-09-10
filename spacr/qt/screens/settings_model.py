@@ -1568,7 +1568,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "positive_control_wells", "negative_control_wells",
             "mixed_control_wells", "exclude_grnas", "controls",
             "filter_column", "filter_value",
-            "min_cell_count", "min_n", "fraction_threshold",
+            "min_cell_count", "min_observations_per_hit", "fraction_threshold",
             # DIRECTLY UNDER THE NUMBER IT REPLACES. It says "measure this
             # from the control wells instead", so it is only readable
             # beside the number it is an alternative to.

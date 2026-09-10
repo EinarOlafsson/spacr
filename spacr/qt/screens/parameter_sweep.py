@@ -135,7 +135,7 @@ def _make_screen(app_key=None, host=None):
                 # the filtration cutoffs are usually pinned by the user.
                 include.setChecked(key not in (
                     "fraction_threshold", "min_cell_count", "fdr_alpha",
-                    "min_n", "outlier_detection", "threshold_method"))
+                    "min_observations_per_hit", "outlier_detection", "threshold_method"))
                 editor = QLineEdit(
                     ", ".join("None" if v is None else str(v) for v in values),
                     row)

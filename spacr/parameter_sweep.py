@@ -117,7 +117,7 @@ DEFAULT_SWEEP_SPACE: dict[str, list] = {
     # --- filtration ----------------------------------------------------------
     "fraction_threshold": [0.02],
     "min_cell_count": [100],
-    "min_n": [0],
+    "min_observations_per_hit": [0],
     "outlier_detection": [False],
 }
 

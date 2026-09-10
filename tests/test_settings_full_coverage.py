@@ -1075,7 +1075,7 @@ def test_barecode_mapping_defaults_are_what_the_pipeline_indexes():
     """generate_barecode_mapping indexes, not .get()s, every one of these."""
     got = S.set_default_generate_barecode_mapping({})
     for key in ("src", "regex", "target_sequence", "offset_start",
-                "expected_end", "column_csv", "grna_csv", "row_csv",
+                "window_length", "column_csv", "grna_csv", "row_csv",
                 "save_h5", "comp_type", "comp_level", "chunk_size", "n_jobs",
                 "mode", "single_direction", "test", "fill_na"):
         assert key in got, key
