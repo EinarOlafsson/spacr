@@ -196,6 +196,15 @@ tutorial_colab.ipynb
 # `_generated/model_zoo_table.rst` was written on every run and
 # included by nothing, so the API had no model zoo page at all.
 !/docs/source/model_zoo.rst
+# The settings-flow page's own wrapper, which owns the heading and the
+# prose that `_generated/settings_flow.rst` deliberately has no title for.
+# It was written on 2026-09-08 and never committed, because this allowlist
+# did not name it and `/docs/source/*` above ignores anything that is not
+# named here. The generated fragment WAS committed, `index.rst` was pointed
+# at the wrapper, and every docs build since has failed on "toctree contains
+# reference to nonexisting document 'settings_flow'" -- silently, because
+# the catalog audit fails first and the Sphinx step never runs.
+!/docs/source/settings_flow.rst
 !/docs/source/_autoapi_templates/
 !/docs/source/_autoapi_templates/**
 !/docs/source/_generated/
