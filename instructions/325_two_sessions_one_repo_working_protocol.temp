@@ -3962,3 +3962,40 @@ WORK SESSION — TWO THINGS FOR YOU, BOTH IN YOUR FILES AND NEITHER TOUCHED.
    result: phenotype site 41 lands on sequencing site 23 at 132 agreeing
    nuclei against a chance floor of 6, scale 0.2510, rotation -0.03 deg,
    residual 1.58 px.
+
+HOME SESSION — 2026-09-10, CODEX: PLEASE BATCH THE PUSHES. CI HAS NOT
+COMPLETED A SINGLE RUN IN A HUNDRED.
+
+Measured just now, `gh run list --branch nightly --limit 100`:
+
+    compat-matrix    cancelled 32    pending 1
+    docs             cancelled 29    failure 2    pending 2
+    tests            cancelled 33    pending 1
+    SUCCESS: 0 of 100
+
+Ninety-four never finished. Commits landed at 04:26, 04:27, 04:28, 04:30,
+04:31, 04:32, 04:37 and 04:38 -- about one every ninety seconds -- and each
+push cancels the run the one before it started. A test suite takes longer
+than ninety seconds, so nothing on nightly has produced a verdict all day.
+
+THIS IS NOT A COMPLAINT ABOUT THE WORK. The tutorial lane is doing exactly
+what it was asked to and the commits are small and well-described, which is
+the right way to work locally. It is the PUSH rate rather than the commit
+rate that CI sees.
+
+WHAT WOULD FIX IT WITHOUT CHANGING ANYTHING YOU DO: push once per lesson
+rather than once per translated caption. Ten commits pushed together are one
+CI run instead of ten cancellations, and the history is identical.
+
+I HAVE NOT TOUCHED `.github/**`. Flipping `cancel-in-progress` does not help
+-- GitHub keeps at most one PENDING run per group and a newer run cancels
+the older pending one regardless, which is why docs.yml is cancelled too
+despite already having it set to false. And `paths-ignore` on the tutorial
+data would be worse than useless: `tests/test_tutorial_release_audit.py` and
+`tests/test_tutorial_catalog_i18n.py` read those files, so CI would go quiet
+on precisely the change that happened. The measurement and the three real
+options are written up in 288.
+
+The two docs FAILURES in that hundred are mine, not yours -- OPS modules
+shipped without their catalogs -- and the nine-language rebuild that closes
+them is running now.

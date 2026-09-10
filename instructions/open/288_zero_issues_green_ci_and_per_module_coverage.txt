@@ -1453,3 +1453,68 @@ A PRIVATE NAME COSTS NOTHING. `_build_the_dialog`, which took the whole body
 of `PreferencesDialog.__new__`, does not appear in the manifest at all; the
 public wrapper's docstring does. Where a helper does not need to be public,
 not making it public is a translation cost avoided rather than deferred.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE CI GATE, MEASURED: 0 SUCCESSES IN THE LAST 100 RUNS, AND 94
+OF THEM WERE CANCELLED
+--------------------------------------------------------------------------------
+
+`gh run list --branch nightly --limit 100`:
+
+    compat-matrix    cancelled  32     pending  1
+    docs             cancelled  29     failure  2     pending  2
+    tests            cancelled  33     pending  1
+
+    SUCCESS: 0 of 100
+
+NOT A TEST FAILURE. Ninety-four of the hundred never finished. The push rate
+exceeds CI throughput: commits landed on nightly at 04:26, 04:27, 04:28,
+04:30, 04:31, 04:32, 04:37 and 04:38 -- roughly one every ninety seconds --
+and each one cancels the run before it.
+
+    tests.yml         cancel-in-progress: event_name != 'workflow_dispatch'
+    compat-matrix.yml cancel-in-progress: event_name != 'workflow_dispatch'
+    docs.yml          cancel-in-progress: false
+
+AND THE `false` ONE IS CANCELLED TOO, which is worth knowing before anyone
+"fixes" this by flipping the flag. GitHub keeps at most one PENDING run per
+concurrency group: a newer run supersedes and cancels the older pending one
+whatever `cancel-in-progress` says. Setting it false converts "cancelled
+while running" into "cancelled while queued" and changes nothing.
+
+SO THE FLAG IS NOT THE DEFECT AND CHANGING IT IS NOT THE FIX. There are
+three real options and all three are the maintainer's call, because each
+trades something:
+
+  1. THE PUSHES BATCH. Nothing in CI changes. The tutorial lane is pushing
+     once per translated caption; a lane that pushes once per lesson would
+     leave CI enough room to finish. Cheapest by far, and asked for in 325.
+  2. CI STOPS RUNNING ON EVERY nightly PUSH -- pull request to main, a
+     schedule, and workflow_dispatch instead. Costs the immediate signal on
+     nightly, which is where the work actually happens.
+  3. `paths-ignore`. CONSIDERED AND REJECTED, with the reason recorded so
+     it is not re-proposed: the tutorial data is not inert. Ignoring
+     `tools/tutorials/lessons/**` would skip
+     `tests/test_tutorial_release_audit.py` and
+     `tests/test_tutorial_catalog_i18n.py`, which read exactly those files
+     -- CI would go quiet on the only change that had happened.
+
+`workflow_dispatch` IS EXEMPT from the cancellation, which is how a verdict
+can be had on a chosen SHA in the meantime, and it is what this item's gate
+-- "green on one pushed nightly SHA" -- should be measured with until one of
+the three above is chosen.
+
+THE TWO REAL FAILURES ARE MINE AND ARE FIXED IN THE WORKING TREE. Both docs
+runs died in "Audit localization catalogs", on the OPS modules shipped
+without their catalogs:
+
+    sv: 48 API symbols missing
+    sv: stale source hash for spacr.ops_accel
+    sv: blank translation for spacr.ops_accel.accelerated_backends
+    sv: stale source hash for spacr.ops_layout
+    ... spacr.ops_layout.WellLayout, .heights, .micron_position,
+        .neighbours, .pairs, .position
+
+That is this file's own rule about docstrings staling nine catalogs, landing
+on CI. The nine-language rebuild covering `ops_accel`, `ops_layout`,
+`ops_cycles`, `ops_solve` and `ops_phenotype` is what closes it.
