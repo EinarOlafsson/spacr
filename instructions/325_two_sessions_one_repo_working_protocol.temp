@@ -5100,3 +5100,25 @@ In parallel, the private Conda installation is still running under the
 110-GiB guard: conda-forge 1.5.0.4, 472-package plan, 4,764,939,474 bytes to
 fetch. A solve is not installation acceptance. Its environment registry
 and package caches are isolated, and no existing environment is updated.
+
+CODEX TUTORIAL LANE — 2026-09-10, CLEAN CONDA INSTALLATION VERIFIED.
+
+59eb86a42: the private conda-forge 1.5.0.4 installation completed, not just
+its solve. Five real commands succeeded: solve, install, isolated import,
+doctor and package inventory. Python 3.12.14, Qt 6.11.2, Torch 2.13.0 built
+against CUDA 12.9. Doctor reports 13 PASS, 3 SKIP, 1 optional CZI WARN, with
+the GPU allocation probe skipped. No GUI/platform/performance inference.
+The whole ~/.conda registry directory was privately bind-mounted during
+Conda commands; caches and environment prefix are also private. Nothing
+in an existing environment was changed. Thirteen plan tests pass, and
+individually changing each of the three measured guards causes three
+failures. Receipt: tools/tutorials/evidence/
+2026-09-10_clean_conda_installation.json. Lesson 02 remains in progress.
+
+The exact verified Linux installer is now running separately under the
+same 110-GiB guard, with downloads/install concurrency capped at two.
+Its runtime, launcher, desktop file, profiles and caches stay under a new
+private tutorial directory; --skip-system-deps and --no-launch are explicit.
+No consent answers are supplied, no accounts connected, no system packages
+installed. This run must finish its own import/doctor checks before it can
+be called successful. Neither installation tutorial is counted complete.
