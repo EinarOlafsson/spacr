@@ -903,7 +903,16 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #          is translating all nine locales in one pass against this
     #          set, deliberately batched because a rebuild costs two hours
     #          whether it carries one symbol or forty.
-    expected = 10_278
+    #          10,278 -> 10,279 the same day, +1/-0:
+    #          `spacr.qt.widgets.column_aligned_row.ColumnAlignedRow
+    #          .invalidate`, added by instruction 350's last fix. It is a
+    #          Qt override with a docstring, so it is public API surface
+    #          like any other method -- and it is a good example of how
+    #          this count moves without anybody intending to move it: the
+    #          change was about a clipped Portuguese caption, in a lane
+    #          nowhere near the catalogs, and it added a symbol nine
+    #          locales now owe a translation for.
+    expected = 10_279
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -921,7 +930,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_278
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_279
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1015,7 +1024,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # together and the boundary is unmoved. None of the four new modules is
     # generated, none is a per-language catalog, and none is a bridge --
     # so nothing about them belongs in the 213.
-    assert 10_491 - len(docs) == 213
+    assert 10_492 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():
