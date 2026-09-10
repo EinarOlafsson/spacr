@@ -289,6 +289,10 @@ def main() -> int:
         from capture_curate import record_curate
         record_curate(app, window, stage, captures, capture,
                       settle, write_json, args.timeout)
+    elif args.module == 'cellpose_masks':
+        from capture_cellpose_masks import record_apply
+        record_apply(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
