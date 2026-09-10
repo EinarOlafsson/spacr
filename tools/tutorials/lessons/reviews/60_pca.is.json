@@ -7,7 +7,7 @@
     "native_speaker_signoff": false
   },
   "language": "is",
-  "title": "PCA: raunverulegar mælingar, lifandi endurreikningur og vantar gildi",
+  "title": "PCA: raunverulegar mælingar, lifandi endurreikningur og gildi sem vantar",
   "description": "Skoðaðu PCA innan Image UMAP með raunverulegum niðurhöluðum frumugögnum, staðfestum skorum, afturkræfum síum, skýrum reglum um gildi sem vantar og þremur CSV-útflutningum.",
   "objectives": [
     "Finna PCA innan Image UMAP og velja mælibreytur sérstaklega.",
