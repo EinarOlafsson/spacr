@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "sv",
+  "title": "Data Manager: granska, rensa och arkivera ett verkligt exempel säkert",
+  "description": "Granska registrerade och oregistrerade filer, avbryt och bekräfta exakt radering av bildutsnitt och flytta en privat projektkopia med arkiveringsspår.",
+  "objectives": [
+    "Öppna Data manager via Help och granska verklig diskanvändning.",
+    "Läs raderingsplanen, skälen att behålla filer och hela bekräftelselistan.",
+    "Skilj oåterkallelig radering från flytt och kontrollera Cancel.",
+    "Skanna arkivet igen och spara manifest, ursprungslogg och separat säkerhetskopia."
+  ],
+  "prerequisite": "Använd det verkliga External Masks-exemplet med två bildfält, 103 uppmätta objekt och sparade figurer. Inspelningen använder en isolerad, bytekontrollerad kopia; bara i inspelningsprocessen pekar registrets ursprungliga absoluta sökvägar på denna tillfälliga kopia. Alla 131 originalfiler är oförändrade. Data Manager har ingen egen datanedladdning, direkt bildförhandsvisning, Plot-kontroll eller AI-panel. Storlekar avser byte, inte vetenskaplig kvalitet. Endast från kopian raderas 103 PNG-utsnitt och deras format-JSON; mätdatabasen och det registrerade receptet bevaras. Återskapande visas inte. Arkivering flyttar resten av projektet, skapar ingen säkerhetskopia och garanterar inte uppdatering av historiska absoluta sökvägar. Externa resursloggar flyttas inte med.",
+  "scenes": [
+    "Öppna Help och sedan Data manager. Detta gemensamma verktyg hanterar projektfiler; det kör ingen bildanalys. Vi använder en tillfällig kopia av det verkliga External Masks-exemplet, inklusive mätningar och sparade figurer. Spara en oberoende säkerhetskopia innan du själv provar rensning.",
+    "Choose project väljer projektets rotmapp. Efter skanning visar Usage omkring nittioen megabyte i etthundratjugonio filer. Registered och Unregistered skiljer sig åt: filer kan finnas utan en registerpost. Kategorier som härleds från mappar är uppskattningar, inte bevis på filernas vetenskapliga innehåll.",
+    "Välj under Prune vilka typer som ska övervägas. En påslagen knapp godkänner inte i sig radering. Låt mätdatabaser och modellvikter vara bortvalda här och välj Show what can be deleted. Läs både de föreslagna filerna och skälen till att andra resultat behålls.",
+    "Planen omfattar bara utsnittsmappen data: etthundratre objektbilder och en formatfil, inte etthundrafyra celler. Den föreslår att ungefär tre komma fyra megabyte frigörs. Get it back by anger Measure, men återskapande kräver fortfarande ursprungliga indata, inställningar och lämplig programvara.",
+    "Delete öppnar en andra bekräftelse med den verkliga fillistan. Raderingen går inte att ångra. Förstora dialogrutan och bläddra genom sökvägarna innan du godkänner dem. Den sista Delete-knappen är först inaktiverad; att godkänna och att radera är separata handlingar.",
+    "Godkännandet aktiverar Delete. Tar du bort det inaktiveras Delete igen. Första gången väljer vi Cancel och alla projektfiler förblir oförändrade. Avbryt om sökvägar, filantal eller förfarandet för att återskapa filerna är osäkra.",
+    "Vi öppnar samma verifierade plan igen och bekräftar raderingen endast på vår tillfälliga kopia. Resultatet visar tre komma fyra megabyte frigjorda från etthundrafyra filer. De övriga tjugofyra filerna utanför registret är byteidentiska, inklusive mätdatabasen och de sparade figurerna.",
+    "Den automatiska omskanningen rapporterar nu ett registrerat resultat som saknas på disken: utsnittsmappen som vi avsiktligt tog bort. Receptet finns kvar i registret med rensningsmetadata. Posten är ingen ångra-buffert och vi har inte kört Measure igen för att återskapa utsnitten.",
+    "Archive är annorlunda: det flyttar resten av projektet. Välj en tom destination utanför källan och sedan Show what would move. Efter rensningen innehåller planen tjugofem filer på ungefär åttioåtta megabyte. Kontrollera källa och destination noga; denna vy planerar hela projektet.",
+    "Move ber om bekräftelse med No valt som standard. Först väljer vi No och kontrollerar att källan är oförändrad och destinationen tom. En plan och en avbruten bekräftelse flyttar ingenting. Arkivdestinationen är inte en extra säkerhetskopia.",
+    "Vi bekräftar Yes endast för detta privata exempel. De återstående filerna flyttas till destinationen. Där skrivs ett manifest medan en arkivlogg lämnas vid ursprunget. Originalprojektet som vår tillfälliga kopia skapades från är helt oförändrat.",
+    "Välj destinationen som projekt och skanna igen. Den arkiverade mätdatabasen är registrerad vid sin nya sökväg och varje fil utanför registret har samma byte som före flytten. Det extra manifestet förklarar det nya filantalet. Historiska poster och externa loggar skrivs inte automatiskt om eller flyttas.",
+    "För automatisering med Python erbjuder spacr.data_manager scan_project, plan_prune, prune, plan_archive och archive. Granska planen innan du lämnar dess bekräftelsetoken. Använd Database Browser för mätvärden och Report för en läsbar projektöversikt. Spara den oberoende säkerhetskopian och arkiveringsspåren tillsammans med forskningsdokumentationen."
+  ]
+}
