@@ -572,6 +572,11 @@ maintainer's behalf.
 
 
 357-Q4  EIGHT SETTINGS THE PACKAGE READS NOWHERE: RETIRE, OR WIRE?
+        ANSWERED 2026-09-09: RETIRE ALL EIGHT. Not the split answer this
+        entry recommended -- the maintainer took the whole set. So
+        `denoise` and `normalization` go too, and the note below about a
+        feature that was never wired stands as the record of what was
+        given up rather than as an open question.
         Found 2026-09-09 by 383's link audit and filed in 364.
 
             denoise            load_path_regex     mask_array
@@ -600,6 +605,11 @@ maintainer's behalf.
         the same day.
 
 357-Q5  OPS: WIRE THE DECODE CHAIN, OR FIT THE DEFAULTS FIRST?
+        ANSWERED 2026-09-09: FIT THE DEFAULTS ON THE REAL PLATE FIRST.
+        So `ops_sbs` and `ops_merge` stay libraries with no caller until
+        peak spacing, the peak threshold, the unmixing percentile,
+        `downsample` and `max_site_gap` have met a real acquisition. 372
+        PART 3-A item 1 is the gate and it is now the ORDER as well.
         Asked and answered in part on 2026-09-09 -- the maintainer chose
         to scrap the old stitch engine, and Phase A is being built. What
         was NOT answered is the order of the two remaining halves:
@@ -617,6 +627,7 @@ maintainer's behalf.
 
 
 357-Q6  `control_wells` IS ONE KEY WITH TWO MEANINGS. RENAME, OR SPLIT?
+        ANSWERED 2026-09-09: SPLIT IT INTO TWO KEYS, as recommended.
         Found 2026-09-09 while landing 364's approved renames, and it stops
         that one rename until it is answered.
 
