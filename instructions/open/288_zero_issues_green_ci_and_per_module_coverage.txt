@@ -1726,3 +1726,53 @@ Eight of quarter 01's fifteen are `test_external_i18n_catalogs.py`, which is
 the RUNTIME catalog lane and was stale at the time -- the repair for it was
 running as those tests ran. The rest need a HEAD baseline before anybody
 attributes them to anything, which is this repository's own first rule.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- docs.yml IS GREEN END TO END, LOCALLY, EVERY STEP
+--------------------------------------------------------------------------------
+
+Run the way the workflow runs it, step by step, on the committed tree:
+
+  1. Audit localization catalogs
+         verified API catalogs: languages=9 symbols=10296
+         verified external runtime catalogs: languages=9 settings=1073
+           categories=201 ui=2841 modules=67
+         BOTH EXIT=0
+
+  2. Build docs
+         sphinx-build -W -E -b html --keep-going    EXIT=0
+         warnings and errors: 0
+         "build succeeded."
+
+  3. Verify generated tooltip API links
+         tests/test_tooltip_api_links_resolve.py
+         tests/test_built_constructor_api.py         8 passed
+
+THREE DEFECTS STOOD BETWEEN IT AND THAT, and no two were the same kind:
+
+  * THE CATALOGS were stale against the OPS modules -- 48 API symbols
+    missing in Swedish and every WellLayout method's hash wrong. Three
+    batched rebuild passes over all nine languages, plus three records
+    written by hand where the model could not satisfy the gates.
+  * TWO RST ERRORS in `ops_layout` and `ops_register` docstrings, each a
+    continuation line indented deeper inside what docutils reads as a
+    blockquote. One character each: the lead-in ends `::` and the block
+    becomes literal.
+  * AND A PAGE THAT WAS NEVER IN THE REPOSITORY. `docs/source/settings_flow.rst`
+    was written on 2026-09-08, ignored by `.gitignore`'s allowlist, and
+    committed by nobody -- so every build since has failed on "toctree
+    contains reference to nonexisting document". 1,108 setting anchors that
+    368 built were unreachable. See the note appended to `done/368`.
+
+WHY NOBODY SAW ANY OF IT. The audit runs FIRST and was failing on its own,
+so the Sphinx step never ran to report the other two; and the runs that did
+fail were being cancelled by the next push before anyone read them. Three
+defects, one visible failure, and the visible one was the least interesting.
+
+WHAT THIS DOES NOT CLAIM. docs.yml green LOCALLY is not docs.yml green on
+CI, and it will not be until the cancellation storm is settled -- see
+Q-CI-A in 357. The way to get a verdict in the meantime is
+`workflow_dispatch`, which is exempt from the cancellation.
+
+AND `tests.yml` IS A SEPARATE QUESTION, still open: the Qt thread leak above,
+and whatever the quarters turn up once they have all completed.
