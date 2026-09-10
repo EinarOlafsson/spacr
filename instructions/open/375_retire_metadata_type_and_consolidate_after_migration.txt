@@ -245,3 +245,79 @@ there would remove documented behaviour while looking like a cleanup.
 NEXT ACTION IS THE MAINTAINER'S: run Import over the real acquisitions, and
 say what it got right and what it did not. Until then this item is blocked,
 not merely unstarted.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE 2026-09-04 MEASUREMENT WAS TAKEN ON THE WRONG FILES
+--------------------------------------------------------------------------------
+
+THE NOTE ABOVE SAYS MITOSCREEN FAILS AND IT DOES NOT. Re-measured today,
+and the correction matters because that measurement is the whole reason
+steps 2 and 3 were stopped.
+
+WHAT THE OLD SAMPLE ACTUALLY READ. `plate4_F07_18.tif` and its shape live
+in `mitoscreen/mitoscreen/other/dsred/`, and that folder is DERIVED
+OUTPUT, not an acquisition -- its own subfolders are `nuclei/`, `cyto/`,
+`cyto2/` and `cyto3/`, which are segmentation masks from a previous spaCR
+run. The same basename appears in each. A recursive sample of the
+acquisition root reaches those files, and nothing in the name says they
+are outputs.
+
+    Import would never be pointed at them. `metadata_type` never parsed
+    them either -- which is exactly why "the old cellvoyager regex matches
+    NONE of it" read as evidence for the setting when it was evidence of
+    sampling the wrong folder.
+
+WHAT THE RAW ACQUISITION LOOKS LIKE. Every dated mitoscreen run keeps its
+images under `<acquisition>/plateN/orig/`, and every one of them is
+cellvoyager-shaped:
+
+    mitoscreen_20240506_005448  plate1_A04_T0001F021L01A01Z01C02.tif
+    mitoscreen_20240506_171807  plate2_C21_T0001F016L01A01Z01C02.tif
+    mitoscreen_20240514_171524  plate3_F10_T0001F018L01A01Z01C02.tif
+    mitoscreen_20240515_124914  plate4_B12_T0001F005L01A03Z01C03.tif
+    mitoscreen_20240525_133454  plate5_F10_T0001F024L01A02Z01C04.tif
+    mitoscreen_20240526_122826  plate6_K06_T0001F015L01A02Z01C04.tif
+
+RE-RUN OF STEP 1, same method as before -- 150 names sampled across six
+acquisitions, recreated as empty local files, nothing on the NAS touched:
+
+    placed            150 / 150
+    distinct wells    122
+    distinct fields    24
+    distinct channels   1, 2, 3, 4
+    example           plate1_A01_T0001F007L01A02Z01C01.tif ->
+                      {'plate': 1, 'well': 'A01', 'field': 7, 'channel': 1}
+
+    The one "unplaced" entry is a TOKEN, not a file: the cellvoyager `A##`
+    action index, which nothing places by design and which the old regex
+    captures as `AID` and does not use either.
+
+SO THE TABLE IN THE 2026-09-04 NOTE READS 150/150 ON ALL FIVE, not 4 of 5.
+
+WHAT THIS DOES AND DOES NOT UNBLOCK, and the distinction is the point:
+
+  IT DOES remove the recorded blocker. There is no acquisition of the
+  maintainer's that Import fails to parse, and the specific gap that note
+  named -- "read a trailing-number field on a token-less
+  `plate_well_field` name" -- was a gap in reading DERIVED FILENAMES and
+  is not needed.
+
+  IT DOES NOT prove step 1 outright. `metadata_type` selects among FOUR
+  conventions -- `cellvoyager`, `cq1`, `custom` (via `custom_regex`) and
+  `auto` -- and all five sampled acquisitions are cellvoyager. So the real
+  data proves the cellvoyager arm only. `cq1` (`W..F..T..Z..C..`, no
+  plate, well as an index) is answered by `tests/import_corpus.py`'s
+  `build_cq1`, which is the synthetic corpus this step exists to not rest
+  on.
+
+THE REMAINING QUESTION IS NARROW AND IS THE MAINTAINER'S: is there a real
+cq1 or custom-regex acquisition anywhere, or has every plate this lab has
+ever measured been cellvoyager? If the latter, step 1 is satisfied and
+steps 2 and 3 can proceed. If the former, that acquisition is the one
+piece of data still needed.
+
+LESSON WORTH KEEPING BEYOND THIS FILE: when sampling a real acquisition
+tree for filename shapes, EXCLUDE the folders a previous run wrote. A
+derived mask carries a name the pipeline invented, and measuring the
+parser against it measures the wrong thing in the direction that looks
+like a finding.
