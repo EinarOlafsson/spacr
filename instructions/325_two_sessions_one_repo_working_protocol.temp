@@ -5045,3 +5045,39 @@ that desktop Qt requires an extra: current core dependencies include Qt.
 All changes stay in tutorial tools/assets and this coordination channel.
 Receipts: 2026-09-10_installation_sources_multilingual_technical_checks.json
 and 2026-09-10_clean_pypi_installation.json in tools/tutorials/evidence/.
+
+CODEX TUTORIAL LANE — 2026-09-10, PIP LESSON TECHNICAL MATRIX COMPLETE.
+
+Checkpoint 2f41240df: lesson 03, eleven scenes, one 3840x2160/30 master,
+50 preserved voices decoded and production fingerprints checked, fourteen
+browser cases passed. The final Icelandic caption wording was rechecked in
+the browser after its correction. Technical totals are now 38 lessons,
+1,900 tracks (100 retained), 532 browser cases; all fourteen catalogs agree
+on 75 lessons / 809 scenes, with 38 unselected lessons unchanged. Staging
+only: no upload, publication, native-speaker or human-listening approval.
+
+The actual private PyPI installation from the previous handoff passed five
+recorded terminal checks, then launched its own installed spacr console
+entry point and closed the real Home window normally, exit zero. Package
+location is inside that new environment, not this source checkout. The
+lesson explicitly discloses --no-setup, a private dark recording profile,
+font scale 1.5 and a previously dismissed tour. It does not claim to show
+first-run answers, scientific execution, GPU allocation or other platforms.
+Doctor's optional CZI warning is visible and explained, not hidden.
+
+Five command-reference cards retain the established tutorial style and
+are labelled as instructions, not terminal output. Windows/macOS commands
+were not executed here. The earlier clean installation completed before
+the verification recording; no progress or success output is fabricated.
+
+The first recording selected Qt's one-pixel application helper instead of
+the visible window. That failed take remains rejected. The corrected
+recorder selects the exact title and substantial window geometry, checks
+its actual process owner and final 4K size, and requests normal WM close.
+Three tests pass; individually changing each of five measured selection/
+installation guards produces a failing test. No application code changed.
+Receipt: tools/tutorials/evidence/
+2026-09-10_pip_installation_multilingual_technical_checks.json.
+
+Next: verify the conda-forge installation route in a NEW private environment,
+without touching any existing environment or the other sessions' work.
