@@ -1,0 +1,32 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "fr",
+  "title": "Project Browser : découvrir des projets réels et interpréter leurs preuves",
+  "description": "Trouvez des exemples enregistrés ou non, réglez la profondeur, triez l’espace occupé et lisez les éléments disponibles sans analyse ni suppression.",
+  "objectives": [
+    "Ouvrir Project browser depuis Help et limiter les dossiers de recherche.",
+    "Utiliser Depth et Scan, puis trier les tailles réellement mesurées.",
+    "Distinguer provenance absente, étapes par sorties déclarées et historique réel.",
+    "Lire les détails, retirer seulement des racines de recherche et utiliser les outils dédiés."
+  ],
+  "prerequisite": "Utilisez les exemples terminés d’External Masks et Batch Runner. L’enregistrement compare une copie privée vérifiée du projet mesuré sur deux champs à une copie d’une conversion à quatre canaux, avec son point de reprise caché et deux autres enregistrements. Ce sont des exemples différents, pas un avant/après. Les 131 fichiers originaux du projet mesuré et les sept fichiers de conversion restent inchangés. Les chemins originaux des résultats ne désignent la copie mesurée que dans le processus isolé ; la provenance n’est pas réécrite. Project Browser n’a ni téléchargement, aperçu en direct, commande Plot, ni panneau AI propres. Scan lit les éléments du projet, pas tous les journaux. Tri, profondeur et retrait de dossiers utilisent les vrais contrôles ; aucune analyse, suppression, ouverture de gestionnaire externe ou transmission automatique n’est effectuée. SQLite retire uniquement le WAL vide et le SHM de 32768 octets du registre privé. Les bases et autres fichiers conservent leurs octets.",
+  "scenes": [
+    "Ouvrez Help, puis Project browser. Cet écran partagé trouve des dossiers de projets et résume ce qui est enregistré ou présent sur disque. Nous utilisons des copies privées de sorties réelles d’External Masks et Batch Runner. C’est un outil d’inventaire, pas une exécution d’analyse d’images.",
+    "Add folder choisit où chercher. Avec Depth à zéro, seul ce dossier lui-même est examiné. Le dossier parent choisi contient un projet un niveau plus bas : la table est donc vide. Une recherche vide à cette profondeur ne signifie pas que le projet ou ses images ont disparu.",
+    "Passez Depth à un et choisissez Scan. Le dossier converti apparaît : environ trente-deux mégaoctets dans sept fichiers. Ce sont quatre images de canaux acquises, une table de conversion, un enregistrement d’état et un point de reprise caché. Le nombre de fichiers n’est pas un nombre de cellules ou d’expériences indépendantes.",
+    "State indique unknown, nothing recorded car ce dossier n’a pas de registre de résultats. Stage affiche nothing run et Last run never, même si la conversion a réellement abouti. Ces colonnes reflètent les sorties déclarées et les résultats enregistrés, pas tout l’historique des conversions. Unknown ne prouve pas que les données sont intactes ou non traitées.",
+    "Ajoutez le projet mesuré comme seconde racine. Sa ligne affiche Measure, environ quatre-vingt-onze mégaoctets, cent vingt-neuf fichiers et une date du registre. Si les détails de la ligne sélectionnée restent vides après un nouveau scan, sélectionnez une autre ligne puis revenez. Nous montrons ce contournement sans modifier l’application.",
+    "Sélectionnez le projet mesuré et déplacez la séparation pour élargir les détails. Ses trois résultats enregistrés sont indiqués current, mais environ quatre-vingt-sept mégaoctets restent non enregistrés. Current décrit la comparaison enregistrée, pas une provenance complète ni une validité scientifique. Last run précise que la date vient du registre.",
+    "Lisez Stages avant d’interpréter une étiquette de fin. Ici, les sorties de Mask sont complètes parce que les tableaux, comptages et masques importés existent ; cela ne prouve pas que la segmentation Mask a été exécutée. What could run next énumère des suggestions, pas des boutons ni une validation que chaque analyse convient à ces données expérimentales.",
+    "Cliquez sur l’en-tête Size pour modifier le tri. Nous avons vérifié les ordres croissant et décroissant avec les octets réels, et la sélection désigne toujours le bon projet. Cet écran n’a pas de filtres distincts par étape, ancienneté, état du module ou résultats périmés ; utilisez les colonnes triables et les racines de recherche disponibles.",
+    "Avec les deux racines, Depth zéro trouve encore le projet mesuré sélectionné directement, mais pas la conversion imbriquée sous son parent. Revenir à Depth un restaure les deux lignes. La profondeur modifie la recherche ; elle ne retire pas de données et ne change pas la quantité d’analyse terminée.",
+    "Remove cesse de chercher dans la racine sélectionnée ; il ne supprime pas le dossier. Nous retirons la racine mesurée puis réajoutons le projet inchangé. Dans cette version, un double-clic signale sa sélection mais reste dans Project Browser : n’attendez pas l’ouverture automatique d’une fenêtre du projet ou de sa dernière exécution.",
+    "Pour les journaux réels, utilisez Run History ; pour les tables de mesures, Database Browser ; pour nettoyer ou archiver, Data Manager. En Python, spacr.projects fournit discover, scan et browse. Tous les fichiers originaux restent inchangés et aucune analyse n’a été lancée. Suivez la leçon du flux concerné avant d’appliquer une suggestion."
+  ]
+}
