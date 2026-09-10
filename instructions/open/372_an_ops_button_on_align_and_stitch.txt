@@ -2,11 +2,40 @@
 AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
 ================================================================================
 
-Status:    BUILT, AND UNPROVEN ON REAL DATA. THE DATA IS NOW HERE AND
-           MEASURED -- see PART 5, filed 2026-09-07, which replaces PART 4's
-           order-of-magnitude guess with the real acquisition's numbers and
-           carries the maintainer's design for the memory problem. The guess
-           was low by roughly eight times.
+Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
+           weighed the old engine against the new plan and chose to scrap
+           it: 26 of 333 tiles placed by ORB against 333 of 333 by layout
+           plus phase correlation, on the same pixels. THREE PIECES OF THE
+           OLD CODE ARE KEPT -- feature matching for the cross-magnification
+           step A4, the mosaic writer as QC, and the plumbing -- and nothing
+           is deleted until Phases A and B land, because a dead button is
+           worse than one running a superseded stitch. See PART 13.
+
+           PHASE A IS PARTLY SHIPPED AS MODULES rather than as scripts:
+           `ops_layout` (the fitted circle, four neighbours per tile in
+           closed form), `ops_register` (phase correlation with the DC mask,
+           the expectation-aware unwrap and the strip), `ops_solve` (the
+           least-squares placement), `ops_stitch` (the driver that prints
+           the count, the residual AND the canvas) and `ops_accel` (the
+           three array primitives carrying Phase E's CuPy -> torch -> NumPy
+           indirection). `tools/run_ops_a2.py` runs one well from the
+           command line. Every number in PARTS 6 to 11 came from private
+           scripts that no longer exist; these do not.
+
+           THE GPU IS WIRED AND `ops_gpu` EXISTS. OPS shipped 63 settings
+           and none of them said anything about hardware; see PART 13-B.
+
+           WHAT IS STILL UNPROVEN, PRECISELY: nobody has run the STRIP over
+           the real well with the corrected pair order. PART 11-D's 624 of
+           624 used whole-tile correlation, which is symmetric and therefore
+           could not see the pair-order bug PART 13-E describes -- so that
+           number is not evidence for the code as it now stands. A3 is with
+           the other session; A4, Phases B, C and D are unstarted.
+
+           ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
+           replaced PART 4's order-of-magnitude guess with the real
+           acquisition's numbers and carries the maintainer's design. The
+           guess was low by roughly eight times.
 
            ORIGINAL STATUS FOLLOWS. Every checklist item below is
            met: the front half works (four defects fixed, PART 0-A), the
