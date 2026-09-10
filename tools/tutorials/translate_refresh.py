@@ -128,7 +128,12 @@ def main():
             print(f'{language}: existing draft still needs semantic review', flush=True)
             continue
         started = time.monotonic()
-        current = read(target if target.exists() else baseline / filename)
+        reviewed_path = args.stage / 'catalog' / filename
+        reviewed = read(reviewed_path if reviewed_path.exists() else baseline / filename)
+        # Older draft files may predate safely appended lessons. Seed missing
+        # identities from the reviewed catalog before preserving existing drafts;
+        # never discover this only after an expensive translation has finished.
+        current = merge_selected(reviewed, read(target), source) if target.exists() else reviewed
         if language in spoken.LANGUAGES:
             translated = spoken.translate_language(expanded, language, args.batch_size, args.threads, args.device)
         else:
