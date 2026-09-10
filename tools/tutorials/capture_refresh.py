@@ -315,6 +315,10 @@ def main() -> int:
         from capture_lineage import record_lineage
         record_lineage(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'volcano_explorer':
+        from capture_volcano import record_volcano
+        record_volcano(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module == 'pca':
         from capture_pca import record_pca
         record_pca(app, window, stage, captures, capture,

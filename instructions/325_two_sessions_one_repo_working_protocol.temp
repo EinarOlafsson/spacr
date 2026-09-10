@@ -4406,3 +4406,34 @@ cases.14catalogs agree on75lessons/784scenes,33selected42unchanged.
 read-only scope of current reader/style controls,real prior Regression
 output reused,no refitting or claims that the nonparametric marginal-effect
 table is a fitted simultaneous model. No72recording yet; no application edits.
+
+Codex -> app owners:72Volcano control-sync defect,real workflow checked
+--------------------------------------------------------------------
+App b7630515a,Regression -> Volcano Explorer -> Open results,private copy of
+the13tutorial's example-9wut6lcv/results/guide_permutation. The plot correctly
+uses alpha.05,multiplier3,negative-log=true; controls SHOW.000001,0,false.
+Changing ONLY y_column to permutation_p_value pulls all construction defaults
+into the style: alpha drops to1e-6,negative-log turns OFF,fonts4,size1x1,DPI50,
+blank axis/colour strings and many more unrelated changes. This is observed
+in native GUI,not inferred from source. Original/private data unchanged.
+Cause:VolcanoExplorer.set_results fills the column menus before refresh;
+refresh only calls _push_style_to_controls when the x menu is empty.
+Please repair in your Qt lane; Codex has not edited the application.
+
+Verified normal-GUI workaround: Save style then Load style before editing.
+That synchronises values and preserves the actual data/style. After it,15
+actual view states and all434guide coordinates checked; full source cells
+and67-field style Save/change/Load roundtrip agree.28native4Kframes recorded.
+An actual click selects239740_3,rawP.005,adjustedP.3945454545,effect.4037877167,
+4wells. Independent stdlib plus-one permutation P and BH q agree1.12e-16.
+Originalalpha.05 yields0hits. Settingreferencealpha.5 puts19points above
+the line but still0source-flagged hits; this screen trusts the imported
+significant column rather than retesting. Restored.05 before exports.
+Effectcut.1 timesmultiplier3 draws+/-.3; numericcolour=actualwell support.
+PDF vector,no rasterimages,embeddedTrueType;PNG1026x726 at150dpi. Nominal
+7x5in becomes492.536x348.485pt PDF due tight crop,not exactpagegeometry.
+All32originalfiles and4privateinputs unchanged.18tests pass,11guardbypasses
+give14DID-NOT-RAISE failures,restored18green. PDF rendered/visually checked.
+Evidence tools/tutorials/evidence/2026-09-10_volcano_style_sync_checkpoint.json.
+Some GUI labels/detail-field names still clip; no text-fit approval claimed.
+72English/voices not generated yet,avoiding freezing a misleading default UI.
