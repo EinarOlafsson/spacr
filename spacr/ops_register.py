@@ -72,17 +72,46 @@ __all__ = [
     "unwrap",
 ]
 
-#: Below this, the peak is not distinguishable from the background and the
-#: pair is not a neighbour. Measured: true neighbours 23.6-53.1,
-#: non-neighbours 9.0-15.6, so 20 sits in the gap rather than at the edge
-#: of either distribution.
+#: Low enough to catch a FLAT SURFACE and nothing else, and that is a
+#: correction rather than a choice.
 #:
-#: IT IS THE FALLBACK, NOT THE PREFERRED TEST. A threshold asks "was that
-#: a confident peak"; the layout lets a caller ask "did this pair land
-#: where the raster says it should", which is both a stronger question and
-#: an answerable one. Pass `tolerance` and this is not consulted. On the
-#: real well the difference was 624 of 624 edges accepted against 595.
-MIN_PEAK_RATIO: float = 20.0
+#: IT WAS 20, from a first measurement of seven true neighbours against
+#: three controls. The full distributions over one real well -- 624 true
+#: adjacencies and 60 deliberate non-neighbours, strip registration --
+#: say no threshold separates them:
+#:
+#:     TRUE   n=624  min 6.2  p05 7.2  median 63.6  p95 99.4  max 120.2
+#:     CONTROL n=60  min 5.9  median 8.1  p95 9.9   max 18.9
+#:
+#:     lowest true 6.2   against   highest control 18.9
+#:     true below 20: 152          controls above 20: 0
+#:
+#: THE FAMILIES OVERLAP. A threshold of 20 would have thrown away 152 real
+#: adjacencies, and one low enough to keep them admits controls. A
+#: synthetic fixture separates cleanly (33.4 and 34.5 against 11.9)
+#: because it is one contrived pair; over 624 real ones the tails cross.
+#:
+#: SO THE LAYOUT IS THE TEST AND THIS IS NOT. Pass `tolerance` -- "did
+#: this pair land where the raster says it should" -- and the ratio
+#: becomes a recorded number. What is left here only refuses a surface
+#: with no peak at all, which is a broken read rather than a distant
+#: neighbour.
+MIN_PEAK_RATIO: float = 3.0
+
+#: How far off the perpendicular axis a real edge may land, in pixels.
+#:
+#: THE STAGE HAS A SKEW AND IT IS NOT AN ERROR. Measured on well A1:
+#: `down` is (1267, 9) and `right` is (-9, 1268) -- a constant ~9 px
+#: offset across the axis, in every edge, in both directions. It is one
+#: rigid stage geometry, so the perpendicular component of a true edge is
+#: NOT zero and a tolerance that assumes it is rejects every pair on the
+#: plate: 525 of 624 refused at a tolerance of 8, which looks like a
+#: catastrophic failure of the method and is an off-by-one in a parameter.
+#:
+#: IT IS A PROPERTY OF THE MICROSCOPE, NOT OF THE WELL, so this default is
+#: a starting point and another acquisition wants its own measured. 24 is
+#: room for the 9 that was measured plus the same again.
+SKEW_PX: int = 24
 
 #: How much of a tile the overlap strip takes. Wider than the raster's
 #: 14 % overlap so the band certainly contains it, and not much wider:
@@ -288,7 +317,7 @@ _SURFACES = {
 
 def phase_correlate(first: np.ndarray, second: np.ndarray, *,
                     expected: Tuple[int, int] = (0, 0),
-                    tolerance: Optional[int] = None,
+                    tolerance=None,
                     backend: Optional[str] = None,
                     gpu: bool = True,
                     min_peak_ratio: float = MIN_PEAK_RATIO) -> Registration:
@@ -311,6 +340,13 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
         be accepted, in pixels. WHEN IT IS GIVEN, IT IS THE TEST, and the
         peak ratio becomes a recorded number rather than the gate -- see
         the note on :data:`MIN_PEAK_RATIO`.
+
+        A PAIR OF NUMBERS IS ACCEPTED AND IS USUALLY WHAT IS WANTED:
+        ``(rows, columns)``. The two axes are not the same question -- a
+        true edge is within a pixel or two ALONG the raster and up to the
+        stage's skew ACROSS it -- and one number for both either rejects
+        the skew or admits a neighbour a whole tile away. See
+        :data:`SKEW_PX`.
     :param backend: force one; None takes the best available.
     :param gpu: False keeps it on the CPU even where a card exists.
     :param min_peak_ratio: below this the pair is not a neighbour.
@@ -374,9 +410,12 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
         # the raster says it should", and the second one is answerable
         # because the layout predicts it. Judged this way on the real
         # well, 624 of 624 edges were accepted and none was guessed;
-        # judged on a bare peak ratio, 29 real adjacencies were refused.
-        accepted = (abs(dy - expected[0]) <= tolerance
-                    and abs(dx - expected[1]) <= tolerance)
+        # judged on a bare peak ratio, 152 real adjacencies were refused.
+        rows, columns = ((tolerance, tolerance)
+                         if isinstance(tolerance, (int, float))
+                         else tolerance)
+        accepted = (abs(dy - expected[0]) <= rows
+                    and abs(dx - expected[1]) <= columns)
     else:
         accepted = ratio >= min_peak_ratio and not at_origin
     return Registration(dy=dy, dx=dx, peak_ratio=ratio, accepted=accepted,
@@ -387,6 +426,7 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
                   overlap_fraction: float = STRIP_FRACTION,
                   expected_overlap: Optional[int] = None,
                   tolerance: Optional[int] = None,
+                  skew: Optional[int] = SKEW_PX,
                   **kwargs) -> Registration:
     """Register two tiles that touch along one edge, using that edge only.
 
@@ -414,9 +454,14 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
     :param expected_overlap: the overlap in pixels, when the pitch is
         known. It sets the unwrap's expectation, which is what stops a
         true shift larger than half the strip reading as a negative one.
-    :param tolerance: how far from the expected overlap the measured
-        shift may land and still be accepted. This is the acceptance the
-        real well used; without it the peak ratio decides.
+    :param tolerance: how far ALONG the edge the measured shift may land
+        from the expected overlap and still be accepted. This is the
+        acceptance the real well used; without it the peak ratio decides,
+        and the peak ratio cannot decide -- see :data:`MIN_PEAK_RATIO`.
+    :param skew: how far ACROSS it may land. The stage's skew is a real
+        ~9 px on the measured plate and is not an error, so this is a
+        separate number: one tolerance for both axes rejected 525 of 624
+        true adjacencies at 8 px. See :data:`SKEW_PX`.
     :param kwargs: passed to :func:`phase_correlate`.
     :returns: the registration, in TILE coordinates rather than strip
         ones -- the caller asked about two tiles.
@@ -443,9 +488,12 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
     # overlap: the two bands are that far out of step with each other.
     guess = band - int(expected_overlap) if expected_overlap else 0
     expected = (guess, 0) if down else (0, guess)
+    across = tolerance if skew is None else skew
+    limits = None if tolerance is None else (
+        (tolerance, across) if down else (across, tolerance))
     measured = phase_correlate(strip_first, strip_second,
                                expected=expected,
-                               tolerance=tolerance, **kwargs)
+                               tolerance=limits, **kwargs)
 
     # Back to tile coordinates. The strip started `extent - band` into the
     # first tile, so that much of the shift was cropped away.
@@ -466,6 +514,7 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
 def register_pairs(tiles, pairs: Sequence[Tuple[int, int, str]], *,
                    expected_overlap: Optional[int] = None,
                    tolerance: Optional[int] = None,
+                   skew: Optional[int] = SKEW_PX,
                    gpu: bool = True,
                    min_peak_ratio: float = MIN_PEAK_RATIO,
                    **kwargs) -> dict:
@@ -478,6 +527,8 @@ def register_pairs(tiles, pairs: Sequence[Tuple[int, int, str]], *,
     :param pairs: what to register, from
         :meth:`spacr.ops_layout.WellLayout.pairs`.
     :param expected_overlap: the raster's overlap in pixels, when known.
+    :param tolerance: how far along the edge a shift may land.
+    :param skew: how far across it may -- the stage's own, measured.
     :param gpu: passed through.
     :param min_peak_ratio: passed through.
     :param kwargs: passed to :func:`register_edge`.
@@ -491,6 +542,7 @@ def register_pairs(tiles, pairs: Sequence[Tuple[int, int, str]], *,
         found[(a, b)] = register_edge(read(a), read(b), axis,
                                       expected_overlap=expected_overlap,
                                       tolerance=tolerance,
+                                      skew=skew,
                                       gpu=gpu,
                                       min_peak_ratio=min_peak_ratio,
                                       **kwargs)

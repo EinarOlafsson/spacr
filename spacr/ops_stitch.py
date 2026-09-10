@@ -182,6 +182,7 @@ class StitchedWell:
 def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
                 overlap: Optional[int] = None,
                 tolerance: Optional[int] = None,
+                skew: Optional[int] = None,
                 gpu: bool = True,
                 sites: Optional[Sequence[int]] = None,
                 **kwargs) -> StitchedWell:
@@ -198,9 +199,14 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
     :param overlap: the raster's overlap in pixels. Given, it sets the
         registration's expectation and the layout's canvas arithmetic;
         omitted, both fall back to weaker answers, so pass it.
-    :param tolerance: how far from the layout's prediction an edge may
-        land and still be accepted. This is the acceptance the real well
-        used -- 624 of 624 -- and without it a bare peak ratio decides.
+    :param tolerance: how far ALONG the raster an edge may land from the
+        layout's prediction and still be accepted. This is the acceptance
+        the real well used -- 624 of 624 -- and without it the peak ratio
+        decides, which on a real plate it cannot.
+    :param skew: how far ACROSS it may. The stage's skew is real and
+        constant -- 9 px on the measured plate -- so it is a separate
+        number from the tolerance. None takes
+        `spacr.ops_register.SKEW_PX`.
     :param gpu: passed through to the registration.
     :param sites: which sites to place. None uses every site the layout
         holds.
@@ -235,10 +241,10 @@ def stitch_well(tiles, layout: Optional[WellLayout] = None, *,
         if a not in known or b not in known:
             continue
         try:
-            edges[(a, b)] = register_edge(read(a), read(b), axis,
-                                          expected_overlap=overlap,
-                                          tolerance=tolerance, gpu=gpu,
-                                          **kwargs)
+            edges[(a, b)] = register_edge(
+                read(a), read(b), axis, expected_overlap=overlap,
+                tolerance=tolerance, gpu=gpu,
+                **({} if skew is None else {"skew": skew}), **kwargs)
         except Exception:                                # noqa: BLE001
             # ONE UNREADABLE TILE IS NOT A FAILED WELL -- and the pair is
             # RECORDED AS REFUSED rather than dropped. A pair that failed

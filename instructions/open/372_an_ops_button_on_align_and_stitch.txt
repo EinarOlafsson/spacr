@@ -2700,3 +2700,73 @@ blobs give a thin overlap band -- and the real well ran 624 of 624.
 NEXT: the driver has never seen the real plate. It wants running on well A1
 c1 against PART 11-D's numbers, which is the check that this module and
 that script agree.
+
+
+--------------------------------------------------------------------------------
+PART 13-D -- THE REAL PLATE CORRECTED TWO OF MY DEFAULTS. 2026-09-09.
+--------------------------------------------------------------------------------
+
+The other session ran the shipped modules against well A1 and both
+corrections come from the data rather than from an argument.
+
+1. THE STAGE IS NOT SQUARE, AND ONE TOLERANCE FOR BOTH AXES REJECTS THE
+   PLATE.
+
+       0-1    vertical    shift (1267,    9)   ratio 95.6
+       0-11   horizontal  shift (  -9, 1268)   ratio 85.9
+
+   Those are the correct displacements. The perpendicular ~9 px is the
+   stage's CONSTANT SKEW, present in every edge in both directions -- one
+   rigid geometry, measured four ways at six places in PART 11-B. So a
+   true edge's across-axis component is NOT zero, and `tolerance=8`
+   applied to both axes refused 525 of 624 real adjacencies. That reads as
+   a catastrophic failure of the method and is a parameter one pixel below
+   the geometry.
+
+   FIXED AS TWO NUMBERS, because they are two questions: `tolerance` is
+   how far ALONG the raster an edge may land from the layout's prediction
+   (a pixel or two), and `skew` is how far ACROSS (the stage's own).
+   `SKEW_PX` defaults to 24 -- room for the measured 9 and the same again
+   -- and says in its own docstring that the skew belongs to the
+   MICROSCOPE rather than the well, so another acquisition wants its own
+   measured rather than this trusted.
+
+2. THE PEAK RATIO CANNOT GATE A REAL PLATE. Full distributions, strip
+   registration, tolerance admitting the skew:
+
+       TRUE ADJACENCIES  n=624  min 6.2  p05 7.2  median 63.6  max 120.2
+       NON-NEIGHBOURS    n=60   min 5.9  median 8.1  p95 9.9   max 18.9
+
+       lowest true 6.2   against   highest control 18.9
+       true below 20: 152          controls above 20: 0
+
+   THE FAMILIES OVERLAP AND NO THRESHOLD DIVIDES THEM. `MIN_PEAK_RATIO`
+   was 20, from a synthetic fixture where a true pair scored 33 and a
+   control 12 -- a clean separation that is a property of one contrived
+   pair. Over 624 real ones the tails cross, and 20 would have thrown away
+   152 real edges.
+
+   FIXED BY MOVING THE GATE TO 3, which only refuses a surface with no
+   peak at all -- two fields of noise, a broken read. The layout decides
+   everything else, which is what the design already preferred and what
+   the measurement now requires rather than merely supports.
+
+  AND THE TEST THAT ASSERTED THE OLD BEHAVIOUR WAS REWRITTEN RATHER THAN
+  RELAXED. It rejected a control BY ITS RATIO; it now rejects the same
+  control by the layout and asserts that its ratio is ABOVE the gate --
+  so the test states the thing that was learned instead of hiding it.
+
+THE OTHER SESSION'S OWN CORRECTION IS WORTH RECORDING BESIDE ITS RESULT:
+their first distribution was measured THROUGH the broken tolerance, so 525
+rejections contaminated the low tail, and a threshold fitted to it would
+have encoded the parameter error as a property of the plate. The 6.2
+minimum survived the correction; the reasoning that produced it did not.
+
+STILL OPEN, AND THEIRS: the strip rejects 150 pairs that whole-tile with a
+DC mask accepted, and what those 150 have in common is not yet known.
+Nothing should be tuned until it is.
+
+ALSO SHIPPED: `tools/run_ops_a2.py`, so the run that checks these modules
+against PART 11-D's numbers is one command rather than a script somebody
+writes again in a temporary directory. Every number in PARTS 6 to 11 came
+from such a script and those scripts are gone.

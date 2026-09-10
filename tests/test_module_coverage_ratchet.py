@@ -225,6 +225,10 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # canvas together, because the first two look perfect on a uniformly
     # wrong stitch).
     assert len(shipped) == 551
+    # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
+    # not move this count -- recorded because both were added on
+    # 2026-09-09 and the next reader will wonder why 553 is not the
+    # number.
     assert every_spacr_python - shipped == RESOURCE_GENERATORS
     assert not RESOURCE_GENERATORS & shipped
 

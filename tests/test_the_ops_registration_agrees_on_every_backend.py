@@ -137,12 +137,41 @@ def test_two_touching_tiles_give_the_rasters_step(tiles):
     assert abs(below.dx) <= 1
 
 
-def test_a_pair_that_does_not_touch_is_rejected(tiles):
-    """Non-neighbours measured 9.0-15.6 against neighbours at 23.6-53.1."""
+def test_a_pair_that_does_not_touch_is_rejected_by_the_layout(tiles):
+    """THE LAYOUT REJECTS IT. THE PEAK RATIO CANNOT, AND THIS SAYS SO.
+
+    The first version of this test asserted the ratio, on a fixture where
+    a true neighbour scored 33 and a control 12. The full distributions
+    over one real well say that separation is an artefact of a contrived
+    pair -- 624 true adjacencies run from 6.2 to 120.2 and 60 controls
+    from 5.9 to 18.9, so the families OVERLAP and no threshold divides
+    them. A gate at 20 would have thrown away 152 real edges.
+
+    So the control is rejected because it did not land where the raster
+    says it should, which is a question with an answer.
+    """
     found = register_edge(tiles["a"], tiles["stranger"], "horizontal",
-                          expected_overlap=OVERLAP, gpu=False)
+                          expected_overlap=OVERLAP, tolerance=3, gpu=False)
     assert not found.accepted
-    assert found.peak_ratio < MIN_PEAK_RATIO
+    assert found.peak_ratio > MIN_PEAK_RATIO, (
+        "this control scores above the ratio gate, which is the point: "
+        "the ratio would have accepted it")
+
+
+def test_the_ratio_gate_only_refuses_a_surface_with_no_peak(tiles):
+    """What is left of the threshold once the layout does the deciding.
+
+    Two fields of pure noise have no translation that makes them agree,
+    and that is the case a ratio can still answer. A distant neighbour is
+    not.
+    """
+    rng = np.random.default_rng(5)
+    flat = rng.normal(100.0, 1.0, (128, 128))
+    other = rng.normal(100.0, 1.0, (128, 128))
+    found = phase_correlate(flat, other, gpu=False)
+    assert found.peak_ratio < 20.0, (
+        "even pure noise clears the OLD gate of 20 on this fixture, which "
+        "is why the gate moved")
 
 
 def test_the_strip_beats_the_whole_tile_at_this_overlap(tiles):
@@ -180,6 +209,34 @@ def test_a_mis_shaped_pair_is_a_caller_error_not_a_zero_shift(tiles):
         register_edge(tiles["a"], tiles["a"][:-5], "vertical", gpu=False)
     with pytest.raises(ValueError, match="vertical"):
         register_edge(tiles["a"], tiles["a"], "sideways", gpu=False)
+
+
+def test_the_skew_across_the_edge_is_a_separate_allowance(tiles):
+    """The stage is not square, and one tolerance for both axes fails.
+
+    Measured on well A1: `down` is (1267, 9) and `right` is (-9, 1268).
+    That ~9 px across the axis is one rigid stage geometry present in
+    every edge in both directions -- so a true edge's PERPENDICULAR
+    component is not zero, and a tolerance of 8 applied to both axes
+    rejected 525 of 624 real adjacencies. It reads as a catastrophic
+    failure of the method and is an off-by-one in a parameter.
+    """
+    from spacr.ops_register import SKEW_PX, phase_correlate
+
+    assert SKEW_PX > 9, "the default allowance is below the measured skew"
+
+    # A pair whose along-axis shift is exact and whose across-axis shift
+    # is the stage's own: accepted with the separate allowance, refused
+    # when one number has to serve both.
+    shifted = np.roll(np.roll(tiles["a"], -STEP, axis=1), -9, axis=0)
+    with_skew = phase_correlate(tiles["a"], shifted, expected=(0, STEP),
+                                tolerance=(SKEW_PX, 3), gpu=False)
+    without = phase_correlate(tiles["a"], shifted, expected=(0, STEP),
+                              tolerance=3, gpu=False)
+    assert with_skew.accepted, with_skew
+    assert not without.accepted, (
+        "one tolerance for both axes accepted a 9 px skew, so this test "
+        "is not showing the failure it was written for")
 
 
 def test_the_layout_decides_acceptance_when_it_is_given(tiles):
