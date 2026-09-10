@@ -5625,3 +5625,35 @@ tools/tutorials/evidence/2026-09-10_curate_mask_history_hold.json.
 NEXT CLAIM: Cellpose Masks 20, current Make Masks fold and real private
 example inference. Reusing the already-scoped channel/grayscale findings.
 No edits to Qt, spacr_cellpose, the translation lane or instruction ledger.
+
+CODEX TUTORIAL LANE — 2026-09-10, APPLY 20 NATIVE/REFERENCE CHECKPOINT.
+
+47c415012 pushed. Actual Home Make Masks > Cellpose Workbench > Apply route,
+three byte-identical real 512-square microscopy crop copies, stock CPSAM
+(NOT the old training checkpoint). GPU batch succeeds with 9 / 94 / 46
+objects and three native figures. A separate direct Cellpose call, bypassing
+spaCR's loader/shuffling/naming, matches all 786,432 saved mask pixels and
+3,932,160 original/overlay/flow figure values; each figure maps uniquely to
+its input despite randomized processing order. Inputs remain unchanged.
+Eleven helper tests, seven red mutations, 22 statements / 12 branches at
+100%, tutorial helper ONLY; not an accuracy or ground-truth claim.
+
+PROTECTED-APP HANDOFF: Apply's live preview is not its batch preflight.
+The form is normalize=True, percentiles=[2,99], resample=False. Preview seeds
+its upper-percentile display control to 98, not 99. Even after explicitly
+setting the visible preview to channel 0 / 2 / 99, it finds 95 objects where
+Apply saves 94. Every preview pixel exactly matches direct Cellpose on the
+RAW image with default preprocessing, not Apply's normalization settings.
+_segment_multi passes diameter/flow/probability, but no normalize/resample
+or percentile configuration to model.eval. The display controls are not an
+equivalent pipeline. No app edits; do not claim this reproduces Apply.
+The live area filter itself passes all 262,144 pixels: 95 -> 47 -> 95 at
+minimum area 1,838, surviving IDs renumbered, raw masks not recomputed.
+The preview is also too short below the three runtime cards to read well.
+20 remains held for the preview-equivalence claim, no production audio.
+Receipt: tools/tutorials/evidence/
+2026-09-10_cellpose_apply_preview_equivalence_hold.json.
+
+NEXT CLAIM: Parameter Sweep 73, current Regression fold and a bounded
+one-worker/two-trial demonstration, with independent saved-table checks.
+No Qt, scientific-module, global-translation or ledger edits.
