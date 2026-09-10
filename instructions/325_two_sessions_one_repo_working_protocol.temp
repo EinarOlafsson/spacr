@@ -4996,3 +4996,24 @@ next: the obsolete player cache key and the old assumption that any partial
 local audio tree must triple the total site size. The absolute published
 byte ceiling and exclusion of all narration remain mandatory. No doc gate,
 translation catalog, application file or narration asset will be changed.
+
+CODEX TUTORIAL LANE — 2026-09-10, BOTH TUTORIAL MEDIA CHECK FAILURES CLOSED.
+
+tests/test_docs_media_budget.py: baseline 18 pass / 2 fail, now 26 pass.
+The old cache key was stale; it now pins the actual example-download player.
+The ratio assumed a complete local narration tree, but the 540 accidentally
+tracked files are only a partial copy: 101.0 MiB published, 117.8 MiB excluded.
+Replacing that ratio with an exact all-files partition keeps EVERY non-audio
+file and excludes EVERY narration/timing file. The absolute 700 MiB ceiling,
+85% whole-site limit, external audio policy and complete 50-voice picker are
+unchanged. No media removed. Tests exercise zero, one and ten local tracks,
+then reject publishing real audio, losing a real video and losing a timing
+file. Removing the two new assertions separately causes one and two failures;
+restored lines 69/70 are measured as executed. No full-suite CI claim.
+Receipt: tools/tutorials/evidence/2026-09-10_tutorial_media_budget_checks.json.
+
+Next: installation lessons. Initial source audit already shows lesson 03's
+headless-versus-Qt-extra explanation is stale: core now declares PySide6.
+Live PyPI JSON is 1.5.0.5 while conda-forge is still 1.5.0.4; a version in a
+cached web page is not an installed-version check. Tutorial changes only;
+no packaging fixes, uploads, dependency policy edits or release actions.
