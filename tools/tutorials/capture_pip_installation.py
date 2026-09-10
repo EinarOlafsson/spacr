@@ -29,13 +29,22 @@ def installation(stage, folder, route='pip'):
     if not root.is_relative_to(stage / 'installation_runs'):
         raise ValueError('Only a private tutorial installation can be recorded')
     result = read(root / 'receipt.json')
-    expected = 6 if route == 'pip' else 5
+    expected, count, relative = {
+        'pip': (6, 'six', 'venv'),
+        'conda': (5, 'five', 'env'),
+        'linux_installer': (3, 'three', 'runtime/venv'),
+    }[route]
     if (not result.get('accepted') or len(result.get('steps', [])) != expected
             or any(row.get('returncode') != 0 or not row.get('completed')
                    for row in result['steps'])):
-        count = 'six' if route == 'pip' else 'five'
         raise ValueError(f'The real installation must have {count} successful checks')
-    return root, root / ('venv' if route == 'pip' else 'env'), result
+    return root, root / relative, result
+
+
+def installed_version(prior, route):
+    if route == 'linux_installer':
+        return prior['installer_tag'].removeprefix('v')
+    return prior['pypi' if route == 'pip' else 'channel']['version']
 
 
 def commands(route='pip', version='1.5.0.5', prefix=None):
@@ -55,6 +64,17 @@ def commands(route='pip', version='1.5.0.5', prefix=None):
         result[3] = ('04_environment_prefix', ['python', '-c',
                      'import sys; print(sys.prefix)'], str(prefix))
         result[4] = ('05_doctor', ['spacr-doctor'], 'pylibCZIrw')
+    elif route == 'linux_installer':
+        profile = Path(prefix).parent / 'install-profile.json'
+        launcher = Path(prefix).parents[1] / 'bin/spacr'
+        result[1] = ('02_installer_backend', ['python', '-c',
+                     'import json; from pathlib import Path; '
+                     f'print(json.dumps(json.loads(Path({str(profile)!r}).read_text()), indent=2))'],
+                     '"requested_backend": "auto"')
+        result[3] = ('04_installed_launcher', ['python', '-c',
+                     'from pathlib import Path; '
+                     f'p=Path({str(launcher)!r}); print(p); print(p.read_text())'],
+                     str(Path(prefix) / 'bin/python'))
     return result
 
 
@@ -119,18 +139,32 @@ def visible_app_window(tree):
     return max(matches, key=lambda item: item[1])[0]
 
 
+def privacy_window_owned(title, properties, gui_pid):
+    expected = 'spaCR privacy and optional account setup'
+    return (title in {expected, expected + ' — spaCR'} and re.search(
+        r'^_NET_WM_PID\(CARDINAL\) =\s*' + str(gui_pid) + r'\s*$',
+        properties, re.MULTILINE) is not None)
+
+
+def dialog_dismissed(returncode, info, tree, wid):
+    # Qt may destroy the rejected dialog instead of retaining a hidden window.
+    return ((returncode == 0 and 'Map State: IsUnMapped' in info)
+            or (returncode == 1 and re.search(
+                r'^\s*' + re.escape(hex(wid)) + r'\s+', tree, re.MULTILINE) is None))
+
+
 def record(stage, root, venv, prior, capture, route='pip'):
     from PySide6.QtWidgets import QApplication
     from capture_diagnostics import PrivateDesktop
 
     capture.mkdir(parents=True)
-    version = prior['pypi']['version'] if route == 'pip' else prior['channel']['version']
+    version = installed_version(prior, route)
     provenance = dict(completed_capture=False, module=route + '_install',
                       commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO, text=True).strip(),
                       actual_system_terminal=True, installation_recorded_live=False,
                       verification_recorded_live=True, application_source_modified=False,
                       private_display=os.environ['DISPLAY'], installed_environment=str(venv),
-                      setup_skipped_explicitly=route == 'pip', first_run_tour_marked_seen=True,
+                      setup_skipped_explicitly=route != 'conda', first_run_tour_marked_seen=True,
                       format_scope=f'Linux, fresh {route} package; not other platforms',
                       doctor_gpu_allocation_probe_requested=route == 'conda')
     write(capture / 'provenance.json', provenance)
@@ -149,12 +183,12 @@ def record(stage, root, venv, prior, capture, route='pip'):
         'from spacr.qt.first_run import mark_tour_seen; '
         'from spacr.qt.preferences import set_theme,set_font_scale; '
         'mark_tour_seen(); set_theme("dark"); set_font_scale(1.5)')
-    if route == 'pip':
+    if route != 'conda':
         preferences += '; from spacr.qt.preferences import set_preload_policy; set_preload_policy("on_demand")'
     subprocess.run([str(venv / 'bin/python'), '-I', '-c', preferences],
         cwd=root, check=True, timeout=90)
     provenance['recording_preferences'] = dict(theme='dark', font_scale=1.5,
-                                              preload='on_demand' if route == 'pip' else 'unmodified release default')
+                                              preload='unmodified release default' if route == 'conda' else 'on_demand')
     app = QApplication([])
     desktop = PrivateDesktop(stage)
     frames = {}
@@ -215,7 +249,8 @@ def record(stage, root, venv, prior, capture, route='pip'):
             raise RuntimeError('All five real verification commands must succeed')
         with (capture / 'installed_gui.log').open('w') as log:
             # The older channel package does not implement --no-setup.
-            command = [str(venv / 'bin/spacr')] + (['--no-setup'] if route == 'pip' else [])
+            launcher = root / 'bin/spacr' if route == 'linux_installer' else venv / 'bin/spacr'
+            command = [str(launcher)] + ([] if route == 'conda' else ['--no-setup'])
             gui = subprocess.Popen(command, cwd=root, stdout=log, stderr=subprocess.STDOUT)
             children.append(gui)
             deadline = time.monotonic() + 120
@@ -243,6 +278,40 @@ def record(stage, root, venv, prior, capture, route='pip'):
             provenance['native_window_geometry'] = geometry
             if gui.poll() is not None:
                 raise RuntimeError('Installed GUI exited before the native screenshot')
+            if route == 'linux_installer':
+                # --no-setup skips account setup, not the installer's separate
+                # unanswered privacy dialog. Record it, then use its native
+                # reject/Escape action: no consent or account is enabled.
+                expected_title = 'spaCR privacy and optional account setup'
+                dialog_wid, dialog_title = desktop.find(expected_title, settle)
+                dialog_owner = subprocess.check_output(
+                    ['xprop', '-id', hex(dialog_wid), '_NET_WM_PID', 'WM_TRANSIENT_FOR'], text=True)
+                write(capture / 'privacy_window_identity.json', dict(
+                    title=dialog_title, properties=dialog_owner, gui_pid=gui.pid,
+                    main_window=hex(wid), dialog_window=hex(dialog_wid)))
+                if not privacy_window_owned(dialog_title, dialog_owner, gui.pid):
+                    raise RuntimeError('Privacy prompt is not our installed application dialog')
+                desktop.x.XMapRaised(desktop.display, dialog_wid)
+                desktop.x.XSetInputFocus(desktop.display, dialog_wid, 1, 0)
+                desktop.x.XFlush(desktop.display)
+                settle(.5)
+                snapshot('07_privacy_keep_off')
+                code = desktop.x.XKeysymToKeycode(desktop.display, 0xff1b)
+                xtest.XTestFakeKeyEvent(desktop.display, code, 1, 0)
+                xtest.XTestFakeKeyEvent(desktop.display, code, 0, 0)
+                desktop.x.XFlush(desktop.display)
+                settle(2)
+                after = subprocess.run(['xwininfo', '-id', hex(dialog_wid)], text=True,
+                                       capture_output=True)
+                after_tree = subprocess.check_output(['xwininfo', '-root', '-tree'], text=True)
+                if not dialog_dismissed(after.returncode, after.stdout, after_tree, dialog_wid):
+                    raise RuntimeError('The native privacy rejection did not dismiss the dialog')
+                write(capture / 'privacy_rejection.json', dict(
+                    returncode=after.returncode, window_info=after.stdout,
+                    window_error=after.stderr, remaining_tree=after_tree))
+                provenance['privacy_dialog'] = dict(title=dialog_title,
+                    owner_pid=gui.pid, native_reject_key='Escape', shown_before_rejection=True,
+                    hidden_after_rejection=True, optional_choices_enabled=False)
             snapshot('06_installed_home')
             close_window(desktop, wid)
             deadline = time.monotonic() + 45
@@ -273,7 +342,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     parser.add_argument('--installation', type=Path, required=True)
-    parser.add_argument('--route', choices=('pip', 'conda'), default='pip')
+    parser.add_argument('--route', choices=('pip', 'conda', 'linux_installer'), default='pip')
     parser.add_argument('--capture-name', default='pip_installed_verification')
     parser.add_argument('--inside', action='store_true')
     parser.add_argument('--terminal-driver', action='store_true')
@@ -284,7 +353,7 @@ def main():
         parser.error('--capture-name must be one directory name')
     capture = stage / 'captures' / args.capture_name
     if args.terminal_driver:
-        version = prior['pypi']['version'] if args.route == 'pip' else prior['channel']['version']
+        version = installed_version(prior, args.route)
         return terminal_driver(stage, root, capture, args.route, version, venv)
     if capture.exists():
         raise FileExistsError('Choose a new capture name; earlier evidence is retained')
@@ -312,7 +381,7 @@ def main():
                PATH=str(venv / 'bin') + os.pathsep + env['PATH'],
                OMP_NUM_THREADS='2', OPENBLAS_NUM_THREADS='2', MKL_NUM_THREADS='2', USE_TF='0',
                SPACR_LOG_DIR=str(private / 'logs'), MPLCONFIGDIR=str(private / 'mpl'))
-    if args.route == 'pip':
+    if args.route != 'conda':
         env['VIRTUAL_ENV'] = str(venv)
     else:
         env.update(CONDA_PREFIX=str(venv), CONDA_DEFAULT_ENV=str(venv), CONDARC=os.devnull)

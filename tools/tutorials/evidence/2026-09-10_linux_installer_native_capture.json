@@ -1,0 +1,309 @@
+{
+  "status": "Native installed Linux verification captured; lesson media production not yet complete",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/linux_installer_native_final",
+  "provenance": {
+    "completed_capture": true,
+    "module": "linux_installer_install",
+    "commit": "0b96ee566c9ccb5e4d678fa931f28b4da9a4061b",
+    "actual_system_terminal": true,
+    "installation_recorded_live": false,
+    "verification_recorded_live": true,
+    "application_source_modified": false,
+    "private_display": ":99",
+    "installed_environment": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv",
+    "setup_skipped_explicitly": true,
+    "first_run_tour_marked_seen": true,
+    "format_scope": "Linux, fresh linux_installer package; not other platforms",
+    "doctor_gpu_allocation_probe_requested": false,
+    "installed_identity": {
+      "version": "1.5.0.5",
+      "package": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+      "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv"
+    },
+    "recording_preferences": {
+      "theme": "dark",
+      "font_scale": 1.5,
+      "preload": "on_demand"
+    },
+    "native_window_tree": "\nxwininfo: Window id: 0x3a7 (the root window) (has no name)\n\n  Root window id: 0x3a7 (the root window) (has no name)\n  Parent window id: 0x0 (none)\n     5 children:\n     0x800009 \"spaCR\": ()  1x1+0+0  +0+0\n     0x800007 \"spaCR\": (\"__main__.py\" \"spaCR\")  2560x720+0+0  +0+0\n     0x800005 \"Qt Selection Owner for spaCR\": ()  3x3+0+0  +0+0\n     0x600001 \"xdg-desktop-portal-gtk\": (\"xdg-desktop-portal-gtk\" \"Xdg-desktop-portal-gtk\")  10x10+10+10  +10+10\n     0x200005 \"Qt Selection Owner for capture_pip_installation.py\": ()  3x3+0+0  +0+0\n\n",
+    "native_window_geometry": "\nxwininfo: Window id: 0x800007 \"spaCR\"\n\n  Absolute upper-left X:  0\n  Absolute upper-left Y:  0\n  Relative upper-left X:  0\n  Relative upper-left Y:  0\n  Width: 3840\n  Height: 2160\n  Depth: 24\n  Visual: 0x21\n  Visual Class: TrueColor\n  Border width: 0\n  Class: InputOutput\n  Colormap: 0x800006 (not installed)\n  Bit Gravity State: NorthWestGravity\n  Window Gravity State: NorthWestGravity\n  Backing Store State: NotUseful\n  Save Under State: no\n  Map State: IsViewable\n  Override Redirect State: no\n  Corners:  +0+0  -0+0  -0-0  +0-0\n  -geometry 3840x2160+0+0\n\n",
+    "privacy_dialog": {
+      "title": "spaCR privacy and optional account setup — spaCR",
+      "owner_pid": 3830123,
+      "native_reject_key": "Escape",
+      "shown_before_rejection": true,
+      "hidden_after_rejection": true,
+      "optional_choices_enabled": false
+    },
+    "gui": {
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/bin/spacr",
+        "--no-setup"
+      ],
+      "title": "spaCR",
+      "returncode": 0,
+      "normal_window_close": true,
+      "analysis_started": false
+    },
+    "generated_instruction_cards": [
+      "09_windows_guidance",
+      "10_macos_guidance",
+      "11_linux_commands",
+      "12_logs_and_versions"
+    ],
+    "reused_official_release_capture": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/installation_sources_centred_elements/04_github_current_assets.png",
+      "sha256": "be320e4a0c69714c8b1ac26f1e614710260fbbc30fd7ee8446932b4a627fe940"
+    },
+    "platform_guidance_source_files": [
+      {
+        "path": "packaging/online/spacr_online_installer.nsi",
+        "sha256": "016d12fe71e9795d9c9a1bffe787e79966316a35cade0b24397d7a9175ddcc6d"
+      },
+      {
+        "path": "packaging/online/build_macos_online.sh",
+        "sha256": "195483dfa96f82daea56a9619d3f12473d7c7c387d77b5fb8fd0f3dd60b9edfc"
+      },
+      {
+        "path": "packaging/online/install_spacr_unix.sh",
+        "sha256": "1f1000e9f76ef107bf1c40721160fab12b4c4a34b53a9c2a62c11e783d98346f"
+      }
+    ]
+  },
+  "commands": [
+    {
+      "scene": "01_python_version",
+      "command": [
+        "python",
+        "--version"
+      ],
+      "output": "Python 3.12.13\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "02_installer_backend",
+      "command": [
+        "python",
+        "-c",
+        "import json; from pathlib import Path; print(json.dumps(json.loads(Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/install-profile.json').read_text()), indent=2))"
+      ],
+      "output": "{\n  \"active_backend\": \"cuda\",\n  \"consent\": {\n    \"collected\": false,\n    \"report_issues\": false,\n    \"share_diagnostics\": false,\n    \"sign_in_now\": false\n  },\n  \"created_utc\": \"2026-09-10T15:27:22.829546+00:00\",\n  \"cuda_available\": true,\n  \"detected_accelerator\": \"nvidia\",\n  \"machine\": \"x86_64\",\n  \"mps_available\": false,\n  \"platform\": \"linux\",\n  \"requested_backend\": \"auto\",\n  \"schema\": 1,\n  \"torch_cuda_build\": \"13.2\",\n  \"torch_version\": \"2.14.0+cu132\"\n}\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "03_installed_versions",
+      "command": [
+        "python",
+        "-c",
+        "import sys,spacr,PySide6; print(\"Python:\", sys.executable); print(\"spaCR:\", spacr.__version__); print(\"Qt:\", PySide6.__version__); print(\"Package:\", spacr.__file__)"
+      ],
+      "output": "Python: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/bin/python\nspaCR: 1.5.0.5\nQt: 6.11.2\nPackage: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "04_installed_launcher",
+      "command": [
+        "python",
+        "-c",
+        "from pathlib import Path; p=Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/bin/spacr'); print(p); print(p.read_text())"
+      ],
+      "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/bin/spacr\n#!/usr/bin/env sh\nexec \"/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/bin/python\" -m spacr.qt \"$@\"\n\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "05_doctor",
+      "command": [
+        "spacr-doctor",
+        "--no-gpu-probe"
+      ],
+      "output": "PASS  python              Python 3.12.13 satisfies requires-python !=3.14.1,<3.16,>=3.9.\n                          interpreter: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/bin/python\nPASS  spacr package       spacr 1.5.0.5 imports from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr.\nPASS  running checkout    Not inside a spaCR checkout; runs from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages.\n                          import spacr  -> /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr\n                          editable install: none (installed as a copy)\nPASS  duplicate installs  One importable spacr package: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr.\nPASS  distributions       spacr 1.5.0.5 is the only spaCR distribution.\n                          /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr-1.5.0.5.dist-info\nPASS  console scripts     All 16 installed spaCR commands resolve.\nPASS  PATH                `spacr-doctor` on PATH comes from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv.\nPASS  qt extra            Qt GUI available (PySide6 6.11.2).\nPASS  display             A display server is reachable.\nPASS  core imports        All 13 core dependencies import.\nWARN  optional extras     1 optional extras are half-installed and will fail when their feature is used.\n                          czi: missing pylibCZIrw\n                          installed: fractal, lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike\n                          fix: python -m pip install \"spacr[czi]\"\nPASS  installer backend   The installer selected auto; torch currently uses cuda (accelerator detected at install: nvidia).\nPASS  torch               torch 2.14.0+cu132 (built against CUDA 13.2).\nPASS  gpu                 1 CUDA device(s) reported: NVIDIA GeForce RTX 3090 (driver 580.173.02, torch CUDA 13.2); allocation probe skipped.\nPASS  cellpose            cellpose 4.2.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.\nSKIP  declared pins       Not inside a spaCR checkout; nothing to cross-check.\nSKIP  database            No database given.\n                          fix: spacr-doctor --db /path/to/plate/measurements/measurements.db\nSKIP  settings            No settings file given.\n                          fix: spacr-doctor --settings settings.csv --app measure\n\n14 passed, 1 warnings, 0 failed, 0 errored, 3 skipped\n",
+      "returncode": 0,
+      "accepted": true
+    }
+  ],
+  "frames": {
+    "01_python_version": {
+      "image": "01_python_version.png",
+      "sha256": "b8dd9f27e5afe528d8f1082ba4198b9401523e6fdf545858e2e667befa1b65d9",
+      "buttons": []
+    },
+    "02_installer_backend": {
+      "image": "02_installer_backend.png",
+      "sha256": "3291eae9dcdcdef984e0b4bf71e49fce6ec418c82b4d154d8492ef20e1a24afa",
+      "buttons": []
+    },
+    "03_installed_versions": {
+      "image": "03_installed_versions.png",
+      "sha256": "3af38bb626781cc84f73a4352a9bb21b4ccfaf3b5daabca95a0a27b556668ffc",
+      "buttons": []
+    },
+    "04_installed_launcher": {
+      "image": "04_installed_launcher.png",
+      "sha256": "3693d58e4deb93d3bbd7e2a0f0e80acca3fc7a98ba958ef990edfd81805f3153",
+      "buttons": []
+    },
+    "05_doctor": {
+      "image": "05_doctor.png",
+      "sha256": "9ac5aa7574a345e21348f5eddae97ec9a7d3632d5b982a5adf2c83b795d5d6a4",
+      "buttons": []
+    },
+    "07_privacy_keep_off": {
+      "image": "07_privacy_keep_off.png",
+      "sha256": "430bae6fc9e3d2bb929d987c0faec67af36f3eaf95e67e79e93be3c11a28686e",
+      "buttons": []
+    },
+    "06_installed_home": {
+      "image": "06_installed_home.png",
+      "sha256": "82d1637e9daf591e6e06b3a6460b4cde7ee929955c59055f9411ace81c4d1cf4",
+      "buttons": []
+    },
+    "08_official_release": {
+      "image": "08_official_release.png",
+      "sha256": "be320e4a0c69714c8b1ac26f1e614710260fbbc30fd7ee8446932b4a627fe940",
+      "focus": [
+        738,
+        1103,
+        2364,
+        758
+      ],
+      "url": "https://github.com/EinarOlafsson/spacr/releases/tag/v1.5.0.5",
+      "visible_text": "Assets\n8\nSHA256SUMS.txt\nsha256:2764814230ef0143fa7e0dc82344a382382e3f36fb1530a0c8d5b4ef44b99434\n500 Bytes\nspaCR-1.5.0.5-Linux-x86_64-Online.run\nsha256:21e1040ef7bb3b372268d3504bd0028ff83bba363de46ab98f34de1329e32488\n67.8 KB\nspaCR-1.5.0.5-macOS-Universal-Online.pkg\nsha256:7bf19438d772cdabcf9b43f5afdb1f8e9d560e4b79ee36086d08bba86381edae\n331 KB\nspacr-1.5.0.5-py3-none-any.whl\nsha256:bdada9b6babfd89bbea1664b3d16890da1f57e66d7615ad29cefa3a0d4953782\n37.7 MB\nspaCR-1.5.0.5-Windows-Online-Setup.exe\nsha256:66946b2d4dd574a5e55692deac8ae15a592ed9fdfbee8444ca6614b6bebd8d67\n199 KB\nspacr-1.5.0.5.tar.gz\nsha256:04df509097ae1a1c2ac780d483c2e82dd0ff04a9c65d8dbaad795daed1fb3c1e\n44.4 MB\nSource code (zip)\nSource code (tar.gz)",
+      "buttons": [],
+      "reused_native_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/installation_sources_centred_elements/04_github_current_assets.png"
+    },
+    "09_windows_guidance": {
+      "image": "09_windows_guidance.png",
+      "sha256": "ccf6e29dd6ff84620982dc39cf7fd78df4364b7ff48fcd0f8a6a9c1dd37b749b",
+      "buttons": [],
+      "kind": "generated_reference_not_platform_recording"
+    },
+    "10_macos_guidance": {
+      "image": "10_macos_guidance.png",
+      "sha256": "2276f754fa47ec211cbdfdc675ad9ec973e091137ef3e443fd629ed94b6dd191",
+      "buttons": [],
+      "kind": "generated_reference_not_platform_recording"
+    },
+    "11_linux_commands": {
+      "image": "11_linux_commands.png",
+      "sha256": "50f20ec49f6c835ee3230448ce2331789f243b5e75651c71008ce6d7c34ec2bc",
+      "buttons": [],
+      "kind": "generated_reference_not_platform_recording"
+    },
+    "12_logs_and_versions": {
+      "image": "12_logs_and_versions.png",
+      "sha256": "e61219d320a7927b23aa239ae0d44218529b17e575f5fa1cca3be96b84062409",
+      "buttons": [],
+      "kind": "generated_reference_not_platform_recording"
+    }
+  },
+  "privacy_identity": {
+    "title": "spaCR privacy and optional account setup — spaCR",
+    "properties": "_NET_WM_PID(CARDINAL) = 3830123\nWM_TRANSIENT_FOR:  not found.\n",
+    "gui_pid": 3830123,
+    "main_window": "0x800007",
+    "dialog_window": "0x80000e"
+  },
+  "privacy_rejection": {
+    "returncode": 1,
+    "window_info": "",
+    "window_error": "X Error: 9: Bad Drawable\n  Request Major code: 14\n  ResourceID in failed request: 0x80000e\n  Serial number of failed request: 3\nxwininfo: error: No such window with id 0x80000e.\n",
+    "remaining_tree": "\nxwininfo: Window id: 0x3a7 (the root window) (has no name)\n\n  Root window id: 0x3a7 (the root window) (has no name)\n  Parent window id: 0x0 (none)\n     5 children:\n     0x800007 \"spaCR\": (\"__main__.py\" \"spaCR\")  3840x2160+0+0  +0+0\n     0x800009 \"spaCR\": ()  1x1+0+0  +0+0\n     0x800005 \"Qt Selection Owner for spaCR\": ()  3x3+0+0  +0+0\n     0x600001 \"xdg-desktop-portal-gtk\": (\"xdg-desktop-portal-gtk\" \"Xdg-desktop-portal-gtk\")  10x10+10+10  +10+10\n     0x200005 \"Qt Selection Owner for capture_pip_installation.py\": ()  3x3+0+0  +0+0\n\n"
+  },
+  "private_preferences_after_rejection": {
+    "share_diagnostic_logs": false,
+    "issue_prompt_mode": "never",
+    "auto_file_issues": false,
+    "consent_applied": true
+  },
+  "native_frames_visually_inspected": [
+    "02_installer_backend",
+    "05_doctor",
+    "06_installed_home",
+    "07_privacy_keep_off"
+  ],
+  "source_tests": {
+    "passed": 9,
+    "coverage_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/linux-capture-guards.json",
+    "guard_lines_executed": [
+      11,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      24,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      37,
+      40,
+      41,
+      44,
+      45,
+      46,
+      50,
+      51,
+      61,
+      62,
+      64,
+      66,
+      67,
+      68,
+      69,
+      70,
+      74,
+      78,
+      81,
+      102,
+      132,
+      134,
+      137,
+      138,
+      139,
+      142,
+      143,
+      144,
+      149,
+      151,
+      156,
+      341,
+      397
+    ],
+    "mutations": "Four initial route/runtime/version/profile distinctions each caused 1 fail/6 pass; three exact privacy title/owner/suffix distinctions each caused 1 fail/7 pass; three hidden/destroyed/unexpected-error distinctions each caused 1 fail/8 pass. Isolated in-memory source copies; restored real source passes all nine."
+  },
+  "rejected_takes": [
+    {
+      "name": "linux_installer_native",
+      "cause": "Recorder tried closing the main window while the unanswered real privacy dialog was modal."
+    },
+    {
+      "name": "linux_installer_privacy_native",
+      "cause": "Recorder did not accept Qt appending the application name to the genuine dialog title."
+    },
+    {
+      "name": "linux_installer_privacy_identity",
+      "cause": "Same title mismatch, now with exact window identity persisted."
+    },
+    {
+      "name": "linux_installer_privacy_owned",
+      "cause": "Native Escape correctly destroyed the dialog; recorder incorrectly required a retained hidden X window."
+    }
+  ],
+  "rejected_takes_are_app_defects": false,
+  "installation_receipt": "2026-09-10_public_linux_installation.json",
+  "installer_preflight_receipt": "2026-09-10_linux_installer_preflight.json",
+  "scope": "Installed public Linux runtime and genuine privacy rejection/normal close. Four platform/reference cards are not native Windows or macOS recordings. No GPU speed test, analysis validation, account login, public issue, or consent opt-in.",
+  "published": false
+}

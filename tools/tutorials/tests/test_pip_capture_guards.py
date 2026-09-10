@@ -73,3 +73,62 @@ def test_conda_commands_do_not_pretend_to_be_the_pip_environment(recorder, tmp_p
     assert pip[2][2] == 'spaCR: 1.5.0.5'
     assert pip[3][1] == ['python', '-m', 'pip', 'check']
     assert pip[4][1] == ['spacr-doctor', '--no-gpu-probe']
+
+
+def test_linux_installer_requires_its_three_steps_and_actual_runtime(recorder, tmp_path):
+    root = tmp_path / 'installation_runs' / 'linux'
+    root.mkdir(parents=True)
+    receipt = dict(accepted=True, installer_tag='v1.5.0.5',
+                   steps=[dict(returncode=0, completed=True) for _ in range(3)])
+    (root / 'receipt.json').write_text(json.dumps(receipt))
+    assert recorder.installation(tmp_path, root, 'linux_installer')[1] == root / 'runtime/venv'
+    assert recorder.installed_version(receipt, 'linux_installer') == '1.5.0.5'
+    with pytest.raises(ValueError, match='five successful'):
+        recorder.installation(tmp_path, root, 'conda')
+    for modified in [dict(receipt, accepted=False), dict(receipt, steps=receipt['steps'][:-1]),
+                     dict(receipt, steps=receipt['steps'][:-1] + [dict(returncode=1, completed=True)]),
+                     dict(receipt, steps=receipt['steps'][:-1] + [dict(returncode=0, completed=False)])]:
+        (root / 'receipt.json').write_text(json.dumps(modified))
+        with pytest.raises(ValueError, match='three successful'):
+            recorder.installation(tmp_path, root, 'linux_installer')
+
+
+def test_linux_commands_read_the_actual_profile_and_launcher(recorder, tmp_path):
+    import subprocess
+    import sys
+    prefix = tmp_path / 'runtime/venv'
+    prefix.mkdir(parents=True)
+    (prefix.parent / 'install-profile.json').write_text(json.dumps(
+        dict(requested_backend='auto', active_backend='cuda')))
+    launcher = tmp_path / 'bin/spacr'
+    launcher.parent.mkdir()
+    launcher.write_text(f'#!/bin/sh\nexec "{prefix}/bin/python" -m spacr.qt "$@"\n')
+    rows = recorder.commands('linux_installer', '1.5.0.5', prefix)
+    assert len(rows) == 5
+    assert rows[1][0] == '02_installer_backend'
+    assert rows[3][0] == '04_installed_launcher'
+    for row in [rows[1], rows[3]]:
+        assert row[2] in subprocess.check_output([sys.executable, *row[1][1:]], text=True)
+    assert rows[2][2] == 'spaCR: 1.5.0.5'
+    assert rows[4][1] == ['spacr-doctor', '--no-gpu-probe']
+
+
+def test_privacy_dialog_is_real_exact_title_and_our_process(recorder):
+    name = 'spaCR privacy and optional account setup'
+    properties = '_NET_WM_PID(CARDINAL) = 1234\nWM_TRANSIENT_FOR:  not found.\n'
+    assert recorder.privacy_window_owned(name, properties, 1234)
+    assert recorder.privacy_window_owned(name + ' — spaCR', properties, 1234)
+    assert not recorder.privacy_window_owned('Unrelated ' + name, properties, 1234)
+    assert not recorder.privacy_window_owned(name, properties, 123)
+    assert not recorder.privacy_window_owned(name, properties, 12345)
+    assert not recorder.privacy_window_owned(name, 'WM_TRANSIENT_FOR = 1234\n', 1234)
+
+
+def test_privacy_dismissal_requires_hidden_or_actually_destroyed_window(recorder):
+    tree = '  0x80000e "spaCR privacy and optional account setup — spaCR": () 960x342+0+0\n'
+    remaining = '  0x800007 "spaCR": () 3840x2160+0+0\n'
+    assert recorder.dialog_dismissed(0, 'Map State: IsUnMapped', tree, 0x80000e)
+    assert recorder.dialog_dismissed(1, '', remaining, 0x80000e)
+    assert not recorder.dialog_dismissed(0, 'Map State: IsViewable', tree, 0x80000e)
+    assert not recorder.dialog_dismissed(1, '', tree, 0x80000e)
+    assert not recorder.dialog_dismissed(2, '', remaining, 0x80000e)
