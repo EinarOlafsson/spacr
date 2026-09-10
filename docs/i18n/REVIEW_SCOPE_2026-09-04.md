@@ -14,7 +14,7 @@ closed.
 
 It is closed. Both audits pass on the same tree:
 
-    verified API catalogs: languages=9 symbols=10296
+    verified API catalogs: languages=9 symbols=10306
     verified external runtime catalogs: languages=9 settings=1073
       categories=201 ui=2841 modules=67
 
@@ -43,7 +43,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 5,260 runtime entries and 10,296 public API docstrings. As before,
+remembered one: 5,260 runtime entries and 10,306 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -51,17 +51,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,260 | Remainder | Reviewed API blocks | Of 10,296 | Remainder |
+| Language | Reviewed runtime records | Of 5,260 | Remainder | Reviewed API blocks | Of 10,306 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.24% | 5,142 | 468 | 4.55% | 9,828 |
-| German | 86 | 1.63% | 5,174 | 424 | 4.12% | 9,872 |
-| Spanish | 114 | 2.17% | 5,146 | 287 | 2.79% | 10,009 |
-| Simplified Chinese | 268 | 5.10% | 4,992 | 504 | 4.90% | 9,792 |
-| Portuguese | 108 | 2.05% | 5,152 | 448 | 4.35% | 9,848 |
-| Hindi | 124 | 2.36% | 5,136 | 461 | 4.48% | 9,835 |
-| Korean | 256 | 4.87% | 5,004 | 453 | 4.40% | 9,843 |
-| Icelandic | 150 | 2.85% | 5,110 | 1,019 | 9.90% | 9,277 |
-| French | 99 | 1.88% | 5,161 | 465 | 4.52% | 9,831 |
+| Swedish | 118 | 2.24% | 5,142 | 468 | 4.54% | 9,838 |
+| German | 86 | 1.63% | 5,174 | 424 | 4.11% | 9,882 |
+| Spanish | 114 | 2.17% | 5,146 | 287 | 2.78% | 10,019 |
+| Simplified Chinese | 268 | 5.10% | 4,992 | 504 | 4.89% | 9,802 |
+| Portuguese | 108 | 2.05% | 5,152 | 449 | 4.36% | 9,857 |
+| Hindi | 124 | 2.36% | 5,136 | 461 | 4.47% | 9,845 |
+| Korean | 256 | 4.87% | 5,004 | 453 | 4.40% | 9,853 |
+| Icelandic | 150 | 2.85% | 5,110 | 1,020 | 9.90% | 9,286 |
+| French | 99 | 1.88% | 5,161 | 466 | 4.52% | 9,840 |
 
 ## Who reviewed what, and what that claim means
 

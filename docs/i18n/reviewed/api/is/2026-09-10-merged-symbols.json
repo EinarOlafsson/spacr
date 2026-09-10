@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.qt.app.open_at_the_measured_width#3",
+      "source_sha256": "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
+      "source": "IT ONLY EVER GROWS, and that is deliberate rather than cautious. The comment above `win.show()` records why this window does not maximise: over X11 forwarding, VNC or a virtual framebuffer the \"available geometry\" is whatever the remote session claims, and it is frequently a stub. A policy allowed to shrink would take that claim seriously and open a window smaller than the one the user has been getting for a year. Growing on a bad number is bounded by the clamp; shrinking on one is not bounded by anything.",
+      "context": "It only ever grows, and that is deliberate rather than cautious. The comment above `win.show()` records why this window does not maximise: over X11 forwarding, VNC or a virtual framebuffer the \"available geometry\" is whatever the remote session claims, and it is frequently a stub. A policy allowed to shrink would take that claim seriously and open a window smaller than the one the user has been getting for a year. Growing on a bad number is bounded by the clamp; shrinking on one is not bounded by anything.",
+      "translation": "HÚN STÆKKAR AÐEINS, og það er ásetningur fremur en varfærni. Athugasemdin fyrir ofan `win.show()` skráir hvers vegna þessi gluggi er ekki hámarkaður: yfir X11 áframsendingu, VNC eða sýndarrammaminni er \"available geometry\" hvað sem fjarlotan segir, og það er oft staðgengill. Regla sem mætti minnka myndi taka þá fullyrðingu alvarlega og opna glugga minni en þann sem notandinn hefur fengið í heilt ár. Stækkun á slæmri tölu er bundin af klemmunni; minnkun á henni er ekki bundin af neinu."
+    }
+  ]
+}

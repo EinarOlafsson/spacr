@@ -57021,6 +57021,26 @@
         "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23"
       ]
     },
+    "spacr.qt.app.open_at_the_measured_width": {
+      "source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
+        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
+        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
+      ],
+      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
+      "text": "将新鲜的窗口扩展到测量模块需要什么。\n\n:returns: True 当窗口重新调整时。\n\n指示 359: “每个模块首先必须开放足够宽,以免其设置的右侧被切断”。 宽度来自 `spacr.qt.layout_policy`,读取一个发明的文物 - 每个数字在它中测量,通过构建每一个模块的屏幕外,并询问它的设置列是否持有超过它可以显示的。\n\n它只会不断增长,而不是谨慎。 上面的 `win.show()` 评论记录了为什么这个窗口不会最大化:在 X11 转换,VNC 或虚拟框架上, \"available geometry\" 是远程会议所要求的,而且它往往是一个固体。 一个允许缩短的政策会认真对待这个要求,并打开一个窗口比用户已经获得的一年更小。 生长在一个糟糕的数字是由粘贴束缚的; 把它放在一边,不受任何东西的束缚。\n\n没有论文,什么都不会发生. `layout_policy` 落后到 1200 px - 文本合适的插图的宽度在每个应用程序视图上构建 - 这个窗口已经在 1200 开启,所以不携带文件的轮子正如它所做的那样行事。\n\n永远不会扔掉,一个开幕式的尺寸不值得失败的发射。",
+      "translation_source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "ab452d9958b7b0be8c607ac3462bb2e5cc3297391ec42616f5f8ec96efd3aca0",
+        "4319b5fa4215fac451983af05a97ff1717786e5c95810ad6313b4924909bb8f4",
+        "827774a19140ce4a6c7efbb88bc64f3012844b82a7021bd835a46728747ade94"
+      ]
+    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -57123,6 +57143,26 @@
         "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
         "4b67ff0258ffafcb4c1932f082e553d500fe768c1dddc6d9d4bf8b4e15b1ec52",
         "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
+      ]
+    },
+    "spacr.qt.app.the_missing_pip_escape": {
+      "source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
+        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
+      ],
+      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
+      "text": "命令 WOULD 工作,当升级失败了,因为想要的管道。\n\n:param output: 所有升级写的,当工作进程抓住它。\n:returns: 命令行显示用户,或 None 当此故障不是错过的芯片一个。\n\n一个失败的应用程序可以回复,指示01要求它。桌面安装者构建他们的环境与``uv venv``,这不是种子管,所以一个安装,其更新程序仍然运行``python -m pip``在它开始之前失败 - 这是一个启动陷阱:修复不能通过路径它修复。\n\n任何其他输出代码都会得到输出,没有别的东西。 寻找一个解决一个失败的解决方案,这不能识别会发送一个用户执行一个命令,这不是他们的问题。\n\n衍生方式 :func:`spacr.updater.find_uv` 取出它,它落回到安装器的路径 WRITE 而不是返回任何东西:在受影响的机器 `find_uv` 是安装的构建太老了,所以一个用户可以检查的名称比沉默更值得。",
+      "translation_source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "fc8dc15f427246d1d9c5b86c338320884cf6c62b25b971894f667b253a7f4fae",
+        "a2ccc11891aaa33a743f0be0e159ab9d6bc63b9a1ca011fb83d12b9906064923",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
       ]
     },
     "spacr.qt.app.tile_sort_key": {
@@ -64609,6 +64649,92 @@
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
         "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
+      ]
+    },
+    "spacr.qt.layout_policy": {
+      "source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
+        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
+        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
+      ],
+      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
+      "text": "测量的窗口宽度需要一个模块,并在第一次运行时打开什么。\n\n报告是“每个模块首先必须开放足够宽,以免其设置的右侧被切断”,并且相同的像素尺寸可以描述三个不同的机器 - 因此,一个静态 ``resolution -> font size`` 表将错误地选择正确的 M4 Mac 引发它。\n\n这个模块是什么 创建的艺术品,``spacr/resources/layout_policy.json``,由``tools/measure_the_layout_matrix.py``制作的读者。 它中的每一个数字都是通过在容器中构建每个模块外屏,无法生长并阅读被剪辑的东西来测量 - 相同的规则指令350的声明,而不是关于它的第二个观点。\n\n不是电信,而359这样明确地说: \"capture\" 意味着在本地偏好中阅读 Qt 应用程序视图测量,而不是向任何地方发送硬件细节。\n\n它不进口任何重量,该项目需要从字体的加载器: ``json`` 和 ``importlib.resources``,没有 Qt,也没有 numpy. Qt 测量作为论点,所以政策可以阅读和测试在没有显示的机器上。",
+      "translation_source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "74834f62d2528dfa207c2257dde36ad2c9dce65c3e5df80fee0514e3099d5192",
+        "fc9ae75949d8e14f1704c45ba53486ede15b2ac0518f1ef0bdd3b41723c55fbd",
+        "74b221edbcd574f0e809e1c454a658b96bb4d5e5cbda3b29db747d1e4fcd7300"
+      ]
+    },
+    "spacr.qt.layout_policy.minimum_width_for": {
+      "source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
+        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
+      ],
+      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
+      "text": "最广泛的测量要求为 ``font_scale``。\n\n:param font_scale: 优先, 1.0 是 100%。\n:param policy: 一个可以阅读的作品,而不是一个包装的作品。\n:returns: 逻辑像素,或 None 当没有测量。\n\n最糟糕的情况是模块之间,而不是中间的,一个窗口一旦打开,每个模块从内部到达,所以适合大多数模块的宽度仍然从最宽的中间中切断 - 这是报告。\n\n在两个测量尺寸之间,它需要更高的尺寸,因为建筑物测量一个阶段,并且要求与尺寸上升。",
+      "translation_source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "e04974a8721ab4069fad30368e7788152af93b5f3197d3f02611d365743eede1",
+        "f48501b0657e2c96842bee6afcba9e285160f14fff368864979bb291af293b78"
+      ]
+    },
+    "spacr.qt.layout_policy.read_policy": {
+      "source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
+        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
+      ],
+      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
+      "text": "包装政策,或 ``{}``。\n\n:param refresh: 重新阅读文件而不是从缓存中回复。\n:returns: 作为一个关键值地图,或一个空白的任何失败。\n\n度到空而不是扔,因为释放笔记板的原因:一个应用程序不应该错过打开一个窗口,因为一个资源文件不在一个轮子。",
+      "translation_source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ed48adc532056133b17bdd3e9164a1a3cd2fe1fffaef56a18fca37b389704469",
+        "e6a0f107131a9c60dc9597ab3a4275ea8a38a7598748fde3072b6c9baeae9ba0"
+      ]
+    },
+    "spacr.qt.layout_policy.recommended_window_size": {
+      "source_blocks_sha256": [
+        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
+      ],
+      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
+      "text": "如何打开主窗口,考虑到应用程序视图是什么。\n\n:param available: 筛选的 AVAILABLE 地质为 ``(w, h)`` - 可用,而不是总,因为一个插槽或菜单栏拥有差异,而一个大于总的窗口部分在一个底部打开。\n:param font_scale: 字体规模优先考虑。\n:param policy: 一个可以阅读的作品,而不是一个包装的作品。\n:returns: ``(width, height)`` 在逻辑像素中。\n\n粘在筛选上,总是,这个订单是整个合同:一个测量要求比显示器更宽的是一个声明,这个模块不能在这里显示完整,不允许打开一个窗口在它的边缘。",
+      "translation_source_blocks_sha256": [
+        "5d5e6cef400bf88105678fc9388750c3c0022c5d74aeed0c5a70eeebacc5a7b3",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "5b5f175f525959ab4709565910b4fbd05ac6bc2dc7c14d732eb0a2f0e973472b"
+      ]
+    },
+    "spacr.qt.layout_policy.why": {
+      "source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
+      ],
+      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
+      "text": "一个句子命名证据,为日志线或提示。\n\n一个用户无法跟踪的建议是他们无法争论的一个,这个项目的整个历史是一个安排决策,没有人可以检查。",
+      "translation_source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -109437,6 +109563,74 @@
         "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.TourPilot": {
+      "source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
+        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ],
+      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
+      "text": "点击20个区域的控制摄像头,框架为框架。\n\n巡回演出是建造的,没有什么叫它。 :class:`RegionTour` 和 :data:`spacr.qt.widgets.fractal_regions.REGIONS` 发送了测试和没有呼叫器,所以值得观看的坐标从来没有在应用程序视图上。 这是线条,并且是目的上的平面对象 - 同样的原因 :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` 是一个。 GPU 通道需要一个 GL 背景来存在,而每一个关于这种动作的方式的说法都会来自编写的模拟,而不是运行的代码。\n\n相机的独特的曝光跟踪是它所移动的,所以巡回赛的区域之间的顺利步骤和相机对目前目标的任何位置的接近都构成一个没有开始和没有停止的动作 - 这是指示327的全部“顺利和顺利地在点之间移动”。\n\n:param tour: 飞行之旅,或 None 为承诺的地区。\n飞`tour`,或当没有被授予的承诺区域。",
+      "translation_source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "a0c54b8bd2d2d19cdce3e8c52760d0b95d97e24437a06dcd2272e0a775b09b0a",
+        "fd0cfcf4a87c74f7742eb68e4c46a395dc36ad58d247cffa9c2cbc32979e493b",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
+      "source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ],
+      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
+      "text": "用户拿到了相机,巡回演出没有争论。",
+      "translation_source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "不管巡回演出是否正在进行中。",
+      "translation_source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
+      "source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ],
+      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
+      "text": "Ctrl+R 将潜水器送回表面;再次飞行。",
+      "translation_source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
+      "source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
+      ],
+      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
+      "text": "Aim `camera` 在任何地方的旋转是 `seconds`。\n\n:param camera: 一个 :class:`SteeringCamera`;只有它的 ``target`` 是写的。\n:param seconds: 模拟时钟。\n:param span: 景端半高度,在复杂的图像层。 游览是一个SURFACE路线 - 每个区域携带它的半宽它留下有趣的 - 所以一旦景观是狭窄的区域它到达,向下方将飞过图像在一个规模,在那里什么都无法识别。\n:returns: True 当一个目标被写下时。\n\n永远不会扔:这是一个背景的框架路径,一个无法回应的巡回演出必须花费一个框架的决定而不是图像。",
+      "translation_source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "c06bcab5ad7b25a60fe7f661daa5fda0c4d6956b733af6ac4c03c57176a27aa7",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "1201fa29f457b5313f97f16c703bd053f41f7adfa134be365981149eed019796"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
       "source_blocks_sha256": [
         "57266aaec57809133a509a1a8184a3714b268998db9fec87455272cd74548d47",
@@ -109645,48 +109839,6 @@
         "a318c91b836ecaaab9fd39ddc43cf6b101c7fd5c5ec5ce3366e447f61c9fa24b",
         "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
         "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_leg_seconds": {
-      "source_blocks_sha256": [
-        "8176d688975c709c8b414df64f59d0c355d7634fb078a2edb48b42facb0c5b2e",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ],
-      "source_sha256": "c4c8dd84d17b70a881d08a5d7968ae35fd42579264c14eb450ca8ad6da823d3b",
-      "text": "跳动和旅行,这样一个脚的巡回演出是一个跳动。\n\n:param seconds_per_decade: 每十年下跌花费多少时间?\n:param max_depth: 几十年前,潜水在地面上重新启动。\n:param travel: 花了几秒钟在两个区域之间移动。\n:returns: ``(dwell, travel)`` 为 :class:`RegionTour`。\n\n三十年后,视野比两个区域之间的差距狭窄三十个大小命令,所以旅行这个差距有一个白色闪光而不是一个浮动 - 整个要求是,它不会被阅读为跳跃。\n\n两者都花在零之上,所以要求跳跃的设置文件比移动更短,仍然产生一个移动的旋转。",
-      "translation_source_blocks_sha256": [
-        "81edb313b9834f50afd29ed97861c91d3e6a3b2512aee61add2f53e0f5e9206b",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_offset": {
-      "source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "8fe3c89c2817876bfc920c6e6a29400dad2fee103d4dd48c18dabcaf9e9e57be"
-      ],
-      "source_sha256": "9f6685beaf9f869c4276edf8707f9771458d8a421669e8de2458d84e6d283284",
-      "text": "游览的目标,作为参考轨道的中心的折扣。\n\n:param tour: 巡回演出指向摄像头。\n:param seconds: 一秒钟后,巡回演出开始了。\n:param orbit_centre: ``(re, im)`` 指向轨道。\n:returns: ``(offset_re, offset_im)``,或 ``None``,当巡回演出不顺序 - 因此,一个通话者离开摄像头,用户将其放置在那里,而不是交付一个坐标,它必须忽略。\n\n回收从轨道,从未集成. 参考轨道移动到边界,因为潜水下降,摄像机的折扣重新设置到零,当它降落; 回忆起自己的折扣的巡回演出将被扔出该地区每次发生。",
-      "translation_source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "701d733fca4b56df17477e4561fa4224d72870f590630041e6cf4e687c930f5f"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {

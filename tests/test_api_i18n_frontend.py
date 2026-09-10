@@ -42,7 +42,11 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: `i18n.ui_language_resolved_once` and the `fractal_travel` region-tour
 #: helpers. Every one of those cost a nine-language rebuild, which is why
 #: 288 now carries a rule about batching them.
-REAL_SYMBOL_COUNT = 10_296
+#:
+#: 10,296 -> 10,306 on merging origin/nightly the same night: the other
+#: session's `layout_policy`, `TourPilot` and two `qt.app` helpers, less the
+#: two tour helpers written here that TourPilot replaced.
+REAL_SYMBOL_COUNT = 10_306
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

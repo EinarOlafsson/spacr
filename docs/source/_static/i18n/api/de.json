@@ -57020,6 +57020,26 @@
         "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23"
       ]
     },
+    "spacr.qt.app.open_at_the_measured_width": {
+      "source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
+        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
+        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
+      ],
+      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
+      "text": "Erweitern Sie ein frisches Fenster auf das, was die Module gemessen wurden, um zu benötigen.\n\n:returns: True wenn das Fenster verkleinert wurde.\n\nINSTRUCTION 359: „Jedes Modul muss zunächst weit genug öffnen, damit die rechte Seite seiner Einstellungen nicht abgeschnitten wird.\" Die Breite stammt von `spacr.qt.layout_policy`, das ein GENERATED-Artefakt liest -- jede Zahl darin gemessen durch den Aufbau jedes Moduls außerhalb des Bildschirms und die Frage, ob seine Einstellungsspalte mehr hält, als es zeigen kann.\n\nDer Kommentar oben `win.show()` zeichnet auf, warum dieses Fenster nicht maximiert: über X11 Forwarding, VNC oder einen virtuellen Framebuffer ist der \"available geometry\" unabhängig von den Remote-Session-Ansprüchen, und es ist häufig ein Stummel. Eine Politik, die erlaubt wird, zu schrumpfen, würde diesen Anspruch ernst nehmen und ein Fenster öffnen, das kleiner ist als das, das der Benutzer seit einem Jahr bekommt.\n\nOhne das Artefakt passiert nichts. `layout_policy` fällt auf 1200 px zurück -- die Breite der Text-Fit-Sweep baut jede Anwendungsansicht bei -- und dieses Fenster öffnet sich bereits bei 1200, so dass sich ein Rad, das die Datei nicht trägt, genau so verhält wie es tat.\n\nEine Öffnungsgröße ist es nicht wert, einen Start zu verpassen.",
+      "translation_source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "ab452d9958b7b0be8c607ac3462bb2e5cc3297391ec42616f5f8ec96efd3aca0",
+        "4319b5fa4215fac451983af05a97ff1717786e5c95810ad6313b4924909bb8f4",
+        "827774a19140ce4a6c7efbb88bc64f3012844b82a7021bd835a46728747ade94"
+      ]
+    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -57122,6 +57142,26 @@
         "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
         "4b67ff0258ffafcb4c1932f082e553d500fe768c1dddc6d9d4bf8b4e15b1ec52",
         "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
+      ]
+    },
+    "spacr.qt.app.the_missing_pip_escape": {
+      "source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
+        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
+      ],
+      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
+      "text": "Der Befehl, der WOULD funktioniert, wenn das Upgrade fehlgeschlagen ist.\n\n:param output: alles, was das Upgrade geschrieben hat, wie der Worker-Prozesse es eingefangen hat.\n:returns: eine Befehlszeile, um den Benutzer anzuzeigen, oder None, wenn dieser Fehler nicht die fehlende Pip-Version war.\n\nDie Desktop-Installer bauen ihre Umgebung mit ``uv venv``, die pip nicht startet, also eine Installation, deren Updater immer noch ``python -m pip`` läuft, fehlschlägt, bevor es startet -- und es ist eine Bootstrap-Falle: der Fix kann nicht an der Route ankommen, die es behebt. Ein Dialog, der den genauen Befehl nennt, ist der einzige Escape, der einen Benutzer erreicht, der ihn bereits getroffen hat.\n\nJeder andere Exit-Code bekommt die Ausgabe und nichts anderes. Wenn man ein Mittel für einen Fehler erraten kann, würde dies einen Benutzer schicken, um einen Befehl auszuführen, der nicht ihr Problem ist.\n\nAbgeleitet von der Art, wie :func:`spacr.updater.find_uv` es ableitet, und es fällt zurück auf den Pfad, den die Installateure WRITE haben, anstatt nichts zurückzugeben: auf dem betroffenen Rechner `find_uv` ist das, was der installierte Build zu alt ist, um einen Namen zu haben, den der Benutzer überprüfen kann, mehr als Stille wert ist.",
+      "translation_source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "fc8dc15f427246d1d9c5b86c338320884cf6c62b25b971894f667b253a7f4fae",
+        "a2ccc11891aaa33a743f0be0e159ab9d6bc63b9a1ca011fb83d12b9906064923",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
       ]
     },
     "spacr.qt.app.tile_sort_key": {
@@ -64608,6 +64648,92 @@
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
         "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
+      ]
+    },
+    "spacr.qt.layout_policy": {
+      "source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
+        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
+        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
+      ],
+      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
+      "text": "Die gemessene Fensterbreite eines Moduls und was beim ersten Lauf zu öffnen ist.\n\nINSTRUCTION 359. Der Bericht war, dass \"jedes Modul zunächst weit genug öffnen muss, dass die rechte Seite seiner Einstellungen nicht abgeschnitten ist\", und dass die gleichen Pixelabmessungen drei verschiedene Maschinen beschreiben können -- also würde eine statische ``resolution -> font size`` Tabelle falsch auf genau dem M4 Mac, der es veranlasste, wählen.\n\nWas dieses Modul ist. Der Leser eines GENERATED-Artefakts, ``spacr/resources/layout_policy.json``, produziert von ``tools/measure_the_layout_matrix.py``. Jede Zahl in ihm wurde gemessen, indem jedes Modul Offscreen in einem Container gebaut wurde, der nicht wachsen und lesen kann, was geclippt wurde - die gleiche Regel Anweisung 350s Sweep behauptet, nicht eine zweite Meinung darüber.\n\nWas es nicht ist. Nicht Telemetrie, und 359 sagt das ausdrücklich: \"capture\" bedeutet das Lesen von Qt Anwendungsansichts-Metriken in lokale Präferenzen, nicht das Senden von Hardware-Details irgendwo. Nichts hier verlässt die Maschine.\n\nEs importiert nichts Schweres, was der Gegenstand vom Loader des Artefakts benötigt: ``json`` und ``importlib.resources``, nein Qt, kein numpy. Die Qt-Metriken kommen als ARGUMENTE an, so dass die Richtlinie auf einer Maschine ohne Display gelesen und getestet werden kann.",
+      "translation_source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "74834f62d2528dfa207c2257dde36ad2c9dce65c3e5df80fee0514e3099d5192",
+        "fc9ae75949d8e14f1704c45ba53486ede15b2ac0518f1ef0bdd3b41723c55fbd",
+        "74b221edbcd574f0e809e1c454a658b96bb4d5e5cbda3b29db747d1e4fcd7300"
+      ]
+    },
+    "spacr.qt.layout_policy.minimum_width_for": {
+      "source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
+        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
+      ],
+      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
+      "text": "Die am weitesten gemessene Anforderung bei ``font_scale``.\n\n:param font_scale: die Präferenz: 1,0 beträgt 100 %.\n:param policy: ein Artefakt, das anstelle des Bündels gelesen werden soll.\n:returns: logische Pixel, oder None wenn nichts gemessen wurde.\n\nDer schlimmste Fall über Module, nicht den Median. Ein Fenster öffnet sich einmal und jedes Modul wird von innen erreicht, so dass eine Breite, die den meisten von ihnen passt, immer noch das breiteste abschneidet -- das ist der Bericht.\n\nZwischen zwei gemessenen Skalen nimmt es die höhere, weil das Artefakt eine Leiter misst und die Anforderung mit der Skala steigt. Rundung zu dem kleineren würde ein Fenster öffnen, das der Skala unterhalb des Benutzers entspricht.",
+      "translation_source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "e04974a8721ab4069fad30368e7788152af93b5f3197d3f02611d365743eede1",
+        "f48501b0657e2c96842bee6afcba9e285160f14fff368864979bb291af293b78"
+      ]
+    },
+    "spacr.qt.layout_policy.read_policy": {
+      "source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
+        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
+      ],
+      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
+      "text": "Die gebündelte Richtlinie oder ``{}``.\n\n:param refresh: Lesen Sie die Datei erneut, anstatt aus dem Cache zu antworten.\n:returns: das Artefakt als Key-Value-Mapping oder ein leeres bei jedem Ausfall.\n\nErniedrigt sich zu leeren anstatt werfen, aus dem Grund, die Release-Notes-Panel tut: eine Anwendung darf nicht scheitern, ein Fenster zu öffnen, weil eine Ressource Datei fehlt von einem Rad.",
+      "translation_source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ed48adc532056133b17bdd3e9164a1a3cd2fe1fffaef56a18fca37b389704469",
+        "e6a0f107131a9c60dc9597ab3a4275ea8a38a7598748fde3072b6c9baeae9ba0"
+      ]
+    },
+    "spacr.qt.layout_policy.recommended_window_size": {
+      "source_blocks_sha256": [
+        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
+      ],
+      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
+      "text": "Was ist das Hauptfenster zu öffnen, wenn man bedenkt, was die Anwendungsansicht hat.\n\n:param available: die VERFÜGBARE Geometrie des Bildschirms als ``(w, h)`` -- verfügbar, nicht gesamt, weil ein Dock oder eine Menüleiste den Unterschied besitzt und ein Fenster zur Gesamtgröße teilweise unter einem öffnet.\n:param font_scale: die Schrift-Skala-Vorliebe in Kraft.\n:param policy: ein Artefakt, das anstelle des Bündels gelesen werden soll.\n:returns: ``(width, height)`` in logischen Pixeln.\n\nEingeklemmt auf den Screening, IMMER, und diese Bestellung ist der ganze Vertrag: eine gemessene Anforderung breiter als die Anzeige ist eine Aussage, dass dieses Modul nicht ganz hier angezeigt werden kann, nicht die Erlaubnis, ein Fenster von der Kante zu öffnen. Der Benutzer kann noch scrollen; ein Fenster, das sie nicht erreichen die Ecke der Größe zu ändern ist eine schlechtere Antwort.",
+      "translation_source_blocks_sha256": [
+        "5d5e6cef400bf88105678fc9388750c3c0022c5d74aeed0c5a70eeebacc5a7b3",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "5b5f175f525959ab4709565910b4fbd05ac6bc2dc7c14d732eb0a2f0e973472b"
+      ]
+    },
+    "spacr.qt.layout_policy.why": {
+      "source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
+      ],
+      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
+      "text": "Ein Satz, der die Beweise nennt, für eine Logzeile oder einen Hinweis.\n\nEine Empfehlung, die ein Benutzer nicht verfolgen kann, ist eine, mit der er nicht argumentieren kann, und die gesamte Historie dieses Artikels ist eine Layoutentscheidung, die niemand überprüfen konnte.",
+      "translation_source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -109436,6 +109562,74 @@
         "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.TourPilot": {
+      "source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
+        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ],
+      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
+      "text": "Richtet eine Lenkkamera auf die 20 Regionen, Frame für Frame.\n\nDie Tour wurde gebaut und nichts nannte sie. :class:`RegionTour` und :data:`spacr.qt.widgets.fractal_regions.REGIONS` wurden mit Tests und ohne Anrufer ausgeliefert, so dass die Koordinaten, die es wert waren, waren nie auf Anwendungsansicht. Dies ist der Draht, und es ist ein einfaches Objekt mit Absicht -- der gleiche Grund :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` ist ein. Die GPU Leinwand benötigt einen GL-Kontext zu existieren, und jede Behauptung darüber, wie diese Bewegungen sonst aus einer Simulation neben dem Code geschrieben anstatt aus dem Code, der läuft.\n\nEs setzt das Ziel und nichts anderes. Die Kamera selbst exponentiell folgen ist, was es bewegt, so der glatte Schritt der Tour zwischen den Regionen und der Kamera Ansatz zu, wo immer das Ziel derzeit in einer Bewegung komponieren ohne Start und ohne Stop -- das ist die ganze Unterweisung 327s \"gut und glatt mähend zwischen den Punkten\".\n\n:param tour: die Reise zum Fliegen oder None für die engagierten Regionen.\nFliegen Sie `tour`, oder die zugesagten Regionen, wenn keine gegeben wird.",
+      "translation_source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "a0c54b8bd2d2d19cdce3e8c52760d0b95d97e24437a06dcd2272e0a775b09b0a",
+        "fd0cfcf4a87c74f7742eb68e4c46a395dc36ad58d247cffa9c2cbc32979e493b",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
+      "source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ],
+      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
+      "text": "Der Benutzer nahm die Kamera. Die Tour streitet sich nicht.",
+      "translation_source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "Ob die Tour noch lenkbar ist.",
+      "translation_source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
+      "source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ],
+      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
+      "text": "Strg+R schickte den Tauchgang zurück an die Oberfläche; wieder fliegen.",
+      "translation_source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
+      "source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
+      ],
+      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
+      "text": "Zielt auf `camera` wo immer die Tour ist bei `seconds`.\n\n:param camera: a :class:`SteeringCamera`; nur sein ``target`` wird geschrieben.\n:param seconds: die Simulationsuhr.\n:param span: Die Tour ist eine SURFACE Reiseroute - jede Region trägt die halbe Breite, auf die sie interessant bleibt - also wenn die Sicht schmaler ist als die Region, in der sie angekommen ist, würde man das Bild in einer Skala vorbeifliegen, wo nichts erkennbar ist. Darunter hält die Kamera, was sie hat.\n:returns: True wenn ein Ziel geschrieben wurde.\n\nNie wirft: Das liegt auf dem Rahmenpfad einer Kulisse, und eine Tour, die nicht antworten kann, muss eher die Entscheidung eines Rahmens als das Bild kosten.",
+      "translation_source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "c06bcab5ad7b25a60fe7f661daa5fda0c4d6956b733af6ac4c03c57176a27aa7",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "1201fa29f457b5313f97f16c703bd053f41f7adfa134be365981149eed019796"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
       "source_blocks_sha256": [
         "57266aaec57809133a509a1a8184a3714b268998db9fec87455272cd74548d47",
@@ -109644,48 +109838,6 @@
         "a318c91b836ecaaab9fd39ddc43cf6b101c7fd5c5ec5ce3366e447f61c9fa24b",
         "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
         "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_leg_seconds": {
-      "source_blocks_sha256": [
-        "8176d688975c709c8b414df64f59d0c355d7634fb078a2edb48b42facb0c5b2e",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ],
-      "source_sha256": "c4c8dd84d17b70a881d08a5d7968ae35fd42579264c14eb450ca8ad6da823d3b",
-      "text": "Dwell und reisen, so dass ein Teil der Tour ist ein Tauchgang.\n\n:param seconds_per_decade: wie lange der Abstieg pro Jahrzehnt verbringt.\n:param max_depth: Jahrzehnte bevor der Tauchgang an der Oberfläche wieder anfängt.\n:param travel: Sekunden, um sich zwischen zwei Regionen zu bewegen.\n:returns: ``(dwell, travel)`` für :class:`RegionTour`.\n\nDie Bewegung muss in der Nähe der Oberfläche geschehen. Dreißig Jahrzehnte nach unten ist die Ansicht schmaler als die Lücke zwischen zwei Regionen um dreißig Größenordnungen, so Reisen, dass die Lücke gibt es einen weißen Blitz statt ein Float - und die ganze Bitte war, dass es nicht als Sprung zu lesen. Sizing die Verweilen als \"der Tauchgang, weniger die Bewegung\" setzt die Bewegung beim Neustart, wo ein seitlicher Schritt ist ein Flug über den Satz.\n\nBeide sind über Null gestockt, so dass eine Einstellungsdatei, die nach einem Tauchgang fragt, der kürzer ist als der Zug, immer noch eine Tour produziert, die sich bewegt.",
-      "translation_source_blocks_sha256": [
-        "81edb313b9834f50afd29ed97861c91d3e6a3b2512aee61add2f53e0f5e9206b",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_offset": {
-      "source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "8fe3c89c2817876bfc920c6e6a29400dad2fee103d4dd48c18dabcaf9e9e57be"
-      ],
-      "source_sha256": "9f6685beaf9f869c4276edf8707f9771458d8a421669e8de2458d84e6d283284",
-      "text": "Das Ziel der Tour, als Offset aus dem Zentrum der Referenzbahn.\n\n:param tour: die Führung der Kamera.\n:param seconds: Sekunden seit Beginn der Tour.\n:param orbit_centre: ``(re, im)`` der Referenzbahn.\n:returns: ``(offset_re, offset_im)``, oder ``None`` wenn die Tour nicht lenkbar ist -- also verlässt ein Anrufer die Kamera, wo der Benutzer sie platziert hat, anstatt eine Koordinaten zu übergeben, die er ignorieren muss.\n\nDie Referenz-Orbit wird auf die Grenze bewegt, während der Tauchgang absteigt und der Offset der Kamera auf Null zurückgesetzt wird, wenn er landet; eine Tour, die sich an ihren eigenen Offset erinnert, würde jedes Mal aus der Region geworfen werden, wenn es passiert.",
-      "translation_source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "701d733fca4b56df17477e4561fa4224d72870f590630041e6cf4e687c930f5f"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {

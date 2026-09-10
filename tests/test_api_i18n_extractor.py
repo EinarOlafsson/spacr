@@ -932,7 +932,26 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #          over all nine, which is what 288's batching rule now
     #          requires: two of these symbols appeared mid-rebuild earlier
     #          the same night and turned a green audit red.
-    expected = 10_296
+    #          10,296 -> 10,306 (2026-09-10, on merging origin/nightly).
+    #          +12/-2, and the two sessions moved it in opposite directions
+    #          at once:
+    #            5  `spacr.qt.layout_policy` -- 359's generated breakpoint
+    #               policy: read_policy, minimum_width_for,
+    #               recommended_window_size, why, and the module.
+    #            4  `spacr.qt.widgets.fractal_travel.TourPilot` with steer,
+    #               dragged, restarted and flying -- 327(3)'s wire.
+    #            2  `spacr.qt.app.the_missing_pip_escape` and
+    #               `.open_at_the_measured_width`, from 01 and 359.
+    #           -2  `fractal_travel.tour_leg_seconds` and `.tour_offset`,
+    #               removed: a SECOND wiring of 327(3) written here
+    #               overnight without seeing that TourPilot had shipped the
+    #               evening before. One implementation, not two.
+    #          THE REMOVAL IS THE PART WORTH NOTICING. This count normally
+    #          only rises, and a fall means a public name went away -- which
+    #          is a translation nine locales had already paid for. Cheap
+    #          here because they were hours old; it would not be if they had
+    #          shipped.
+    expected = 10_306
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -950,7 +969,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_296
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_306
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1044,13 +1063,19 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # together and the boundary is unmoved. None of the four new modules is
     # generated, none is a per-language catalog, and none is a bridge --
     # so nothing about them belongs in the 213.
+    # 10,509 -> 10,519 on merging origin/nightly, +12/-2, and re-measured
+    # the same way: pre-filter 10,519, post-filter 10,306, boundary 213, and
+    # every bucket reporting its printed count. Both sides' symbols are
+    # rendered, so both totals move together and the boundary is unmoved --
+    # including the two that were REMOVED, which is the same argument in the
+    # direction this comment had not needed before.
     # 10,492 -> 10,509 with the seventeen of 2026-09-10, and RE-MEASURED
     # rather than inferred, because picking the number that makes the
     # assertion pass is not a measurement. Run with the filter neutralised:
     # pre-filter 10,509, post-filter 10,296, boundary 213 -- and every
     # bucket below still reports the count printed beside it, which is the
     # part that says nothing crossed.
-    assert 10_509 - len(docs) == 213
+    assert 10_519 - len(docs) == 213
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

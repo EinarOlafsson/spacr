@@ -35141,6 +35141,18 @@
       "source_sha256": "445bb10784569128e6ae512bc662d8a45dbb44a7168a38bd4f3854d691f699f6",
       "text": "Build the Home page exactly as the running app builds it.\n\nThe grouping, the stages, the notes and the icon provider are four\narguments that have to agree, and a test that assembles its own\nHomePage is testing a page that does not ship — which is the exact\nclass of bug #16i was: Home grouped by one table and the tabs by\nanother. One constructor call, used by :class:`MainWindow` and by\nthe suite."
     },
+    "spacr.qt.app.open_at_the_measured_width": {
+      "source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
+        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
+        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
+      ],
+      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
+      "text": "Widen a fresh window to what the modules were measured to need.\n\n:returns: True when the window was resized.\n\nINSTRUCTION 359: \"every module must initially open wide enough that\nthe right side of its settings is not cut off\". The width comes from\n`spacr.qt.layout_policy`, which reads a GENERATED artifact -- every\nnumber in it measured by building each module offscreen and asking\nwhether its settings column is holding more than it can show.\n\nIT ONLY EVER GROWS, and that is deliberate rather than cautious. The\ncomment above `win.show()` records why this window does not maximise:\nover X11 forwarding, VNC or a virtual framebuffer the \"available\ngeometry\" is whatever the remote session claims, and it is frequently\na stub. A policy allowed to shrink would take that claim seriously and\nopen a window smaller than the one the user has been getting for a\nyear. Growing on a bad number is bounded by the clamp; shrinking on\none is not bounded by anything.\n\nWITHOUT THE ARTIFACT NOTHING HAPPENS. `layout_policy` falls back to\n1200 px -- the width the text-fit sweep builds every screen at -- and\nthis window already opens at 1200, so a wheel that does not carry the\nfile behaves exactly as it did.\n\nNever raises. An opening size is not worth failing a launch over."
+    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -35202,6 +35214,18 @@
       ],
       "source_sha256": "357c82920205bd6ca003ec9b4be48ff7d5ff1287da8f8c7357a94d8d457f68ed",
       "text": "The ``APPS`` rows a category's tab shows, in registry order.\n\nTILELESS APPS ARE NOT MEMBERS. This is what the tab DRAWS and what\nits label COUNTS, so a module with no tile must be out of both --\notherwise the label reads \"Results & QC (7)\" over three tiles, which\nis a count of something the user cannot see.\n\nAn explicit ``apps`` list is filtered too. A caller passing its own\nrows is asking \"which of these belong to this section\", and a\ntileless one does not belong to any tab whichever list it arrives in."
+    },
+    "spacr.qt.app.the_missing_pip_escape": {
+      "source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
+        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
+      ],
+      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
+      "text": "The command that WOULD work, when the upgrade failed for want of pip.\n\n:param output: everything the upgrade wrote, as the worker captured it.\n:returns: a command line to show the user, or None when this failure\n    was not the missing-pip one.\n\nTHE ONE FAILURE THE APPLICATION CAN ANSWER, and instruction 01 asks it\nto. The desktop installers build their environment with ``uv venv``,\nwhich does not seed pip, so an install whose updater still runs\n``python -m pip`` fails before it starts -- and it is a BOOTSTRAP TRAP:\nthe fix cannot arrive by the route it fixes. A dialog that names the\nexact command is the only escape that reaches a user who has already\nhit it.\n\nEvery other exit code gets the output and nothing else. Guessing at a\nremedy for a failure this cannot recognise would send a user to run a\ncommand that is not their problem.\n\nDerived the way :func:`spacr.updater.find_uv` derives it, and it falls\nback to the path the installers WRITE rather than returning nothing:\non the affected machine `find_uv` is what the installed build is too\nold to have, so a name the user can check is worth more than silence."
     },
     "spacr.qt.app.tile_sort_key": {
       "source_blocks_sha256": [
@@ -40029,6 +40053,59 @@
       ],
       "source_sha256": "3666c51598cff42889538f84b340a42b55c55f330bd435acf0305c5f602b0082",
       "text": "Build a stack from an image file and/or a label-mask file.\n\nLoading goes through\n:func:`spacr.qt.widgets.live_preview.load_preview_image`, which already\nknows to read TIFFs with ``tifffile`` so a 16-bit field keeps its bit\ndepth, and channel order through\n:func:`spacr.qt.widgets.timelapse_preview.frame_channel`, which resolves\nchannels-first against channels-last the same way the timelapse preview\ndoes. Neither is re-implemented here.\n\n:param spacing: the world spacing both layers share. Defaults to one\n    world unit per pixel — correct for a single field, and the thing to\n    override the moment a z-stack or a µm-calibrated mosaic is involved."
+    },
+    "spacr.qt.layout_policy": {
+      "source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
+        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
+        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
+      ],
+      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
+      "text": "The measured window width a module needs, and what to open on first run.\n\nINSTRUCTION 359. The report was that \"every module must initially open wide\nenough that the right side of its settings is not cut off\", and that the\nsame pixel dimensions can describe three different machines -- so a static\n``resolution -> font size`` table would choose wrongly on exactly the M4 Mac\nthat prompted it.\n\nWHAT THIS MODULE IS. The reader of a GENERATED artifact,\n``spacr/resources/layout_policy.json``, produced by\n``tools/measure_the_layout_matrix.py``. Every number in it was measured by\nbuilding each module offscreen in a container that cannot grow and reading\nwhat was clipped -- the same rule instruction 350's sweep asserts, not a\nsecond opinion about it.\n\nWHAT IT IS NOT. Not telemetry, and 359 says so explicitly: \"capture\" means\nreading Qt screen metrics into local preferences, not sending hardware\ndetails anywhere. Nothing here leaves the machine.\n\nIT IMPORTS NOTHING HEAVY, which the item requires of the artifact's\nloader: ``json`` and ``importlib.resources``, no Qt, no numpy. The Qt\nmetrics arrive as ARGUMENTS, so the policy can be read and tested on a\nmachine with no display at all."
+    },
+    "spacr.qt.layout_policy.minimum_width_for": {
+      "source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
+        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
+      ],
+      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
+      "text": "The widest measured requirement at ``font_scale``.\n\n:param font_scale: the preference, 1.0 being 100 %.\n:param policy: an artifact to read instead of the bundled one.\n:returns: logical pixels, or None when nothing was measured.\n\nTHE WORST CASE ACROSS MODULES, NOT THE MEDIAN. A window opens once and\nevery module is reached from inside it, so a width that suits most of\nthem still cuts off the widest one -- which is the report.\n\nBETWEEN TWO MEASURED SCALES IT TAKES THE HIGHER, because the artifact\nmeasures a ladder and the requirement rises with the scale. Rounding\ntoward the smaller one would open a window that fits the scale below\nthe user's."
+    },
+    "spacr.qt.layout_policy.read_policy": {
+      "source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
+        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
+      ],
+      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
+      "text": "The bundled policy, or ``{}``.\n\n:param refresh: re-read the file instead of answering from the cache.\n:returns: the artifact as a dict, or an empty one on ANY failure.\n\nDegrades to empty rather than raising, for the reason the release-notes\npanel does: an application must not fail to open a window because a\nresource file is absent from a wheel."
+    },
+    "spacr.qt.layout_policy.recommended_window_size": {
+      "source_blocks_sha256": [
+        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
+      ],
+      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
+      "text": "What to open the main window at, given what the screen has.\n\n:param available: the screen's AVAILABLE geometry as ``(w, h)`` --\n    available, not total, because a dock or a menu bar owns the\n    difference and a window sized to the total opens partly underneath\n    one.\n:param font_scale: the font-scale preference in force.\n:param policy: an artifact to read instead of the bundled one.\n:returns: ``(width, height)`` in logical pixels.\n\nCLAMPED TO THE SCREEN, ALWAYS, and that ordering is the whole contract:\na measured requirement wider than the display is a statement that this\nmodule cannot be shown whole here, not permission to open a window\noff the edge of it. The user can still scroll; a window they cannot\nreach the corner of to resize is a worse answer."
+    },
+    "spacr.qt.layout_policy.why": {
+      "source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
+      ],
+      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
+      "text": "One sentence naming the evidence, for a log line or a hint.\n\nA recommendation a user cannot trace is one they cannot argue with,\nand this item's whole history is a layout decision nobody could check."
     },
     "spacr.qt.linked_selection": {
       "source_blocks_sha256": [
@@ -69005,6 +69082,50 @@
       "source_sha256": "5e2394d417ec24ba6274f2045e18548062f6957309b5ada3517f953a30473764",
       "text": "A copy with every field inside the range the renderers accept.\n\nClamped rather than refused: this is a backdrop, and a preferences\nfile with a silly number in it must not stop the application from\ndrawing one."
     },
+    "spacr.qt.widgets.fractal_travel.TourPilot": {
+      "source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
+        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ],
+      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
+      "text": "Points a steering camera at the twenty regions, frame by frame.\n\nTHE TOUR WAS BUILT AND NOTHING CALLED IT. :class:`RegionTour` and\n:data:`spacr.qt.widgets.fractal_regions.REGIONS` shipped with tests and\nno caller, so the coordinates worth looking at were never on screen.\nThis is the wire, and it is a PLAIN OBJECT ON PURPOSE -- the same\nreason :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` is\none. The GPU canvas needs a GL context to exist, and every claim about\nhow this moves would otherwise come from a simulation written beside\nthe code rather than from the code that runs.\n\nIT SETS THE TARGET AND NOTHING ELSE. The camera's own exponential\nfollow is what moves it, so the tour's smoothstep between regions and\nthe camera's approach to wherever the target currently is compose into\none motion with no start and no stop -- which is the whole of\ninstruction 327's \"gently and smoothely mooving between points\".\n\n:param tour: the tour to fly, or None for the committed regions.\nFly `tour`, or the committed regions when none is given."
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
+      "source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ],
+      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
+      "text": "The user took the camera. The tour does not argue."
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "Whether the tour is still steering."
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
+      "source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ],
+      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
+      "text": "Ctrl+R sent the dive back to the surface; fly again."
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
+      "source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
+      ],
+      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
+      "text": "Aim `camera` at wherever the tour is at `seconds`.\n\n:param camera: a :class:`SteeringCamera`; only its ``target`` is\n    written.\n:param seconds: the simulation clock.\n:param span: the viewport half-height, in the complex plane. The\n    tour is a SURFACE itinerary -- every region carries the\n    half-width it stays interesting down to -- so once the view is\n    narrower than the region it arrived at, steering off toward\n    the next one would fly the picture past at a scale where\n    nothing is recognisable. Below that the camera keeps what it\n    has.\n:returns: True when a target was written.\n\nNever raises: this is on the frame path of a backdrop, and a tour\nthat cannot answer must cost a frame's decision rather than the\npicture."
+    },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
       "source_blocks_sha256": [
         "57266aaec57809133a509a1a8184a3714b268998db9fec87455272cd74548d47",
@@ -69139,31 +69260,6 @@
       ],
       "source_sha256": "52c504d59ce724b68c938a30633b571a2c96d821e9d6107699549bd25dbde826",
       "text": "How many pixels to shade for a widget of this size.\n\nLIFTED OUT OF THE CANVAS so it can be measured. The backdrop asks\nwhich of four candidates makes fullscreen choppy while the backdrop\nis smooth, and says to answer with numbers before writing a fix --\nwhich is not possible while the arithmetic only exists inside a\nnested method on a class that needs a GL context.\n\nThe rule itself is unchanged: shade ``render_scale`` squared of the\nwidget's own physical pixels, never more than the widget has and\nnever fewer than 180,000, keeping the aspect ratio and an even\nwidth and height.\n\n:returns: ``(width, height)`` in physical pixels."
-    },
-    "spacr.qt.widgets.fractal_travel.tour_leg_seconds": {
-      "source_blocks_sha256": [
-        "8176d688975c709c8b414df64f59d0c355d7634fb078a2edb48b42facb0c5b2e",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ],
-      "source_sha256": "c4c8dd84d17b70a881d08a5d7968ae35fd42579264c14eb450ca8ad6da823d3b",
-      "text": "Dwell and travel so that ONE LEG OF THE TOUR IS ONE DIVE.\n\n:param seconds_per_decade: how long the descent spends per decade.\n:param max_depth: decades before the dive restarts at the surface.\n:param travel: seconds to spend moving between two regions.\n:returns: ``(dwell, travel)`` for :class:`RegionTour`.\n\nThe move has to happen near the surface. Thirty decades down the view\nis narrower than the gap between two regions by thirty orders of\nmagnitude, so travelling that gap there is a white flash rather than a\nfloat -- and the whole request was that it not read as a jump. Sizing\nthe dwell as \"the dive, less the move\" puts the move at the restart,\nwhere a lateral step is a flight across the set.\n\nBoth are floored above zero, so a settings file that asks for a dive\nshorter than the move still produces a tour that moves."
-    },
-    "spacr.qt.widgets.fractal_travel.tour_offset": {
-      "source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "8fe3c89c2817876bfc920c6e6a29400dad2fee103d4dd48c18dabcaf9e9e57be"
-      ],
-      "source_sha256": "9f6685beaf9f869c4276edf8707f9771458d8a421669e8de2458d84e6d283284",
-      "text": "The tour's target, as an offset from the reference orbit's centre.\n\n:param tour: the tour steering the camera.\n:param seconds: seconds since the tour started.\n:param orbit_centre: ``(re, im)`` of the reference orbit.\n:returns: ``(offset_re, offset_im)``, or ``None`` when the tour is not\n    steering -- so a caller leaves the camera where the user put it\n    rather than being handed a coordinate it has to ignore.\n\nRECOMPUTED FROM THE ORBIT, never integrated. The reference orbit is\nmoved onto the boundary as the dive descends and the camera's offset\nis reset to zero when it lands; a tour that remembered its own offset\nwould be thrown off the region every time that happened. Asking where\nthe region is relative to wherever the reference is NOW is immune to\nit."
     },
     "spacr.qt.widgets.gate_canvas": {
       "source_blocks_sha256": [

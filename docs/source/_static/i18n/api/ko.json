@@ -57020,6 +57020,26 @@
         "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23"
       ]
     },
+    "spacr.qt.app.open_at_the_measured_width": {
+      "source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
+        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
+        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
+      ],
+      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
+      "text": "모듈이 필요한 것에 신선한 창을 확장하십시오.\n\n:returns: True 창이 재구성되었을 때\n\n지침 359: \"모든 모듈은 처음에는 설정의 오른쪽 측면이 절단되지 않도록 충분히 넓게 열어야합니다.\"폭은 `spacr.qt.layout_policy`에서 나옵니다.이 숫자는 각 모듈의 오프 스크린을 구축하여 측정되며 설정 열이 표시할 수있는 것보다 더 많이 붙어 있는지 물어보십시오.\n\n위의 코멘트 `win.show()`는이 창이 최대화되지 않는 이유를 기록합니다 : X11 전송, VNC 또는 가상 프레임 보너스 \"available geometry\"는 원격 세션이 주장하는 무엇이든, 그리고 그것은 종종 꼬리입니다. 절단 할 수있는 정책은 그 주장을 심각하게 취하고 사용자가 1 년 동안 얻은 것보다 작은 창을 열 것입니다.\n\n`layout_policy`은 1200 px로 돌아갑니다 - 텍스트에 맞는 스프레이의 폭은 각 응용 프로그램 시각을 구축합니다 - 그리고이 창은 이미 1200에서 열립니다, 그래서 파일을 운반하지 않는 바퀴가 정확히 그랬던 것처럼 행동합니다.\n\n절대 던지지 마십시오.개방 크기는 발사 실패 가치가 없습니다.",
+      "translation_source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "ab452d9958b7b0be8c607ac3462bb2e5cc3297391ec42616f5f8ec96efd3aca0",
+        "4319b5fa4215fac451983af05a97ff1717786e5c95810ad6313b4924909bb8f4",
+        "827774a19140ce4a6c7efbb88bc64f3012844b82a7021bd835a46728747ade94"
+      ]
+    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -57122,6 +57142,26 @@
         "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
         "4b67ff0258ffafcb4c1932f082e553d500fe768c1dddc6d9d4bf8b4e15b1ec52",
         "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
+      ]
+    },
+    "spacr.qt.app.the_missing_pip_escape": {
+      "source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
+        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
+      ],
+      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
+      "text": "WOULD가 작동하는 명령, 업그레이드가 파이프를 원할 때 실패했습니다.\n\n:param output: 업그레이드가 쓴 모든 것, 노동자가 그것을 잡았을 때.\n:returns: 사용자를 표시하는 명령 라인, 또는 None 이 실패가 실종된 피프 하나가 아니었을 때.\n\n하나의 실패는 응용 프로그램이 응답 할 수 있고, 지침 01은 그것을 요청합니다. 데스크톱 설치자는 ``uv venv``로 그들의 환경을 구축하지 않습니다, 그래서 업데이트가 여전히 ``python -m pip`` 실패하기 전에 실행하는 설치 - 그리고 그것은 bootstrap 함정입니다 : 수정은 그것이 정리하는 경로에 도달 할 수 없습니다. 정확한 명령을 지정하는 대화는 이미 그것을 히트 한 사용자에게 도달하는 유일한 탈출입니다.\n\n다른 모든 출력 코드는 출력을 얻고 다른 아무것도 없습니다.이 실패에 대한 해결책을 찾는 것은 사용자가 그들의 문제가 아닌 명령을 실행하도록 보낼 수 없습니다.\n\n추출 방법 :func:`spacr.updater.find_uv` 그것을 추출하고, 그것은 아무것도 반환하는 대신 설치자 WRITE의 경로로 돌아갑니다 : 영향을받는 기계 `find_uv`에 설치 된 건물이 너무 오래되므로 사용자가 확인할 수있는 이름은 침묵보다 더 가치가있다.",
+      "translation_source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "fc8dc15f427246d1d9c5b86c338320884cf6c62b25b971894f667b253a7f4fae",
+        "a2ccc11891aaa33a743f0be0e159ab9d6bc63b9a1ca011fb83d12b9906064923",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
       ]
     },
     "spacr.qt.app.tile_sort_key": {
@@ -64608,6 +64648,92 @@
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
         "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
+      ]
+    },
+    "spacr.qt.layout_policy": {
+      "source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
+        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
+        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
+      ],
+      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
+      "text": "측정 된 창의 폭은 모듈이 필요하며, 첫 번째 실행에서 무엇을 열어야합니까?\n\n보고서는 \"모든 모듈은 처음에는 설정의 오른쪽 측면이 절단되지 않도록 충분히 넓게 열어야한다\"며 동일한 픽셀 크기가 세 개의 다른 기계를 설명 할 수 있다는 것이었다 - 그래서 정적 ``resolution -> font size`` 테이블은 정확히 M4 Mac에서 그것을 촉진하는 것을 잘못 선택할 것입니다.\n\n이 모듈은 무엇입니까. ``spacr/resources/layout_policy.json``에 의해 생성 된 유형의 독자, ``tools/measure_the_layout_matrix.py``. 그 안에있는 각 숫자는 각 모듈을 성장할 수없는 컨테이너에 오프 스크린을 구축하여 측정되었으며 녹음 된 것을 읽을 수있었습니다. - 같은 규칙 지침 350의 주장, 그것에 대한 두 번째 의견이 아닙니다.\n\n텔레메트리가 아니며, 359은 이렇게 명확하게 말한다: \"capture\"는 Qt 애플리케이션 보기 메트릭을 지역 선호도로 읽고, 하드웨어 세부 사항을 어디서나 보내지 않는다는 것을 의미합니다.\n\n그것은 무거운 아무것도 수입하지 않으며, 항목이 아티팩트의 충전기를 필요로합니다 : ``json`` 및 ``importlib.resources``, Qt, numpy. Qt 메트릭은 ARGUMENTS로 제공되므로 정책은 전혀 디스플레이가 없는 기계에서 읽고 테스트할 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "74834f62d2528dfa207c2257dde36ad2c9dce65c3e5df80fee0514e3099d5192",
+        "fc9ae75949d8e14f1704c45ba53486ede15b2ac0518f1ef0bdd3b41723c55fbd",
+        "74b221edbcd574f0e809e1c454a658b96bb4d5e5cbda3b29db747d1e4fcd7300"
+      ]
+    },
+    "spacr.qt.layout_policy.minimum_width_for": {
+      "source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
+        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
+      ],
+      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
+      "text": "가장 광범위한 측정 요구 사항은 ``font_scale``입니다.\n\n:param font_scale: 선호도는 1.0이 100 %입니다.\n:param policy: 책을 읽는 대신 묶여있는 하나입니다.\n:returns: 논리적 픽셀, 또는 None 아무것도 측정되지 않았을 때.\n\n한 번 창이 열리고 각 모듈은 그 안에서 도달되므로 대부분의 모듈에 맞는 폭은 여전히 가장 넓은 하나를 줄입니다 - 그것은 보고서입니다.\n\n두 개의 측정 된 스케일 사이에 그것은 더 높은, 왜냐하면 아티파크트는 계단을 측정하고 요구 사항은 규모와 함께 증가합니다.",
+      "translation_source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "e04974a8721ab4069fad30368e7788152af93b5f3197d3f02611d365743eede1",
+        "f48501b0657e2c96842bee6afcba9e285160f14fff368864979bb291af293b78"
+      ]
+    },
+    "spacr.qt.layout_policy.read_policy": {
+      "source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
+        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
+      ],
+      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
+      "text": "묶여있는 정책, 또는 ``{}``.\n\n:param refresh: 파일을 다시 읽는 대신 캐시에서 응답합니다.\n:returns: 아티팩트는 키 가치 맵링, 또는 어떤 실패에 빈 하나로.\n\n던지기보다는 텅 비어있는 단계, 해방 노트 패널이하는 이유 : 응용 프로그램이 창을 열지 않아야하기 때문에 자원 파일이 바퀴에서 부족하기 때문입니다.",
+      "translation_source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ed48adc532056133b17bdd3e9164a1a3cd2fe1fffaef56a18fca37b389704469",
+        "e6a0f107131a9c60dc9597ab3a4275ea8a38a7598748fde3072b6c9baeae9ba0"
+      ]
+    },
+    "spacr.qt.layout_policy.recommended_window_size": {
+      "source_blocks_sha256": [
+        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
+      ],
+      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
+      "text": "응용 프로그램 전망이 무엇인지에 따라 주요 창을 열어야합니다.\n\n:param available: 디스플레이의 AVAILABLE 지질은 ``(w, h)``으로 제공되며, 전체가 아닙니다, 왜냐하면 도크 또는 메뉴 바가 차이를 소유하고 전체 크기의 창이 하나 아래에 부분적으로 열리기 때문입니다.\n:param font_scale: 유효한 글꼴 스케일을 선호합니다.\n:param policy: 책을 읽는 대신 묶여있는 하나입니다.\n:returns: ``(width, height)`` 논리적 픽셀에서\n\n화면에 붙어, 언제나, 그리고 그 주문은 전체 계약입니다 : 화면보다 넓은 측정 요구 사항은이 모듈이 여기 전체를 표시 할 수 없다는 진술, 그것의 가장자리에서 창을 열 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "5d5e6cef400bf88105678fc9388750c3c0022c5d74aeed0c5a70eeebacc5a7b3",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "5b5f175f525959ab4709565910b4fbd05ac6bc2dc7c14d732eb0a2f0e973472b"
+      ]
+    },
+    "spacr.qt.layout_policy.why": {
+      "source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
+      ],
+      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
+      "text": "증거를 이름으로 한 문장, 기록 라인 또는 힌트.\n\n사용자가 추적 할 수없는 권장 사항은 그들이 논쟁 할 수 없으며,이 항목의 전체 역사는 아무도 확인 할 수있는 배치 결정입니다.",
+      "translation_source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -109436,6 +109562,74 @@
         "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.TourPilot": {
+      "source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
+        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ],
+      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
+      "text": "20개 지역에 있는 컨트롤 카메라를 포인트, 프레임에 따라.\n\n투어가 건설되었고 아무것도 그것을 부르지 않았습니다. :class:`RegionTour` 및 :data:`spacr.qt.widgets.fractal_regions.REGIONS` 테스트와 호출이 없어서 볼 가치가있는 좌표는 응용 프로그램 보기에서 결코 없었습니다. 이것은 와이어이며, 목적에 대한 평평한 개체입니다. 같은 이유 :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera`는 하나입니다. GPU 캔버스는 GL 맥락을 필요로하고, 이러한 움직임에 대한 모든 주장은 코드 옆에 쓰여진 시뮬레이션에서 오는 것이 아니라 실행되는 코드에서 오는 것입니다.\n\n카메라 자체의 추적은 그것을 움직이는 것입니다, 그래서 투어의 부드러운 단계는 지역 사이와 카메라는 현재 목표가 시작과 멈추지 않은 하나의 운동으로 구성되어있는 곳에 접근하는 것입니다 - 이것은 327의 지침의 전체입니다.\n\n:param tour: 비행 투어, 또는 None 약속 지역에 대 한.\n비행 `tour`, 또는 아무것도 주어지지 않을 때 약속 지역.",
+      "translation_source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "a0c54b8bd2d2d19cdce3e8c52760d0b95d97e24437a06dcd2272e0a775b09b0a",
+        "fd0cfcf4a87c74f7742eb68e4c46a395dc36ad58d247cffa9c2cbc32979e493b",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
+      "source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ],
+      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
+      "text": "사용자는 카메라를 잡았습니다.이 투어는 논쟁하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "여전히 투어가 진행되고 있는지 여부.",
+      "translation_source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
+      "source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ],
+      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
+      "text": "Ctrl+R는 탐색기를 다시 표면으로 보냅니다; 다시 날아갑니다.",
+      "translation_source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
+      "source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
+      ],
+      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
+      "text": "Aim `camera` 어디서나 투어는 `seconds`에 있습니다.\n\n:param camera: :class:`SteeringCamera`; 그것의 ``target``만 쓴다.\n:param seconds: 시뮬레이션 시계\n:param span: 투어는 SURFACE 라인입니다 - 각 지역은 그것이 흥미롭게 남아있는 반 폭을 가져옵니다 - 그래서 한 번에 전망은 그것에 도착 한 지역보다 좁은, 다음 방향으로 이동하면 아무것도 인식 할 수없는 규모로 사진을 통과 할 것입니다.\n:returns: True 목표가 작성되었을 때\n\n절대 던지지 마십시오 : 이것은 배경의 프레임 경로에 있으며, 응답 할 수없는 투어는 그림 대신 프레미의 결정에 비용이 들어야합니다.",
+      "translation_source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "c06bcab5ad7b25a60fe7f661daa5fda0c4d6956b733af6ac4c03c57176a27aa7",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "1201fa29f457b5313f97f16c703bd053f41f7adfa134be365981149eed019796"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
       "source_blocks_sha256": [
         "57266aaec57809133a509a1a8184a3714b268998db9fec87455272cd74548d47",
@@ -109644,48 +109838,6 @@
         "a318c91b836ecaaab9fd39ddc43cf6b101c7fd5c5ec5ce3366e447f61c9fa24b",
         "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
         "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_leg_seconds": {
-      "source_blocks_sha256": [
-        "8176d688975c709c8b414df64f59d0c355d7634fb078a2edb48b42facb0c5b2e",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ],
-      "source_sha256": "c4c8dd84d17b70a881d08a5d7968ae35fd42579264c14eb450ca8ad6da823d3b",
-      "text": "Dwell 및 여행 그래서 투어의 한 다리가 하나의 굴입니다.\n\n:param seconds_per_decade: 수십 년에 얼마나 걸리나요?\n:param max_depth: 수십 년 전, 굴곡이 표면에서 다시 시작되었습니다.\n:param travel: 두 지역 사이의 이동을 위해 시간을 보낼 수 있습니다.\n:returns: ``(dwell, travel)``에 대 한 :class:`RegionTour`.\n\n움직임은 표면 근처에서 이루어져야합니다. 30 년 아래의 전망은 두 지역 사이의 거리보다 좁은 크기의 30 명의 명령에 의해, 그래서 그 거리를 여행 하 여 화이트 플래시 대신 흐름 - 그리고 전체 요구는 그것은 점프로 읽을 수 없었다.\n\n둘 다 0 위에 꽃이 피고 있으므로 움직임보다 더 짧은 잠수함을 요구하는 설정 파일은 여전히 이동하는 투어를 생성합니다.",
-      "translation_source_blocks_sha256": [
-        "81edb313b9834f50afd29ed97861c91d3e6a3b2512aee61add2f53e0f5e9206b",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_offset": {
-      "source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "8fe3c89c2817876bfc920c6e6a29400dad2fee103d4dd48c18dabcaf9e9e57be"
-      ],
-      "source_sha256": "9f6685beaf9f869c4276edf8707f9771458d8a421669e8de2458d84e6d283284",
-      "text": "투어의 목표, 참조 궤도의 중심에서 할인으로.\n\n:param tour: 투어는 카메라를 지시합니다.\n:param seconds: 투어가 시작된 지 몇 분이 지났습니다.\n:param orbit_centre: ``(re, im)`` 참조 궤도\n:returns: ``(offset_re, offset_im)``, 또는 ``None`` 투어가 제어되지 않을 때 - 그래서 호출자는 사용자가 그것을 배치하는 카메라를 떠나서 그것을 무시해야하는 일정을 전달하는 대신.\n\n궤도에서 회수, 결코 통합되지 않습니다. 참조 궤도가 다이빙이 내려가면서 경계로 이동하고 카메라의 오프세트가 착륙 할 때 제로로 재설정됩니다; 자신의 오프 세트를 기억하는 투어는 일어날 때마다 지역에서 던져질 것입니다.",
-      "translation_source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "701d733fca4b56df17477e4561fa4224d72870f590630041e6cf4e687c930f5f"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {

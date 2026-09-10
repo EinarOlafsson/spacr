@@ -57020,6 +57020,26 @@
         "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23"
       ]
     },
+    "spacr.qt.app.open_at_the_measured_width": {
+      "source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
+        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
+        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
+      ],
+      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
+      "text": "Breyta nýrri glugga til þess, hvað móðurnir voru mættir til að þurfa.\n\n:returns: True þegar gluggið var endurnýjandi.\n\n359: \"eina mól þarf að opna í upphafi nóg breitt að hægri hlið settar sínar er ekki skortur af.\" Breiði kemur frá `spacr.qt.layout_policy`, sem lesa GENERATED artifact - hvert tölur í henni mætur með því að byggja hvert mól offscreen og spyrja hvort settar kolumn hans er að halda meira en það getur sýnt.\n\nHÚN STÆKKAR AÐEINS, og það er ásetningur fremur en varfærni. Athugasemdin fyrir ofan `win.show()` skráir hvers vegna þessi gluggi er ekki hámarkaður: yfir X11 áframsendingu, VNC eða sýndarrammaminni er \"available geometry\" hvað sem fjarlotan segir, og það er oft staðgengill. Regla sem mætti minnka myndi taka þá fullyrðingu alvarlega og opna glugga minni en þann sem notandinn hefur fengið í heilt ár. Stækkun á slæmri tölu er bundin af klemmunni; minnkun á henni er ekki bundin af neinu.\n\nÁn artifaktu gerist ekkert. `layout_policy` falir aftur til 1200 px - breiddin text-fit svipur byggir hvert umsókn sýningu á - og þetta vetrur opnar þegar á 1200, svo hjól sem ekki búa til faila fer nákvæmlega eins og það gerðist.\n\nAldrei kasta. A opnun stærð er ekki þess virði að missa upplifun.",
+      "translation_source_blocks_sha256": [
+        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
+        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
+        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
+        "ab452d9958b7b0be8c607ac3462bb2e5cc3297391ec42616f5f8ec96efd3aca0",
+        "4319b5fa4215fac451983af05a97ff1717786e5c95810ad6313b4924909bb8f4",
+        "827774a19140ce4a6c7efbb88bc64f3012844b82a7021bd835a46728747ade94"
+      ]
+    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -57122,6 +57142,26 @@
         "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
         "4b67ff0258ffafcb4c1932f082e553d500fe768c1dddc6d9d4bf8b4e15b1ec52",
         "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
+      ]
+    },
+    "spacr.qt.app.the_missing_pip_escape": {
+      "source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
+        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
+      ],
+      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
+      "text": "Orðið sem WOULD virkar, þegar uppfærslu missti fyrir að vilja pip.\n\n:param output: allt uppfærslu skrifaði, eins og starfsmenn tók það.\n:returns: til að sýna notandann, eða None þegar þetta mismunandi var ekki mismunand-pip einn.\n\nEinn mismunandi notkun getur svarað, og leiðbeining 01 spyr það til. Staðsettanir byggja umhverfi sínu með ``uv venv``, sem er ekki sæd pip, þannig að uppsetur sem updater er enn í gangi ``python -m pip`` missar áður en það byrjar - og það er bootstrap trappur: hönnun er ekki hægt að komast á leiðinni sem það fixar.\n\nHver annar útgangskódinn fær útgang og ekkert annað. Að finna leið til að misnotkun þetta getur ekki viðurkennt myndi senda notandi til að fylgjast með komandi sem er ekki vandamálið þeirra.\n\nAfleiðt leið :func:`spacr.updater.find_uv` afleiðir það, og það falir aftur á leiðin að setja WRITE í stað þess að endurheimta ekkert: á áhrifum vél `find_uv` er það sem installað bygging er of gamall til að hafa, þannig að nafn sem notandinn getur skoðað er meira en þögn.",
+      "translation_source_blocks_sha256": [
+        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
+        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
+        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
+        "fc8dc15f427246d1d9c5b86c338320884cf6c62b25b971894f667b253a7f4fae",
+        "a2ccc11891aaa33a743f0be0e159ab9d6bc63b9a1ca011fb83d12b9906064923",
+        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
       ]
     },
     "spacr.qt.app.tile_sort_key": {
@@ -64608,6 +64648,92 @@
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
         "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
+      ]
+    },
+    "spacr.qt.layout_policy": {
+      "source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
+        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
+        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
+      ],
+      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
+      "text": "Miðanlegur vinstri þörf fyrir mól, og hvað á að opna á fyrstu keyrsla.\n\nRannsóknin var að \"eina mól þarf fyrst að opna nóg breidd til að hægri hlið settar sínar er ekki skortur\" og að sömu pixel stærð geta lýst þrjár mismunandi vélir - þannig að statísk ``resolution -> font size`` tól myndi velja rangt á nákvæmlega M4 Mac sem gerði það.\n\nHvað er þetta mól. Lesandinn af GENERATED artifact, ``spacr/resources/layout_policy.json``, framleiðt af ``tools/measure_the_layout_matrix.py``. Hver tölur í það var metnað með því að byggja hvert mól offscreen í container sem getur ekki vaxið og lesið hvað var klippt - sama regla leiðbeining 350's svipur staðfestingar, ekki annað lausn um það.\n\nHvað er það ekki. Ekki telemetrí, og 359 segir svo útskýrt: \"capture\" þýðir að lesa Qt hugbúnaðar sýningum í staðbundnum áætlunum, ekki senda hardver upplýsingar hvar sem er.\n\ner ekkert þungt, sem hluturinn krefst af hleðslutæki artifactsins: ``json`` og ``importlib.resources``, ekki Qt, engin numpy.  Qt mælingar koma sem ARGUMENTS, þannig að stefnan er hægt að lesa og prófa á vél með engum skjá yfirleitt.",
+      "translation_source_blocks_sha256": [
+        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
+        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
+        "74834f62d2528dfa207c2257dde36ad2c9dce65c3e5df80fee0514e3099d5192",
+        "fc9ae75949d8e14f1704c45ba53486ede15b2ac0518f1ef0bdd3b41723c55fbd",
+        "74b221edbcd574f0e809e1c454a658b96bb4d5e5cbda3b29db747d1e4fcd7300"
+      ]
+    },
+    "spacr.qt.layout_policy.minimum_width_for": {
+      "source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
+        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
+      ],
+      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
+      "text": "Stærsta mættanlegur þörf á ``font_scale``.\n\n:param font_scale: Áætlunin er 1.0 að vera 100%.\n:param policy: Þetta er að lesa í stað þess að tengjast.\n:returns: Lógískir pixlar, eða None þegar ekkert var metið.\n\nA glugga opnar einu sinni og hver modul er náð frá innri, þannig að breiði sem passar flestir þeirra endar að skera frá breiðustu - sem er skýrslu.\n\nÁ milli tveimur mættum skammum tekur það hærri, vegna þess að tegundinn mættur skamm og þörf er upp með skamminu. Rundað til smámari mun opna glugga sem passa skammina undir notandinn.",
+      "translation_source_blocks_sha256": [
+        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
+        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
+        "e04974a8721ab4069fad30368e7788152af93b5f3197d3f02611d365743eede1",
+        "f48501b0657e2c96842bee6afcba9e285160f14fff368864979bb291af293b78"
+      ]
+    },
+    "spacr.qt.layout_policy.read_policy": {
+      "source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
+        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
+      ],
+      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
+      "text": "Hugmyndin er bundlaður eða ``{}``.\n\n:param refresh: Re-lesa failið í stað þess að svara frá cache.\n:returns: thvað sem lykil-gildi kortlagning, eða tóm einn á hvaða bilun.\n\nGradið til að vökkva í stað þess að kasta, vegna þess að útgáfu notaspanna gerir: notandi ætti ekki að missa að opna gluggi vegna þess sem auðlindfili er óþekkt frá hjólinu.",
+      "translation_source_blocks_sha256": [
+        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
+        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
+        "ed48adc532056133b17bdd3e9164a1a3cd2fe1fffaef56a18fca37b389704469",
+        "e6a0f107131a9c60dc9597ab3a4275ea8a38a7598748fde3072b6c9baeae9ba0"
+      ]
+    },
+    "spacr.qt.layout_policy.recommended_window_size": {
+      "source_blocks_sha256": [
+        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
+      ],
+      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
+      "text": "Hvernig á að opna höfuðflutinn á, eftir því hvað hugmyndin hefur.\n\n:param available: Áætlað geómetri á skjánum sem ``(w, h)`` - er til staðar, ekki heildar, vegna þess að dökk eða menubjörn er að mismunandi og gluggið til heildar opnar hluta undir einn.\n:param font_scale: Vinsamlegast er font-skala í gildi.\n:param policy: Þetta er að lesa í stað þess að tengjast.\n:returns: ``(width, height)`` í logískum pixelum.\n\nKlippað á skrin, ALWAYS, og það bestu er allan samning: meiddar kröfur breiðari en sýn er lausn að þetta samfélagi er ekki hægt að sýna heill hér, ekki leyfi til að opna glugga út um hlið hennar. notandi getur enn snurlað; gluggi þeir geta ekki náð hlið til að endurstæða er verra svarið.",
+      "translation_source_blocks_sha256": [
+        "5d5e6cef400bf88105678fc9388750c3c0022c5d74aeed0c5a70eeebacc5a7b3",
+        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
+        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
+        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
+        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
+        "5b5f175f525959ab4709565910b4fbd05ac6bc2dc7c14d732eb0a2f0e973472b"
+      ]
+    },
+    "spacr.qt.layout_policy.why": {
+      "source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
+      ],
+      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
+      "text": "Eitt orð sem nafnast gögn, fyrir skýrslíni eða hönnun.\n\nA ráð sem notandi getur ekki fylgst er einn sem þeir geta ekki að spyrja með, og helstu sögu þessara hlutina er skipulag ákvörðun enginn gæti athugað.",
+      "translation_source_blocks_sha256": [
+        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
+        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -109436,6 +109562,74 @@
         "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
       ]
     },
+    "spacr.qt.widgets.fractal_travel.TourPilot": {
+      "source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
+        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ],
+      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
+      "text": "Nokkuðu beint myndavél á tíu svæðum, ramma eftir ramma.\n\nTour var byggð og ekkert kallaði það. :class:`RegionTour` og :data:`spacr.qt.widgets.fractal_regions.REGIONS` sendur með tilraun og engin hringja, þannig að tengslum sem þess virði að horfa voru aldrei á viðtali. Þetta er veiði, og það er ljóst efni á tilgangi - sama ástæðan :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` er einn. GPU kanvas þarf GL tengsl til að vera, og hvert forrit um hvernig þetta hreyfir myndi annars koma frá sömu skreytingu skrifað við kóða en ekki frá kóða sem fer.\n\nÞað stendur markmiðið og ekkert annað. Að sjálfum myndavélinu er það sem hreyfir það, þannig að fljótt skref á ferðinni milli svæðum og nálgun á mynda þar sem markmiðið er nú uppbyggð í einu hreyfingu með engum byrjunum og engum hættu - sem er öllu ráð 327 \"fljótt og fljótur hreyfing milli stigum\".\n\n:param tour: reiður til að fljúga, eða None fyrir viðeigandi svæðum.\nFly `tour`, eða viðeigandi svæðum þegar enginn er gefið.",
+      "translation_source_blocks_sha256": [
+        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
+        "a0c54b8bd2d2d19cdce3e8c52760d0b95d97e24437a06dcd2272e0a775b09b0a",
+        "fd0cfcf4a87c74f7742eb68e4c46a395dc36ad58d247cffa9c2cbc32979e493b",
+        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
+        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
+      "source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ],
+      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
+      "text": "Notandinn tók myndavélina. ferðurinn er ekki að spyrja.",
+      "translation_source_blocks_sha256": [
+        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
+      "source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ],
+      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
+      "text": "Eða ferðin er enn á leiðinni.",
+      "translation_source_blocks_sha256": [
+        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
+      "source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ],
+      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
+      "text": "Ctrl + R sendur dvívuna aftur til yfirborðar; fljúga aftur.",
+      "translation_source_blocks_sha256": [
+        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
+      "source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
+      ],
+      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
+      "text": "Aim `camera` hvar sem ferðin er á `seconds`.\n\n:param camera: :class:`SteeringCamera`; aðeins ``target`` er skrifað.\n:param seconds: Stundum í simulaði klukkutíma.\n:param span: sýningspurt hálft hæð, í þægilegu myndslagi. ferðin er SURFACE leið - hvert svæðis bori hálftur það er áhugavert niður - þannig að þegar sýningurinn er smámari en svæðið sem það kom til, leiðandi út til næsta myndi fljúga myndina yfir á skammt þar sem ekkert er viðurkennd.\n:returns: True þegar markmiðið var skrifað.\n\nAldrei kasta: þetta er á ramma leið af bakgrunni, og ferð sem ekki getur svarað ætti að kosta ákvörðun ramma en mynd.",
+      "translation_source_blocks_sha256": [
+        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
+        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
+        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
+        "c06bcab5ad7b25a60fe7f661daa5fda0c4d6956b733af6ac4c03c57176a27aa7",
+        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
+        "1201fa29f457b5313f97f16c703bd053f41f7adfa134be365981149eed019796"
+      ]
+    },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
       "source_blocks_sha256": [
         "57266aaec57809133a509a1a8184a3714b268998db9fec87455272cd74548d47",
@@ -109644,48 +109838,6 @@
         "a318c91b836ecaaab9fd39ddc43cf6b101c7fd5c5ec5ce3366e447f61c9fa24b",
         "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
         "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_leg_seconds": {
-      "source_blocks_sha256": [
-        "8176d688975c709c8b414df64f59d0c355d7634fb078a2edb48b42facb0c5b2e",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ],
-      "source_sha256": "c4c8dd84d17b70a881d08a5d7968ae35fd42579264c14eb450ca8ad6da823d3b",
-      "text": "Dwell og ferð svo að einn fótur af ferðinni er einn dive.\n\n:param seconds_per_decade: Hversu lengi niðurstaða tekur á árinu.\n:param max_depth: Tíu ár áður en dvífinn byrjar aftur á yfirborði.\n:param travel: Að eyða sekúndur á að flytja milli tveimur svæðum.\n:returns: ``(dwell, travel)`` fyrir :class:`RegionTour`.\n\nHreytingin verður að gerast nálægt yfirborði. þúsund ár niður sýningin er smáari en fjarlægð milli tveimur svæðum með þúsunda höndum, svo að ferðast að fjarlægðin er hvít blöð en ekki flóð - og allt forrit var að það sé ekki lesið sem spreng.\n\nBæði eru flóður yfir null, þannig að settingsfili sem biðja um dvíf stuttari en hreyfing er enn að framleiða ferð sem fer.",
-      "translation_source_blocks_sha256": [
-        "81edb313b9834f50afd29ed97861c91d3e6a3b2512aee61add2f53e0f5e9206b",
-        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
-        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
-        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
-        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
-        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
-        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.tour_offset": {
-      "source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "8fe3c89c2817876bfc920c6e6a29400dad2fee103d4dd48c18dabcaf9e9e57be"
-      ],
-      "source_sha256": "9f6685beaf9f869c4276edf8707f9771458d8a421669e8de2458d84e6d283284",
-      "text": "Leikurinn er markmið, eins og uppsetningu frá miðju reference orbítanum.\n\n:param tour: Umferðin stjórnar myndavélina.\n:param seconds: Síðustu sekúndur síðan ferðin byrjaði.\n:param orbit_centre: ``(re, im)`` af referensorbítanum.\n:returns: ``(offset_re, offset_im)``, eða ``None`` þegar ferðin er ekki stjórnað - þannig að hringandi yfirgefur myndavélina þar sem notandinn setur það í stað þess að vera veitt samskipti það verður að forðast.\n\nHugsanlegur frá orbítanum, aldrei tengd. Referendum orbit er flutt á landinu eins og dvíf niður og afsetur myndavélsins er endursetur til null þegar það landar; ferð sem minnir eigin afsetni verður kastað úr svæðinu hvert skipti sem gerist. Spurning hvar svæðið er sambandi þar sem referendum er nú er óþægilegt við það.",
-      "translation_source_blocks_sha256": [
-        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
-        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
-        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
-        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
-        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
-        "701d733fca4b56df17477e4561fa4224d72870f590630041e6cf4e687c930f5f"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {
