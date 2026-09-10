@@ -1,0 +1,20 @@
+{
+  "lesson": "62_feature_dictionary", "language": "sv",
+  "english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
+  "review": {"kind": "Parent editorial rewrite checked against frozen English and actual GUI; corrected mean-intensity, unit-inference and lookup terminology; caption-only locale", "independent_peer_review": false, "native_speaker_signoff": false},
+  "title": "Feature Dictionary: slå upp betydelser, enheter och beräkningsfunktioner",
+  "description": "Använd den faktiska ordlistan under Help för att hitta definitioner, avgränsa dem efter begrepp och objekt och skilja allmän dokumentation från mätningar som finns i ett projekt.",
+  "objectives": ["Hitta ordlistan under Help och sök efter en idé eller ett mätnamn.", "Använd de faktiska begrepps- och objektfiltren utan att ändra projektdata.", "Läs enheter, beräkningsfunktioner och förbehåll, inklusive skillnaden mellan area och volym.", "Kopiera definitionstext och skilj uppslagspanelen från en projektspecifik Python-export."],
+  "prerequisite": "Inget projekt, ingen nedladdning och ingen modell behövs: Lektionen visar inbyggda definitioner. Inga mätningar, diagram, AI-förfrågningar, GPU-jobb eller filexporter utförs. Exempelkolumnerna finns i den verkliga mätdatabasen från Database Browser, men ordlistan läser inte in databasen här. Panelen listar för närvarande hundratals namn på organellroller; vanlig rullning visar funktionerna och anmärkningarna nedanför. Text kopieras bara till urklipp på inspelningens privata skrivbord.",
+  "scenes": [
+    "Öppna Help och sedan Feature Dictionary. Fönstret slår upp inbyggda mätdefinitioner; det är varken ett eget arbetsflöde på Home eller en analys som ska köras. Inga data eller modeller behöver laddas ned.",
+    "Skriv en idé som size. Resultaten uppdateras medan du skriver, och Area visar sin definition. Antalet gäller matchande definitioner, inte uppmätta celler eller kolumner som har bekräftats finnas i projektet.",
+    "De faktiska listrutorna filtrerar efter begrepp och objekttyp. Här ger intensity och cell tretton definitioner. Filtren begränsar ordlistan, inte bilddata eller analysinställningar. Välj Any concept och Any object igen före nästa sökning.",
+    "Sök efter medelintensiteten i cellens kanal ett med det exakta kolumnnamnet på skärmen. Posten Mean intensity förklarar pixelstatistiken och dess enheter. En namnsökning hämtar dokumentation; den granskar inte kolumnens värden och bevisar inte att kolumnen finns i det aktuella projektet.",
+    "Rulla ned till Channel, Module och Computed by. Hänvisningen identifierar mätningens implementation, inklusive funktionen för utökade regionegenskaper. Ordlistan slår upp definitionen; den beräknar inte mätningen på nytt. Python-API:erna för uppslag finns i modulen feature_dict.",
+    "Slå nu upp cell_area. Läs villkoren under Unit: En tvådimensionell analys rapporterar pixelarea, medan samma namn representerar volym i tre dimensioner. Fältet measurement_units på raden avgör om volymen anges i kubiska bildpixelenheter eller kubikmikrometer. Dra inte slutsatser om fysiska enheter enbart från kolumnnamnet.",
+    "Läs också Note, inte bara huvuddefinitionen. Ett tredimensionellt värde som redan uttrycks i fysiska enheter ska inte räknas om igen. För projektspecifik dokumentation undersöker Python-funktionerna describe_database och export_dictionary databasen och tolkar dess registrerade mätenheter; de är inte knappar i den här panelen.",
+    "En sökning utan träff visar ingen definition. Det betyder att ordlistan inte hittade en matchning, inte att data inte kan innehålla en egen egenskap. Försök med ett känt namn eller en bredare idé; saknad dokumentation är inte ett vetenskapligt resultat.",
+    "Återgå till Area, markera detaljtexten och kopiera den. Inspelningen kontrollerar den faktiskt kopierade markeringen. Gränssnittet har ingen Run- eller Export-åtgärd: Att kopiera text är inte samma sak som att skapa en projektspecifik ordlistefil med Python. Stäng fönstret när du är klar; ingen analys har ändrats."
+  ]
+}
