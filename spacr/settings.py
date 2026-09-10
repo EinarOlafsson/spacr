@@ -1632,6 +1632,15 @@ RENAMED_SETTINGS = {
     # which.
     "positive_control": "positive_control_id",
     "negative_control": "negative_control_id",
+    # `controls` IS A COMMON WORD DOING FOUR JOBS, and the setting is only
+    # one of them. Its own tooltip already says the true meaning --
+    # "Non-targeting control gRNA identifiers" -- and `object_roles` has
+    # carried a label OVERRIDE for it since before this rename, with the
+    # reason written beside it: "`controls` names guide or gene
+    # identifiers, whereas the neighbouring control settings name wells".
+    # A setting that needs a label override to be understood is a setting
+    # whose name is wrong.
+    "controls": "nontargeting_control_grnas",
     # A SPLIT, NOT A RENAME (357-Q6). One key meant the invasion assay's
     # stain baseline AND the wells Regression and sequencing drop before
     # fitting, with different defaults and no way for a user to set one
@@ -2554,7 +2563,7 @@ def get_perform_regression_default_settings(settings):
     # things: 233460 is a real gene knocked out and expected to show
     # nothing; 000000 binds without cutting and is the empirical null every
     # threshold is measured against.
-    settings.setdefault('controls', ['000000'])
+    settings.setdefault('nontargeting_control_grnas', ['000000'])
     settings.setdefault('exclude_grnas', None)
     settings.setdefault('normalise_fraction', True)
     settings.setdefault('positive_control_wells', None)
@@ -3827,7 +3836,7 @@ expected_types = {
     "score_data":list,
     "paired_data":list,
     "min_observations_per_hit": int,
-    "controls":list,
+    "nontargeting_control_grnas":list,
     "Toxoplasma":bool,
     "metadata_files":list,
     "filter_value":list,
@@ -4991,7 +5000,7 @@ tooltips = {
     # --- Descriptions filled in for settings that previously had no tooltip ---
     "annotation_column": "(str) - Integer column in the png_list table that stores manual class labels. The Annotate app adds it with ALTER TABLE if it is absent and writes labels to it. This column provides the reference labels when dataset_mode is 'annotation' and is the fallback when annotation_columns is unset. Supplying it while dataset_mode is unset also selects annotation mode for compatibility with older settings files. Default None.",
     'cmap': "(str) - Matplotlib colormap applied to single-channel image previews and plate heatmaps. Perceptually uniform maps ('viridis', 'inferno', 'magma') preserve the relative visibility of intensity differences; 'gray' resembles the raw single-channel microscope image. Any registered matplotlib name is accepted, with an '_r' suffix to reverse it. Default 'inferno' for image plots and 'viridis' for plate heatmaps.",
-    'controls': "(list) - Non-targeting control gRNA identifiers. Their coefficients set the volcano effect-size cutoff: abs(median(control coefficients)) + threshold_multiplier × spread, with threshold_method selecting the spread estimator. A wider control distribution raises the cutoff; None disables it. Default ['000000'] names the non-cutting control gene, which spaCR resolves to all associated guides in the loaded library. Individual guide identifiers also work, with or without the organism prefix.",
+    'nontargeting_control_grnas': "(list) - Non-targeting control gRNA identifiers. Their coefficients set the volcano effect-size cutoff: abs(median(control coefficients)) + threshold_multiplier × spread, with threshold_method selecting the spread estimator. A wider control distribution raises the cutoff; None disables it. Default ['000000'] names the non-cutting control gene, which spaCR resolves to all associated guides in the loaded library. Individual guide identifiers also work, with or without the organism prefix.",
     'count_data': "(str or list) - CSV(s) of per-well gRNA read counts from the sequencing step (unique_combinations.csv); each must contain grna, count, rowID and columnID columns or the run raises ValueError. These are the regression's independent variable. Pass one path per plate, position-aligned with plates_count; results are written under the first file's folder. Default 'list of paths', a placeholder that must be replaced; the barcode QC module defaults this key to 'path to unique_combinations.csv'.",
     'cov_type': "(str) - Heteroscedasticity-robust covariance estimator passed to likelihood fits: 'HC0', 'HC1', 'HC2', 'HC3', or None for classical non-robust errors. It changes standard errors and P-values, not coefficients. Use 'HC3' when residual variance increases with well cell count. Penalized, robust and quantile fits do not support this estimator and raise an error rather than reporting ordinary errors under a robust label. Default None.",
     "resume": '(bool) - Continue an interrupted run from its last validated boundary. Mask revalidates existing mask and merged arrays; Measure accepts only fields complete in every owned table and clears partial rows before retrying; and Format Converter reopens each checkpointed TIFF. These validations reduce the risk of reusing partial output and require additional reads during resumption. Default False.',
@@ -5370,7 +5379,7 @@ categories = {
     # change_plate came from "Invasion Assay", where they were shared with the
     # replication assay and so gave that module a heading named after an assay
     # it does not run.
-    "Plate Layout & Controls": ["well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "controls", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
     # How the labelled set is assembled, in the order it is assembled:
     # which rule defines a class -> what the classes are -> which crops ->

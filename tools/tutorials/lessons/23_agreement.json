@@ -1,0 +1,76 @@
+{
+  "id": "23_agreement",
+  "number": 23,
+  "slug": "agreement",
+  "title": "Annotator Agreement",
+  "series": 3,
+  "app_key": "agreement",
+  "host_app_key": "annotate",
+  "section": "Results and quality control",
+  "description": "Open the nested agreement tool, compare explicitly artificial teaching labels on copies of real downloaded crops, and distinguish pairwise agreement from a multi-pass summary.",
+  "objectives": [
+    "Open Annotator Agreement from the Annotate module.",
+    "Compare labels, missing observations and confusion matrices without changing annotations.",
+    "Inspect disagreement crops and interpret two-pass versus three-pass summaries."
+  ],
+  "prerequisite": "The sixteen crop images are unchanged copies from Annotate's downloadable example, but DEMO_A, DEMO_B and DEMO_C are deliberately artificial teaching labels added to a new private database. They are not biological classifications, human-reviewer scores or model predictions. Existing source labels and images remain unchanged; png_path is made relative only in the demonstration copy. Use real independent annotation passes for your own quality assessment. Current known model-output columns are excluded from the GUI's default discovery; model validation is a different question. Independent integer/fraction calculations verify every demonstrated pair, confusion matrix and aggregate. Three selected previews match their source crop pixels exactly. This small example is for learning the controls, not validating assay reliability. The existing video repeated an empty screen, and its old automatic prediction-discovery wording no longer matches the API, so this is not merely a moved lesson.",
+  "scenes": [
+    {
+      "visual": "02_agreement_fold",
+      "narration": "Open Annotate, then its Annotator Agreement button. This is a nested tool, not another Home module. The comparison view reads annotation columns without editing them; return to Annotate when you actually want to change a label.",
+      "related_lessons": [
+        "09_annotate"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_demo_database",
+      "narration": "Open the prepared demonstration database. Its sixteen images are real downloadable example crops, but the three DEMO columns are artificial teaching labels. They do not measure a person's skill or a biological phenotype. The original labels and images were preserved in a separate source copy.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_one_column_not_a_comparison",
+      "narration": "Check the selected columns explicitly rather than accepting the first defaults. A single column cannot measure agreement. The current discovery excludes known model-output columns by default; comparing a classifier with a person is model validation, not agreement between people.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_two_columns",
+      "narration": "Select DEMO A and DEMO B, then press Compute agreement. There are twelve crops labelled by both passes, three labelled by only one, and one labelled by neither. Missing labels are not silently converted into disagreements.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_pairwise_results",
+      "narration": "The two teaching passes agree on nine of twelve compared crops: seventy-five percent, with Cohen's kappa zero point five. Read the raw agreement, overlap and class balance together. The screen warns that twelve shared labels are too few for a stable reliability estimate; these invented labels are only a demonstration.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_confusion_matrix",
+      "narration": "Read rows as DEMO A and columns as DEMO B. Five crops have class one in both passes, and four have class two in both. The off-diagonal counts, one and two, identify three disagreements. A summary label such as moderate is a convention, not an acceptance threshold for your assay.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_disagreement_crop_1",
+      "narration": "Select a disagreement to inspect the corresponding crop and both labels. We checked all three previews against their original pixels. For a real study, review representative images and the class definitions before deciding how to adjudicate; this read-only screen does not make that decision for you.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_three_columns",
+      "narration": "Add DEMO C and compute again. Changing a checkbox is not a new computation by itself. The table now compares three pairs, whose shared-label counts differ, while the overall Fleiss summary uses only the twelve crops labelled by every selected pass.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_three_pass_results",
+      "narration": "The teaching example's Fleiss kappa is about zero point six six three, not the average of the three pairwise kappas. Overall raw agreement here counts unanimous complete rows. The fourth review row has a missing A label but disagreement between B and C, so it can appear for review without entering the complete-case summary.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_pairwise_restored",
+      "narration": "Selecting just A and B and computing again restores the original comparison. We verified that the database and crop files remain unchanged through all three computations. Use genuinely independent annotation passes for your own analysis, and return to the Annotate tutorial for collecting those labels.",
+      "related_lessons": [
+        "09_annotate",
+        "34_database"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

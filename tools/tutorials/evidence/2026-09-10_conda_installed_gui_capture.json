@@ -1,0 +1,158 @@
+{
+  "lesson": "02_conda_install",
+  "status": "Actual installed-package GUI capture passed; English and multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/conda_release_native",
+  "provenance": {
+    "completed_capture": true,
+    "module": "conda_install",
+    "commit": "ba8d933faf4cff4d4af933c10c975a37d28c45cf",
+    "actual_system_terminal": true,
+    "installation_recorded_live": false,
+    "verification_recorded_live": true,
+    "application_source_modified": false,
+    "private_display": ":99",
+    "installed_environment": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env",
+    "setup_skipped_explicitly": false,
+    "first_run_tour_marked_seen": true,
+    "format_scope": "Linux, fresh conda package; not other platforms",
+    "doctor_gpu_allocation_probe_requested": true,
+    "installed_identity": {
+      "version": "1.5.0.4",
+      "package": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr/__init__.py",
+      "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env"
+    },
+    "recording_preferences": {
+      "theme": "dark",
+      "font_scale": 1.5,
+      "preload": "unmodified release default"
+    },
+    "native_window_tree": "\nxwininfo: Window id: 0x3a7 (the root window) (has no name)\n\n  Root window id: 0x3a7 (the root window) (has no name)\n  Parent window id: 0x0 (none)\n     5 children:\n     0x800009 \"spaCR\": ()  1x1+0+0  +0+0\n     0x800007 \"spaCR\": (\"spacr\" \"spaCR\")  1272x981+0+0  +0+0\n     0x800005 \"Qt Selection Owner for spacr\": ()  3x3+0+0  +0+0\n     0x600001 \"xdg-desktop-portal-gtk\": (\"xdg-desktop-portal-gtk\" \"Xdg-desktop-portal-gtk\")  10x10+10+10  +10+10\n     0x200005 \"Qt Selection Owner for capture_pip_installation.py\": ()  3x3+0+0  +0+0\n\n",
+    "native_window_geometry": "\nxwininfo: Window id: 0x800007 \"spaCR\"\n\n  Absolute upper-left X:  0\n  Absolute upper-left Y:  0\n  Relative upper-left X:  0\n  Relative upper-left Y:  0\n  Width: 3840\n  Height: 2160\n  Depth: 24\n  Visual: 0x21\n  Visual Class: TrueColor\n  Border width: 0\n  Class: InputOutput\n  Colormap: 0x800006 (not installed)\n  Bit Gravity State: NorthWestGravity\n  Window Gravity State: NorthWestGravity\n  Backing Store State: NotUseful\n  Save Under State: no\n  Map State: IsViewable\n  Override Redirect State: no\n  Corners:  +0+0  -0+0  -0-0  +0-0\n  -geometry 3840x2160+0+0\n\n",
+    "gui": {
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/spacr"
+      ],
+      "title": "spaCR",
+      "returncode": 0,
+      "normal_window_close": true,
+      "analysis_started": false
+    }
+  },
+  "commands": [
+    {
+      "scene": "01_python_version",
+      "command": [
+        "python",
+        "--version"
+      ],
+      "output": "Python 3.12.14\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "02_conda_environment",
+      "command": [
+        "/home/olafsson/anaconda3/bin/conda",
+        "list",
+        "--prefix",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env",
+        "spacr"
+      ],
+      "output": "# packages in environment at /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env:\n#\n# Name                    Version                   Build  Channel\nspacr                     1.5.0.4            pyhcf101f3_0    conda-forge\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "03_installed_versions",
+      "command": [
+        "python",
+        "-c",
+        "import sys,spacr,PySide6; print(\"Python:\", sys.executable); print(\"spaCR:\", spacr.__version__); print(\"Qt:\", PySide6.__version__); print(\"Package:\", spacr.__file__)"
+      ],
+      "output": "Python: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python\nspaCR: 1.5.0.4\nQt: 6.11.2\nPackage: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr/__init__.py\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "04_environment_prefix",
+      "command": [
+        "python",
+        "-c",
+        "import sys; print(sys.prefix)"
+      ],
+      "output": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env\n",
+      "returncode": 0,
+      "accepted": true
+    },
+    {
+      "scene": "05_doctor",
+      "command": [
+        "spacr-doctor"
+      ],
+      "output": "PASS  python              Python 3.12.14 satisfies requires-python !=3.14.1,<3.15,>=3.9.\n                          interpreter: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python3.12\nPASS  spacr package       spacr 1.5.0.4 imports from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr.\nPASS  running checkout    Not inside a spaCR checkout; runs from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages.\n                          import spacr  -> /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr\n                          editable install: none (installed as a copy)\nPASS  duplicate installs  One importable spacr package: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr.\nPASS  distributions       spacr 1.5.0.4 is the only spaCR distribution.\n                          /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr-1.5.0.4.dist-info\nPASS  console scripts     All 19 installed spaCR commands resolve.\nPASS  PATH                `spacr-doctor` on PATH comes from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env.\nPASS  qt extra            Qt GUI available (PySide6 6.11.2).\nPASS  display             A display server is reachable.\nPASS  core imports        All 12 core dependencies import.\nWARN  optional extras     1 optional extras are half-installed and will fail when their feature is used.\n                          czi: missing pylibCZIrw\n                          installed: lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike\n                          fix: python -m pip install \"spacr[czi]\"\nPASS  torch               torch 2.13.0 (built against CUDA 12.9).\nPASS  gpu                 1 CUDA device(s) usable: NVIDIA GeForce RTX 3090 (driver 580.173.02, torch CUDA 12.9).\nPASS  cellpose            cellpose 4.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.\nSKIP  declared pins       Not inside a spaCR checkout; nothing to cross-check.\nSKIP  database            No database given.\n                          fix: spacr-doctor --db /path/to/plate/measurements/measurements.db\nSKIP  settings            No settings file given.\n                          fix: spacr-doctor --settings settings.csv --app measure\n\n13 passed, 1 warnings, 0 failed, 0 errored, 3 skipped\n",
+      "returncode": 0,
+      "accepted": true
+    }
+  ],
+  "frames": {
+    "01_python_version": {
+      "image": "01_python_version.png",
+      "sha256": "ad07d8418f2dfc51e856ae62a513aab7fa6c4b58f1fcdbf6cbcaec718dabe766",
+      "buttons": []
+    },
+    "02_conda_environment": {
+      "image": "02_conda_environment.png",
+      "sha256": "2389a24df28dcce6270fc300952ce4448b53b839821f1b84bbabae4cf3c1add7",
+      "buttons": []
+    },
+    "03_installed_versions": {
+      "image": "03_installed_versions.png",
+      "sha256": "674da3f6cba8df65bddfe887eaf54edd253fbc78343af6e8138731c6e5ee5324",
+      "buttons": []
+    },
+    "04_environment_prefix": {
+      "image": "04_environment_prefix.png",
+      "sha256": "847ffd7098580a12a5c13740247bb70589de49157b6cd7cd19c6d0e982be7f95",
+      "buttons": []
+    },
+    "05_doctor": {
+      "image": "05_doctor.png",
+      "sha256": "389f5a8d9875e0b69558c8ebdc68eb4955bba8db4745cd723763f49f09dd431a",
+      "buttons": []
+    },
+    "06_installed_home": {
+      "image": "06_installed_home.png",
+      "sha256": "2cf08f9d7b71b910974a2879103eadb686b1d7409e7fba733380e398a6754fd0",
+      "buttons": []
+    }
+  },
+  "visually_inspected": [
+    "05_doctor",
+    "06_installed_home"
+  ],
+  "observed_home": "Conda 1.5.0.4 exposes the old Home (63) layout, not 1.5.0.5's 21 Home tiles and nested tools. Narration must disclose that real channel difference; do not depict a newer checkout as the installed Conda package.",
+  "doctor": "Default spacr-doctor, including its real small CUDA allocation check: 13 PASS, 3 SKIP, 1 optional CZI WARN. This extends the earlier no-GPU-probe preflight; it is not a throughput benchmark.",
+  "recorder_tests": {
+    "passed": 5,
+    "guard_mutations": [
+      {
+        "guard": "route step count",
+        "failed": 1
+      },
+      {
+        "guard": "route-specific commands",
+        "failed": 1
+      }
+    ],
+    "scope": "Separate isolated in-memory mutations must fail; normal pip commands remain pinned by the positive counterpart."
+  },
+  "rejected_previous_take": {
+    "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/conda_installed_verification",
+    "reason": "Recorder requested the newer set_preload_policy API, absent in the older channel package. Corrected to the genuine release default, not patched into spaCR.",
+    "accepted": false
+  },
+  "catalog_reuse_check": "All fourteen authoring lesson-02 records differ from their published counterparts; the available original timings also narrate a different first scene. Exact unchanged-narration retention was not falsely claimed.",
+  "published": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false
+}

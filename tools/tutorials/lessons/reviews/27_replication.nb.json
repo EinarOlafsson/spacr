@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Replikasjonsanalyse",
+  "description": "Tell parasitter per vakuole, undersøk fordelingene og juster tegnforklaringer uten å endre data. Eksemplet er syntetisk og viser ingen behandlingseffekt.",
+  "objectives": [
+    "Bruke vakuolen, ikke vertscellen, som telleenhet.",
+    "Beholde tellinger som ikke er potenser av to, og undersøke sammendrag per brønn og betingelse.",
+    "Bruke de faktiske figurkontrollene og lese eksportadvarsler."
+  ],
+  "prerequisite": "En ny kopi av den syntetiske undervisningsdatabasen inneholder 1 992 oppdiktede parasittrader, 480 vakuoler, 240 vertscellegrupper og tolv kunstige brønner. Vehicle og inhibitor er undervisningsnavn; de seks brønnene i hver gruppe gjentar samme fordeling. Det finnes ingen innsamlede bilder eller egen knapp for nedlasting av eksempeldata i denne modulen. Originaldatabasen forblir uendret. Uavhengige beregninger kontrollerer 6 588 CSV-felt samt søylehøyder og stablede utgangspunkter. Dette validerer ikke segmentering, p-verdier eller effekt. Biologiske analyser krever faktiske målinger, validerte vakuolerelasjoner og uavhengige eksperimentelle replikater.",
+  "scenes": [
+    "Åpne Replication Assay under Assays på Home. Modulen teller målte parasitter per vakuole; den segmenterer ikke bilder her. Eksemplet er uttrykkelig syntetisk, så diagrammene forklarer kontrollene og tellereglene, ikke en biologisk behandlingseffekt.",
+    "Velg den klargjorte forsøksmappen som inneholder measurements/measurements.db. Vår nye private kopi inneholder 1 992 oppdiktede parasittrader. Vi bevarer originaldatabasen og begynner uten gamle resultatfiler, slik at alt som vises, tilhører denne kjøringen.",
+    "Sett Vacuole key til kolonnen med eksplisitte vakuole-ID-er. Eksemplet har 480 vakuoler, men bare 240 vertscellegrupper: Hver vert er knyttet til to vakuoler. Telling per vertscelle ville slå dem sammen og besvare et annet spørsmål. Valider forholdet i ekte bilder før du analyserer egne data.",
+    "Require host cell utelukker objekter uten gyldig vertstilknytning. Det hindrer at objekter uten tilordning inngår i resultatet, men kan også fjerne ekte parasitter hvis vertssegmenteringen sviktet. Alle undervisningsradene har gyldige koblinger; eksemplet validerer ikke din segmentering.",
+    "Den største navngitte kategorien for potenser av to er 16, ikke en grense som kutter alle større tellinger. Større potenser har en overløpskategori, og øvrige tellinger holdes atskilt. Hver kunstige brønn har to vakuoler med tre parasitter; ikke rund en telling på tre opp til fire.",
+    "Kontroller koblingen mellom betingelser og brønner. Her heter første kolonne vehicle og andre kolonne inhibitor, med seks kunstige brønner per gruppe. Navnene er del av det oppdiktede undervisningsoppsettet. De beviser ikke at et legemiddel ble brukt, og en visuelt overbevisende forskjell beviser ikke effekt.",
+    "Trykk Run først etter at kilde, tilordningsnøkkel, filtre og utdatainnstillinger er kontrollert. Dette er tabellanalyse, ikke ny Cellpose-segmentering eller en ytelsestest av GPU-en. Den faktiske prosessen lager både figuren per brønn og figuren per betingelse.",
+    "Les hver stablet søyle som fordelingen av parasittall per vakuole i én brønn. Vehicle-eksemplet har 228 parasitter i 40 vakuoler; inhibitor-eksemplet har 104 i 40. Begge beholder fem prosent vakuoler med tellinger utenfor potensene av to. Vi kontrollerte de viste søylehøydene mot uavhengige tellinger, ikke bare filnavnene.",
+    "Hvis tegnforklaringen er avkuttet, åpner du Figure settings og aksefanen og endrer Legend position. Vi velger en plassering inne i figuren med disse faktiske kontrollene. Dette endrer bare presentasjonen: Alle søyleverdier og utdatafiler forblir uendret.",
+    "Betingelsesvisningen samler eksemplets vakuoler i to fordelinger. Alle seks brønnene i hver gruppe gjentar samme oppdiktede mønster. Ikke siter de resulterende signifikanstestene som et behandlingsfunn. Reell inferens krever faktiske replikater og en begrunnet uavhengig eksperimentell enhet.",
+    "Les konsollen i tillegg til diagrammet. Denne kjøringen advarer om at enkelte valgte farger har liten kontrast på en lys eksportert side. Kontroller eksporterte figurer og velg en lett synlig palett; en lesbar mørk skjermvisning garanterer ikke automatisk en lesbar lagret figur.",
+    "Med Save aktivert legges resultatene i results/analyze_replication: vakuoletellinger, brønnfordelinger, betingelsessammendrag, statistikktabeller og figurer. Behold innstillinger og kildeidentifikatorer sammen med dem. Se gjennom ekte bilder og biologiske kontroller i ditt eget forsøk før du tolker disse sammendragene."
+  ]
+}

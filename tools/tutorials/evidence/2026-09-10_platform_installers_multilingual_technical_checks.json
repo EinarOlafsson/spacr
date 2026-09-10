@@ -1,0 +1,548 @@
+{
+  "lesson": "04_platform_installers",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "canonical_english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "scene_count": 10,
+  "narrated_words": 472,
+  "native_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/linux_installer_native_final",
+  "capture_provenance": {
+    "completed_capture": true,
+    "module": "linux_installer_install",
+    "commit": "0b96ee566c9ccb5e4d678fa931f28b4da9a4061b",
+    "actual_system_terminal": true,
+    "installation_recorded_live": false,
+    "verification_recorded_live": true,
+    "application_source_modified": false,
+    "private_display": ":99",
+    "installed_environment": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv",
+    "setup_skipped_explicitly": true,
+    "first_run_tour_marked_seen": true,
+    "format_scope": "Linux, fresh linux_installer package; not other platforms",
+    "doctor_gpu_allocation_probe_requested": false,
+    "installed_identity": {
+      "version": "1.5.0.5",
+      "package": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+      "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv"
+    },
+    "recording_preferences": {
+      "theme": "dark",
+      "font_scale": 1.5,
+      "preload": "on_demand"
+    },
+    "native_window_tree": "\nxwininfo: Window id: 0x3a7 (the root window) (has no name)\n\n  Root window id: 0x3a7 (the root window) (has no name)\n  Parent window id: 0x0 (none)\n     5 children:\n     0x800009 \"spaCR\": ()  1x1+0+0  +0+0\n     0x800007 \"spaCR\": (\"__main__.py\" \"spaCR\")  2560x720+0+0  +0+0\n     0x800005 \"Qt Selection Owner for spaCR\": ()  3x3+0+0  +0+0\n     0x600001 \"xdg-desktop-portal-gtk\": (\"xdg-desktop-portal-gtk\" \"Xdg-desktop-portal-gtk\")  10x10+10+10  +10+10\n     0x200005 \"Qt Selection Owner for capture_pip_installation.py\": ()  3x3+0+0  +0+0\n\n",
+    "native_window_geometry": "\nxwininfo: Window id: 0x800007 \"spaCR\"\n\n  Absolute upper-left X:  0\n  Absolute upper-left Y:  0\n  Relative upper-left X:  0\n  Relative upper-left Y:  0\n  Width: 3840\n  Height: 2160\n  Depth: 24\n  Visual: 0x21\n  Visual Class: TrueColor\n  Border width: 0\n  Class: InputOutput\n  Colormap: 0x800006 (not installed)\n  Bit Gravity State: NorthWestGravity\n  Window Gravity State: NorthWestGravity\n  Backing Store State: NotUseful\n  Save Under State: no\n  Map State: IsViewable\n  Override Redirect State: no\n  Corners:  +0+0  -0+0  -0-0  +0-0\n  -geometry 3840x2160+0+0\n\n",
+    "privacy_dialog": {
+      "title": "spaCR privacy and optional account setup — spaCR",
+      "owner_pid": 3830123,
+      "native_reject_key": "Escape",
+      "shown_before_rejection": true,
+      "hidden_after_rejection": true,
+      "optional_choices_enabled": false
+    },
+    "gui": {
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/bin/spacr",
+        "--no-setup"
+      ],
+      "title": "spaCR",
+      "returncode": 0,
+      "normal_window_close": true,
+      "analysis_started": false
+    },
+    "generated_instruction_cards": [
+      "09_windows_guidance",
+      "10_macos_guidance",
+      "11_linux_commands",
+      "12_logs_and_versions"
+    ],
+    "reused_official_release_capture": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/installation_sources_centred_elements/04_github_current_assets.png",
+      "sha256": "be320e4a0c69714c8b1ac26f1e614710260fbbc30fd7ee8446932b4a627fe940"
+    },
+    "platform_guidance_source_files": [
+      {
+        "path": "packaging/online/spacr_online_installer.nsi",
+        "sha256": "016d12fe71e9795d9c9a1bffe787e79966316a35cade0b24397d7a9175ddcc6d"
+      },
+      {
+        "path": "packaging/online/build_macos_online.sh",
+        "sha256": "195483dfa96f82daea56a9619d3f12473d7c7c387d77b5fb8fd0f3dd60b9edfc"
+      },
+      {
+        "path": "packaging/online/install_spacr_unix.sh",
+        "sha256": "1f1000e9f76ef107bf1c40721160fab12b4c4a34b53a9c2a62c11e783d98346f"
+      }
+    ]
+  },
+  "native_capture_receipt": "2026-09-10_linux_installer_native_capture.json",
+  "installation_preflight_receipt": "2026-09-10_public_linux_installation.json",
+  "checksum_receipt": "2026-09-10_linux_installer_preflight.json",
+  "instruction_cards_scope": "Four explicit code-rendered reference cards, not Windows/macOS installation recordings. Ten-scene master uses five genuine verification/GUI frames, four reference cards and one unchanged genuine official release-page frame reused from lesson 01.",
+  "all_50_voices_decoded_and_fingerprints_checked": true,
+  "full_master_decode_exit_code": 0,
+  "decoded_scene_samples": [
+    {
+      "scene": 1,
+      "sha256": "f473eb0e13101defeb1851ae1b3bc1306bcfead29c7946020b40fdbe647d3ff7"
+    },
+    {
+      "scene": 2,
+      "sha256": "fd5f0b57bcb4868df410a22672dd245ad1717bf4ff9060bc710f500805d8c400"
+    },
+    {
+      "scene": 3,
+      "sha256": "ce477df5758d2733d4dcf5da512fb360190193d968eb532b835867823230bb9f"
+    },
+    {
+      "scene": 4,
+      "sha256": "06ed5abeec69d92672a6d6661b3c98abfdf7e2514f4a07d24636df786082bfe3"
+    },
+    {
+      "scene": 5,
+      "sha256": "4222933994a3477aad0effe883287045c207e759be39d0d21c1b97a7015dbca0"
+    },
+    {
+      "scene": 6,
+      "sha256": "a0c055ca2b3d51a757c29e4a3ecb4cb786f3ecc910927e28062dd2097977667c"
+    },
+    {
+      "scene": 7,
+      "sha256": "efe81e967d3c579f59639804f31be8f362be96fb4b23a6cca050d2df90e194a5"
+    },
+    {
+      "scene": 8,
+      "sha256": "676bc734d2339925ffc901f33ba91147dbb0a94dd6f62496d0ed9fec13f6f8c0"
+    },
+    {
+      "scene": 9,
+      "sha256": "04bac0e39aed6520ac8ac06ce438c51caecf96b9c3c8f24fd9d37b4f2ff9e585"
+    },
+    {
+      "scene": 10,
+      "sha256": "ce4cac81c4b092b1792f046e9d1e4e7dfd89ed4e02414e6f3b787a963713caa5"
+    }
+  ],
+  "visually_inspected_decoded_scenes": [
+    3,
+    4,
+    7,
+    8
+  ],
+  "native_frames_visually_inspected": [
+    "02_installer_backend",
+    "05_doctor",
+    "06_installed_home",
+    "07_privacy_keep_off"
+  ],
+  "final_artifact_reconciliation": {
+    "lesson": "04_platform_installers",
+    "passed": true,
+    "canonical_english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+    "scene_count": 10,
+    "unique_final_tracks": 50,
+    "tracks": [
+      {
+        "language": "en",
+        "voice": "af_aoede",
+        "sha256": "9b3ec682f0bcdce7578c0776e68f89ba37bc84d237b5ce47ea94033d0bfc599d"
+      },
+      {
+        "language": "en",
+        "voice": "af_bella",
+        "sha256": "251a993b0e4dcc598967ebc8b8aeb40f2f4867e257a127ca3ea17dba3f7d7d9f"
+      },
+      {
+        "language": "en",
+        "voice": "af_heart",
+        "sha256": "2c648f36f3faeff3e97d5c99e81680c633ba7e35a953f05bb6c3c724dd4aa5b3"
+      },
+      {
+        "language": "en",
+        "voice": "af_jessica",
+        "sha256": "989b1fd37d0edbe6557107136f44f67a7f797b5e4e0229de166930174a5af13e"
+      },
+      {
+        "language": "en",
+        "voice": "af_river",
+        "sha256": "8dd1a0b6746f3f164a8aad3529c6fa026746c64dbf97c6c25bd8940d18527706"
+      },
+      {
+        "language": "en",
+        "voice": "af_sarah",
+        "sha256": "f6615710645e9698f004a091a5b22431bbe3a450b6950048a997ebb6d935b586"
+      },
+      {
+        "language": "en",
+        "voice": "af_sky",
+        "sha256": "03a5282410a2e6f1ea69861a360f5cd52b85bc891b5e415c526529a34d553dde"
+      },
+      {
+        "language": "en",
+        "voice": "am_adam",
+        "sha256": "f69cd6c2d72535ee2a5375f6fcf5ed4252ff93a997ab9de851acf3c82268e3b6"
+      },
+      {
+        "language": "en",
+        "voice": "am_echo",
+        "sha256": "6065e4916361285ce68cd53ca3bda55b894c2eb70d622ec1f07ea217123ddfcf"
+      },
+      {
+        "language": "en",
+        "voice": "am_eric",
+        "sha256": "a69b3371732d937106607e2a5262317e45d5eff823d27510ef6a7597a974a791"
+      },
+      {
+        "language": "en",
+        "voice": "am_fenrir",
+        "sha256": "c7c01c79690abab0c1a88e86b40cafb98bf3ee8643170ec395e057c254c0a16c"
+      },
+      {
+        "language": "en",
+        "voice": "am_liam",
+        "sha256": "212b3ddc181f63c1725030b1646b9ea6e17ea490fe753c9de216a25a38b3d523"
+      },
+      {
+        "language": "en",
+        "voice": "am_michael",
+        "sha256": "45c4342f00b40351cb3b5c33e746d75f0d6334522f2b2bbd40ba46603f44aee3"
+      },
+      {
+        "language": "en",
+        "voice": "am_onyx",
+        "sha256": "49aca692b40043ebc04af1e8a5788164f8763f26f8e073ec38fce526181a925e"
+      },
+      {
+        "language": "en",
+        "voice": "am_puck",
+        "sha256": "bddaa76ed274b630857ce12bffbb355824f29229382bc4027bcb21c0e4d57597"
+      },
+      {
+        "language": "en",
+        "voice": "am_santa",
+        "sha256": "dc880dc74a82bcad1c94abb2e7a6b5c0315f68307f3bc28953c1d3c88df4fd75"
+      },
+      {
+        "language": "en",
+        "voice": "bf_alice",
+        "sha256": "119ae4a8ca0865b806950d74023e1f633e946fb6d228040eeb380a01ed7ed1c4"
+      },
+      {
+        "language": "en",
+        "voice": "bf_emma",
+        "sha256": "e9536df07991c7aa8c21ad2c4c37beb05aa12a094d6e6d9ee16b11034897e3ee"
+      },
+      {
+        "language": "en",
+        "voice": "bf_isabella",
+        "sha256": "0944b78d8c2b41b32803dc26be85996524076cae458cf42985856fd004d97c47"
+      },
+      {
+        "language": "en",
+        "voice": "bf_lily",
+        "sha256": "1e77a8f221713633f02d47a8bb36086ea685f8c39af2b90159bf94bff4ea4ed1"
+      },
+      {
+        "language": "en",
+        "voice": "bm_daniel",
+        "sha256": "224443b60b16bc6f6c887f6bb7ca3d9fe3c9c5484e09d0d28c4dba565bec13aa"
+      },
+      {
+        "language": "en",
+        "voice": "bm_fable",
+        "sha256": "2cb3ba28de83c346680c4012a9bf5b78d75a53be40dbcb66102754710890aba7"
+      },
+      {
+        "language": "en",
+        "voice": "bm_george",
+        "sha256": "d80622faaf58206c6d7056fa5ea3bb94ad45daf7ef8add1c15a741a3a436aaef"
+      },
+      {
+        "language": "en",
+        "voice": "bm_lewis",
+        "sha256": "352a1994006cd015e5a3cc932b8f9161aaadbc135a462dd38e99ec8fb27cb23e"
+      },
+      {
+        "language": "es",
+        "voice": "ef_dora",
+        "sha256": "705810a3cc88298ac2f6226c4ebbfd5a78c226e02b3db66cb005617837672f12"
+      },
+      {
+        "language": "es",
+        "voice": "em_alex",
+        "sha256": "2387583df995efed60ad6d79191f2e69d1b76de6da2f467ee388f03fd569491f"
+      },
+      {
+        "language": "es",
+        "voice": "em_santa",
+        "sha256": "abd9fc22dd201a55712714dc35f13967e04ead25698ee4c2484bac610e097686"
+      },
+      {
+        "language": "fr",
+        "voice": "ff_siwis",
+        "sha256": "32c52fb80b5652d6c2d0c921120e56c8341b7465c976b489289ca742bea713d5"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_alpha",
+        "sha256": "c6421296e533ab07069d15c1169506f317aeaffbf647a06bf85b53036a0ffee4"
+      },
+      {
+        "language": "hi",
+        "voice": "hf_beta",
+        "sha256": "c6ee0474293f7faf5d29882ea62d7cabd857e1ad5224deccb7d797e92e041a18"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_omega",
+        "sha256": "65961ea724c284d4e6922630261b95898dd2447f67ee57877f602e9869d1b9f6"
+      },
+      {
+        "language": "hi",
+        "voice": "hm_psi",
+        "sha256": "16270f85aec7801ea9c527daa1d6f855335408c6015bab299d979953f9bc531c"
+      },
+      {
+        "language": "it",
+        "voice": "if_sara",
+        "sha256": "294319e9c8a746fa8b7ea45385c0f291087b8e8203203d6b3f303e055b8a2881"
+      },
+      {
+        "language": "it",
+        "voice": "im_nicola",
+        "sha256": "6a4b6924382cbee1a76bf1ced41a2ba742925bb4ae0f6105a3beae12f9766582"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_alpha",
+        "sha256": "63fd6c4541f7b6cddd33b3aa9063a53a4905bee1746af996f455eec44c3682b1"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_gongitsune",
+        "sha256": "81c34b17495d5a7ce86a2aee49ecbaa22f01e4f93d01c90e21b34240ab05991f"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_nezumi",
+        "sha256": "1995b57982115d9a00fdbec100f46389b13f40f3e32e22c26477f306f77e5c4c"
+      },
+      {
+        "language": "ja",
+        "voice": "jf_tebukuro",
+        "sha256": "1e1c05010157e12402ce46e89bb51068df9918205e6181c6f6adf9b6ce24e5d0"
+      },
+      {
+        "language": "ja",
+        "voice": "jm_kumo",
+        "sha256": "3d348facb9d6321003ce548cff98494a07dfa195f29e9ff4652a70974fcfb923"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pf_dora",
+        "sha256": "5ddeb7d845e4d40994784aba0c112a34e844f0541f78c134f61d821e6b640270"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_alex",
+        "sha256": "4134ced11ebeaada295848bda9d033155c2fe199efff7290e19d06fe82f3df32"
+      },
+      {
+        "language": "pt-BR",
+        "voice": "pm_santa",
+        "sha256": "045f92d4eb3336bea208f7da8d84962320dba40b316cafe19a59e5692c398e3f"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaobei",
+        "sha256": "851158011962c15b0c73c3cbf538edd161c70d77c16dcd6d9f27ce401d6b4cb3"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoni",
+        "sha256": "3f88d38fa54bd166d00c071e5a5c4d8eeba87c75ac4b3aedd23384bdea8ce3ff"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoxiao",
+        "sha256": "c936cd07c6da8fec49ab3a9d8e0eab00b1152fa3b2373eb6814e2e75c5c2a101"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zf_xiaoyi",
+        "sha256": "9dcea60fac336f8a192cf57337b47c320be5edf74ffe57619c2b6af9ba855537"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunjian",
+        "sha256": "ce4804bb2de1bdb8e748bb6cd375f551a4d3ef4fcd8cffc91b7614517a2d6f50"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxi",
+        "sha256": "5ab8c89f4e8cf4d3e31eeaca21d18daddc887db749187c0de3634e20f70bc52b"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunxia",
+        "sha256": "a3358e245579a174ea6e4fb395e6d5223be51dae27754779e677ed6dab904cea"
+      },
+      {
+        "language": "zh-CN",
+        "voice": "zm_yunyang",
+        "sha256": "48376a7456f693fe3ed94a1ba90b720caed86d0aa0fb7c36782843f0b9197d0e"
+      }
+    ],
+    "browser_reports": [
+      {
+        "case": "en-af_heart",
+        "report_sha256": "1401afd3913d71fd22fdff2490bbecc3f12a0db61da3bdc9e9a517c02de706c0"
+      },
+      {
+        "case": "es-ef_dora",
+        "report_sha256": "22bcf50d72490e4ea12e0c2d0d9cd1370d13b3d25475d870a2202c15b0701bf9"
+      },
+      {
+        "case": "fr-ff_siwis",
+        "report_sha256": "329d94d2f9e0831e49a1f225165dae51f2404244f6ad8dd0d645b513f28837b4"
+      },
+      {
+        "case": "hi-hf_alpha",
+        "report_sha256": "c1efacf6a44d108a797b03ee1b68116dfef8839631150f9b5a05784e2b9c3d35"
+      },
+      {
+        "case": "it-if_sara",
+        "report_sha256": "6fca864283eab41f4c9cba9ed1f5df601fc99bda4f9af1902d0844ffb3580c3f"
+      },
+      {
+        "case": "pt-BR-pf_dora",
+        "report_sha256": "d03d7addaa9164950fd8735d17da3c7379c39e185afd8451bc7e686ad5015435"
+      },
+      {
+        "case": "ja-jf_alpha",
+        "report_sha256": "ca6df342a5874fb12d33a7b575dbfcb9eb52d9eb653c93935a9550b9f05db037"
+      },
+      {
+        "case": "zh-CN-zf_xiaobei",
+        "report_sha256": "cd7f1f12af8e9026df9b72285166f763870adaa07c0f0ca6533da402b956509a"
+      },
+      {
+        "case": "en-af_heart-captions-da",
+        "report_sha256": "aa86abb544ea761ded49facbed722366a1aeec083b69ebfb9f87b7ee3ca57ff4"
+      },
+      {
+        "case": "en-af_heart-captions-de",
+        "report_sha256": "c063e0d73342ae4d3cda4e9d15b22f58efd0f250bbabbc9940d57325ea8ed6de"
+      },
+      {
+        "case": "en-af_heart-captions-is",
+        "report_sha256": "848f01afe92eab6cb50ebc84420cac27efbd8d44c7052c48827e36a65ba18060"
+      },
+      {
+        "case": "en-af_heart-captions-ko",
+        "report_sha256": "e0ee50ca61190a82a3ce2a83e77d3b7ef77e2806b6c2ab6278361beafbe820b3"
+      },
+      {
+        "case": "en-af_heart-captions-nb",
+        "report_sha256": "113a7e3afd3525d51c4a1576337ede4e04f438ac948a4eb6ee342a42686f07e4"
+      },
+      {
+        "case": "en-af_heart-captions-sv",
+        "report_sha256": "6f7016584b683e71ccae3c263bb4739d015ee1c34448707f96bc04769d0e9e63"
+      }
+    ],
+    "master_sha256": "2a73f31f9fd76fdaf0295dba0d80314c7ba6de1bd81cfe41e730525932fb36b8",
+    "master_probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "6102"
+        }
+      ],
+      "format": {
+        "duration": "203.400000",
+        "size": "7508511"
+      }
+    },
+    "poster_sha256": "f473eb0e13101defeb1851ae1b3bc1306bcfead29c7946020b40fdbe647d3ff7",
+    "scope": "Final artifact reconciliation, not a new decode, editorial or listening review",
+    "retained_narration": null,
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false
+  },
+  "max_browser_clock_error_seconds": 0.1860744764057216,
+  "review_sources": [
+    {
+      "language": "da",
+      "sha256": "5e77eb4e867a2c0a532db8381bafa491d6dfd84590f245079885b0baba9ea4a0"
+    },
+    {
+      "language": "de",
+      "sha256": "bd41bd0d44d5cde3ddfe2c5be548ccb61e73824e34f8b9651b097335ac04cae5"
+    },
+    {
+      "language": "es",
+      "sha256": "862ea9db773895c987188c925a7f1b6729fc03640a087ca75438a272a3091c87"
+    },
+    {
+      "language": "fr",
+      "sha256": "6b83d304656f1e50fd76622c693272423adbae2a0477cfcb1b88eeb0da23ddd2"
+    },
+    {
+      "language": "hi",
+      "sha256": "b633f4518cf9bfc1f87899b222c0ba13eaa4d4d34d7f02deee4da86b888f3fad"
+    },
+    {
+      "language": "is",
+      "sha256": "85ca56518c34a4db77fe9c4fa98818b1b0905ddbab38bf98ca54dade978d5c91"
+    },
+    {
+      "language": "it",
+      "sha256": "610a2c169118aa23c9fdb2c70690d8ca18afc4025b173154d1a20b665cc9170a"
+    },
+    {
+      "language": "ja",
+      "sha256": "d221e9a19874503a08ba9a07e2d542fdbbc6e83a54cc5f7149bd921ba7bcc5fa"
+    },
+    {
+      "language": "ko",
+      "sha256": "b8be0b287d1511eb6dd32844dfac385c1ebcb88cf500d73a5a726c44878b388f"
+    },
+    {
+      "language": "nb",
+      "sha256": "7a8df4385a47d5a7677246eede1ff4a83bf0c3ab374ba615531defcfbe3fe011"
+    },
+    {
+      "language": "pt-BR",
+      "sha256": "73f39c50e9af7745172f9717f9d301c666e6e6d893a47dc7477defe7a87be0f2"
+    },
+    {
+      "language": "sv",
+      "sha256": "76c89aafd0a29ccdc35943ad0d427113022292b56a54801852bb89c205b201ba"
+    },
+    {
+      "language": "zh-CN",
+      "sha256": "becbfdb1d99eddcb8bd568cabc4bbbbb78cd7a59079f8575cfb23c455d23cd0b"
+    }
+  ],
+  "editorial_review": "Parent editorial review only; independent peer and native/listening approvals not claimed.",
+  "technical_staging_totals": {
+    "lessons": 40,
+    "unique_tracks": 2000,
+    "retained_tracks": 100,
+    "browser_cases": 560
+  },
+  "catalogs": {
+    "count": 14,
+    "lessons": 75,
+    "scenes": 812,
+    "unselected_unchanged": 36
+  },
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

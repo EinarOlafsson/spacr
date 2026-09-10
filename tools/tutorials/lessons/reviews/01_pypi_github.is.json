@@ -1,0 +1,29 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "PyPI, GitHub og conda-forge",
+  "description": "Finndu opinberar heimildir fyrir pakka og uppsetningarforrit, berðu saman útgáfuna á hverri dreifileið og veldu viðeigandi uppsetningarkennslu.",
+  "objectives": [
+    "Þekkja opinberar spaCR-síður á PyPI, GitHub og conda-forge.",
+    "Greina á milli útgáfuskráa, þróunarkóða og pakkadreifileiða sem uppfærast sjálfstætt.",
+    "Velja uppsetningarleið og staðfesta hvaða útgáfa er raunverulega uppsett."
+  ],
+  "prerequisite": "Engin uppsetning er framkvæmd í þessu yfirliti. Síðurnar voru teknar upp 10. september 2026: PyPI og GitHub bjóða 1.5.0.5 en conda-forge býður 1.5.0.4. Útgáfur og tiltækar skrár geta breyst; lestu núverandi síðu og athugaðu uppsettu útgáfuna. Vafraupptökurnar nota nafnlaust notandasnið og varðveita síðutexta, stöðumerki og útgáfusögu óbreytt. Uppsetning fyrir hvert stýrikerfi og val á vélbúnaði eru útskýrð í tengdu kennsluefninu.",
+  "scenes": [
+    "Veldu opinbera dreifileið spaCR áður en þú setur það upp. PyPI og conda-forge bjóða Python-pakka; GitHub býður frumkóða, útgáfuskrár og uppsetningarforrit fyrir skjáborð. Leiðirnar tengjast en birta ekki endilega sömu útgáfu á sama tíma.",
+    "Lestu útgáfufyrirsögnina og uppsetningarskipunina á PyPI. Hér stendur spaCR einn punktur fimm punktur núll punktur fimm. Athugaðu gildið á núverandi síðu í stað þess að álykta um útgáfuna út frá gömlu skjáskoti, stöðumerki eða dagsetningu kennsluefnis.",
+    "Project links tengir pakkann við skjöl, heimasíðu, villuskráningu og frumkóðasafn. Notaðu þessa tengla til að fara milli opinberra upplýsinga. Pakkasíða lýsir þeirri birtu útgáfu; hún tryggir ekki að allir eiginleikar í þróun séu þegar innifaldir.",
+    "Á GitHub sýnir greinaval hvaða kóðagrein þú ert að lesa. Main er útgáfulínan og nightly inniheldur þróunarvinnu sem er í gangi. Veldu birta útgáfu fyrir venjulega uppsetningu; notaðu nightly aðeins þegar þú þarft vísvitandi nýrri vinnu og getur sætt þig við breytingar.",
+    "Opnaðu útgáfu og felldu Assets út. Veldu uppsetningarforrit fyrir Windows, macOS eða Linux. Wheel og frumkóðadreifingin eru Python-pakkaskrár, ekki skjáborðsuppsetningarforrit. Sæktu gátsummulistann fyrir nákvæmlega þá útgáfu og skrá sem þú valdir, í stað þess að bera saman tæti frá annarri dreifileið.",
+    "Conda-forge-síðan hefur sitt eigið útgáfuval. Við upptöku býður hún einn punktur fimm punktur núll punktur fjórir en PyPI býður einn punktur fimm punktur núll punktur fimm. Þessi raunverulegi munur er sýndur viljandi; ekki gera ráð fyrir að uppfærsla dreifileiðar sé þegar komin.",
+    "Skipunin sem tilgreinir dreifileiðina er conda install conda-forge, tvö tvípunktstákn, spacr. Keyrðu hana í umhverfinu sem þú ætlar að nota. Conda-kennslan útskýrir þessa leið; að búa til Conda-umhverfi og setja upp með pip er önnur leið, þótt báðar noti umhverfisstjóra.",
+    "Veldu pip-kennsluna fyrir sýndarumhverfi Python, Conda-kennsluna fyrir pakkann á dreifileiðinni eða Platform installers fyrir einkakeyrsluumhverfi sem uppsetningarforrit sér um. Athugaðu síðan uppsettu útgáfuna og keyrðu spacr-doctor áður en þú fylgir kennsluefni eininganna."
+  ]
+}

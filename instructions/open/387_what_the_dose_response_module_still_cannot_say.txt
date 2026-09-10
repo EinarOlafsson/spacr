@@ -153,3 +153,14 @@ CHOU-TALALAY COMBINATION INDEX as the primary synergy method. Considered;
 Bliss and Loewe are better understood, and CT's median-effect assumptions
 are routinely violated by exactly the refused and unbounded curves this
 module is careful about.
+
+--------------------------------------------------------------------------------
+RELATED
+--------------------------------------------------------------------------------
+
+390 (the field-survey backlog) carries the two findings this file does not
+state: that NO OTHER PLATFORM can compute a selectivity index from one plate,
+because none of them co-segment host and pathogen from the same image; and
+that finishing PARTS 1 and 2 here is the change most likely to bring new
+users, by making spaCR the tool for anti-parasitic compound screening. The
+WORK stays here. 390 is lowest priority; this file is not.

@@ -1,0 +1,31 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Enighet mellom annotatører",
+  "description": "Åpne det innebygde verktøyet, sammenlign tydelig kunstige undervisningsetiketter på kopier av ekte nedlastede bildeutsnitt, og skill mellom parvis enighet og et sammendrag av flere gjennomganger.",
+  "objectives": [
+    "Åpne Annotator Agreement fra Annotate.",
+    "Sammenligne etiketter, manglende observasjoner og forvekslingsmatriser uten å endre annotasjoner.",
+    "Undersøke bildeutsnitt med uenighet og tolke sammendrag for to og tre gjennomganger."
+  ],
+  "prerequisite": "De seksten bildeutsnittene er uendrede kopier av Annotates nedlastbare eksempel. DEMO_A, DEMO_B og DEMO_C er kunstige undervisningsetiketter lagt til i en ny privat database, ikke biologiske klasser, vurderinger av menneskers prestasjon eller modellprediksjoner. Originale etiketter og bilder er uendret; png_path blir relativ bare i demokopien. Bruk reelt uavhengige annotasjoner til egen vurdering. Standardoppdagelsen utelater kjente modellutdatakolonner. Uavhengige heltalls- og brøkberegninger kontrollerer alle par, matriser og samlede mål; tre forhåndsvisninger samsvarer nøyaktig med originalenes piksler. Det lille eksemplet lærer bort betjening, ikke påliteligheten til forsøket. Den gamle videoen gjentok en tom skjerm og beskrev automatisk oppdagelse av prediksjoner som ikke lenger stemmer med API-et; dette er ikke bare en flyttet leksjon.",
+  "scenes": [
+    "Åpne Annotate og deretter knappen Annotator Agreement. Dette er et innebygd verktøy, ikke enda en modul på Home. Sammenligningen leser annotasjonskolonner uten å redigere dem; gå tilbake til Annotate når du vil endre en etikett.",
+    "Åpne den klargjorte demonstrasjonsdatabasen. De seksten bildene er ekte utsnitt fra det nedlastbare eksemplet, men de tre DEMO-kolonnene er kunstige undervisningsetiketter. De måler verken en persons ferdigheter eller en biologisk fenotype. Originale etiketter og bilder er bevart i en egen kildekopi.",
+    "Kontroller de valgte kolonnene uttrykkelig i stedet for å godta de første standardvalgene. Én kolonne kan ikke måle enighet. Dagens oppdagelse utelater som standard kjente modellutdatakolonner; å sammenligne en klassifikator med et menneske er modellvalidering, ikke enighet mellom mennesker.",
+    "Velg DEMO A og DEMO B og trykk Compute agreement. Tolv utsnitt er merket i begge gjennomgangene, tre i bare én og ett i ingen. Manglende etiketter blir ikke i det stille omgjort til uenighet.",
+    "De to undervisningsgjennomgangene er enige om ni av tolv sammenlignede utsnitt: syttifem prosent, med Cohens kappa på null komma fem. Les rå enighet, overlapp og klassebalanse samlet. Skjermen advarer om at tolv felles etiketter er for få til et stabilt pålitelighetsestimat; de oppdiktede etikettene er bare en demonstrasjon.",
+    "Radene er DEMO A og kolonnene DEMO B. Fem utsnitt har klasse én i begge gjennomgangene, og fire har klasse to i begge. Tallene utenfor diagonalen, én og to, viser tre uenigheter. En oppsummerende betegnelse som moderat er en konvensjon, ikke en godkjenningsgrense for forsøket ditt.",
+    "Velg en uenighet for å undersøke det tilhørende utsnittet og begge etikettene. Vi kontrollerte alle tre forhåndsvisningene mot de opprinnelige pikslene. I en virkelig studie bør du gjennomgå representative bilder og klassedefinisjoner før du bestemmer hvordan uenighetene skal avgjøres; denne skrivebeskyttede visningen tar ikke avgjørelsen for deg.",
+    "Legg til DEMO C og beregn på nytt. Å endre en avkrysningsboks utfører ikke i seg selv en ny beregning. Tabellen sammenligner nå tre par med ulike antall felles etiketter, mens det samlede Fleiss-sammendraget bare bruker de tolv utsnittene som er merket i alle valgte gjennomganger.",
+    "Fleiss-kappa i undervisningseksemplet er omtrent null komma seks seks tre, ikke gjennomsnittet av de tre parvise kappaene. Samlet rå enighet teller her enstemmige, komplette rader. Den fjerde raden til gjennomgang mangler A, men har uenighet mellom B og C; den kan derfor vises til vurdering uten å inngå i sammendraget av komplette tilfeller.",
+    "Velg bare A og B og beregn på nytt for å gjenopprette den opprinnelige sammenligningen. Vi bekreftet at databasen og bildefilene forblir uendret gjennom alle tre beregningene. Bruk reelt uavhengige annotasjonsgjennomganger i din egen analyse, og gå tilbake til Annotate-veiledningen for å samle inn etikettene."
+  ]
+}

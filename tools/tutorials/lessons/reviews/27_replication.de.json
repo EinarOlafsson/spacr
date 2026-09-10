@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Replikationsassay",
+  "description": "Zählen Sie Parasiten je Vakuole, prüfen Sie Verteilungen und ändern Sie Legenden ohne Eingriff in die Daten. Das Beispiel ist synthetisch und belegt keine Behandlungswirkung.",
+  "objectives": [
+    "Die Vakuole statt der Wirtszelle als Zähleinheit wählen.",
+    "Zählwerte außerhalb der Zweierpotenzen erhalten und Zusammenfassungen je Well und Bedingung prüfen.",
+    "Die tatsächlichen Abbildungsregler verwenden und Exportwarnungen beachten."
+  ],
+  "prerequisite": "Eine neue Kopie der synthetischen Lehrdatenbank enthält 1.992 erfundene Parasitenzeilen, 480 Vakuolen, 240 Wirtszellgruppen und zwölf künstliche Wells. Vehicle und inhibitor sind Lehrbezeichnungen; die sechs Wells jeder Gruppe wiederholen dieselbe Verteilung. Es gibt keine aufgenommenen Bilder und keinen eigenen Beispieldaten-Download in diesem Modul. Die Originaldatenbank bleibt unverändert. Unabhängige Berechnungen prüfen 6.588 CSV-Felder sowie Balkenhöhen und Stapelbasen. Segmentierung, p-Werte und Wirksamkeit werden damit nicht validiert. Biologische Analysen benötigen echte Messungen, geprüfte Vakuolenzuordnungen und unabhängige experimentelle Wiederholungen.",
+  "scenes": [
+    "Öffnen Sie Replication Assay unter Assays auf Home. Das Modul zählt gemessene Parasiten je Vakuole; Bilder werden hier nicht segmentiert. Dieses ausdrücklich synthetische Beispiel erklärt mit seinen Diagrammen die Bedienung und Zählregeln, nicht die biologische Wirkung einer Behandlung.",
+    "Wählen Sie den vorbereiteten Experimentordner mit measurements/measurements.db. Unsere neue private Kopie enthält 1.992 erfundene Parasitenzeilen. Die Originaldatenbank bleibt erhalten, und wir beginnen ohne alte Ergebnisdateien. Alle gezeigten Ausgaben gehören deshalb zu diesem Lauf.",
+    "Setzen Sie Vacuole key auf die Spalte mit den ausdrücklichen Vakuolen-IDs. Das Beispiel umfasst 480 Vakuolen, aber nur 240 Wirtszellgruppen: Jede Wirtszelle ist mit zwei Vakuolen verknüpft. Eine Zählung nach Wirtszelle würde diese zusammenfassen und eine andere Frage beantworten. Prüfen Sie diese Zuordnung an echten Bildern, bevor Sie eigene Daten analysieren.",
+    "Require host cell schließt Objekte ohne gültige Wirtszuordnung aus. Damit gelangen nicht zugeordnete Objekte nicht in diesen Messwert; bei fehlerhafter Wirtssegmentierung können aber auch echte Parasiten entfallen. Alle Lehrdatenzeilen haben gültige Verknüpfungen. Dieses Beispiel validiert nicht Ihre Segmentierung.",
+    "Die größte benannte Zweierpotenz-Kategorie ist 16, keine Grenze, die sämtliche größeren Zählwerte abschneidet. Höhere Zweierpotenzen haben eine Überlaufkategorie, andere Zählwerte bleiben getrennt. Jedes künstliche Well enthält zwei Vakuolen mit drei Parasiten. Runden Sie einen Zählwert von drei nicht auf vier.",
+    "Prüfen Sie die Zuordnung zwischen Bedingungen und Wells. Hier heißt Spalte eins vehicle und Spalte zwei inhibitor, mit sechs künstlichen Wells je Gruppe. Diese Namen gehören zum erfundenen Lehrdesign. Sie belegen keine tatsächliche Medikamentengabe, und ein überzeugend aussehender Unterschied beweist keine Wirksamkeit.",
+    "Starten Sie Run erst nach Prüfung von Quelle, Zuordnungsschlüssel, Filtern und Ausgabeeinstellungen. Hier werden Tabellen analysiert; es ist weder eine neue Cellpose-Segmentierung noch ein GPU-Leistungstest. Der tatsächliche Verarbeitungslauf erzeugt die Abbildungen je Well und je Bedingung.",
+    "Lesen Sie jeden gestapelten Balken als Verteilung der Parasitenzahlen je Vakuole in einem Well. Das Vehicle-Beispiel hat 228 Parasiten in 40 Vakuolen, das Inhibitor-Beispiel 104 in 40. Beide behalten fünf Prozent Vakuolen mit Zählwerten außerhalb der Zweierpotenzen. Wir haben die sichtbaren Balkenhöhen anhand unabhängiger Zählungen geprüft, nicht nur die gespeicherten Dateinamen.",
+    "Ist die Legende abgeschnitten, öffnen Sie Figure settings und den Achsenreiter und ändern Sie Legend position. Über diese echten Bedienelemente wählen wir eine Position innerhalb der Abbildung. Das ändert nur die Darstellung: Alle Balkenwerte und Datendateien bleiben unverändert.",
+    "Die Bedingungsansicht fasst die Beispielvakuolen zu zwei Verteilungen zusammen. Alle sechs Wells jeder Gruppe wiederholen dasselbe erfundene Muster. Zitieren Sie die resultierenden Signifikanztests nicht als Behandlungsbefund. Echte Inferenz benötigt tatsächliche Wiederholungen und eine begründbare unabhängige experimentelle Einheit.",
+    "Lesen Sie neben dem Diagramm auch die Konsole. Dieser Lauf warnt, dass einige gewählte Farben auf einer hellen Exportseite kaum Kontrast haben. Kontrollieren Sie exportierte Abbildungen und wählen Sie eine gut unterscheidbare Palette. Eine lesbare dunkle Bildschirmansicht garantiert nicht automatisch eine lesbare gespeicherte Abbildung.",
+    "Mit aktiviertem Save landen die Ergebnisse unter results/analyze_replication: Vakuolenzählungen, Well-Verteilungen, Bedingungszusammenfassungen, Statistiktabellen und Abbildungen. Bewahren Sie Einstellungen und Quellkennungen dazu auf. Prüfen Sie für Ihren Assay echte Bilder und biologische Kontrollen, bevor Sie diese Zusammenfassungen interpretieren."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "PyPI, GitHub et conda-forge",
+  "description": "Trouvez les sources officielles des paquets et des installateurs, comparez la version proposée par chaque canal et choisissez le tutoriel d’installation adapté.",
+  "objectives": [
+    "Identifier les pages officielles de spaCR sur PyPI, GitHub et conda-forge.",
+    "Distinguer les fichiers d’une version publiée, le code en développement et les canaux de paquets mis à jour séparément.",
+    "Choisir une méthode d’installation et vérifier la version réellement installée."
+  ],
+  "prerequisite": "Aucune installation n’est effectuée dans cette présentation. Les pages ont été capturées le 10 septembre 2026 : PyPI et GitHub proposent 1.5.0.5, tandis que conda-forge propose 1.5.0.4. Les versions et fichiers disponibles peuvent changer ; consultez la page actuelle et vérifiez votre version installée. Les captures utilisent un profil anonyme et conservent le texte, les badges et l’historique des versions. L’installation propre à chaque plateforme et les choix matériels sont expliqués dans les tutoriels liés.",
+  "scenes": [
+    "Avant d’installer spaCR, choisissez sa source officielle de distribution. PyPI et conda-forge fournissent des paquets Python ; GitHub fournit le code source, l’historique des versions et les installateurs de bureau. Ces voies sont liées, mais ne publient pas nécessairement la même version au même moment.",
+    "Sur PyPI, lisez l’en-tête de version et la commande d’installation. Ici, l’en-tête indique spaCR un point cinq point zéro point cinq. Vérifiez cette valeur sur la page actuelle plutôt que de déduire la version d’une ancienne capture, d’un badge ou de la date d’un tutoriel.",
+    "Project links relie le paquet à sa documentation, sa page d’accueil, son suivi des problèmes et son dépôt de code. Utilisez ces liens pour passer d’une ressource officielle à l’autre. La page d’un paquet décrit cette version publiée ; elle ne garantit pas que toutes les fonctionnalités en développement y figurent déjà.",
+    "Sur GitHub, le sélecteur de branche indique la ligne de code consultée. Main est la ligne des versions publiées et nightly contient les travaux en cours. Pour une installation habituelle, choisissez une version publiée ; utilisez nightly seulement si vous avez délibérément besoin de travaux plus récents et pouvez accepter des changements.",
+    "Ouvrez une version publiée et dépliez Assets. Choisissez l’installateur pour Windows, macOS ou Linux. Le fichier wheel et la distribution source sont des paquets Python, pas des installateurs de bureau. Téléchargez la liste des sommes de contrôle correspondant exactement à la version et au fichier choisis, sans comparer les empreintes d’un autre canal.",
+    "La page conda-forge possède son propre sélecteur de version. Au moment de cet enregistrement, elle propose un point cinq point zéro point quatre, tandis que PyPI propose un point cinq point zéro point cinq. Cette différence est montrée telle quelle ; ne supposez pas qu’une mise à jour du canal soit déjà arrivée.",
+    "La commande précisant le canal est conda install conda-forge, deux signes deux-points, spacr. Exécutez-la dans l’environnement prévu. Le tutoriel Conda explique cette méthode ; créer un environnement Conda puis installer avec pip constitue une autre méthode, même si les deux utilisent un gestionnaire d’environnements.",
+    "Choisissez le tutoriel pip pour un environnement virtuel Python, le tutoriel Conda pour le paquet du canal, ou Platform installers pour un environnement d’exécution privé géré par l’installateur. Vérifiez ensuite la version installée et lancez spacr-doctor avant de suivre les tutoriels des modules."
+  ]
+}

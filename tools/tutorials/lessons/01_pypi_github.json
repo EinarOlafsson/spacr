@@ -1,0 +1,105 @@
+{
+  "id": "01_pypi_github",
+  "number": 1,
+  "slug": "pypi_github",
+  "title": "PyPI, GitHub, and conda-forge",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Find the official package and installer sources, compare the release available on each channel, and choose the matching installation tutorial.",
+  "objectives": [
+    "Identify spaCR's official PyPI, GitHub and conda-forge pages.",
+    "Distinguish release assets, development source and independently updated package channels.",
+    "Choose an installation route and check the version actually installed."
+  ],
+  "prerequisite": "No installation is performed in this overview. The live pages were captured on 2026-09-10: PyPI and GitHub offer 1.5.0.5, while conda-forge offers 1.5.0.4. Channel versions and available files can change; read the current page and verify your installed version. Browser captures use an anonymous profile with page text, badges and release history left intact. Platform-specific installation and hardware choices belong to the linked installation lessons.",
+  "scenes": [
+    {
+      "visual": "01_pypi_current_release",
+      "narration": "Before installing spaCR, choose its official distribution source. PyPI and conda-forge provide Python packages; GitHub provides source code, release records and desktop installers. These routes are related, but they do not necessarily publish the same version at the same time.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "01_pypi_current_release",
+      "narration": "On PyPI, read the release header and the installation command. The header here is spaCR one point five point zero point five. Check this live value instead of inferring the release from an old screenshot, a badge or a tutorial's date.",
+      "hold_after": 0.7,
+      "focus": [
+        770,
+        237,
+        2300,
+        305
+      ]
+    },
+    {
+      "visual": "02_pypi_project_links",
+      "narration": "Project links connects the package to its documentation, homepage, issue tracker and source repository. Use these links to move between the official resources. A package page describes that published release; it is not a guarantee that every development feature is already included.",
+      "hold_after": 0.7,
+      "focus": [
+        2510,
+        798,
+        500,
+        399
+      ]
+    },
+    {
+      "visual": "03_github_main_branch",
+      "narration": "On GitHub, the branch selector identifies the source line you are reading. Main is the release line and nightly contains ongoing development. Choose a release for routine installation; use nightly only when you deliberately need newer work and can tolerate changes.",
+      "hold_after": 0.7,
+      "focus": [
+        704,
+        412,
+        214,
+        64
+      ]
+    },
+    {
+      "visual": "04_github_current_assets",
+      "narration": "Open a release and expand Assets. Match the installer to Windows, macOS or Linux. The wheel and source distribution are Python package files, not desktop installers. Download the checksum list for the exact release and file you selected, rather than comparing hashes from another channel.",
+      "hold_after": 0.7,
+      "focus": [
+        738,
+        1103,
+        2364,
+        758
+      ],
+      "related_lessons": [
+        "04_platform_installers"
+      ]
+    },
+    {
+      "visual": "05_conda_current_package",
+      "narration": "The conda-forge page has its own version selector. At this recording it offers one point five point zero point four, while PyPI offers one point five point zero point five. That difference is visible and intentional in this demonstration; do not assume a channel update has already arrived.",
+      "hold_after": 0.7,
+      "focus": [
+        60,
+        710,
+        2435,
+        635
+      ]
+    },
+    {
+      "visual": "05_conda_current_package",
+      "narration": "The channel-qualified command is conda install conda-forge colon colon spacr. Run it inside the environment you intend to use. The Conda tutorial covers that route; creating a Conda environment and installing with pip is a different route, even though both use an environment manager.",
+      "hold_after": 0.7,
+      "focus": [
+        60,
+        710,
+        2435,
+        635
+      ],
+      "related_lessons": [
+        "02_conda_install"
+      ]
+    },
+    {
+      "visual": "01_pypi_current_release",
+      "narration": "Choose the pip lesson for a Python virtual environment, the Conda lesson for the channel package, or Platform installers for a private runtime managed by the installer. Afterwards, verify the installed version and run spacr-doctor before following the module tutorials.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "02_conda_install",
+        "03_pip_install",
+        "04_platform_installers"
+      ]
+    }
+  ]
+}

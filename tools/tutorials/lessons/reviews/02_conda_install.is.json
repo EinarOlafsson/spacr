@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Uppsetning með Conda",
+  "description": "Settu opinbera conda-forge-pakkann upp í sérstöku umhverfi, athugaðu raunverulega útgáfu á rásinni og þekktu muninn á henni og núverandi kennsluefni um einingar.",
+  "objectives": [
+    "Búa til og virkja sérstakt Conda-umhverfi.",
+    "Athuga uppsettan pakka af rásinni, Qt og niðurstöður greiningarprófana.",
+    "Velja nýrri pip-leiðina eða uppsetningarforritið þegar rásin er enn með eldra viðmót."
+  ],
+  "prerequisite": "Pakkastjóri sem styður Conda þarf þegar að vera uppsettur. Upptakan sannreynir spaCR 1.5.0.4 frá conda-forge á Linux með Python 3.12.14 og Qt 6.11.2 þann 10. september 2026. Hrein uppsetning notar nýja einkaslóð fyrir umhverfið, eingöngu conda-forge og fasta útgáfu af rásinni; skipanaspjöldin sýna samsvarandi leið með nafngreindu umhverfi en endurskapa ekki úttak uppsetningar. Raunverulega viðmótið er enn með Home (63), ekki nýju hreiðruðu skipanina í PyPI/uppsetningarforriti 1.5.0.5. Venjuleg keyrsla spacr-doctor stóðst litla CUDA-minnisúthlutunarprófið en varaði við valkvæðum CZI-stuðningi; þetta er hvorki hraðamæling né sannprófun allra greininga eða skráarsniða. Upptakan notar einkasnið með dökku þema, leturkvarða 1.5, kynningu sem þegar hefur verið lokað og óbreyttum sjálfgefnum forhleðslustillingum, án óstudda flaggsins --no-setup. Önnur stýrikerfi voru ekki prófuð. Upprunaleg og útgefin frásögn eru ólíkar, svo ekki er fullyrt að eldra hljóð sé endurnotað óbreytt.",
+  "scenes": [
+    "Notaðu sérstakt Conda-umhverfi fyrir spaCR og athugaðu hvaða útgáfu rásin býður í raun. Þegar þessi upptaka er gerð setur conda-forge upp einn punktur fimm punktur núll punktur fjórir. PyPI og uppsetningarforritið bjóða þegar einn punktur fimm punktur núll punktur fimm; þessar útgáfur eru ekki jafngildar.",
+    "Opnaðu skipanaskel sem er tilbúin fyrir Conda og búðu til nýtt umhverfi með Python þrír punktur tólf. Skipanaspjaldið notar nafnið spacr-conda. Veldu annað ónotað nafn ef það er þegar til og haltu umhverfinu aðskildu frá yfirstandandi greiningum.",
+    "Virkjaðu umhverfið og birtu sys punktur prefix til að staðfesta hvar Python er uppsett. Raunverulega prófunin notar lengri einkaslóð í stað stutta dæmisnafnsins. Skipanaboð eitt og sér sannar ekki að réttur túlkur sé í notkun.",
+    "Settu pakkann upp með conda-forge sérstaklega tilgreint og notaðu síðan conda list spacr til að skoða útgáfu og rás. Uppsetningin sem var staðfest notaði aðeins conda-forge og fasta útgáfu af rásinni. Henni var lokið áður en staðfestingarmyndirnar voru teknar; spjöldin eru leiðbeiningar, ekki tilbúið úttak úr skjáhermi.",
+    "Athugaðu útgáfur spaCR og Qt og staðsetningu pakkans í uppsetta umhverfinu. Hér er pakkinn einn punktur fimm punktur núll punktur fjórir og hægt er að flytja Qt inn. Þetta sýnir hvaða pakki er virkur en staðfestir ekki hvert vísindalegt verkferli eða hvert valkvætt skráarsnið.",
+    "Keyrðu spacr-doctor og lestu líka viðvaranirnar. Litla GPU-minnisúthlutunarprófið tekst hér, en hugbúnaðarháð vantar fyrir valkvæðan CZI-stuðning. Próf sem er sleppt er ekki staðist próf. Tillagan að lagfæringu á við þessa virkni; mettu breytingar á umhverfinu áður en þú gerir þær, sérstaklega þegar pakkastjórum er blandað saman.",
+    "Uppsetti Conda-pakkinn opnast og lokast eðlilega, en þetta er eldri Home-síðan hans með sextíu og þremur flísum. Þar er ekki nýja hreiðraða einingaskipanin. Ekki gera ráð fyrir að vel heppnuð uppsetning þýði að allir skjáir samsvari kennsluefni fyrir nýrri útgáfu.",
+    "Fyrir nýrra hreiðraða viðmótið í uppfærða kennsluefninu skaltu nota núverandi kennslustund um pip eða Platform installers í sérstöku umhverfi. Ef þú þarft Conda-rásina skaltu skrá raunverulega útgáfu hennar og athuga aftur með uppfærslur. Varðveittu útgáfuna sem notuð er við yfirstandandi greiningu."
+  ]
+}

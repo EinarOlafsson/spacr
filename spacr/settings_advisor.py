@@ -474,7 +474,7 @@ QUESTIONS: Tuple[Question, ...] = (
             "therefore has less power for the prespecified direction."),
     ),
     Question(
-        key="controls",
+        key="nontargeting_control_grnas",
         prompt="What are the non-cutting controls called? Leave blank if "
                "there are none.",
         kind="text",
@@ -838,17 +838,17 @@ def _controls(reading: Reading, answers: Dict[str, Any],
     phenotype; it is a distinct setting and is not modified here.
     """
     typed = [t.strip() for t in
-             str(answers.get("controls") or "").split(",") if t.strip()]
+             str(answers.get("nontargeting_control_grnas") or "").split(",") if t.strip()]
     if not typed:
         undecided.append(Undecided(
-            "controls",
+            "nontargeting_control_grnas",
             "no non-cutting control was named, so effects stay measured from "
             "zero -- 'no dose-response' -- rather than from the guides that "
             "cut nothing. That is a defensible baseline and it is not the "
             "one a reader of a screen figure assumes."))
         return
     chosen.append(Choice(
-        "controls", typed,
+        "nontargeting_control_grnas", typed,
         f"you named {', '.join(repr(t) for t in typed)} as the non-cutting "
         f"control; spaCR resolves a gene to every one of its guides and a "
         f"guide to itself, in any of the four spellings a library writes"))

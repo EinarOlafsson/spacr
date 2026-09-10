@@ -2,10 +2,14 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    THE STATED GOAL IS MET -- Claude is not in the contributors
-           list, measured 2026-09-10; see MEASURED below. No history
-           rewrite remains. What is left is one going-forward push check
-           and some unpublished local backup branches.
+Status:    DONE 2026-09-10. The goal was already met; the push check that
+           was the last piece is built and on nightly. See the closing note
+           at the foot.
+
+           (Previously: THE STATED GOAL IS MET -- Claude is not in the
+           contributors list, measured 2026-09-10. No history rewrite
+           remains. What is left is one going-forward push check and some
+           unpublished local backup branches.)
 
            (Previously: APPROVED, AND SCHEDULED LAST -- BUT NOW AFTER THE
            1.5.0.5 TAG.
@@ -303,3 +307,60 @@ unmerged at that moment is stranded. The workflow-file change is the one part
 that could safely land earlier -- it only affects FUTURE commits -- and doing
 it early is worth considering precisely because it stops the six from
 becoming seven.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- CLOSED. THE GUARD EXISTS AT THE ONE BOUNDARY THAT ALWAYS RUNS.
+--------------------------------------------------------------------------------
+
+MEASURED FIRST, ANCHORED, so the closure rests on a number rather than on
+the absence of a complaint:
+
+    origin/main          0 commits carrying a trailer
+    origin/nightly       0
+    origin/364-renames   0
+
+The only ref in the repository that still holds any is
+`refs/heads/backup/pre-claude-trailer-strip` -- 70 commits, tip e1662048,
+2026-09-03. It is LOCAL: not under refs/remotes, never pushed, and GitHub
+has never seen it. The published repository is already at zero and the
+contributor listing has nothing left to feed on.
+
+    THAT BRANCH IS THE MAINTAINER'S TO DELETE AND COSTS NOTHING TO KEEP.
+    It is the backup somebody took before the strip, and the only reason to
+    keep a backup is the moment you find you needed it. `git branch -D
+    backup/pre-claude-trailer-strip` when he is satisfied.
+
+AND COUNT IT ANCHORED, WHICH IS WHAT THE OPENING SECTION'S "38" DID NOT.
+Three commits in this repository DISCUSS the trailer in their prose -- the
+38 removed, the strip regex, the 70 that came back -- and an unanchored
+grep counts them as instances. That produced a "3 -> 6" report on
+2026-09-10 about a branch whose real count was zero. The rule:
+
+    git log --format="%B" <ref> | grep -cE "^[ \t]*Co-Authored-By:[ \t]*Claude"
+
+THE LAST PIECE WAS A PUSH-BOUNDARY GUARD, and the reason it had to be
+there rather than anywhere else is the finding worth keeping. This rule
+CANNOT BE ENFORCED FROM INSIDE THE REPOSITORY: the instruction to add
+`Co-Authored-By: Claude` arrives from OUTSIDE the tree, in the harness that
+runs the agent, where no hook, test or instruction file can reach it. That
+is how seventy trailers reached nightly after the history had already been
+cleaned once, and how three more reached a release merge branch on
+2026-09-10.
+
+The two guards that existed each had a hole the other did not cover:
+
+  * `tools/hooks/commit-msg` runs only where somebody has run
+    `git config core.hooksPath tools/hooks`, which a fresh worktree has
+    not.
+  * `tests/test_no_commit_credits_claude.py` runs in CI whether or not
+    anybody remembered -- but reports AFTER the push, and only when CI
+    finishes. Measured the same day: 24 of the last 30 runs on nightly
+    were cancelled, so the unconditional backstop fired about once in
+    fifteen.
+
+`tools/hooks/pre-push` is the third: the last moment the repository can
+still say no, and the only one that depends neither on a per-clone setting
+nor on CI reaching the end of a run. Proven four ways -- a clean push
+allowed, a trailer refused, a Claude-authored commit refused, and prose
+that merely DISCUSSES the trailer allowed -- plus branch deletion and
+first-push handling. Four tests keep it honest.

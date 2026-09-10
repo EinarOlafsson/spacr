@@ -1,0 +1,31 @@
+{
+  "lesson": "04_platform_installers",
+  "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; actual Linux installation distinguished from source-reviewed Windows/macOS guidance",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Installasjonsprogrammer for ulike plattformer",
+  "description": "Velg et offisielt installasjonsprogram, forstå automatisk valg av akselerator og frivillige personvernvalg, og kontroller det faktisk installerte Linux-miljøet.",
+  "objectives": [
+    "Velge det offisielle installasjonsprogrammet for operativsystemet.",
+    "Skille automatisk akselerasjon fra et uttrykkelig valg av bare CPU.",
+    "Lese personvernvalg, installerte versjoner og diagnostiske advarsler."
+  ],
+  "prerequisite": "Opptaket kontrollerer det offentlige nettbaserte installasjonsprogrammet for Linux x86-64, spaCR 1.5.0.5, sammenlignet med kontrollsummen 10. september 2026, med Python 3.12.13, Qt 6.11.2 og Torch 2.14.0+cu132. Den virkelige installasjonen var ferdig før kontrollbildene. Den brukte nye private mapper for kjøremiljø og oppstartsprogram, eksisterende grafiske systembiblioteker, --skip-system-deps og --no-launch; ingen eksisterende miljøer eller systemavhengigheter ble endret. Fire referansekort er instruksjoner, ikke opptak av Windows/macOS-installasjoner eller oppdiktede terminalutdata. Windows/macOS-veiledningen er bare kontrollert mot installasjonsprogrammets nåværende kildekode. GUI-opptaket bruker en privat mørk profil, skriftskala 1.5, allerede lukket introduksjon, forhåndslasting ved behov og --no-setup, som ikke hopper over det separate personvernspørsmålet. Det avvises med den virkelige Escape-tasten, slik at alle frivillige valg er av; de private innstillingene ble lest tilbake for å bekrefte det. Doctor brukte --no-gpu-probe; allokering, hastighet, analyser eller andre plattformer hevdes ikke validert. Mislykkede opptaksforsøk bevares og telles ikke som programfeil.",
+  "scenes": [
+    "Bruk spaCRs offisielle utgave på GitHub, og velg installasjonsprogrammet til operativsystemet ditt. Nettinstallasjonsprogrammene laster ned et privat Python-kjøremiljø og vitenskapelige avhengigheter; et eksisterende Conda-miljø trengs ikke. I dette Linux-eksemplet sammenlignet vi den nedlastede filen med utgavens kontrollsum før kjøring.",
+    "På Windows velger du den kjørbare nettinstallasjonsfilen. Nåværende kildekode forhåndsvelger automatisk akselerasjon; fjern avmerkingen for den valgfrie komponenten hvis du bare vil bruke CPU. Kortet forklarer valget, men er verken et opptak av Windows-installasjon eller en kompatibilitetstest på datamaskinen din.",
+    "På macOS velger du den universelle nettpakken for Intel og Apple silicon. Appens oppstartsprogram starter oppsett for den enkelte bruker hvis kjøremiljøet mangler. Kontroller den offisielle kilden før du godkjenner sikkerhetsvarsler, og sett av tid til nedlastinger. Dette er kildekodekontrollert veiledning, ikke en gjennomført macOS-installasjon.",
+    "På Linux gjør du den verifiserte filen kjørbar og starter den fra mappen dens. Automatisk valg av akselerator er nå standard; be uttrykkelig om CPU hvis det er det du trenger. Vår isolerte kjøring gjenbrukte systembiblioteker og private stier og demonstrerte derfor ikke installasjon av systemavhengigheter.",
+    "Les den faktiske installasjonsprofilen i stedet for å utlede beregningsmotoren fra en vellykket oppstart. Her ble auto forespurt, og den valgte motoren er CUDA på NVIDIA-maskinvare. Installert Torch er bygd for CUDA tretten punkt to. Det identifiserer valget, men er ingen GPU-hastighetsmåling.",
+    "Kontroller pakkeversjonen, Qt-importen og pakkestien. Dette private kjøremiljøet inneholder spaCR en punkt fem punkt null punkt fem. Filene kommer fra installasjonen, ikke en redigerbar kildekodekopi. Vellykkede importer validerer ikke alle analyser eller valgfrie filformater.",
+    "Den virkelige første oppstarten spør om frivillig deling av diagnostikk, offentlige feilrapporter og kontooppsett. Rapporter ville vært offentlige, så les forklaringen. Opptaket avviser dialogen med Escape, tilsvarende Skip, keep all off. Ingen kontoer kobles til, og private innstillinger bekrefter at deling og rapporthandlinger forblir av.",
+    "Etter valget åpner den installerte appen sin nåværende Home med tjueen fliser og seks kjernemoduler. Vinduet lukkes også normalt. Fortsett med Home-leksjonen om nestede arbeidsflyter og eksempeldata; å åpne Home alene er ingen analysetest.",
+    "Kjør spacr-doctor fra det installerte miljøet, og les både advarsler og beståtte kontroller. Her bekreftes installasjonsprogrammets motor, men det advares om en manglende valgfri CZI-avhengighet. GPU-allokering, database og innstillinger ble hoppet over. En hoppet kontroll er ikke bestått; vurder foreslått reparasjon før miljøet endres.",
+    "Behold install punkt log og install-profile punkt json fra valgt installasjonsmappe ved feilsøking. Se etter private opplysninger i logger før du deler dem. Registrer versjonen for hver analyse, og oppdater bevisst. Leksjonene om pip og Conda beskriver de andre installasjonsveiene med separate miljøer."
+  ]
+}

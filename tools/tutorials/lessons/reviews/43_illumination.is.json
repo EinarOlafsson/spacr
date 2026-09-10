@@ -1,0 +1,34 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Lýsingarleiðrétting",
+  "description": "Áætlaðu lýsingarsvið út frá sóttum myndum á Illumination-síðu Measure, skoðaðu raunverulegt útflutt gæðaeftirlit og aðskildu tölulegan árangur frá líffræðilegri staðfestingu.",
+  "objectives": [
+    "Opna samþættu síðuna og velja styrkleikarásir samsettra mynda.",
+    "Bera saman slökkt og kveikt á leiðréttingu og skoða líkan og gæðaeftirlit.",
+    "Endurnota yfirfarið líkan án þess að rugla saman greiningu á aðlögunargögnum og óháðri staðfestingu."
+  ],
+  "prerequisite": "Notuð eru óbreytt afrit af sextán sóttum plate1-myndsviðum, 1994 × 1994 mynddílum með sjö vistuðum plönum. Rás núll er styrkleikavísir, ekki heiti litunar; merkiplön eru ekki styrkleikar. Frumrit og afrit varðveitast. Eftir GUI-keyrslu sannreynir óháð formúla 7.952.072 leiðrétta mynddíla gegnum opinbera API-ið án þess að skipta út niðurstöðum viðmótsins. Líkan og gæðaeftirlit nota sömu sextán sviðin, ekki óháð sjónfræðileg eða líffræðileg viðmiðunargögn. Dökkt hliðrunargildi núll er ekki mæld kvörðun. Figures helst tómt; raunverulega PNG-skráin er opnuð í sérstöku myndskoðunarforriti. Engum forritskóða eða upprunamyndum er breytt. Gömlu fimm atriða hermuninni er skipt út.",
+  "scenes": [
+    "Opnaðu Measure og síðan Illumination-hnappinn. Þessi samþætta síða áætlar leiðréttingarlíkan fyrir stærri greiningu. Það er annað en að kveikja einfaldlega á leiðréttingu í mælingakeyrslu og gerir ekki alla forritslotuna sjálfkrafa leiðrétta.",
+    "Beindu Source að merged-möppunni með myndfylkjunum, ekki mælingagagnagrunninum. Við notum ný afrit af öllum sextán sviðum niðurhalanlega plötudæmisins. Frumritin haldast óbreytt og lýsingarlíkanið vistast við hlið merged-möppunnar.",
+    "Channels-stillingin nefnir staðsetningar í vistaða styrkleikafylkinu. Hér veljum við rás núll. Athugaðu eigin samsvörun við myndatöku í stað þess að gera ráð fyrir að núll tákni alltaf sömu litun. Veldu aldrei merkigrímuplan eins og það væri flúrljómunarstyrkur.",
+    "Fyrst er slökkt á leiðréttingu. Run lýkur en stjórnborðið segir skýrt að ekkert lýsingarsvið hafi verið áætlað. Við staðfestum að ekkert líkan hafi verið búið til. Skilaboð um heppnaða keyrslu sanna því ekki ein og sér að leiðrétting hafi farið fram.",
+    "Kveiktu á Illumination correction. Dæmið notar polynomial-matið með stigi fjögur og skilur Illumination model eftir tómt til að áætla nýtt svið. Meiri sveigjanleiki er ekki sjálfkrafa betri: Leiðrétting sem fylgir frumum eða meðferðarmynstrum getur fjarlægt líffræðina sem þú vildir mæla.",
+    "Haltu myndatökuhópum aðskildum með Illumination per plate. Hér notum við öll sextán tiltæku sviðin. Dæmigerð þekja skiptir meira máli en að hækka tölu í blindni; líkan aðlagað einum þéttvöxnum kima getur ruglað líffræðilegri byggingu saman við ójafna lýsingu.",
+    "Illumination dark er samlagningarhliðrun myndavélar í hráum talningareiningum, ekki lærður líffræðilegur bakgrunnur. Núll er stillingin í sýnidæminu, ekki kvörðunarniðurstaða. Veldu hliðrun út frá viðeigandi myndatökuviðmiðum í stað þess að breyta henni þar til svipgerð hverfur.",
+    "Hafðu Illumination QC virkt og athugaðu regluna þegar líkan vantar. Við veljum error svo að ófáanleg leiðrétting fyrir plötu stöðvi aðgerðina í stað þess að blanda saman leiðréttum og óleiðréttum sviðum án tilkynningar. Þessar athuganir koma ekki í stað þess að skoða áætlaða sviðið.",
+    "Keyrðu aftur með leiðréttingu virka. Stjórnborðið birtir nú aðlagaða sviðið, greiningarhallatölur og slóð vistaða líkansins. Þetta sjálfstæða skref skilur myndskrárnar eftir óbreyttar; það hefur hvorki endurkeyrt myndgreiningu né búið til nýjar frumumælingar.",
+    "Í þessari útgáfu vistast QC-myndin en birtist ekki í innbyggða Figures-spjaldinu. Opnaðu illumination_qc_plate1.png úr illumination-möppunni í myndskoðunarforriti. Þetta er raunverulega útflutta myndritið í sérstöku forriti, ekki hermt spaCR-spjald.",
+    "Vinstra spjaldið sýnir áætlaða lýsingarsviðið með meðaltalið einn. Leiðréttingin dregur hliðrun myndavélar frá og deilir með þessu sviði. Þótt fyrirsögnin kalli það gain skaltu ekki margfalda styrkleika með kortinu: Leiðréttingin notar andhverfu þess. Athugaðu hvort líffræðileg form hafi slæðst inn í matið.",
+    "Geislalæga hallatalan breytist úr um −0,181 í +0,026. Tilkynnt 85,4 prósenta minnkun stemmir við óháða útreikninginn okkar, en ferillinn eftir leiðréttingu er ekki flatur. Þetta eru sömu sviðin og voru notuð til að aðlaga líkanið, svo þetta er ekki óháð staðfesting.",
+    "Til að endurnota líkanið síðar skaltu gefa upp vistaða slóð þess og virkja leiðréttingu sérstaklega í fyrirhugaðri Mask- eða Measure-vinnslu. Varðveittu líkan, rásatengingar, plötuauðkenni og stillingar saman. Skoðaðu óháð svið og forðastu að leiðrétta þegar leiðrétta styrkleika tvisvar áður en þú túlkar líffræðilegan mun."
+  ]
+}

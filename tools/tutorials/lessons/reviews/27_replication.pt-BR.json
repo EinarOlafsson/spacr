@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Ensaio de replicação",
+  "description": "Conte parasitas por vacúolo, examine as distribuições e ajuste as legendas sem alterar os dados. O exemplo é sintético e não demonstra efeito terapêutico.",
+  "objectives": [
+    "Contar por vacúolo, não por célula hospedeira.",
+    "Manter contagens diferentes de potências de dois e examinar resumos por poço e condição.",
+    "Usar os controles reais das figuras e revisar os avisos de exportação."
+  ],
+  "prerequisite": "Uma nova cópia do banco sintético contém 1.992 linhas inventadas de parasitas, 480 vacúolos, 240 grupos de células hospedeiras e doze poços artificiais. Vehicle e inhibitor são nomes didáticos; os seis poços de cada grupo repetem a mesma distribuição. Não há imagens adquiridas nem botão de download específico neste módulo. O banco original permanece intacto. Cálculos independentes verificam 6.588 campos CSV, além das alturas e bases das barras. Isso não valida segmentação, valores p ou eficácia. Para dados biológicos, use medidas, relações entre vacúolos e réplicas experimentais realmente validadas.",
+  "scenes": [
+    "Abra Replication Assay na seção Assays de Home. O módulo conta os parasitas medidos por vacúolo; ele não segmenta imagens aqui. Este exemplo é explicitamente sintético: seus gráficos ensinam os controles e as regras de contagem, não um efeito biológico do tratamento.",
+    "Escolha a pasta do experimento preparado que contém measurements, barra, measurements ponto db. Nossa nova cópia privada contém mil novecentas e noventa e duas linhas inventadas de parasitas. Preservamos o banco original e começamos sem arquivos antigos de resultados, para que cada saída mostrada pertença a esta execução.",
+    "Defina Vacuole key como a coluna de identificadores explícitos dos vacúolos. O exemplo tem quatrocentos e oitenta vacúolos, mas apenas duzentos e quarenta grupos de células hospedeiras: cada hospedeira contém dois vacúolos. Contar por célula hospedeira juntaria os dois e responderia a outra pergunta. Valide essa relação em imagens reais antes de analisar seus dados.",
+    "Require host cell exclui objetos sem vínculo válido com uma hospedeira. Isso impede a inclusão de objetos não atribuídos, mas também pode remover parasitas reais se a segmentação da hospedeira falhou. Todas as linhas didáticas têm vínculos válidos; este exemplo não valida sua segmentação.",
+    "A maior categoria nomeada que é uma potência de dois é dezesseis, não um limite que corta todas as contagens maiores. Potências superiores têm uma categoria de excedentes, e as outras contagens permanecem separadas. Cada poço artificial inclui dois vacúolos com três parasitas: não arredonde uma contagem de três para quatro.",
+    "Confira o mapeamento entre condições e poços. Aqui, a primeira coluna se chama vehicle e a segunda inhibitor, com seis poços artificiais em cada grupo. Esses nomes fazem parte do desenho didático inventado. Eles não demonstram que um medicamento foi aplicado, e uma diferença visualmente convincente não comprova eficácia.",
+    "Pressione Run somente depois de conferir a fonte, a chave de atribuição, os filtros e as configurações de saída. É uma análise de tabelas, não uma nova segmentação Cellpose nem um teste de desempenho da GPU. O processo real produz as figuras por poço e por condição.",
+    "Leia cada barra empilhada como a distribuição das contagens por vacúolo em um poço. O exemplo vehicle tem duzentos e vinte e oito parasitas em quarenta vacúolos; o exemplo inhibitor, cento e quatro em quarenta. Ambos mantêm cinco por cento dos vacúolos fora das potências de dois. Verificamos as alturas exibidas com contagens independentes, não apenas os nomes dos arquivos.",
+    "Se a legenda estiver cortada, abra Figure settings e a aba dos eixos; depois altere Legend position. Escolhemos uma posição interna usando esses controles reais. É uma mudança de apresentação: os valores das barras e os arquivos de dados permanecem inalterados.",
+    "A visualização por condição reúne os vacúolos do exemplo em duas distribuições. Todos os seis poços de cada grupo repetem o mesmo padrão inventado. Não cite os testes de significância resultantes como um efeito terapêutico: uma inferência real exige réplicas genuínas e uma unidade experimental independente defensável.",
+    "Leia o console além do gráfico. Esta execução avisa que algumas cores selecionadas têm pouco contraste em uma página exportada clara. Confira as figuras exportadas e escolha uma paleta acessível: uma visualização escura legível na tela não garante automaticamente uma figura salva legível.",
+    "Com Save ativado, os resultados ficam em results, barra, analyze replication: contagens por vacúolo, distribuições por poço, resumos por condição, tabelas estatísticas e figuras. Guarde as configurações e os identificadores das fontes com eles. No seu ensaio, examine imagens reais e controles biológicos antes de interpretar esses resumos."
+  ]
+}

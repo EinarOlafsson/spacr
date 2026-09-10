@@ -1,0 +1,32 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "使用pip安装spaCR",
+  "description": "创建独立的Python环境，安装公开发布的软件包，验证依赖关系，并启动已安装的Qt应用。",
+  "objectives": [
+    "将spaCR的依赖保留在专用Python环境中。",
+    "检查已安装的软件包、Qt和可选功能警告。",
+    "打开Home，并有意识地更新正确的环境。"
+  ],
+  "prerequisite": "本课在Linux和Python 3.12.13上验证公开PyPI版spaCR 1.5.0.5，而非源码的可编辑安装。命令卡片是操作说明，不是录制的终端输出；此处未执行Windows和macOS命令。全新安装在录制验证过程前已经完成。当前基础依赖包含Qt。Doctor报告可选CZI功能警告；GPU内存分配探测被明确跳过。GUI录制使用--no-setup、字体缩放1.5的私有深色配置，以及已经关闭的导览。它证明Home能够正常打开和关闭，不代表所有模块、可选格式、GPU计算或其他平台均已验证。",
+  "scenes": [
+    "将spaCR安装在独立的Python环境中。本演示使用Linux上的Python三点十二，以及PyPI公开发布版，而不是源码检出版本。在为环境选择解释器前，请检查python、两个短横线、version。",
+    "使用适合平台的命令创建新的虚拟环境。这里的点venv是工作目录中的新文件夹。Python三点十二需要预先安装；这个命令创建环境，不会安装Python本身。",
+    "用当前命令行环境对应的命令激活它。PowerShell、Command Prompt、bash和zsh使用不同的激活命令。如果PowerShell阻止脚本，请使用Command Prompt或直接调用环境中的Python，不要降低整台计算机的安全设置。",
+    "运行python、短横线m、pip、两个短横线、version。显示的位置应当在选定的环境内。这是真实终端，其中较长的私有路径用于录制。使用python、短横线m、pip，会把软件包安装与该解释器关联起来。",
+    "先升级pip，再安装spacr。固定为一点五点零点五，可以使用本课验证的同一发布版本。全新安装在这些验证画面录制前已经完成。请为科学计算依赖预留时间和磁盘空间；当前基础依赖已经包含Qt桌面组件。",
+    "检查安装的spaCR版本、Qt版本和软件包路径。这里三者都来自新环境。仅仅导入成功，不能证明每一种可选格式或分析都能运行，也不能证明窗口一定能打开。",
+    "运行python、短横线m、pip check。No broken requirements表示已安装依赖的声明相互一致。如果报告冲突，请先解决再继续；检查成功不等于对分析进行了科学验证。",
+    "运行spacr-doctor，除了通过项，也要阅读警告。此环境有一条可选CZI功能警告，并显示修复命令。录制时使用两个短横线的no gpu probe，因此会检测设备，但不测试GPU内存分配。跳过的检查不等于通过。",
+    "从同一个已激活环境启动spacr。正常首次启动可能显示设置问题。本次有限验证明确使用两个短横线的no setup，以及为录制准备的配置，因此没有演示如何回答这些问题。",
+    "这是从已安装wheel打开的真实Home窗口，包含六个核心模块以及Data、Tools和Assays分组。它在没有启动分析的情况下正常打开并关闭。关于导航、嵌套工具和模块教程，请继续学习Home课程。",
+    "更新时先关闭spaCR，再激活打算修改的环境。升级软件包，重新运行pip check和spacr-doctor，并随分析记录更新后的版本。更新可能改变依赖和行为；不要悄悄更改正在支持进行中工作的环境。"
+  ]
+}

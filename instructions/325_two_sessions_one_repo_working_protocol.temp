@@ -5017,3 +5017,308 @@ headless-versus-Qt-extra explanation is stale: core now declares PySide6.
 Live PyPI JSON is 1.5.0.5 while conda-forge is still 1.5.0.4; a version in a
 cached web page is not an installed-version check. Tutorial changes only;
 no packaging fixes, uploads, dependency policy edits or release actions.
+
+CODEX TUTORIAL LANE — 2026-09-10, INSTALLATION SOURCES AND CLEAN PIP CHECK.
+
+Lesson 01 technical checkpoint f04b4b446: eight scenes recorded from the
+actual current official PyPI, GitHub and conda-forge pages, without editing
+page content or hiding badges. PyPI/GitHub are 1.5.0.5; conda-forge is still
+1.5.0.4. Checksums belong to the exact channel and file, not another release
+asset. One 3840x2160/30 silent master, 50 decoded/fingerprint-checked voices,
+14 browser cases and all catalog structures passed. Native-speaker and
+human-listening approval remain false, and nothing is published. Total:
+37 technical matrices, 1,850 tracks (100 retained), 518 browser checks;
+14 catalogs agree on 75 lessons / 805 scenes, 39 unselected lessons unchanged.
+
+Separate preflight efdc829f8: a genuinely fresh private
+Python 3.12 virtualenv installed public PyPI spaCR 1.5.0.5, passed pip check,
+imported spaCR/PySide6/Torch from its own site-packages, and ran doctor.
+Doctor reports 13 PASS, 4 SKIP, 1 WARN: CZI's optional pylibCZIrw is absent.
+This does not prove GUI launch, GPU computation, optional formats or other
+platforms. Ten probe tests pass; three individually removed guards fail
+their tests and their restored lines are measured as executed. The private
+environment and raw logs remain under refresh_2026-09-09/installation_runs/
+public-pypi-sj_vulgt for the actual installed-package GUI capture next.
+
+Lesson 03 is NOT counted complete. Next I am replacing its obsolete claim
+that desktop Qt requires an extra: current core dependencies include Qt.
+All changes stay in tutorial tools/assets and this coordination channel.
+Receipts: 2026-09-10_installation_sources_multilingual_technical_checks.json
+and 2026-09-10_clean_pypi_installation.json in tools/tutorials/evidence/.
+
+CODEX TUTORIAL LANE — 2026-09-10, PIP LESSON TECHNICAL MATRIX COMPLETE.
+
+Checkpoint 2f41240df: lesson 03, eleven scenes, one 3840x2160/30 master,
+50 preserved voices decoded and production fingerprints checked, fourteen
+browser cases passed. The final Icelandic caption wording was rechecked in
+the browser after its correction. Technical totals are now 38 lessons,
+1,900 tracks (100 retained), 532 browser cases; all fourteen catalogs agree
+on 75 lessons / 809 scenes, with 38 unselected lessons unchanged. Staging
+only: no upload, publication, native-speaker or human-listening approval.
+
+The actual private PyPI installation from the previous handoff passed five
+recorded terminal checks, then launched its own installed spacr console
+entry point and closed the real Home window normally, exit zero. Package
+location is inside that new environment, not this source checkout. The
+lesson explicitly discloses --no-setup, a private dark recording profile,
+font scale 1.5 and a previously dismissed tour. It does not claim to show
+first-run answers, scientific execution, GPU allocation or other platforms.
+Doctor's optional CZI warning is visible and explained, not hidden.
+
+Five command-reference cards retain the established tutorial style and
+are labelled as instructions, not terminal output. Windows/macOS commands
+were not executed here. The earlier clean installation completed before
+the verification recording; no progress or success output is fabricated.
+
+The first recording selected Qt's one-pixel application helper instead of
+the visible window. That failed take remains rejected. The corrected
+recorder selects the exact title and substantial window geometry, checks
+its actual process owner and final 4K size, and requests normal WM close.
+Three tests pass; individually changing each of five measured selection/
+installation guards produces a failing test. No application code changed.
+Receipt: tools/tutorials/evidence/
+2026-09-10_pip_installation_multilingual_technical_checks.json.
+
+Next: verify the conda-forge installation route in a NEW private environment,
+without touching any existing environment or the other sessions' work.
+
+CODEX TUTORIAL LANE — 2026-09-10, INSTALLER PREFLIGHT CHECKPOINT.
+
+2955f4c9d verifies the actual public v1.5.0.5 Linux installer against that
+release's SHA256SUMS.txt: 69,453 bytes, SHA256
+21e1040ef7bb3b372268d3504bd0028ff83bba363de46ab98f34de1329e32488.
+It is a plain Bash .run, not a Makeself archive. My first verifier wrongly
+tried --info/--check; both were correctly rejected. That rejected receipt
+remains, and the corrected Bash syntax / --help / --dry-run checks pass.
+The real dry-run says default PyTorch backend auto and spaCR[qt]==1.5.0.5.
+No package installation, GUI or benchmark success is inferred from a plan.
+Seven focused tests pass; all four separately changed guards make tests
+fail, and restored guard lines are measured as executed. Tutorial 04 is
+NOT complete. No application/packaging files or release assets changed.
+
+In parallel, the private Conda installation is still running under the
+110-GiB guard: conda-forge 1.5.0.4, 472-package plan, 4,764,939,474 bytes to
+fetch. A solve is not installation acceptance. Its environment registry
+and package caches are isolated, and no existing environment is updated.
+
+CODEX TUTORIAL LANE — 2026-09-10, CLEAN CONDA INSTALLATION VERIFIED.
+
+59eb86a42: the private conda-forge 1.5.0.4 installation completed, not just
+its solve. Five real commands succeeded: solve, install, isolated import,
+doctor and package inventory. Python 3.12.14, Qt 6.11.2, Torch 2.13.0 built
+against CUDA 12.9. Doctor reports 13 PASS, 3 SKIP, 1 optional CZI WARN, with
+the GPU allocation probe skipped. No GUI/platform/performance inference.
+The whole ~/.conda registry directory was privately bind-mounted during
+Conda commands; caches and environment prefix are also private. Nothing
+in an existing environment was changed. Thirteen plan tests pass, and
+individually changing each of the three measured guards causes three
+failures. Receipt: tools/tutorials/evidence/
+2026-09-10_clean_conda_installation.json. Lesson 02 remains in progress.
+
+The exact verified Linux installer is now running separately under the
+same 110-GiB guard, with downloads/install concurrency capped at two.
+Its runtime, launcher, desktop file, profiles and caches stay under a new
+private tutorial directory; --skip-system-deps and --no-launch are explicit.
+No consent answers are supplied, no accounts connected, no system packages
+installed. This run must finish its own import/doctor checks before it can
+be called successful. Neither installation tutorial is counted complete.
+
+CODEX TUTORIAL LANE — 2026-09-10, PUBLIC LINUX INSTALLER COMPLETED.
+
+9fc90ff12: the exact checksum-verified 1.5.0.5 public Linux installer ran
+successfully in its new private runtime. Installer, isolated import and
+doctor all returned zero. Automatic backend selection chose CUDA, with
+Torch 2.14.0+cu132, Qt 6.11.2, private Python 3.12.13. Doctor reports
+14 PASS, 3 SKIP, one optional CZI WARN. This is NOT a GPU speed benchmark
+or GUI proof. No system dependencies were installed, no personal launcher
+overwritten, no consent answers supplied and no accounts connected.
+The private install-profile confirms every consent flag is false.
+One positive/negative identity test passes; separately changing either
+measured private-receipt/exact-asset guard makes it fail. Receipt:
+tools/tutorials/evidence/2026-09-10_public_linux_installation.json.
+
+Recording work continues. The older Conda 1.5.0.4 package lacks both
+--no-setup and set_preload_policy, so its recorder must use that version's
+actual launcher/defaults rather than calling newer APIs or patching spaCR.
+The first attempted Conda recorder correctly failed on the missing newer
+preference API; the rejected take is retained, not counted as an app bug.
+
+CODEX TUTORIAL LANE — 2026-09-10, CONDA GUI CAPTURE AND CHANNEL MISMATCH.
+
+f82f96889: five real terminal checks and the actual installed Conda Home
+recorded at 4K, normal close exit zero. Default spacr-doctor now also ran
+its small real CUDA allocation check successfully: 13 PASS, 3 SKIP, one
+optional CZI WARN. This extends the earlier preflight, not a speed benchmark.
+Five recorder tests pass; separately changing either new route distinction
+causes one failing test. Pip's original command sequence remains tested.
+
+IMPORTANT FOR THE RELEASE/PACKAGING OWNER: conda-forge 1.5.0.4 really ships
+the old Home (63) layout, not the new 21-tile/nested experience. This is not
+merely an old version label: --no-setup and the new preload API are absent.
+Please account for that channel lag in publication decisions. No feedstock,
+application, dependency policy or packaging change made from the tutorial lane.
+The refreshed Conda lesson will disclose the actual old layout and direct
+users needing the current nested UI to the newer pip/installer route.
+
+Exact unchanged audio reuse was checked, not assumed: all fourteen local
+authoring lesson-02 records differ from the published records, and the
+available original timing narrates a different first scene. No false
+byte-identical retention claim will be made. English/media production is
+next. Receipt: tools/tutorials/evidence/
+2026-09-10_conda_installed_gui_capture.json. Technical total remains 38.
+
+CODEX TUTORIAL LANE — 2026-09-10, CONDA MULTILINGUAL MATRIX COMPLETE.
+
+254e1a0f2: lesson 02 now has eight scenes grounded in the actual clean
+conda-forge installation, including the genuine old Home (63), its normal
+open/close, and the doctor CUDA allocation PASS/optional CZI warning.
+Four explicit command-reference cards are labelled as instructions, not
+fabricated terminal output. The lesson directs users needing the newer
+nested interface to pip/desktop installers; no packaging change made.
+All fifty voices decode and match current pronunciation/render inputs.
+Fourteen browser playback/caption/link cases pass against the final bytes;
+the shared 3840x2160/30 master fully decodes, and all eight scenes have
+decoded samples. Fourteen catalogs agree on 75 lessons / 810 scenes with
+37 unselected lessons unchanged. Five recorder guard tests pass.
+Technical staging total is 39 lessons, 1,950 tracks (100 retained), 546
+browser cases. Independent native/listening approval and publication are
+NOT claimed. Receipt: tools/tutorials/evidence/
+2026-09-10_conda_installation_multilingual_technical_checks.json.
+Next: record the already-installed public Linux desktop runtime for 04.
+
+CODEX TUTORIAL LANE — 2026-09-10, INSTALLED LINUX STARTUP RECORDED.
+
+6eaca63fd: the exact public installer runtime has five real terminal checks,
+its real optional privacy dialog, the current Home (21), and normal close
+exit zero recorded at 4K. --no-setup does not suppress this separate privacy
+prompt: the recorder uses native Escape, the same reject path as Skip/keep
+all off. Its private preferences were then read back: diagnostic sharing
+false, issue action false, prompt never, consent handled true. No accounts
+connected, reports sent, or consent choices enabled. Auto selected CUDA
+on this NVIDIA machine, with Torch 2.14.0+cu132; not a speed benchmark.
+Nine recorder tests pass; ten isolated route/privacy/window mutations each
+make a test fail, and the exact guards were measured as executed. Earlier
+rejected recorder takes are retained with reasons, not called application
+defects. Four labelled instruction cards cover Windows/macOS guidance,
+Linux commands and logs; only Linux was actually executed. Receipt:
+tools/tutorials/evidence/2026-09-10_linux_installer_native_capture.json.
+Lesson 04 narration/multilingual media are next. Technical total remains 39.
+
+CODEX TUTORIAL LANE — 2026-09-10, INSTALLER MULTILINGUAL MATRIX COMPLETE.
+
+2893483d1: 04 now has ten scenes, fifty checked voices and fourteen passing
+browser/caption/link cases against the final files. One shared 4K/30 master
+fully decodes: 203.4 seconds, 6,102 frames, 7,508,511 bytes. All ten scenes
+sampled; platform cards, privacy dialog and current Home inspected visually.
+The false old CPU-default claim is corrected. Linux installation and native
+startup are actually verified; Windows/macOS remain explicitly source-reviewed
+guidance, not executed compatibility claims. Separate privacy prompt, native
+keep-all-off rejection and optional CZI warning are shown, not suppressed.
+Fourteen catalogs agree on 75 lessons / 812 scenes, 36 unselected lessons
+unchanged. Technical total: 40 lessons, 2,000 tracks (100 retained), 560
+browser cases. Independent native/listening approval and publication remain
+unclaimed. Receipt: tools/tutorials/evidence/
+2026-09-10_platform_installers_multilingual_technical_checks.json.
+Next: assess retained content for the nested Annotator Agreement lesson;
+preserve unchanged material and correct only demonstrably stale parts.
+
+CODEX TUTORIAL LANE — 2026-09-10, AGREEMENT NATIVE DEMONSTRATION VERIFIED.
+
+122196fe9: lesson 23 now records the actual Annotate -> Agreement fold.
+Sixteen unchanged downloaded crop copies have three explicitly ARTIFICIAL
+teaching-label columns in a new private database, not human/biological scores.
+Two -> three -> two passes agree with independent Counter/Fraction results:
+12 shared labels, 75% agreement and Cohen kappa .5; Fleiss kappa .6625.
+All pair identities/numbers, confusion matrices and review paths checked;
+three crop previews match independently scaled original RGBA pixels exactly.
+Both databases and all original/copied crops remain byte-identical after use.
+Seven focused tests pass; four isolated verifier mutations each turn tests red.
+Final capture has 15 frames, of which 10 form the new English lesson. The old
+master repeated an empty screen and its default model-discovery wording is
+stale, so this is not a rewrite of a merely moved, unchanged lesson.
+No app/Qt changes. English narration rendering is now memory-guarded; other
+languages and playback checks remain. Technical lesson total stays 40.
+Receipt: tools/tutorials/evidence/2026-09-10_agreement_native_capture.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, AGREEMENT COMPLETE / REPLICATION RUN.
+
+127b92121: Agreement now passes all fifty voice checks, fourteen browser
+cases and the final shared 4K/30 decode. Ten scenes / 442 English words,
+with source-pinned visual-only spotlights locating the icon-only Agreement
+button and the complete confusion matrix; all original captures unchanged.
+Fourteen catalogs agree on 75 lessons / 814 scenes, with 35 unselected
+lessons unchanged. Technical staging total is 41 lessons, 2,050 tracks
+(100 retained), 574 browser cases. Native/listening approval and publication
+remain unclaimed. Receipt: 2026-09-10_agreement_multilingual_technical_checks.json.
+
+065707b17: the next Replication tutorial has a successful real GUI run on
+a NEW COPY of the preserved SYNTHETIC teaching database. Not a drug-effect
+claim: 1,992 invented parasite rows, 480 explicit vacuoles, 240 host groups,
+12 wells. Independent checks match 6,588 fields in three output CSVs;
+both actual figures are visible and both databases remain byte-identical.
+Nine focused tests pass; five verifier/premise mutations each turn tests red.
+The current embedded figure legends extend beyond the viewport, so I will
+improve the genuine viewing controls before freezing narration. No application
+or Qt edits; no native-language or completed-lesson claim for 27 yet.
+Receipt: tools/tutorials/evidence/2026-09-10_replication_native_numeric_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, REPLICATION FIGURE CONTROLS VERIFIED.
+
+9f21b7a86: final native capture checks 6,588 output CSV fields and 168 actual
+Matplotlib bar height/base fields against independent synthetic input counts.
+Both clipped legends moved inside using the genuine Figure settings dialog;
+all bar geometry and CSV bytes remain unchanged. Console warning and Finished
+are visible, and both dialogs fit the screen. Sixteen focused tests pass; six
+isolated figure-verifier mutations turn tests red. A zero-height placeholder
+assumption in my verifier was corrected from actual plotted geometry, not by
+changing application code. Twelve English scenes frozen; all 24 English voices
+rendered and the seven other spoken languages are rendering under the 110 GiB
+guard. Six caption-only drafts and the final media checks follow. Technical
+total remains 41 until the complete matrix passes. Synthetic data are explicitly
+labelled; no acquired images, drug-effect, inference, native/listening or public
+release claim. Receipt: 2026-09-10_replication_native_figure_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, REPLICATION MATRIX COMPLETE.
+
+39ed1423e: 27_replication now has twelve scenes, 526 narrated English words,
+fifty fully decoded/current-input voice tracks and fourteen passing browser
+and caption cases. The shared 4K/30 master fully decodes; all twelve scenes
+sampled and the vacuole key, well plot, actual legend dialog and console warning
+inspected visually. No altered output values, invented acquired images or
+inference claims. Fourteen catalogs agree on 75 lessons / 818 scenes, and
+34 unselected lessons remain untouched. Technical staging total: 42 lessons,
+2,100 tracks (100 retained), 588 browser cases. No native/listening signoff
+or publication claimed. Receipt:
+tools/tutorials/evidence/2026-09-10_replication_multilingual_technical_checks.json.
+
+NEXT, tutorial-only: 43 Illumination's old five scenes were a simulated
+in-memory workflow, not the current Measure fold. I will capture the actual
+Measure -> Illumination route on a fresh private copy of the sixteen downloaded
+merged fields, then check saved model/QC behavior before writing narration.
+No changes to application, Qt or any other session's lane.
+
+CODEX TUTORIAL LANE — 2026-09-10, ILLUMINATION NATIVE WORKFLOW VERIFIED.
+
+5b52f9e35: real Measure -> Illumination off/on runs on new byte-identical
+copies of all sixteen downloaded 1994x1994x7 fields. Correction off produces
+the explicit console notice and no model; on saves the actual mean-one field.
+All 7,952,072 corrected pixels checked through the public API after the GUI
+run match an independent float32/round/clip formula, with unchanged inputs.
+Independent covariance/variance radial slopes match the real console:
+-0.1814 -> +0.0264, 85.4% reduction, explicitly IN-SAMPLE, not validation.
+Sixteen focused tests pass. Eleven verifier mutations against the initial
+15 tests, plus three QC mutations against the final 16, each turn tests red.
+
+Application observations, NOT edited: this folded form has category headers,
+not the top-level settings search; the recorder now uses those real controls.
+The QC PNG saves correctly but the embedded Figures panel remains empty.
+The final recording therefore opens the actual export in the ordinary system
+image viewer on a private display/bus, as lesson 75 does; no fake embedded
+panel. The left QC panel calls the stored flat-field "gain" even though the
+correction divides by it; English explicitly explains the reciprocal.
+
+Thirteen English scenes / 553 words frozen, 24 English voices rendering under
+the RAM guard. Remaining translations and the full playback matrix follow.
+Technical total remains 42; no native/listening approval or publication claim.
+Receipt: tools/tutorials/evidence/
+2026-09-10_illumination_native_model_and_qc_checks.json.

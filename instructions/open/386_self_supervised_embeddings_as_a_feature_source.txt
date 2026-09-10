@@ -76,10 +76,25 @@ what was designed in, and the supervised path finds only what was annotated.
 A screen whose real hit is "the vacuole is subtly mislocalised in a way we
 have no column for" returns nothing, and returns it confidently.
 
-Self-supervised embeddings are the standard answer, and on Cell Painting
-benchmarks they beat hand-crafted panels at retrieving known mechanism
-without a single label. For this lab specifically they are the difference
-between a screen that confirms a hypothesis and one that generates one.
+Self-supervised embeddings are the standard answer to that, and they need no
+labels at all.
+
+BUT DO NOT SELL THEM AS "BETTER", BECAUSE THE BENCHMARKS DO NOT SAY THAT --
+corrected here 2026-09-10, because the first version of this file did say it
+and it was wrong. The literature is genuinely split:
+
+  * Cell-DINO (PLOS Comput Biol) beats a supervised ViT by ~20% on average on
+    the Human Protein Atlas, and by ~70% using only 1% of the labels.
+  * JUMP-lite, the compact reproducible benchmark of cell representations,
+    puts CLASSICAL CellProfiler features in the leading aggregate tier,
+    alongside MorphEM and ahead of several foundation models.
+
+So the honest claim is COMPLEMENTARITY AND LABEL-EFFICIENCY, not superiority:
+embeddings see structure the panel was never designed to encode, and they get
+there without annotation. Which one wins depends on the task, and a screen
+should be able to try both. Anyone who writes "embeddings outperform measured
+features" into a paper on the strength of this file will be contradicted by
+JUMP-lite, and should not be able to say the instruction told them so.
 
 The cost of the gap is invisible, which is what makes it worth writing down:
 you do not see the hits you had no column for.
@@ -112,8 +127,18 @@ WHAT TO DO
 5. Only then the consumers, none of which should need changing: UMAP,
    regression, hit calling, anndata export.
 
-6. A GUI surface last, if at all. The engine is useful from the API on day
-   one; the screen can follow the way Dose-Response's did.
+6. A GUI SURFACE -- AND THIS IS NOT THE AFTERTHOUGHT IT LOOKS LIKE. Build the
+   engine first, because it is useful from the API on day one and the screen
+   can follow the way Dose-Response's did. But note what the survey of the
+   field turned up on 2026-09-10: Cell-DINO, OpenPhenom and SubCell are ALL
+   Python/CLI, and NO GUI PLATFORM EXPOSES ANY OF THEM. CellProfiler does not,
+   napari has no maintained plugin for it, QuPath does not.
+
+   That makes the screen the single largest adoption argument in this file.
+   The engine serves this lab; the screen is what would make spaCR the only
+   clickable route to a foundation-model embedding, for a Cell Painting and
+   image-profiling community that currently has to write Python to get one.
+   Weigh it that way when it is scheduled, rather than as polish.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
@@ -151,3 +176,12 @@ column called `emb_0347`.
 PSEUDOTIME AND TRAJECTORY INFERENCE on top of the embedding. Considered and
 rejected: these are fixed-cell endpoint screens, and a trajectory through
 fixed cells is an ordering the data cannot support.
+
+--------------------------------------------------------------------------------
+RELATED
+--------------------------------------------------------------------------------
+
+390 (the field-survey backlog) records WHY this matters to users outside this
+lab: no GUI platform anywhere exposes a foundation-model embedding, which is
+what makes step 6 an adoption argument rather than polish. 390 is lowest
+priority; this file is not bound by that and can be picked up on its own.

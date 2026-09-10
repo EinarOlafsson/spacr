@@ -110,35 +110,21 @@ SCALES = (1.0, FONT_SCALE_MAX)
 #: and re-running is what showed six still failing. A ``<=`` ratchet cannot
 #: tell "fixed" from "unchanged" -- only tightening it can, which is why
 #: tightening it is part of claiming a fix here rather than a follow-up.
-KNOWN_OFFENDERS: dict = {
-    # ONE ENTRY, ADDED 2026-09-10 WITH ITS DIAGNOSIS, and it is the first
-    # this file has ever carried. `_ProvidersDialog`'s intro paragraph
-    # wraps to 108 px of height in the 97 it is given -- eleven pixels, in
-    # German only, at 100 % only.
-    #
-    # WHAT WAS FIXED, and it closed the other three of the four
-    # combinations: the dialog set `setMinimumWidth(scaled_px(620))` and
-    # `setMinimumHeight(560)`. The height was a raw device-pixel constant
-    # beside a scaled width, so at a doubled font the floor stayed put
-    # while every caption in the dialog grew. Same defect class as the
-    # seven settings columns 350 already records.
-    #
-    # WHY THIS ONE IS LEFT: the dialog opens at exactly its minimum height,
-    # and the German text wraps to one line more than the English. The
-    # layout cannot discover that, because the page is inside a
-    # QTabWidget, and QTabWidget does not propagate `heightForWidth` --
-    # so the wrapped label's true height never reaches the dialog's own
-    # sizeHint. Giving the label a height-for-width size policy was tried
-    # and changed nothing for exactly that reason; it was reverted rather
-    # than left in as code that does nothing.
-    #
-    # THE FIX IS A SCROLL AREA around the providers page, which is 350's
-    # own rule ("a visible, accessible fallback rather than silently
-    # clipping") and is a layout change worth making with a display in
-    # front of the person making it.
-    ("_ProvidersDialog", "de", 1.0): 1,
-}
+KNOWN_OFFENDERS: dict = {}
 
+#: IT HELD ONE ENTRY FOR PART OF 2026-09-10 AND IS EMPTY AGAIN, which is
+#: the ledger working rather than a formality. `_ProvidersDialog`'s intro
+#: wrapped to 108 px of height in the 97 it was given, in German at 100 %,
+#: and the dialog could not discover it: the page sits inside a
+#: `QTabWidget`, which does not propagate `heightForWidth`, so the wrapped
+#: label's real height never reached the dialog's own sizeHint.
+#:
+#: A height-for-width size policy on the label was tried first and changed
+#: nothing, for exactly that reason -- and was reverted rather than left in
+#: as code that does nothing. The page scrolls now, which is this item's
+#: own rule ("a visible, accessible fallback rather than silently
+#: clipping") and costs nothing where the content fits: measured after the
+#: change, English shows ZERO visible scrollbars.
 
 #: Dialogs that take an argument the caller can supply GENUINELY.
 #:
@@ -250,6 +236,33 @@ def _a_measurement_table():
     })
 
 
+def _a_window():
+    """A main window for the command palette to sit over.
+
+    THE PALETTE SEARCHES A WINDOW and reads nothing off it at build time,
+    so an ordinary `QMainWindow` is the object it is handed rather than a
+    stand-in for one. That is the last of the six this file filed under
+    "a live panel or screen"; every one of them turned out to construct
+    from something real.
+    """
+    from PySide6.QtWidgets import QMainWindow
+
+    return QMainWindow()
+
+
+def _a_module_screen():
+    """A built module screen, which is what Recipes is opened from.
+
+    `screen_in_a_container` in the sibling sweep already builds one of
+    these for all 24 declared apps, so a real `AppScreen` is the least
+    invented argument in this file -- it is the same object the
+    application hands the dialog.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    return AppScreen("measure")
+
+
 def _live_preview_panel():
     """The live-preview panel, built the way the application builds it.
 
@@ -348,6 +361,8 @@ DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.hyperparam", "UmapSearchSettingsDialog",
      _hyperparam_panel),
     ("spacr.qt.screens.hyperparam", "WalkAxesDialog", _hyperparam_panel),
+    ("spacr.qt.command_palette", "CommandPalette", _a_window),
+    ("spacr.qt.recipes", "RecipeDialog", _a_module_screen),
 ]
 
 #: Dialogs taking more than one genuinely-suppliable argument.

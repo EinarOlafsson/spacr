@@ -77,7 +77,7 @@ def _run(tmp_path, **overrides):
         "guide_min_wells": [1], "guide_primary_min_wells": 1,
         "guide_permutations": 1999, "guide_permutation_seed": 3,
         "multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
-        "controls": CONTROLS, "threshold_method": "std",
+        "nontargeting_control_grnas": CONTROLS, "threshold_method": "std",
         "threshold_multiplier": 3.0, "guide_permutation_plot": False,
         # The guide-permutation implementation consumes one phenotype per
         # well. State that contract explicitly because this helper calls the
@@ -258,7 +258,7 @@ def test_no_controls_means_no_cut_and_the_same_hits_as_before(tmp_path, capsys):
     """A screen with nothing to measure a null on gets no cut, says so, and
     calls exactly the hits the correction called. Never a silent zero, which
     would exclude every guide."""
-    output = _run(tmp_path, controls=None)
+    output = _run(tmp_path, nontargeting_control_grnas=None)
     printed = capsys.readouterr().out
 
     assert output["effect_size_threshold"] is None
@@ -296,7 +296,7 @@ def test_the_cut_is_measured_on_the_primary_family_only(tmp_path):
             "guide_min_wells": [1, 2, 3, 4], "guide_primary_min_wells": 3,
             "guide_permutations": 199, "guide_permutation_seed": 3,
             "multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
-            "controls": CONTROLS, "threshold_method": "std",
+            "nontargeting_control_grnas": CONTROLS, "threshold_method": "std",
             "threshold_multiplier": 3.0, "guide_permutation_plot": False,
             "analysis_unit": "well", "agg_type": "mean",
         })
@@ -412,7 +412,7 @@ def test_the_run_draws_the_cut_on_every_support_family(tmp_path):
             "guide_min_wells": [1, 2], "guide_primary_min_wells": 1,
             "guide_permutations": 199, "guide_permutation_seed": 3,
             "multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
-            "controls": CONTROLS, "threshold_method": "std",
+            "nontargeting_control_grnas": CONTROLS, "threshold_method": "std",
             "threshold_multiplier": 3.0,
             "analysis_unit": "well", "agg_type": "mean",
         })

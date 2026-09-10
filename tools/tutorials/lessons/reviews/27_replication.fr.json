@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Essai de réplication",
+  "description": "Comptez les parasites par vacuole, examinez les distributions et réglez les légendes sans changer les données. L’exemple est entièrement synthétique et ne démontre aucun effet thérapeutique.",
+  "objectives": [
+    "Compter par vacuole et non par cellule hôte.",
+    "Conserver les nombres hors des puissances de deux et examiner les résumés par puits et condition.",
+    "Utiliser les commandes réelles des figures et lire les avertissements d’exportation."
+  ],
+  "prerequisite": "Une nouvelle copie de la base pédagogique synthétique contient 1 992 lignes de parasites inventées, 480 vacuoles, 240 groupes de cellules hôtes et douze puits artificiels. Vehicle et inhibitor sont des noms pédagogiques ; les six puits de chaque groupe répètent la même distribution. Il n’y a ni images acquises ni bouton de téléchargement dédié dans ce module. La base originale reste inchangée. Des calculs indépendants vérifient 6 588 champs CSV ainsi que les hauteurs et bases des barres. Cela ne valide ni segmentation, ni valeurs p, ni efficacité. Pour une expérience biologique, utilisez des mesures, relations entre vacuoles et répétitions expérimentales réellement validées.",
+  "scenes": [
+    "Ouvrez Replication Assay dans la section Assays de Home. Ce module compte les parasites mesurés par vacuole ; il ne segmente pas les images ici. Cet exemple est explicitement synthétique : ses graphiques enseignent les commandes et les règles de comptage, pas un effet biologique du traitement.",
+    "Choisissez le dossier d’expérience préparé contenant measurements, puis measurements point db. Notre nouvelle copie privée contient mille neuf cent quatre-vingt-douze lignes de parasites inventées. Nous préservons la base originale et partons sans anciens fichiers de résultats : chaque sortie montrée provient donc de cette exécution.",
+    "Définissez Vacuole key sur la colonne d’identifiants explicites des vacuoles. L’exemple contient quatre cent quatre-vingts vacuoles, mais seulement deux cent quarante groupes de cellules hôtes : chaque hôte partage deux vacuoles. Compter par cellule hôte les fusionnerait et répondrait à une autre question. Validez cette relation sur de vraies images avant d’analyser vos données.",
+    "Require host cell exclut les objets sans lien valide vers un hôte. Cela empêche les objets non attribués d’entrer dans ce résultat, mais peut aussi éliminer de vrais parasites si la segmentation de l’hôte a échoué. Toutes les lignes pédagogiques ont des liens valides ; cet exemple ne valide pas votre segmentation.",
+    "La plus grande catégorie nommée correspondant à une puissance de deux est seize ; ce n’est pas une limite qui tronque tous les nombres supérieurs. Les puissances plus grandes ont une catégorie de dépassement et les autres nombres restent séparés. Chaque puits artificiel contient deux vacuoles à trois parasites : n’arrondissez pas un compte de trois à quatre.",
+    "Vérifiez la correspondance entre conditions et puits. Ici, la première colonne s’appelle vehicle et la seconde inhibitor, avec six puits artificiels par groupe. Ces noms appartiennent au plan pédagogique inventé. Ils ne prouvent pas qu’un médicament a été appliqué, et une différence visuellement convaincante ne prouve pas son efficacité.",
+    "Lancez Run seulement après avoir vérifié la source, la clé d’attribution, les filtres et les paramètres de sortie. Il s’agit d’une analyse de tables, pas d’une nouvelle segmentation Cellpose ni d’un test de performance du processeur graphique. Le traitement réel produit les figures par puits et par condition.",
+    "Chaque barre empilée représente la distribution des nombres de parasites par vacuole dans un puits. L’exemple vehicle contient deux cent vingt-huit parasites dans quarante vacuoles ; l’exemple inhibitor, cent quatre dans quarante. Les deux conservent cinq pour cent de vacuoles hors des puissances de deux. Nous avons comparé les hauteurs affichées à des comptes indépendants, pas seulement vérifié les noms des fichiers.",
+    "Si la légende est coupée, ouvrez Figure settings, puis l’onglet des axes, et modifiez Legend position. Nous choisissons une position intérieure avec ces commandes réelles. C’est un changement de présentation : les valeurs des barres et les fichiers de données restent inchangés.",
+    "La vue par condition regroupe les vacuoles de l’exemple en deux distributions. Les six puits de chaque groupe répètent le même motif inventé. Ne présentez pas les tests de significativité obtenus comme un effet thérapeutique : une véritable inférence nécessite de vraies répétitions et une unité expérimentale indépendante justifiable.",
+    "Lisez la console autant que le graphique. Cette exécution avertit que certaines couleurs choisies contrastent mal sur une page exportée claire. Vérifiez les figures exportées et choisissez une palette accessible : une vue sombre lisible à l’écran ne garantit pas automatiquement une figure enregistrée lisible.",
+    "Avec Save activé, les résultats vont dans results, puis analyze replication : comptes par vacuole, distributions par puits, résumés par condition, tables statistiques et figures. Conservez les paramètres et identifiants sources avec eux. Pour votre essai, examinez de vraies images et des témoins biologiques avant d’interpréter ces résumés."
+  ]
+}

@@ -18,18 +18,11 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-367 done / 24 open (93%).
+371 done / 21 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
 --------------------------------------------------------------------------------
-
-   01  THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
-       [100% of the code; blocked on publishing 1.5.0.5]
-       01_pip_upgrade_is_broken_for_installed_builds.txt
-
-   58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
-       58_remove_claude_as_a_github_contributor.txt
 
    59  PUBLISH spaCR ON CONDA-FORGE
        [BLOCKED: needs the maintainer's accounts]
@@ -53,10 +46,6 @@ OPEN
   327  THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
        [~95% -- all five parts shipped; only the frame-rate evidence is missing]
        327_the_backdrop_camera_and_the_pointer_should_feel_like_gravity.txt
-
-  350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
-       [~50% -- no proven clipping in 4 screens x 3 locales; three false-positive classes recorded]
-       350_no_text_is_cut_off_anywhere_in_the_package.txt
 
   352  EVERY MODULE AT THE HIGHEST REASONABLE COVERAGE, THEN GREEN GITHUB ACTIONS
        352_reasonable_coverage_everywhere_then_green_actions.txt
@@ -101,13 +90,14 @@ OPEN
   388  WHAT AN INFECTED CELL DOES TO ITS NEIGHBOURS: BYSTANDERS AND NEIGHBOURHOODS
        388_the_infected_cell_and_its_neighbours.txt
 
-  389  MERGING nightly INTO main, AND THE add/add RECOVERY THAT MADE IT POSSIBLE
-       389_merging_nightly_into_main_for_the_release.txt
+  390  WHAT THE FIELD ASKED FOR THAT SPACR DOES NOT DO -- LOWEST PRIORITY, LAST
+       390_the_field_survey_backlog_lowest_priority.txt
 
 --------------------------------------------------------------------------------
 DONE
 --------------------------------------------------------------------------------
 
+   01  THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
    02  THE TIMELAPSE MOVIE SHOWS ONE FIELD; IT WAS ASKED FOR SEVERAL
    03  FIVE QT TESTS THAT PASS ALONE AND FAIL IN THE SUITE
    04  THE TESTS MEASURE A FONT SCALE NO USER HAS
@@ -163,6 +153,7 @@ DONE
    55  A PERFORMANCE SWEEP: NOTHING THAT LOADS BELONGS ON THE GUI THREAD
    56  THE AUTO-ISSUE BUTTON LEADS TO "PAGE NOT FOUND"
    57  IMAGE UMAP: DROP THE API LINK DOTS FROM THE SETTINGS
+   58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
    58  CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
    59  PUBLISH spaCR ON CONDA-FORGE
    60  EVERY MODULE AT 100% TEST COVERAGE
@@ -451,6 +442,7 @@ DONE
   347  CATEGORY HELP BELONGS ONLY IN THE STRIP, THE API LINK BECOMES A DOT, AND EVERY
   348  THE DOCK: HELP GETS ITS OWN SECTION, THE ICONS GROW, AND THE NAMES MOVE OFF IT
   349  "LOAD TEST DATA" PUTS THE LITERAL <src> INTO MASK GENERATION'S PATH FIELD
+  350  A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
   351  FIX AND CLOSE EVERY GITHUB ISSUE
   353  REGRESSION'S INPUT TABLES START WITH THE DOWNLOAD BUTTONS, NOT END WITH THEM
   354  WHAT WAS DONE ON THE NIGHT OF 2026-09-02
@@ -475,3 +467,4 @@ DONE
   383  A SETTING'S API LINK LANDS ON THAT SETTING, IN THE MODULE THE USER IS IN
   384  THE API PROSE BACKLOG: 358 BLOCKS, AND IT NEEDS A MODEL THIS MACHINE LACKS
   385  THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
+  389  MERGING nightly INTO main, AND THE add/add RECOVERY THAT MADE IT POSSIBLE

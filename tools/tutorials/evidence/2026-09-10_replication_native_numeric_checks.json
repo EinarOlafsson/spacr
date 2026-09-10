@@ -1,0 +1,240 @@
+{
+  "status": "Native synthetic Replication run and numeric output checks passed; lesson media not yet produced",
+  "lesson": "27_replication",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/replication_explicit_synthetic",
+  "provenance": {
+    "commit": "9615ebfdfc0dc9865b00834d008387b3e52564ce",
+    "version": "1.5.0.5",
+    "module": "replication",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "acceptance": {
+    "accepted": true,
+    "synthetic": true,
+    "biological_effect_claim": false,
+    "new_download_button": false,
+    "actual_gui_run": true,
+    "app_source_modified": false,
+    "published": false,
+    "pipeline": {
+      "accepted": true,
+      "reasons": [],
+      "figure_count": 2,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "output_checks": {
+      "vacuole_counts.csv": {
+        "rows": 480,
+        "fields_checked": 6216
+      },
+      "well_distribution.csv": {
+        "rows": 12,
+        "fields_checked": 324
+      },
+      "condition_summary.csv": {
+        "rows": 2,
+        "fields_checked": 48
+      }
+    },
+    "source_unchanged": true,
+    "private_database_unchanged": true,
+    "figures_visible": true,
+    "statistical_inference_validated": false,
+    "image_or_biological_validation": false
+  },
+  "input_manifest": {
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/replication/measurements/measurements.db",
+    "source_sha256": "06e69382639ce037a0a5db657ef38107a67ca8a9bca73fa4cd7265eed8bd4d69",
+    "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/replication_runs/SYNTHETIC-explicit-vacuoles-r8xsydlx/measurements/measurements.db",
+    "database_sha256": "06e69382639ce037a0a5db657ef38107a67ca8a9bca73fa4cd7265eed8bd4d69",
+    "synthetic": true,
+    "images_available": false,
+    "biological_effect_claim": false,
+    "rows": 1992,
+    "vacuoles": 480,
+    "wells": 12,
+    "host_groups": 240,
+    "independent_expectations_sha256": "7604f385f045e21205370c12612cc4653f272b5926cdfa14f1412c6324b8dc19"
+  },
+  "checks": {
+    "tests_passed": 9,
+    "mutations": [
+      "identity guard: 3 failed, 6 passed",
+      "numeric guard: 2 failed, 7 passed",
+      "boolean/text equality: 2 failed, 7 passed",
+      "value guard: 4 failed, 5 passed",
+      "vacuole not host premise: 1 failed, 8 passed"
+    ],
+    "executed_guard_lines": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      17,
+      20,
+      24,
+      26,
+      27,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      42,
+      45,
+      46,
+      47,
+      48,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      72,
+      79,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      120,
+      121,
+      122,
+      123,
+      124,
+      127
+    ]
+  },
+  "independent_summary": "1,992 artificial parasite rows, 480 explicit vacuoles, 240 host groups, 12 wells; 6,588 CSV fields checked without importing the application calculation. Each well retains its two off-ladder counts; no parasite count rounded to a power of two.",
+  "artifacts": [
+    {
+      "file": "00_home.png",
+      "sha256": "6e22cb73c69a895409c3cc74a3ea714584658ab3a7148be6518ba098e6faa0ef",
+      "bytes": 477111
+    },
+    {
+      "file": "01_module.png",
+      "sha256": "265fc0c7627ce93a5648cabc44bc613d56ddd387462a92ad3c3152cfcdb43905",
+      "bytes": 434707
+    },
+    {
+      "file": "02_synthetic_inputs.png",
+      "sha256": "427526bee8ef84571aeda49a5f53e024cc9960ce888cb7b615b3b388fdd8f4ed",
+      "bytes": 402155
+    },
+    {
+      "file": "03_setting_src.png",
+      "sha256": "d6ba5ad2694b131fa04de7316e72a24318bae910f7ad040b5d9dfc26f27a5362",
+      "bytes": 345296
+    },
+    {
+      "file": "04_setting_vacuole_key.png",
+      "sha256": "a5a868d81a85e18e80de17859abd924bda7a94b5d751e2b79753cea8a2aac18d",
+      "bytes": 343561
+    },
+    {
+      "file": "05_setting_require_host_cell.png",
+      "sha256": "7917c71432ea878404743f8a5ff5f94f217b8cce27198f86491a8958ecc3e82c",
+      "bytes": 340067
+    },
+    {
+      "file": "06_setting_min_parasite_area.png",
+      "sha256": "c58be64dfd30df1ffdab576f96855452cf8bf734859d6cc1ba73173b673069af",
+      "bytes": 331531
+    },
+    {
+      "file": "07_setting_max_parasites_per_vacuole.png",
+      "sha256": "1f00e6f36a72197270c663fd91364bcbd6b30c45c100f3225e58626b43fa06f6",
+      "bytes": 360688
+    },
+    {
+      "file": "08_setting_non_power_of_two_warn.png",
+      "sha256": "e1626dd37459c3f5d201774e9d4e10dffbccfb0fa54969ee2d8eb39f1ea3cfa3",
+      "bytes": 365128
+    },
+    {
+      "file": "09_setting_pathogen_plate_metadata.png",
+      "sha256": "232bb8dcfc98e253bca03d689a110e9375ac8c0b05c8d64328f22613f1434ac6",
+      "bytes": 365938
+    },
+    {
+      "file": "10_setting_save.png",
+      "sha256": "9c02fb3749bfa276fb202f6abdb9ef5dfc7038f0eb0c84bcbeea801b23bdb6ae",
+      "bytes": 329383
+    },
+    {
+      "file": "11_actual_run.png",
+      "sha256": "238aa261647f19e2691176c3c99f3687ce448184edc98fb6660bd127da205cc8",
+      "bytes": 474307
+    },
+    {
+      "file": "12_actual_completion.png",
+      "sha256": "6d2351711ff1f6a68c6f47de1edcc60dde942a253e224929c4e40f9cdd5e4080",
+      "bytes": 516652
+    },
+    {
+      "file": "13_figure_00.png",
+      "sha256": "d313e8fb346a5db9437e551fcd67d9ae6cac7245bd0141abf8947099a25a6229",
+      "bytes": 549792
+    },
+    {
+      "file": "13_figure_01.png",
+      "sha256": "a9c8e3dc98899faab3a90b952b1d79fd076b349d8b13bd20c2c60ba8853bf356",
+      "bytes": 513317
+    },
+    {
+      "file": "figure_00.png",
+      "sha256": "0dbbc9485e1fa20636d6fb1c40794472fe79f4b2a0c2f6bd4577a90fefe7a6b0",
+      "bytes": 88261
+    },
+    {
+      "file": "figure_01.png",
+      "sha256": "977d416a74c10ba51c3b6208483073a6764dad87ab6a45955f16f487d2bd07ee",
+      "bytes": 72107
+    }
+  ],
+  "source_data_scope": "The preserved synthetic tutorial database is copied, never regenerated over the original. No acquired assay images, real treatments or biological efficacy claim.",
+  "visual_review": {
+    "frames": [
+      "04_setting_vacuole_key",
+      "13_figure_00",
+      "13_figure_01"
+    ],
+    "followup": "Figure legends extend beyond the current embedded viewport. Improve recorded viewing through genuine UI or show the actual exported full figure before freezing the lesson."
+  },
+  "published": false,
+  "human_listening_review": false
+}

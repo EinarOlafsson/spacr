@@ -1,0 +1,34 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Belysningskorrigering",
+  "description": "Uppskatta ett belysningsfält från nedladdade bilder via Illumination i Measure, granska exporterad kvalitetskontroll och skilj numerisk förbättring från biologisk validering.",
+  "objectives": [
+    "Öppna den inbyggda sidan och välja intensitetskanaler i sammanfogade bilder.",
+    "Jämföra avstängd och påslagen korrigering samt granska modell och kvalitetskontroll.",
+    "Återanvända en granskad modell utan att förväxla diagnostik på anpassningsdata med oberoende validering."
+  ],
+  "prerequisite": "Exemplet använder oförändrade kopior av sexton nedladdade plate1-bilder, 1994 × 1994 pixlar med sju lagrade plan. Kanal noll är ett intensitetsindex, inte en färgningsidentitet; etikettplan är inte intensiteter. Original och kopior bevaras. Efter GUI-körningen kontrollerar en oberoende formel 7 952 072 korrigerade pixlar via det publika API:et, utan att ersätta GUI-resultat. Modell och kvalitetskontroll bygger på samma sexton bilder, inte oberoende optisk eller biologisk referensdata. Mörkoffset noll är ingen uppmätt kalibrering. Figures förblir tomt; den verkliga PNG-filen öppnas i en separat bildvisare. Ingen programkod eller originalbild ändras. Den gamla simuleringen med fem scener ersätts.",
+  "scenes": [
+    "Öppna Measure och sedan dess Illumination-knapp. Den här inbyggda sidan uppskattar en korrigeringsmodell före en större analys. Det skiljer sig från att bara aktivera korrigering under en mätning och gör inte hela applikationssessionen automatiskt korrigerad.",
+    "Ange i Source mappen merged som innehåller bildarrayerna, inte mätdatabasen. Vi använder nya kopior av alla sexton bildfält i det nedladdningsbara plattexemplet. Originalen förblir oförändrade och belysningsmodellen sparas bredvid mappen merged.",
+    "Inställningen Channels anger positioner i den lagrade intensitetsarrayen. Här väljer vi kanal noll. Kontrollera din egen bildinsamlingsmappning i stället för att anta att noll alltid betyder samma färgning. Välj aldrig ett etikettmaskplan som om det vore fluorescensintensitet.",
+    "Först är korrigeringen avstängd. Run avslutas, men konsolen säger uttryckligen att inget fält uppskattades. Vi kontrollerade att ingen modell skapades. Ett meddelande om lyckad körning bevisar därför inte ensamt att korrigering har skett.",
+    "Aktivera Illumination correction. Exemplet använder polynomial-estimatorn med grad fyra och lämnar Illumination model tomt för att uppskatta ett nytt fält. Större flexibilitet är inte automatiskt bättre: En korrigering som följer celler eller behandlingsmönster kan ta bort den biologi du ville mäta.",
+    "Håll bildinsamlingsgrupper åtskilda med Illumination per plate. Här använder vi alla sexton tillgängliga bildfält. Representativ täckning är viktigare än att blint öka ett tal; en modell anpassad till ett enda tättbevuxet hörn kan förväxla biologisk struktur med ojämn belysning.",
+    "Illumination dark är en additiv kameraoffset i råa räkningsenheter, inte en inlärd biologisk bakgrund. Noll är demonstrationsinställningen, inte ett kalibreringsresultat. Välj offset från lämpliga insamlingskontroller i stället för att justera den tills en fenotyp försvinner.",
+    "Behåll Illumination QC aktiverat och kontrollera policyn för saknade modeller. Vi använder error så att en otillgänglig plattkorrigering stoppar åtgärden i stället för att tyst blanda korrigerade och okorrigerade bildfält. Dessa kontroller ersätter inte granskning av det uppskattade fältet.",
+    "Kör igen med korrigeringen aktiverad. Konsolen visar nu det anpassade fältet, diagnostiska lutningar och den sparade modellens sökväg. Detta fristående steg lämnar bildfilerna oförändrade; det har varken kört om segmenteringen eller skapat nya cellmätningar.",
+    "I denna version sparas QC-bilden men visas inte i den inbyggda panelen Figures. Öppna illumination_qc_plate1.png från mappen illumination i din bildvisare. Det här är den verkliga exporterade figuren i en separat visare, inte en simulerad spaCR-panel.",
+    "Vänster panel visar det uppskattade belysningsfältet med medelvärdet ett. Korrigeringen subtraherar kameraoffset och dividerar med detta fält. Trots att rubriken kallar det gain ska du inte multiplicera intensiteterna med den visade kartan: Korrigeringen använder dess invers. Kontrollera om biologiska strukturer har kommit med i uppskattningen.",
+    "Den radiella lutningen ändras från ungefär −0,181 till +0,026. Den rapporterade minskningen på 85,4 procent stämmer med vår oberoende beräkning, men kurvan efter korrigering är inte platt. Det är samma bildfält som användes för att anpassa modellen, så detta är inte oberoende validering.",
+    "För senare återanvändning anger du den sparade modellens sökväg och aktiverar uttryckligen korrigering i avsett Mask- eller Measure-flöde. Bevara modell, kanalmappning, plattidentiteter och inställningar tillsammans. Granska oberoende bildfält och undvik dubbel korrigering av redan korrigerade intensiteter innan du tolkar biologiska skillnader."
+  ]
+}

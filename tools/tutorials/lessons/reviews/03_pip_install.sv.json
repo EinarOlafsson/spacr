@@ -1,0 +1,32 @@
+{
+  "lesson": "03_pip_install",
+  "english_sha256": "20ea6a64805b6f874275e73fbe44d551d9be3e1075414b0b367fa854a9c87341",
+  "review": {
+    "kind": "Parent editorial translation against frozen English, actual clean public installation and installed-package native capture",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Installera spaCR med pip",
+  "description": "Skapa en isolerad Python-miljö, installera det offentliga paketet, kontrollera beroendena och starta den installerade Qt-appen.",
+  "objectives": [
+    "Hålla spaCR:s beroenden i en egen Python-miljö.",
+    "Kontrollera installerat paket, Qt och varningar om valfria funktioner.",
+    "Öppna Home och medvetet uppdatera rätt miljö."
+  ],
+  "prerequisite": "Lektionen verifierar spaCR 1.5.0.5 från PyPI på Linux med Python 3.12.13, inte en redigerbar installation av ett källkodsträd. Kommandokorten är instruktioner, inte inspelad terminalutmatning; Windows- och macOS-kommandona kördes inte här. Den rena installationen avslutades före de inspelade kontrollerna. De aktuella grundberoendena omfattar Qt. Doctor visar en varning för valfritt CZI-stöd; testet av GPU-minnesallokering hoppas uttryckligen över. GUI-inspelningen använder --no-setup, en privat mörk profil med teckenskala 1.5 och en redan stängd rundtur. Den visar normal öppning och stängning av Home, inte att alla moduler, valfria format, GPU-beräkningar eller andra plattformar fungerar.",
+  "scenes": [
+    "Installera spaCR i en egen Python-miljö. Demonstrationen använder Python 3.12 på Linux och den offentliga PyPI-utgåvan, inte ett utcheckat källkodsträd. Kontrollera python --version innan du väljer tolk för miljön.",
+    "Skapa en ny virtuell miljö med kommandot för din plattform. Här är .venv en ny mapp i arbetskatalogen. Python 3.12 måste redan vara installerat; kommandot skapar en miljö, inte Python självt.",
+    "Aktivera miljön med kommandot för ditt skal. PowerShell, Command Prompt, bash och zsh har olika aktiveringskommandon. Om PowerShell blockerar skriptet använder du Command Prompt eller kör miljöns Python direkt; sänk inte säkerheten för hela datorn.",
+    "Kör python -m pip --version. Sökvägen ska ligga i den miljö du har valt. Den här riktiga terminalen visar den längre privata sökväg som används för inspelningen. Med python -m pip kopplas paketinstallationen till just den tolken.",
+    "Uppdatera pip och installera sedan spacr. Lås till 1.5.0.5 för samma utgåva som i lektionen. Den rena installationen avslutades innan dessa kontroller spelades in. Avsätt tid och diskutrymme för vetenskapliga beroenden; de aktuella grundberoendena innehåller redan Qt-komponenterna för skrivbordet.",
+    "Kontrollera installerad spaCR-version, Qt-version och paketsökväg. Här kommer alla tre från den nya miljön. En lyckad import visar inte att alla valfria format eller analyser fungerar, och inte heller att fönstret går att öppna.",
+    "Kör python -m pip check. No broken requirements betyder att de installerade beroendedeklarationerna är förenliga. Lös eventuella konflikter innan du fortsätter; en godkänd kontroll är ingen vetenskaplig validering av analysen.",
+    "Kör spacr-doctor och läs varningarna såväl som de godkända kontrollerna. Installationen har en varning för valfritt CZI-stöd och visar ett reparationskommando. Inspelningen använder --no-gpu-probe, så enheten upptäcks men GPU-minnesallokering testas inte. Överhoppade kontroller är inte godkända kontroller.",
+    "Starta spacr från samma aktiverade miljö. Vid en vanlig första start kan inställningsfrågor visas. Den här begränsade verifieringen använder uttryckligen --no-setup och en förberedd inspelningsprofil; den visar inte hur frågorna besvaras.",
+    "Det här är det riktiga Home-fönstret från det installerade wheel-paketet, med sex kärnmoduler och grupperna Data, Tools och Assays. Det öppnades och stängdes normalt utan att någon analys startades. Fortsätt med Home för navigering, inbäddade verktyg och modullektioner.",
+    "Stäng spaCR inför en uppdatering och aktivera den miljö du vill ändra. Uppdatera paketet, upprepa pip check och spacr-doctor och dokumentera den nya versionen med analysen. Uppdateringar kan ändra beroenden och beteende; ändra inte i tysthet en miljö som används för pågående arbete."
+  ]
+}

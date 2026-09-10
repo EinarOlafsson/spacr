@@ -95,7 +95,7 @@ class TestTheDefault:
     def test_controls_is_the_gene(self):
         from spacr.settings import get_perform_regression_default_settings
 
-        assert get_perform_regression_default_settings({})["controls"] == \
+        assert get_perform_regression_default_settings({})["nontargeting_control_grnas"] == \
             ["000000"]
 
     def test_the_negative_control_is_untouched(self):
@@ -146,7 +146,7 @@ def test_the_default_resolves_on_the_example_screen():
 
     guides = fractions_from_counts(files)["grna"].astype(str)
     names = [str(g) for g in guides.unique()]
-    default = get_perform_regression_default_settings({})["controls"]
+    default = get_perform_regression_default_settings({})["nontargeting_control_grnas"]
 
     mask, said = rows_for(default[0], guides, names=names)
     assert len(set(guides[mask.to_numpy()])) == 30, said

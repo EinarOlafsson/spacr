@@ -1,0 +1,67 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "scope": "Visual-only spotlights on measured native 3840x2160 frames. Narration and source image pixels are unchanged; the icon-only Annotator Agreement entry must be clearly located.",
+  "scenes": {
+    "02_agreement_fold": [
+      3749,
+      44,
+      87,
+      99
+    ],
+    "04_demo_database": [
+      346,
+      455,
+      3470,
+      80
+    ],
+    "05_one_column_not_a_comparison": [
+      354,
+      528,
+      272,
+      653
+    ],
+    "06_two_columns": [
+      354,
+      528,
+      272,
+      653
+    ],
+    "07_pairwise_results": [
+      354,
+      528,
+      3458,
+      770
+    ],
+  "08_confusion_matrix": [
+    624,
+    850,
+    3188,
+    170
+    ],
+    "09_disagreement_crop_1": [
+      354,
+      1292,
+      3458,
+      720
+    ],
+    "10_three_columns": [
+      354,
+      528,
+      272,
+      653
+    ],
+    "11_three_pass_results": [
+      354,
+      528,
+      3458,
+      1484
+    ],
+    "12_pairwise_restored": [
+      354,
+      528,
+      3458,
+      770
+    ]
+  }
+}

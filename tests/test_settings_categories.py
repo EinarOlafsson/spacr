@@ -169,6 +169,16 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # RENAMED to `nontargeting_control_grnas` on 2026-09-10, instruction
+    # 364, and the last of the seven. `controls` is a common word doing
+    # four jobs -- a figure panel key, a sweep payload field, a dependency
+    # token and a column constant all spell it the same -- and only the
+    # setting moved. Its own tooltip already said the true meaning
+    # ("Non-targeting control gRNA identifiers"), and `object_roles` had
+    # carried a LABEL OVERRIDE for it, whose comment is the argument for
+    # the rename: "`controls` names guide or gene identifiers, whereas the
+    # neighbouring control settings name wells."
+    "controls",
     # RENAMED to `window_length` on 2026-09-09, instruction 364. "Expected
     # end" reads as a coordinate and the value is a LENGTH -- the
     # parameter's own docstring had to say "window *length*, not an end
@@ -298,6 +308,13 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # THE OTHER HALF OF A RENAME, and it appears here rather than only in
+    # KEYS_RETIRED because a rename is a key leaving AND a key arriving.
+    # `controls` -> `nontargeting_control_grnas`, 2026-09-10, the last of
+    # instruction 364's seven. Nothing about the panel changed: the same
+    # control sits in the same category with the same tooltip, under a
+    # name that says what it holds.
+    "nontargeting_control_grnas",
     # ---- optical pooled screening, folded onto Align & Stitch ----------
     # All 57 arrive together from `spacr.ops_settings.OPS_CATEGORIES` and
     # are declared as one block rather than reasoned about one at a time:

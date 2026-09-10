@@ -1,0 +1,34 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Corrección de iluminación",
+  "description": "Estime un campo de iluminación con imágenes descargadas desde Illumination en Measure, examine el control de calidad exportado y distinga la mejora numérica de la validación biológica.",
+  "objectives": [
+    "Abrir la página integrada y seleccionar canales de intensidad de campos fusionados.",
+    "Comparar la corrección desactivada y activada, y examinar el modelo y el control de calidad guardados.",
+    "Reutilizar un modelo revisado sin confundir diagnósticos sobre los datos de ajuste con validación independiente."
+  ],
+  "prerequisite": "Se usan copias intactas de dieciséis campos plate1 descargados, de 1994 × 1994 píxeles y siete planos almacenados. El canal cero es un índice de intensidad, no una identidad de tinción; los planos de etiquetas no son intensidades. Se conservan originales y copias. Tras la ejecución gráfica, una fórmula independiente verifica 7 952 072 píxeles corregidos mediante la API pública, sin sustituir resultados de la interfaz. El modelo y el control de calidad usan los mismos dieciséis campos: no es validación independiente ni verdad óptica o biológica. El offset cero no es una calibración medida. El panel Figures queda vacío; el PNG real se abre en un visor externo. No se modifican código de la aplicación ni imágenes originales. Se reemplaza la antigua simulación de cinco escenas.",
+  "scenes": [
+    "Abra Measure y después su botón Illumination. Esta página integrada estima un modelo de corrección antes de un análisis mayor. No es lo mismo que activar la corrección durante una medición, ni convierte toda la aplicación en una sesión corregida automáticamente.",
+    "Indique en Source la carpeta merged que contiene los arrays de imágenes, no la base de mediciones. Usamos copias nuevas de los dieciséis campos del ejemplo de placa descargable. Los originales quedan intactos y el modelo de iluminación se guarda junto a esa carpeta merged.",
+    "Channels indica posiciones dentro del array de intensidad almacenado. Aquí seleccionamos el canal cero. Compruebe la correspondencia de su adquisición en vez de suponer que cero siempre representa la misma tinción. Nunca seleccione un plano de máscara de etiquetas como si fuera intensidad de fluorescencia.",
+    "Primero, la corrección está desactivada. Run termina, pero la consola dice explícitamente que no se estimó ningún campo. Verificamos que no se creó ningún modelo. Por tanto, un mensaje de finalización correcta no demuestra por sí solo que hubo corrección.",
+    "Active Illumination correction. Este ejemplo usa el estimador polynomial con grado cuatro y deja Illumination model vacío para estimar un campo nuevo. Más flexibilidad no siempre es mejor: una corrección que siga células o patrones de tratamiento puede eliminar la biología que quería medir.",
+    "Separe los grupos de adquisición con Illumination per plate. Aquí muestreamos los dieciséis campos disponibles. Una cobertura representativa importa más que aumentar un número a ciegas: un modelo ajustado con una sola esquina muy poblada puede confundir estructura biológica con iluminación desigual.",
+    "Illumination dark es un offset aditivo de la cámara en unidades brutas, no un fondo biológico aprendido. Cero es el ajuste de esta demostración, no un resultado de calibración. Elija el offset mediante controles de adquisición adecuados, no ajustándolo hasta que desaparezca un fenotipo.",
+    "Mantenga Illumination QC activado y revise la política ante modelos ausentes. Usamos error para detener la operación si falta la corrección de una placa, en lugar de mezclar silenciosamente campos corregidos y sin corregir. Estas comprobaciones no sustituyen el examen del campo estimado.",
+    "Ejecute otra vez con la corrección activada. La consola muestra ahora el campo ajustado, las pendientes diagnósticas y la ruta del modelo guardado. Este paso independiente deja intactos los archivos de imágenes; no ha repetido la segmentación ni producido nuevas mediciones celulares.",
+    "En esta versión, la imagen de control de calidad se guarda, pero no aparece en el panel Figures integrado. Abra illumination, guion bajo, QC, guion bajo, plate uno, punto PNG, desde la carpeta illumination con su visor de imágenes. Es la figura exportada real en un visor separado, no un panel spaCR simulado.",
+    "El panel izquierdo muestra el campo de iluminación estimado, con media uno. La corrección resta el offset de cámara y divide por ese campo. Aunque el título lo llama gain, no multiplique las intensidades por el mapa mostrado: la corrección usa su recíproco. Compruebe que no se incorporen estructuras biológicas a la estimación.",
+    "La pendiente radial cambia de aproximadamente menos cero coma uno ocho uno a más cero coma cero dos seis. La reducción indicada del ochenta y cinco coma cuatro por ciento coincide con nuestro cálculo independiente, pero la curva posterior no es plana. Son los mismos campos usados para ajustar el modelo, así que no es validación independiente.",
+    "Para reutilizarlo, indique la ruta del modelo guardado y active explícitamente la corrección en el flujo Mask o Measure correspondiente. Conserve juntos el modelo, la correspondencia de canales, las identidades de placas y la configuración. Revise campos independientes y evite corregir dos veces intensidades ya corregidas antes de interpretar diferencias biológicas."
+  ]
+}

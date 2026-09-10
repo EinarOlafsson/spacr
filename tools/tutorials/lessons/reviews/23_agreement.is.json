@@ -1,0 +1,31 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Samræmi milli merkjenda",
+  "description": "Opnaðu innbyggða samanburðartólið, berðu saman tilbúnar kennslumerkingar á afritum af raunverulegum niðurhöluðum myndbútum og greindu á milli samræmis í pörum og samantektar úr fleiri merkingarumferðum.",
+  "objectives": [
+    "Opna Annotator Agreement úr Annotate.",
+    "Bera saman merkingar, gildi sem vantar og ruglingsfylki án þess að breyta merkingum.",
+    "Skoða myndbúta með ósamræmi og túlka samantektir úr tveimur og þremur umferðum."
+  ],
+  "prerequisite": "Myndbútar sextán eru óbreytt afrit úr niðurhalanlega Annotate-dæminu. DEMO_A, DEMO_B og DEMO_C eru tilbúnar kennslumerkingar í nýjum einkagagnagrunni, ekki líffræðileg flokkun, einkunnir mannlegra yfirlesara eða líkanaspár. Upprunalegar merkingar og myndir eru óbreyttar; png_path er aðeins gert afstætt í sýnikennsluafritinu. Notaðu raunverulegar, óháðar merkingarumferðir við eigið mat. Sjálfgefin dálkaleit sleppir þekktum úttaksdálkum líkana. Óháðir útreikningar með heiltölum og brotum sannreyna öll pör, fylki og heildargildi; þrjár forsýningar samsvara mynddílum frummyndanna nákvæmlega. Litla dæmið kennir á stýringar en sannar ekki áreiðanleika tilraunar. Gamla myndskeiðið endurtók tóman skjá og lýsti sjálfvirkri leit að spádálkum sem passar ekki lengur við API-ið; kennsluefnið var því ekki aðeins fært.",
+  "scenes": [
+    "Opnaðu Annotate og síðan hnappinn Annotator Agreement. Þetta er innbyggt tól, ekki annar einingareitur á Home. Samanburðarskjárinn les merkingardálka án þess að breyta þeim; farðu aftur í Annotate þegar þú vilt breyta merkingu.",
+    "Opnaðu tilbúna sýnikennslugagnagrunninn. Myndirnar sextán eru raunverulegir myndbútar úr niðurhalanlega dæminu, en DEMO-dálkarnir þrír eru tilbúnar kennslumerkingar. Þær mæla hvorki færni einstaklings né líffræðilega svipgerð. Upprunalegar merkingar og myndir eru varðveittar í sérstöku upprunaafriti.",
+    "Athugaðu sérstaklega hvaða dálkar eru valdir í stað þess að samþykkja fyrstu sjálfgefnu valkostina. Ekki er hægt að mæla samræmi með einum dálki. Núverandi dálkaleit sleppir sjálfgefið þekktum úttaksdálkum líkana; samanburður flokkara við manneskju er sannprófun líkans, ekki samræmi milli manna.",
+    "Veldu DEMO A og DEMO B og ýttu á Compute agreement. Tólf myndbútar eru merktir í báðum umferðum, þrír aðeins í annarri og einn í hvorugri. Merkingar sem vantar eru ekki taldar ósamræmi án þess að frá því sé sagt.",
+    "Kennsluumferðirnar tvær eru sammála um níu af tólf samanbornum myndbútum: sjötíu og fimm prósent, með Cohen-kappa núll komma fimm. Skoðaðu hrátt samræmi, sameiginlegar merkingar og jafnvægi flokka saman. Skjárinn varar við að tólf sameiginlegar merkingar séu of fáar fyrir stöðugt mat á áreiðanleika; þessar uppspunnu merkingar eru aðeins sýnikennsla.",
+    "Raðirnar tákna DEMO A og dálkarnir DEMO B. Fimm myndbútar hafa flokk eitt í báðum umferðum og fjórir flokk tvö í báðum. Tölurnar utan hornalínunnar, einn og tveir, sýna þrjú ósamræmi. Samantektarheiti eins og miðlungs er venja, ekki samþykkisviðmið fyrir tilraunina þína.",
+    "Veldu ósamræmi til að skoða viðeigandi myndbút og báðar merkingar. Við bárum allar þrjár forsýningarnar saman við upprunalegu mynddílana. Í raunverulegri rannsókn skaltu yfirfara dæmigerðar myndir og skilgreiningar flokka áður en ákveðið er hvernig leysa eigi ágreining; þessi skrifvarði skjár tekur ekki ákvörðunina fyrir þig.",
+    "Bættu DEMO C við og reiknaðu aftur. Að breyta gátreit framkvæmir ekki nýjan útreikning eitt og sér. Taflan ber nú saman þrjú pör með mismarga sameiginlega merkta myndbúta, en heildarsamantekt Fleiss notar aðeins tólf myndbúta sem eru merktir í öllum völdum umferðum.",
+    "Fleiss-kappa kennsludæmisins er um núll komma sex sex þrír, ekki meðaltal þriggja kappa-gilda paranna. Hrátt heildarsamræmi telur hér fullmerktar raðir þar sem allar merkingar eru sammála. Fjórðu yfirferðarröðina vantar A-merkingu en B og C eru ósammála; hún getur því birst til yfirferðar án þess að teljast með í samantekt fullmerktra tilvika.",
+    "Ef aðeins A og B eru valin og reiknað aftur kemur upprunalegi samanburðurinn aftur. Við staðfestum að gagnagrunnurinn og myndskrárnar haldast óbreytt í öllum þremur útreikningum. Notaðu raunverulega óháðar merkingarumferðir við þína greiningu og farðu aftur í Annotate-leiðbeiningarnar til að safna þeim merkingum."
+  ]
+}

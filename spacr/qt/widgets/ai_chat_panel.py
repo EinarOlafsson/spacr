@@ -179,7 +179,27 @@ class _ProvidersDialog(QDialog):
         note.setTextFormat(Qt.RichText)
         col.addWidget(note)
         col.addStretch(1)
-        return page
+        # THE PAGE SCROLLS, BECAUSE A QTabWidget WILL NOT ASK IT HOW TALL
+        # IT IS. The intro paragraph wraps to one line more in German than
+        # in English -- 108 px against the 97 it was given -- and the
+        # dialog cannot discover that: `heightForWidth` does not propagate
+        # through a tab widget, so the wrapped label's real height never
+        # reaches the dialog's own sizeHint and the paragraph is squeezed.
+        #
+        # A height-for-width size policy on the label was tried first and
+        # changed nothing, for exactly that reason.
+        #
+        # Scrolling is 350's own rule for this -- "use a visible,
+        # accessible fallback rather than silently clipping" -- and it
+        # costs nothing where the content already fits: a scroll area with
+        # `setWidgetResizable(True)` shows no bar until it needs one, so
+        # English is unchanged.
+        holder = QScrollArea()
+        holder.setWidgetResizable(True)
+        holder.setFrameShape(QScrollArea.NoFrame)
+        holder.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        holder.setWidget(page)
+        return holder
 
     # -- Settings tab --------------------------------------------------
     def _build_settings_tab(self) -> QWidget:

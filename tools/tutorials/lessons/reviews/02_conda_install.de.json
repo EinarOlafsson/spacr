@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Installation mit Conda",
+  "description": "Installieren Sie das offizielle conda-forge-Paket in einer eigenen Umgebung, prüfen Sie die tatsächliche Kanalversion und erkennen Sie Abweichungen von den aktuellen Modul-Tutorials.",
+  "objectives": [
+    "Eine eigene Conda-Umgebung erstellen und aktivieren.",
+    "Das installierte Kanalpaket, Qt und die Diagnoseergebnisse prüfen.",
+    "Bei veralteter Kanaloberfläche den neueren pip- oder Desktop-Installer verwenden."
+  ],
+  "prerequisite": "Ein Conda-kompatibler Paketmanager muss bereits installiert sein. Diese Aufnahme überprüft am 10. September 2026 unter Linux spaCR 1.5.0.4 aus conda-forge mit Python 3.12.14 und Qt 6.11.2. Die Neuinstallation verwendet einen neuen privaten Präfix, ausschließlich conda-forge und die festgelegte Kanalversion; die Befehlskarten erläutern das entsprechende Vorgehen mit benannter Umgebung und stellen keine Installationsausgabe nach. Die tatsächliche Oberfläche hat noch Home (63), nicht die neue verschachtelte Struktur von PyPI/Installer 1.5.0.5. spacr-doctor hat seinen kleinen CUDA-Speicherallokationstest bestanden, warnt aber vor fehlender optionaler CZI-Unterstützung; das ist weder ein Geschwindigkeitsvergleich noch die Prüfung aller Analysen oder Formate. Die native Aufnahme verwendet ein privates dunkles Profil mit Schriftfaktor 1.5, bereits geschlossener Einführung und unveränderten Vorladevorgaben, ohne das nicht unterstützte Flag --no-setup. Andere Plattformen wurden nicht getestet. Ursprünglicher und veröffentlichter Sprechertext unterscheiden sich; unveränderte Audioübernahme wird nicht behauptet.",
+  "scenes": [
+    "Verwenden Sie für spaCR eine eigene Conda-Umgebung und prüfen Sie, welche Version der Kanal tatsächlich anbietet. Zum Aufnahmezeitpunkt installiert conda-forge Version eins Punkt fünf Punkt null Punkt vier. PyPI und der Desktop-Installer bieten bereits eins Punkt fünf Punkt null Punkt fünf; diese Versionsangaben sind nicht austauschbar.",
+    "Öffnen Sie eine für Conda eingerichtete Shell und erstellen Sie eine neue Umgebung mit Python drei Punkt zwölf. Die Befehlskarte verwendet den Namen spacr-conda. Falls er schon existiert, wählen Sie einen anderen unbenutzten Namen und trennen Sie diese Umgebung von laufenden Analysen.",
+    "Aktivieren Sie die Umgebung und geben Sie sys Punkt prefix aus, um die Herkunft von Python zu bestätigen. Die tatsächliche Prüfung verwendet statt des kurzen Beispielnamens einen längeren privaten Präfix. Die Eingabeaufforderung allein beweist nicht, dass der gewünschte Interpreter verwendet wird.",
+    "Installieren Sie das Paket mit ausdrücklicher Angabe von conda-forge und prüfen Sie Version und Kanal anschließend mit conda list spacr. Unsere aufgezeichnete Installation verwendete ausschließlich conda-forge und eine festgelegte Kanalversion. Sie war vor den Prüfbildern abgeschlossen; die Karten sind Anweisungen, keine erfundene Terminalausgabe.",
+    "Prüfen Sie spaCR-Version, Qt-Version und Paketpfad in der installierten Umgebung. Hier ist das Paket in Version eins Punkt fünf Punkt null Punkt vier aktiv und Qt lässt sich importieren. Das identifiziert das aktive Paket, bestätigt aber nicht jeden wissenschaftlichen Ablauf oder jedes optionale Format.",
+    "Führen Sie spacr-doctor aus und lesen Sie auch die Warnungen. Hier gelingt der kleine GPU-Speicherallokationstest, während für die optionale CZI-Unterstützung eine Abhängigkeit fehlt. Übersprungene Prüfungen sind keine bestandenen Prüfungen. Der Reparaturvorschlag betrifft diese Funktion; beurteilen Sie Änderungen an der Umgebung vorab, besonders beim Mischen von Paketmanagern.",
+    "Das installierte Conda-Paket öffnet und schließt normal, zeigt aber seine ältere Home mit dreiundsechzig Kacheln. Die neue verschachtelte Modulstruktur fehlt. Eine erfolgreiche Installation bedeutet nicht automatisch, dass jeder Bildschirm den Tutorials einer neueren Version entspricht.",
+    "Für die neuere verschachtelte Oberfläche der überarbeiteten Modul-Tutorials verwenden Sie die aktuelle Lektion zu pip oder Platform installers in einer separaten Umgebung. Benötigen Sie den Conda-Kanal, dokumentieren Sie seine tatsächliche Version und prüfen Sie erneut auf Aktualisierungen. Bewahren Sie die für eine laufende Analyse verwendete Version."
+  ]
+}

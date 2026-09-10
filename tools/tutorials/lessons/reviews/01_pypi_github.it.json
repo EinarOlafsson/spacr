@@ -1,0 +1,29 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "PyPI, GitHub e conda-forge",
+  "description": "Trova le fonti ufficiali di pacchetti e programmi di installazione, confronta la versione disponibile su ogni canale e scegli il tutorial di installazione corrispondente.",
+  "objectives": [
+    "Identificare le pagine ufficiali di spaCR su PyPI, GitHub e conda-forge.",
+    "Distinguere i file di una versione pubblicata, il codice in sviluppo e i canali dei pacchetti aggiornati separatamente.",
+    "Scegliere un percorso di installazione e verificare la versione effettivamente installata."
+  ],
+  "prerequisite": "Questa panoramica non esegue alcuna installazione. Le pagine sono state acquisite il 10 settembre 2026: PyPI e GitHub offrono 1.5.0.5, mentre conda-forge offre 1.5.0.4. Versioni e file disponibili possono cambiare: leggi la pagina attuale e verifica la versione installata. Le acquisizioni usano un profilo anonimo e mantengono intatti testo, badge e cronologia delle versioni. L’installazione specifica per piattaforma e le opzioni hardware sono trattate nei tutorial collegati.",
+  "scenes": [
+    "Prima di installare spaCR, scegli la sua fonte ufficiale di distribuzione. PyPI e conda-forge forniscono pacchetti Python; GitHub fornisce codice sorgente, registri delle versioni e programmi di installazione desktop. Questi percorsi sono collegati, ma non pubblicano necessariamente la stessa versione nello stesso momento.",
+    "Su PyPI, leggi l’intestazione della versione e il comando di installazione. Qui l’intestazione indica spaCR uno punto cinque punto zero punto cinque. Controlla questo valore nella pagina attuale, senza dedurre la versione da una vecchia schermata, da un badge o dalla data di un tutorial.",
+    "Project links collega il pacchetto alla documentazione, alla pagina principale, al sistema di segnalazione dei problemi e al repository del codice. Usa questi collegamenti per passare fra le risorse ufficiali. La pagina di un pacchetto descrive quella versione pubblicata, non garantisce che includa già tutte le funzioni in sviluppo.",
+    "Su GitHub, il selettore del ramo identifica la linea di codice che stai leggendo. Main è la linea delle versioni pubblicate, mentre nightly contiene lo sviluppo in corso. Per un’installazione ordinaria scegli una versione pubblicata; usa nightly solo se vuoi deliberatamente codice più recente e puoi accettare cambiamenti.",
+    "Apri una versione pubblicata ed espandi Assets. Scegli il programma di installazione per Windows, macOS o Linux. Il file wheel e la distribuzione sorgente sono pacchetti Python, non programmi di installazione desktop. Scarica l’elenco delle somme di controllo per la versione e il file esatti, anziché confrontare hash di un altro canale.",
+    "La pagina conda-forge ha un proprio selettore di versione. Durante questa registrazione offre uno punto cinque punto zero punto quattro, mentre PyPI offre uno punto cinque punto zero punto cinque. Mostriamo intenzionalmente questa differenza reale: non presumere che l’aggiornamento di un canale sia già arrivato.",
+    "Il comando che specifica il canale è conda install conda-forge, due segni di due punti, spacr. Eseguilo nell’ambiente che intendi usare. Il tutorial Conda illustra questo percorso; creare un ambiente Conda e installare con pip è un percorso diverso, anche se entrambi usano un gestore di ambienti.",
+    "Scegli il tutorial pip per un ambiente virtuale Python, quello Conda per il pacchetto del canale oppure Platform installers per un runtime privato gestito dal programma di installazione. Poi verifica la versione installata ed esegui spacr-doctor prima di seguire i tutorial dei moduli."
+  ]
+}

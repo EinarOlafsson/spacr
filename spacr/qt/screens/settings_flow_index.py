@@ -178,7 +178,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'control_quantile',
     'control_sgrnas',
     'control_wells',
-    'controls',
+    'nontargeting_control_grnas',
     'controls_loc',
     'coordinate_columns',
     'correlation',

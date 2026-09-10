@@ -1,0 +1,254 @@
+{
+  "route": "Public Linux online installer, default auto backend",
+  "folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_",
+  "accepted": true,
+  "steps": [
+    {
+      "name": "01_installer",
+      "command": [
+        "bash",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/spaCR-1.5.0.5-Linux-x86_64-Online.run",
+        "--install-root",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime",
+        "--launcher-dir",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/bin",
+        "--skip-system-deps",
+        "--no-launch"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 277.245,
+      "log_sha256": "6dd33a2c82036a61cba9eb5adc0665bd19edc468e3a712838c317251838f05fe"
+    },
+    {
+      "name": "02_import",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/bin/python",
+        "-I",
+        "-c",
+        "import json,pathlib,sys,spacr,PySide6,torch; assert pathlib.Path(spacr.__file__).resolve().is_relative_to(pathlib.Path(sys.prefix)); assert spacr.__version__ == '1.5.0.5'; print(json.dumps(dict(version=spacr.__version__,qt=PySide6.__version__, torch=torch.__version__,package=spacr.__file__,prefix=sys.prefix),indent=2))"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 1.366,
+      "log_sha256": "b24f2b28631b90cd27800272c890617004cad515aaae3573bdbf42d303efd997"
+    },
+    {
+      "name": "03_doctor",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/bin/spacr-doctor",
+        "--json",
+        "--no-gpu-probe"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 10.079,
+      "log_sha256": "6bdd765c1ddc471a26b547f287326a05d4fbf0e7474e42c560963e67624a2adf"
+    }
+  ],
+  "installer_sha256": "21e1040ef7bb3b372268d3504bd0028ff83bba363de46ab98f34de1329e32488",
+  "published": false,
+  "installer_tag": "v1.5.0.5",
+  "system_dependencies_installed": false,
+  "gui_launched": false,
+  "consent_choices_supplied": false,
+  "existing_environment_changed": false,
+  "install_profile": {
+    "active_backend": "cuda",
+    "consent": {
+      "collected": false,
+      "report_issues": false,
+      "share_diagnostics": false,
+      "sign_in_now": false
+    },
+    "created_utc": "2026-09-10T15:27:22.829546+00:00",
+    "cuda_available": true,
+    "detected_accelerator": "nvidia",
+    "machine": "x86_64",
+    "mps_available": false,
+    "platform": "linux",
+    "requested_backend": "auto",
+    "schema": 1,
+    "torch_cuda_build": "13.2",
+    "torch_version": "2.14.0+cu132"
+  },
+  "scope": "Linux installer, real imports and doctor; no GUI, GPU throughput, Windows or macOS acceptance",
+  "lesson": "04_platform_installers",
+  "status": "Actual public installer, imports and doctor verified; GUI recording and tutorial pending",
+  "installed_identity": {
+    "version": "1.5.0.5",
+    "qt": "6.11.2",
+    "torch": "2.14.0+cu132",
+    "package": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr/__init__.py",
+    "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv"
+  },
+  "doctor": {
+    "ok": true,
+    "results": [
+      {
+        "check": "python",
+        "details": [
+          "interpreter: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/bin/python"
+        ],
+        "fix": "",
+        "message": "Python 3.12.13 satisfies requires-python !=3.14.1,<3.16,>=3.9.",
+        "status": "PASS"
+      },
+      {
+        "check": "spacr package",
+        "details": [],
+        "fix": "",
+        "message": "spacr 1.5.0.5 imports from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr.",
+        "status": "PASS"
+      },
+      {
+        "check": "running checkout",
+        "details": [
+          "import spacr  -> /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr",
+          "editable install: none (installed as a copy)"
+        ],
+        "fix": "",
+        "message": "Not inside a spaCR checkout; runs from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages.",
+        "status": "PASS"
+      },
+      {
+        "check": "duplicate installs",
+        "details": [],
+        "fix": "",
+        "message": "One importable spacr package: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr.",
+        "status": "PASS"
+      },
+      {
+        "check": "distributions",
+        "details": [
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv/lib/python3.12/site-packages/spacr-1.5.0.5.dist-info"
+        ],
+        "fix": "",
+        "message": "spacr 1.5.0.5 is the only spaCR distribution.",
+        "status": "PASS"
+      },
+      {
+        "check": "console scripts",
+        "details": [],
+        "fix": "",
+        "message": "All 16 installed spaCR commands resolve.",
+        "status": "PASS"
+      },
+      {
+        "check": "PATH",
+        "details": [],
+        "fix": "",
+        "message": "`spacr-doctor` on PATH comes from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-runtime-7832jcv_/runtime/venv.",
+        "status": "PASS"
+      },
+      {
+        "check": "qt extra",
+        "details": [],
+        "fix": "",
+        "message": "Qt GUI available (PySide6 6.11.2).",
+        "status": "PASS"
+      },
+      {
+        "check": "display",
+        "details": [],
+        "fix": "",
+        "message": "QT_QPA_PLATFORM=offscreen: Qt is deliberately headless.",
+        "status": "PASS"
+      },
+      {
+        "check": "core imports",
+        "details": [],
+        "fix": "",
+        "message": "All 13 core dependencies import.",
+        "status": "PASS"
+      },
+      {
+        "check": "optional extras",
+        "details": [
+          "czi: missing pylibCZIrw",
+          "installed: fractal, lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike"
+        ],
+        "fix": "python -m pip install \"spacr[czi]\"",
+        "message": "1 optional extras are half-installed and will fail when their feature is used.",
+        "status": "WARN"
+      },
+      {
+        "check": "installer backend",
+        "details": [],
+        "fix": "",
+        "message": "The installer selected auto; torch currently uses cuda (accelerator detected at install: nvidia).",
+        "status": "PASS"
+      },
+      {
+        "check": "torch",
+        "details": [],
+        "fix": "",
+        "message": "torch 2.14.0+cu132 (built against CUDA 13.2).",
+        "status": "PASS"
+      },
+      {
+        "check": "gpu",
+        "details": [],
+        "fix": "",
+        "message": "1 CUDA device(s) reported: NVIDIA GeForce RTX 3090 (driver 580.173.02, torch CUDA 13.2); allocation probe skipped.",
+        "status": "PASS"
+      },
+      {
+        "check": "cellpose",
+        "details": [],
+        "fix": "",
+        "message": "cellpose 4.2.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.",
+        "status": "PASS"
+      },
+      {
+        "check": "declared pins",
+        "details": [],
+        "fix": "",
+        "message": "Not inside a spaCR checkout; nothing to cross-check.",
+        "status": "SKIP"
+      },
+      {
+        "check": "database",
+        "details": [],
+        "fix": "spacr-doctor --db /path/to/plate/measurements/measurements.db",
+        "message": "No database given.",
+        "status": "SKIP"
+      },
+      {
+        "check": "settings",
+        "details": [],
+        "fix": "spacr-doctor --settings settings.csv --app measure",
+        "message": "No settings file given.",
+        "status": "SKIP"
+      }
+    ],
+    "summary": {
+      "ERROR": 0,
+      "FAIL": 0,
+      "PASS": 14,
+      "SKIP": 3,
+      "WARN": 1
+    }
+  },
+  "identity_tests": {
+    "passed": 1,
+    "guard_lines_executed": [
+      24,
+      25,
+      28,
+      30
+    ],
+    "mutations": [
+      {
+        "guard": "private receipt",
+        "failed": 1
+      },
+      {
+        "guard": "verified unchanged asset",
+        "failed": 1
+      }
+    ],
+    "method": "Each guard altered separately in an isolated in-memory source copy; each caused the positive/negative test to fail. Restored source passes and named lines were measured."
+  },
+  "note": "The installer printed existing benchmark claims; this run did NOT measure those speedups. No GUI launch, user consent or other-platform success claimed. The real default hardware selection was not overridden."
+}

@@ -328,6 +328,10 @@ def main() -> int:
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'illumination':
+        from capture_illumination import record_illumination
+        record_illumination(app, window, stage, captures, capture,
+                            settle, write_json, args.timeout)
     elif args.module == 'dose_response':
         from capture_dose_response import record_dose_response
         record_dose_response(app, window, stage, captures, capture,
@@ -370,6 +374,7 @@ def main() -> int:
                         settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
+                    'agreement': 'annotate',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
                     'train_compare': 'classify_merged',
                     'plate_view': 'graph_builder',
@@ -405,6 +410,14 @@ def main() -> int:
         settle(2)
         screen = window._screens[host_key]
         capture('01_module')
+        if args.module == 'agreement':
+            from capture_agreement import record_agreement
+            record_agreement(app, window, screen, stage, captures, capture,
+                             settle, write_json, args.timeout)
+        if args.module == 'replication':
+            from capture_replication import record_replication
+            record_replication(app, window, screen, stage, captures, capture,
+                               settle, write_json, args.timeout)
         if args.mask_editor_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,

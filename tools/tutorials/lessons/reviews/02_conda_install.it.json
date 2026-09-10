@@ -1,0 +1,29 @@
+{
+  "lesson": "02_conda_install",
+  "english_sha256": "a3db27a703a407de933c626561ad184847d008a7b98043dfa79bb524965d8676",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and the genuine older conda-forge installation; channel/UI difference explicit",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Installazione con Conda",
+  "description": "Installa il pacchetto ufficiale conda-forge in un ambiente separato, verifica la versione effettiva del canale e riconosci le differenze dai tutorial attuali dei moduli.",
+  "objectives": [
+    "Creare e attivare un ambiente Conda dedicato.",
+    "Verificare il pacchetto del canale, Qt e la diagnostica.",
+    "Scegliere pip o l’installer desktop più recente quando il canale mantiene l’interfaccia precedente."
+  ],
+  "prerequisite": "Deve essere già installato un gestore compatibile con Conda. La registrazione verifica spaCR 1.5.0.4 da conda-forge su Linux, con Python 3.12.14 e Qt 6.11.2, il 10 settembre 2026. L’installazione pulita usa un nuovo percorso privato, solo conda-forge e la versione del canale fissata; le schede illustrano il procedimento equivalente con un ambiente con nome, senza simulare output d’installazione. La GUI reale conserva Home (63), non la struttura annidata di PyPI/installer 1.5.0.5. spacr-doctor supera la piccola prova di allocazione CUDA, ma segnala un avviso CZI facoltativo; non è un benchmark né una verifica di ogni analisi o formato. La cattura usa un profilo scuro privato con scala caratteri 1.5, il tour già chiuso e il precaricamento predefinito, senza l’opzione --no-setup non supportata. Altre piattaforme non sono state testate. La narrazione nei file di lavoro differisce da quella pubblicata: non si dichiara il riuso di audio identico.",
+  "scenes": [
+    "Usa un ambiente Conda dedicato a spaCR e verifica quale versione offre davvero il canale. In questa registrazione conda-forge installa uno punto cinque punto zero punto quattro. PyPI e l’installer desktop offrono già uno punto cinque punto zero punto cinque: queste versioni non sono intercambiabili.",
+    "Apri una shell configurata per Conda e crea un nuovo ambiente con Python tre punto dodici. La scheda usa il nome spacr-conda. Se esiste già, scegli un altro nome inutilizzato e tieni questo ambiente separato dalle analisi in corso.",
+    "Attiva l’ambiente e stampa sys punto prefix per verificare a quale ambiente appartiene Python. La verifica reale usa un percorso privato più lungo invece del nome breve dell’esempio. Il solo prompt del terminale non prova che stai usando l’interprete desiderato.",
+    "Installa il pacchetto specificando conda-forge e usa conda list spacr per controllare versione e canale. L’installazione verificata usava solo conda-forge e fissava la versione del canale. Era terminata prima dei fotogrammi di verifica: le schede sono istruzioni, non output di terminale inventato.",
+    "Controlla le versioni di spaCR e Qt e la posizione del pacchetto nell’ambiente installato. Qui il pacchetto è uno punto cinque punto zero punto quattro e Qt viene importato correttamente. Questo identifica il pacchetto attivo, ma non valida ogni flusso scientifico o formato facoltativo.",
+    "Esegui spacr-doctor e leggi anche gli avvisi. Qui la piccola prova di allocazione GPU riesce, mentre al supporto CZI facoltativo manca una dipendenza. I controlli saltati non sono superati. La correzione suggerita riguarda quella funzione; valuta le modifiche all’ambiente prima di applicarla, soprattutto mescolando gestori di pacchetti.",
+    "Il pacchetto Conda installato si apre e si chiude normalmente, ma questa è la sua vecchia Home con sessantatré riquadri. Non dispone della nuova struttura di moduli annidati. Un’installazione riuscita non significa che tutte le schermate corrispondano ai tutorial di una versione più recente.",
+    "Per la nuova interfaccia annidata mostrata nei tutorial aggiornati, segui la lezione attuale su pip o Platform installers in un ambiente separato. Se ti serve il canale Conda, annota la versione effettiva e ricontrolla gli aggiornamenti. Conserva la versione usata per un’analisi in corso."
+  ]
+}

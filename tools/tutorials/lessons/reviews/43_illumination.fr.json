@@ -1,0 +1,34 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Correction de l’éclairage",
+  "description": "Estimez un champ d’éclairage à partir d’images téléchargées dans la page Illumination de Measure, examinez son contrôle qualité exporté et distinguez amélioration numérique et validation biologique.",
+  "objectives": [
+    "Ouvrir la page intégrée et sélectionner les canaux d’intensité des champs fusionnés.",
+    "Comparer la correction désactivée et activée, puis examiner le modèle et le contrôle qualité enregistrés.",
+    "Réutiliser un modèle examiné sans confondre diagnostics sur les données d’ajustement et validation indépendante."
+  ],
+  "prerequisite": "L’exemple utilise des copies inchangées de seize champs plate1 téléchargés, de 1994 × 1994 pixels et sept plans stockés. Le canal zéro est un indice d’intensité, pas un nom de marquage ; les plans d’étiquettes ne sont pas des intensités. Les originaux et les copies sont préservés. Après l’exécution graphique, une formule indépendante vérifie 7 952 072 pixels corrigés via l’API publique, sans substituer les résultats de l’interface. Le modèle et le contrôle qualité utilisent les mêmes seize champs : ce n’est pas une validation indépendante ni une vérité optique ou biologique. L’offset nul n’est pas une calibration mesurée. Le panneau Figures reste vide ; le vrai PNG exporté est ouvert dans une visionneuse externe. Aucun code applicatif ni image originale n’est modifié. L’ancienne simulation de cinq scènes est remplacée.",
+  "scenes": [
+    "Ouvrez Measure, puis son bouton Illumination. Cette page intégrée estime un modèle de correction avant une analyse plus importante. Elle diffère de la simple activation de la correction pendant une mesure et ne transforme pas toute l’application en session automatiquement corrigée.",
+    "Indiquez dans Source le dossier merged contenant les tableaux d’images, pas la base de mesures. Nous utilisons de nouvelles copies des seize champs de l’exemple de plaque téléchargeable. Les originaux restent inchangés et le modèle d’éclairage est enregistré à côté de ce dossier merged.",
+    "Le paramètre Channels désigne les positions dans le tableau d’intensité stocké. Nous sélectionnons ici le canal zéro. Vérifiez votre propre correspondance d’acquisition plutôt que de supposer que zéro représente toujours le même marquage. Ne sélectionnez jamais un plan de masque d’étiquettes comme s’il s’agissait d’intensité de fluorescence.",
+    "Au départ, la correction est désactivée. Run se termine, mais la console indique explicitement qu’aucun champ n’a été estimé. Nous avons vérifié qu’aucun modèle n’a été créé. Un message de fin réussie ne prouve donc pas, à lui seul, que la correction a eu lieu.",
+    "Activez Illumination correction. Cet exemple utilise l’estimateur polynomial de degré quatre et laisse Illumination model vide pour estimer un nouveau champ. Plus de flexibilité n’est pas forcément préférable : une correction qui suit les cellules ou les motifs de traitement peut supprimer la biologie que vous vouliez mesurer.",
+    "Séparez les groupes d’acquisition avec Illumination per plate. Ici, nous échantillonnons les seize champs disponibles. Une couverture représentative compte plus que l’augmentation aveugle d’un nombre : un modèle ajusté sur un seul coin très dense peut confondre structure biologique et éclairage inégal.",
+    "Illumination dark est un offset additif de caméra, en unités brutes, pas un fond biologique appris. Zéro est le réglage de cette démonstration, pas un résultat de calibration. Choisissez l’offset à partir de contrôles d’acquisition appropriés, au lieu de l’ajuster jusqu’à faire disparaître un phénotype.",
+    "Laissez Illumination QC activé et vérifiez la politique en cas de modèle manquant. Nous choisissons error pour qu’une correction indisponible pour une plaque arrête l’opération, plutôt que de mélanger silencieusement champs corrigés et non corrigés. Ces contrôles ne remplacent pas l’examen du champ estimé.",
+    "Relancez avec la correction activée. La console affiche maintenant le champ ajusté, les pentes diagnostiques et le chemin du modèle enregistré. Cette étape autonome laisse les fichiers d’images inchangés ; elle n’a ni relancé la segmentation ni produit de nouvelles mesures cellulaires.",
+    "Dans cette version, l’image de contrôle qualité est enregistrée mais n’apparaît pas dans le panneau Figures intégré. Ouvrez illumination, tiret bas, QC, tiret bas, plate un, point PNG, dans le dossier illumination avec votre visionneuse d’images. Il s’agit de la vraie figure exportée dans une visionneuse distincte, pas d’un panneau spaCR simulé.",
+    "Le panneau de gauche montre le champ d’éclairage estimé, de moyenne un. La correction soustrait l’offset de caméra et divise par ce champ. Même si le titre l’appelle gain, ne multipliez pas les intensités par la carte affichée : la correction utilise son inverse. Vérifiez qu’aucune structure biologique ne s’introduit dans l’estimation.",
+    "La pente radiale passe d’environ moins zéro virgule un huit un à plus zéro virgule zéro deux six. La réduction annoncée de quatre-vingt-cinq virgule quatre pour cent correspond à notre calcul indépendant, mais la courbe après correction n’est pas plate. Ces champs ont aussi servi à ajuster le modèle : ce n’est donc pas une validation indépendante.",
+    "Pour réutiliser le modèle, fournissez son chemin enregistré et activez explicitement la correction dans le workflow Mask ou Measure prévu. Conservez ensemble modèle, correspondance des canaux, identités des plaques et paramètres. Examinez des champs indépendants et évitez de corriger deux fois des intensités déjà corrigées avant d’interpréter des différences biologiques."
+  ]
+}

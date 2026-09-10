@@ -1,0 +1,29 @@
+{
+  "lesson": "01_pypi_github",
+  "english_sha256": "378c6c5d85a4f707db7e303b7f98c35e1453c8afdd4103319318619a62cfeced",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and actual public source-page captures; package, command and channel identities retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "PyPI, GitHub och conda-forge",
+  "description": "Hitta de officiella källorna för paket och installationsprogram, jämför versionen i varje kanal och välj motsvarande installationstutorial.",
+  "objectives": [
+    "Identifiera spaCR:s officiella sidor på PyPI, GitHub och conda-forge.",
+    "Skilja mellan versionsfiler, utvecklingskod och paketkanaler som uppdateras oberoende av varandra.",
+    "Välja installationsväg och kontrollera vilken version som faktiskt installerats."
+  ],
+  "prerequisite": "Ingen installation utförs i denna översikt. Sidorna spelades in den 10 september 2026: PyPI och GitHub erbjuder 1.5.0.5, medan conda-forge erbjuder 1.5.0.4. Kanalernas versioner och tillgängliga filer kan ändras; läs den aktuella sidan och kontrollera din installerade version. Webbläsarbilderna använder en anonym profil och behåller sidtext, statusmärken och versionshistorik oförändrade. Plattformsspecifik installation och maskinvaruval behandlas i de länkade lektionerna.",
+  "scenes": [
+    "Välj spaCR:s officiella distributionskälla innan du installerar. PyPI och conda-forge tillhandahåller Python-paket; GitHub tillhandahåller källkod, versionshistorik och installationsprogram för skrivbordet. Vägarna hör ihop, men publicerar inte nödvändigtvis samma version samtidigt.",
+    "Läs versionsrubriken och installationskommandot på PyPI. Här står spaCR ett punkt fem punkt noll punkt fem. Kontrollera värdet på den aktuella sidan i stället för att dra slutsatser från en gammal skärmbild, ett statusmärke eller ett tutorials datum.",
+    "Project links länkar paketet till dokumentationen, startsidan, ärendehanteringen och källkodsarkivet. Använd länkarna för att gå mellan officiella resurser. En paketsida beskriver just den publicerade versionen; den garanterar inte att alla funktioner under utveckling redan ingår.",
+    "På GitHub visar grenväljaren vilken källkodslinje du läser. Main är releaselinjen och nightly innehåller pågående utveckling. Välj en publicerad version för vanlig installation; använd nightly bara när du medvetet behöver nyare arbete och kan acceptera förändringar.",
+    "Öppna en release och fäll ut Assets. Välj installationsprogram för Windows, macOS eller Linux. Wheel-filen och källdistributionen är Python-paketfiler, inte skrivbordsinstallationsprogram. Hämta kontrollsummelistan för exakt den version och fil du valt, i stället för att jämföra hashvärden från en annan kanal.",
+    "Conda-forge-sidan har en egen versionsväljare. Vid inspelningen erbjuder den ett punkt fem punkt noll punkt fyra, medan PyPI erbjuder ett punkt fem punkt noll punkt fem. Denna verkliga skillnad visas avsiktligt; förutsätt inte att en kanaluppdatering redan har kommit.",
+    "Kommandot med angiven kanal är conda install conda-forge, två kolon, spacr. Kör det i den miljö du tänker använda. Conda-lektionen förklarar den vägen; att skapa en Conda-miljö och installera med pip är en annan väg, även om båda använder en miljöhanterare.",
+    "Välj pip-lektionen för en virtuell Python-miljö, Conda-lektionen för kanalpaketet eller Platform installers för en privat körmiljö som installationsprogrammet hanterar. Kontrollera sedan den installerade versionen och kör spacr-doctor innan du följer modullektionerna."
+  ]
+}

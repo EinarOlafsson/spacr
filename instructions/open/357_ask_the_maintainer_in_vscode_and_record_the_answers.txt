@@ -5,6 +5,27 @@ ASK THE MAINTAINER IN VS CODE, THEN RECORD THE ANSWERS THAT UNBLOCK THE LIST
 Status:    OPEN, filed 2026-09-02. This is the single intake item for every
            current instruction that genuinely needs Einar's wording, evidence,
            review or release decision.
+
+           SWEPT 2026-09-10. Four of the five open questions were already
+           answered and the sheet had not caught up -- 327-A answered and
+           shipped, 379-C answered and its item closed, 385-A struck as moot,
+           CI-A part-answered with the tutorial lane now batching.
+
+           AND THE FIFTH IS NOT READY TO ASK, corrected the same day.
+           Q-DOCS-A was listed here as the one genuinely open question, on
+           evidence that the docs build was green at every step. It is not:
+           `docs.yml` audits TWO catalog lanes and only the API one was
+           rebuilt. The runtime lane is stale in all nine languages from
+           364's renames, so a dispatch fails today.
+
+               NOTHING GOES ON THIS SHEET THAT THE MAINTAINER CANNOT
+               USEFULLY ANSWER. A question whose "yes" produces a failed
+               run is worse than no question: it spends his attention and
+               then makes the failure look like his decision. Q-DOCS-A is
+               BLOCKED, not open, and it returns to this sheet when the
+               runtime rebuild has landed.
+
+           SO THERE IS CURRENTLY NOTHING HERE THAT NEEDS HIM.
 Requested: 2026-09-02 — "for 316 how do we do this, can we do it with vs code
            questions? for any of the items that need my input generate vs code
            questions for me to so we can close the items that way."
@@ -685,7 +706,21 @@ overnight. They belong here so they go to him in ONE batch when he is back
 messages across four sessions. Recommendation first in each, per the
 guidelines above.
 
-Q-327-A -- SHOULD THE REGION TOUR BE THE DEFAULT BACKDROP PATH?
+Q-327-A -- ANSWERED 2026-09-10: "Yes, make it the default." Asked directly
+    by the other session, and shipped in 0f932ac7c -- `DEFAULTS["path"]` is
+    "tour", and both fallbacks that said "fixed" say "tour" too, because a
+    fallback that disagrees with DEFAULTS is a second answer to one question
+    and it only shows when DEFAULTS is unreadable.
+
+    AND IT EXPOSED THREE TESTS THAT WERE NOT TESTING WHAT THEY NAMED.
+    `test_cov_r5_fractal_travel`'s fixture never set `path`, so three tests
+    named for the FIXED path -- one of them
+    `test_the_fixed_path_stays_pointed_at_the_reference` -- had been
+    exercising whatever the published default happened to be. A default
+    change is the only thing that would ever have revealed it, which is an
+    argument for changing one deliberately once in a while.
+
+    (The question as originally put follows.)
     327(3) is wired: the camera tours the twenty mapped coordinates as a
     third Path in Preferences, "Tour the mapped regions", and it is NOT the
     default -- `path` stays "fixed".
@@ -725,7 +760,20 @@ Q-385-A -- STRUCK 2026-09-10, BEFORE IT WAS EVER ASKED. ANSWERED BY THE
     open blocked the GUI thread for 902 ms with the backdrop stopped for all
     of it, and is now 139 ms. See 380.
 
-Q-379-C -- SHOULD THE SUGGESTION OFFSET SCHEME EXTEND PAST TWO CLASSES?
+Q-379-C -- ANSWERED AND CLOSED 2026-09-10, by measuring rather than
+    building. The scheme ALREADY extends past two classes: classes 1 to 9
+    round-trip, and the limit is a class VALUE of ten or more rather than a
+    class count, because `SUGGESTION_OFFSET` is 10. The maintainer confirmed
+    he does not use values that large, so the guard stays a refusal and
+    nothing needed building. 379 is closed.
+
+    NOTE ON HOW IT WAS ASKED. He was first asked against the wrong premise
+    and answered "extend it to three or more"; re-asked with the
+    measurement, the answer became "then it's already done". The lesson is
+    the first answer was to a question that did not describe the code.
+
+    (The question as originally put follows.)
+Q-379-C-ORIGINAL -- SHOULD THE SUGGESTION OFFSET SCHEME EXTEND PAST TWO CLASSES?
     Restated here because 379's own status line reads as though there is
     code to write and there is not. The collision guard is already built and
     refuses BOTH directions by name; the feature is SAFE at three classes,
@@ -737,7 +785,18 @@ Q-379-C -- SHOULD THE SUGGESTION OFFSET SCHEME EXTEND PAST TWO CLASSES?
     RECOMMEND (a) until somebody actually annotates three classes. (b) is
     not hard and it is not free, and nothing has asked for it yet.
 
-Q-CI-A -- HOW SHOULD CI STOP CANCELLING ITSELF?
+Q-CI-A -- PARTLY ANSWERED 2026-09-10: the maintainer chose (a), and the
+    tutorial lane now batches its pushes (93cc77223). STILL NOT FIXED, and
+    the number says why: 24 of the last 30 runs on nightly were still
+    cancelled after that change, because the remaining push rate is the two
+    working sessions rather than the tutorial lane. Both are batching now.
+
+    IF IT IS STILL RED WHEN YOU READ THIS, option (c) below is the one that
+    needs no behaviour change from anybody -- a `schedule:` on tests.yml,
+    additive and reversible in one line.
+
+    (The question as originally put follows.)
+Q-CI-A-ORIGINAL -- HOW SHOULD CI STOP CANCELLING ITSELF?
     Measured: 0 successes in the last 100 runs on nightly, 94 of them
     cancelled. The push rate exceeds CI throughput -- commits landing about
     every ninety seconds, each cancelling the run before it.
@@ -782,8 +841,26 @@ Q-CI-A -- HOW SHOULD CI STOP CANCELLING ITSELF?
     useless -- two tests read those files, so CI would go quiet on exactly
     the change that happened.
 
-Q-DOCS-A -- MAY `docs.yml` BE DISPATCHED ON nightly, WHICH PUBLISHES THE
-    DOCUMENTATION SITE?
+Q-DOCS-A -- BLOCKED 2026-09-10, NOT OPEN. DO NOT ASK IT YET.
+    `docs.yml` audits BOTH catalog lanes. The API lane was rebuilt on
+    2026-09-10 (main 1d34aa3c1, ten catalogs at 10,307 symbols); the RUNTIME
+    lane was not, and 364's fourteen renamed and retired keys have staled it
+    in all nine languages -- SETTING_LABELS 7 missing and 14 stale,
+    SETTING_TOOLTIPS the same plus 14 degenerate, SOURCE_HASHES 14 missing,
+    29 stale and 5 wrong, and in zh_CN, hi and ko seven of 364's NEW names
+    are still sitting there in English.
+
+    A DISPATCH TODAY FAILS, on the settings surface. It returns to this
+    sheet the moment the runtime rebuild lands, and the recommendation below
+    stands unchanged for that day.
+
+    THE MISTAKE THAT PUT IT HERE IS WORTH KEEPING: one lane's audit was
+    fixed and read as "the thing blocking the publish is gone", without
+    re-running the other. One green signal is not the picture.
+
+    (The question as originally put follows.)
+Q-DOCS-A-ORIGINAL -- MAY `docs.yml` BE DISPATCHED ON nightly, WHICH PUBLISHES
+    THE DOCUMENTATION SITE?
     Its Pages steps are gated on `main`, OR a `workflow_dispatch` on
     `nightly`. So a dispatch is not a dry run: it deploys. The gate's own
     wording is "an explicit audited nightly", which reads as a deliberate

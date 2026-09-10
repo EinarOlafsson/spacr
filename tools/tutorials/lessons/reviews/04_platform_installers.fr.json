@@ -1,0 +1,31 @@
+{
+  "lesson": "04_platform_installers",
+  "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; actual Linux installation distinguished from source-reviewed Windows/macOS guidance",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Installateurs par plateforme",
+  "description": "Choisissez un installateur officiel, comprenez la sélection automatique de l’accélérateur et les options de confidentialité, puis vérifiez le véritable environnement Linux installé.",
+  "objectives": [
+    "Choisir l’installateur officiel du système d’exploitation.",
+    "Distinguer l’accélération automatique du choix explicite du CPU seul.",
+    "Lire les choix de confidentialité, les versions installées et les avertissements de diagnostic."
+  ],
+  "prerequisite": "Cet enregistrement vérifie l’installateur public en ligne Linux x86-64 de spaCR 1.5.0.5, dont la somme de contrôle a été comparée le 10 septembre 2026, avec Python 3.12.13, Qt 6.11.2 et Torch 2.14.0+cu132. La véritable installation était terminée avant ces images de vérification. Elle utilisait de nouveaux dossiers privés pour l’environnement et le lanceur, les bibliothèques graphiques système existantes, --skip-system-deps et --no-launch ; aucun environnement ni dépendance système existants n’a été modifié. Les quatre fiches sont des instructions, pas des installations Windows/macOS enregistrées ni des sorties de terminal inventées. Les indications Windows/macOS ont été contrôlées uniquement dans le code actuel des installateurs. La capture utilise un profil sombre privé, une échelle de police de 1.5, une visite déjà fermée, le préchargement à la demande et --no-setup, qui ne contourne pas la question de confidentialité distincte. Échap rejette ce dialogue en laissant toutes les options désactivées ; les préférences privées ont été relues pour le confirmer. Doctor utilise --no-gpu-probe ; aucune validation d’allocation, de vitesse, d’analyse ou d’autres plateformes n’est revendiquée. Les prises ratées du dispositif d’enregistrement sont conservées, sans être comptées comme défauts de l’application.",
+  "scenes": [
+    "Utilisez la publication officielle de spaCR sur GitHub et choisissez l’installateur de votre système. Les installateurs en ligne téléchargent un environnement Python privé et les dépendances scientifiques ; un environnement Conda préalable n’est pas nécessaire. Dans cet exemple Linux, nous avons comparé le fichier téléchargé à la somme de contrôle publiée avant de l’exécuter.",
+    "Sous Windows, choisissez l’exécutable d’installation en ligne. Le code actuel de l’installateur présélectionne l’accélération automatique ; décochez ce composant facultatif pour utiliser uniquement le CPU. Cette fiche explique le choix, mais ce n’est ni une installation Windows enregistrée ni un test de compatibilité de votre ordinateur.",
+    "Sous macOS, choisissez le paquet universel en ligne pour Intel et Apple silicon. Le lanceur démarre la configuration propre à l’utilisateur si son environnement manque. Vérifiez la source officielle avant d’approuver les alertes de sécurité et prévoyez le temps de téléchargement. Ces indications sont vérifiées dans le code, pas par une installation macOS exécutée.",
+    "Sous Linux, rendez le téléchargement vérifié exécutable et lancez-le depuis son dossier. La sélection automatique de l’accélérateur est désormais le choix par défaut ; demandez explicitement le CPU si nécessaire. Notre exécution isolée réutilisait les bibliothèques système et des chemins privés ; elle ne démontre donc pas l’installation des dépendances système.",
+    "Lisez le véritable profil d’installation plutôt que de déduire le moteur d’un lancement réussi. Ici, la demande était auto et le moteur choisi est CUDA sur du matériel NVIDIA. La compilation Torch installée utilise CUDA treize point deux. Cela identifie la sélection ; ce n’est pas un test de vitesse GPU.",
+    "Vérifiez la version installée, l’importation de Qt et le chemin du paquet. Cet environnement privé contient spaCR un point cinq point zéro point cinq. Les fichiers proviennent de l’installation, pas d’une copie éditable du code. Des importations réussies ne valident pas toutes les analyses ni tous les formats facultatifs.",
+    "Le véritable premier lancement demande les choix facultatifs de partage des diagnostics, de signalement public et de configuration des comptes. Les signalements seraient publics : lisez l’explication. L’enregistrement rejette le dialogue avec Échap, comme Skip, keep all off. Aucun compte n’est connecté et les préférences privées confirment que le partage et les actions de signalement restent désactivés.",
+    "Après ce choix, l’application installée ouvre sa Home actuelle avec vingt et une tuiles et six modules principaux. La fenêtre se ferme aussi normalement. Poursuivez avec la leçon Home pour découvrir les fonctions imbriquées et leurs données d’exemple ; ouvrir Home seul n’est pas un test d’analyse.",
+    "Exécutez spacr-doctor depuis l’environnement installé et lisez les avertissements autant que les réussites. Ici, il confirme le moteur de l’installateur, mais signale une dépendance CZI facultative manquante. Cette exécution omet l’allocation GPU, la base de données et les réglages. Un contrôle omis n’est pas réussi ; évaluez la réparation proposée avant de modifier l’environnement.",
+    "Conservez install point log et install-profile point json du dossier d’installation choisi pour diagnostiquer un problème. Vérifiez les informations privées des journaux avant de les partager. Notez la version de chaque analyse et mettez à jour délibérément. Les leçons pip et Conda présentent les autres voies d’installation dans des environnements séparés."
+  ]
+}

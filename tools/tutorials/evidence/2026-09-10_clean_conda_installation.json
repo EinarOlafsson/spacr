@@ -1,0 +1,307 @@
+{
+  "route": "conda-forge, fresh private prefix",
+  "folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws",
+  "accepted": true,
+  "steps": [
+    {
+      "name": "01_solve",
+      "command": [
+        "/home/olafsson/anaconda3/bin/conda",
+        "create",
+        "--prefix",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env",
+        "--override-channels",
+        "-c",
+        "conda-forge",
+        "--strict-channel-priority",
+        "--no-default-packages",
+        "--solver",
+        "libmamba",
+        "--json",
+        "--yes",
+        "python=3.12",
+        "spacr=1.5.0.4",
+        "--dry-run"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 61.753,
+      "log_sha256": "ebaca06362f58d6782e3d966c6230b11961ef0a171fbc9649d19b59832e4818e",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "02_install",
+      "command": [
+        "/home/olafsson/anaconda3/bin/conda",
+        "create",
+        "--prefix",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env",
+        "--override-channels",
+        "-c",
+        "conda-forge",
+        "--strict-channel-priority",
+        "--no-default-packages",
+        "--solver",
+        "libmamba",
+        "--json",
+        "--yes",
+        "python=3.12",
+        "spacr=1.5.0.4"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 433.955,
+      "log_sha256": "a0505d10ac749be53031abd464c5e4e0602a002c83f98c1b105ecdd31be24779",
+      "stderr_sha256": "75a11da44c802486bc6f65640aa48a730f0f684c5c07a42ba3cd1735eb3fb070"
+    },
+    {
+      "name": "03_import",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python",
+        "-I",
+        "-c",
+        "import pathlib,sys,json,spacr,PySide6; assert pathlib.Path(spacr.__file__).resolve().is_relative_to(pathlib.Path(sys.prefix)); assert spacr.__version__ == '1.5.0.4'; print(json.dumps(dict(python=sys.executable,spacr=spacr.__version__, qt=PySide6.__version__,package=spacr.__file__,prefix=sys.prefix),indent=2))"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 0.114,
+      "log_sha256": "843631acc5d5f27d20abf4245f43981ec741af9ae77d0e53d30c273db22407f5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "04_doctor",
+      "command": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/spacr-doctor",
+        "--json",
+        "--no-gpu-probe"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 6.875,
+      "log_sha256": "6a2310d407f6feea12d746f32cdeda97d41d742edda93d41164bfab070ec1812",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "05_packages",
+      "command": [
+        "/home/olafsson/anaconda3/bin/conda",
+        "list",
+        "--prefix",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env",
+        "--json"
+      ],
+      "completed": true,
+      "returncode": 0,
+      "elapsed_seconds": 1.917,
+      "log_sha256": "8859fd77ba0b7a4f879e0dfd7fa14443835d8df6fea2693428dd8ff64870e78f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "published": false,
+  "source_checkout_installed": false,
+  "channel": {
+    "version": "1.5.0.4",
+    "url": "https://api.anaconda.org/package/conda-forge/spacr",
+    "response_sha256": "c363d29862274d680f7d9acadd98787c157f1584ade97268f158b1df101bbecc"
+  },
+  "plan": {
+    "packages": 472,
+    "download_bytes": 4764939474,
+    "version": "1.5.0.4"
+  },
+  "scope": "Linux conda-forge install, package/Qt import and doctor; no GUI, GPU allocation or other-platform claim",
+  "lesson": "02_conda_install",
+  "status": "Clean conda-forge installation verified; tutorial and GUI capture pending",
+  "installed_identity": {
+    "python": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python",
+    "spacr": "1.5.0.4",
+    "qt": "6.11.2",
+    "package": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr/__init__.py",
+    "prefix": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env"
+  },
+  "doctor": {
+    "ok": true,
+    "results": [
+      {
+        "check": "python",
+        "details": [
+          "interpreter: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/bin/python3.12"
+        ],
+        "fix": "",
+        "message": "Python 3.12.14 satisfies requires-python !=3.14.1,<3.15,>=3.9.",
+        "status": "PASS"
+      },
+      {
+        "check": "spacr package",
+        "details": [],
+        "fix": "",
+        "message": "spacr 1.5.0.4 imports from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr.",
+        "status": "PASS"
+      },
+      {
+        "check": "running checkout",
+        "details": [
+          "import spacr  -> /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr",
+          "editable install: none (installed as a copy)"
+        ],
+        "fix": "",
+        "message": "Not inside a spaCR checkout; runs from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages.",
+        "status": "PASS"
+      },
+      {
+        "check": "duplicate installs",
+        "details": [],
+        "fix": "",
+        "message": "One importable spacr package: /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr.",
+        "status": "PASS"
+      },
+      {
+        "check": "distributions",
+        "details": [
+          "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env/lib/python3.12/site-packages/spacr-1.5.0.4.dist-info"
+        ],
+        "fix": "",
+        "message": "spacr 1.5.0.4 is the only spaCR distribution.",
+        "status": "PASS"
+      },
+      {
+        "check": "console scripts",
+        "details": [],
+        "fix": "",
+        "message": "All 19 installed spaCR commands resolve.",
+        "status": "PASS"
+      },
+      {
+        "check": "PATH",
+        "details": [],
+        "fix": "",
+        "message": "`spacr-doctor` on PATH comes from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/conda-forge-2x4or0ws/env.",
+        "status": "PASS"
+      },
+      {
+        "check": "qt extra",
+        "details": [],
+        "fix": "",
+        "message": "Qt GUI available (PySide6 6.11.2).",
+        "status": "PASS"
+      },
+      {
+        "check": "display",
+        "details": [],
+        "fix": "",
+        "message": "QT_QPA_PLATFORM=offscreen: Qt is deliberately headless.",
+        "status": "PASS"
+      },
+      {
+        "check": "core imports",
+        "details": [],
+        "fix": "",
+        "message": "All 12 core dependencies import.",
+        "status": "PASS"
+      },
+      {
+        "check": "optional extras",
+        "details": [
+          "czi: missing pylibCZIrw",
+          "installed: lif, nd2, qt, umap; not installed: attribution, boosting, btrack, trackastra, ultrack, zernike"
+        ],
+        "fix": "python -m pip install \"spacr[czi]\"",
+        "message": "1 optional extras are half-installed and will fail when their feature is used.",
+        "status": "WARN"
+      },
+      {
+        "check": "torch",
+        "details": [],
+        "fix": "",
+        "message": "torch 2.13.0 (built against CUDA 12.9).",
+        "status": "PASS"
+      },
+      {
+        "check": "gpu",
+        "details": [],
+        "fix": "",
+        "message": "1 CUDA device(s) reported: NVIDIA GeForce RTX 3090 (driver 580.173.02, torch CUDA 12.9); allocation probe skipped.",
+        "status": "PASS"
+      },
+      {
+        "check": "cellpose",
+        "details": [],
+        "fix": "",
+        "message": "cellpose 4.1.1 satisfies <5.0,>=4.0.7 and exposes the Cellpose 4 / SAM API.",
+        "status": "PASS"
+      },
+      {
+        "check": "declared pins",
+        "details": [],
+        "fix": "",
+        "message": "Not inside a spaCR checkout; nothing to cross-check.",
+        "status": "SKIP"
+      },
+      {
+        "check": "database",
+        "details": [],
+        "fix": "spacr-doctor --db /path/to/plate/measurements/measurements.db",
+        "message": "No database given.",
+        "status": "SKIP"
+      },
+      {
+        "check": "settings",
+        "details": [],
+        "fix": "spacr-doctor --settings settings.csv --app measure",
+        "message": "No settings file given.",
+        "status": "SKIP"
+      }
+    ],
+    "summary": {
+      "ERROR": 0,
+      "FAIL": 0,
+      "PASS": 13,
+      "SKIP": 3,
+      "WARN": 1
+    }
+  },
+  "resolved_package_count": 472,
+  "actual_spacr_package": [
+    {
+      "base_url": "https://conda.anaconda.org/conda-forge",
+      "build_number": 0,
+      "build_string": "pyhcf101f3_0",
+      "channel": "conda-forge",
+      "dist_name": "spacr-1.5.0.4-pyhcf101f3_0",
+      "name": "spacr",
+      "platform": "noarch",
+      "version": "1.5.0.4"
+    }
+  ],
+  "plan_tests": {
+    "passed": 13,
+    "guard_lines_executed": [
+      26,
+      27,
+      30,
+      31,
+      33,
+      34
+    ],
+    "mutations": [
+      {
+        "guard": "successful solve",
+        "failed": 3,
+        "passed": 10
+      },
+      {
+        "guard": "unique official package",
+        "failed": 3,
+        "passed": 10
+      },
+      {
+        "guard": "bounded downloads",
+        "failed": 3,
+        "passed": 10
+      }
+    ],
+    "method": "Each guard changed separately in an isolated in-memory source copy; all 13 tests pass on restored source."
+  },
+  "environment_registry_isolation": "The entire ~/.conda directory was bind-mounted to a private tutorial registry during Conda subprocesses; the user registry was not used for writes.",
+  "scope_note": "Linux Python 3.12.14 / Qt 6.11.2 / Torch 2.13.0 CUDA 12.9. Doctor: 13 PASS, 3 SKIP, 1 optional CZI WARN. GPU allocation was skipped. No GUI, other-platform, performance or all-optional-feature success claimed."
+}
