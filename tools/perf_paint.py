@@ -15,6 +15,21 @@ does NOT measure the two that "smoothness" is actually judged by:
     wall-clock: a 200 ms hitch on one keystroke is felt and 200 ms spread
     over ten frames is not.
 
+AND IT IS NOT THE ONLY BACKDROP MEASUREMENT, which is worth saying at
+the top rather than leaving for somebody to discover.
+`tools/measure_the_backdrop.py` (instruction 327) is AUTHORITATIVE for
+what a backdrop frame COSTS: it measures the CPU kernel per surface at
+the adaptive scale's top and its 0.58 floor, the whole pipeline through
+the real widget, and each GPU shader into an offscreen framebuffer with a
+real GL context. Run it for "why is fullscreen choppy".
+
+This one asks a different question on a different axis -- paints per
+second per THEME at two fixed sizes, offscreen, with no GL context
+required -- because it is the instrument the calibration test uses and
+because a theme is what a user picks. The two are complementary and
+neither replaces the other; a number from here is a frame RATE, and a
+number from there is a frame COST.
+
 WHY IT COUNTS PAINTS RATHER THAN GRABBING PIXELS. 380's own WATCH list:
 `QWidget.grab()` does not capture the GL-backed `AmbientWidget`, so a
 grab-based check reports a black window and cannot tell a working backdrop

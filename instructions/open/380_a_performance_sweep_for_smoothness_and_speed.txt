@@ -171,6 +171,18 @@ no hardware profile, shared-host scheduling.
   item adds there is the discipline of step 2 -- record a baseline and
   commit it -- rather than another harness.
 
+AND A THIRD TOOL WAS MISSED ON THE FIRST PASS, which is worth recording
+because this item's whole argument is that reading first is cheaper than
+writing. `tools/measure_the_backdrop.py` (instruction 327, 255 lines) is
+AUTHORITATIVE for area 2's cost half: the CPU kernel per surface at the
+adaptive scale's top and at its 0.58 floor, the whole pipeline through the
+real widget, and each GPU shader into an offscreen framebuffer with a real
+GL context. It was found an hour after `perf_paint.py` was written, and the
+overlap is now stated in that file's own docstring rather than left for
+somebody to trip over: measure_the_backdrop answers what a frame COSTS,
+perf_paint answers what the RATE is per theme, and neither replaces the
+other. Anyone extending this should grep `tools/` before adding a fourth.
+
 WHAT WAS MISSING IS EXACTLY THE TWO THE REQUEST JUDGES SMOOTHNESS BY, and
 `tools/perf_paint.py` is those two:
 
