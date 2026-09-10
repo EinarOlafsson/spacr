@@ -1470,3 +1470,43 @@ workflow's `--ignore` list, with `test_gui_responsiveness`,
 files and they run in the serial tail. Including one in an ad-hoc batch
 adds failures that are about scheduler contention rather than the product,
 which cost a bisect here before the ignore list was read.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THREE RED TESTS THAT ARE THE MACHINE, NOT THE PACKAGE
+--------------------------------------------------------------------------------
+
+    tests/test_cov_w3_8_file_list.py::test_a_chosen_file_is_added_and_remembered
+    tests/test_cov_w3_8_file_list.py::test_a_chosen_folder_is_expanded
+    tests/test_cov_w3_8_file_list.py::test_a_single_file_setting_opens_a_single_file_dialog
+
+All three fail as `pick_files() == 0` where 1 was expected, and all three
+carry the same line in their captured Qt messages:
+
+    inotify_add_watch(...ibus/bus/...) failed: (No space left on device)
+
+"No space left on device" from inotify does not mean the disk. It means the
+per-user INSTANCE limit is reached -- `/proc/sys/fs/inotify/max_user_instances`
+is 128 on this box, and 84 were held when this was measured, by VS Code (five
+processes), Firefox, codex, three Claude sessions, systemd and pulseaudio.
+
+WHY THAT SHOWS UP AS AN EMPTY FILE DIALOG, and the shape of the failure is
+the proof: the fourth test in the same file, which CANCELS the dialog,
+passes. Only the three that `selectFile()` and then `accept()` fail.
+`QFileDialog` populates through `QFileSystemModel`, which takes an inotify
+instance to watch the directory it is listing; without one the model never
+fills, so `selectedFiles()` is empty and the dialog accepts nothing. A test
+that only needs the dialog to EXIST is unaffected.
+
+SO THEY ARE NOT A REGRESSION AND MUST NOT BE "FIXED". Pumping the event
+loop longer does not help -- there is no watch to deliver anything. The
+remedies are outside the suite:
+
+  * raise the ceiling, which needs root:
+        sudo sysctl fs.inotify.max_user_instances=512
+    (and `/etc/sysctl.d/` to make it survive a reboot);
+  * or run the Qt suites when fewer editors and browsers are open.
+
+WORTH KNOWING BEFORE BELIEVING A CI FAILURE OF THIS SHAPE TOO. A container
+with a low inotify ceiling and several parallel xdist workers is the same
+machine condition, and the failure would arrive looking exactly like a
+file-dialog regression.

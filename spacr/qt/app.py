@@ -138,6 +138,55 @@ class _FractalFollowsItsScreen(QObject):
         return False
 
 
+def open_at_the_measured_width(window) -> bool:
+    """Widen a fresh window to what the modules were measured to need.
+
+    :returns: True when the window was resized.
+
+    INSTRUCTION 359: "every module must initially open wide enough that
+    the right side of its settings is not cut off". The width comes from
+    `spacr.qt.layout_policy`, which reads a GENERATED artifact -- every
+    number in it measured by building each module offscreen and asking
+    whether its settings column is holding more than it can show.
+
+    IT ONLY EVER GROWS, and that is deliberate rather than cautious. The
+    comment above `win.show()` records why this window does not maximise:
+    over X11 forwarding, VNC or a virtual framebuffer the "available
+    geometry" is whatever the remote session claims, and it is frequently
+    a stub. A policy allowed to shrink would take that claim seriously and
+    open a window smaller than the one the user has been getting for a
+    year. Growing on a bad number is bounded by the clamp; shrinking on
+    one is not bounded by anything.
+
+    WITHOUT THE ARTIFACT NOTHING HAPPENS. `layout_policy` falls back to
+    1200 px -- the width the text-fit sweep builds every screen at -- and
+    this window already opens at 1200, so a wheel that does not carry the
+    file behaves exactly as it did.
+
+    Never raises. An opening size is not worth failing a launch over.
+    """
+    try:
+        from .layout_policy import recommended_window_size, why
+        from .preferences import get_font_scale
+
+        handle = window.screen() or QApplication.primaryScreen()
+        if handle is None:
+            return False
+        available = handle.availableGeometry()
+        scale = float(get_font_scale() or 1.0)
+        wanted, _height = recommended_window_size(
+            (available.width(), available.height()), scale)
+        if wanted <= window.width():
+            return False
+        window.resize(min(int(wanted), available.width()), window.height())
+        LOG.info("opened at %d px: %s", window.width(), why(scale))
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not apply the measured layout policy",
+                  exc_info=True)
+        return False
+
+
 def install_the_spaceout_fractal(screen) -> bool:
     """Put the spaceout fractal behind ``screen``, if this is spaceout.
 
@@ -6127,6 +6176,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # window arrives unusable either way. The user can still maximise it,
     # and the 1200x720 minimum this window declares is a sane opening size
     # on a real display.
+    open_at_the_measured_width(win)
     win.show()
 
     # AND ONLY NOW THE DIALOG FILTERS. See :data:`_DIALOG_FILTERS`: they are

@@ -1438,3 +1438,44 @@ def test_console_scripts_and_extras_agree_about_qt():
             "PySide6 is in neither the core dependencies nor the `qt` extra, "
             f"yet these console scripts launch the Qt GUI: {qt_scripts}"
         )
+
+
+# --- the measured layout policy ships in both distributions (359) ----------
+
+def test_the_layout_policy_is_declared_for_the_wheel_and_the_sdist():
+    """Both, or the artifact reaches half the users who install spaCR.
+
+    Instruction 359 asks that the generated policy "be installed in both
+    wheel and sdist". Those are two different declarations -- `package_data`
+    in setup.py fills the wheel, `MANIFEST.in` fills the sdist -- and
+    listing one is the failure mode, because a wheel install would work and
+    a source install would silently fall back to the default window size
+    with nothing to say why.
+    """
+    root = Path(__file__).resolve().parent.parent
+    setup_py = (root / "setup.py").read_text(encoding="utf-8")
+    manifest = (root / "MANIFEST.in").read_text(encoding="utf-8")
+
+    assert "resources/layout_policy.json" in setup_py, (
+        "the wheel would not carry the measured layout policy")
+    assert "spacr/resources/layout_policy.json" in manifest, (
+        "the sdist would not carry the measured layout policy")
+
+
+def test_the_layout_policy_reader_imports_nothing_heavy():
+    """359: loaded "without importing heavy scientific or GPU libraries".
+
+    Asserted on the SOURCE rather than on `sys.modules`, because by the
+    time a test runs, half the package is imported already and an
+    accidental `import numpy` at the top of the reader would be invisible.
+    """
+    root = Path(__file__).resolve().parent.parent
+    source = (root / "spacr" / "qt" / "layout_policy.py").read_text(
+        encoding="utf-8")
+    for heavy in ("import numpy", "import pandas", "import torch",
+                  "import matplotlib", "from PySide6", "import PySide6",
+                  "import cellpose"):
+        assert heavy not in source, (
+            f"the layout-policy reader imports {heavy!r}; the Qt metrics "
+            "are supposed to arrive as arguments so this can be read "
+            "without a display")
