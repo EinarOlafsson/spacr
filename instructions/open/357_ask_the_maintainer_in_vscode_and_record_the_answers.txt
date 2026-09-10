@@ -614,3 +614,52 @@ maintainer's behalf.
         toward wiring. Both are defensible and the cost of the wrong order
         is a run whose output looks right, which is this file's recurring
         failure mode. One line settles it.
+
+
+357-Q6  `control_wells` IS ONE KEY WITH TWO MEANINGS. RENAME, OR SPLIT?
+        Found 2026-09-09 while landing 364's approved renames, and it stops
+        that one rename until it is answered.
+
+        The approved table says `control_wells -> stain_baseline_wells`.
+        That name fits ONE of its two consumers and not the other, and the
+        shipped tooltip says both out loud:
+
+          "These wells set the empirical negative distribution for the
+           PRE-PERMEABILISATION STAIN and are excluded from efficiency
+           calculations ... SCREEN REGRESSION REUSES THIS KEY for a list
+           matching filter_value."
+
+        THE TWO USES ARE NOT THE SAME THING.
+
+          * The invasion assay defaults it to None and uses it as a stain
+            baseline -- `stain_baseline_wells` is exactly right for this.
+          * Regression and sequencing default it to `filter_value` plus the
+            declared control blocks, iterate it, and DROP those wells from
+            the count table before the threshold sweep. It is a
+            "wells the analysis must not see" list, and calling that a
+            stain baseline would be wrong.
+
+        `settings.py` carries a long comment saying the two must agree with
+        `filter_value` or "the threshold is fitted on wells the regression
+        never sees" -- so the shared key is load-bearing for one of them and
+        incidental to the other.
+
+        WHY IT MATTERS BEYOND THE NAME: one key with two meanings is the
+        exact shape of the silent-divergence bugs this instruction was filed
+        to remove. A user setting it for the stain changes what Regression
+        drops, with nothing saying so.
+
+        THE OPTIONS:
+          (a) SPLIT. `stain_baseline_wells` for the invasion assay,
+              a separate name for the regression list (`excluded_wells` or
+              similar). Two keys, two tooltips, and the migration sends an
+              old value to BOTH -- which preserves today's behaviour exactly.
+          (b) RENAME ONLY. One key, new name, and the tooltip goes on
+              documenting two meanings under a name that fits one.
+          (c) LEAVE IT. `control_wells` is at least neutral between them.
+
+        RECOMMEND (a). It is the only one that removes the divergence, and
+        the migration is the same fold the other renames use.
+
+        NOT GUESSED AT. The other six renames are unambiguous and are being
+        landed; this one is held.
