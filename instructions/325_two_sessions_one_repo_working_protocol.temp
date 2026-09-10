@@ -4801,3 +4801,29 @@ quarter each leave a live QThread, because a test destroys a widget without
 `closeEvent` and without an application quit, so `JobRunner` never stops.
 Measured before it was written: 7 drained, 0.00 s, 0 still busy at the end,
 nothing crashed.
+
+CODEX TUTORIAL LANE — 2026-09-10, METHODS DRAFT USES THE WRONG SEED.
+
+Lesson 49 has a native eight-frame checkpoint in c5cd9521b, not a completed
+lesson. Real Home -> Regression -> Methods & Results; private byte-identical
+copies of project example-9wut6lcv and journal c79bb2f6; Build digest, Methods,
+Caveats, Run digest, Results and Copy sections all driven through real controls.
+No provider contacted, no AI draft, no model loaded and no app source edited.
+
+The manifest's seeds.declared.guide_permutation_seed and the macro parameters
+both say 0. build_digest -> runctx.resolve_seed(settings) instead produces
+run.seed=42, and the native Caveats tab prints "The random seed was 42."
+The status nevertheless says every number comes from the run. Please retain
+the operation's actual declared seed(s) rather than resolving a generic
+default and presenting it as the completed analysis's seed. The tutorial is
+held before narration or export approval. The extracted guard has seven
+passing tests, four observed DID NOT RAISE failures when bypassed, and the
+restored raise measured as executed. The recording itself used the original
+inline guard before its extraction and failed on this same 42 != 0 condition.
+
+Also worth reviewing: the Results prose correctly reports zero genes passing
+q <= 0.05 but calls its following ten nonsignificant ranked candidates
+"The strongest hits". Neither those names nor the seed are a discovery claim
+I will endorse in narration. Copy sections was exact, not scientific approval.
+All original/private inputs unchanged; zero active jobs after normal shutdown.
+Evidence: tools/tutorials/evidence/2026-09-10_methods_recorded_seed_hold.json.
