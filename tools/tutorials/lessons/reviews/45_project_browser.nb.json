@@ -1,0 +1,32 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "nb",
+  "title": "Project Browser: finn ekte prosjekter og tolk dokumentasjonen deres",
+  "description": "Finn registrerte og uregistrerte eksempler, velg søkedybde, sorter reell diskbruk og les dokumentasjon uten analyse eller sletting.",
+  "objectives": [
+    "Åpne Project browser fra Help og avgrens søkemappene.",
+    "Bruk Depth og Scan og sorter etter faktisk målte byte.",
+    "Skill manglende proveniens og deklarerte utdatafaser fra virkelig kjørehistorikk.",
+    "Les detaljer, fjern bare søkerøtter og bruk egne verktøy for data og journaler."
+  ],
+  "prerequisite": "Bruk fullførte eksempler fra External Masks og Batch Runner. Opptaket sammenligner en kontrollert privat kopi av det målte prosjektet med to bildefelt med en firekanalskonvertering, inkludert skjult sjekkpunkt og to andre konverteringsposter. Dette er ulike eksempler, ikke før og etter. Alle 131 originalfiler i måleprosjektet og syv konverteringsfiler er uendret. Bare i den isolerte opptaksprosessen peker de opprinnelige artefaktstiene på målekopien; proveniensen skrives ikke om. Project Browser har ingen egen nedlasting, direkte forhåndsvisning, Plot-kontroll eller AI-panel. Scan leser prosjektdokumentasjon, ikke alle kjørejournaler. Sortering, dybde og fjerning av søkerøtter bruker ekte kontroller; ingen analyse, sletting, ekstern filbehandler eller automatisk overføring utføres. SQLite fjerner bare det private registerets tomme WAL og SHM på 32768 byte. Databaser og andre filer beholder sine byte.",
+  "scenes": [
+    "Åpne Help og deretter Project browser. Denne fellesskjermen finner prosjektmapper og oppsummerer det som er registrert eller finnes på disk. Vi bruker private kopier av ekte utdata fra External Masks og Batch Runner. Dette er et oversiktsverktøy, ikke en bildeanalyse.",
+    "Add folder velger hvor det skal søkes. Ved Depth null undersøkes bare selve mappen. Den valgte overordnede mappen har et prosjekt ett nivå under, så tabellen er tom. Et tomt resultat ved denne dybden betyr ikke at prosjektet eller bildene mangler.",
+    "Sett Depth til én og velg Scan. Den konverterte bildemappen vises: omtrent trettito megabyte i syv filer. Dette er fire innsamlede kanalbilder, en konverteringstabell, en statuspost og et skjult sjekkpunkt. Filantall er ikke antall celler eller uavhengige forsøk.",
+    "State viser unknown, nothing recorded fordi mappen ikke har et artefaktregister. Stage sier nothing run og Last run never, selv om konverteringen faktisk ble fullført. Kolonnene viser deklarerte utdata og registrerte resultater, ikke hele konverteringshistorikken. Unknown beviser verken god datakvalitet eller ubehandlede data.",
+    "Legg til måleprosjektet som en annen søkerot. Raden viser Measure, omtrent nittien megabyte, hundre og tjueni filer og et registertidspunkt. Hvis detaljene til den valgte raden er tomme etter ny skanning, velger du en annen rad og går tilbake. Vi viser omveien uten å endre programmet.",
+    "Velg måleprosjektet og dra skillelinjen for å utvide detaljene. Tre artefaktposter er current her, men omtrent åttisyv megabyte er fortsatt uregistrert. Current beskriver den registrerte sammenligningen, ikke full proveniens eller vitenskapelig gyldighet. Last run sier uttrykkelig at tidspunktet kommer fra registeret.",
+    "Les Stages før du tolker en fullføringsetikett. Her er Mask-utdata complete fordi importerte matriser, tellinger og masker finnes; det beviser ikke at Mask-segmentering ble kjørt. What could run next viser forslag, ikke knapper eller en validering av at hver analyse passer til disse forsøksdataene.",
+    "Klikk Size for å endre sorteringen. Vi kontrollerte stigende og synkende rekkefølge mot faktiske byte, og radvalget peker fortsatt på riktig prosjekt. Her finnes ingen egne filtre for fase, alder, modulstatus eller utdaterte resultater. Bruk de tilgjengelige sorterbare kolonnene og søkerøttene.",
+    "Med begge røttene finner Depth null fortsatt det direkte valgte måleprosjektet, men ikke konverteringen under foreldremappen. Depth én gjenoppretter begge radene. Dybden endrer søkeområdet; den fjerner ikke data og endrer ikke hvor mye analyse som er fullført.",
+    "Remove stopper søk under den valgte roten; mappen slettes ikke. Vi fjerner måleroten og legger til det uendrede prosjektet igjen. I denne versjonen sender dobbeltklikk ut valget, men blir i Project Browser. Ikke forvent at et prosjektvindu eller den siste kjøringen åpnes automatisk.",
+    "Bruk Run History til faktiske kjørejournaler, Database Browser til måletabeller og Data Manager til opprydding eller arkivering. I Python tilbyr spacr.projects discover, scan og browse. Alle originalfiler er uendret, og ingen ny analyse ble startet. Følg riktig arbeidsflytleksjon før du utfører et foreslått neste trinn."
+  ]
+}
