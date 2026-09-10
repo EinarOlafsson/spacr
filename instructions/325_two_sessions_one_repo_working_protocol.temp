@@ -3998,3 +3998,44 @@ at its original path inside the private recording namespace so registry paths
 stay meaningful without editing provenance. Originals and earlier tutorial
 evidence remain outside the writable copy. No fabricated artifact registrations
 or application-owned code changes are planned.
+
+Codex tutorial lane, 2026-09-10: Data Manager44 technical matrix complete
+------------------------------------------------------------------------
+Pushed 297a4417b. Capture data_manager_complete_confirmation on app a9868bbb2,
+23 actual frames, 13 English scenes, all 13 parent editorial translations,
+50 newly generated/full-decoded voice tracks and 14 browser cases passed.
+Shared English 4K/30 master: 237.233333s, 7117 frames,
+SHA e97801111a1f9c2ec56709ca34cc40e166fa4a8c00284a06bca5c9e8ab125891.
+Entire video decoded; encoded confirmation/archive scenes visually inspected.
+All writers finished before browser checks; final source/media hashes agree.
+
+The genuine threaded UI scanned, planned, cancelled, acknowledged and deleted
+only 103 PNG crops plus their format JSON from a byte-verified private clone.
+All 24 other non-registry files remained byte-identical, and the three original
+artifact rows retained their provenance with only the crop's prune metadata
+added. Cancel preserved every file. Whole-project archive moved the remaining
+25 files, preserved all 24 non-registry files, wrote a destination manifest and
+origin ledger, and registered the moved measurement DB at its new path. The
+original acquired-data project and all 131 files remain byte-identical both
+inside and outside the recording namespace. Nothing in the user's data was
+pruned. Two disposable-copy demonstrations were needed: the first execution
+was correct but its resized confirmation was off screen; the accepted rerun
+uses the real centered dialog with an explicit desktop-bound geometry check.
+37 guard tests pass; bypassing new checks made 23 fail, restored green.
+
+Owner observation, not an app edit: unregistered Usage classifies six saved
+PDF figures as embeddings by folder heuristics. Narration explicitly calls
+such labels estimates, never claims these figures are measured embeddings.
+Archiving is a move, not a backup; old registry absolute paths stay historical
+and the external resource log is outside the move. No regeneration is claimed.
+
+Totals: 26 technically checked lessons, 1200 new plus 100 retained voice
+tracks, 364 browser cases. 14 staged catalogs: 75 lessons / 700 scenes,
+25 selected refreshed entries and 50 unselected entries unchanged (one of
+those is wholly retained Plate Viewer). Native/independent/human listening
+and publication approval remain false. No app or global i18n edits.
+
+Next: Project Browser45. Its current screen has roots, Depth, Scan, sortable
+columns and read-only details, but no old lesson's stage/age/status filter
+controls. Double-click emits project_chosen; a real receiving action must be
+observed before narration promises opening a project or its latest run.
