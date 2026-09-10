@@ -410,6 +410,10 @@ def main() -> int:
             from capture_agreement import record_agreement
             record_agreement(app, window, screen, stage, captures, capture,
                              settle, write_json, args.timeout)
+        if args.module == 'replication':
+            from capture_replication import record_replication
+            record_replication(app, window, screen, stage, captures, capture,
+                               settle, write_json, args.timeout)
         if args.mask_editor_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,
