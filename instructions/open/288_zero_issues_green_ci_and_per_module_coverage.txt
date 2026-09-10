@@ -1375,6 +1375,19 @@ them were fixed the same evening:
                                      the only one of the nine that is not
                                      new
 
+  A TENTH WAS FOUND AFTERWARDS AND IT WAS SELF-INFLICTED. The drift check
+  written earlier the same evening was meant to be HELD off nightly until
+  the catalogs land -- it fails until then by design, 39 public docstrings
+  with no entry -- and a `git add tests/` in an unrelated commit swept it
+  in. It was red on nightly for about three hours before anybody looked.
+  Removed in f263f70af and preserved on `api-catalog-drift-check`.
+
+    THE MECHANICAL FORM OF THE RULE: `git add <path>` for the files a
+    commit is about, never `git add <directory>`. The reasoning form of
+    it -- "we agreed to hold this test" -- was known by both sessions and
+    enforced by nothing, which is the same shape as every other finding
+    in this file.
+
   SO THE SUITE IS GREEN EXCEPT FOR TWO PIPELINES MID-REBUILD AND ONE LANE
   NOBODY HERE MAY TOUCH. That is a different sentence from "there are nine
   failures", and it is the one the evidence supports.
