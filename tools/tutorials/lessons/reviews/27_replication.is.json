@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Fjölgunargreining",
+  "description": "Teldu sníkla í hverri frymisbólu, skoðaðu dreifingar og stilltu skýringar myndrita án þess að breyta gögnunum. Dæmið er tilbúið og sýnir ekki meðferðaráhrif.",
+  "objectives": [
+    "Nota frymisbóluna, ekki hýsilfrumuna, sem talningareiningu.",
+    "Halda talningum sem eru ekki veldi af tveimur og skoða samantektir eftir brunnum og skilyrðum.",
+    "Nota raunverulegar myndritastillingar og lesa viðvaranir við útflutning."
+  ],
+  "prerequisite": "Nýtt afrit af tilbúna kennslugagnagrunninum inniheldur 1.992 uppspunnar sníklaraðir, 480 frymisbólur, 240 hýsilfrumuhópa og tólf tilbúna brunna. Vehicle og inhibitor eru kennsluheiti; sex brunnar í hverjum hópi endurtaka sömu dreifingu. Engar raunverulegar myndir fylgja og þessi eining hefur engan sérstakan hnapp til að sækja dæmigögn. Upprunalegi gagnagrunnurinn helst óbreyttur. Óháðir útreikningar sannreyna 6.588 CSV-reiti ásamt hæð og upphafsstöðu staflaðra súluhluta. Þetta staðfestir hvorki myndgreiningu, p-gildi né virkni meðferðar. Líffræðileg greining krefst raunmælinga, staðfestra tengsla við frymisbólur og óháðra tilraunaendurtekninga.",
+  "scenes": [
+    "Opnaðu Replication Assay undir Assays á Home. Einingin telur mælda sníkla í hverri frymisbólu; hún afmarkar ekki hluti í myndum hér. Dæmið er sérstaklega merkt sem tilbúið, svo myndritin kenna á stjórntæki og talningarreglur en sýna ekki líffræðileg áhrif meðferðar.",
+    "Veldu undirbúna tilraunamöppu sem inniheldur measurements/measurements.db. Nýja einkafritið okkar hefur 1.992 uppspunnar raðir um sníkla. Við varðveitum upprunalega gagnagrunninn og byrjum án eldri niðurstöðuskráa, svo allar niðurstöður sem sjást tilheyra þessari keyrslu.",
+    "Stilltu Vacuole key á dálkinn með skýrum auðkennum frymisbólna. Dæmið inniheldur 480 frymisbólur en aðeins 240 hýsilfrumuhópa: Tvær frymisbólur tengjast hverjum hýsli. Talning eftir hýsilfrumu myndi sameina þær og svara annarri spurningu. Staðfestu þessi tengsl í raunverulegum myndum áður en þú greinir eigin gögn.",
+    "Require host cell útilokar hluti án gildra tengsla við hýsil. Það kemur í veg fyrir að ótengdir hlutir fari inn í þessa mælingu, en getur einnig fjarlægt raunverulega sníkla ef afmörkun hýsilfrumna mistókst. Allar kennsluraðir hafa gild tengsl; dæmið staðfestir ekki þína myndgreiningu.",
+    "Stærsti nafngreindi flokkurinn fyrir veldi af tveimur er 16, ekki mörk sem skera allar stærri talningar niður. Stærri veldi fara í yfirfallsflokk og aðrar talningar haldast aðskildar. Hver tilbúinn brunnur inniheldur tvær frymisbólur með þremur sníklum; ekki námunda talninguna þrjá upp í fjóra.",
+    "Athugaðu tengsl skilyrða og brunna. Hér heitir fyrsti dálkur vehicle og annar inhibitor, með sex tilbúnum brunnum í hvorum hópi. Heitin eru hluti af uppspunnu kennsluskipulagi. Þau sanna ekki að lyf hafi verið gefið, og sannfærandi útlit á mun sannar ekki virkni.",
+    "Ýttu aðeins á Run eftir að hafa athugað uppruna, tengilykil, síur og úttaksstillingar. Þetta er töflugreining, ekki ný Cellpose-myndgreining eða afkastaprófun skjákorts. Raunverulega keyrslan býr til bæði myndrit eftir brunnum og myndrit eftir skilyrðum.",
+    "Lestu hverja staflaða súlu sem dreifingu sníklafjölda í frymisbólum eins brunns. Vehicle-dæmið hefur 228 sníkla í 40 frymisbólum; inhibitor-dæmið hefur 104 í 40. Í báðum eru fimm prósent frymisbólna með fjölda sem er ekki veldi af tveimur. Við bárum sýnilegar súluhæðir saman við óháðar talningar, ekki aðeins nöfn vistaðra skráa.",
+    "Ef skýringar myndritsins skerðast skaltu opna Figure settings og ásaflipann og breyta Legend position. Við veljum staðsetningu innan myndritsins með þessum raunverulegu stillingum. Þetta breytir aðeins framsetningu: Öll súlugildi og úttaksgögn haldast óbreytt.",
+    "Yfirlitið eftir skilyrðum sameinar frymisbólur dæmisins í tvær dreifingar. Allir sex brunnar hvers hóps endurtaka sama uppspunna mynstrið. Ekki vitna í marktækniprófin sem niðurstöðu um meðferðaráhrif; raunveruleg ályktun krefst raunverulegra endurtekninga og rökstuddrar óháðrar tilraunaeiningar.",
+    "Lestu stjórnborðið jafnt sem myndritið. Þessi keyrsla varar við að sumir valdir litir hafi lítil birtuskil á ljósri útflutningssíðu. Athugaðu útflutt myndrit og veldu aðgengilega litatöflu; læsilegt dökkt skjáyfirlit tryggir ekki sjálfkrafa læsilegt vistað myndrit.",
+    "Þegar Save er virkt fara niðurstöður undir results/analyze_replication: talningar eftir frymisbólum, dreifingar eftir brunnum, samantektir eftir skilyrðum, tölfræðitöflur og myndrit. Geymdu stillingar og auðkenni upprunagagna með þeim. Skoðaðu raunverulegar myndir og líffræðileg viðmið í eigin tilraun áður en þú túlkar þessar samantektir."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Replikationsanalys",
+  "description": "Räkna parasiter per vakuol, undersök fördelningar och justera teckenförklaringar utan att ändra data. Exemplet är syntetiskt och visar ingen behandlingseffekt.",
+  "objectives": [
+    "Välja vakuolen, inte värdcellen, som räkneenhet.",
+    "Behålla antal som inte är tvåpotenser och granska sammanfattningar per brunn och betingelse.",
+    "Använda figurernas faktiska kontroller och läsa exportvarningar."
+  ],
+  "prerequisite": "En ny kopia av den syntetiska undervisningsdatabasen innehåller 1 992 påhittade parasitrader, 480 vakuoler, 240 värdcellsgrupper och tolv konstgjorda brunnar. Vehicle och inhibitor är undervisningsnamn; varje grupps sex brunnar upprepar samma fördelning. Det finns inga insamlade bilder eller någon särskild knapp för nedladdning av exempeldata i denna modul. Originaldatabasen förblir oförändrad. Oberoende beräkningar kontrollerar 6 588 CSV-fält samt stapelhöjder och staplade baslägen. Detta validerar inte segmentering, p-värden eller effekt. Biologiska analyser kräver faktiska mätningar, validerade vakuolrelationer och oberoende experimentella replikat.",
+  "scenes": [
+    "Öppna Replication Assay i avsnittet Assays på Home. Modulen räknar uppmätta parasiter per vakuol; den segmenterar inte bilder här. Detta uttryckligen syntetiska exempel använder diagrammen för att lära ut kontroller och räkneregler, inte en biologisk behandlingseffekt.",
+    "Välj den förberedda experimentmappen som innehåller measurements/measurements.db. Vår nya privata kopia innehåller 1 992 påhittade parasitrader. Vi bevarar originaldatabasen och börjar utan gamla resultatfiler, så att allt som visas kommer från denna körning.",
+    "Ställ in Vacuole key på kolumnen med uttryckliga vakuol-ID:n. Exemplet innehåller 480 vakuoler men bara 240 värdcellsgrupper: Varje värd är kopplad till två vakuoler. Att räkna per värdcell skulle slå ihop dem och besvara en annan fråga. Validera relationen i riktiga bilder innan du analyserar egna data.",
+    "Require host cell utesluter objekt utan giltig värdkoppling. Det hindrar ej tilldelade objekt från att ingå i resultatet, men kan också ta bort verkliga parasiter om värdsegmenteringen misslyckades. Alla undervisningsrader har giltiga kopplingar; exemplet validerar inte din segmentering.",
+    "Den största namngivna kategorin för tvåpotenser är 16, inte en gräns som kapar alla större antal. Större tvåpotenser har en överskridandekategori och övriga antal hålls separata. Varje konstgjord brunn innehåller två vakuoler med tre parasiter; avrunda inte ett antal på tre uppåt till fyra.",
+    "Kontrollera kopplingen mellan betingelser och brunnar. Här heter första kolumnen vehicle och andra kolumnen inhibitor, med sex konstgjorda brunnar i varje grupp. Namnen ingår i den påhittade undervisningsdesignen. De bevisar inte att ett läkemedel har tillförts, och en visuellt övertygande skillnad bevisar inte effekt.",
+    "Tryck Run först när du har kontrollerat källa, tilldelningsnyckel, filter och utdatainställningar. Detta är tabellanalys, inte ny Cellpose-segmentering eller ett prestandatest av grafikprocessorn. Den faktiska processen skapar både figuren per brunn och figuren per betingelse.",
+    "Läs varje staplad stapel som fördelningen av parasitantal per vakuol i en brunn. Vehicle-exemplet har 228 parasiter i 40 vakuoler; inhibitor-exemplet har 104 i 40. Båda behåller fem procent vakuoler med antal utanför tvåpotenserna. Vi kontrollerade de visade stapelhöjderna mot oberoende räkningar, inte bara de sparade filnamnen.",
+    "Om teckenförklaringen klipps av öppnar du Figure settings och axelfliken och ändrar Legend position. Vi väljer en placering inuti figuren genom dessa faktiska kontroller. Det är en presentationsändring: Alla stapelvärden och utdatafiler förblir oförändrade.",
+    "Betingelsevyn samlar exemplets vakuoler i två fördelningar. Alla sex brunnar i varje grupp upprepar samma påhittade mönster. Citera inte de resulterande signifikanstesten som en behandlingseffekt. Verklig inferens kräver äkta replikat och en välgrundad oberoende experimentell enhet.",
+    "Läs konsolen lika väl som diagrammet. Denna körning varnar för att några valda färger har låg kontrast på en ljus exporterad sida. Granska exporterade figurer och välj en tydligt urskiljbar palett; en läsbar mörk skärmvy garanterar inte automatiskt en läsbar sparad figur.",
+    "Med Save aktiverat hamnar resultaten under results/analyze_replication: vakuolräkningar, brunnsfördelningar, betingelsesammanfattningar, statistiktabeller och figurer. Behåll inställningar och källidentifierare tillsammans med dem. Granska verkliga bilder och biologiska kontroller i ditt eget försök innan du tolkar dessa sammanfattningar."
+  ]
+}
