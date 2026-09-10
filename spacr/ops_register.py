@@ -416,6 +416,17 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
                          else tolerance)
         accepted = (abs(dy - expected[0]) <= rows
                     and abs(dx - expected[1]) <= columns)
+        # AND THE ORIGIN RULE IS DELIBERATELY NOT APPLIED HERE. A raw peak
+        # at (0, 0) unwraps to the representative nearest the expectation,
+        # so it is only accepted when that representative lands within
+        # tolerance of where the raster says the neighbour is -- which is
+        # the same question this branch already asks, answered better.
+        # Adding `not at_origin` on top would refuse a pair whose true
+        # strip-frame shift genuinely is zero, which is exactly what a
+        # caller gets by choosing an overlap fraction equal to the real
+        # overlap. Trading a rare aliasing case for a reachable false
+        # rejection is the wrong way round, and the DC mask has already
+        # removed the reason the origin was suspicious.
     else:
         accepted = ratio >= min_peak_ratio and not at_origin
     return Registration(dy=dy, dx=dx, peak_ratio=ratio, accepted=accepted,
