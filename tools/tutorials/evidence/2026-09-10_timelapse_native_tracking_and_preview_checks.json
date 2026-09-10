@@ -1,0 +1,896 @@
+{
+  "lesson": "17_timelapse",
+  "status": "Native synthetic tracking and cached-mask preview checked; multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/timelapse_verified_explicit_relink",
+  "provenance": {
+    "commit": "f895937a7e2b90bd08899d5716734e600ad0f7d2",
+    "version": "1.5.0.5",
+    "module": "timelapse",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "raw_english_sha256": "2099a947aabdea57872f53bc1d8aab26b43a207e62cd393d43a50aec09bd89d5",
+  "scene_count": 16,
+  "narrated_words": 684,
+  "acceptance": {
+    "lesson": "17_timelapse",
+    "accepted": true,
+    "scope": "Synthetic saved-track arithmetic, exact preview mask pixels and actual UI/worker actions; not release validation.",
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "synthetic": true,
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa",
+    "original_files": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/tutorial_preview_masks.npy": "ff3223ce0f0e2b18e37e12a698cf5c6625c3bd6dfc62445ac345638a7f53df65",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/artifacts.db": "316b42602f0471fbb2ac7c4580ef07cb2ffa84bf595dd1de1db550e553607d3f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/tutorial_manifest.json": "c90bf17f03e9625e783c8a5d47be1e1c468f2ad5f3ed4139698d7a59dedc2070",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/settings_timelapse.csv": "36bd24527b1825a3da19ff2d3857a18bffd6258ded725a639b9fb4d5fddd233f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/tutorial_settings.json": "58c5ff4d4bb7050c0fdb14ebd574c8522931c235fbccd467f238f838d0b291d9",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/movies/tutorial_plate_A01_1_channel_0.mp4": "2fa52072d5671b3d8812973667dbdffecaaa684f5d6aae6a7756c61349408238",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/movies/timelapse_cell_tutorial_plate_A01_norm_timelapse.mp4": "57a0b319d4802f5c5682cd64b43ba86088dd36fe13ee099323bc9ec4ad19fa80",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/movies/timelapse_nucleus_tutorial_plate_A01_norm_timelapse.mp4": "11969f122fee16d0481a962493211b0d11f36479f84716b837eaa663fc9e0edd",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/movies/tutorial_plate_A01_1_channel_1.mp4": "2cad1f4f21f7bb272461d75372a5f5bb34c419827169f1a48d196c2dde689800",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/qc/segmentation_qc_cell.csv": "42d140dfcaf469b343fcff0b7c680ec931ec381cbdfaec3dab9a4e7242e15a5d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/qc/segmentation_qc_nucleus.csv": "7fb8b3bcc9e1cb8aba8b43a8562f0c55be3ff35b6de31faf6be8492fec040b01",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/settings/gen_mask_settings.csv": "4b661996112c1d7401fd4879ae2ae79f74076c811ce26907a4aaf0a2101b12be",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_1.npy": "eed1f6ef832cf6a8c6f7ca8a3c216349db1978f4428d21b9014cb83414acdf76",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_5.npy": "8d8826e0265b43ec7d646a892c1c487bfb809efd37d64dfb0672ea7c4798fbda",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_8.npy": "c9aa1d395f6c7e2f01272eddf0aebea5675a9f936d8ed2a85f74dfabcd6d1e59",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_6.npy": "615f2e4f04c08f1e95a9c3a5114ddb675596b018eb3738b366b4b2d4e0b965f7",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_3.npy": "f8d4818cb1ce5552505547ceb708eb07fcaa20703be5775eef33485b8fadfa65",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_4.npy": "1fe8f6e785dd6f2a8d611cddf99812dfd5ae6d37d0e8c1fd367371f8485a3f9a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_7.npy": "cea78a6c466074f6ce73ad1aee0ca2c93d9a4bcdfdc2efb8c3beda730902da53",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/merged/tutorial_plate_A01_1_2.npy": "fc879ad853b0f0a2a276b4c236a5461ea704d5f8f5136f47551aad7df111cc6f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/motility_plots/tutorial_plate.pdf": "fc11403c4c11bcccf7d40147bafe007f26207c9bf48ffc99ee50385efc5ede5d",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/motility_plots/merged_planes_tutorial_plate_A01_1_1.pdf": "2bf0cbf8e8b5ee10eae9095dfe6c6f5677711c44170648dcbf58e0847dd876c1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/measurements/velocity_feature_correlations.csv": "2b6c3657d8d4f393c396c544271e26f2fedc9c3968bf8708ff4e0d61887a5442",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/measurements/timelapse_object_measurements_adjusted_histogram.csv": "f065c4a620547da188c662a74fdede24af30310da48baad2c36766743a45a844",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/measurements/measurements.db": "0faf4c83b1dca50b8246dc37a91bb9005a81af5982f5691a858df2417f1b3377",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/tracks/trackpy_tracks_cell_tutorial_plate_A01_norm_timelapse.csv": "5139df15cf0d4bbd16908c3ff83b1151269d250d92f0a8e40cf2809a0df0161a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/timelapse/movies/gif/timelapse_masks_cell_tutorial_plate_A01_norm_timelapse.gif": "e550603fbd0a3c84eeed6b1335043241a9aa56d583a6260e048794395343500a"
+    },
+    "app_source_modified": false,
+    "actual_gui_run": true,
+    "published": false,
+    "demo_rebuilt_form": true,
+    "generated_inputs": [
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T01F01L01A01Z01C00.tif",
+        "sha256": "4e64892d338cb44186cbdcb68e385356b65f3510c6e38626d4f2b11c36df61e6"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T01F01L01A01Z01C01.tif",
+        "sha256": "fdd9edbfdf20f5ba6ba653057f45e44a5bdd57abfc54763c0d0e68a97a3dfd8c"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T02F01L01A01Z01C00.tif",
+        "sha256": "d6d2adc7f31690b9057d441cc98ced86e1a499202fa35aeb98f5a1e7ad986737"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T02F01L01A01Z01C01.tif",
+        "sha256": "a798d78ee4109618313fe5c6958cdfde08e9f7e4a4ba9764f429d775127e11ba"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T03F01L01A01Z01C00.tif",
+        "sha256": "219cc8357a5cc641965847dc444572e26ed1be7b6e771e4f5f69fa47f25ba701"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T03F01L01A01Z01C01.tif",
+        "sha256": "9ab555ddf6a134b407a36e899e312d82904f22a74d804638803244a60ec443eb"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T04F01L01A01Z01C00.tif",
+        "sha256": "b24d8a733b377ca2b175398c85046b6bba245d68b07775f6bc5e766d54e5bf8a"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T04F01L01A01Z01C01.tif",
+        "sha256": "fb3f75fedf5c6b63642f63998787ae85320c67f622dc289af2f6f5c92bef33ad"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T05F01L01A01Z01C00.tif",
+        "sha256": "e386c9835898449641d7ab86df3d2c5ca58249b7e5f13a640127bf0f8b6353ad"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T05F01L01A01Z01C01.tif",
+        "sha256": "12d6b75e436436ee60ad6c75033bc0e780fe9e11fbddec04c5e11f0ef8ea31a1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T06F01L01A01Z01C00.tif",
+        "sha256": "a9ed503568762849f690cdd6f817f1ce885c2508ad35e4bc814c842665c660a0"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T06F01L01A01Z01C01.tif",
+        "sha256": "57b8b8265486666caf0d817f8727df1ddec1f3c0422f483504b238dd2c1f77c4"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T07F01L01A01Z01C00.tif",
+        "sha256": "e28eb869d5faaf1055f9926463f6a2f8381f7b7e1b5330d2fc4cbb729acde2ae"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T07F01L01A01Z01C01.tif",
+        "sha256": "85a4bffecb31cacbc81e7c33a229ab44a2fab0970009e76aacf91fa897bfee3d"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T08F01L01A01Z01C00.tif",
+        "sha256": "900e0a44503746d382bdbf64a55ab1d8b4a62e3b4e064fa0982c682986c7b852"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/plate1_A01_T08F01L01A01Z01C01.tif",
+        "sha256": "4dd65fb6e3959533e2b3a86e1ac7c7158d26bf83a4fc39f083c759ad471f6d60"
+      }
+    ],
+    "actual_demo_action": true,
+    "demo_settings": {
+      "pipeline_style": "v1",
+      "batch_fields": 8,
+      "keep_npz": false,
+      "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa",
+      "delete_intermediate": false,
+      "preprocess": true,
+      "masks": true,
+      "save": true,
+      "consolidate": false,
+      "batch_size": 50,
+      "test_mode": false,
+      "dry_run": false,
+      "test_images": 10,
+      "magnification": 20,
+      "custom_regex": null,
+      "metadata_type": "cellvoyager",
+      "n_jobs": 28,
+      "randomize": true,
+      "verbose": true,
+      "remove_background_cell": false,
+      "remove_background_nucleus": false,
+      "remove_background_pathogen": true,
+      "cell_diameter": 40,
+      "nucleus_diameter": 16,
+      "pathogen_diameter": null,
+      "diameter_estimate_n_fields": 5,
+      "cell_model_name": "cpsam",
+      "nucleus_model_name": "cpsam",
+      "pathogen_model_name": "cpsam",
+      "seg_qc": "report",
+      "seg_qc_min_objects": 10,
+      "seg_qc_count_ratio": 0.25,
+      "seg_qc_size_ratio": 1.4,
+      "seg_qc_border_fraction": 0.3,
+      "seg_qc_outlier_mad": 5,
+      "seg_qc_outlier_fraction": 0.15,
+      "seg_qc_foreground_fraction": 0.35,
+      "seg_qc_split_ratio": 2,
+      "seg_qc_min_diameter": 5,
+      "seg_qc_tiny_fraction": 0.3,
+      "seg_qc_max_object_fraction": 0.25,
+      "seg_qc_plate_fail_fraction": 0.1,
+      "cell_channel": 1,
+      "nucleus_channel": 0,
+      "pathogen_channel": null,
+      "channels": [
+        0,
+        1
+      ],
+      "pathogen_background": 200,
+      "pathogen_signal_to_noise": 20,
+      "pathogen_cellprob_threshold": -1,
+      "cell_background": 100,
+      "cell_signal_to_noise": 10,
+      "cell_cellprob_threshold": 0,
+      "nucleus_background": 100,
+      "nucleus_signal_to_noise": 10,
+      "nucleus_cellprob_threshold": 0,
+      "nucleus_flow_threshold": 100,
+      "cell_flow_threshold": 100,
+      "pathogen_flow_threshold": 100,
+      "plot": false,
+      "figuresize": 10,
+      "cmap": "inferno",
+      "normalize": true,
+      "examples_to_plot": 1,
+      "merge_pathogens": true,
+      "filter": false,
+      "lower_percentile": 2,
+      "save_original_images": true,
+      "keep_intermediate": false,
+      "keep_original_images": false,
+      "adjust_cells": true,
+      "z_stack": false,
+      "z_segmentation_mode": "project",
+      "z_axis": null,
+      "z_projection": "max",
+      "anisotropy": null,
+      "voxel_size_z_um": null,
+      "voxel_size_xy_um": null,
+      "stitch_threshold": 0.25,
+      "t_stack": false,
+      "t_axis_order": null,
+      "t_axis": null,
+      "frame_interval_s": null,
+      "t_track_backend": "iou",
+      "t_link_threshold": 0.25,
+      "t_max_displacement_px": null,
+      "t_max_displacement_um": null,
+      "t_project_for_tracking": false,
+      "number_of_organelles": 0,
+      "cell_perimeter_fraction": 0,
+      "nucleus_perimeter_fraction": 0,
+      "pathogen_perimeter_fraction": 0,
+      "cell_intensity_merge": false,
+      "nucleus_intensity_merge": false,
+      "pathogen_intensity_merge": false,
+      "cell_intensity_split": false,
+      "nucleus_intensity_split": false,
+      "pathogen_intensity_split": false,
+      "cell_area_multiplier": 2,
+      "nucleus_area_multiplier": 2,
+      "pathogen_area_multiplier": 2,
+      "cell_min_distance": 10,
+      "nucleus_min_distance": 10,
+      "pathogen_min_distance": 10,
+      "cell_min_split_area": 100,
+      "nucleus_min_split_area": 100,
+      "pathogen_min_split_area": 100,
+      "cell_intensity_threshold_method": "mean",
+      "nucleus_intensity_threshold_method": "mean",
+      "pathogen_intensity_threshold_method": "mean",
+      "cell_intensity_percentile": 75,
+      "nucleus_intensity_percentile": 75,
+      "pathogen_intensity_percentile": 75,
+      "cell_min_area": 0,
+      "nucleus_min_area": 0,
+      "pathogen_min_area": 0,
+      "cell_max_area": 0,
+      "nucleus_max_area": 0,
+      "pathogen_max_area": 0,
+      "cell_remove_border_objects": false,
+      "nucleus_remove_border_objects": false,
+      "pathogen_remove_border_objects": false,
+      "cell_min_intensity_percentile": 0,
+      "nucleus_min_intensity_percentile": 0,
+      "pathogen_min_intensity_percentile": 0,
+      "cell_max_intensity_percentile": 100,
+      "nucleus_max_intensity_percentile": 100,
+      "pathogen_max_intensity_percentile": 100,
+      "strict_errors": null,
+      "max_failure_rate": null,
+      "resume": false,
+      "illumination_correction": false,
+      "illumination_model": null,
+      "illumination_estimator": "polynomial",
+      "illumination_degree": 4,
+      "illumination_per_plate": true,
+      "illumination_max_fields": 50,
+      "illumination_dark": 0,
+      "illumination_on_missing": "error",
+      "illumination_qc": true,
+      "timelapse_objects": [
+        "cell"
+      ],
+      "timelapse_frame_limits": [
+        0,
+        8
+      ],
+      "timelapse_remove_transient": false,
+      "fps": 2,
+      "timelapse_mode": "iou",
+      "trackastra_model": "general_2d",
+      "trackastra_linking": "greedy",
+      "ultrack_max_distance": 25,
+      "ultrack_division_weight": -0.1,
+      "ultrack_contour_sigma": 0,
+      "ultrack_n_workers": 1,
+      "timelapse_displacement": null,
+      "timelapse_memory": 3,
+      "pathogen_model": null,
+      "organelle_channel": null,
+      "organelle_type": "custom",
+      "organelle_morphology": "spots",
+      "organelle_method": "otsu",
+      "organelle_diameter": 30,
+      "organelle_model_name": "cpsam",
+      "organelle_min_area": 10,
+      "organelle_max_area": null,
+      "organelle_remove_border": false,
+      "organelle_rolling_ball": false,
+      "organelle_rolling_ball_radius": 50,
+      "organelle_clahe": false,
+      "organelle_clahe_clip_limit": 0.01,
+      "organelle_mask_within_cells": false,
+      "organelle_log_min_sigma": 1,
+      "organelle_log_max_sigma": 10,
+      "organelle_log_num_sigma": 10,
+      "organelle_log_threshold": 0.01,
+      "organelle_dog_sigma_low": 1,
+      "organelle_dog_sigma_high": 3,
+      "organelle_tophat_radius": 5,
+      "organelle_watershed_spots": true,
+      "organelle_ridge_sigmas": [
+        1,
+        2,
+        3
+      ],
+      "organelle_ridge_filter": "frangi",
+      "organelle_skeletonize": false,
+      "organelle_network_threshold": "otsu",
+      "organelle_hysteresis_low": 0.2,
+      "organelle_hysteresis_high": 0.6,
+      "organelle_unet_model_path": null,
+      "organelle_unet_threshold": 0.5,
+      "organelle_adaptive_block_size": 51,
+      "organelle_adaptive_offset": 5,
+      "organelle_morph_radius": 3,
+      "organelle_fill_holes": 64,
+      "organelle_ring_sigma_inner": 1,
+      "organelle_ring_sigma_outer": 3,
+      "organelle_ring_min_prominence": 0.1,
+      "organelle_ring_fill_method": "flood",
+      "organelle_cellprob_threshold": 0,
+      "organelle_flow_threshold": 0.4,
+      "organelle_resample": true,
+      "summarize_organelles_by": "cell",
+      "organelle_perimeter_fraction": 0,
+      "organelle_intensity_merge": false,
+      "organelle_intensity_split": false,
+      "organelle_area_multiplier": 2,
+      "organelle_min_distance": 10,
+      "organelle_min_split_area": 100,
+      "organelle_intensity_threshold_method": "mean",
+      "organelle_intensity_percentile": 75,
+      "organelle_remove_border_objects": false,
+      "organelle_min_intensity_percentile": 0,
+      "organelle_max_intensity_percentile": 100,
+      "timelapse": true
+    },
+    "setting_rectangles": {
+      "timelapse_frame_limits": [
+        434,
+        1355,
+        977,
+        54
+      ],
+      "timelapse_objects": [
+        434,
+        1293,
+        977,
+        54
+      ],
+      "timelapse_mode": [
+        411,
+        1559,
+        1000,
+        30
+      ],
+      "timelapse_displacement": [
+        411,
+        1837,
+        1000,
+        30
+      ],
+      "keep_original_images": [
+        390,
+        1275,
+        1011,
+        22
+      ],
+      "plot": [
+        365,
+        1131,
+        1036,
+        22
+      ]
+    },
+    "outcome": {
+      "finished": true,
+      "ok": true,
+      "errors": []
+    },
+    "pipeline": {
+      "accepted": true,
+      "reasons": [],
+      "figure_count": 5,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "figure_count": 5,
+    "figures_visible": true,
+    "outputs": [
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/artifacts.db",
+        "bytes": 69632,
+        "sha256": "f597b77c255f4e3ec83ea59f2a9d4bcae3fca186f3a70d9e0b09e243f7a28861"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/settings_timelapse.csv",
+        "bytes": 452,
+        "sha256": "f3d7cabf05fefb3d7f95cbd8c3a3864f88c16b6f169035457fbefdc30ff2433a"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/movies/plate1_A01_1_channel_1.mp4",
+        "bytes": 14575,
+        "sha256": "e54fbca61a39aa2bf71d235f8d83b6d621bb8af70126cccb5d7c2fbf060f8ade"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/movies/plate1_A01_1_channel_0.mp4",
+        "bytes": 11437,
+        "sha256": "747752bacd438677209d64f1c1901aa5299ee07aef255e91bed2082c46236d7a"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/movies/timelapse_cell_plate1_A01_1_norm_timelapse.mp4",
+        "bytes": 18860,
+        "sha256": "fb9ade2c1d9fb28a3c2c0d8b94d85c59a85bea02017d16ec41cd6217bd879964"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/movies/timelapse_nucleus_plate1_A01_1_norm_timelapse.mp4",
+        "bytes": 12093,
+        "sha256": "efd1515d6afe7c3f649bd395a82a3354477f13111a47909c94d9fa6c8218acc3"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/qc/segmentation_qc_cell.csv",
+        "bytes": 1797,
+        "sha256": "343dda4f2b8b126a602d2355b16467ac3cb7eabc20b6a1049eab67b09c01d5c1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/qc/segmentation_qc_nucleus.csv",
+        "bytes": 1827,
+        "sha256": "19754629f68f0b43e1e9e0b9f697f8817b281478afb4792b357fad041ba71b23"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/settings/gen_mask_settings.csv",
+        "bytes": 5301,
+        "sha256": "3779025bc07c6d1a0c5e1ff1f7d098580c9e98a1be91fe52d233e129b850f912"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/settings/gen_mask_settings.json",
+        "bytes": 6720,
+        "sha256": "ec84e3ba325b54ec69130a0f10c010c2b04ea9b948b1f02440748104dce47bc2"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_1.npy",
+        "bytes": 524416,
+        "sha256": "efb9f56a60cd27a3dd7b789daf95db2f73269b5670070eb234a9b267678e75a1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_2.npy",
+        "bytes": 524416,
+        "sha256": "6505560bfa42c2618533307b27306aead65f61a532c71f2f1526364d695e6acc"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_5.npy",
+        "bytes": 524416,
+        "sha256": "ae3dbd01809bcdded72acc99e09a409370f73209e0a8c66439720e0a1daed76c"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_6.npy",
+        "bytes": 524416,
+        "sha256": "44db48579b08ea6c7a8ddc224c6804e6e31625eca3bac2040283c5e7a4645314"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_4.npy",
+        "bytes": 524416,
+        "sha256": "24abf12dc50b88f070dc9ee0dbee573e966d87a68cf0f0a968222c1994e88696"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_8.npy",
+        "bytes": 524416,
+        "sha256": "e5a16f3aedc5bfadb1cb47506df0edc13e6c2c5c0a8961da5c35dfea33a915a9"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_3.npy",
+        "bytes": 524416,
+        "sha256": "7252aa58eaf5486a78ca4e9f6733e7eda64c804d8f5f35bcbdfd1465c3437c16"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/.spacr_plane_layout.json",
+        "bytes": 172,
+        "sha256": "795c553d71816f236c657dadc4e1461b1852361a182e7e849ad5d6b2b96ce368"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/merged/plate1_A01_1_7.npy",
+        "bytes": 524416,
+        "sha256": "4f2fbf44770a5379e4e22846ec7575c5eb328ee69ef94a83bee10ef8bc4769a8"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T04F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "b24d8a733b377ca2b175398c85046b6bba245d68b07775f6bc5e766d54e5bf8a"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T03F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "9ab555ddf6a134b407a36e899e312d82904f22a74d804638803244a60ec443eb"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T06F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "a9ed503568762849f690cdd6f817f1ce885c2508ad35e4bc814c842665c660a0"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T01F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "4e64892d338cb44186cbdcb68e385356b65f3510c6e38626d4f2b11c36df61e6"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T06F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "57b8b8265486666caf0d817f8727df1ddec1f3c0422f483504b238dd2c1f77c4"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T04F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "fb3f75fedf5c6b63642f63998787ae85320c67f622dc289af2f6f5c92bef33ad"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T08F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "4dd65fb6e3959533e2b3a86e1ac7c7158d26bf83a4fc39f083c759ad471f6d60"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T02F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "a798d78ee4109618313fe5c6958cdfde08e9f7e4a4ba9764f429d775127e11ba"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T03F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "219cc8357a5cc641965847dc444572e26ed1be7b6e771e4f5f69fa47f25ba701"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T07F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "85a4bffecb31cacbc81e7c33a229ab44a2fab0970009e76aacf91fa897bfee3d"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T02F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "d6d2adc7f31690b9057d441cc98ced86e1a499202fa35aeb98f5a1e7ad986737"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T07F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "e28eb869d5faaf1055f9926463f6a2f8381f7b7e1b5330d2fc4cbb729acde2ae"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T05F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "12d6b75e436436ee60ad6c75033bc0e780fe9e11fbddec04c5e11f0ef8ea31a1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T01F01L01A01Z01C01.tif",
+        "bytes": 131328,
+        "sha256": "fdd9edbfdf20f5ba6ba653057f45e44a5bdd57abfc54763c0d0e68a97a3dfd8c"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T08F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "900e0a44503746d382bdbf64a55ab1d8b4a62e3b4e064fa0982c682986c7b852"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/orig/plate1_A01_T05F01L01A01Z01C00.tif",
+        "bytes": 131328,
+        "sha256": "e386c9835898449641d7ab86df3d2c5ca58249b7e5f13a640127bf0f8b6353ad"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/measurements/measurements.db",
+        "bytes": 20480,
+        "sha256": "2f978a1edfabf361591d780a5f29988471e40d8edbec899f74a89617ca2024d1"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/tracks/trackpy_tracks_cell_plate1_A01_1_norm_timelapse.csv",
+        "bytes": 5640,
+        "sha256": "b455eefca827d68a68d61ef808c65dbdc8e6450a5c29fa6eb313e1f41e88f793"
+      },
+      {
+        "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/timelapse_runs/SYNTHETIC-current-demo-os07d4sa/movies/gif/timelapse_masks_cell_plate1_A01_1_norm_timelapse.gif",
+        "bytes": 81288,
+        "sha256": "4b62facd716a2484d8349f98c105a54f09bc36405d3cdd0fb9c28f7c668067fd"
+      }
+    ],
+    "original_files_preserved": true,
+    "next_gate": "Editorial review of the measured workflow and remaining application warnings",
+    "live_preview": {
+      "batch_tracks": {
+        "objects_checked": 128,
+        "centroid_values_checked": 256,
+        "label_pixels_checked": 524288,
+        "iou_threshold": 0.1,
+        "independent_statistics": {
+          "n_frames": 8,
+          "n_tracks": 16,
+          "mean_length": 8,
+          "median_length": 8,
+          "n_short": 0,
+          "min_length": 3,
+          "starts_after_first": 0,
+          "ends_before_last": 0,
+          "suspicious_jumps": 0,
+          "max_step": 3.3050299876228966,
+          "objects_per_frame": 16,
+          "displacement_limit": 50
+        },
+        "biological_validation": false
+      },
+      "baseline": {
+        "objects_checked": 128,
+        "centroid_values_checked": 256,
+        "label_pixels_checked": 524288,
+        "iou_threshold": 0.1,
+        "independent_statistics": {
+          "n_frames": 8,
+          "n_tracks": 16,
+          "mean_length": 8,
+          "median_length": 8,
+          "n_short": 0,
+          "min_length": 3,
+          "starts_after_first": 0,
+          "ends_before_last": 0,
+          "suspicious_jumps": 0,
+          "max_step": 3.3050299876228966,
+          "objects_per_frame": 16,
+          "displacement_limit": 50
+        },
+        "biological_validation": false,
+        "actual_status": "Masks built + linked · 8 frames",
+        "actual_indicator_text": "16 tracks over 8 frames · mean length 8.0 (median 8) · 0 shorter than 3 frames · fragmentation 0 (0 late starts, 0 early ends) · 0 steps over 50 px (max 3 px) — swap risk\nFragmentation and swap figures are indicators computed without ground truth, not measurements."
+      },
+      "strict_overlap": {
+        "objects_checked": 128,
+        "centroid_values_checked": 256,
+        "label_pixels_checked": 524288,
+        "iou_threshold": 1,
+        "independent_statistics": {
+          "n_frames": 8,
+          "n_tracks": 128,
+          "mean_length": 1,
+          "median_length": 1,
+          "n_short": 128,
+          "min_length": 3,
+          "starts_after_first": 112,
+          "ends_before_last": 112,
+          "suspicious_jumps": 0,
+          "max_step": 0,
+          "objects_per_frame": 16,
+          "displacement_limit": 50
+        },
+        "biological_validation": false,
+        "actual_status": "Re-linked (cached masks) · 8 frames",
+        "actual_indicator_text": "128 tracks over 8 frames · mean length 1.0 (median 1) · 128 shorter than 3 frames · fragmentation 224 (112 late starts, 112 early ends) · 0 steps over 50 px (max 0 px) — swap risk\nFragmentation and swap figures are indicators computed without ground truth, not measurements."
+      },
+      "restored": {
+        "objects_checked": 128,
+        "centroid_values_checked": 256,
+        "label_pixels_checked": 524288,
+        "iou_threshold": 0.1,
+        "independent_statistics": {
+          "n_frames": 8,
+          "n_tracks": 16,
+          "mean_length": 8,
+          "median_length": 8,
+          "n_short": 0,
+          "min_length": 3,
+          "starts_after_first": 0,
+          "ends_before_last": 0,
+          "suspicious_jumps": 0,
+          "max_step": 3.3050299876228966,
+          "objects_per_frame": 16,
+          "displacement_limit": 50
+        },
+        "biological_validation": false,
+        "actual_status": "Re-linked (cached masks) · 8 frames",
+        "actual_indicator_text": "16 tracks over 8 frames · mean length 8.0 (median 8) · 0 shorter than 3 frames · fragmentation 0 (0 late starts, 0 early ends) · 0 steps over 50 px (max 3 px) — swap risk\nFragmentation and swap figures are indicators computed without ground truth, not measurements."
+      },
+      "actual_worker_results": [
+        {
+          "segmented": false,
+          "error": "",
+          "threshold": 0.1
+        },
+        {
+          "segmented": false,
+          "error": "",
+          "threshold": 1
+        },
+        {
+          "segmented": false,
+          "error": "",
+          "threshold": 0
+        },
+        {
+          "segmented": false,
+          "error": "",
+          "threshold": 0
+        },
+        {
+          "segmented": false,
+          "error": "",
+          "threshold": 0.1
+        }
+      ],
+      "worker_checks": {
+        "observed_results": 5,
+        "initial_threshold": 0.1,
+        "strict_threshold": 1,
+        "final_threshold": 0.1,
+        "segmentation_performed": false
+      },
+      "final_batch_figure": {
+        "image_arrays": 4,
+        "exact_merged_first_frame_planes": false,
+        "interpretation": "Raw-plane equality is not the display contract: plot_arrays uses display percentile normalization. No numerical native-figure pixel equivalence is claimed; scientific pixel and centroid checks concern saved outputs and live masks."
+      },
+      "source_planes": {
+        "image": 1,
+        "mask": 2,
+        "recorded_layout": {
+          "intensity_channels": [
+            0,
+            1
+          ],
+          "mask_dims": {
+            "cell": 2,
+            "nucleus": 3
+          },
+          "mask_plane_order": [
+            "cell",
+            "nucleus"
+          ],
+          "version": 1
+        }
+      },
+      "derived_input_pixels_checked": 1048576,
+      "input_source": "Actual completed synthetic batch merged stacks",
+      "masks_loaded_not_segmented": true,
+      "exact_restoration": true,
+      "original_outputs_preserved": true,
+      "propagated_to_batch": false,
+      "biological_validation": false,
+      "published": false
+    }
+  },
+  "checker_coverage": {
+    "covered_lines": 85,
+    "num_statements": 85,
+    "percent_covered": 100,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 54,
+    "num_partial_branches": 0,
+    "covered_branches": 54,
+    "missing_branches": 0,
+    "percent_branches_covered": 100,
+    "percent_branches_covered_display": "100.00"
+  },
+  "tests": {
+    "passed": 36,
+    "files": {
+      "tools/tutorials/tests/test_timelapse_evidence.py": 33,
+      "tools/tutorials/tests/test_timelapse_example.py": 3
+    },
+    "mutations": [
+      {
+        "mutation": "inclusive overlap",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "competing predecessor",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "split rejection",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "object completeness",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "independent continuation",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "indicator arithmetic",
+        "exit_code": 1,
+        "result": "8 failed, 25 passed"
+      },
+      {
+        "mutation": "centroid validation",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "positive identity",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "final worker value",
+        "exit_code": 1,
+        "result": "1 failed, 32 passed"
+      },
+      {
+        "mutation": "worker inference",
+        "exit_code": 1,
+        "result": "3 failed, 30 passed"
+      },
+      {
+        "mutation": "duplicate object",
+        "exit_code": 1,
+        "result": "2 failed, 31 passed"
+      },
+      {
+        "mutation": "plane dimensions",
+        "exit_code": 1,
+        "result": "1 failed, 2 passed"
+      },
+      {
+        "mutation": "outside source link",
+        "exit_code": 1,
+        "result": "1 failed, 2 passed"
+      },
+      {
+        "mutation": "no overwrite",
+        "exit_code": 1,
+        "result": "1 failed, 2 passed"
+      }
+    ],
+    "scope": "Tutorial evidence helpers only; not whole application coverage."
+  },
+  "downloadable_example": {
+    "path": "docs/source/_extra/tutorials/examples/SYNTHETIC_timelapse_preview.zip",
+    "sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868",
+    "bytes": 1050432,
+    "synthetic": true,
+    "members": {
+      "README.txt": "e9afc219fe15d5fa7fef79ce6805da03dcdf48105a58c53caa722a40fb1475de",
+      "image_sequences/field_A01/frame_00.npy": "33de720cafc63d75381488cf11315d80fa2c50b9b6b6dd900fa656284a97845a",
+      "image_sequences/field_A01/frame_01.npy": "7d3f1ad09a326d94dbd6790a1952d89923427db041affdad61e20959110f7943",
+      "image_sequences/field_A01/frame_02.npy": "f2d7d13518a0c6656cfb3fbfeb19208a122c118798fe50769eec83fac3c8d20c",
+      "image_sequences/field_A01/frame_03.npy": "227afd6a5373099264c2dfd1f0cdc1a8c69c3269ac23921c2e286db61444d172",
+      "image_sequences/field_A01/frame_04.npy": "83cb2a42cc45be9f4aa12b13c06cc966a91e6047e74f37667e0126c23bf354ce",
+      "image_sequences/field_A01/frame_05.npy": "897a66fbc001e1ddfddd35b7280ece8f34a1f3aac2b310ec25c5fcba4c1d387b",
+      "image_sequences/field_A01/frame_06.npy": "63f2f619c808bece411b7d941a8d994fbae1cd9b2f760ad36ed683a02f824fae",
+      "image_sequences/field_A01/frame_07.npy": "6837e1bbd9acf59146916471f0e3d0f41c6f6a322f9f90d21623447f71060784",
+      "label_sequences/field_A01/frame_00.npy": "04f0da8d5506a3a610946cdd27d4075295baa554a859f2b267bf758f3985f769",
+      "label_sequences/field_A01/frame_01.npy": "93a9f9f9457000de6f2780cd871e1841d2b981619825be32245d747dd56d7a99",
+      "label_sequences/field_A01/frame_02.npy": "6926e4f1914ec4222cfddab0c78c2ec0cd57f1a55b80c4aeba9f6bc1e70670ce",
+      "label_sequences/field_A01/frame_03.npy": "2411f740a90c11bba719b880a9155052e0d8d66adc454a16c2fce0fe944499ed",
+      "label_sequences/field_A01/frame_04.npy": "7cf7c7f8882d6cd9985900253c40c850bb1137921382096a430568afac4d8f3e",
+      "label_sequences/field_A01/frame_05.npy": "13250b3e4c4f6514f81a016224a9cea608b79077014119458e1ed3d28ae59e3f",
+      "label_sequences/field_A01/frame_06.npy": "c0b7ec8b82787714166f2b76025a50f0d004394587a61553d130147194324dee",
+      "label_sequences/field_A01/frame_07.npy": "96364ad5bd1d18734b94c79e474e8f4c8f03be2cd9891dd6be6277198bc37019",
+      "manifest.json": "8e5cfddcd718359922e6fdcdd1be8265e23c26348a30e50c7478b1ec059d8feb"
+    },
+    "acquired_biological_data": false,
+    "segmentation_accuracy_claim": false
+  },
+  "visual_inspection": {
+    "native_3840_2160": true,
+    "final_preview_frames": [
+      "12_actual_linked_preview",
+      "13_actual_strict_overlap",
+      "14_actual_overlap_restored",
+      "15_actual_final_frame"
+    ],
+    "display_font_scale": 1,
+    "control_font_height_guard": true,
+    "full_movie_decode_passes": 4
+  },
+  "constraints": {
+    "native_speaker_signoff": false,
+    "human_listening_review": false,
+    "published": false,
+    "app_source_modified": false,
+    "no_ground_truth_accuracy_claim": true
+  }
+}

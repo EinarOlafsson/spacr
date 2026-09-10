@@ -331,6 +331,10 @@ def main() -> int:
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'timelapse':
+        from capture_timelapse import record_timelapse
+        record_timelapse(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
     elif args.module == 'illumination':
         from capture_illumination import record_illumination
         record_illumination(app, window, stage, captures, capture,

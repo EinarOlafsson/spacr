@@ -1,0 +1,195 @@
+{
+  "id": "17_timelapse",
+  "number": 17,
+  "slug": "timelapse",
+  "title": "Timelapse",
+  "series": 2,
+  "app_key": "timelapse",
+  "section": "Core",
+  "host_app_key": "mask",
+  "description": "Use the nested Mask workflow, run a synthetic eight-frame demo and compare real cached-mask linking through the current Track preview.",
+  "objectives": [
+    "Find Timelapse under Mask and preserve the time axis and original images.",
+    "Compare baseline, excessive-overlap and explicitly re-linked restored tracks on the same masks.",
+    "Distinguish tracking indicators, playback speed, model inference and measured biological motion."
+  ],
+  "example_files": [
+    "SYNTHETIC_timelapse_preview.zip"
+  ],
+  "prerequisite": "Use Help > Demos > Timelapse demo in a new folder. The generated data are synthetic: eight 256-by-256 timepoints, nucleus channel 0 and cell channel 1. They are not an acquired experiment or a segmentation-accuracy benchmark. The recording uses the current Mask > Time fold, Plot and Keep original images on, IoU tracking of cells, frame slice [0, 8] and displacement 50. All sixteen generated TIFFs survive byte-identically in orig; older tutorial inputs remain unchanged. The actual run writes eight merged arrays, five displayed figures, four eight-frame MP4 files and 128 cell-table rows for sixteen eight-frame tracks. Independent checks cover every saved centroid and mask membership. The companion ZIP contains only exact exported cell intensity and cell label planes, a manifest and teaching instructions; it is not a second acquired dataset. Its grayscale preview channel is 0, whereas the original cell channel was 1. Choose image_sequences/field_A01 and label_sequences/field_A01 separately, with one displayed field and eight frames. IoU 0.1 gives sixteen complete tracks; 1.0 gives 128 single-frame tracks. Restore 0.1, wait until idle, then explicitly click Re-link: typing can trigger an intermediate-value pass. Actual worker signals confirm the final requested value and no segmentation during this loaded-mask exercise. The IoU threshold is not propagated to the batch form. The normal font preference (1.0) keeps preview controls readable; the larger 1.5 setting clipped them in this layout. The build reports inherited flow-threshold, relationships-table and settings-status warnings; those are disclosed, not suppressed. Its measurement database has count/status tables, not measured object relationships. Figure intensities are display-normalized, not raw pixel values. This is bounded tutorial validation, not release certification, physical velocity calibration, native-language listening approval or biological validation. API entry point: spacr.core.preprocess_generate_masks; tracking implementations: spacr.timelapse. spaCR AI was kept off and no provider request was sent.",
+  "scenes": [
+    {
+      "visual": "02_timelapse_fold",
+      "narration": "Open Mask and enable its Time switch. Timelapse is now nested inside Mask, not a separate Home tile. It adds time-axis and tracking settings to the segmentation workflow. Motility measurements belong to Measure, which is a later step.",
+      "hold_after": 0.7,
+      "focus": [
+        3535,
+        1905,
+        280,
+        85
+      ],
+      "related_lessons": [
+        "07_mask",
+        "18_motility"
+      ]
+    },
+    {
+      "visual": "03_actual_demo_menu",
+      "narration": "Choose Help, Demos, then Timelapse demo, and select a new folder. This creates eight synthetic frames with drifting objects and loads their settings. These are teaching images, not a biological experiment or evidence of segmentation accuracy.",
+      "hold_after": 0.7,
+      "focus": [
+        70,
+        20,
+        535,
+        230
+      ]
+    },
+    {
+      "visual": "05_demo_loaded",
+      "narration": "Check the populated source and channels. This demo has nucleus intensity in channel zero and cell intensity in channel one, with no pathogen channel. Its filenames encode time separately from field and channel. Do not substitute the ordinary static test plate for a time series.",
+      "hold_after": 0.7,
+      "focus": [
+        235,
+        175,
+        1185,
+        470
+      ]
+    },
+    {
+      "visual": "05_setting_timelapse_frame_limits",
+      "narration": "Frame limits are zero-based slice boundaries: zero to eight includes all eight frames, while the end is excluded. Keep a single field's timepoints together. A playback rate cannot supply a missing acquisition interval, and this demo does not establish velocities in physical units.",
+      "hold_after": 0.7,
+      "focus": [
+        235,
+        1225,
+        1185,
+        300
+      ]
+    },
+    {
+      "visual": "05_setting_timelapse_mode",
+      "narration": "Track cells with the overlap-based mode, labelled iou. It links masks by intersection over union between adjacent frames. The other backends have different assumptions and optional dependencies. A displacement setting is not an overlap threshold; use controls that the chosen backend actually reads.",
+      "hold_after": 0.7,
+      "focus": [
+        235,
+        1500,
+        1185,
+        490
+      ]
+    },
+    {
+      "visual": "05_setting_keep_original_images",
+      "narration": "Turn Keep original images on before Run. The pipeline can otherwise remove its intermediate and original-image folders during cleanup. This recording keeps all sixteen generated TIFFs unchanged, and never touches the older tutorial data. Always keep a separate backup of an acquired experiment.",
+      "hold_after": 0.7,
+      "focus": [
+        235,
+        1140,
+        1185,
+        300
+      ]
+    },
+    {
+      "visual": "05_setting_plot",
+      "narration": "Turn Plot on and run this small example. The current pipeline processes the complete eight-frame sequence together even if the requested batch size is smaller. Watch the console and resource monitor; more frames, larger images and additional objects can require much more memory.",
+      "hold_after": 0.7,
+      "focus": [
+        235,
+        1070,
+        1185,
+        230
+      ]
+    },
+    {
+      "visual": "08_actual_figure_04",
+      "narration": "The run produces five figures and eight merged arrays. In this normalized display, the first two planes are intensities; the last two are cell and nucleus labels, not extra acquisition channels. The saved cell table contains sixteen tracks, each spanning eight frames.",
+      "hold_after": 0.7,
+      "focus": [
+        1440,
+        140,
+        2370,
+        355
+      ]
+    },
+    {
+      "visual": "07_actual_finished",
+      "narration": "Read the warnings as well as Finished. This build warns about inherited flow-threshold values and an unavailable relationships table, and shows a settings-status warning. We verified the saved masks and tracks separately; this is not a clean release test or a substitute for running Measure.",
+      "hold_after": 0.7,
+      "focus": [
+        1440,
+        500,
+        2370,
+        1260
+      ]
+    },
+    {
+      "visual": "09_actual_track_preview",
+      "narration": "Open Track preview. For a reproducible linking exercise, download and extract the synthetic preview archive linked below. It contains exact cell-image and cell-mask planes from this recorded batch. Loading those masks tests linking without running another segmentation model.",
+      "hold_after": 0.7,
+      "focus": [
+        1440,
+        755,
+        2370,
+        1150
+      ]
+    },
+    {
+      "visual": "10_actual_image_sequence_folder",
+      "narration": "Choose the image-sequence folder for field A zero one. These exported images contain only the original cell-intensity plane, so choose channel zero here. Keep image and label sequences under separate parent folders, and set Frames previewed to eight and Fields to one.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_actual_mask_sequence_folder",
+      "narration": "Choose the corresponding label-sequence folder using Masks. These are computed masks, not ground truth. Leave Keep only full-length tracks off and do not click Propagate settings. The model controls do not create new masks when an existing mask sequence is being read.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_actual_linked_preview",
+      "narration": "Run preview with the overlap threshold at zero point one. It reports sixteen tracks of eight frames, with no short tracks in this example. The fragmentation and jump values are indicators computed without ground truth; small values alone do not prove that identities are biologically correct.",
+      "hold_after": 0.7,
+      "focus": [
+        1440,
+        755,
+        2370,
+        800
+      ]
+    },
+    {
+      "visual": "13_actual_strict_overlap",
+      "narration": "Raise the overlap threshold to one. Requiring exact overlap breaks this moving example into one hundred twenty-eight one-frame tracks. The images and masks are unchanged; only the links change. This deliberately excessive value demonstrates fragmentation, not a recommended analysis setting.",
+      "hold_after": 0.7,
+      "focus": [
+        1440,
+        755,
+        2370,
+        800
+      ]
+    },
+    {
+      "visual": "14_actual_overlap_restored",
+      "narration": "Restore zero point one, wait for the current preview to finish, then click Re-link. Typing can start a pass for an intermediate value, so confirm the final pass explicitly. The sixteen complete tracks return. Do not click Propagate settings: the overlap threshold is not transferred to the batch form.",
+      "hold_after": 0.7,
+      "focus": [
+        1440,
+        755,
+        2370,
+        1150
+      ]
+    },
+    {
+      "visual": "15_actual_final_frame",
+      "narration": "Scrub to frame eight to inspect the linked objects. Playback speed only changes viewing speed, not the acquisition time. Continue to Measure and Motility for measurements using a validated interval and scale. The API and spaCR AI can help explain settings, but neither replaces checking images, tracks and warnings.",
+      "hold_after": 0.7,
+      "focus": [
+        1440,
+        1250,
+        2370,
+        320
+      ],
+      "related_lessons": [
+        "08_measure",
+        "18_motility",
+        "06_api"
+      ]
+    }
+  ]
+}
