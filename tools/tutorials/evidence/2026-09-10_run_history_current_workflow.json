@@ -1,0 +1,239 @@
+{
+  "lesson": "40_run_history",
+  "accepted": true,
+  "published": false,
+  "app_source_modified": false,
+  "analysis_run": false,
+  "deleted_runs": 0,
+  "ai_request_sent": false,
+  "loaded_records": 118,
+  "status_choices": [
+    "All statuses",
+    "Success",
+    "Failed",
+    "Running",
+    "Corrupt"
+  ],
+  "splitter_sizes": [
+    459,
+    1378
+  ],
+  "batch_filter_ids": [
+    "2026-09-10_035706_e2d6090c__convert",
+    "2026-09-10_035705_c03d4a59__convert",
+    "2026-09-10_035702_b2c28a18__convert"
+  ],
+  "panel_checks": [
+    {
+      "run_id": "2026-09-10_035706_e2d6090c__convert",
+      "all_five_panels_match_raw_journal": true,
+      "settings_count": 12,
+      "warning_count": 0,
+      "failure_present": false,
+      "recorded_input_files": 0,
+      "recorded_output_files": 0
+    },
+    {
+      "run_id": "2026-09-10_035706_e2d6090c__convert",
+      "all_five_panels_match_raw_journal": true,
+      "settings_count": 12,
+      "warning_count": 0,
+      "failure_present": false,
+      "recorded_input_files": 0,
+      "recorded_output_files": 0
+    },
+    {
+      "run_id": "2026-09-09_201318_6b415b85__recruitment",
+      "all_five_panels_match_raw_journal": true,
+      "settings_count": 28,
+      "warning_count": 0,
+      "failure_present": false,
+      "recorded_input_files": 6,
+      "recorded_output_files": 6
+    },
+    {
+      "run_id": "2026-09-09_154327_c79bb2f6__regression",
+      "all_five_panels_match_raw_journal": true,
+      "settings_count": 89,
+      "warning_count": 2,
+      "failure_present": false,
+      "recorded_input_files": 0,
+      "recorded_output_files": 34
+    },
+    {
+      "run_id": "2026-09-09_210220_6f581c02__job",
+      "all_five_panels_match_raw_journal": true,
+      "settings_count": 0,
+      "warning_count": 0,
+      "failure_present": true,
+      "recorded_input_files": 0,
+      "recorded_output_files": 0
+    },
+    {
+      "run_id": "2026-09-09_201318_6b415b85__recruitment",
+      "all_five_panels_match_raw_journal": true,
+      "settings_count": 28,
+      "warning_count": 0,
+      "failure_present": false,
+      "recorded_input_files": 6,
+      "recorded_output_files": 6
+    },
+    {
+      "run_id": "2026-09-09_201318_6b415b85__recruitment",
+      "all_five_panels_match_raw_journal": true,
+      "settings_count": 28,
+      "warning_count": 0,
+      "failure_present": false,
+      "recorded_input_files": 6,
+      "recorded_output_files": 6
+    }
+  ],
+  "copied_run_path": "/home/olafsson/.spacr/runs/2026-09-09_201318_6b415b85__recruitment",
+  "restored_settings": {
+    "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/recruitment_runs/example-lzqks2il/project",
+    "target": "ER",
+    "cell_types": [
+      "HeLa"
+    ],
+    "cell_plate_metadata": [
+      [
+        "c1",
+        "c2",
+        "c3"
+      ]
+    ],
+    "pathogen_types": [
+      "positive control",
+      "negative control",
+      "screen"
+    ],
+    "pathogen_plate_metadata": [
+      [
+        "c1"
+      ],
+      [
+        "c2"
+      ],
+      [
+        "c3",
+        "c4",
+        "c5",
+        "c6",
+        "c7",
+        "c8",
+        "c9",
+        "c10",
+        "c11",
+        "c12",
+        "c13",
+        "c14"
+      ]
+    ],
+    "treatments": [
+      "siRNA plate"
+    ],
+    "treatment_plate_metadata": [
+      [
+        "c1",
+        "c2",
+        "c3"
+      ]
+    ],
+    "channel_dims": [
+      1
+    ],
+    "cell_chann_dim": 1,
+    "nucleus_chann_dim": 0,
+    "pathogen_chann_dim": 3,
+    "channel_of_interest": 1,
+    "plot": true,
+    "plot_nr": 0,
+    "plot_control": false,
+    "figuresize": 8,
+    "pathogen_limit": 10,
+    "nuclei_limit": 1,
+    "cells_per_well": 10,
+    "pathogen_size_range": [
+      100,
+      1000
+    ],
+    "nucleus_size_range": [
+      700,
+      4000
+    ],
+    "cell_size_range": [
+      3500,
+      100000
+    ],
+    "pathogen_intensity_range": [
+      -1,
+      65536
+    ],
+    "nucleus_intensity_range": [
+      -1,
+      65536
+    ],
+    "cell_intensity_range": null,
+    "target_intensity_min": 1
+  },
+  "restoration_differences": {},
+  "settings_not_represented": [
+    "hash_inputs"
+  ],
+  "restored_matching_keys": [
+    "cell_chann_dim",
+    "cell_intensity_range",
+    "cell_plate_metadata",
+    "cell_size_range",
+    "cell_types",
+    "cells_per_well",
+    "channel_dims",
+    "channel_of_interest",
+    "figuresize",
+    "nuclei_limit",
+    "nucleus_chann_dim",
+    "nucleus_intensity_range",
+    "nucleus_size_range",
+    "pathogen_chann_dim",
+    "pathogen_intensity_range",
+    "pathogen_limit",
+    "pathogen_plate_metadata",
+    "pathogen_size_range",
+    "pathogen_types",
+    "plot",
+    "plot_control",
+    "plot_nr",
+    "src",
+    "target",
+    "target_intensity_min",
+    "treatment_plate_metadata",
+    "treatments"
+  ],
+  "exact_restoration": false,
+  "journal_preservation": {
+    "files": 496,
+    "unchanged": true
+  },
+  "remaining_refresh_workers": 0,
+  "journal_before_sha256": "0ec78532c103bd2df8816acade2ed1bcf9046dc2e0f4b0c3fc78dd6eebaaa3c0",
+  "current_capture": {
+    "commit": "565481f72aba301e7387d55cbc6b89dc3b3a14b1",
+    "version": "1.5.0.4",
+    "module": "run_history",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "capture_count": 19,
+  "test_evidence": {
+    "single_file_passed": 21,
+    "disabled_comparisons_failed": 18,
+    "disabled_comparisons_still_passed": 3,
+    "restored_passed": 21
+  },
+  "visual_review": "Parent inspected native overview, files, hash/seed, warning, exception and restored controls frames; full raw text checks do not substitute for legibility.",
+  "new_media_generated": false,
+  "publication_ready": false
+}

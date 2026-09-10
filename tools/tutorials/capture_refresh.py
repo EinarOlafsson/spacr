@@ -248,6 +248,10 @@ def main() -> int:
         from capture_batch_runner import record_batch
         record_batch(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'run_history':
+        from capture_run_history import record_history
+        record_history(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
