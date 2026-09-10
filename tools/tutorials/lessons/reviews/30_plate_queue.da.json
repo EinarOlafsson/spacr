@@ -1,0 +1,23 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "d2d89e7731cbc26bd8a3e6ba45c0fcce624c7559ba73145109dd8ed5dbf79371",
+  "review": {"kind": "Parent editorial translation against frozen English and verified GUI; visible English controls retained", "independent_peer_review": false, "native_speaker_signoff": false},
+  "language": "da",
+  "title": "Plate Queue: kør, stop mellem job og fortsæt",
+  "description": "Sæt to adskilte gentagelser af det verificerede Recruitment-eksempel i kø, kontrollér gemte resultater og skeln mellem et kontrolleret stop og uprøvet gendannelse efter nedbrud.",
+  "objectives": ["Importér en valideret konfiguration, og find Plate queue under Help.", "Tilføj aktuelle indstillinger og en forberedt projektmappe som separate job.", "Se sekventiel behandling, stop mellem job, og fortsæt uden at gentage vellykkede job.", "Kontrollér tal, og fjern afsluttede køposter uden at slette projekter."],
+  "prerequisite": "Gennemfør først Recruitment-vejledningen. Dens verificerede måledata fra fire billedfelter kopieres til to mapper: de samme optagne data, ikke uafhængige plader eller biologiske replikater. Hver mappe indeholder measurements/measurements.db og settings/recruitment_settings.csv. Den første CSV importeres via den rigtige filvælger; den anden mappe trækkes ind i køen. Ingen simuleret jobafvikler, modelkørsel eller AI-anmodning. Plate Queue har ikke sin egen Load test data eller liveforhåndsvisning. Import CSV demonstreres ikke: den opretter aktuelt Mask-job, ikke job for vilkårlige moduler. Lange etiketter kan være afkortede; kontrollér hele stier og indstillinger før tilføjelse. Gendannelse efter nedbrud og genforsøg af fejlede job er ikke verificeret.",
+  "scenes": [
+    "Begynd med det validerede Recruitment-eksempel. Vi kopierede måledatabasen fra fire billedfelter til to separate projektmapper med hver sin indstillingsfil. Det er to gentagelser af de samme virkelige data, ikke uafhængige plader. Vælg Import settings i Recruitment, og åbn den første mappes CSV.",
+    "Konsollen bekræfter indlæsningen. Kontrollér kilde og kanaler før tilføjelse; alle ønskede indstillinger blev sammenlignet efter import. Recruitment-vejledningen viser figurer, konsol og forhåndsvisning. Køen vurderer ikke, om dine biologiske valg er passende.",
+    "Åbn Help og derefter Plate queue. Dette fælles værktøj åbnes fra menuen, ikke en ny Home-flise. Den aktuelle jobafvikler behandler ét kølagt job ad gangen; skærmen har ingen valg af antal arbejdere eller politik for genoptagelse.",
+    "Vælg Add current plate. Første række gemmer en kopi af den netop indlæste Recruitment-konfiguration. Kontrollér modul og kilde før kørsel. Tabellen viser identifikator, modul, etiket, status og forløbet tid; den er ikke en komplet indstillingseditor.",
+    "Træk den anden forberedte projektmappe ind i køen. De gemte Recruitment-indstillinger identificerer modulet, og den indsatte mappe bliver kilden. Begge rækker viser queued. Separate mapper adskiller resultaterne; at tilføje samme mappe to gange giver ikke den adskillelse.",
+    "Vælg Run queue. Det første job bliver running, mens det andet forbliver queued. Det er den rigtige Recruitment-behandling, ikke simuleret fremdrift. Listen følger job, men viser ikke hvert mellembillede eller behandlingstrin.",
+    "Tryk Stop under det første job. Jobafvikleren afslutter det aktuelle job og stopper før det næste. Det er ikke øjeblikkelig afbrydelse: vent på, at det aktive job slutter, i stedet for at antage, at dets output allerede er holdt op med at ændre sig.",
+    "Første række viser nu success, og den anden stadig queued. Vælg Run queue igen for kun at behandle det resterende job. Vi verificerede, at det første jobs tidsstempler var uændrede. Dette kontrollerede stop beviser ikke gendannelse efter computernedbrud.",
+    "Begge job viser success. Hvert projekt har CSV-resultater for celler og brønde: to hundrede og treogtyve tilbageværende celler i fire brønde. Objektidentiteter og rekrutteringsforhold blev uafhængigt kontrolleret mod målingerne; en grøn status alene beviser ikke korrekte tal.",
+    "Plot var slået til i de gemte indstillinger, men denne jobafvikler viser eller gemmer ikke Recruitment-figurerne. Se modulvejledningen for figurarbejdet. Køen har heller ikke et AI-samtalepanel; ingen AI-anmodning eller modelkørsel var nødvendig her.",
+    "Clear finished fjerner afsluttede køposter, ikke projektmapper eller resultater. Vi bevarede registreringen før rydning og kontrollerede, at begge projekter stadig fandtes. I scripts administrerer PlateQueue i Qt's pladekømodul vedvarende jobposter; den er ikke selve Recruitment-analysefunktionen."
+  ]
+}
