@@ -1297,6 +1297,23 @@ GROUP 1 -- THE CATALOG PINS, WHICH ARE MID-REBUILD BY DESIGN.
   until the catalogs land so that nightly does not carry a red test that
   only the rebuild can fix.
 
+GROUP 1-B -- THE SAME CAUSE, IN THE FILES THE NOTE ABOVE PREDICTED.
+
+    tests/test_i18n_coverage_audit.py
+      test_checked_in_coverage_report_is_the_live_source_report
+      test_written_review_scope_matches_current_source_bound_evidence
+
+  `docs/i18n/COVERAGE.md` is a checked-in report that must equal what the
+  builder produces, and the builder now counts 10,279 API symbols where
+  the file says 10,237. The warning above named exactly this -- "it takes
+  COVERAGE.md and REVIEW_SCOPE with them" -- so this is the prediction
+  coming true rather than a surprise.
+
+  DELIBERATELY NOT REGENERATED YET. The report carries per-locale
+  translated counts as well as the total, so regenerating it before the
+  nine locales land would produce a file that is stale again an hour
+  later and a diff nobody can read. It goes in the same batch.
+
 GROUP 2 -- THE TUTORIAL LIBRARY, WHICH IS THE TUTORIALS LANE'S.
 
     tests/test_docs_media_budget.py
@@ -1318,5 +1335,14 @@ GROUP 2 -- THE TUTORIAL LIBRARY, WHICH IS THE TUTORIALS LANE'S.
   in one session's scrollback is a failure nobody owns. They are named so
   the next run does not rediscover them.
 
-EVERYTHING ELSE PASSED. Chunks 1 to 12 of 24 at the time of writing:
-roughly 22,000 tests, and the only red is the seven above.
+EVERYTHING ELSE PASSED. Fifteen of the 24 chunks at the time of writing --
+roughly 26,000 tests -- and every red is one of the five files above.
+
+  AND THE COUNT OF SYMBOLS MOVED AGAIN WHILE THIS WAS BEING WRITTEN, by
+  one, from a fix that had nothing to do with any of it:
+  `ColumnAlignedRow.invalidate`, added by instruction 350 so a translated
+  caption could re-fit its column. A change about a cut-off Portuguese
+  word, in a lane nowhere near the catalogs, adding a symbol nine locales
+  owe a translation for. It is the same lesson this file already carries,
+  arriving from a third direction in one evening -- which is the argument
+  for the two-second drift check rather than for more coordination.
