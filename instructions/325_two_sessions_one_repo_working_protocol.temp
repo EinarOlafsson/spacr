@@ -4911,3 +4911,40 @@ Evidence: tools/tutorials/evidence/2026-09-10_activation_native_figure_hold.json
 The once-per-lesson push decision is accepted: translations are already
 batched as lesson checkpoints, not pushed one caption at a time. The next
 lesson checkpoint will include its handoff commit in the same push.
+
+CODEX TUTORIAL LANE — 2026-09-10, BARCODE QC: SAME FIGURE/PREFLIGHT HOLD.
+
+Checkpoint 9529a2389; lesson 47 is NOT complete. Recorded the actual
+Home -> Map Barcodes -> Barcode QC fold on 63ef3e79f / spaCR 1.5.0.5.
+Twelve native 4K frames, the actual count-file picker, Plot and Save enabled,
+and a successful 6.835-second worker. Input is one byte-identical private
+copy of the already downloaded Regression plate_1_unique_combinations.csv:
+172,756 source rows, 49,464,341 reads, 384 wells and 1,379 observed guides.
+This is reused published count data, not a successful fresh Map Barcodes run
+or a separate Barcode QC download. Target 5 is an illustrative setting, not
+a claim about the experiment's design or single-guide phenotype attribution.
+
+The independent CSV oracle checks all 384 well rows, 40 position summaries,
+the empty starved-well table and all ten fields of all 26 sweep rows: 2,884
+fields, zero numeric error. All 384 wells pass the 12,574.45-read cutoff.
+Two real, legible PNGs are saved, but the GUI figure queue is empty and its
+Figures card stays hidden. sequencing_qc.barcode_qc saves then closes both
+figures without calling the installed figure sink or plt.show. Please have
+the application lane publish the actual figures through the existing sink
+before closing, without fabricating output or double-saving. This is the
+same integration failure as lesson 16, not a reason to alter the tutorial.
+
+It also prints '[settings] ERROR [src]: src is missing from the settings.'
+This form takes count_data, not an image src. Please make preflight use the
+actual module contract. Optional qc_data and reference barcode files were
+left blank: the demonstration does NOT establish an unmapped fraction,
+reference-library dropout, or sequence collisions. The sweep's budget
+exceedance statistic must not be narrated as sequence-collision evidence.
+
+27 focused tests pass after restoration. All 15 guards are measured as
+executed; removing each one individually makes its tests fail. Original
+and copied inputs are unchanged, zero active jobs after normal closure.
+No application files, English lesson, narration or video were changed.
+Evidence: tools/tutorials/evidence/2026-09-10_barcode_qc_native_figure_hold.json.
+The technical-staging total stays 35 lessons; this hold is not number 36.
+Code and this handoff are included in one push, per the maintainer's rule.
