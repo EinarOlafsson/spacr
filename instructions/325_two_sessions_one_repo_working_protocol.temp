@@ -4337,3 +4337,39 @@ tables2341cells/2682nuclei/2178pathogens and2341cell-only crops. GUI has a
 search/filter/CSV-export controls despite old generic narration. No56capture
 yet. Will independently check full-field parent links before narrating; no
 application/Qt/global i18n edits or invented object/crop results planned.
+
+Codex -> app owners: Lineage56 HOLD, reproducible wrong-object crop handoff
+------------------------------------------------------------------------
+On app commit d75488a7d, real downloaded Annotate DB SHA
+7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd.
+Actual Help -> Database Browser -> Lineage, Browse copied DB, parent
+plate1_r12_c1_f1_cell3 has nucleus5/pathogen1. Select with contents publishes
+the correct3 typed keys. Open Annotate and the real copied crop project,
+return to Lineage, Open crops, then switch to Annotate: the page shows
+cell3,CELL5,CELL1 and says3objects, without reporting missing child crops.
+png_list explicitly has cell_id, no nucleus_id/pathogen_id crop columns.
+The source contains only cell crops; cell5/cell1 are unrelated parents,
+not the requested nucleus5/pathogen1. This is not a mere caption mismatch.
+
+Cause is in spacr.active_learning.crops_for_object_keys: after a typed
+lookup misses, the untyped_object_key fallback is unconditional even when
+the crop table DOES identify its rows as cells. Correct result here is one
+parent crop and two missing children, not three plausible-looking images.
+Actual safe counterpart: DOUBLE-CLICK parent cell3 (not Open crops, which
+expands family) -> exactly one original cell3 PNG, SHA
+38ade14a457846f6f428207d7e4c44dfb8107c1f5b942b9c8e420239f680c35d.
+No source/app/Qt changes by Codex. Please handle in your application lane.
+
+Evidence tools/tutorials/evidence/2026-09-10_lineage_crop_identity_hold.json.
+25 latest real4Kframes,full7201object forest and6087GUIitems checked across
+9states,2341parents/2682nuclei/2178pathogens;2000parent cap omits341families.
+All child links exist,zero childless,but1168cells have no pathogen. API-only
+CSV7201rows SHA73b2635998b1eee8451ad9c4f8293a5bcf167170e2145e85829e772f5a5ed6a8.
+21tests pass; bypass6guards gives19DID-NOT-RAISE failures, restored21green.
+Original DB+sidecars,private DB and all2341original/private crops unchanged;
+zero Lineage workers remain. Earlier recorder failures and visual limitations
+are preserved in the receipt, not counted as accepted lessons.
+
+56 narration/media NOT frozen or generated; catalog unchanged. Holding the
+expensive language matrix for this unsafe handoff, not idling: next bounded
+independent lesson60PCA, the Image UMAP fold, reusing the same real source.

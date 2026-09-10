@@ -80,6 +80,14 @@ def main() -> int:
         runs_destination = Path.home() / '.spacr/runs'
         queue_binds = []
         manager_binds = []
+        if args.module == 'lineage':
+            from lineage_data import prepare
+            state = stage / 'lineage_state' / f'{args.capture_name or args.module}.json'
+            if state.exists():
+                raise RuntimeError('Use a new capture name for a fresh private Lineage example')
+            prepared = prepare(stage)
+            write_json(state, prepared)
+            private_cache = Path(prepared['cache'])
         if args.module == 'pipeline_graph':
             from pipeline_graph_data import prepare
             state = stage / 'pipeline_graph_state' / f'{args.capture_name or args.module}.json'
@@ -133,7 +141,7 @@ def main() -> int:
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
-            ((args.capture_name or args.module) if args.module == 'project_browser' else args.module)),
+            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage') else args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
@@ -303,6 +311,10 @@ def main() -> int:
         from capture_layer_viewer import record_layers
         record_layers(app, window, stage, captures, capture,
                       settle, write_json, args.timeout)
+    elif args.module == 'lineage':
+        from capture_lineage import record_lineage
+        record_lineage(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module == 'trellis':
         from capture_trellis import record_trellis
         record_trellis(app, window, stage, captures, capture,
@@ -1009,7 +1021,9 @@ def main() -> int:
                     raise RuntimeError(proof['reason'])
     write_json(captures / 'provenance.json', {'commit': inventory['commit'],
                'version': inventory['version'], 'module': args.module,
-               'download_requested': args.download, 'dataset_cache': str(stage / 'example_data'),
+               'download_requested': args.download, 'dataset_cache': (
+                   json.loads((stage / 'lineage_state' / f'{args.capture_name or args.module}.json').read_text())['cache']
+                   if args.module == 'lineage' else str(stage / 'example_data')),
                'app_source_modified': False, 'cache_isolated_with_bind_mount': True,
                'completed_capture': True})
     window.close()
