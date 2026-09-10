@@ -748,11 +748,37 @@ Q-CI-A -- HOW SHOULD CI STOP CANCELLING ITSELF?
       (b) CI STOPS RUNNING ON EVERY nightly PUSH -- pull request to main, a
           schedule, and workflow_dispatch instead. Costs the immediate
           signal on nightly, which is where the work happens.
-    RECOMMEND (a). It is the cheapest by far and it is already asked for in
-    325. NOTE that flipping `cancel-in-progress` is NOT an option: GitHub
+      (c) A SCHEDULE ON TOP OF WHAT IS THERE. Leave every push behaving
+          exactly as it does and add `schedule:` to tests.yml, so one run
+          per period starts when no push is racing it. Additive, reversible
+          in one line, and it changes nobody's cadence -- the cost is the
+          runner minutes of one full run per period, and the signal is
+          hours old rather than minutes.
+    RECOMMEND (a), with (c) as the thing to do if (a) is refused or slips:
+    they are not exclusive, and (c) is the only one of the three that
+    produces a green tick without anyone changing how they work.
+
+    RE-MEASURED 2026-09-10, 100 runs on nightly, and it is worse than the
+    line above:
+
+        cancelled  92        success  1        failure  2      running  5
+        median gap between runs        94 s
+        the one success (docs)         36 min 25 s
+
+    A run needs half an hour and a new one starts every ninety seconds, so
+    the arithmetic is not close: about twenty runs begin inside the window
+    of the first, and nineteen of them exist only to cancel the one before.
+    THE ONE SUCCESS IN A HUNDRED IS THE WHOLE ARGUMENT -- this is not a
+    flaky suite, it is a suite that is never allowed to finish, and no
+    amount of fixing tests changes that number.
+
+    NOTE that flipping `cancel-in-progress` is NOT an option: GitHub
     keeps at most one PENDING run per group and cancels the older pending
     one regardless, which is why docs.yml is cancelled too despite already
-    having it false. And `paths-ignore` on the tutorial data is worse than
+    having it false. Making the group unique per SHA does stop the
+    cancelling and is not an answer either: twenty concurrent half-hour
+    runs queue behind each other and the backlog grows faster than it
+    drains. And `paths-ignore` on the tutorial data is worse than
     useless -- two tests read those files, so CI would go quiet on exactly
     the change that happened.
 
