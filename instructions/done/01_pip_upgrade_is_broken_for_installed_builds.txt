@@ -2,7 +2,10 @@
 THE DESKTOP INSTALLS CANNOT UPDATE THEMSELVES
 ================================================================================
 
-Status:   CODE COMPLETE, awaiting publication only. Linux/macOS escaped in
+Status:   DONE 2026-09-10. THE PUBLICATION HAPPENED, which was the only
+          thing left. See the closing note at the foot of this file.
+
+          (Previously: CODE COMPLETE, awaiting publication only.) Linux/macOS escaped in
           1.5.0.4; the Windows fix is in source and verified 2026-09-01.
 
           VERIFIED TODAY, so this is not taken on trust:
@@ -183,3 +186,38 @@ self-describing if it is ever met again.
 REMAINS, unchanged and not reachable from a checkout: publish 1.5.0.5 and
 its three installers. That is 304's business and needs the maintainer,
 because it is public and irreversible.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- CLOSED. 1.5.0.5 IS PUBLISHED AND CARRIES THE FIX.
+--------------------------------------------------------------------------------
+
+This file has said "100% of the code, 0% of the distribution" since
+2026-09-01. The distribution is done.
+
+    PyPI                spacr 1.5.0.5
+    GitHub release      v1.5.0.5, tagged and marked Latest
+    assets              spaCR-1.5.0.5-Linux-x86_64-Online.run
+                        spaCR-1.5.0.5-macOS-Universal-Online.pkg
+                        spaCR-1.5.0.5-Windows-Online-Setup.exe
+                        the wheel, the sdist and SHA256SUMS.txt
+
+WHY THAT CLOSES IT RATHER THAN MERELY ADVANCING IT. The bootstrap trap this
+file describes is that the fix cannot arrive by the route it fixes: an
+install whose updater runs `python -m pip` cannot update itself, because the
+environment `uv venv` built has no pip. The escape has always been an
+installer, and all three now carry a build with `find_uv` checking `uv.exe`
+BEFORE `uv` on Windows -- the gap 8eefc701 closed and the one thing 1.5.0.4
+did not have.
+
+WHAT SHIPPED WITH IT, from the 2026-09-09 work: a failed upgrade now
+recognises "No module named pip" in the output and prints the exact uv
+command that would work, rather than an exit code. Every other exit code
+gets the output and nothing else, deliberately -- a remedy offered for an
+unrecognised failure sends the user to run a command that is not their
+problem.
+
+NOTHING IS OWED HERE. The manual escape commands stay in
+`docs/source/installer_guide.rst` for anyone still on an affected build,
+and the online-installer workflow asserts, from inside each installed
+environment on all three platforms, that pip is genuinely absent and that
+`upgrade_command()` returns the uv form with no `-m`.

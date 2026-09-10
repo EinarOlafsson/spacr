@@ -2,7 +2,10 @@
 MERGING nightly INTO main, AND THE add/add RECOVERY THAT MADE IT POSSIBLE
 ================================================================================
 
-Status:    THE MERGE IS DONE AND UNPUSHED, 2026-09-10, in the other session's
+Status:    DONE 2026-09-10 -- merged, pushed, and the release cut from
+           it. See the closing note at the foot.
+
+           (Previously: THE MERGE IS DONE AND UNPUSHED, 2026-09-10, in the other session's
            throwaway worktree (branch merge/nightly-into-main-20260910). This
            file exists for the METHOD, which is the part that must outlive
            that worktree, and for the two release-blocking findings the merge
@@ -118,3 +121,33 @@ ONE THING TO DO AFTER THE RELEASE, NOT BEFORE
 once Zenodo has archived it. For a paper citation that step is the point, so
 it must not be skipped -- `version` and `date-released` move to the release
 as part of the bump, and the version DOI is added when Zenodo mints it.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- CLOSED. THE MERGE LANDED AND 1.5.0.5 WAS CUT FROM IT.
+--------------------------------------------------------------------------------
+
+main and nightly both carry 1.5.0.5, the tag exists, and PyPI has the
+release. Both findings this file records were real and both were fixed
+before the tag:
+
+  * `license = { file = "LICENSE" }` on main, which setuptools >= 77
+    rejects while READING the file. A release cut from main as it stood
+    would have failed on every interpreter, before the build started.
+  * the README DOI badge pointing at a version DOI rather than the concept
+    one. The merge took nightly's side.
+
+AND A THIRD THAT ONLY THE RELEASE ITSELF COULD FIND: `online-installers.yml`
+gated its `collect` job on `github.event_name == 'workflow_call'`, which
+inside a REUSABLE workflow is the CALLER's event and therefore never that
+value. The job was skipped, `release_commit` came back empty, and the tag
+step ran `git tag -a v1.5.0.5 ""`. PyPI had already published by then. The
+condition arrived on 2026-07-29 and 1.5.0.4 was cut from a branch predating
+it, so 1.5.0.5 was the first release that could hit it -- and its own test
+asserted the broken string, so a condition that could never be true had a
+test keeping it that way.
+
+THE METHOD ABOVE IS WHAT THIS FILE IS FOR and it stays open to reading
+after the item is closed: the add/add recovery took 904 conflicting paths
+to 32 by hand, and the rule that git's base is the MERGE BASE's blob --
+often not the newest shared state on long-diverged branches -- is worth
+more than this one merge.
