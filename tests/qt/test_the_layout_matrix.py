@@ -133,11 +133,39 @@ pytestmark = pytest.mark.skipif(
     not OUT, reason="set SPACR_MEASURE_LAYOUT=<path> to measure the matrix")
 
 
+class _Owned:
+    """qtbot, minus the part that would close these widgets again.
+
+    `screen_in_a_container` registers its host with `qtbot.addWidget`,
+    which is right for a test that builds one screen and leaves it to
+    teardown. This measurement builds thousands and disposes of each as
+    it finishes -- see `_discard` -- so registration would hand pytest-qt
+    a list of already-deleted C++ objects and its teardown raises
+    "Internal C++ object (QStackedWidget) already deleted" over every one
+    of them.
+
+    Ownership is the thing being expressed: whoever deletes the widget
+    should be the only one who tries.
+    """
+
+    def __init__(self, qtbot):
+        """:param qtbot: the real one, for everything except addWidget."""
+        self._qtbot = qtbot
+
+    def addWidget(self, _widget):                    # noqa: N802 (Qt name)
+        """Deliberately nothing. `_discard` is what disposes of these."""
+
+    def __getattr__(self, name):
+        """Everything else is the real qtbot's."""
+        return getattr(self._qtbot, name)
+
+
 def _narrowest_clean(qtbot, app_key: str) -> dict:
     """The first rung at which nothing on ``app_key`` is clipped."""
     worst: list = []
+    owned = _Owned(qtbot)
     for index, width in enumerate(WIDTHS, start=1):
-        host, screen = screen_in_a_container(qtbot, app_key, width=width,
+        host, screen = screen_in_a_container(owned, app_key, width=width,
                                              height=HEIGHT)
         try:
             offenders = _offenders(screen) + _sideways_scrollers(screen)
