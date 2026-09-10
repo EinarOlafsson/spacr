@@ -1,0 +1,31 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Överensstämmelse mellan annotatörer",
+  "description": "Öppna det inbäddade verktyget, jämför uttryckligen konstgjorda undervisningsetiketter på kopior av verkliga nedladdade bildutsnitt och skilj parvis överensstämmelse från en sammanfattning av flera omgångar.",
+  "objectives": [
+    "Öppna Annotator Agreement från Annotate.",
+    "Jämför etiketter, saknade observationer och förväxlingsmatriser utan att ändra annoteringar.",
+    "Granska bildutsnitt med oenighet och tolka sammanfattningar av två respektive tre omgångar."
+  ],
+  "prerequisite": "De sexton bildutsnitten är oförändrade kopior av Annotates nedladdningsbara exempel. DEMO_A, DEMO_B och DEMO_C är konstgjorda undervisningsetiketter i en ny privat databas, inte biologiska klasser, mått på mänskliga granskares prestation eller modellprediktioner. Originalbilder och etiketter förblir oförändrade; png_path görs relativ endast i demokopian. Använd verkligt oberoende annoteringsomgångar för egen utvärdering. Standardidentifieringen utesluter kända modellutdatakolumner. Oberoende heltals- och bråkberäkningar verifierar varje par, matris och sammanfattande mått; tre förhandsvisningar matchar originalens pixlar exakt. Det lilla exemplet lär ut kontrollerna, inte försökets tillförlitlighet. Den äldre videon upprepade en tom skärm och beskrev automatisk identifiering av prediktioner som inte längre stämmer med API:et: lektionen har inte bara flyttats.",
+  "scenes": [
+    "Öppna Annotate och sedan knappen Annotator Agreement. Det är ett inbäddat verktyg, inte ytterligare en modul på Home. Jämförelsevyn läser annoteringskolumner utan att redigera dem; återvänd till Annotate när du vill ändra en etikett.",
+    "Öppna den förberedda demonstrationsdatabasen. De sexton bilderna är verkliga utsnitt ur det nedladdningsbara exemplet, men de tre DEMO-kolumnerna är konstgjorda undervisningsetiketter. De mäter varken en persons skicklighet eller en biologisk fenotyp. Originaletiketter och bilder har bevarats i en separat källkopia.",
+    "Kontrollera uttryckligen vilka kolumner som valts i stället för att acceptera de första standardvalen. En enda kolumn kan inte mäta överensstämmelse. Den aktuella identifieringen utesluter kända modellutdatakolumner som standard; att jämföra en klassificerare med en person är modellvalidering, inte överensstämmelse mellan människor.",
+    "Välj DEMO A och DEMO B och tryck på Compute agreement. Tolv utsnitt har etiketter i båda omgångarna, tre i bara en och ett i ingen. Saknade etiketter omvandlas inte i det tysta till oenighet.",
+    "De två undervisningsomgångarna överensstämmer för nio av tolv jämförda utsnitt: sjuttiofem procent, med Cohens kappa på noll komma fem. Läs rå överensstämmelse, överlapp och klassbalans tillsammans. Skärmen varnar för att tolv gemensamma etiketter är för få för en stabil tillförlitlighetsskattning; de påhittade etiketterna är bara en demonstration.",
+    "Raderna motsvarar DEMO A och kolumnerna DEMO B. Fem utsnitt har klass ett i båda omgångarna och fyra har klass två i båda. Antalen utanför diagonalen, ett och två, visar tre oenigheter. En sammanfattande beteckning som måttlig är en konvention, inte en acceptansgräns för ditt försök.",
+    "Välj en oenighet för att granska motsvarande bildutsnitt och båda etiketterna. Vi kontrollerade alla tre förhandsvisningar mot originalpixlarna. I en verklig studie bör du granska representativa bilder och klassdefinitioner innan du beslutar hur fallen ska avgöras; denna skrivskyddade vy fattar inte beslutet åt dig.",
+    "Lägg till DEMO C och beräkna igen. Att ändra en kryssruta startar inte i sig en ny beräkning. Tabellen jämför nu tre par med olika antal gemensamma etiketter, medan den övergripande Fleiss-sammanfattningen bara använder de tolv utsnitt som har etiketter i varje vald omgång.",
+    "Undervisningsexemplets Fleiss-kappa är ungefär noll komma sex sex tre, inte medelvärdet av de tre parvisa kappavärdena. Den övergripande råa överensstämmelsen räknar här enhälliga, fullständiga rader. Den fjärde granskningsraden saknar A men har oenighet mellan B och C; därför kan den visas för granskning utan att ingå i sammanfattningen av fullständiga fall.",
+    "Om du bara väljer A och B och beräknar igen återställs den ursprungliga jämförelsen. Vi verifierade att databasen och bildfilerna förblir oförändrade under alla tre beräkningar. Använd verkligt oberoende annoteringsomgångar för din egen analys och återvänd till Annotate-handledningen för att samla in etiketterna."
+  ]
+}

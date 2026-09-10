@@ -1,0 +1,31 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Concordanza tra annotatori",
+  "description": "Apri lo strumento integrato, confronta etichette didattiche esplicitamente artificiali su copie di ritagli reali scaricati e distingui la concordanza a coppie dal riepilogo di più passaggi.",
+  "objectives": [
+    "Aprire Annotator Agreement dal modulo Annotate.",
+    "Confrontare etichette, osservazioni mancanti e matrici di confusione senza modificare le annotazioni.",
+    "Esaminare i ritagli discordanti e interpretare riepiloghi a due e tre passaggi."
+  ],
+  "prerequisite": "I sedici ritagli sono copie inalterate dell’esempio scaricabile di Annotate. DEMO_A, DEMO_B e DEMO_C sono etichette didattiche artificiali aggiunte a un nuovo database privato, non classificazioni biologiche, punteggi di revisori umani o previsioni. Immagini ed etichette originali restano inalterate; solo nella copia png_path diventa relativo. Per valutare i tuoi dati usa veri passaggi indipendenti. Il rilevamento predefinito esclude le colonne note prodotte dai modelli. Calcoli indipendenti con interi e frazioni verificano coppie, matrici e aggregati; tre anteprime corrispondono esattamente ai pixel originali. Il piccolo esempio insegna i controlli, non dimostra l’affidabilità del saggio. Il vecchio video ripeteva una schermata vuota e descriveva un rilevamento automatico delle previsioni non più coerente con l’API: non è una lezione soltanto spostata.",
+  "scenes": [
+    "Apri Annotate e poi il pulsante Annotator Agreement. È uno strumento integrato, non un altro modulo di Home. La vista di confronto legge le colonne di annotazione senza modificarle; torna ad Annotate quando vuoi cambiare un’etichetta.",
+    "Apri il database dimostrativo preparato. Le sedici immagini sono ritagli reali dell’esempio scaricabile, ma le tre colonne DEMO sono etichette didattiche artificiali. Non misurano l’abilità di una persona né un fenotipo biologico. Immagini ed etichette originali sono state conservate in una copia sorgente separata.",
+    "Controlla esplicitamente le colonne selezionate invece di accettare le prime opzioni predefinite. Una sola colonna non può misurare la concordanza. Il rilevamento attuale esclude per impostazione predefinita le colonne note prodotte dai modelli; confrontare un classificatore con una persona è validazione del modello, non concordanza tra persone.",
+    "Seleziona DEMO A e DEMO B, poi premi Compute agreement. Dodici ritagli sono etichettati in entrambi i passaggi, tre in uno solo e uno in nessuno dei due. Le etichette mancanti non vengono conteggiate silenziosamente come discordanze.",
+    "I due passaggi didattici concordano su nove dei dodici ritagli confrontati: settantacinque per cento, con kappa di Cohen pari a zero virgola cinque. Considera insieme concordanza grezza, sovrapposizione e bilanciamento delle classi. La schermata avverte che dodici etichette condivise sono troppo poche per una stima stabile dell’affidabilità; queste etichette inventate sono solo dimostrative.",
+    "Le righe rappresentano DEMO A e le colonne DEMO B. Cinque ritagli hanno classe uno in entrambi i passaggi e quattro hanno classe due in entrambi. I conteggi fuori diagonale, uno e due, identificano tre discordanze. Un’etichetta riassuntiva come moderata è una convenzione, non una soglia di accettazione per il tuo saggio.",
+    "Seleziona una discordanza per esaminare il ritaglio corrispondente ed entrambe le etichette. Abbiamo verificato tutte e tre le anteprime rispetto ai pixel originali. Per uno studio reale, esamina immagini rappresentative e definizioni delle classi prima di decidere come risolvere i casi; questa schermata di sola lettura non decide al posto tuo.",
+    "Aggiungi DEMO C e calcola di nuovo. Cambiare una casella non avvia da solo un nuovo calcolo. La tabella confronta ora tre coppie con numeri diversi di etichette condivise, mentre il riepilogo complessivo di Fleiss usa solo i dodici ritagli etichettati in tutti i passaggi selezionati.",
+    "Il kappa di Fleiss dell’esempio didattico è circa zero virgola sei sei tre, non la media dei tre kappa a coppie. Qui la concordanza grezza complessiva conta le righe complete unanimi. La quarta riga da esaminare manca dell’etichetta A ma presenta discordanza tra B e C: può quindi comparire nella revisione senza entrare nel riepilogo dei casi completi.",
+    "Selezionando solo A e B e ricalcolando si ripristina il confronto iniziale. Abbiamo verificato che database e file dei ritagli restino inalterati durante tutti e tre i calcoli. Per la tua analisi usa passaggi di annotazione davvero indipendenti e torna al tutorial Annotate per raccogliere quelle etichette."
+  ]
+}

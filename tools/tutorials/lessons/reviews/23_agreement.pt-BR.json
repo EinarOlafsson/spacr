@@ -1,0 +1,31 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Concordância entre anotadores",
+  "description": "Abra a ferramenta integrada, compare rótulos didáticos explicitamente artificiais em cópias de recortes reais baixados e diferencie a concordância por pares do resumo de várias rodadas.",
+  "objectives": [
+    "Abrir Annotator Agreement pelo módulo Annotate.",
+    "Comparar rótulos, observações ausentes e matrizes de confusão sem alterar anotações.",
+    "Inspecionar recortes com discordância e interpretar resumos de duas e três rodadas."
+  ],
+  "prerequisite": "Os dezesseis recortes são cópias inalteradas do exemplo disponível para download no Annotate. DEMO_A, DEMO_B e DEMO_C são rótulos didáticos artificiais adicionados a um novo banco privado, não classificações biológicas, notas de revisores humanos ou predições. Imagens e rótulos originais permanecem intactos; png_path só se torna relativo na cópia. Para avaliar seus dados, use rodadas reais e independentes de anotação. A descoberta padrão exclui colunas conhecidas de saída de modelos. Cálculos independentes com inteiros e frações verificam todos os pares, matrizes e agregados; três prévias correspondem exatamente aos pixels dos recortes originais. O exemplo pequeno ensina os controles, não valida a confiabilidade do ensaio. O vídeo antigo repetia uma tela vazia e descrevia uma descoberta automática de predições que não corresponde mais à API: esta não é apenas uma aula transferida.",
+  "scenes": [
+    "Abra Annotate e depois o botão Annotator Agreement. Esta é uma ferramenta integrada, não outro módulo da Home. A comparação lê as colunas de anotação sem editá-las; volte ao Annotate quando quiser mudar um rótulo.",
+    "Abra o banco de demonstração preparado. Suas dezesseis imagens são recortes reais do exemplo disponível para download, mas as três colunas DEMO contêm rótulos didáticos artificiais. Eles não medem a habilidade de uma pessoa nem um fenótipo biológico. Os rótulos e as imagens originais foram preservados em uma cópia de origem separada.",
+    "Confira explicitamente as colunas selecionadas em vez de aceitar as primeiras opções padrão. Uma única coluna não mede concordância. A descoberta atual exclui por padrão as colunas conhecidas de saída de modelos; comparar um classificador com uma pessoa é validação de modelo, não concordância entre pessoas.",
+    "Selecione DEMO A e DEMO B e pressione Compute agreement. Doze recortes estão rotulados nas duas rodadas, três em apenas uma e um em nenhuma. Rótulos ausentes não são convertidos silenciosamente em discordâncias.",
+    "As duas rodadas didáticas concordam em nove dos doze recortes comparados: setenta e cinco por cento, com kappa de Cohen de zero vírgula cinco. Considere juntos a concordância bruta, a sobreposição e o equilíbrio entre classes. A tela avisa que doze rótulos compartilhados são poucos para estimar a confiabilidade de forma estável; esses rótulos inventados são apenas uma demonstração.",
+    "As linhas representam DEMO A e as colunas DEMO B. Cinco recortes têm classe um nas duas rodadas, e quatro têm classe dois em ambas. Os números fora da diagonal, um e dois, identificam três discordâncias. Uma classificação resumida como moderada é uma convenção, não um limiar de aceitação do seu ensaio.",
+    "Selecione uma discordância para inspecionar o recorte correspondente e os dois rótulos. Conferimos as três prévias contra os pixels originais. Em um estudo real, revise imagens representativas e as definições das classes antes de decidir como resolver os casos; esta tela somente de leitura não decide por você.",
+    "Adicione DEMO C e calcule novamente. Mudar uma caixa de seleção não executa, por si só, um novo cálculo. A tabela agora compara três pares com diferentes quantidades de rótulos compartilhados, enquanto o resumo geral de Fleiss usa somente os doze recortes rotulados em todas as rodadas selecionadas.",
+    "O kappa de Fleiss do exemplo didático é aproximadamente zero vírgula seis seis três, não a média dos três kappas por pares. Aqui a concordância bruta geral conta linhas completas unânimes. A quarta linha de revisão não tem rótulo A, mas apresenta discordância entre B e C; assim, pode aparecer para revisão sem entrar no resumo dos casos completos.",
+    "Selecionar apenas A e B e calcular novamente restaura a comparação original. Verificamos que o banco e os arquivos dos recortes permanecem inalterados durante os três cálculos. Use rodadas de anotação realmente independentes na sua análise e volte ao tutorial Annotate para coletar esses rótulos."
+  ]
+}

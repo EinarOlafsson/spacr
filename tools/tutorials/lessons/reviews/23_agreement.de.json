@@ -1,0 +1,31 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Übereinstimmung zwischen Annotierenden",
+  "description": "Öffnen Sie das eingebettete Werkzeug, vergleichen Sie ausdrücklich künstliche Lehrbezeichnungen auf Kopien echter heruntergeladener Bildausschnitte und unterscheiden Sie paarweise Übereinstimmung von der Zusammenfassung mehrerer Durchgänge.",
+  "objectives": [
+    "Annotator Agreement aus Annotate öffnen.",
+    "Bezeichnungen, fehlende Beobachtungen und Konfusionsmatrizen vergleichen, ohne Annotationen zu ändern.",
+    "Abweichende Bildausschnitte prüfen und Zusammenfassungen zweier beziehungsweise dreier Durchgänge interpretieren."
+  ],
+  "prerequisite": "Die sechzehn Bildausschnitte sind unveränderte Kopien des herunterladbaren Annotate-Beispiels. DEMO_A, DEMO_B und DEMO_C sind künstliche Lehrbezeichnungen in einer neuen privaten Datenbank, keine biologischen Klassen, menschlichen Leistungsbewertungen oder Modellvorhersagen. Ursprüngliche Bilder und Bezeichnungen bleiben unverändert; nur in der Demokopie wird png_path relativ. Für eigene Bewertungen sind echte unabhängige Annotationsdurchgänge erforderlich. Bekannte Modellausgabespalten werden standardmäßig nicht erkannt. Unabhängige Ganzzahl- und Bruchrechnungen prüfen alle Paare, Matrizen und Aggregate; drei Vorschauen stimmen pixelgenau mit den Originalausschnitten überein. Das kleine Beispiel erklärt die Bedienung, nicht die Zuverlässigkeit eines Assays. Der alte Film wiederholte einen leeren Bildschirm und beschrieb eine automatische Vorhersagespaltenerkennung, die nicht mehr zur API passt: Die Lektion wurde nicht bloß verschoben.",
+  "scenes": [
+    "Öffnen Sie Annotate und anschließend dessen Schaltfläche Annotator Agreement. Dies ist ein eingebettetes Werkzeug, kein weiteres Home-Modul. Die Vergleichsansicht liest Annotationsspalten, ohne sie zu bearbeiten; zum Ändern einer Bezeichnung kehren Sie zu Annotate zurück.",
+    "Öffnen Sie die vorbereitete Demonstrationsdatenbank. Ihre sechzehn Bilder sind echte Ausschnitte des herunterladbaren Beispiels, doch die drei DEMO-Spalten enthalten künstliche Lehrbezeichnungen. Sie messen weder die Fähigkeit einer Person noch einen biologischen Phänotyp. Die ursprünglichen Bilder und Bezeichnungen bleiben in einer separaten Quellkopie erhalten.",
+    "Prüfen Sie die ausgewählten Spalten ausdrücklich, statt die ersten Voreinstellungen zu übernehmen. Mit einer einzigen Spalte lässt sich keine Übereinstimmung messen. Die aktuelle Erkennung schließt bekannte Modellausgabespalten standardmäßig aus; der Vergleich eines Klassifikators mit einer Person ist Modellvalidierung, nicht Übereinstimmung zwischen Menschen.",
+    "Wählen Sie DEMO A und DEMO B und drücken Sie Compute agreement. Zwölf Ausschnitte sind in beiden Durchgängen bezeichnet, drei nur in einem und einer in keinem. Fehlende Bezeichnungen werden nicht stillschweigend als Abweichungen gezählt.",
+    "Die beiden Lehrdurchgänge stimmen bei neun von zwölf verglichenen Ausschnitten überein: fünfundsiebzig Prozent, mit einem Cohen-Kappa von null Komma fünf. Betrachten Sie rohe Übereinstimmung, Überlappung und Klassenverteilung gemeinsam. Die Anzeige warnt, dass zwölf gemeinsame Bezeichnungen für eine stabile Zuverlässigkeitsschätzung zu wenig sind; die erfundenen Bezeichnungen dienen nur der Demonstration.",
+    "Die Zeilen stehen für DEMO A, die Spalten für DEMO B. Fünf Ausschnitte haben in beiden Durchgängen Klasse eins, vier in beiden Klasse zwei. Die Werte außerhalb der Diagonale, eins und zwei, zeigen drei Abweichungen. Eine zusammenfassende Einstufung wie mäßig ist eine Konvention, kein Annahmeschwellenwert für Ihren Assay.",
+    "Wählen Sie eine Abweichung, um den zugehörigen Ausschnitt und beide Bezeichnungen zu prüfen. Wir haben alle drei Vorschauen mit ihren Originalpixeln verglichen. Prüfen Sie in einer echten Studie repräsentative Bilder und Klassendefinitionen, bevor Sie über die Klärung entscheiden; diese schreibgeschützte Ansicht entscheidet nicht für Sie.",
+    "Fügen Sie DEMO C hinzu und berechnen Sie erneut. Ein geändertes Kontrollkästchen allein startet keine neue Berechnung. Die Tabelle vergleicht jetzt drei Paare mit unterschiedlichen Anzahlen gemeinsamer Bezeichnungen; die globale Fleiss-Zusammenfassung verwendet nur die zwölf Ausschnitte, die in jedem ausgewählten Durchgang bezeichnet wurden.",
+    "Das Fleiss-Kappa des Lehrbeispiels beträgt ungefähr null Komma sechs sechs drei, nicht den Mittelwert der drei paarweisen Kappas. Die globale rohe Übereinstimmung zählt hier vollständig und einstimmig bezeichnete Zeilen. Der vierten Prüfzeile fehlt A, doch B und C weichen voneinander ab; deshalb kann sie zur Prüfung erscheinen, ohne in die Zusammenfassung vollständiger Fälle einzugehen.",
+    "Wenn Sie nur A und B auswählen und erneut berechnen, erhalten Sie den ursprünglichen Vergleich zurück. Wir haben geprüft, dass Datenbank und Bilddateien bei allen drei Berechnungen unverändert bleiben. Verwenden Sie für eigene Analysen wirklich unabhängige Annotationsdurchgänge; das Annotate-Tutorial zeigt, wie Sie diese Bezeichnungen erfassen."
+  ]
+}

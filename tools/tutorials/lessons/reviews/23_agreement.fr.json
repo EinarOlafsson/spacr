@@ -1,0 +1,31 @@
+{
+  "lesson": "23_agreement",
+  "english_sha256": "8ed31c349c746d23159e96c0f6a3b2ea53eaecd8043a5c526b3ff46d22a9d4d0",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; artificial labels, missingness, pairwise and complete-case summaries retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Accord entre annotateurs",
+  "description": "Ouvrez l’outil intégré, comparez des étiquettes pédagogiques explicitement artificielles sur des copies de vrais recadrages téléchargés et distinguez l’accord par paire du résumé à plusieurs passes.",
+  "objectives": [
+    "Ouvrir Annotator Agreement depuis Annotate.",
+    "Comparer les étiquettes, les observations manquantes et les matrices de confusion sans modifier les annotations.",
+    "Examiner les recadrages en désaccord et interpréter les résumés à deux et trois passes."
+  ],
+  "prerequisite": "Les seize recadrages sont des copies inchangées de l’exemple téléchargeable d’Annotate. DEMO_A, DEMO_B et DEMO_C sont des étiquettes pédagogiques artificielles ajoutées à une nouvelle base privée, pas des classifications biologiques, des scores humains ou des prédictions. Les images et étiquettes sources restent inchangées ; png_path devient relatif seulement dans la copie. Pour votre évaluation, utilisez de vraies passes indépendantes. La détection par défaut exclut les colonnes connues de sortie des modèles. Des calculs indépendants en entiers et fractions vérifient chaque paire, matrice et agrégat ; trois aperçus correspondent exactement aux pixels des sources. Ce petit exemple enseigne les commandes, pas la fiabilité d’un essai. L’ancien film répétait un écran vide et décrivait une détection automatique des prédictions devenue incompatible avec l’API : il ne s’agit pas simplement d’une leçon déplacée.",
+  "scenes": [
+    "Ouvrez Annotate, puis son bouton Annotator Agreement. C’est un outil intégré, pas un autre module de Home. La vue de comparaison lit les colonnes d’annotation sans les modifier ; revenez dans Annotate pour changer une étiquette.",
+    "Ouvrez la base de démonstration préparée. Ses seize images sont de vrais recadrages de l’exemple téléchargeable, mais les trois colonnes DEMO contiennent des étiquettes pédagogiques artificielles. Elles ne mesurent ni les compétences d’une personne ni un phénotype biologique. Les images et étiquettes originales ont été préservées dans une copie source distincte.",
+    "Vérifiez explicitement les colonnes sélectionnées au lieu d’accepter les premiers choix par défaut. Une seule colonne ne permet pas de mesurer l’accord. La détection actuelle exclut par défaut les colonnes connues de sortie des modèles ; comparer un classifieur à une personne relève de la validation du modèle, pas de l’accord entre personnes.",
+    "Sélectionnez DEMO A et DEMO B, puis cliquez sur Compute agreement. Douze recadrages sont étiquetés dans les deux passes, trois dans une seule et un dans aucune. Les étiquettes manquantes ne sont pas silencieusement transformées en désaccords.",
+    "Les deux passes pédagogiques concordent sur neuf des douze recadrages comparés : soixante-quinze pour cent, avec un kappa de Cohen de zéro virgule cinq. Examinez ensemble l’accord brut, le recouvrement et l’équilibre des classes. L’écran avertit que douze étiquettes partagées sont insuffisantes pour estimer la fiabilité de façon stable ; ces étiquettes inventées ne sont qu’une démonstration.",
+    "Les lignes correspondent à DEMO A et les colonnes à DEMO B. Cinq recadrages portent la classe un dans les deux passes, et quatre la classe deux dans les deux. Les nombres hors diagonale, un et deux, représentent trois désaccords. Une qualification comme modéré est une convention, pas un seuil d’acceptation de votre essai.",
+    "Sélectionnez un désaccord pour examiner le recadrage correspondant et les deux étiquettes. Nous avons vérifié les trois aperçus par rapport aux pixels originaux. Dans une véritable étude, examinez des images représentatives et les définitions des classes avant de décider comment arbitrer ; cet écran en lecture seule ne tranche pas à votre place.",
+    "Ajoutez DEMO C et relancez le calcul. Cocher une case ne déclenche pas à lui seul un nouveau calcul. Le tableau compare maintenant trois paires dont les nombres d’étiquettes partagées diffèrent, tandis que le résumé global de Fleiss utilise seulement les douze recadrages étiquetés dans toutes les passes sélectionnées.",
+    "Le kappa de Fleiss de l’exemple pédagogique vaut environ zéro virgule six six trois, et non la moyenne des trois kappas par paire. L’accord brut global compte ici les lignes complètes unanimes. La quatrième ligne à examiner n’a pas d’étiquette A mais présente un désaccord entre B et C : elle peut donc figurer dans la revue sans entrer dans le résumé des cas complets.",
+    "En sélectionnant seulement A et B et en recalculant, vous retrouvez la comparaison initiale. Nous avons vérifié que la base et les fichiers de recadrage restent inchangés pendant les trois calculs. Utilisez des passes d’annotation réellement indépendantes pour votre analyse et revenez au tutoriel Annotate pour recueillir ces étiquettes."
+  ]
+}
