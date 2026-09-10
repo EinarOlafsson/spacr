@@ -3627,3 +3627,72 @@ enough to run on 1,281 fields instead of 321.
     correction and a 3,200 px one is never needed, which is worth having
     because the window sets the chance floor: a wider window holds more
     nuclei, so more agreement is needed to beat coincidence.
+
+--------------------------------------------------------------------------------
+PART 14-I -- ALL 41 COLUMNS MEASURED. THE TABLE, AND NO CLOSED FORM BEHIND IT.
+2026-09-10.
+--------------------------------------------------------------------------------
+
+Both runs pooled -- every fourth field at the ordinary window, plus the five
+columns that needed 3,200 px -- gives a measured row offset for EVERY column
+of the phenotype well:
+
+    col  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+    off -1 +2 -1  0  0  0  0  0  0  0  0 -1 +2 -2 +2 -2 +2 -1  0  0  0
+
+    col 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40
+    off  0  0 +1 -2 +2 -2 +2 -2 +1  0  0  0  0  0  0  0  0 +1 -2 +1
+
+    41 of 41 columns measured, 20 non-zero, every value in -2..+2.
+    Saved as `scratchpad/a4_row_offsets.json`.
+
+IT IS CONSTANT WITHIN A COLUMN, and that is the load-bearing check rather
+than a detail. Largest spread inside any column, across all 188 fields:
+
+    0.0028 rows
+
+Three thousandths of a row. So it is a ROW-ORIGIN SHIFT -- where the column
+starts -- and 41 integers fix it completely. Had it varied with a field's
+place in its column it would have been a snake direction or a mirrored
+index, and no table of per-column integers would have helped.
+
+AND THERE IS NO CLOSED FORM, which is worth recording so nobody spends an
+afternoon looking for one. Correlation of the offset against every candidate
+the geometry suggests:
+
+    height                    r = +0.000
+    (41 - height) / 2         r = +0.000
+    column                    r = +0.000
+    |column - 20|             r = +0.000
+    column parity             r = +0.000
+    parity x (41 - height)/2  r = +0.000
+    sign(column-20) x parity  r = +0.338
+
+Nothing. Every height in this well is odd, so the usual halving-parity
+argument gives zero everywhere and cannot explain a +/-2.
+
+WHAT THE PATTERN LOOKS LIKE, stated without a theory attached because a
+theory is what the correlations refuse:
+
+    columns  3-10   heights 21-35   all zero
+    columns 11-17   heights 37-39   -1 +2 -2 +2 -2 +2 -1   ALTERNATING
+    columns 18-22   height  41      all zero
+    columns 23-29   heights 39-37   +1 -2 +2 -2 +2 -2 +1   ALTERNATING,
+                                                           MIRRORED
+    columns 30-37   heights 35-21   all zero
+    the four edges  0,1,2 / 38,39,40   -1 +2 -1 / +1 -2 +1  alternating
+
+Two alternating bands either side of the widest columns, mirror images of
+each other, zero everywhere else, and the same alternation at both rims.
+
+SO THE FIX IS THE TABLE, NOT A FORMULA. Solve the row origin per column from
+the alignments and store the 41 integers beside the layout, the way
+`fractal_regions.REGIONS` stores coordinates found once. Deriving them from
+a circle has now been shown not to work twice -- `round_well_layout` SEARCHES
+for a radius that yields exactly 1,281 sites, and more than one circle does.
+
+    AND MEASURE THE OTHER WELLS BEFORE GENERALISING. This is well A1 of one
+    acquisition. Whether the table is a property of THIS raster or of the
+    microscope's serpentine in general is not known, and shipping it as a
+    constant without checking would be the same mistake at a different
+    scale.
