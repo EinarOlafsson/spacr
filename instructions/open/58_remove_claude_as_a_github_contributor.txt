@@ -2,10 +2,18 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    APPROVED, AND SCHEDULED LAST. The maintainer has said to do the
-           history rewrite -- Option A below -- and to do it as the FINAL
-           task in this folder, after every other instruction is finished.
-           Do not start it while anything else is open.
+Status:    APPROVED, AND SCHEDULED LAST -- BUT NOW AFTER THE 1.5.0.5 TAG.
+           The maintainer has said to do the history rewrite -- Option A
+           below -- as the FINAL task in this folder. Do not start it while
+           anything else is open.
+
+           RESCHEDULED 2026-09-10. 82 had this running BEFORE the release,
+           so the tag could not land on a discarded SHA. Asked directly,
+           with that cost stated, the maintainer chose to release first and
+           rewrite after: the version DOI this release mints is what the
+           TSG101 Cell submission cites, and the paper is the deadline. See
+           82's ordering section for the reasoning and for why a Zenodo DOI
+           survives a later rewrite. So: tag 1.5.0.5 first, then this.
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
            2026-08-08 — approving the rewrite, on being told it "changes
            every commit hash after the earliest rewritten one": "i want you
@@ -34,6 +42,20 @@ exactly as if it were a second author.
 Going forward this is already prevented: the standing rule for this repo is
 that no commit carries a Co-Authored-By trailer and the maintainer is sole
 author. The 38 are historical, from before that rule.
+
+THAT RULE IS NOT SELF-ENFORCING, and 2026-09-10 proved it. The three commits
+merging nightly into main were each written with a `Co-Authored-By: Claude
+Opus 5` trailer, because the agent writing them is instructed by its own
+harness to add one -- an instruction that knows nothing about this repo. The
+count on the merge branch went 3 -> 6 before anyone looked. They were caught
+before the push and stripped with a msg-filter over `origin/main..HEAD`,
+which rewrote those three and left every nightly and main commit at its
+original SHA, verified by the merge commit still naming 880638e26 and
+6ac8285ed as its parents.
+
+The lesson for whoever runs the rewrite: check the trailer count again
+immediately before doing it, because the number is not stable just because
+this file says what the rule is.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS

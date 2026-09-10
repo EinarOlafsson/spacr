@@ -56,6 +56,28 @@ If that is not what was wanted, this is the paragraph to change. It is
 recorded here rather than decided silently because a release tag on a
 discarded SHA is not something a later commit can repair.
 
+THE MAINTAINER CHANGED IT, 2026-09-10. Asked directly, with the tag-on-a-
+discarded-SHA cost stated, he chose to RELEASE FIRST AND DO 58 AFTER. The
+order is now:
+
+    82.1 green CI          <- the merge of nightly into main, verified
+    82.2 bump to 1.5.0.5   <- the tag and the Zenodo DOI
+    58   history rewrite, force-push, AFTER the tag
+
+WHY THAT IS SAFE ENOUGH, which is the part this paragraph got wrong when it
+was written: Zenodo archives the SOURCE TARBALL at the moment of release,
+not a pointer to a SHA. The DOI's content therefore survives a later
+rewrite, and a rewrite moves the tag along with every other ref rather than
+orphaning it. What a rewrite does cost is that a reader who recorded the
+commit SHA from the release page will find it gone. That is a real cost and
+it is his to accept, which is why it was put to him rather than assumed
+either way.
+
+WHAT MADE THIS URGENT rather than a scheduling preference: the version DOI
+minted by this release is what the TSG101 Cell submission cites. The paper
+is the deadline, and 58 is a day of force-pushing across a branch two
+sessions are working in.
+
 --------------------------------------------------------------------------------
 STEP 1 — EVERY GITHUB TEST PASSING
 --------------------------------------------------------------------------------
