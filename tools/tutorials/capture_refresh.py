@@ -328,6 +328,10 @@ def main() -> int:
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'illumination':
+        from capture_illumination import record_illumination
+        record_illumination(app, window, stage, captures, capture,
+                            settle, write_json, args.timeout)
     elif args.module == 'dose_response':
         from capture_dose_response import record_dose_response
         record_dose_response(app, window, stage, captures, capture,
