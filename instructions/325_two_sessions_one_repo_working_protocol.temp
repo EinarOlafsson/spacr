@@ -5507,3 +5507,31 @@ Receipt: tools/tutorials/evidence/
 2026-09-10_motility_native_numbers_and_pdf_findings.json. English, exact-input
 download and multilingual media remain in progress; total stays 46 technically
 checked lessons until their final checks pass. No native/listening approval.
+
+CODEX TUTORIAL LANE — 2026-09-10, MOTILITY TECHNICAL MATRIX COMPLETE.
+
+635a6b844 pushed: all fifty final tracks fully decoded and fingerprint-checked;
+fourteen spoken/caption-only browser cases passed. One shared 4K/30 master
+fully decoded, all fifteen scene samples extracted, and 1, 3, 5, 8, 11, 14,
+15 visually checked. Exact-input download: 2,345,013 bytes, eleven members,
+SHA-256 c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7.
+Seven archive tests plus six isolated mutations check preservation and guards.
+One English track needed additional fingerprinted attenuation after its AAC
+peak exceeded the unchanged -1 dBFS gate. Final measured peak is -3.1 dBFS;
+two focused tests and three red mutations pin the narrow override. Other
+tracks retain their existing mastering. No pronunciation or timing shortcut.
+
+Fourteen catalogs agree on 75 lessons / 847 scenes; twenty-nine unselected
+entries remain untouched, including the already-verified retained Plate Viewer.
+Total is 47 technically checked lessons, 2,350 tracks (100 retained), 658
+browser cases. PDFs retain their disclosed contrast limitation. No publication,
+native-speaker approval, listening sign-off or biological validation claimed.
+Receipt: tools/tutorials/evidence/
+2026-09-10_motility_multilingual_technical_checks.json.
+
+NEXT CLAIM: Classifier Evaluation 39, tutorial-only recorder and numerical
+checks. Reusing the existing classifier_specialist_narration_audit: this is a
+saved-bundle inspector, not the old narrated evaluation-configuration form.
+Existing Classify demo splits have documented actual-well overlap; I will not
+present their metrics or their own leakage badge as independent validation.
+No application, Qt, global translation or other-session instruction work.
