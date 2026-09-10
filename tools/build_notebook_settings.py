@@ -1047,8 +1047,14 @@ _STATUS_OVERRIDES = {
         "organelle_channel": "conditional",
     },
     "spacr.ml.generate_ml_scores": {
-        "positive_control": "conditional",
-        "negative_control": "conditional",
+        # RENAMED BY 364 and missed here, because a rename's survey greps
+        # for the identifier and these are dict KEYS in a tool, not
+        # references to a setting. The cost was silent: the generator found
+        # no `positive_control` to mark conditional, so eight notebooks
+        # documented both controls as "optional" when a Classify (ML) run
+        # requires them unless annotation_column is set.
+        "positive_control_id": "conditional",
+        "negative_control_id": "conditional",
         "annotation_column": "conditional",
     },
     "spacr.deep_spacr.generate_activation_map": {
