@@ -3359,3 +3359,94 @@ in the right place instead of a wider one.
     the ones it could not. A4 should do the same with the fields it could
     not align, and the 116 that did are already the measurement that makes
     it possible.
+
+--------------------------------------------------------------------------------
+PART 14-F -- 14-E IS RETRACTED, AND THE REAL DEFECT IS THE ROW INDEX.
+2026-09-10.
+--------------------------------------------------------------------------------
+
+RETRACTION FIRST. PART 14-E says "every field below site 648 aligned -- 81 of
+81 -- and 44 of the 79 at or above it refused", and reasons from that to a
+snake parity that breaks at the middle column. THAT NUMBER IS WRONG AND SO IS
+THE CONCLUSION. It was read off a `tail -45` of the sweep's output, which
+showed only the LAST 45 lines -- all of them refusals, all of them from the
+second half, because that is where the tail ends. The refusals before site
+648 were above the cut and I never saw them.
+
+    what 14-E claimed        81 of 81 below 648, 35 of 79 above
+    what the table says      42 of 81 below 648, 35 of 80 above
+
+Forty-two, not eighty-one. There is no break at the middle column; the
+refusal rate is essentially the same on both sides. This is the same mistake
+this file records twice already -- PART 6-A, PART 13-E -- committed on the
+file's own evidence: a truncated output read as a complete one.
+
+    THE RULE THAT WOULD HAVE CAUGHT IT: never take a COUNT from a stream
+    that was piped through `tail`. Write the whole result to a file and
+    count it there. The sweep now writes `a4_transforms.json` and every
+    number below is counted from all 161 rows.
+
+WHAT THE 77 ALIGNED FIELDS ACTUALLY SAY, and it is better than 14-E's story.
+
+THE MAGNIFICATION IS SETTLED. Seventy-seven independent fields, each fitted
+on its own nuclei:
+
+    scale     median 0.25069   sd 0.00060   range 0.2497 .. 0.2517
+    rotation  median +0.010 deg  sd 0.094 deg
+
+A fifth of a percent of spread on the scale and a tenth of a degree on the
+rotation, across the whole well. The 0.2543 predicted from the two fitted
+radii is 1.4 % high; 0.25069 is the measured number and should replace it.
+
+AND THE RASTER IS SQUARE, once it is fitted on fields that agree rather than
+through the ones that do not. Least squares over the better half:
+
+    col_step   (-4.60, 633.79)    |633.8| px
+    row_step   (633.51,  4.52)    |633.5| px
+
+Two steps of the same length at right angles, each carrying the same ~4.5 px
+of stage skew that PART 13-D found on the sequencing raster. 633.5 px, not
+the 644.5 the radius ratio predicted.
+
+THE DEFECT IS THE ROW INDEX AND NOTHING ELSE. Inverting the fitted raster to
+solve each field's grid index from its measured centre, against what
+`WellLayout.position` said:
+
+    column index error    median 0.00   sd 0.00      -- EXACTLY right, always
+    row index error       median 0.00   sd 1.00
+
+    d_col  0, d_row  0    x48
+    d_col  0, d_row +2    x9
+    d_col  0, d_row -1    x8
+    d_col  0, d_row -2    x7
+    d_col  0, d_row +1    x5
+
+The column is right for all 77. The row is wrong by one or two for 29 of
+them -- and one row is 633 px, which is why those fields' windows missed and
+they refused.
+
+THAT IS PART 11-A's MISTAKE, IN THE PHENOTYPE LAYOUT. Its own note: "rows
+were indexed from each column's own top. In a round well every column starts
+at a different row." The sequencing well was fixed by making
+`WellLayout.position` return ABSOLUTE rows. The 41-column phenotype layout
+goes through the same code and comes out with the right column and the wrong
+row, so the circle that holds exactly 1,281 fields is not the circle the
+acquisition used -- the site count matches and the per-column heights do
+not.
+
+WHAT TO DO, and it is now a small and well-posed job:
+
+  1. SOLVE THE ROW INDEX RATHER THAN DERIVING IT. The 48 fields whose row is
+     already exact fit the raster; every other field's row follows from its
+     measured centre. That is A2's own argument applied one level up:
+     register what you can, solve, place the rest.
+  2. OR FIT THE PHENOTYPE CIRCLE PROPERLY, against the 77 measured
+     positions, the way PART 11-A fitted the sequencing one against seven
+     offsets. Four parameters, 77 constraints, and the per-column heights
+     come out of it.
+  3. EITHER WAY THE MAGNIFICATION IS NO LONGER A QUESTION: 0.25069.
+
+AND `PAIR_TRIALS` IS STILL TOO LOW. 77 of 161 at 4,000 single-shot trials
+against 11 of 12 when the count was escalated to 12,000. Some of the 84
+refusals are the wrong window and some are the search; the row fix separates
+them, and until it lands neither number means much on its own.
