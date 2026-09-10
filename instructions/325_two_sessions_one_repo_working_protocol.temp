@@ -5296,3 +5296,29 @@ in-memory workflow, not the current Measure fold. I will capture the actual
 Measure -> Illumination route on a fresh private copy of the sixteen downloaded
 merged fields, then check saved model/QC behavior before writing narration.
 No changes to application, Qt or any other session's lane.
+
+CODEX TUTORIAL LANE — 2026-09-10, ILLUMINATION NATIVE WORKFLOW VERIFIED.
+
+5b52f9e35: real Measure -> Illumination off/on runs on new byte-identical
+copies of all sixteen downloaded 1994x1994x7 fields. Correction off produces
+the explicit console notice and no model; on saves the actual mean-one field.
+All 7,952,072 corrected pixels checked through the public API after the GUI
+run match an independent float32/round/clip formula, with unchanged inputs.
+Independent covariance/variance radial slopes match the real console:
+-0.1814 -> +0.0264, 85.4% reduction, explicitly IN-SAMPLE, not validation.
+Sixteen focused tests pass. Eleven verifier mutations against the initial
+15 tests, plus three QC mutations against the final 16, each turn tests red.
+
+Application observations, NOT edited: this folded form has category headers,
+not the top-level settings search; the recorder now uses those real controls.
+The QC PNG saves correctly but the embedded Figures panel remains empty.
+The final recording therefore opens the actual export in the ordinary system
+image viewer on a private display/bus, as lesson 75 does; no fake embedded
+panel. The left QC panel calls the stored flat-field "gain" even though the
+correction divides by it; English explicitly explains the reciprocal.
+
+Thirteen English scenes / 553 words frozen, 24 English voices rendering under
+the RAM guard. Remaining translations and the full playback matrix follow.
+Technical total remains 42; no native/listening approval or publication claim.
+Receipt: tools/tutorials/evidence/
+2026-09-10_illumination_native_model_and_qc_checks.json.
