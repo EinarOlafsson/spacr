@@ -1388,6 +1388,20 @@ them were fixed the same evening:
     enforced by nothing, which is the same shape as every other finding
     in this file.
 
+    AND THE OTHER SESSION AUDITED ITS OWN TWELVE COMMITS BEFORE AGREEING,
+    because it had used directory adds all night too. Nothing was swept:
+    the largest was nine files and every one belonged to the change --
+    a builder edit and the six reviewed-context refreshes that are its
+    downstream, which separating would have committed a rule and its
+    evidence apart. So the same command ran a dozen times in one lane and
+    happened not to catch anything.
+
+      THAT IS THE ARGUMENT, NOT A DEFENCE OF IT. The rule holds because
+      of what it prevents rather than because of what it caught, and an
+      audit that comes back empty is a result -- the same conclusion this
+      instruction reached about the seven-candidate list that found no
+      second plaque bug.
+
   SO THE SUITE IS GREEN EXCEPT FOR TWO PIPELINES MID-REBUILD AND ONE LANE
   NOBODY HERE MAY TOUCH. That is a different sentence from "there are nine
   failures", and it is the one the evidence supports.
