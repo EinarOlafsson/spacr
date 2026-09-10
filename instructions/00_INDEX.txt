@@ -18,7 +18,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-364 done / 18 open (95%).
+364 done / 21 open (94%).
 
 --------------------------------------------------------------------------------
 OPEN
@@ -83,6 +83,15 @@ OPEN
 
   385  THE BACKDROP KEEPS MOVING WHILE PREFERENCES OR HELP IS OPEN
        385_the_backdrop_keeps_moving_while_a_dialog_is_open.txt
+
+  386  A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
+       386_self_supervised_embeddings_as_a_feature_source.txt
+
+  387  WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
+       387_what_the_dose_response_module_still_cannot_say.txt
+
+  388  WHAT AN INFECTED CELL DOES TO ITS NEIGHBOURS: BYSTANDERS AND NEIGHBOURHOODS
+       388_the_infected_cell_and_its_neighbours.txt
 
 --------------------------------------------------------------------------------
 DONE

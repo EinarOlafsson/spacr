@@ -1,0 +1,132 @@
+================================================================================
+WHAT AN INFECTED CELL DOES TO ITS NEIGHBOURS: BYSTANDERS AND NEIGHBOURHOODS
+================================================================================
+
+Status:    OPEN, filed 2026-09-09. HOLD UNTIL AFTER THE 1.5.0.5 BUMP, at the
+           maintainer's instruction: "for all of these add them to
+           instructions but add to the instruction to hold of on working on
+           them untill the next version bump 1.5.0.5."
+Requested: 2026-09-09 -- filed with 386 and 387 after a review of what the
+           package cannot currently measure.
+Owner:     unassigned. Builds directly on `spacr/object_distances.py`; the
+           new statistics belong beside it, not inside it.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+DISTANCE IS SOLVED. `spacr/object_distances.py` is thorough and recently
+rewritten: a Euclidean distance transform per object type, computed once,
+giving centre-to-surface, surface-to-surface and local-maximum-to-surface
+between any two object types, plus where an object sits inside its parent.
+It costs O(image pixels) rather than O(pairs). Nothing below should
+re-implement any of it.
+
+WHAT IS ABSENT is everything one level up from a distance:
+
+  * NO SPATIAL POINT STATISTICS. Grepped 2026-09-09: `ripley` appears
+    nowhere in the package. There is no test of whether objects are
+    clustered, dispersed or random against a null -- only how far apart
+    particular ones are.
+  * NO NEIGHBOURHOOD COMPOSITION. No "of the k cells nearest this one, how
+    many are infected".
+  * NO BYSTANDER CONCEPT AT ALL. The word `bystander` does not occur
+    anywhere in 227 modules. Cells are currently infected or they are not;
+    an uninfected cell touching an infected one and an uninfected cell alone
+    in a field are the same row.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+The measurable unit in spaCR is the cell, and the biology of an intracellular
+pathogen is not confined to the cell it is in. An infected cell changes what
+its neighbours do -- secreted effectors, cytokine signalling, mechanical and
+metabolic effects on the monolayer. Those neighbours are, right now,
+statistically indistinguishable from cells on the far side of the well.
+
+TWO CONSEQUENCES, and the second is the one that costs real results:
+
+  1. A genuine bystander phenotype cannot be found, because there is no
+     column that separates a bystander from a distant uninfected cell.
+
+  2. IT QUIETLY DILUTES EVERY UNINFECTED CONTROL. If bystanders are
+     phenotypically shifted and they are pooled into "uninfected", the
+     control population is a mixture, its variance is inflated, and the
+     effect size of every infection comparison in the package shrinks
+     towards nothing. This is not a missing feature so much as a silent
+     confound in results spaCR already produces.
+
+For a lab whose questions are about the parasitophorous vacuole and what it
+does to the host, this is close to the centre of the science.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. BYSTANDER CLASSIFICATION FIRST -- it is the cheapest and by far the most
+   useful. A per-cell column: uninfected cells within a threshold distance
+   of an infected one are bystanders, everything else is distal. The
+   distance transform in `spacr/object_distances.py` already supplies the
+   number; this is a threshold and a label, and it lands as a column family
+   through `spacr/columns.py` so regression and hit calling pick it up with
+   no changes.
+
+   THE THRESHOLD MUST BE A SETTING WITH AN HONEST NAME AND A DEFAULT
+   DERIVED FROM THE DATA -- a multiple of median cell diameter
+   (`spacr/diameter.py` already measures it), not a hard-coded micron
+   count. Instruction 364's standard applies.
+
+2. NEIGHBOURHOOD COMPOSITION. For each cell, the infection status of its k
+   nearest neighbours, and the local infected fraction. A KD-tree over
+   centroids, which the package already builds.
+
+3. RIPLEY'S K AND L, per well, against a null that respects the well
+   geometry and the segmented mask -- not a rectangle. Edge correction is
+   the part that gets skipped and the part that decides the answer; a K
+   computed without it reports dispersion at the field boundary that is an
+   artefact of the boundary.
+
+4. ONLY THEN the comparison that motivates all of it: infected versus
+   bystander versus distal, on any measured feature, as a first-class
+   contrast the regression layer can express.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * BYSTANDER CLASSIFICATION: on a plate at low multiplicity, the bystander
+    count must scale with the infected count and fall to zero in uninfected
+    control wells. A well with no parasites reporting bystanders is a bug in
+    the threshold, and it is the first thing to check.
+
+  * RIPLEY'S K: THE TEST IS A SIMULATION, NOT A PLATE. Generate a known
+    random point pattern inside a real mask and confirm K sits inside its
+    envelope; generate a known clustered one and confirm it leaves. A K
+    validated only on real data is a K nobody can debug, because real data
+    has no ground truth about its own clustering.
+
+  * THE PAYOFF MEASUREMENT, and the one worth reporting: take an existing
+    infected-versus-uninfected comparison from a real screen, split the
+    uninfected arm into bystander and distal, and show the effect size
+    changes. If it does, every result computed the old way was diluted, and
+    that is the finding. If it does not, that is worth knowing too and the
+    file should say so.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+REWRITING `spacr/object_distances.py`. The distance layer is correct and
+recent. This work sits on top of it and calls it.
+
+A GRAPH-NEURAL-NETWORK NEIGHBOURHOOD MODEL. Considered and rejected for now:
+it would predict well and explain nothing, and the question here is which
+neighbours differ and by how much -- a question a threshold and a contrast
+answer directly and a learned message-passing model answers only by proxy.
+
+TISSUE-STYLE NEIGHBOURHOOD CLUSTERING (cellular neighbourhoods, niches) as
+in spatial transcriptomics. Rejected as premature: those methods assume many
+cell types in structured tissue. A monolayer with two states does not need
+them, and importing the vocabulary would suggest a richness the assay does
+not have.

@@ -1,0 +1,152 @@
+================================================================================
+WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
+================================================================================
+
+Status:    OPEN, filed 2026-09-09. HOLD UNTIL AFTER THE 1.5.0.5 BUMP, at the
+           maintainer's instruction: "for all of these add them to
+           instructions but add to the instruction to hold of on working on
+           them untill the next version bump 1.5.0.5."
+Requested: 2026-09-09 -- "We already have a dose response modual, if you can
+           think of anything to add to it then please do."
+Owner:     unassigned. `spacr/qt/widgets/dose_response.py` is the engine and
+           `spacr/qt/screens/dose_response.py` is the surface; the split is
+           deliberate and every addition below keeps it.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+THE MODULE IS GOOD, AND THIS FILE IS NOT A CRITICISM OF IT. It fits a
+four-parameter logistic (`four_parameter_logistic(x, bottom, top,
+log10_ec50, hill)`), carries the direction in the sign of the Hill slope,
+offers both a Wald interval and a profile-likelihood one (`CI_WALD`,
+`CI_PROFILE`), runs off the GUI thread through `JobRunner`, and -- the part
+most fitters get wrong -- will say `STATUS_REFUSED` or `STATUS_UNBOUNDED`
+rather than invent an EC50 the experiment does not locate. Constrained fits
+and the biphasic case are already handled.
+
+WHAT IT CANNOT SAY, verified by grep on both files 2026-09-09:
+
+  ABSENT: selectivity index, CC50, therapeutic index
+  ABSENT: Bliss, Loewe, synergy, checkerboard
+  ABSENT: normalisation to plate controls (percent inhibition)
+  ABSENT: pooling across replicate plates (random effects, mixed model)
+  ABSENT: five-parameter / asymmetric logistic
+  ABSENT: hormesis (non-monotonic response)
+
+Each of these is a sentence a dose experiment routinely needs and this
+module currently cannot produce.
+
+PRESENT ELSEWHERE, AND THE POINT IS THAT DOSE-RESPONSE DOES NOT USE IT:
+`spacr/qt/widgets/control_chart.py` already computes a per-plate Z-factor
+(`zprime_frame`, when a positive and a negative control are named) and charts
+it (`zprime_chart`). The Dose-Response screen neither reads it nor mentions
+it. So the plate-quality number exists, on a different screen, and a user can
+fit a curve on a plate the package already knows is bad.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+THE FIRST ONE IS THE IMPORTANT ONE. For an anti-parasitic compound the
+number that decides whether anybody cares is not the EC50, it is the ratio
+of host toxicity to parasite killing -- CC50 over EC50, the selectivity
+index. A compound that kills Toxoplasma at 1 uM and the HFF monolayer at
+1.2 uM is not a hit, and today spaCR will report its EC50 with a clean
+confidence interval and say nothing about that.
+
+spaCR IS UNUSUALLY WELL PLACED TO FIX THIS, which is the argument for doing
+it here rather than in a spreadsheet. The module already segments host cell
+and pathogen as separate object types from the same image. Host viability
+and parasite burden come off ONE plate, at the SAME doses, in the same run.
+Most tools computing a selectivity index are dividing two numbers from two
+different experiments and hoping the conditions matched. Here they cannot
+fail to match.
+
+The rest follow from how dose plates are actually read: raw response values
+are not comparable across plates until they are normalised to the controls
+on each plate, replicate plates want pooling rather than three EC50s and an
+eyeball, and a plate whose Z'-factor is 0.1 should not be silently fitted at
+all.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+In value order. 1 and 2 are the ones worth doing; 3-5 are cheap once the
+engine grows a notion of the plate.
+
+1. SELECTIVITY INDEX. A paired fit: two response columns from the same
+   `DoseResponseSpec`, one host, one pathogen, fitted independently and then
+   divided, with the interval propagated rather than dropped. The ratio of
+   two uncertain numbers is more uncertain than either, and a selectivity
+   index quoted without its interval is the same failure this module already
+   refuses to commit for EC50. If either fit is `STATUS_REFUSED` or
+   `STATUS_UNBOUNDED` the index is one-sided or refused too, and says so --
+   reuse the existing status vocabulary rather than inventing a second one.
+
+2. SYNERGY, for two-compound checkerboards. Bliss independence and Loewe
+   additivity over a dose grid, plus the interaction surface as a heatmap.
+   New engine functions beside the 4PL; a new tab on the screen. Report the
+   surface, not a single index: one number for a whole checkerboard hides
+   exactly the concentration-dependent structure that makes synergy
+   interesting.
+
+3. PLATE NORMALISATION. Percent inhibition against the positive and negative
+   control wells of each plate. `spacr/control_names.py` and
+   `spacr/well_scope.py` already know which wells those are.
+
+4. CONSUME THE Z'-FACTOR THAT ALREADY EXISTS -- do not rebuild it. Call
+   `zprime_frame` from `spacr/qt/widgets/control_chart.py` and carry the
+   result into the fit, so a plate that fails Z' reaches the fitting code
+   knowing it. The engine already has the vocabulary for this: a fit on a
+   failed plate should be `STATUS_REFUSED` with the Z' in its message, not a
+   clean EC50 with a footnote nobody reads. Two screens computing Z' two ways
+   would be worse than the gap it closes.
+
+5. POOLED FITS ACROSS REPLICATE PLATES -- one EC50 with plate as a random
+   effect, rather than three EC50s the user averages by hand.
+
+NOT IN THIS ORDER BUT WORTH RECORDING: the five-parameter logistic (real
+asymmetry exists and 4PL absorbs it into a wrong EC50) and hormesis
+detection (a non-monotonic curve should be refused loudly, not fitted
+monotonically). Both are engine-level and both are smaller than 1 or 2.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+THIS MODULE'S OWN STANDARD APPLIES: the useful answer is sometimes "this
+experiment does not support that number", and every addition here must be
+able to say it.
+
+  * Selectivity: a plate with a known-selective compound and a known-toxic
+    one. The selective compound gets an index well above 1 with an interval
+    that excludes 1; the toxic one gets an index near 1, or a refusal. A
+    build that hands back a clean index for the toxic compound has failed
+    even if the arithmetic is right.
+  * Synergy: an additive control pair must come out additive. Bliss on two
+    compounds that do not interact should sit at zero across the surface;
+    if it does not, the normalisation is wrong, not the biology.
+  * Z' and normalisation: a deliberately bad plate must fail visibly.
+  * Pooled fits: pooling three replicates of the same compound must land
+    inside the three individual intervals.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+A SINGLE SYNERGY SCORE PER COMPOUND PAIR as the headline. Rejected: it is
+the number people quote and it is the number that misleads, because synergy
+is usually concentration-dependent and collapsing the surface destroys the
+only part worth seeing. The surface is the result; a summary may sit beside
+it, never instead of it.
+
+REPLACING THE 4PL DEFAULT WITH 5PL. Rejected: the extra parameter buys
+asymmetry at the cost of stability on the short dilution series most plates
+actually run. Offer it, do not default to it.
+
+CHOU-TALALAY COMBINATION INDEX as the primary synergy method. Considered;
+Bliss and Loewe are better understood, and CT's median-effect assumptions
+are routinely violated by exactly the refused and unbounded curves this
+module is careful about.
