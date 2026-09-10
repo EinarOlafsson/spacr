@@ -4620,9 +4620,27 @@ def language_resolved_once():
         _LANGUAGE_SCOPE = {}
         _TRANSLATION_MEMO = {}
     _LANGUAGE_SCOPE_DEPTH += 1
+    # AND THE OTHER HALF OF THE SAME LOOKUP. The dicts above memoise what
+    # THIS module resolves; `i18n.tr` has its own path to the preference
+    # store and was still reading it once per translated string inside a
+    # scope that existed to stop exactly that. Opening both here keeps one
+    # scope for callers to reason about. Imported inside the function for
+    # the reason everything i18n is: `preferences` imports i18n, so the
+    # cycle is broken by lateness.
+    try:
+        from ..i18n import ui_language_resolved_once
+        ui_scope = ui_language_resolved_once()
+        ui_scope.__enter__()
+    except Exception:                                        # noqa: BLE001
+        ui_scope = None
     try:
         yield
     finally:
+        if ui_scope is not None:
+            try:
+                ui_scope.__exit__(None, None, None)
+            except Exception:                                # noqa: BLE001
+                pass
         _LANGUAGE_SCOPE_DEPTH -= 1
         if _LANGUAGE_SCOPE_DEPTH <= 0:
             _LANGUAGE_SCOPE_DEPTH = 0

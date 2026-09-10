@@ -158,3 +158,120 @@ WHAT IS LEFT, in the order worth trying:
     an `isVisible()` test that latched `_animating = False` onto every
     background tab the moment Preferences was saved, so those screens never
     animated again for the rest of the session.
+
+--------------------------------------------------------------------------------
+2026-09-09 (later) -- A REAL X SERVER RULES OUT OCCLUSION, AND ONE REAL FREEZE
+IS MEASURED: 902 ms ON THE FIRST OPEN
+--------------------------------------------------------------------------------
+
+The previous note said offscreen "cannot see" an occlusion freeze and that
+"someone with a display should check". That is now done WITHOUT a display and
+without touching the maintainer's screen: `xvfb-run` is a real X server, so a
+window covered by another window is genuinely covered, exactly as it is on
+`:0`. Both are non-compositing X11.
+
+OCCLUSION IS NOT IT. A modal `QDialog` LARGER than the host, positioned over
+it and raised, counted against the backdrop's own paint events (an event
+filter on `QEvent.Paint`, not the widget's internal counter -- see the trap
+below):
+
+    widget                     base   covered   after
+    spaceout fractal (cpu)      27      28       27      paints/s
+    ambient blobs               25      25       25
+    ambient aurora              25      25       25
+    ambient ripple              25      25       25
+    ambient drift               25      25       25
+    ambient bokeh               25      25       25
+    ambient cells               25      25       25
+
+Fully covered, on a real X server, every backdrop keeps painting at its full
+rate. Candidate 1 of the previous note is closed.
+
+A TRAP FOR WHOEVER MEASURES THIS NEXT. The fractal's `self._frames` is
+incremented where a worker frame ARRIVES (`fractal_travel.py:1194`), not in
+`paintEvent`. It therefore counts computation, not drawing, and would keep
+climbing while the screen showed a stale image. Count `QEvent.Paint` on the
+widget instead; the two numbers are not the same measurement.
+
+CANDIDATE 3 IS ALSO CLOSED, by reading rather than by timing.
+`apply_ambient_preferences` has exactly ONE production caller --
+`apply_preferences_to_app` (`preferences.py:4156`) -- and that is called from
+`_save` (`preferences.py:6717`), which runs on OK and then `dlg.accept()`s.
+Nothing applies it per keystroke, so there is no rebuild-per-control stall.
+The `isVisible()` latch its comment describes was already fixed and now reads
+`widget.set_animating(True)` unconditionally.
+
+WHAT *IS* REAL, AND IT IS A FREEZE THE REPORT WOULD FIT: building the dialog
+blocks the GUI thread for most of a second, and the backdrop gets NOTHING
+during it.
+
+    backdrop alone                 25 paints/s
+    PreferencesDialog(...) build  902 ms, 0 backdrop paints during it
+    dialog shown, non-modal        25 paints/s
+    dialog shown, modal            26 paints/s
+    dialog closed                  25 paints/s
+
+A dead stop of nearly a second, at exactly the moment the user asks for
+Preferences, on a backdrop whose whole job is to say the application is
+alive.
+
+BUT IT IS A FIRST-OPEN COST, NOT A PER-OPEN ONE, so it is probably not the
+whole report. Profiled with the imports already warm, the SECOND build of the
+same dialog is **55 ms** -- sixteen times cheaper. The 902 ms is import work
+(`figure_settings`, the settings model, the i18n catalogs) that the first
+`PreferencesDialog(...)` in a session pays for. Worth fixing on its own: it is
+a visible stall and the imports could be warmed off the GUI thread at launch,
+the way the backdrop's own heavy import already is (`_HeavyImportInProgress`).
+
+The recurring 55 ms also has a cheap, obvious component: 346 `tr()` calls each
+re-deriving `current_language()` through `_settings()`, 415 QSettings reads in
+one dialog build. That is a memoisation away and it is 40% of what is left.
+
+THE LEADING REMAINING CANDIDATE IS THE GPU BACKEND, and it is the one thing
+this harness structurally cannot reach. Everything above used the CPU
+renderer, because Xvfb has no GPU. On the maintainer's machine
+`create_fractal_widget` takes the `gpu_is_available()` branch and returns
+`_make_gpu_widget`, a vispy canvas with a NATIVE window and its own GL
+surface. A native GL surface is the one kind of widget an X server can
+genuinely stop feeding when it is obscured -- buffer swaps on an unmapped or
+fully-obscured surface are allowed to block or be discarded -- and that would
+match the report exactly: stops while covered, resumes when uncovered, and
+never reproduces under the CPU renderer or offscreen.
+
+TO TEST IT, and this needs the machine with the GPU:
+
+    from spacr.qt.widgets.fractal_travel import gpu_is_available
+    gpu_is_available()          # must be True, or this candidate is void
+
+then repeat the paint count above with `Settings(backend='gpu')`. If the
+covered column collapses to zero there and stayed at 27 here, that is the
+finding and the fix is in the GL canvas's swap policy, not in any gate in
+`ambient.py`.
+
+STILL NOT ASSERTED: which backdrop the maintainer had on screen. The previous
+note's question stands and it decides which of the two widgets above is even
+being described.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE ONE FREEZE THAT WAS MEASURABLE IS FIXED; THE ITEM STAYS OPEN
+--------------------------------------------------------------------------------
+
+The 902 ms dead stop on the first Preferences open is gone. Two changes,
+both recorded with their numbers in instruction 380:
+
+  * `settings_model` and `imagery` join `launch`'s existing background
+    prewarm, moving 557 ms of import off the GUI thread.
+  * `PreferencesDialog` builds inside `i18n.ui_language_resolved_once()`,
+    which takes the recurring build from 55 ms to 30 ms.
+
+    first open, cold        902 ms  ->  139 ms
+    second open              55 ms  ->   30 ms
+
+That is a real freeze of the backdrop removed, and it is the shape of the
+report -- the backdrop stops at the moment Preferences is asked for. It is
+NOT proof that this was what the maintainer saw, and this item does not
+close on it: a 900 ms stall is not "the theme stops while the menu is open",
+and nothing here explains a freeze that lasts as long as the dialog is up.
+
+WHAT WOULD CLOSE IT is still the GPU test in the previous note, on the
+machine with the card. Everything measured so far used the CPU renderer.

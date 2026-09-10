@@ -4,18 +4,20 @@ The function answers the active language without creating an import
 cycle -- `preferences` imports i18n, so i18n reaches back for
 `get_language` lazily and falls back to the default if that fails.
 
-Its ContextVar cache is dead. `_RESOLVED_LANGUAGE` is declared and READ
-here and set nowhere in the package: the scope that actually caches
-language lookups during a panel build is
-`settings_model.language_resolved_once`, which keeps its own dict. So
-both arms that consult the ContextVar are unreachable, and
-`current_language` re-reads the preference on every call.
+Its ContextVar cache WAS dead, and is not any more. `_RESOLVED_LANGUAGE`
+was declared and read here and set nowhere in the package, so both arms
+that consult it were unreachable and `current_language` re-read the
+preference on every call. `i18n.ui_language_resolved_once` now opens it,
+and `settings_model.language_resolved_once` opens that in turn -- so one
+scope covers both this module's `tr` and settings_model's own dicts.
 
-That is worth knowing rather than merely recording. The Mask screen's
-build was measured asking the preference store what language the
-interface was in 3,516 times for 1,538 settings; the scope in
-settings_model is what fixed it, and this one looks like an earlier
-attempt that was never wired up.
+The numbers this exists for. The Mask screen's build was measured asking
+the preference store what language the interface was in 3,516 times for
+1,538 settings; the scope in settings_model fixed that side. Building
+Preferences was still asking 346 times through 415 QSettings reads,
+because `tr` does not go through settings_model at all -- arming this
+ContextVar took that build from 55 ms to 30 ms and the reads from 415
+to 70.
 """
 from __future__ import annotations
 
@@ -69,16 +71,24 @@ class TestAnsweringTheActiveLanguage:
         assert I.current_language() == I.DEFAULT_LANGUAGE
 
 
-class TestTheContextVarCacheThatIsNeverOpened:
-    """`_RESOLVED_LANGUAGE` is read here and set nowhere.
+class TestTheContextVarCacheThatIsNowOpened:
+    """`_RESOLVED_LANGUAGE` is read here and set by `ui_language_resolved_once`.
 
-    Both arms that consult it are therefore unreachable. Pinned to the
-    fact that makes them so, and recorded because the live cache is a
-    DIFFERENT mechanism in a different module.
+    Both arms that consult it are live. The previous version of this class
+    pinned the opposite -- that nothing in the package set it -- and said
+    a future caller wiring it up would want a description to check
+    against. This is that description.
     """
 
-    def test_nothing_in_the_package_sets_the_context_var(self):
-        """If something ever does, the two arms become live."""
+    def test_exactly_one_place_in_the_package_sets_the_context_var(self):
+        """One setter, and it is the context manager.
+
+        Kept as a whole-package sweep rather than a call to the manager,
+        because the thing worth catching is a SECOND setter: two scopes
+        that both reset the same ContextVar would each drop the other's
+        cache, and the symptom would be a silent return to re-reading the
+        preference store rather than anything that fails.
+        """
         import pathlib
         import re
 
@@ -87,13 +97,86 @@ class TestTheContextVarCacheThatIsNeverOpened:
         for path in root.rglob("*.py"):
             text = path.read_text(encoding="utf-8", errors="replace")
             if re.search(r"_RESOLVED_LANGUAGE\s*\.\s*set\b", text):
-                setters.append(str(path))
-        assert setters == [], (
-            f"_RESOLVED_LANGUAGE is now set in {setters}; the caching arms "
-            "in current_language are live and want tests")
+                setters.append(path.name)
+        assert setters == ["i18n.py"], (
+            f"_RESOLVED_LANGUAGE is set in {setters}; it should be set only "
+            "by ui_language_resolved_once")
 
-    def test_the_scope_is_empty_during_an_ordinary_call(self):
+    def test_the_scope_is_empty_outside_the_context_manager(self):
         assert I._RESOLVED_LANGUAGE.get() is None
+
+    def test_the_manager_opens_the_scope_and_closes_it(self):
+        with I.ui_language_resolved_once():
+            assert I._RESOLVED_LANGUAGE.get() is not None
+            code = I.current_language()
+            assert I._RESOLVED_LANGUAGE.get() == {"code": code}
+        assert I._RESOLVED_LANGUAGE.get() is None
+
+    def test_the_language_is_read_once_inside_the_scope(self, monkeypatch):
+        """The point of the whole thing, as a count.
+
+        `get_language` is what reaches QSettings. Inside the scope it is
+        asked once no matter how many strings are translated; outside it,
+        once per string.
+        """
+        from spacr.qt import preferences as P
+
+        calls = []
+        real = P.get_language
+        monkeypatch.setattr(P, "get_language",
+                            lambda: (calls.append(1), real())[1])
+
+        calls.clear()
+        for _ in range(20):
+            I.current_language()
+        assert len(calls) == 20, "unscoped calls should each read the store"
+
+        calls.clear()
+        with I.ui_language_resolved_once():
+            for _ in range(20):
+                I.current_language()
+        assert len(calls) == 1, f"scoped calls read the store {len(calls)}x"
+
+    def test_a_nested_scope_does_not_drop_the_outer_cache(self):
+        """Nesting is the normal case, not an edge one.
+
+        A screen wraps its whole panel build and a helper wraps itself.
+        The inner scope must leave the ContextVar alone on the way out or
+        the outer build starts re-reading the store half way through.
+        """
+        with I.ui_language_resolved_once():
+            outer = I._RESOLVED_LANGUAGE.get()
+            I.current_language()
+            with I.ui_language_resolved_once():
+                assert I._RESOLVED_LANGUAGE.get() is outer
+            assert I._RESOLVED_LANGUAGE.get() is outer
+        assert I._RESOLVED_LANGUAGE.get() is None
+
+    def test_a_raising_body_still_closes_the_scope(self):
+        with pytest.raises(ValueError):
+            with I.ui_language_resolved_once():
+                raise ValueError("boom")
+        assert I._RESOLVED_LANGUAGE.get() is None
+
+    def test_the_environment_still_wins_inside_a_scope(self, monkeypatch):
+        """The override is consulted before the scope is filled.
+
+        A headless run sets the language by environment; caching must not
+        let a persisted preference outrank it.
+        """
+        monkeypatch.setenv(I.ENV_LANGUAGE, "de")
+        with I.ui_language_resolved_once():
+            assert I.current_language() == "de"
+
+    def test_the_settings_model_scope_opens_this_one_too(self):
+        """One scope, both caches -- which is why callers only open one."""
+        from spacr.qt.screens import settings_model as SM
+
+        with SM.language_resolved_once():
+            assert I._RESOLVED_LANGUAGE.get() is not None
+            assert SM._LANGUAGE_SCOPE is not None
+        assert I._RESOLVED_LANGUAGE.get() is None
+        assert SM._LANGUAGE_SCOPE is None
 
     def test_the_live_language_cache_is_elsewhere(self):
         """`settings_model.language_resolved_once` is the one in use.

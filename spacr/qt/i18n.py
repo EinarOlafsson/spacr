@@ -3612,6 +3612,38 @@ _RESOLVED_LANGUAGE: ContextVar[Optional[Dict[str, str]]] = ContextVar(
     "spacr_resolved_ui_language", default=None)
 
 
+@contextmanager
+def ui_language_resolved_once():
+    """Resolve the UI language once for the body of one synchronous build.
+
+    :func:`current_language` reaches into ``QSettings`` on every call, and a
+    dialog build calls it once per :func:`tr`. Building Preferences was
+    measured asking the preference store what language the interface was in
+    **346 times**, through 415 ``QSettings`` reads, for one dialog; the Mask
+    screen's panel build had the same shape at 3,516.
+
+    THE SCOPE IS THE UNIT, not the process. A permanent cache would keep a
+    language the user has just changed, which is the one moment the answer
+    must be re-read; inside a single synchronous build it cannot change,
+    because nothing runs between the calls. Nested scopes share the
+    outermost dict and only the outermost discards it, so a screen that
+    wraps its whole build and a helper that wraps itself do not fight.
+
+    This is the ContextVar arm of :func:`current_language`, which was
+    declared and read but set nowhere until this existed. The environment
+    override still wins: it is consulted before the scope is filled.
+    """
+    scope = _RESOLVED_LANGUAGE.get()
+    if scope is not None:
+        # Already inside one. Do NOT reset it on the way out -- the outer
+        # scope is still using the dict.
+        yield
+        return
+    token = _RESOLVED_LANGUAGE.set({})
+    try:
+        yield
+    finally:
+        _RESOLVED_LANGUAGE.reset(token)
 
 
 def current_language() -> str:

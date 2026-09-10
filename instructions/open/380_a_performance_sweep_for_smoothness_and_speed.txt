@@ -255,3 +255,115 @@ all platforms" is unanswered and needs the harness in CI on all three, per
 this file's own argument about setuptools 77 and the light theme. And the
 fullscreen screensaver path -- 327's actual complaint -- is not measured
 yet: it needs a real display, and this session has none.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- FIRST FIX LANDED: THE LANGUAGE IS RESOLVED ONCE PER BUILD, NOT
+ONCE PER TRANSLATED STRING
+--------------------------------------------------------------------------------
+
+Found while measuring something else -- the backdrop freeze of 385 -- which is
+the pattern this item exists to break, so it is recorded here rather than
+there.
+
+THE DEFECT. `i18n.current_language()` reaches into `QSettings` on every call,
+and `tr()` calls it once per string. Profiling one `PreferencesDialog(...)`
+build:
+
+    346 tr() calls -> 347 get_language() -> 415 QSettings reads   18 ms of 55
+
+Every one of those 415 reads returns the same answer. Nothing runs between
+them: it is one synchronous build.
+
+WHY IT SURVIVED. A scope for exactly this already existed in TWO places and
+neither covered `tr`. `settings_model.language_resolved_once` memoises what
+*that* module resolves and is what took the Mask screen's build down from
+3,516 lookups for 1,538 settings. And `i18n._RESOLVED_LANGUAGE` -- a
+ContextVar read by `current_language` on both arms -- was declared, read, and
+**set nowhere in the package**. `tests/qt/test_cov_r8_i18n_current_language.py`
+had pinned that dead state deliberately, with a test asserting no setter
+exists and a note that a future caller wiring it up "has a description to
+check against".
+
+THE FIX, three small pieces:
+
+  * `i18n.ui_language_resolved_once()` -- a context manager that opens the
+    ContextVar scope. Nested scopes share the outermost dict and only the
+    outermost resets it, so a screen wrapping its build and a helper
+    wrapping itself do not drop each other's cache.
+  * `settings_model.language_resolved_once` opens it too, so ONE scope
+    covers both mechanisms and callers do not have to know there are two.
+  * `PreferencesDialog.__new__` wraps its build in it. The body moved to
+    `_build_the_dialog` unchanged rather than being re-indented, so the
+    diff is the wrapper and nothing else.
+
+MEASURED, same machine, same dialog, imports already warm:
+
+    before   55 ms   415 QSettings reads   current_language 4th by cumtime
+    after    30 ms    70 QSettings reads   current_language absent from the
+                                           top 28 entirely
+
+45% off a build that happens every time the user opens Preferences.
+
+FUNCTIONALITY IS NOT COMPROMISED, which is this item's constraint. The scope
+is per-build, not per-process: a language change between two builds is seen
+by the second, because the dict is discarded when the outermost scope exits.
+The `SPACR_LANGUAGE` environment override still wins -- `current_language`
+consults it before filling the scope -- and there is a test for that.
+
+TESTS. `test_cov_r8_i18n_current_language.py` grew from 8 to 15: the
+dead-cache class became `TestTheContextVarCacheThatIsNowOpened`, and the
+"nothing sets it" assertion became "exactly `i18n.py` sets it" -- which is
+the assertion worth keeping, because a SECOND setter would have both scopes
+resetting the same ContextVar and each dropping the other's cache, with no
+failure anywhere, only a silent return to reading the store. Plus the read
+count as a test, nesting, an exception inside the body, the environment
+override, and settings_model opening it. 160 tests across
+`test_preferences.py`, `test_cov_s1_preferences_edges.py`,
+`test_ambient_wiring.py` and `test_ambient_none.py` pass unchanged.
+
+STILL OPEN, AND BIGGER: the FIRST `PreferencesDialog(...)` in a session costs
+**902 ms**, against 55 ms (now 30) for the second. The difference is import
+work -- `figure_settings`, the settings model, the catalogs -- paid on the
+GUI thread at the moment the user asks for Preferences, with the backdrop
+frozen for all of it. 385 has the paint counts. The backdrop's own heavy
+import is already warmed off the GUI thread (`_HeavyImportInProgress`); this
+one is not, and the same treatment applies.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- SECOND FIX: THE 902 ms FIRST OPEN IS NOW 139 ms
+--------------------------------------------------------------------------------
+
+The "STILL OPEN, AND BIGGER" note above is closed. Broken down by import,
+first `PreferencesDialog(...)` in a cold process:
+
+    474.3 ms  spacr.qt.screens.settings_model
+     84.9 ms  spacr.qt.theme
+     83.3 ms  spacr.qt.imagery
+     48.5 ms  matplotlib.colors
+     34.3 ms  spacr.qt.widgets.toggle
+                                        812 ms of import in an 812 ms build
+
+`launch` ALREADY warms heavy imports on a daemon thread while the user looks
+at the home screen (`app.py:6094`), and the list held one name. Two were
+added -- `settings_model` and `imagery` -- which is 557 ms of the 812 moved
+off the GUI thread. `theme` is already imported during startup by
+`apply_preferences_to_app`, so it is warm by the time anyone can click.
+
+    first open, cold          902 ms
+    first open, prewarmed     139 ms
+    second open                30 ms   (was 55 before the language scope)
+
+VERIFIED THAT THE OFF-THREAD IMPORT IS ACTUALLY SAFE rather than assumed:
+both modules were imported on a daemon thread with a live QApplication and a
+shown widget, and the GUI thread pumped events throughout. No exception, no
+Qt object constructed at import time. This is the same claim the existing
+comment makes for `spacr.settings`; it is now measured for the two new names
+as well.
+
+`PREWARMED_MODULES` in `tests/qt/test_cov_qt_app.py` is updated in the same
+change, which its own note demands: the list is read back out of `launch`'s
+source and compared to the table, so a silent edit to either fails.
+
+WHAT THIS DOES NOT FIX. 139 ms is still eight times the warm build. The
+remainder is `matplotlib.colors` and `widgets.toggle`, neither of which is
+worth a third name in the prewarm list until something else wants them.

@@ -6102,7 +6102,17 @@ def launch(argv: Optional[list[str]] = None) -> int:
         """
         try:
             import importlib
-            for mod in ("spacr.settings",):
+            # `spacr.qt.screens.settings_model` and `spacr.qt.imagery` were
+            # added 2026-09-09. They are not only a module screen's cost:
+            # the FIRST Preferences open in a session was measured at 902 ms
+            # against 30 ms for the second, with the animated backdrop
+            # frozen for the whole of it, and 474 ms of that 902 was
+            # settings_model alone (imagery 83, matplotlib.colors 48).
+            # Nobody reaches Preferences before the home screen exists, so
+            # this thread always wins the race it needs to win.
+            for mod in ("spacr.settings",
+                        "spacr.qt.screens.settings_model",
+                        "spacr.qt.imagery"):
                 importlib.import_module(mod)
         except Exception:
             LOG.debug("Could not prewarm GUI settings imports", exc_info=True)

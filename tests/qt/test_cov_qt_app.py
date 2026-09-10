@@ -2589,7 +2589,18 @@ def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
 #: import can only ever be missing. So the list is asserted for what it
 #: holds. Adding a name here is a claim that a screen pays for that import
 #: on its first open; record it in this table in the same change.
-PREWARMED_MODULES = ("spacr.settings",)
+#:
+#: ``spacr.qt.screens.settings_model`` and ``spacr.qt.imagery`` were added
+#: 2026-09-09, and the moment they are for is PREFERENCES rather than a
+#: module screen. The first ``PreferencesDialog(...)`` of a session was
+#: measured at 902 ms against 30 ms for the second -- all of the difference
+#: import work, on the GUI thread, with the animated backdrop stopped for
+#: the whole of it -- and settings_model was 474 ms of that 902, imagery 83.
+#: Warmed off-thread the first open costs 139 ms. Nobody can reach
+#: Preferences before the home screen exists, so this thread always wins
+#: the race it has to win.
+PREWARMED_MODULES = ("spacr.settings", "spacr.qt.screens.settings_model",
+                     "spacr.qt.imagery")
 
 
 def _prewarmed_module_names():
