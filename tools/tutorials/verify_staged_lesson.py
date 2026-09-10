@@ -17,7 +17,7 @@ import threading
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
-from stage_lesson import DEFAULT_STAGE, read, write
+from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 WORKSPACE = DEFAULT_STAGE.parent
 
@@ -34,6 +34,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def translate_path(self, path):
         candidate = Path(super().translate_path(path))
+        player = WORKSPACE / 'web'
+        if candidate.is_relative_to(player):
+            return str(REPO / 'docs/source/_extra/tutorials' / candidate.relative_to(player))
         staged_media = DEFAULT_STAGE / 'production'
         if candidate.is_relative_to(staged_media) and not candidate.is_file():
             return str(WORKSPACE / 'production' / candidate.relative_to(staged_media))
@@ -97,7 +100,6 @@ def main():
     if args.retained_media:
         from verify_retained_media import retained_media_sources
         from check_completed_matrix import voice_matrix
-        from stage_lesson import REPO
         retained = retained_media_sources(
             DEFAULT_STAGE, WORKSPACE, REPO / 'docs/source/_extra/tutorials/catalog',
             args.lesson, voice_matrix(WORKSPACE / 'tools/render_all_voices.py'))
@@ -115,7 +117,7 @@ def main():
     for item in english['lessons']:
         item['poster'] = f"{item['id']}/poster.jpg"
         item['silent'] = f"{item['id']}/video/{item['id']}_silent.mp4"
-    source = (WORKSPACE / 'web/index.html').read_text(encoding='utf-8')
+    source = (REPO / 'docs/source/_extra/tutorials/index.html').read_text(encoding='utf-8')
     production = '/' + str(DEFAULT_STAGE.relative_to(WORKSPACE)) + '/production'
     for attribute in ('production-root', 'audio-root', 'video4k-root'):
         source = re.sub(rf'data-{attribute}="[^"]*"', f'data-{attribute}="{production}"', source)
@@ -158,6 +160,11 @@ def main():
             page = context.new_page()
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(base + '/web/#lesson=' + args.lesson, wait_until='domcontentloaded')
+            player_response = context.request.get(base + '/web/app_v2.js')
+            assert player_response.ok
+            player_bytes = (REPO / 'docs/source/_extra/tutorials/app_v2.js').read_bytes()
+            assert player_response.body() == player_bytes
+            evidence['repository_player_sha256'] = hashlib.sha256(player_bytes).hexdigest()
             page.wait_for_function('document.querySelectorAll(".chapter-button").length === ' + str(len(lesson['scenes'])), timeout=60000)
             evidence['navigation_contains_staged_lesson'] = args.lesson in navigation['preserved_lesson_ids']
             assert evidence['navigation_contains_staged_lesson']
@@ -178,9 +185,8 @@ def main():
             example_links = page.locator('#prerequisite-copy a[download]')
             assert example_links.all_text_contents() == example_files
             evidence['example_files'] = []
-            from stage_lesson import REPO
             for name in example_files:
-                assert re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*\.csv', name) and len(name) <= 128
+                assert re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]*\.(?:csv|zip)', name) and len(name) <= 128
                 link = page.get_by_role('link', name=name, exact=True)
                 assert link.get_attribute('download') == name
                 response = context.request.get(base + '/web/' + link.get_attribute('href'))

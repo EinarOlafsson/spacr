@@ -20,6 +20,11 @@ def record_plaque(app, window, screen, stage, captures, capture, settle, write_j
     proof = dict(accepted=False, synthetic=True, manifest=manifest,
         actual_gui_run=False, app_source_modified=False, published=False)
     write_json(captures/'scientific_acceptance.json', proof)
+    if screen._console_folder.shut:
+        QTest.mouseClick(screen._console_folder.heading, Qt.LeftButton)
+        settle(.3)
+    if screen._console_folder.shut or not screen._console.isVisible():
+        raise ValueError('The actual Console must be visible in the final recording')
     model = Path(__file__).resolve().parents[2]/'spacr/resources/models/toxo_plaque_cyto_e25000_X1120_Y1120.CP_model'
     if not model.is_file():
         raise ValueError('The actual existing bundled plaque checkpoint is missing')

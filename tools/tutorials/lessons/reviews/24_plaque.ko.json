@@ -1,11 +1,12 @@
 {
   "lesson": "24_plaque",
-  "english_sha256": "bcfb47d8a1476df804e6b294bf1ae3c784f337f8f8cee6c1b17b7bedcba89e2e",
+  "english_sha256": "eb59bf95ab937290708c8202a22ef1b8105d466f6622e97b7b2a96b3e557ba3d",
   "review": {
     "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
     "independent_peer_review": false,
     "native_speaker_signoff": false,
-    "listening_review": false
+    "listening_review": false,
+    "visual_only_update": "Console spotlight geometry only; all English narration, scene order, holds and translated text remain unchanged."
   },
   "language": "ko",
   "title": "플라크 분석",
