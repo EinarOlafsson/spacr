@@ -25,12 +25,11 @@ Status:    BEING REBUILT ON THE MEASURED PLAN, 2026-09-09. The maintainer
            THE GPU IS WIRED AND `ops_gpu` EXISTS. OPS shipped 63 settings
            and none of them said anything about hardware; see PART 13-B.
 
-           WHAT IS STILL UNPROVEN, PRECISELY: nobody has run the STRIP over
-           the real well with the corrected pair order. PART 11-D's 624 of
-           624 used whole-tile correlation, which is symmetric and therefore
-           could not see the pair-order bug PART 13-E describes -- so that
-           number is not evidence for the code as it now stands. A3 is with
-           the other session; A4, Phases B, C and D are unstarted.
+           THAT IS NO LONGER UNPROVEN. RUN 2026-09-10, PART 13-F below:
+           the strip over the real well with the corrected pair order,
+           624 of 624 accepted, 333 of 333 placed. A3 is with the other
+           session; A4 is built (`ops_phenotype`); Phases B, C and D are
+           unstarted.
 
            ORIGINAL STATUS FOLLOWS, and PART 5's memory work stands: it
            replaced PART 4's order-of-magnitude guess with the real
@@ -2923,6 +2922,47 @@ describing it, because a convention written in prose is one nobody can
 check -- and because the same convention, assumed rather than asserted, is
 what produced PART 11-C's canvas that was one pitch per column too large.
 
+
+--------------------------------------------------------------------------------
+PART 13-F -- THE STRIP OVER THE REAL WELL, WITH THE ORDER FIXED. 2026-09-10.
+--------------------------------------------------------------------------------
+
+The measurement PART 13-E left owing. Well A1 cycle 1 of
+`screenA/20200202_6W-LaC024A`, the 333-tile set in `test_stitch_2`, through
+the committed driver:
+
+    python tools/run_ops_a2.py --src <plate>/test_stitch_2 --well A1 --cycle 1
+
+    333 of 333 placed   624/624 edges
+    residual median 0.20 px   max 0.75 px
+    canvas 26,855 x 26,865 (layout says 26,820 x 26,820)
+    93.3 s, backend torch
+
+IT WAS THE STRIP, checked rather than assumed, because the whole value of
+this run is which correlation produced the number. `run_ops_a2.py` passes no
+`overlap_fraction`; `ops_stitch` passes none either; `register_edge` takes
+`overlap_fraction: float = STRIP_FRACTION` and STRIP_FRACTION is 0.30. So the
+run correlated 30 % bands, not whole tiles.
+
+WHAT IT SETTLES. PART 13-E argued the strip's 150 rejections were reporting
+a defect UPSTREAM of the strip rather than a cost of it, on the evidence that
+every rejection was vertical and none horizontal. That argument predicted
+this run: fix the pair order and the same strip should accept the pairs it
+was refusing. It accepts all 624. The rejections were the pair-order bug.
+
+AND THE NUMBER NOW MEANS WHAT IT SAYS. PART 11-D also read 624 of 624, but
+from whole-tile correlation, which is symmetric and could not tell a
+bottom-vs-top crop from a top-vs-bottom one -- it accepted the 150 wrong
+pairs along with the 474 right ones. The two runs agree on the count and
+only one of them was measuring the thing. That is the third time this file
+has met the shape where the measure that looks better is the one that cannot
+see the error, and the first time the better-looking number turned out to be
+right for the right reason.
+
+Residual and canvas match PART 11-D to the pixel (median 0.20 against 0.2,
+max 0.75 against 0.7, canvas identical), so the placement solve is unchanged
+by the fix -- as it should be, since the 150 bad edges were being outvoted
+by the 474 good ones rather than dragging the solution.
 
 --------------------------------------------------------------------------------
 PART 14 -- A4 IS REAL: PHENOTYPE 41 LANDS ON SEQUENCING 23, 132 NUCLEI AGAINST
