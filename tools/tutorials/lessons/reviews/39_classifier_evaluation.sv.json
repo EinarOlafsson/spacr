@@ -1,0 +1,35 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Utvärdering av klassificerare",
+  "description": "Granska verkliga sparade prediktioner i Classify och upptäck gemensamma brunnar i träning och test.",
+  "objectives": [
+    "Öppna den underordnade resultatvyn med nedladdningsexemplet.",
+    "Läsa förväxlingsmatris, konfidenslistor, kalibrering och direktfilter.",
+    "Skilja resultatgranskning från oberoende validering."
+  ],
+  "prerequisite": "Packa upp REAL_evaluation_known_overlap.zip i en ny mapp och välj den som innehåller evaluation_manifest.json. Det finns 234 verkliga prediktioner men inga bildutsnitt, annoteringsdatabas eller modeller. Samtliga tre testbrunnar finns även i träningen. Endast privata sökvägar har ersatts med crops-not-included-referenser; siffror och identiteter är bevarade. infected_1 och infected_2 är övertagna etiketter. OOF-rubriker bevisar inte korsvalidering. API: spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle och load_evaluation_bundle. Ingen ny träning, inferens eller begäran till spaCR AI.",
+  "scenes": [
+    "Öppna Classify och sedan genvägen Classifier Evaluation. Detta är en underordnad resultatvy, inte en separat Home-modul eller ett formulär för modellträning. Classify-lektionen förklarar hur prediktioner skapas; här granskar vi ett redan sparat resultatpaket.",
+    "Ladda ner resultatexemplet via länken nedan och packa upp det i en ny mapp. Klicka på Browse och välj mappen med evaluation_manifest.json. Det lilla arkivet innehåller verkliga sparade prediktioner och tabeller, men inga bildutsnitt, annoteringsdatabas eller tränade modeller.",
+    "Summary visar 234 testprediktioner från en körning med en epok. infected_1 och infected_2 är övertagna datasetetiketter, inte nyligen verifierade infektionstillstånd. Inläsningen läser sparade resultat; den tränar inte, gör inga nya prediktioner och reparerar inte datasetet.",
+    "Kontrollera Leakage audit innan du tolkar träffsäkerheten. Alla tre testbrunnar förekommer också i träningen, så kontrollen underkänns. Databasidentiteter avslöjade överlappning som den äldre filnamnskontrollen missade. Siffrorna visar hur granskaren fungerar, inte prestanda på oberoende brunnar eller biologisk validering.",
+    "I Confusion matrix motsvarar raderna registrerade klasser och kolumnerna prediktioner. Diagonalen innehåller 104 och 111. De andra cellerna innehåller elva och åtta avvikelser: totalt nitton. Överensstämmelse med dessa etiketter bevisar inte att etiketterna är rätt.",
+    "Klicka på cellen med elva: registrerad infected_1, predicerad infected_2. Vid konfidens 0,75 hamnar sex avvikelser i listan med hög konfidens och fem i den låga. Det är två granskningsköer för samma cell, inte nya klassificeringsresultat.",
+    "Höj konfidensgränsen till 0,95. Den höga listan innehåller nu två bildutsnitt, den låga nio. Sannolikheter, predicerade klasser och cellen med elva ändras inte. Denna direktkontroll delar kön; den omkalibrerar inte modellen och kör inte inferens igen.",
+    "Var försiktig med automatiska förklaringar. En avvikelse med hög konfidens bevisar inte felaktig annotering, och en enda platta kan inte fastställa en plattrelaterad orsak. Förslagen om modell eller brunn är hypoteser. Granska bildinsamling, etiketter och verkligt oberoende data innan du avgör vad som ska rättas.",
+    "Per-plate metrics innehåller en rad med alla 234 prediktioner. Det hjälper dig att hitta resultat per platta, men exemplet kan inte jämföra plattor eller uppskatta en platteffekt. Hög träffsäkerhet undanröjer inte problemet med gemensamma brunnar i Leakage audit.",
+    "Calibration jämför genomsnittlig predicerad sannolikhet med observerad klassfrekvens i fem intervall per klass. Antalet är viktigt: glest fyllda intervall är osäkra. Paketet använde ingen kalibreringskorrigering. Fliken beskriver tidigare beräknade resultat; här finns ingen kontroll för att anpassa kalibreringen.",
+    "Skriv r5_c2 i Predictions för att granska den brunnen. Tabellen minskar från 234 till 128 rader. Detta är ett direkt textfilter på sparade poster, inte bildfiltrering, segmentering eller en ändring av de underliggande resultatfilerna.",
+    "Rensa filtret så återkommer alla 234 rader. Sökvägarna säger uttryckligen att bildutsnitt inte ingår. För att öppna avvikande utsnitt från ditt projekt, öppna först motsvarande experiment i Annotate. Arkivet innehåller inte den databasen; inaktiva knappar demonstrerar inte ett fungerande bildflöde.",
+    "Nedladdningen bevarar även de ursprungliga kalibrerings- och förväxlingsfigurerna. Kontrollera kontrasten innan de används i rapporter. Generiska out-of-fold-rubriker och filnamn gör inte denna enda testuppdelning till korsvalidering. Sannolikheter och antal är oförändrade; endast privata sökvägar har ersatts med tydliga referenser.",
+    "Behåll varningen om dataläckage tillsammans med alla exporterade mått. API-referensen förklarar förberedelse och inläsning; Training Runs jämför sparade förloppsloggar. spaCR AI kan förklara begrepp, men inte intyga etiketter eller oberoende. Ingen begäran till en leverantör behövdes för detta exempel."
+  ]
+}

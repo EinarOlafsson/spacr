@@ -1,0 +1,35 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Mat á flokkunarlíkönum",
+  "description": "Skoðaðu raunverulegar vistaðar spár í Classify og greindu sameiginlega brunna í þjálfun og prófun.",
+  "objectives": [
+    "Opna innbyggða niðurstöðuskoðarann með niðurhalanlega dæminu.",
+    "Lesa ruglingsfylki, öryggislista, kvörðun og gagnvirkar síur.",
+    "Greina á milli niðurstöðuskoðunar og óháðrar staðfestingar."
+  ],
+  "prerequisite": "Afþjappaðu REAL_evaluation_known_overlap.zip í nýja möppu og veldu möppuna með evaluation_manifest.json. Þar eru 234 raunverulegar spár, en engir myndskurðir, merkingagagnagrunnur eða líkan. Allir þrír prófunarbrunnarnir eru líka í þjálfuninni. Aðeins einkaslóðum var skipt út fyrir crops-not-included-tilvísanir; tölur og auðkenni eru óbreytt. infected_1 og infected_2 eru eldri flokkamerkingar. OOF-fyrirsagnir sanna ekki krossprófun. API: spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle og load_evaluation_bundle. Engin ný þjálfun, spákeyrsla eða beiðni til spaCR AI.",
+  "scenes": [
+    "Opnaðu Classify og síðan flýtileiðina Classifier Evaluation. Þetta er innbyggður niðurstöðuskoðari, ekki sjálfstæð Home-eining eða þjálfunareyðublað. Classify-kennslustundin fjallar um að búa til spár; hér skoðum við niðurstöðupakka sem hefur þegar verið vistaður.",
+    "Sæktu niðurstöðudæmið með tenglinum hér fyrir neðan og afþjappaðu því í nýja möppu. Smelltu á Browse og veldu möppuna með evaluation_manifest.json. Litla safnið inniheldur raunverulegar vistaðar spár og töflur, en enga myndskurði, merkingagagnagrunn eða þjálfað líkan.",
+    "Summary sýnir 234 prófunarspár úr keyrslu með einni þjálfunarumferð. infected_1 og infected_2 eru eldri merkingar gagnasafnsins, ekki nýstaðfest sýkingarástand. Innlestur les vistaðar niðurstöður; hann þjálfar ekki, reiknar ekki nýjar spár og lagfærir ekki gagnasafnið.",
+    "Athugaðu Leakage audit áður en þú túlkar hlutfall réttra spáa. Allir þrír prófunarbrunnarnir eru líka í þjálfuninni og athugunin stenst því ekki. Auðkenni úr gagnagrunninum sýndu skörun sem gamla skráarnafnaathugunin missti af. Tölurnar sýna virkni skoðarans, ekki árangur á óháðum brunnum eða líffræðilega staðfestingu.",
+    "Í Confusion matrix eru skráðir flokkar í röðum og spár í dálkum. Á hornalínunni eru 104 og 111. Hinir reitirnir innihalda ellefu og átta ósamræmi, samtals nítján. Samræmi við þessar merkingar sannar ekki að merkingarnar séu réttar.",
+    "Smelltu á reitinn með ellefu: skráð infected_1, spáð infected_2. Við öryggismörkin 0,75 fara sex ósamræmi í listann með háu öryggi og fimm í þann með lágu. Þetta eru tveir skoðunarbiðlistar fyrir sama reit, ekki nýjar flokkunarniðurstöður.",
+    "Hækkaðu öryggismörkin í 0,95. Háöryggislistinn inniheldur nú tvo myndskurði og lágöryggislistinn níu. Líkur, spáðir flokkar og reiturinn með ellefu breytast ekki. Þessi gagnvirka stilling skiptir biðlistanum; hún endurkvarðar ekki líkanið og keyrir ekki spár aftur.",
+    "Taktu sjálfvirkum skýringum með varúð. Ósamræmi með háu öryggi sannar ekki ranga merkingu og ein plata getur ekki staðfest plötutengda orsök. Tillögur um líkan eða brunn eru tilgátur. Skoðaðu myndöflun, merkingar og raunverulega óháð gögn áður en þú ákveður hvað þarf að leiðrétta.",
+    "Per-plate metrics inniheldur eina röð með öllum 234 spánum. Það hjálpar við að finna niðurstöður eftir plötu, en dæmið getur hvorki borið saman plötur né metið plötuáhrif. Hátt hlutfall réttra spáa leysir ekki vandann við sameiginlega brunna í Leakage audit.",
+    "Calibration ber saman meðaltal spáðra líkinda og mælda tíðni flokks í fimm bilum fyrir hvern flokk. Fjöldinn skiptir máli: bil með fáum mælingum eru óviss. Engin kvörðunarleiðrétting var notuð í þessum pakka. Flipinn lýsir áður reiknuðum niðurstöðum; þar er ekki hægt að laga kvörðun.",
+    "Sláðu inn r5_c2 í Predictions til að skoða þann brunn. Taflan þrengist úr 234 í 128 raðir. Þetta er gagnvirk textasía á vistaðar færslur, ekki myndsíun, myndhlutun eða breyting á undirliggjandi niðurstöðuskrám.",
+    "Hreinsaðu síuna og allar 234 raðirnar koma aftur. Slóðirnar taka skýrt fram að myndskurðir fylgi ekki. Opnaðu fyrst samsvarandi tilraun í Annotate til að skoða ósamræmi í eigin verkefni. Safnið inniheldur ekki þann gagnagrunn; óvirkir hnappar sýna ekki fram á virka opnun myndskurða.",
+    "Niðurhalið varðveitir einnig upprunalegu kvörðunar- og ruglingsmyndirnar. Athugaðu birtuskil áður en þær eru notaðar í skýrslu. Almenn out-of-fold-heiti gera þessa einu prófunarskiptingu ekki að krossprófun. Líkur og fjöldatölur eru óbreytt; aðeins einkaslóðum var skipt út fyrir skýrar tilvísanir.",
+    "Haltu aðvöruninni um gagnaleka með öllum útfluttum mæligildum. API-heimildin útskýrir undirbúning og innlestur; Training Runs ber saman vistaðar framvinduskrár. spaCR AI getur skýrt hugtök en ekki staðfest merkingar eða óhæði. Enga beiðni til þjónustuveitanda þurfti fyrir þetta dæmi."
+  ]
+}
