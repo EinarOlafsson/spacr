@@ -1,7 +1,7 @@
 "use strict";
 window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
   "schema": 1,
-  "source_commit": "4ad8072d95873f840d9088f48d49e0eeda0e9be2",
+  "source_commit": "b4fe51944e0a846033cbf5692b288d0a3d962686",
   "labels": {
     "en": [
       "Main modules",
@@ -752,7 +752,7 @@ window.SPACR_TUTORIAL_NAVIGATION = Object.freeze({
     {
       "app_key": "ops",
       "title": "OPS",
-      "host_app_key": "align",
+      "host_app_key": "mask",
       "status": "deferred_unvalidated_workflow"
     }
   ],
