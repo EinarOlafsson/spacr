@@ -5,14 +5,29 @@ that report, **this is an evidence report and not a certificate that every
 sentence was read by a fluent speaker.** The semantic-review evidence is
 defect-driven and much smaller than the shipped corpus.
 
-**Mechanical source coverage is NOT complete, and this report claimed it was
-until 2026-09-06.** The runtime catalogs carry 5,105 of 5,226 entries in every
-locale -- 121 sources missing each, 1,089 in total -- and the API catalogs
-8,966 of 10,241. The missing rows are strings and docstrings added since the
-last generation; generating them runs an OPUS checkpoint that is not present
-on the machine this was measured from, so the gap is recorded here rather than
-closed. `docs/i18n/COVERAGE.md` carries the same numbers and is regenerated
-from the live sources.
+**Mechanical source coverage IS complete, as of 2026-09-10.** It was not on
+2026-09-06, and this paragraph carried that gap until now: the runtime
+catalogs held 5,105 of 5,226 entries in every locale -- 121 sources missing
+each, 1,089 in total -- and the API catalogs 8,966 of 10,241. The machine
+that measured it had no OPUS checkpoint, so the gap was recorded rather than
+closed.
+
+It is closed. Both audits pass on the same tree:
+
+    verified API catalogs: languages=9 symbols=10296
+    verified external runtime catalogs: languages=9 settings=1073
+      categories=201 ui=2841 modules=67
+
+and `docs/i18n/COVERAGE.md`, regenerated beside this file, reports
+`5260/5260` runtime and `10296/10296` API for every one of the nine, with
+zero orphans. Two hand-written records were needed where the model could not
+satisfy the gates: `spacr.ops_accel#4` in Portuguese and the `ops_gpu`
+tooltip in Simplified Chinese.
+
+WHAT REMAINS IS THE REVIEW, WHICH IS THE POINT OF THIS FILE. Mechanical
+coverage means every source has A translation. It does not mean a speaker of
+the language has read it, and the table below is what says how much of that
+has actually happened -- between 1.6 % and 9.9 % per locale.
 
 ## What changed since 2026-08-30
 
@@ -28,7 +43,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 5,226 runtime entries and 10,241 public API docstrings. As before,
+remembered one: 5,260 runtime entries and 10,296 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -36,17 +51,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,257 | Remainder | Reviewed API blocks | Of 10,243 | Remainder |
+| Language | Reviewed runtime records | Of 5,260 | Remainder | Reviewed API blocks | Of 10,296 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 118 | 2.24% | 5,139 | 445 | 4.34% | 9,798 |
-| German | 86 | 1.64% | 5,171 | 397 | 3.88% | 9,846 |
-| Spanish | 114 | 2.17% | 5,143 | 279 | 2.72% | 9,964 |
-| Simplified Chinese | 267 | 5.08% | 4,990 | 477 | 4.66% | 9,766 |
-| Portuguese | 108 | 2.05% | 5,149 | 432 | 4.22% | 9,811 |
-| Hindi | 124 | 2.36% | 5,133 | 400 | 3.91% | 9,843 |
-| Korean | 256 | 4.87% | 5,001 | 429 | 4.19% | 9,814 |
-| Icelandic | 150 | 2.85% | 5,107 | 911 | 8.89% | 9,332 |
-| French | 99 | 1.88% | 5,158 | 431 | 4.21% | 9,812 |
+| Swedish | 118 | 2.24% | 5,142 | 468 | 4.55% | 9,828 |
+| German | 86 | 1.63% | 5,174 | 424 | 4.12% | 9,872 |
+| Spanish | 114 | 2.17% | 5,146 | 287 | 2.79% | 10,009 |
+| Simplified Chinese | 268 | 5.10% | 4,992 | 504 | 4.90% | 9,792 |
+| Portuguese | 108 | 2.05% | 5,152 | 448 | 4.35% | 9,848 |
+| Hindi | 124 | 2.36% | 5,136 | 461 | 4.48% | 9,835 |
+| Korean | 256 | 4.87% | 5,004 | 453 | 4.40% | 9,843 |
+| Icelandic | 150 | 2.85% | 5,110 | 1,019 | 9.90% | 9,277 |
+| French | 99 | 1.88% | 5,161 | 465 | 4.52% | 9,831 |
 
 ## Who reviewed what, and what that claim means
 

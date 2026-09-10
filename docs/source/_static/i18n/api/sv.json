@@ -46260,6 +46260,380 @@
         "d0bf714f0381edc065398b452a55c13e608893f66aa5960227b4547f387676e7"
       ]
     },
+    "spacr.ops_accel": {
+      "source_blocks_sha256": [
+        "6ec6cb9f1b1709a83405f6777fee3a9b5ec274d055983172cdb26681d3e86b12",
+        "82d2c5e2de52245ea4daccc9a7dbc991b40c35e9f9754ddd60bf566d056ae204",
+        "37d00402722dce6deb4a6da50412cc36ebc37699f699353c8dcc8a1ea99f4516",
+        "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+        "6b7bee0d9d406e5763c5c3576999cd6bad2266f9bc6ba7e1df8b71f4c5ce52ba",
+        "40e1866ae386d33c8aa81e77f69ac4c1cdb1a19671c19109577cd5f63d126b2d"
+      ],
+      "source_sha256": "47c08255db5cc68dae00efe1e3a6cd0b97176d2facd1a6797db9c61c3d2840ac",
+      "text": "De tre OPS-operationerna är gjorda av, på vilken hårdvara det än finns.\n\nHårdvaran frågan har ett kort svar, och den namnger vad man ska sätta på kortet: \"den per fönster affin warp; Toppfyndighet och den oblandande matrisen multipliceras. cellpose segmentering, som redan har en GPU sökväg\" -- och, för sammanslagningen, \"ORB upptäcka + Hamming deskriptor matchning\" och \"matcha celler: ömsesidig närmaste granne\". Radera bort namnen och det är tre primitiva: ett fönster max, en matris multiplicera, och en närmaste-grann sökning. De samlas in här snarare än stavas ut på varje samtalsplats så det finns EN plats som vet om enheter, och modulerna som använder dem fortsätter att läsa som den vetenskap de är.\n\n    Backend order: PyTorch första, CuPy andra, NumPy alltid. Torch är redan ett spaCR beroende genom Cellpose, så inget nytt installeras, och en kodsökväg når CUDA, ROCm och Apple MPS.\n\nVARJE FUNKTION TAGER OCH ÅTERVÄNDER NUMPY, så ingen uppringare lär sig vilket gränssnitt som körs och ingen uppringare behöver ändras när man läggs till. Var och en har ett test som kör BÅDE sökvägar på samma ingång och hävdar att de håller med - inte \" GPU versionen klarar sitt eget test\", vilket är hur en fallback tyst blir en andra implementation som ingen jämför.\n\nOch det förutsätter aldrig att kortet är gratis. Ett delat GPU är det vanliga fallet – det här kör också strukturförutsägelse – så `ops_gpu=False` vägrar en enhet som finns, och ett gränssnitt som höjer vid körning (en urminnes tider, en förare som försvann) faller igenom till nästa istället för att misslyckas med plattan.\n\n    CPU PATH är inte ett fel PATH. Det är vad som körs på en bärbar dator, i CI, och på maskinen vars kort är upptaget, vilket mellan dem är det mesta av tiden som denna kod någonsin kommer att köras.",
+      "translation_source_blocks_sha256": [
+        "6ec6cb9f1b1709a83405f6777fee3a9b5ec274d055983172cdb26681d3e86b12",
+        "82d2c5e2de52245ea4daccc9a7dbc991b40c35e9f9754ddd60bf566d056ae204",
+        "f629155cbc7f5728ecdcf49f81a21700b9d29b08dd9d35b298098ef9a845028e",
+        "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+        "8e52e8b11f9226c71e0068ba512ef183fd5f1b5e9a782ea00c1c7da06a8d6d9c",
+        "9bba0f23e6385bf641efb50d20480aed9e6be09d78b66833444dfb9e2d2268ac"
+      ]
+    },
+    "spacr.ops_accel.accelerated_backends": {
+      "source_blocks_sha256": [
+        "9f7376944e8e281bca81fa787515557a8a3710a42390467fc5ac617df061f258",
+        "20e97d3e529624305f3ddf3336595b87f2ceead5bb6c1c0843dfe42c7e341de6",
+        "fc4c5a6b12a2aee899c6469ea4b55c16adfbc660f62800467f33d54bcf40af55"
+      ],
+      "source_sha256": "73dffce4726bac86b4a46e02a764b16c656a93464e919d5348dacf6765e732f9",
+      "text": "Vilket gränssnitt kan köras här, bäst först, alltid slutar i \"numpy\".\n\n:param gpu: False vägrar de accelererade direkt.\n:returns: de användbara namnen.",
+      "translation_source_blocks_sha256": [
+        "9f7376944e8e281bca81fa787515557a8a3710a42390467fc5ac617df061f258",
+        "20e97d3e529624305f3ddf3336595b87f2ceead5bb6c1c0843dfe42c7e341de6",
+        "fc4c5a6b12a2aee899c6469ea4b55c16adfbc660f62800467f33d54bcf40af55"
+      ]
+    },
+    "spacr.ops_accel.matmul": {
+      "source_blocks_sha256": [
+        "6c3b1924171fda44edc493508f4f63ba5309140ef013f0361beadb206b2ad7e2",
+        "0fe29f175155aa7e91866faf3fadf576809fe2ba54c72d7145e146e7abfb2b71",
+        "45fbbe7eade4098353f185e501ae6a99cc38973a94990789b76fcc219be17ff6",
+        "09331ec19dfd6c4a95614c1d69fa1a7c56bad13cb9f2873068f8c41c40c2411a",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "36239f30993fc6a9951c608cceebe0315fe6edbc86b193dc8d4567aeb51ea748"
+      ],
+      "source_sha256": "8b6f5436d55f119ccc5f7a4e5c624317b81ed8dc675a076477504b0d6b828b90",
+      "text": "``first @ second``, på det snabbaste tillgängliga.\n\nDen oblandande är detta. Korrigerande färggenomblödning är en liten matris som appliceras på varje punkt i varje cykel, vilket är en stor multiplikation med en liten operand -- den form som går till ett kort väl och formen en Python slinga skulle vara absurt för.\n\n:param first: Vänster operand.\n:param second: Höger operand.\n:param gpu: False håller den på CPU.\n:param backend: Kraft ett.\n:returns: Produkten, som flytande 32 NumPy.",
+      "translation_source_blocks_sha256": [
+        "6c3b1924171fda44edc493508f4f63ba5309140ef013f0361beadb206b2ad7e2",
+        "45abcd1946e7f8e3b41525dabf646668da9e8800ce38c53cd204d719ba8ca1ce",
+        "45fbbe7eade4098353f185e501ae6a99cc38973a94990789b76fcc219be17ff6",
+        "09331ec19dfd6c4a95614c1d69fa1a7c56bad13cb9f2873068f8c41c40c2411a",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "36239f30993fc6a9951c608cceebe0315fe6edbc86b193dc8d4567aeb51ea748"
+      ]
+    },
+    "spacr.ops_accel.maximum_filter": {
+      "source_blocks_sha256": [
+        "db53750c7ab8ead2bef60334a1c059898c48a5a60f6c289d7a38448ebfb113e7",
+        "3471030fb7620ff74e305338b0096436ea31d6b2729d3f53e887251125c08005",
+        "0ce27fb85aab385f9bca9377480671e647bea06589349535088d2954b39f9331",
+        "546146a4c9f6d3df9993c5461fdaffc1b3fb1295983f0dcab83ea0e6351e4d7d",
+        "2e217f1d202aa71c3b963f428bec1766f7981ba82addfa578d2b9454d47536d5",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "c9b9c7d65976728de27acfbc743e867b4dcd6464352b87ab8211e5d43ec34471"
+      ],
+      "source_sha256": "4e01a89759b06cf8c15afcd99f4ce80b00c2e63c52f8d7742d7725b437b1a294",
+      "text": "Maximalt av varje fönster ``size x size``, centrerat på varje pixel.\n\nVad toppfynd är gjort av. En läsning är ett lokalt maximum av punktpoängen, och \"local\" betyder detta. På ett mikroplattprovs positionsstort mikroskopfält är det också det dyraste i avkodkedjan, och det är en maxpool – vilket är operationen en GPU finns att göra.\n\nKanter upprepar kantpixeln, som matchar `scipy.ndimage.maximum_filter` med ``mode=\"nearest\"``, eftersom alternativet är en fälg av falskt maxima hela vägen runt fältet.\n\n:param field: En 2-D-matris.\n:param size: Fönsterkanten, i bildpunkter. Jämna storlekar höjs till nästa udda: ett fönster utan centrum kan inte centreras.\n:param gpu: False håller den på CPU.\n:param backend: Kraft ett.\n:returns: det filtrerade fältet, samma form och dtyp-kompatibel.",
+      "translation_source_blocks_sha256": [
+        "db53750c7ab8ead2bef60334a1c059898c48a5a60f6c289d7a38448ebfb113e7",
+        "e7e3e52093768d57933b412350c99ccf3fe94cb92f68ca7565ce62e48f1dc263",
+        "0ce27fb85aab385f9bca9377480671e647bea06589349535088d2954b39f9331",
+        "546146a4c9f6d3df9993c5461fdaffc1b3fb1295983f0dcab83ea0e6351e4d7d",
+        "2e217f1d202aa71c3b963f428bec1766f7981ba82addfa578d2b9454d47536d5",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "c9b9c7d65976728de27acfbc743e867b4dcd6464352b87ab8211e5d43ec34471"
+      ]
+    },
+    "spacr.ops_accel.nearest_neighbours": {
+      "source_blocks_sha256": [
+        "8d11c1fa658312f0288c8ba50089f19a2b604d8824ac2744ff190359332417ae",
+        "97f6b90834c035a940808cb4cfcaa11fc3d86ffe00e45093cc4472e5bc26a3cd",
+        "af9029fadadf2f279fbce6bd1267a07edcf9338dc7b6f0013e1600c6e09d4657",
+        "fdc6218a190c04c5ebae807051bf88719e54fef14899fcb78303910976285384",
+        "14cbc8d2ac12f68b94c088f83ff5b0487ff87e415ed43ad7b2d9681c809300e3",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "74d2febe588d2cafbe26efa0707278ed4f160bab85acf8de5f2154f308937981",
+        "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
+      ],
+      "source_sha256": "46e27ca23bb0fc58a24672bc85bf96b966921c7b1f49db4825cecef3ee76a85f",
+      "text": "För varje rad ``source``, den närmaste raden ``target``.\n\nCHUNKED, ALLTID. En mikroplatta provposition kan bära hundra tusen kärnor, och hela avståndet matrisen mellan två sådana uppsättningar är 40 GB -- mer än kortet och mer än värden. Att klippa den första uppsättningen begränsar arbetsmängden på ``chunk x M`` hur stor mikroplattan provposition är, vilket är samma argument DEL 5 gör om mosaiken: taket får inte bero på hur mycket data det finns.\n\nSlipsar går till det lägre indexet, på varje backend, så en uppringare som par ömsesidigt närmaste grannar får samma par vad som än sprang.\n\n:param source: ``(N, D)`` Poäng.\n:param target: ``(M, D)`` Poäng.\n:param gpu: False håller den på CPU.\n:param backend: Kraft ett.\n:param chunk: raderna ``source`` per pass.\n:returns: ``(indices, distances)``, båda längderna N.",
+      "translation_source_blocks_sha256": [
+        "8d11c1fa658312f0288c8ba50089f19a2b604d8824ac2744ff190359332417ae",
+        "a7c5d7022b77d6b52a0c698f3b3cf0b869260e6c455098f325a9396744c72c4e",
+        "af9029fadadf2f279fbce6bd1267a07edcf9338dc7b6f0013e1600c6e09d4657",
+        "fdc6218a190c04c5ebae807051bf88719e54fef14899fcb78303910976285384",
+        "14cbc8d2ac12f68b94c088f83ff5b0487ff87e415ed43ad7b2d9681c809300e3",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "74d2febe588d2cafbe26efa0707278ed4f160bab85acf8de5f2154f308937981",
+        "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
+      ]
+    },
+    "spacr.ops_cycles": {
+      "source_blocks_sha256": [
+        "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
+        "59eba82e68561e13220794fd3a3318f848654998412cc57c0fbfd0ee0bb6e516",
+        "b5c2a3301612b0237721e7e027c5fcef9356ad279043251c629ffc9785e9294b",
+        "7096248994d74057fe4c683729f92aa3f77532af0f3a151aecc1c3392cb5557a",
+        "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
+        "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
+        "fc0202df87d042b6351dfea6e31dc398fe8ec41de8dbb0fd9f5f2f601680cbbb",
+        "346b886d87b02facc49c1c17a06ed7561d4217a5268f15213c7ac6dffb08bc28"
+      ],
+      "source_sha256": "1bcc5138b1fbf4b4f51a4a7d1a8e66ee39cbc6568a14ae31851e08214ed08b4c",
+      "text": "Registrera ett fält över sekvenseringscyklerna som avbildade det.\n\nCykelaxeln är inte mikroskopets bildfältsaxel, och skillnaden bestämmer allt i denna modul. :mod:`spacr.ops_register` placerar två OLIKA mikroskopfält som överlappar en bråkdel av ett mikroskops bildfält; här avbildas samma mikroskopfält elva gånger och scenen återgår till det, så förskjutningen är en handfull pixlar snarare än en tonhöjd.\n\nOch den kan inte använda hoechst. Instruktion 372 DEL 10 mätt detta förvärv: cykel 1 har en fem-bild datakanal ``DAPI-CY3-A594-CY5-CY7`` stack per plats och cyklar 2 till 11 innehåller fyra separata bas-bilddata kanalfiler med NO DAPI alls. Så bilddatakanalen varje mikroskop bildfält-axel registrering körs inte finns på denna axel efter den första cykeln, och DEL 7 plan för genomsnittliga Hoechste över cykler inte heller kan köras.\n\nVad som ersätter det är referensgenomförandets eget svar. ``ops/firesnake.py:_align_SBS`` erbjuder ``method='SBS_mean'`` för just detta fall: maximum över baskanalerna, normaliserat av en hög percentil och klippt, som förvandlar fyra glesa spotkanaler till ett tätt mål. Mätt på väl A1 på två platser, cyklar 2 till 11 mot cykel 1:\n\n    plats 100 topp/medelvärde 169 till 236 skift (-6..-27, 0..10) plats 200 topp/genomsnitt 218 till 281 skift (-4..-25, 11..21)\n\n    20 av 20 registrerade cykler.\n\nDet är inte en reserv, det är den bättre bilddatakanalen. Kakelaxeln på DAPI toppar på 23 till 85; detta toppar vid 169 till 281. Spot är punktliga och rikliga och nuclei är släta och få, så att förlora Hoechst kostar ingenting här.\n\nOch offset hör till platsen, inte cykeln. Site 100 sitter på x = 0 till 10 över de elva cyklerna och plats 200 vid x = 11 till 21. En stel transform per cykel för en hel brunn skulle medföra denna skillnad i varje mikroskop synfält, så varje plats är registrerad mot sin egen referens -- vilket också är vad referensimplementationen gör, ett mikroskop fält av sikt cykel stack i taget.",
+      "translation_source_blocks_sha256": [
+        "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
+        "adf1e305ae9dba79b070d83b2f725902c8a06d9df956a8efd987d42d8c981c67",
+        "172c1dd510b62b029e4078701df69973133b62439ab1bd59041689aa10406209",
+        "36253605dd997bcb78170c81396384029bcbdcbb1091448a58c07a6a0747de18",
+        "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
+        "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
+        "d1754e5a119818c82cb0350fa1a4df74dd42a6dc492bd7326580fd287e52684a",
+        "91d2295728c16dc85ed8eaee7a42e650d3131fc40138a0dfdce30a5d3fd6f1a2"
+      ]
+    },
+    "spacr.ops_cycles.accepted_cycles": {
+      "source_blocks_sha256": [
+        "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
+        "189ef2c640cc4948f8cd45eac06526124706e0dfa6f7a086988f80cf59613c70",
+        "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
+      ],
+      "source_sha256": "c746b2ae67d3f7d761156846367fda16674ec98aeba18911ad5901521a838b18",
+      "text": "De cykler vars registrering var trodd, i ordning.\n\n:param registrations: resultatet av :func:`register_cycles`.\n:returns: de accepterade cykelnumren, stigande.",
+      "translation_source_blocks_sha256": [
+        "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
+        "189ef2c640cc4948f8cd45eac06526124706e0dfa6f7a086988f80cf59613c70",
+        "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
+      ]
+    },
+    "spacr.ops_cycles.register_cycles": {
+      "source_blocks_sha256": [
+        "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
+        "510d01a7f5078c112521fad928e51306abcacd59630d8940af5e37af3452da7a",
+        "929d5ea897e0c467240b54b505133588441737d7a9ba0e4d95f32fd30de13c28",
+        "39ad02ad11d6a84112f08e56f99b8f8222774a8d97f97c03ee67602572d175e5",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "c59a1e0612cf4f629e785ca821ffe717a8878eaad508d8567ef2dc801b975227",
+        "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
+      ],
+      "source_sha256": "18a1ccd2997c07dbdfd6224dbea3ff82d1dabb356c8de8f140bba51c889c9275",
+      "text": "Placera varje cykel i ett fält mot det fältets referens.\n\nVarje cykel mot referensen direkt, aldrig mot sin föregångare. Kedja c1 ->c2 ->c3 sparar en registrering och gör att varje senare cykel beror på varje tidigare: en enda dålig länk förskjuter resten och restvärdet säger inte vilken länk som misslyckades. Att registrera var och en oberoende är vad som låter en cykel tappas utan att kosta de andra – DEL 9 regel att en cykel som inte kommer att registrera får inte kosta mikroplattans provposition.\n\n:param reference: Referenscykelns mål, från :func:`sbs_mean_target`.\n:param cycles: Cykelnummer till den cykelns mål.\n:param tolerance: Hur långt en cykel kan landa från referensen och fortfarande accepteras, i pixlar.\n:param kwargs: övergick till :func:`spacr.ops_register.phase_correlate`.\n:returns: cykelnummer till dess :class:`Registration`, inklusive de som vägrats – en uppringare som rapporterar `n_cycles` behöver veta att en cykel har prövats och avslagits, inte bara att den är frånvarande.",
+      "translation_source_blocks_sha256": [
+        "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
+        "8b8b9128b0d28f037b6fb3ea9be9d2d40be17f96207b205abc6e38135d34b057",
+        "929d5ea897e0c467240b54b505133588441737d7a9ba0e4d95f32fd30de13c28",
+        "39ad02ad11d6a84112f08e56f99b8f8222774a8d97f97c03ee67602572d175e5",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "c59a1e0612cf4f629e785ca821ffe717a8878eaad508d8567ef2dc801b975227",
+        "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
+      ]
+    },
+    "spacr.ops_cycles.sbs_mean_target": {
+      "source_blocks_sha256": [
+        "6db6b85f4f75403b2dd58619fb180ab5203b8b50b9b490f06c19ea79c0104386",
+        "5fabdcec3c390d7020b220001de0d9aafca5715437b3adfd445955a87c86a591",
+        "d6a0f7452e4cdb7a3fd3972dbeb35cced9d0c18c4fa453513eceb45eb86908ce",
+        "f3d3b1c5c446ceb480673975be351649340ff1648f2e9e3eb8a482af8e2d628b",
+        "2030330d4011bd9fee4b1c2dfc1bb7e356b5e42d631099c22641a879e5dc13c0",
+        "6a935c89571df1480c53c063d93ab36b0bc3dcc14c15ec53f7eed1955b802c59",
+        "bb960a6c641e084bf65fc91c45228734d52308daf9a5ffb99b3692c8eaca0389"
+      ],
+      "source_sha256": "8312ed0bb12210fd85cb6b71e36fab14393c63794d68824d8d91056a75f273de",
+      "text": "Förvandla en cykels baskanaler till ett enda registreringsmål.\n\nDen maximala, inte den genomsnittliga, över kanaler. En läsning är ljus i exakt en kanal per cykel -- det är vad en bas anrop är -- så i genomsnitt fyra delar varje plats med fyra och lämnar bakgrunden där det var. Den maximala håller varje plats på sin egen ljusstyrka oavsett kanal bar den.\n\n:param planes: baskanalerna för en cykel av ett mikroskopfält.\n:param percentile: Percentilen resultatet divideras med.\n:param cutoff: värdet som resultatet klipps av efteråt, så att en mättad punkt inte kan dominera korrelationen på egen hand.\n:returns: en float32-bild, samma form som ett bildskikt.\n:raises ValueError: När inga bildlager ges eller de inte är i form.",
+      "translation_source_blocks_sha256": [
+        "6db6b85f4f75403b2dd58619fb180ab5203b8b50b9b490f06c19ea79c0104386",
+        "e3a8e1d5f59d6566b6e774ec0cfb3eed05a1d8ce355f980d8b03b301a07ba9c4",
+        "bce0d62faaa581506c9d6451eb30f5cef1f8c35c9f9a8ab6d3c24ac0436641ee",
+        "f3d3b1c5c446ceb480673975be351649340ff1648f2e9e3eb8a482af8e2d628b",
+        "2030330d4011bd9fee4b1c2dfc1bb7e356b5e42d631099c22641a879e5dc13c0",
+        "62bdf79ee8ac132b0b5fa3f41170dd83ec81628fd40e4f184cede7c42517bc73",
+        "fe20db7a756230d7f9654f3ea9accd518edd81b53df9f96e378da3b4eb859367"
+      ]
+    },
+    "spacr.ops_layout": {
+      "source_blocks_sha256": [
+        "2a2ae3e9c8647ec5167329b0a954f529068d907d0ad9ca37d95e51a6b580dd63",
+        "90e0781448bf1b6e54fcca9fdf4391efbc49e7726d8fadc845eb85f90efab3d7",
+        "a050b3e22b99c9d502eac4ba6cc0fe9628016229dd42715d816a3c83881dbbd0",
+        "5a1e405a5b54cb57f0492a88f8881840f4a6dc9a6c91aceb01ef1ed0fe8bfe2a",
+        "6991244c058a3e5c5926ab9700fab1ca966b3f3b0930e6de7ba5d11cf10c60e2",
+        "ffb7a8a7be45a83ef05794e4bc961ed18695c29d51fd6152fc959cc7bbe9faf1",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ],
+      "source_sha256": "872d3ac6200edb91421cacad3edaa8a28a499d96fc25b134d8ef11b9a4e35223",
+      "text": "Där varje mikroskop bildfält i en rund brunn är, i sluten form.\n\nAdjacency var det öppna problemet och det här är svaret. Tre tidigare prototyper försökte återkonstruera rutnätet från länkarna som registrerar - en serpentin med ett konstant steg, kör sedan avgränsas av en misslyckad länk, sedan kolumner som maximal körningar av vertikala länkar. Alla tre härledde rutnät från de yttersta kanterna som saknades, och alla tre misslyckades med samma förvärv: 27 av 333 mikroskopiska bildfält placerade.\n\nMikroplattans provposition är RUND. Varje kolumn innehåller så många mikroskopfält av vy som passar inuti cirkeln vid det x, så kolumnerna har olika höjder och indexet offset till nästa kolumn är den kolumnens höjd -- vilket är anledningen till att de uppmätta horisontella förskjutningarna var +11, +4, -11, -9, -4, -13 och -5 snarare än ett nummer. Att montera cirkeln tar fyra parametrar och svarar på varje mikroskopbildfält samtidigt.::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nDet är ett faktum om förvärvet, inte en bra passform. Sju uppmätta offset mot fyra fria parametrar skulle bara vara en passform; modellen ombads då att förutsäga de fyra grannarna av sex platser som den aldrig hade sett -- 20, 60, 140, 200, 260, 300 -- och registreringen bekräftade 24 av 24, vid topp / genomsnitt 23,6 till 53,1 mot kontrollpar på 9,0 till 15.6. Kontrollerna kom tillbaka vid skift (0,0), vilket är den no-overlap signaturen beter sig som det borde.\n\nFelet som kostade den första modellen fyra av sju, registreras eftersom det är samma felklass som de inlindade skiften i 372:s DEL 6-A: rader indexerades från varje kolumns egen topp. I en rund brunn börjar varje kolumn på en annan rad, så \"rad 3 i kolumn c\" och \"rad tre i kolumn C+1\" är inte sida vid sida. grannen är på samma absoluta rutnätsrad, vilket är anledningen till att :meth:`WellLayout.position` returnerar absoluta rader och :meth:`WellLayout.neighbours` slår upp dem direkt.\n\nVad detta ersätter. `max_site_gap` och fönsterparsökningen i `spacr.spacrops`: 128 kandidatpar per mikroskopbildfält, varav fyra kunde vara verkliga, vilket ger 993 poängpar och 994 QC överlägg för en mikroplatta provposition. Denna modul erbjuder fyra kandidater per mikroskop bildfält och var och en av de 24 testade är en riktig adjacency, så ca 640 verkliga kanter görs istället för 993 mest fantasifulla.\n\nTypisk användning::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
+      "translation_source_blocks_sha256": [
+        "23761d685c8c4fc6ac08d44109dfee08811c1ea51dcbc25404a3c92944f67f01",
+        "df48544ee48423094d5bf77420c51c75925f5cf33cb446d6631c0656a777bee7",
+        "51d26f89d8aca36b53c3cb5c9695d401be1301616ad2a6683c8aa6dd820187e7",
+        "24efc80878680c4e40e1baff489b84f6bc214f3e65e5c772d68a73e08d9a1d7b",
+        "a55f6c5a6af314eca7c64b84f4f3f587a1292f53782f9dbc222b9b1228a8f492",
+        "5f583a77e71e03c0f8791e006f440033838d2f2841939312a185e17d60e957e1",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ]
+    },
+    "spacr.ops_layout.WellLayout": {
+      "source_blocks_sha256": [
+        "2407709191550d1517beb60c7331c48e3284aa3b120492b09890e6afe96d73a9",
+        "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
+        "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
+        "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+      ],
+      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
+      "text": "En rund brunns mikroskop bildfält, adresserad efter platsindex och rutnät position.\n\n:ivar columns: Hur många kolumner av mikroskop fält av visa förvärv raster har.\n:ivar radius: mikroplattans provpositionsradie, i rutnätsenheter (ett mikroskopfälts pitch = 1).\n:ivar centre: ``(column, row)`` i cirkelns mittpunkt. Raden är negativ för den uppmätta brunnen eftersom plats 0 ligger på toppen och raderna ökar nedåt.\n:ivar snake: om förvärvsormarna – udda kolumner samlade längst ner till toppen. Micro-Managers HCS-insticksprogram gör det, vilket är anledningen till att referensimplementationen har en `remap_snake` alls.",
+      "translation_source_blocks_sha256": [
+        "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
+        "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
+        "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
+        "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.heights": {
+      "source_blocks_sha256": [
+        "05200b6a43b57c3a50592097da2a0f3172d8d53f413a5806183000644afdb9dd"
+      ],
+      "source_sha256": "05200b6a43b57c3a50592097da2a0f3172d8d53f413a5806183000644afdb9dd",
+      "text": "Hur många fält varje kolumn håller, vänster till höger.",
+      "translation_source_blocks_sha256": [
+        "05200b6a43b57c3a50592097da2a0f3172d8d53f413a5806183000644afdb9dd"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.micron_position": {
+      "source_blocks_sha256": [
+        "f5435ed49fafdd002a9b65d04bb6a4b9686b9febbf62a4ef2effe496ec784af2",
+        "4b4c5930b131a743098e4f297e11900421b8ca7b46723e0afb838b837ef3a12e",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "e9c832523af7f412c4fa5f2f9fdb2fdcd1a962f92bc82fffa801bb968f5b5321",
+        "93608f4712e9aed31119e6942bb6911621678d7181a8333274bd624fecf37aa1"
+      ],
+      "source_sha256": "17e22297d224575b437d28d678d84377cbd4da8703745df176938af3ad72241c",
+      "text": "Där referensgenomförandet säger att en bricka är, i mikroner.\n\nDen ärliga poängen för en stygn är resten mot DETTA, inte en räkning av hur många mikroskopbildfält som placerades – 372:s DEL 6-A, och anledningen till att `plate_coordinate` lästes från källan snarare än beskrevs.\n\n:param site: indexet för platsen.\n:param pitch: Mikroner mellan kakelcentra.\n:returns: ``(x, y)`` i mikron, i förhållande till cirkelns mittpunkt.",
+      "translation_source_blocks_sha256": [
+        "f5435ed49fafdd002a9b65d04bb6a4b9686b9febbf62a4ef2effe496ec784af2",
+        "be1d3d44ee0a6328c34db81854bb3fd192279fdd2bf7cce9fe277aa614b8bd2a",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "e9c832523af7f412c4fa5f2f9fdb2fdcd1a962f92bc82fffa801bb968f5b5321",
+        "93608f4712e9aed31119e6942bb6911621678d7181a8333274bd624fecf37aa1"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.neighbours": {
+      "source_blocks_sha256": [
+        "27c767570796de48b02731a7040712364824f85d53cdc9eb21590af7fc7b970c",
+        "723fb0ad04fdb59113525ae547663f69132e1bef4209937cac80e67b0738ddfa",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "7da6f97984b5534598203748bce972b499d6043f80d5fc5251b31f51d5fd9fd3"
+      ],
+      "source_sha256": "54fc01c9c9884a20e11b6d1bde97bb4afbee62ad4f70a0023b227a824aa4ba48",
+      "text": "De platser som fysiskt gränsar till en plats.\n\nFyra kandidater, INTE 128. Var och en av dem är en riktig adjacency: detta är vad som ersätter `max_site_gap` s fönster, som erbjöd ett band av index grannar av vilka högst fyra skulle kunna vara rörande.\n\n:param site: indexet för platsen.\n:returns: ``{direction: site}`` för de grannar som finns.",
+      "translation_source_blocks_sha256": [
+        "27c767570796de48b02731a7040712364824f85d53cdc9eb21590af7fc7b970c",
+        "322118fbba61e08f50b51d0283b1086cfbf85e72a807be12aa951d8131ffd2b2",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "7da6f97984b5534598203748bce972b499d6043f80d5fc5251b31f51d5fd9fd3"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.pairs": {
+      "source_blocks_sha256": [
+        "8788811a9e9333e82ce1f50eadcb755c31618bb734ceff53f32150c4a3bd89fb",
+        "c0bcc2969f175cebcde4f3cacf49a9611367195f1012c25b45f52e1cd1bc41f3",
+        "359c2ccc04cb664daaf3dea89e38f2307bcf00d43d2efbc90e49dd738d21e84e",
+        "4c9b967908948d8e027a247eac38833e7f34dd27d2a70b8a74dabab9ba57fcb7"
+      ],
+      "source_sha256": "0e5575cf2aecf56ed26f0fa5878bcdf8107c675bbc4ca7926d82f22f7a8d184a",
+      "text": "Varje intilliggande par en gång, som ``(first, second, axis)``.\n\nEn gång, inte två gånger: att registrera ett par i båda riktningarna fördubblar arbetet och ställer samma fråga. Axeln är \"vertical\" eller \"horizontal\", vilket anroparen vill ha eftersom en vertikal länk fortsätter en kolumn och en horisontell korsar en ormsväng - och eftersom de två bär olika förväntade skift.\n\nOrdna efter geometri, inte efter platsindex, och detta är den som inte kommer att misslyckas högt. Det SECOND mikroskopiska bildfältet är alltid det som BELOW för ett vertikalt par och det som till höger för en horisontell, eftersom det är vad en uppringare som beskär ett överlappande band måste anta -- `register_edge` tar botten av det första och toppen av det andra. Beställning av index istället ser identiska och är fel på varje udda kolumn: rasterormarna, så i en botten-till-topp-kolonn mikroskop bildfältet ABOVE bär det högre indexet. Det kostar hälften av kanterna av en leksak brunn och rapporterade sig själv som en rest av 0.00 px, eftersom varje överlevande komponent fortfarande löst perfekt.\n\n:returns: paren, beställda av deras första plats.",
+      "translation_source_blocks_sha256": [
+        "8788811a9e9333e82ce1f50eadcb755c31618bb734ceff53f32150c4a3bd89fb",
+        "c0bcc2969f175cebcde4f3cacf49a9611367195f1012c25b45f52e1cd1bc41f3",
+        "7c56a85a9f3b6f098fdc41ba99c59bb44ec79ef4e24d8c96148e8b7120925387",
+        "4c9b967908948d8e027a247eac38833e7f34dd27d2a70b8a74dabab9ba57fcb7"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.position": {
+      "source_blocks_sha256": [
+        "32a29efe9cc46b6b3b8f18349a619d26a9ac2df4cbc1bd57682dba4f8a4a8c1a",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "1d394c58d84db17d34b1f0913a7713be25ec4d2de14c9b585d0137192df2fcc6",
+        "275e92376a6e210c1956a05baf1c6e2983544384afc8b81e11f3039653e4840a"
+      ],
+      "source_sha256": "8c193029fb8a7cc72a9443952587de4e56689a71e8bc98dbac0575863a3061e2",
+      "text": "Den ``(column, row)`` på en plats.\n\n:param site: indexet för platsen.\n:returns: kolumnen och raden ABSOLUTE rutnät – inte raden som räknas från kolumnens egen topp. Se modulnoten.\n:raises IndexError: när mikroplattans provposition inte innehåller någon sådan plats.",
+      "translation_source_blocks_sha256": [
+        "32a29efe9cc46b6b3b8f18349a619d26a9ac2df4cbc1bd57682dba4f8a4a8c1a",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "1d394c58d84db17d34b1f0913a7713be25ec4d2de14c9b585d0137192df2fcc6",
+        "fb78c5b86d7ac82543bfbc71760c1a8ecda8000d12767ee2d4f96e37cda4f39f"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.positions": {
+      "source_blocks_sha256": [
+        "40e435a3c7e93ddee51f22a63c8fde45c937c99aa68703b582462205fa450e2a"
+      ],
+      "source_sha256": "40e435a3c7e93ddee51f22a63c8fde45c937c99aa68703b582462205fa450e2a",
+      "text": "``site -> (column, row)`` för varje plats, i indexordning.",
+      "translation_source_blocks_sha256": [
+        "40e435a3c7e93ddee51f22a63c8fde45c937c99aa68703b582462205fa450e2a"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.site": {
+      "source_blocks_sha256": [
+        "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "592c92de07f8c0b80837e00849d4ee48e2cb00593aec1fdd3be4011990d7cb56",
+        "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
+      ],
+      "source_sha256": "c9b42659fd7136d663bd74ffb2901ffcecc88d4379d564a95f895d03cfd07a5a",
+      "text": "Platsindex vid ett rutnät, eller None när det är tomt.\n\n:param column: Kolumnindex.\n:param row: Den absoluta rutnätsraden.\n:returns: platsens index, eller None utanför cirkeln.",
+      "translation_source_blocks_sha256": [
+        "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "592c92de07f8c0b80837e00849d4ee48e2cb00593aec1fdd3be4011990d7cb56",
+        "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.site_count": {
+      "source_blocks_sha256": [
+        "cff47dba157f65752746b2cc42d7422896e449f2728380f71dd92dfc4ddf613c"
+      ],
+      "source_sha256": "cff47dba157f65752746b2cc42d7422896e449f2728380f71dd92dfc4ddf613c",
+      "text": "Hur många mikroskop bildfält mikroplatta provpositionen håller.",
+      "translation_source_blocks_sha256": [
+        "cb8b38bdf0d661c1767d2790fab63e8fe20ee04f73f5434f586484f0b4b8b18e"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.span": {
+      "source_blocks_sha256": [
+        "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+      ],
+      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
+      "text": "``(first row, last row)`` i en kolumn eller None om den är tom.\n\n:param column: Kolumnindex.\n:returns: Inbegripet absolut radintervall innanför cirkeln.",
+      "translation_source_blocks_sha256": [
+        "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+      ]
+    },
+    "spacr.ops_layout.round_well_layout": {
+      "source_blocks_sha256": [
+        "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
+        "7619125def20ced78e2946ad77985f1728799f754e04ace16d29f9b80fa43451",
+        "2c3cc617cc24727b4210a8dd67fa23af8d3dfb12ad2ee7a5a3560b39bdea1959",
+        "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
+        "5f9697ed74dc5cc31a1fc7867b8e9e434ff5ebef0a620a2beba10665fbb9c422"
+      ],
+      "source_sha256": "424f2519dc4cfbe48ad17d1d33a2c49ea72c9bdb6d5d248bfac935d15e845394",
+      "text": "Den layout vars cirkel håller exakt ``site_count`` fält.\n\nDen uppmätta brunnen returneras oförändrad för 333, så den bekräftade modellen är aldrig åter härledd. För varje annan räkning söks radien -- en brunn avbildad vid en annan förstoring eller en annan laboratoriemikroplatta format är samma cirkel med ett annat antal mikroskop fält av vy i den.\n\n:param site_count: Hur många mikroskop bildfält förvärvet innehar.\n:param columns: Kolumnen räknas, när den är känd. Härleds från cirkeln annars.\n:returns: layouten.\n:raises ValueError: När ingen cirkel håller exakt så många mikroskopfält, vilket är det ärliga svaret -- en räkning som ingen rund brunn producerar betyder att förvärvet inte är ett, och gissningar om det närmaste skulle placera varje mikroskop bildfält något fel.",
+      "translation_source_blocks_sha256": [
+        "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
+        "c91147024efddab4317ffbb9fcddc27b708f286153a97bc3d2153da09113d782",
+        "422badeb089edccd9e0d3666b00db879896f12f16774d37d87dc5bca4af4c8e3",
+        "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
+        "022fedb5794bf48bc372d1c87b78f0d6fc2382f19c3e0b5344b52134234fc219"
+      ]
+    },
     "spacr.ops_merge": {
       "source_blocks_sha256": [
         "82b1a75c97d080ce74ad2a3119929bd6416cb85af4e190a3b38c184d29a30cb7",
@@ -46314,10 +46688,11 @@
         "fbabe0c5e721057d2479392d8661b2d2fe10379e44461bde61ac59aafbe3c05b",
         "2eb4ffb05b445a76c6eb39b07486888e9bf2342ce7ad9529462103cdc9368ae3",
         "24845efd3d5d331e8ec51bdf9ce7adcabcb8320f9b7570ac9f2e2bab72291627",
+        "167ba402cf77ee5c094e932ddff032b9d179f31305150c78566cf2253c61945d",
         "ca32deedb124ace8a2a66aaa4162328d1b86d2e86865b34b99651436ce9fa6b4"
       ],
-      "source_sha256": "1671aca36af5973f5705a7694582a7f37dce81cc47de6aa1e0881ca3a9532b1c",
-      "text": "Parceller en-till-ett, som bara håller varandras närmaste grannar.\n\nAmbiguity tappas, inte tilldelas. Ett par överlever endast när varje cell är den andras närmaste OCH de är inom ``threshold``. Två celler som konkurrerar om samma partner båda förlorar. Den asymmetrin är avsiktlig: en felaktigt matchad cellhänder en verklig fenotyp någon annans streckkod och i tysthet korrumperar varje statistik som beräknas från den, medan en tappade cell kostar endast statistisk detektionskänslighet som fler celler kan återhämta sig.\n\n:param source: ``(N, 2)``-centroider.\n:param target: ``(M, 2)``-centroider.\n:param transform: ``(scale, rotation, translation)`` från :func:`align_by_triangles`, applicerad på ``source`` först. ``None`` betyder att de två uppsättningarna redan befinner sig i samma ram.\n:param threshold: Det största avståndet, i TARGET-enheter, som fortfarande kan kallas samma cell.\n:returns: ``(K, 2)`` rad av ``(source_index, target_index)`` par.",
+      "source_sha256": "fad21bbe8d6fa90ef4c60e767ba78fef40b63c1fab0b45d71c1ea5fb6852f8ed",
+      "text": "Parceller en-till-ett, som bara håller varandras närmaste grannar.\n\nAmbiguity tappas, inte tilldelas. Ett par överlever endast när varje cell är den andras närmaste OCH de är inom ``threshold``. Två celler som konkurrerar om samma partner båda förlorar. Den asymmetrin är avsiktlig: en felaktigt matchad cellhänder en verklig fenotyp någon annans streckkod och i tysthet korrumperar varje statistik som beräknas från den, medan en tappade cell kostar endast statistisk detektionskänslighet som fler celler kan återhämta sig.\n\n:param source: ``(N, 2)``-centroider.\n:param target: ``(M, 2)``-centroider.\n:param transform: ``(scale, rotation, translation)`` från :func:`align_by_triangles`, applicerad på ``source`` först. ``None`` betyder att de två uppsättningarna redan befinner sig i samma ram.\n:param threshold: Det största avståndet, i TARGET-enheter, som fortfarande kan kallas samma cell.\n:param gpu: Kör de två närmaste grannsökningarna på kortet där det finns en användbar sådan. En mikroplattas provposition bär tiotusentals kärnor på varje sida och sökningen görs två gånger, en gång i varje riktning; `spacr.ops_accel.nearest_neighbours` delar den så att arbetssetet inte växer med mikroplattans provposition.\n:returns: ``(K, 2)`` rad av ``(source_index, target_index)`` par.",
       "translation_source_blocks_sha256": [
         "ea76f4753cbb1ab0a30c95c506413653696103702f264930677918dd065301b0",
         "e243c6dc3ee259b8cd7a1ea9ebd85bc8e0ac1ae1ebea1aad562d07ef21bcf66a",
@@ -46325,6 +46700,7 @@
         "fbabe0c5e721057d2479392d8661b2d2fe10379e44461bde61ac59aafbe3c05b",
         "2eb4ffb05b445a76c6eb39b07486888e9bf2342ce7ad9529462103cdc9368ae3",
         "24845efd3d5d331e8ec51bdf9ce7adcabcb8320f9b7570ac9f2e2bab72291627",
+        "88c47cc44cec3ffa2c94585a68474220bed56a31d4ae9d8ff28438fc409fb6e7",
         "ca32deedb124ace8a2a66aaa4162328d1b86d2e86865b34b99651436ce9fa6b4"
       ]
     },
@@ -46342,6 +46718,422 @@
         "4284f7e376c2b415cd2950e14b4a049ac51297de01fea7ca23986df819b2bf90",
         "97c2bed9d6e30ad48a18ebcb280604b6527d89f8c0a56c45bf5da9eb35f16c79",
         "d049bbab3f5ef63d99108ae55d6aff94556ee72a51ad282a085249831158d6fe"
+      ]
+    },
+    "spacr.ops_phenotype": {
+      "source_blocks_sha256": [
+        "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
+        "234152f444ed13a4ca3b088c4e4e7ab701e99acd84c438adb0c7ba9248bc34e6",
+        "aba66c01e9fd3ca1e4f3ee03f851444b1e73a9b7277187cc7e89d4d43f1f054c",
+        "1e905db470b8f54f7dac6b8d239145f7797eb95d1dc45337bcc4d0c5ddcbf816",
+        "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
+        "a83c7def9a453dc0402410eb42e0f6a677b3d3f9555ff2be9a6beaadb421a14b",
+        "5607acd4c2f46376cf0c7b7ee4acf752e2b1b62a47a212c2da3330ce1393c2ac",
+        "bf4cd9bd465d330b3e27b08bfa7134ca5f33b3b171e37f0f5104bba8681abe12"
+      ],
+      "source_sha256": "d89e59c264803f17d46f2750cca9a3c9b633042c3fb3c30f75e54d64579d1e1e",
+      "text": "Fas A4: sätta fenotyp förvärv på sekvensering ett.\n\nVad detta steg är. Fenotypen bilder är 2960x2960 vid 20X och sekvensbilderna är 1480x1480 vid 10X, av samma runda brunn. Fas A4 i instruktion 372 ber om en transform per fenotyp mikroskopfält av vy till sekvensering ram, i linje med kärnkraftsfläcken, \"och inte sampla den ena i den andra -- i linje, inte medelvärdet\".\n\nVarför det inte är ett pixel problem. Över en förstoring förändring och två olika förvärv en pixels grannskap betyder ingenting, men en kärna är en kärna på båda skalorna. Så anpassningen körs på kärncentroider, och :func:`spacr.ops_merge.align_by_triangles` föreslår omvandlingen från deras arrangemang ensam.\n\nVarför detta förslag är inte svaret. Mätt på den verkliga plattan, triangeln samförstånd är partisk och fördomar växer som korrespondens tunnar. Syntetiska kontroller byggda från 593 verkliga kärnor, omvandla kända exakt:\n\n    vad som begärdes för skala returnerade inliers identitet 0,9878 56 % skala 0,25 0,2469 100 % skala 0,25, 1 px jitter 0,2065 53 % skala 0.25, hälften av punkterna behöll 0,2916 23 % skala 0.25, en tredjedel behöll 0,3596 15 %\n\nEtt 1,2 % skalfel är 18 px av förskjutning över ett 1480 px mikroskopfält, vilket är anledningen till att en EXACT kopia av en punktuppsättning poäng 56 % snarare än 100. Och de två sista raderna är formen på varje riktigt par som denna modul först prövades på -- två mikroskopbildfält som delvis överlappar, avbildade två gånger, är exakt \"vissa av punkterna, flyttade lite\".\n\nSå samförståndet är ett frö och inte ett resultat. Den här modulen tar det, finner de korrespondenser som det innebär, och återlöser likheten från dessa korrespondenser i sluten form; sedan gör det igen på korrespondenserna den bättre omvandlingen innebär. Det är samma argument som :func:`align_by_triangles` redan gör för dess översättning – \"inte en förfining, det är skillnaden mellan att arbeta och inte\" – tillämpas även på skalan och rotationen.\n\nOch det rapporterar hur många nuclei håller med, vilket triangeln samförstånd inte. `align_by_triangles` returnerade en transform för varje par som den någonsin lämnats, inklusive fenotyp mikroskop bildfält och sekvenserande mikroskop bild fält från motsatta sidor av mikroplate provet position, eftersom tre slumpvis liknande trianglar alltid kan hittas i två uppsättningar av några hundra punkter. En justering utan inler räkna är inte bevis, och DEL 6-A av 372 registrerar samma lektion om placeringar: ett antal saker försök är inte ett mått på något lyckas.",
+      "translation_source_blocks_sha256": [
+        "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
+        "7cd5a5b42e496ee2815fb08a2435cbc801e461e914bb6e331896ad464af218f3",
+        "2a5bf43216a2c6f0047419ee44c50da1cfadfee8b5ee404cd4346d442da6e06d",
+        "7b5d35684483202edc44ae2b4d5baca74a2815aa0a77f2736664002df39f5545",
+        "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
+        "d7984f58c0ca49a6ea814b8e917aca184628841f26cf41826880f2b5bd06b883",
+        "c87e02a4294499a7faaacdf7d5e87e007b1ec368055fea1f4f48c0108b59f8f3",
+        "21f95cfc8804bad488fb536cd47601da70cc4533fad2bc04f85162522b814ef0"
+      ]
+    },
+    "spacr.ops_phenotype.Alignment": {
+      "source_blocks_sha256": [
+        "d4c5c356374628b3d02f07ffd0d6ef18a18afcd5c1d997b3315ac582c9d70ad7",
+        "b5349c6e5ff39aec7714c4152f3b79479c673bd1aa4ed8fb06d7082ad68ff820",
+        "aee359b1f7ed221b8348385893e3e13680d8ce6028e998516270bff3a678bbb1",
+        "06ebe53ef808fa907c14581f7f07ac2ff8719a7111299ca9d788aef0f592bca6",
+        "021952094dd08e2baf7c14c67d25574fcfc53b867e192500189a1a8cd107f298",
+        "8b7ce9a3fb22e919b01818a39f4a7b1f28e2643c68eba672211c1111a37a6c80",
+        "37b05c8985391bd4e2ad217b3448d726db584ae486d4b7038da0ea0c799c4071"
+      ],
+      "source_sha256": "cfdaf5dfd9dab096ddae5d1acacbcf7321479354ef01435359a733c248d11845",
+      "text": "Ett fenotypfält placeras i sekvenseringsramen.\n\n:param scale: mål pixlar per källa pixel.\n:param rotation: rotationen 2x2, källram till målram.\n:param translation: Förskjutningen, tillämpad efter skala och rotation.\n:param inliers: hur många kärnor som håller med, vid :data:`MATCH_RADIUS_PX`.\n:param residual_px: Medianavståndet mellan att komma överens om nuclei, i målpixlar. Talet att läsa när man frågar hur bra det är; `inliers` säger om man ska tro det alls.\n:param points: Hur många källkärnor som erbjöds.",
+      "translation_source_blocks_sha256": [
+        "d4c5c356374628b3d02f07ffd0d6ef18a18afcd5c1d997b3315ac582c9d70ad7",
+        "b5349c6e5ff39aec7714c4152f3b79479c673bd1aa4ed8fb06d7082ad68ff820",
+        "aee359b1f7ed221b8348385893e3e13680d8ce6028e998516270bff3a678bbb1",
+        "06ebe53ef808fa907c14581f7f07ac2ff8719a7111299ca9d788aef0f592bca6",
+        "021952094dd08e2baf7c14c67d25574fcfc53b867e192500189a1a8cd107f298",
+        "8b7ce9a3fb22e919b01818a39f4a7b1f28e2643c68eba672211c1111a37a6c80",
+        "37b05c8985391bd4e2ad217b3448d726db584ae486d4b7038da0ea0c799c4071"
+      ]
+    },
+    "spacr.ops_phenotype.Alignment.apply": {
+      "source_blocks_sha256": [
+        "def75d9a25843a6f3205e22ca6c2c9901d44f6da3236a94ee7c36bdca6c7a569",
+        "d1a5ead8a9f1569f6ecc0b13f486da0a652374d84200bff9ee25f99d999d9308"
+      ],
+      "source_sha256": "95e9eeae3009e3fae0577166c9cf03d81e552435f6be647dc67c06d2c1be4f0d",
+      "text": "Flytta ``(N, 2)`` källkodskoordinater till målramen.\n\nDen lagrade omvandlingen, applicerad -- så en uppringare behöver aldrig rekonstruera konventet och få det på fel sätt runt, vilket är vad som kostade 372-del 11-C en duk en ton per kolumn för stor.",
+      "translation_source_blocks_sha256": [
+        "def75d9a25843a6f3205e22ca6c2c9901d44f6da3236a94ee7c36bdca6c7a569",
+        "d1a5ead8a9f1569f6ecc0b13f486da0a652374d84200bff9ee25f99d999d9308"
+      ]
+    },
+    "spacr.ops_phenotype.Alignment.degrees": {
+      "source_blocks_sha256": [
+        "2a16d98207d58dc20d7143aa9c3d4c66ae91cc9119d69d556af31e240f30a994"
+      ],
+      "source_sha256": "2a16d98207d58dc20d7143aa9c3d4c66ae91cc9119d69d556af31e240f30a994",
+      "text": "Rotation i grader, för en person som läser ett bord.",
+      "translation_source_blocks_sha256": [
+        "2a16d98207d58dc20d7143aa9c3d4c66ae91cc9119d69d556af31e240f30a994"
+      ]
+    },
+    "spacr.ops_phenotype.align_phenotype_to_sbs": {
+      "source_blocks_sha256": [
+        "b4e10952127033d56f9c00470766533636663c70932d3c9e8422f64ba3652d61",
+        "6855aad4e7b6fe5f225052bd353a464041f0fd063b6a5eb283365ed9eb379f63",
+        "5fc7d6e6250c4891ac8684d23f704a5668d0e0822ede99c28e56d7242456ce0f",
+        "f3c4a82b2402c9c642e311d6223f7bd4ca74ec5339f10402e95fd022e41042db",
+        "4c2e783d22b737cd19dc0a12719e80da11ea8f003097a897384ca47a0ecb71cf",
+        "ee56dcc23250a9956f826b7c8cee8af3844d981b889ca60f14c3d191cd03063e",
+        "a19e197e9810a99c5675eeb06ca875d232431235157aa5840d8a6c646318fd78",
+        "9d64ea6f967a5464cf9cb2e08a044c02a5a901d57497d72df21d329ef56147bf",
+        "35b1cb980d0c20db6b55c5d148bcd0d70042dadca07322fe0e593a5bc3af0724",
+        "45fb81bf2ec0f0abd87abf14adf9e7e5b4f188f818dc733f4b69c670e08632ca",
+        "5ef34a3e2e9b49afa65a09555aaa402f4d08f4daa3346b02d5b9c5af8cf39baa",
+        "103a5c4ec7fb24d2680b9593b227e660fa4b25c71d8deef21174cd91d3e1f02f",
+        "dd83543bcd153a413bca18e97ec8a668f77a92153518a5ec80b822dad51cc6e0",
+        "bfe77738efb3ae0de37b880e1cbbac0cf6b7051ad55b3890a127c1db274f532d"
+      ],
+      "source_sha256": "b25888ccb6714e93449c7cfb01477baead43e607fbfab64c10a6166db5014dea",
+      "text": "Ett fenotypfält förvandlas till sekvenseringsram.\n\n:param phenotype_points: ``(N, 2)`` Kärnreaktorer i fenotypfältet.\n:param sbs_points: ``(M, 2)`` kärncentraler i sekvenseringsfältet.\n:param expected_scale: mål pixlar per källa pixel, när förvärvet säger. Med tanke på, ett andra frö provas med skalan fast - se :func:`seed_by_scaled_pairs` för varför det betyder mer än det låter.\n:param tolerance: tolerans i triangelform för samförståndsfröet.\n:param radius: Hur nära en rörd kärna måste landa för att komma överens.\n:param rounds: Förfiningsrundor.\n:param min_inliers: De minsta går med på att ge tillbaka vad som helst.\n:param max_rotation: Den största rotationen de två förvärven kan skilja sig åt med, i grader.\n:param scale_tolerance: hur långt svarets skala kan ligga från ``expected_scale``, som en bråkdel. Ignorerad utan en.\n:param min_chance_ratio: hur många gånger slumpen avtal klassar den verkliga måste slå. Se :data:`MIN_CHANCE_RATIO`.\n:returns: :class:`Alignment`, eller None -- vilket är vad \"dessa två fält inte överlappar\" ser ut, och det måste sägas.\n\nTvå frön, och den med fler kärnor bakom vinner. Raffinering konvergerar till vilken bassäng dess utsäde är i, så att försöka ett frö och förfina det är ett beslut som fattas innan några bevis är i. Scoring båda på samma åtgärd -- hur många kärnor håller -- är inte.\n\nMen inliers bestämmer bara mellan kandidater som är fysiskt möjliga. Scored på inlirar ensam vinner ett fel svar: en lösning 148 grader ut samlade 194 nuklei, och en på skala 0.2069 mot en sann 0.25 samlade 319 - mer än sanningen - eftersom krympning mikroskopet synfältet trängs poäng. Båda är uteslutna här innan de görs, av rotation och skala gränser, och båda gränserna är fakta om mikroskopet snarare än tröskelvärden någon avstämd.",
+      "translation_source_blocks_sha256": [
+        "b4e10952127033d56f9c00470766533636663c70932d3c9e8422f64ba3652d61",
+        "6855aad4e7b6fe5f225052bd353a464041f0fd063b6a5eb283365ed9eb379f63",
+        "5fc7d6e6250c4891ac8684d23f704a5668d0e0822ede99c28e56d7242456ce0f",
+        "f3c4a82b2402c9c642e311d6223f7bd4ca74ec5339f10402e95fd022e41042db",
+        "4c2e783d22b737cd19dc0a12719e80da11ea8f003097a897384ca47a0ecb71cf",
+        "ee56dcc23250a9956f826b7c8cee8af3844d981b889ca60f14c3d191cd03063e",
+        "a19e197e9810a99c5675eeb06ca875d232431235157aa5840d8a6c646318fd78",
+        "9d64ea6f967a5464cf9cb2e08a044c02a5a901d57497d72df21d329ef56147bf",
+        "35b1cb980d0c20db6b55c5d148bcd0d70042dadca07322fe0e593a5bc3af0724",
+        "45fb81bf2ec0f0abd87abf14adf9e7e5b4f188f818dc733f4b69c670e08632ca",
+        "5ef34a3e2e9b49afa65a09555aaa402f4d08f4daa3346b02d5b9c5af8cf39baa",
+        "103a5c4ec7fb24d2680b9593b227e660fa4b25c71d8deef21174cd91d3e1f02f",
+        "90cba5aa5bf288fac748d550567a23ce9bf3226f99f2d27b8359dea6a13ea4a3",
+        "cd1f75be9ff74db6345d819b934715b0985d021a6fc3553eaa8590a3b21d3066"
+      ]
+    },
+    "spacr.ops_phenotype.nuclear_points": {
+      "source_blocks_sha256": [
+        "d01a719d0630d54ec381764f5b21b5ad1ec73e7798d7d40b0bdcdd10a0603d5d",
+        "57efe019cb2b13e64d50d09199d8a51b650d72ed418f78f80deb9dc8a2e19572",
+        "4c0cc15a1edd5ff0fc85ff31e46868048587adf20b8d1588db50c3b880db9ed4",
+        "2ebe1e78d51a717d9e998a524e5907bde0502eb7a854e527b5f4c646d9bf1645",
+        "f7d2b63a774fc3967f5b099fc51a03e12432477d0a9dd4134c050a7fba6199c8",
+        "3271779e65cf7ffde76f7380cb4cb548290f96b47f9caffe40277dd5512200bc",
+        "557d96f0f045514099e38866ac5f5b56b5fa1a01f496702413c6c93866d16a99",
+        "b3b888c77ac48168eda06b383ae4aee6847a7de349d3b9b44b0d6ade61b0ac15"
+      ],
+      "source_sha256": "b15958bb4c33110c402916aebc23c5c070f51a117982beefeda92a8569ea8447",
+      "text": "Kärncentraler från en kärnfläck, utan att segmentera något.\n\n:param image: Ett 2-D bildlager i en kärnbildskanal.\n:param sigma: Gaussian utjämning innan toppfinnande; en kärna är en plump, och utjämning i sin egen skala är vad stoppar en kärna svarar som tre.\n:param min_distance: De närmaste två accepterade topparna kan vara i pixlar.\n:param top: hålla på de flesta så här många, ljusaste först. Triangeln matcher är fyrhörning i punkt räknas och ett fälts ljusaste några hundra kärnor är lika informativa som alla av dem.\n:param percentile: intensiteten golvet, som en percentil av den släta bilden. Relativ snarare än absolut, eftersom de två förvärv denna modul jämför togs vid olika exponeringar.\n:returns: ``(N, 2)`` Rad-/kolumncentraler.\n\nA4 behöver inga masker. Den behöver punkter som betyder samma sak i två ramar, och ett utjämnat lokalt maximum på en kärnfläck är att till en bråkdel av en segmentering kostnad. Fas B segment, en gång, på kompositen; detta är inte det steget och får inte bli det.",
+      "translation_source_blocks_sha256": [
+        "d01a719d0630d54ec381764f5b21b5ad1ec73e7798d7d40b0bdcdd10a0603d5d",
+        "21675a1e6d5f49185ce257af3317c037894b964f82498a9e034deab3a55fe49b",
+        "4c0cc15a1edd5ff0fc85ff31e46868048587adf20b8d1588db50c3b880db9ed4",
+        "2ebe1e78d51a717d9e998a524e5907bde0502eb7a854e527b5f4c646d9bf1645",
+        "f7d2b63a774fc3967f5b099fc51a03e12432477d0a9dd4134c050a7fba6199c8",
+        "3271779e65cf7ffde76f7380cb4cb548290f96b47f9caffe40277dd5512200bc",
+        "557d96f0f045514099e38866ac5f5b56b5fa1a01f496702413c6c93866d16a99",
+        "e31eaad6b7680496d8ef9d345e058a6ca960a30f515faba7507ca15ec34bf494"
+      ]
+    },
+    "spacr.ops_phenotype.phenotype_site_map": {
+      "source_blocks_sha256": [
+        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
+        "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
+        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
+        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
+      ],
+      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
+      "text": "Vilken sekvensering kakel täcker varje fenotyp kakel.\n\n:param phenotype_sites: Hur många mikroskop fält av visa fenotyp förvärv innehar.\n:param sbs_sites: Hur många i följd förvärv innehar.\n:returns: ``{phenotype site -> sequencing site}`` och utelämnar alla fenotypplattor vars sekvenseringsposition är utanför den cirkeln.\n:raises ValueError: När antingen räkningen inte är en brunn, som :func:`spacr.ops_layout.round_well_layout` bestämmer.\n\nDet är en layoutfråga, inte en bild en, och svara på det med bild var hur de tre första försöken på A4 tillbringade en eftermiddag: fenotyp plats N matchades mot sekvensering webbplats N, som är en annan del av brunnen, och varje par kom tillbaka på 2-9 % inliers. layouten säger det i sluten form. Den uppmätta förvärvet passar 41 kolumner vid radie 20.15 mot sekvensbrunnen är 21 vid 10.25 -- samma runda väl vid dubbelt mikroskop bildfält densitet, och 41 = 2 * 21 - 1 -- så en fenotypen rutnät position halverar om centrum.",
+      "translation_source_blocks_sha256": [
+        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
+        "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
+        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
+        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
+      ]
+    },
+    "spacr.ops_phenotype.refine_similarity": {
+      "source_blocks_sha256": [
+        "47318d012262c5cac2b95a8a4628dec163e7b5a021a45c2c69d273a5c241188f",
+        "35adac8816ec203db9afd6eaf3bd15256b806d469e8153209836d782c02af996",
+        "8abeef48b7baf15b7c0efd02da9485b04c62ef47776a639e2dd4b34beac9775a",
+        "6aa145c7914c043c3b4ef2a29abec7dbf5e527eb34d0d59a2f7b1bdd8a0e3343",
+        "b361c77cabccce70c132eec6687ceae62785c247991b9bda50c6543add6951ab",
+        "668932f2e6824257fd51fc8fbb2dde83348acc98b362e461c4293ccdc2bed44a",
+        "2f2ac36eeba4119e8ec79ebe9870b0ea4fd6d3ce4b5f28e68ee10a45ac89e5e1",
+        "5968df4fa6f69f88f7551aed045468decdd81a84e772b7f0b3417d38d2586594"
+      ],
+      "source_sha256": "970678b337b18ea375390602c12f3c5ecf168667e7ce5335199dfdb3c6cba875",
+      "text": "Lös upp ett frö som omvandlas från de korrespondenser det innebär.\n\n:param source: ``(N, 2)`` punkter i ramen som flyttas.\n:param target: ``(M, 2)`` poäng i ramen som flyttas till.\n:param seed: ``(scale, rotation, translation)`` till att börja med.\n:param radius: hur nära en flyttad punkt måste landa för att räknas som en matchning.\n:param rounds: Hur många gånger ska vi lösa det?\n:returns: ``(scale, rotation, translation, source_in, target_in, distances)`` eller None när en runda finner för få korrespondenser att lösa från.\n\nUtsädet får vara fattigt. Det är poängen: triangelns samförstånd är partiskt med upp till 44 % i skala på glesa data, och en partiskhet som stora fortfarande sätter större delen av fältet inom några pixlar av sanningen nära rotationens centrum, vilket är tillräckligt med korrespondens för att lösa ordentligt från.",
+      "translation_source_blocks_sha256": [
+        "47318d012262c5cac2b95a8a4628dec163e7b5a021a45c2c69d273a5c241188f",
+        "35adac8816ec203db9afd6eaf3bd15256b806d469e8153209836d782c02af996",
+        "8abeef48b7baf15b7c0efd02da9485b04c62ef47776a639e2dd4b34beac9775a",
+        "6aa145c7914c043c3b4ef2a29abec7dbf5e527eb34d0d59a2f7b1bdd8a0e3343",
+        "b361c77cabccce70c132eec6687ceae62785c247991b9bda50c6543add6951ab",
+        "668932f2e6824257fd51fc8fbb2dde83348acc98b362e461c4293ccdc2bed44a",
+        "2f2ac36eeba4119e8ec79ebe9870b0ea4fd6d3ce4b5f28e68ee10a45ac89e5e1",
+        "56bdda0a90f5ba8a9a706696375749ef641a2f3bb32122e91c401e51d9829ee4"
+      ]
+    },
+    "spacr.ops_phenotype.seed_by_scaled_pairs": {
+      "source_blocks_sha256": [
+        "d8ab6a638bf635c148fef108b16a97cd7180f3adfa7995ac07fffdac62026f63",
+        "5753a834c9c456410ed35461d2c9047f8d696bee130706d8fb8f91b0c16d7781",
+        "5304741aaeddeea28cd4312f5f989a8b211a32b815f49cad9ec2b0fc398e7619",
+        "b8ad0f50140e84c57c950863cadbd5f1b3ecc8cae658b930c8bec46d39e9cdd7",
+        "3d9cb3063070574dfdfa5510225a1e0f734935bf837b20b5fbf5621b3d7b72b1",
+        "23f5c8e3a4f9c442aa35a7f1ff83f98866255284d0cf55a3a8eab2118db19649",
+        "02fc33b209d42e707895a421a5088ae8109e91c8660bc88713ff0f0acba13e48",
+        "77b3b2025721600671724cf8b48bf743fbd77bfaebdfe174110fc07c0db4a4bd",
+        "18948a570b939fead5bcc9ec54b23d679467a384b9eb9255a0904f5ca68d5494",
+        "5127036b7d4b3e6fef4f20c428178792ed3bfee385124beeb50986678b9a2067",
+        "2d0f699104a952b7784b3e450ef6f5621a22b03d72d599aa8901ab1c2ab8432b",
+        "0d8aa566706826aa1c301f4aa9a46cf9df226e4c06841d919fbf7a1e00c56863",
+        "f1dc4c248bb0912acf949ddd426bf278cbb59bd274d5f8bb9a78453601d97103"
+      ],
+      "source_sha256": "22294b02cb1df4a17c04142fe92d3f5d25df8fee08706d61f0fdd448a087acdc",
+      "text": "Ett frö förvandlas från tvåpunktskorrespondenser, med den kända skalan.\n\n:param source: ``(N, 2)`` poäng som ska flyttas.\n:param target: ``(M, 2)`` poäng att gå över till.\n:param scale: mål pixlar per källa pixel, från förvärvet.\n:param radius: Hur nära en flyttad punkt måste landa för att komma överens.\n:param trials: hur många korrespondenser man ska försöka. None skala den med målet, vilket är vad den måste skala med -- se :data:`PAIR_TRIALS`.\n:param tolerance: Faktisk slack på ett pars separation.\n:param max_rotation: den största rotationen att överväga, i grader. Se :data:`MAX_ROTATION_DEGREES` -- det är det som hindrar sökningen från att returnera en symmetrisk slump med en snygg poäng.\n:param seed: Det slumpmässiga fröet, så en körning är reproducerbar.\n:returns: ``(scale, rotation, translation)`` för den bästa korrespondensen, eller None om ingen poängsatt över två punkter.\n\nVarför detta existerar snarare än enbart triangeln konsensus. Samförståndet uppskattar skalan, och på gles eller bullrig korrespondens uppskattar det det illa -- 0,36 där sanningen var 0,25 uppmätt. Förfining kan inte återhämta sig från det: en omvandling som fel finner en liten självkonsistent kluster av punkter nära sin egen fasta punkt och konvergerar glatt på den. Skalan, dock, är inte något A4 har att uppskatta. Det är förhållandet mellan de två förvärv \"mikroskop bildfält platser, och layouten vet det.\n\nSå detta rättar skalan och söker endast rotation och översättning, som två matchade punkter bestämmer exakt. Ett källpar separerat med ``d`` måste landa på ett målpar separerade med ``scale * d``, och den enda begränsningen är tillräckligt för att göra slumpmässig provtagning billig: för en provtagningspunkt, bara dess grannar på rätt avstånd kan vara partnern.\n\nEn transform som kartlägger fyra punkter på fyra punkter slår helt ingenting; en som karterar två hundra inom en kärnas radie är svaret.",
+      "translation_source_blocks_sha256": [
+        "d8ab6a638bf635c148fef108b16a97cd7180f3adfa7995ac07fffdac62026f63",
+        "5753a834c9c456410ed35461d2c9047f8d696bee130706d8fb8f91b0c16d7781",
+        "5304741aaeddeea28cd4312f5f989a8b211a32b815f49cad9ec2b0fc398e7619",
+        "b8ad0f50140e84c57c950863cadbd5f1b3ecc8cae658b930c8bec46d39e9cdd7",
+        "3d9cb3063070574dfdfa5510225a1e0f734935bf837b20b5fbf5621b3d7b72b1",
+        "23f5c8e3a4f9c442aa35a7f1ff83f98866255284d0cf55a3a8eab2118db19649",
+        "02fc33b209d42e707895a421a5088ae8109e91c8660bc88713ff0f0acba13e48",
+        "77b3b2025721600671724cf8b48bf743fbd77bfaebdfe174110fc07c0db4a4bd",
+        "18948a570b939fead5bcc9ec54b23d679467a384b9eb9255a0904f5ca68d5494",
+        "5127036b7d4b3e6fef4f20c428178792ed3bfee385124beeb50986678b9a2067",
+        "902f16b384a8a5604e0f6e83be5b6f67f62d008f757c9cc36c26d3eb25fe9df5",
+        "0d8aa566706826aa1c301f4aa9a46cf9df226e4c06841d919fbf7a1e00c56863",
+        "7f492ab081c71d2e18b8de93a2ebadddfe24c32d99ab42a6f3c725dfa06387d9"
+      ]
+    },
+    "spacr.ops_phenotype.similarity_from_correspondences": {
+      "source_blocks_sha256": [
+        "e209bfecfeb5ac4785b2c91235b83567bd594a13406805f57ebcbba70f55118a",
+        "8cf516c18769a7942fa129d0f8ff9874a6c5ffda24c594c1669eb54c3babd7c5",
+        "365cdc19ee34cd1a37ad10a38cbc8fc9a8c3416f975ef697d929542824ef0099",
+        "8a486f925077ff26bacd33b97bfb822cebbd3b0165c14e16de02771809900a35",
+        "44fc1be1506b27ee6fc9e6353619e5d3727257a89be57552dc8e153668be1f8f"
+      ],
+      "source_sha256": "cfd842921b114d6f37c7d76f1bda7703dcab73a4ebde617ef1c628066ccdcbb4",
+      "text": "Den bästa likheten med ``source`` på ``target``, i sluten form.\n\n:param source: ``(N, 2)`` Poäng.\n:param target: ``(N, 2)`` poäng, i samma ordning.\n:returns: ``(scale, rotation, translation)`` eller None för färre än två punkter eller en degenererad källa.\n\nUmeyamas lösning: den minsta skalan, rotationen och översättningen över varje korrespondens på en gång. Reflektioner vägras -- två förvärv av en mikroplatta provposition skiljer sig åt genom en stel rörelse och en förstoring, aldrig genom en spegel, och låter man en dålig korrespondens uppsättning producera en omvandling som passar vackert och betyder ingenting.",
+      "translation_source_blocks_sha256": [
+        "e209bfecfeb5ac4785b2c91235b83567bd594a13406805f57ebcbba70f55118a",
+        "8cf516c18769a7942fa129d0f8ff9874a6c5ffda24c594c1669eb54c3babd7c5",
+        "365cdc19ee34cd1a37ad10a38cbc8fc9a8c3416f975ef697d929542824ef0099",
+        "8a486f925077ff26bacd33b97bfb822cebbd3b0165c14e16de02771809900a35",
+        "f8291a78acd46a199077471c7bd5a53767f62150f044bae3396daecc6a58b076"
+      ]
+    },
+    "spacr.ops_register": {
+      "source_blocks_sha256": [
+        "a460804801598c5fe60084c0a60ca470e7741be622e2b99885edd8f358320695",
+        "7882c8ee7cb3b825d3f943d39d393b950856dfdcfc1029f6bacb934097c2bb15",
+        "3032c0e7dec47ab1beeb41d84d13eb1116a2798d9a890f18c6235bd43f3c0421",
+        "43cd8c39204db6e25f20c3a88398d7d77db10f56bd7a06dbe1d83c2c02037dee",
+        "5e6c0132bea5fa43a2b179c1a06e8f03d21efc062ef99d2a2b9ca9de4e865cda",
+        "0d2e3e69fde89774dfaa16f3ebb3b8e44d8202496e32ba114b50ee623b9abfcf",
+        "074d155592812fc3d5e4e7335893cc093b4b6c0ee3649c3c1c9067f72b045f21",
+        "80d41f8dffef7957a06bebba862a4da259019ad16c3b4496ed4e08e09be68f40",
+        "0ca2b845f8500f2222ea89ff72195cc60466381e33a6ae1ab97d14bf93b4a9d9",
+        "90c95204836925dff481463ff29947ad90f124864db553914909e6d5c0358402",
+        "3ab3fa7a762c066ea0648577b457278f94ef064abd3dbfa0f5c624a496172506"
+      ],
+      "source_sha256": "5024848a67a2c7c425b11d1f48306d1a27022422380080df06139e87a718e96c",
+      "text": "Registrera två överlappande mikroskop bildfält genom fas korrelation, på vilken hårdvara.\n\nVarför fas korrelation och inte funktionsmatchning. Båda kördes på samma pixlar -- väl A1 cykel 1 av `screenA/20200202_6W-LaC024A`, 333 mikroskop bildfält av 10X SBS DAPI:\n\n    ORB + RANSAC 993 par poäng, medianpoäng 0,0002, max 0,0985 26 av 333 plattor placerade, 307 tappade fas korrelation geometri omedelbart, topp / medelvärde 23,6 till 53,1 mot kontrollpar på 9,0 till 15,6\n\nNuclei på 10X är runda blobs. De har inga hörn, så en hörndetektor hittar i huvudsak ingenting och matcher scores är buller. Fas korrelation ställer en annan fråga -- vilken enda översättning gör dessa två mikroskop fält av vy överens -- och ett mikroskop fältet av seende av klobs svarar det mycket bra. Feature matchning tjänar fortfarande sin håll på EN plats, och det är inte denna: fenotyp-till-SBS steg över förstoringar, där skala och rotation är verkliga.\n\nTre ting som gör svaret rätt, alla av dem lärde sig den hårda vägen och alla av de mätte:\n\n  * Skiftet kommer tillbaka inlindat. En FFT vet ingenting om vilket sätt som är negativt: en -213 px skift av en 1480 px mikroskop bildfält anländer som +1267. Läsning det olindad gjorde den första prototypen skift nonsens medan varje enskild registrering var korrekt. :func:`unwrap` viker något förbi en halv mikroskop bildfältet i den negativa halvan.\n  * (0,0) Är den icke-överlappade signaturen, inte en perfekt inriktning. Två mikroskopiska bildfält som inte rör vid har ingen översättning som gör att de är överens, och toppen landar vid ursprunget. Det är REJECTed snarare än tros, vilket är vad de tre kontrollparen i 372-del 11-B bekräftas.\n  * En topp är bara en topp mot sin bakgrund. Den absoluta höjden betyder ingenting; topp/medelvärde gör det. True grannar mätt 23,6 till 53,1 och icke-grannar 9,0 till 15,6, så `min_peak_ratio` har verkligt utrymme mellan dem.\n\nBackend är en indirektion över arraymodulen, vilket är hela frågan om GPU är här: detta är en FFT, en multiplikation och ett argmax. CuPy först där den finns, `torch.fft` sekund -- torch är redan ett spaCR beroende genom Cellpose, så det kostar inget att installera och nå CUDA, ROCm och Apple MPS genom en väg -- och NumPy alltid.\n\n    Den CPU PATH är inte ett fel PATH. Båda kör samma fixtur och måste gå med på inom en pixel, vilket är vad `tests/test_the_ops_registration_agrees_on_every_backend.py` hävdar. En reserv ingen jämför är en andra genomförande, inte en reserv.\n\nOch den antar aldrig att kortet är gratis. En delad GPU är det vanliga fallet -- den här kör också strukturförutsägelse. `spacr.accelerator` är sömmen som bestämmer om det finns en användbar enhet alls, `gpu=False` vägrar en som finns, och ett bakgrundsgränssnitt som höjer vid körning faller igenom till nästa istället för att misslyckas med mikroplattans provposition.",
+      "translation_source_blocks_sha256": [
+        "3d4312a3abd39b4f1b84ebd7307baf29c21fc448d17c1b533925da44a0b342d8",
+        "9ef7f821f2eb74f1dbfc178aa58531805340384256d7cc933f533fef46d14119",
+        "3032c0e7dec47ab1beeb41d84d13eb1116a2798d9a890f18c6235bd43f3c0421",
+        "245545e58d6dac69947bb1dcd633b1e969a52f917135539a8abfbadc55d73391",
+        "c2ccf3b4822084a213ec1724dbf6e259a8f20740491d5eda2beaeed90f49b31b",
+        "32b195d6ae08e1e76b4ce897790f96b844422966b4fc029faeedf38f48863471",
+        "ab13b1d501c79deeab7eb2f18d5e7c1d8638b98d719f01cd57be5c49f2beafff",
+        "9cde7551f12585f5ae9aa87fe6f660d49233881fd3fbb76331f2ed6414678086",
+        "d3d221a759d918cf3aea44f10509da3afe5585f0e882e307c5e7dda0e938b630",
+        "efa1e123b1a02bff4f9ef97b3270da13731a568b2116e52bf3dd15d726c3b9d1",
+        "3581975b62a588b2f74346170b4cd682d0b4059e97a53247f4dd29b85e763e0d"
+      ]
+    },
+    "spacr.ops_register.Registration": {
+      "source_blocks_sha256": [
+        "61d9095a038ae18469d895272d088cfb02a0374e74223a54e54f02f84bdc2497",
+        "fd20cbee10f13d04e2c8821e6dc07ca8774ae53718f667fd8245317e75697b66",
+        "92fc02dc4854dd67f4a4da4406cfb64936e394b3be67dccc8ab4431c5682b214",
+        "ebaa390c55065c35d93db3d1a8ddfcc4365d140fc71c0b187945f41ff11170df",
+        "2811b697d9eb79fc278f6790c613a2f4172b499500ebde571dbd170f50190df8",
+        "8b391525c43e4d5f5b87f3540e82f2b0af9418208834aad3429abec89c335f05"
+      ],
+      "source_sha256": "fa9bb1633cac0671c2f77aa54f3ec0d4f27054a55049736cd418d33bf688a4f6",
+      "text": "Vad ett par plattor mätte.\n\n:ivar dy: rader för att flytta den andra brickan för att landa den på den första, olindad till ``[-height/2, height/2)``.\n:ivar dx: Samma mellan kolumnerna.\n:ivar peak_ratio: Korrelationstoppen mot ytans medelvärde. Bevisen, inte förskjutningen.\n:ivar accepted: Om detta är en verklig överlappning: en topp över tröskelvärdet som inte ligger vid ursprunget.\n:ivar backend: vilken arraymodul som svarade, så att en bearbetningssession kan säga vad den körde på istället för att lämna den att härledas.",
+      "translation_source_blocks_sha256": [
+        "61d9095a038ae18469d895272d088cfb02a0374e74223a54e54f02f84bdc2497",
+        "fd20cbee10f13d04e2c8821e6dc07ca8774ae53718f667fd8245317e75697b66",
+        "92fc02dc4854dd67f4a4da4406cfb64936e394b3be67dccc8ab4431c5682b214",
+        "ebaa390c55065c35d93db3d1a8ddfcc4365d140fc71c0b187945f41ff11170df",
+        "2811b697d9eb79fc278f6790c613a2f4172b499500ebde571dbd170f50190df8",
+        "82f4c90cf5b90c01eb893e2f26754439db1e6f98d5995912dca33e0ed75cfe25"
+      ]
+    },
+    "spacr.ops_register.Registration.shift": {
+      "source_blocks_sha256": [
+        "1c54228e195b455068a6ffd2734ac2c53b98a9a0a10c44c7e7f2ed424ed88363"
+      ],
+      "source_sha256": "1c54228e195b455068a6ffd2734ac2c53b98a9a0a10c44c7e7f2ed424ed88363",
+      "text": "``(dy, dx)``, för en uppringare som vill ha paret.",
+      "translation_source_blocks_sha256": [
+        "1c54228e195b455068a6ffd2734ac2c53b98a9a0a10c44c7e7f2ed424ed88363"
+      ]
+    },
+    "spacr.ops_register.available_backends": {
+      "source_blocks_sha256": [
+        "afd351430a584f82fa76cda46797ed456ea22a982fb8cffe7c68eb55684dc41f",
+        "aee75842e114682e597cfaefda66b7c36a8b63c70429496c5854407700fbf997",
+        "899aae8fc56150c50643ce72254c026da0abe3a8c966e0dedb009d6e80c38cb8"
+      ],
+      "source_sha256": "2093c2aa135cf53295d2702326156a7af4d8ac6bf00b6604f2ac683e952a0e38",
+      "text": "Vilket gör att maskinen faktiskt kan köras, bäst först.\n\n:param gpu: False vägrar de accelererade direkt, vilket är vad inställningen `gpu` betyder -- ett kort som finns och är upptagen med någon annans jobb är inte ett kort denna behandling kan ta.\n:returns: de användbara namnen, som alltid slutar i ``\"numpy\"``.",
+      "translation_source_blocks_sha256": [
+        "afd351430a584f82fa76cda46797ed456ea22a982fb8cffe7c68eb55684dc41f",
+        "a87b96a5c1304e7225f277139f4223c83495cf176d3758b34e8cc14813e34e1b",
+        "899aae8fc56150c50643ce72254c026da0abe3a8c966e0dedb009d6e80c38cb8"
+      ]
+    },
+    "spacr.ops_register.phase_correlate": {
+      "source_blocks_sha256": [
+        "7f5cb98dacbcdd8831d726d0b7ff22bdb0c3e41633bdd0143a196bb8b3b6e867",
+        "dc21adc517c1e6deff5a94861fe8f9657683d8a1efd5e5b9f15f9454a78a272f",
+        "e57c8cf693bf6fffe13e651316f92ca1fcb9518b410088d8067b88420bbc2285",
+        "aab58397b744b2ca4a4a8fc302a930723ae331c065fe994fdc3d2fe9ecae1d55",
+        "a1f4a05a8d632f1dfb0b83b62e7592155759368ffd826fe50b1d4acbb2d6bd4a",
+        "94e61b6a503a6092280c268ea9d9f970696f4facd62829f9a753f21c26f69194",
+        "20b4081e8c6bc66b6354253346aeba86410eb9559739c6ef3ceedfaa888084a5",
+        "bb48f1d66cd67b23acc744bde941da596c001f121eafc5622428995fd8ec533e",
+        "bf52cec9d491ee29d6998d36a5ce5937cc91e80f0706ccda97dfbb371250e0da",
+        "d02d5b6231c62fcfa70bf3e4704ec4dc9e7309d95154da13c74e7b6f5dd42150",
+        "621b64883b8e7cd8c72609b04d37cf0032b6cb46eee9e29c0f01f55f15d046da",
+        "885fa350503c6783d3578f7e1ccd4b234ba2405f17e7627c5a7cabb91b6a2014",
+        "43b19f95eda0546e3aa8592074ce57e1928df7429f045b39ceb9a71776aad3b3"
+      ],
+      "source_sha256": "4c94172e934e763799ee8584e734d8c03390b0d55fcc346afbf4adc606e6f835",
+      "text": "Mät översättningen mellan två överlappande fält.\n\nResultatet är det skifte som landar ``second`` på ``first``: rullande ``second`` med ``(dy, dx)`` för in den i ``first``'s ram.\n\nTar och returnerar NumPy vad som än sprang, så ingen anropare lär sig vilket gränssnitt som svarade – namnet finns på resultatet för skivan, inte för grenning.\n\n:param first: Referensfältet, 2-D.\n:param second: fältet att placera mot den, samma form.\n:param expected: ungefär där grannen är, för att packa upp. Standardvärdet på (0, 0) viker in i halva intervallet, vilket är rätt för två hela mikroskop bildfält och WRONG för två överlappningsremsor -- se :func:`unwrap`.\n:param tolerance: hur långt från ``expected`` ett skift kan landa och fortfarande accepteras, i pixlar. när det ges är det testet, och toppförhållandet blir ett registrerat tal snarare än data-urvalsgränsen -- se noten på :data:`MIN_PEAK_RATIO`.\n\n    Ett par siffror accepteras och är vanligtvis vad som önskas: ``(rows, columns)``. De två axlarna är inte samma fråga -- en sann kant ligger inom en pixel eller två ALNGE rastern och upp till scenens skev ACROSS det -- och ett nummer för båda antingen förkastar skev eller erkänner en granne en hel bricka bort. Se :data:`SKEW_PX`.\n:param backend: kraft ett; None tar det bästa tillgängliga.\n:param gpu: False håller det på CPU även där ett kort finns.\n:param min_peak_ratio: nedanför detta är paret ingen granne.\n:returns: Registreringen, som godtas eller inte.\n:raises ValueError: när de två mikroskopbildfälten inte är samma 2-D-form, vilket är ett anropsfel snarare än en misslyckad registrering och får inte komma tillbaka som en självsäker (0, 0).",
+      "translation_source_blocks_sha256": [
+        "7f5cb98dacbcdd8831d726d0b7ff22bdb0c3e41633bdd0143a196bb8b3b6e867",
+        "dc21adc517c1e6deff5a94861fe8f9657683d8a1efd5e5b9f15f9454a78a272f",
+        "e57c8cf693bf6fffe13e651316f92ca1fcb9518b410088d8067b88420bbc2285",
+        "aab58397b744b2ca4a4a8fc302a930723ae331c065fe994fdc3d2fe9ecae1d55",
+        "a1f4a05a8d632f1dfb0b83b62e7592155759368ffd826fe50b1d4acbb2d6bd4a",
+        "e61c30f7b2ed958e6692830a9614ba9e9bc1f5f4ca1ab01bbb85d26f24ef53c7",
+        "d076293a57f0ad6ecae8acb0c7aaf04e248db7acfba13c0b88c67427ccecc454",
+        "2ae4bc68bab25270fde957e90617e6f11aeaa78c6725739187b3675abcbba97a",
+        "bf52cec9d491ee29d6998d36a5ce5937cc91e80f0706ccda97dfbb371250e0da",
+        "d02d5b6231c62fcfa70bf3e4704ec4dc9e7309d95154da13c74e7b6f5dd42150",
+        "621b64883b8e7cd8c72609b04d37cf0032b6cb46eee9e29c0f01f55f15d046da",
+        "885fa350503c6783d3578f7e1ccd4b234ba2405f17e7627c5a7cabb91b6a2014",
+        "f0bc22791146b570df904ceb2ba8b8946625004e1038bec421f2a224e3bf083f"
+      ]
+    },
+    "spacr.ops_register.register_edge": {
+      "source_blocks_sha256": [
+        "b3266359318c74870049c9b84f58e98bb97ed1c5039ddef663780596eea2c0e0",
+        "43ea4cbd0dbc2a861db95292a12a906877c4651c86d53e390296aa214e0a27c6",
+        "81fc680103e08de241decf67221faaf3b980d8318c43d96c33b55d0d24ba0e51",
+        "14d282942a718d7556a7cdf11581dbb56e2ed494b8e5019a6828ef04aea396b9",
+        "8eeeda7641bc9058e0c8295b6d8d961358c0440dd47deda9864d7053be45cbf6",
+        "81dbecac6a83350a04997e04a796a89ad6a8e9e0784d534730ea8a3e0ec8adba",
+        "428a466935e72c167e9e3a5aec97da02efd223b89764aa0d23cba2d3f5caeeeb",
+        "f954c508321761136ae70b949184153d5555bfbe4cd7eddd7b21e49cb012c90d",
+        "aca6eb7b66175190c21e9c95c12140783e65eee2f2a87e0162bafd641dbe667c",
+        "72385c3024de11bd01d062850f6568b23d46f08fbdd2ff055d5d282b5c4897fb",
+        "e6dc7b6ea07dc390e2bc0bfad41324b9198bbd5dc43f0bf62c92651c12a171f0",
+        "a1c60d93565f5fb0eb6a36e6619968fd2e68345195e5334baef70d35cf946898",
+        "02d0397c9f9a4c5d81590a698722669d207884329ef91d9d1f50062b71a62558"
+      ],
+      "source_sha256": "eff0688c160b40177c3830839c2a65d04b2ac6836edea77fb8dacebb3f3bdd56",
+      "text": "Registrera två brickor som vidrör längs en kant, endast med hjälp av den kanten.\n\nCorrelate bandet som kan hålla med, inte mikroskop bildfältet. Rastern överlappar sina mikroskopfält med cirka 14 % -- 213 px av 1480 -- så 86 % av en helmikroskop bildfält korrelation är signal som KAN INTE matcha och kan bara lägga till bakgrund till ytan toppen bedöms mot. Mäts på en blob fixtur vid exakt den överlappningen::\n\n    whole tile      peak/mean 15.2, shift WRONG, rejected\n    30 % strip      peak/mean 29.2, shift exact, accepted\n                    control pair 14.0, correctly rejected\n\nvilket också är separationen som det verkliga förvärvet visade (23,6-53,1 för verkliga grannar, 9,0-15,6 för kontroller). Bandet måste vara WIDER än överlappningen och inte mycket bredare: 40 % spädde tillbaka det till 15,4 och förlorade skiftet igen.\n\n:param first: kakel kanten mäts mot.\n:param second: dess granne, under den för \"vertical\" och till höger för \"horizontal\" -- ordningen :meth:`WellLayout.pairs` returnerar dem i.\n:param axis: \"vertical\" or \"horizontal\".\n:param overlap_fraction: Hur mycket kakel bandet tar.\n:param expected_overlap: Överlappning i pixlar, när tonhöjden är känd. Det sätter unwrap förväntan, vilket är det som stoppar en verklig skifte större än hälften av randen avläsning som en negativ.\n:param tolerance: hur långt kanten den uppmätta förändringen kan landa från den förväntade överlappningen och fortfarande accepteras. Detta är acceptansen den verkliga väl använda; utan den bestämmer toppförhållandet, och toppförhållandet kan inte bestämma -- se :data:`MIN_PEAK_RATIO`.\n:param skew: Hur långt ACROSS det kan landa. Scenens skev är en verklig ~9 px på den uppmätta plattan och är inte ett fel, så detta är ett separat nummer: en tolerans för båda axlarna förkastade 525 av 624 sanna adjacenser vid 8 px. Se :data:`SKEW_PX`.\n:param kwargs: övergick till :func:`phase_correlate`.\n:returns: Registreringen, i Microscope bildfältskoordinater snarare än rand--anroparen frågade om två mikroskopbildfält.\n:raises ValueError: på en okänd axel.",
+      "translation_source_blocks_sha256": [
+        "b3266359318c74870049c9b84f58e98bb97ed1c5039ddef663780596eea2c0e0",
+        "fef2684003ed9b83cf60607598c66a0ee7d2944691da2914f26e3b1af95cc0f6",
+        "81fc680103e08de241decf67221faaf3b980d8318c43d96c33b55d0d24ba0e51",
+        "14d282942a718d7556a7cdf11581dbb56e2ed494b8e5019a6828ef04aea396b9",
+        "8eeeda7641bc9058e0c8295b6d8d961358c0440dd47deda9864d7053be45cbf6",
+        "81dbecac6a83350a04997e04a796a89ad6a8e9e0784d534730ea8a3e0ec8adba",
+        "428a466935e72c167e9e3a5aec97da02efd223b89764aa0d23cba2d3f5caeeeb",
+        "f954c508321761136ae70b949184153d5555bfbe4cd7eddd7b21e49cb012c90d",
+        "aca6eb7b66175190c21e9c95c12140783e65eee2f2a87e0162bafd641dbe667c",
+        "72385c3024de11bd01d062850f6568b23d46f08fbdd2ff055d5d282b5c4897fb",
+        "e6dc7b6ea07dc390e2bc0bfad41324b9198bbd5dc43f0bf62c92651c12a171f0",
+        "f99180d17f4e4173f6a2e6c40d935b715abb063cd1902cde45c241fe21a8639e",
+        "02d0397c9f9a4c5d81590a698722669d207884329ef91d9d1f50062b71a62558"
+      ]
+    },
+    "spacr.ops_register.register_pairs": {
+      "source_blocks_sha256": [
+        "437abc16ce0e8d7e1607dd46076cf662c988fc73120a36352a4aeee7f73301b6",
+        "b398d2fefe530e5cee54eca8a4b7518284e6baa0861b1d550aff8aefdd316d30",
+        "00aa932ee014d542956b6daef64310dfc85cf062a837db5b5647251aa4987c81",
+        "0450224f0fb486becd4ea536aa9fb874715809c008370e33859175bdab11fffc",
+        "33839dc11ea7f5f00752738a9a8797639aaede55765fac74ebea5f070b9ca118",
+        "c67e6bc3698b1bd4f998aad89532b11adaee0619c0596ad445e8d9595f940a28",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "edf17c6de79bf3a7fb26577d4d4684297ae561e7716b36837efcb49dfeb1c171",
+        "1e466bd2ecd7b7512ca2aede078d82ab4acb437e28dea971ec4c5ffb707193ce"
+      ],
+      "source_sha256": "8b9d7181d1db2931afd19450fdb111457a4527fbd7d3fdeecbafc8ce1df6d2c7",
+      "text": "Registrera varje adjacency en layout erbjuder.\n\n:param tiles: ``site -> 2-D array``, eller någon anropbar ta en webbplats. en anropsbar är poängen för en riktig brunn: 333 mikroskop bildfält på 1480 px är mer än behöver bo, och anroparen bestämmer vad som ska behållas.\n:param pairs: vad som ska registreras, från :meth:`spacr.ops_layout.WellLayout.pairs`.\n:param expected_overlap: rastern överlappar i bildpunkter, när den är känd.\n:param tolerance: Hur långt utmed kanten ett skifte kan landa.\n:param skew: Hur långt över det kan -- scenen är egen, mätt.\n:param gpu: Jag gick igenom.\n:param min_peak_ratio: Jag gick igenom.\n:param kwargs: övergick till :func:`register_edge`.\n:returns: ``{(a, b): Registration}``, inklusive de avvisade -- ett par som misslyckades är ett faktum om förvärvet och hör till `ops_geometry`, inte i en felsökningslogg.",
+      "translation_source_blocks_sha256": [
+        "437abc16ce0e8d7e1607dd46076cf662c988fc73120a36352a4aeee7f73301b6",
+        "f93b3955fc1b0114e9476d01614b8d5ce5d9f70c8871a9dd11540726bec6fbfa",
+        "00aa932ee014d542956b6daef64310dfc85cf062a837db5b5647251aa4987c81",
+        "0450224f0fb486becd4ea536aa9fb874715809c008370e33859175bdab11fffc",
+        "33839dc11ea7f5f00752738a9a8797639aaede55765fac74ebea5f070b9ca118",
+        "c67e6bc3698b1bd4f998aad89532b11adaee0619c0596ad445e8d9595f940a28",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "edf17c6de79bf3a7fb26577d4d4684297ae561e7716b36837efcb49dfeb1c171",
+        "1e466bd2ecd7b7512ca2aede078d82ab4acb437e28dea971ec4c5ffb707193ce"
+      ]
+    },
+    "spacr.ops_register.unwrap": {
+      "source_blocks_sha256": [
+        "f6b91bc6cb2a5ae183327d1e79feebe7d0184c9244e9592c8f774f159b24647d",
+        "f82e25a90f8bd94106ad5a3309e0a0444fb59de8f4b9f40e3ea569834d65fe0b",
+        "d8e1b58f94186698a7906170f01deac8dc2a8043a759dcb3b79e737b8257485b",
+        "f3721bc75cbb8730b97fa9a302a6d1540b5d5a3fdd6b259e4cdf46324e674873",
+        "d0291097f3932c7129ced787a4a0e9b8ce93f74b9680fd50bb64557e28d92b6f",
+        "c8efa7e19c8b644a875bbfa2d4105b8fe50c9a3b0010490233585404e143b7b9",
+        "3f54d20af058e945ec56bbe3d500b9b92b0a4a9e6d1ed0304caecb0c674c012d"
+      ],
+      "source_sha256": "3ef5c80ee17ea6d74b0f53cec373ccf54683bdee3553ecd2436abb7013b6a24e",
+      "text": "Vik ett inslaget FFT-skift till närmaste representant ``about``.\n\nEn översättning av -213 i ett 1480 px mikroskop bildfält kommer tillbaka som +1267, eftersom omvandlingen är periodisk och har ingen uppfattning om riktning. Läsa den oinplastade gjorde 372: s första prototyp skift nonsens medan varje enskild registrering var korrekt.\n\n``about`` Är inte dekoration och standard är det farliga fallet. Med ``about=0`` detta viker in i ``[-extent/2, extent/2)``, vilket är rätt endast när den verkliga skiftningen är mindre än halva axeln. Det är inte, när korrelationen körs på en överlappning STRIP: en 222 px band som bär en verklig skiftning av 116 veck till -106, ett tal som är både fel och rimligt. Anroparen vet ungefär var grannen är - raster tonhöjd säger så - så det passerar att, och den representant närmast är svaret.\n\n:param value: Den råa toppkoordinaten.\n:param extent: axellängden.\n:param about: den förändring som anroparen förväntar sig, i samma enheter.\n:returns: Representanten för ``value`` mod ``extent`` närmast ``about``.",
+      "translation_source_blocks_sha256": [
+        "f6b91bc6cb2a5ae183327d1e79feebe7d0184c9244e9592c8f774f159b24647d",
+        "c29fad7328260a49fa83ee3680f478a3528db6934471021f6140f1b384874583",
+        "6037ad57f424334bcb1172e662cbd955bdfb392f483535502a14212e7db79e3f",
+        "f3721bc75cbb8730b97fa9a302a6d1540b5d5a3fdd6b259e4cdf46324e674873",
+        "d0291097f3932c7129ced787a4a0e9b8ce93f74b9680fd50bb64557e28d92b6f",
+        "c8efa7e19c8b644a875bbfa2d4105b8fe50c9a3b0010490233585404e143b7b9",
+        "3f54d20af058e945ec56bbe3d500b9b92b0a4a9e6d1ed0304caecb0c674c012d"
       ]
     },
     "spacr.ops_sbs": {
@@ -46432,11 +47224,12 @@
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "df6df4be9f575ade5683d1589138ecd6f816cd5439f80fe3b9024319a5bcf646",
         "e0de7449010e14aad436160bf11b07a9b44e4fa61a86a997ed659a748a9208e7",
+        "51cb558cd09ff72fdc396ab37c9c091f6adc9516203a202fd871fc48bb69dcf5",
         "53dd85f57fc8a4baf9311b40189b6719cb4b01de7e68d897a566143b034c2ef4",
         "e6e850efb68f91cf6e6d1545a822de8295742df497be0b183bc9921f653d9090"
       ],
-      "source_sha256": "cc9608b9b41f6791b967b149fc5bfb1e068907414000b3fc023a1983f039a26e",
-      "text": "Ångra färg genomblödning, så den ljusaste kanalen är basen.\n\nDet råa argmaxet är inte basen. Varje färgämne avger i sina grannars kanaler, så en kanal som är ljus totalt vinner jämförelser det bör förlora, och fördomar är systematisk snarare än buller: det fel-kallar samma bas överallt.\n\nKorrigeringen är monterad från data snarare än från en kalibreringsfil, eftersom det beror på fläcken, filtren och exponeringen -- som är egenskaper hos körningen, inte av instrumentet. För varje bilddatakanal, de fläckar där bilddatakanalen dominerar hittas, och deras medelvektor blir den bilddata kanalens axel; matrisen för dessa axlar, inverterade, kartor observerade intensitet tillbaka till basen identitet.\n\n:param values: ``(N, cycles, channels)`` från :func:`extract_bases`\n:param method: ``\"percentile\"`` tar fläckar över ``percentile`` i en kanal; ``\"median\"`` tar platser där kanalen är argmax. Percentil är den mer robusta av de två när en bas är sällsynt, vilket är fallet ett mediansamtal blir fel.\n:param percentile: Avgränsningen för ``\"percentile\"``.\n:returns: korrigerade intensiteter, samma form.\n:raises ValueError: på ett okänt ``method``.",
+      "source_sha256": "198fb741aebfe14ca9c4b481cac886bbe339b5f59b2bc8531a01eb4202191db3",
+      "text": "Ångra färg genomblödning, så den ljusaste kanalen är basen.\n\nDet råa argmaxet är inte basen. Varje färgämne avger i sina grannars kanaler, så en kanal som är ljus totalt vinner jämförelser det bör förlora, och fördomar är systematisk snarare än buller: det fel-kallar samma bas överallt.\n\nKorrigeringen är monterad från data snarare än från en kalibreringsfil, eftersom det beror på fläcken, filtren och exponeringen -- som är egenskaper hos körningen, inte av instrumentet. För varje bilddatakanal, de fläckar där bilddatakanalen dominerar hittas, och deras medelvektor blir den bilddata kanalens axel; matrisen för dessa axlar, inverterade, kartor observerade intensitet tillbaka till basen identitet.\n\n:param values: ``(N, cycles, channels)`` från :func:`extract_bases`\n:param method: ``\"percentile\"`` tar fläckar över ``percentile`` i en kanal; ``\"median\"`` tar platser där kanalen är argmax. Percentil är den mer robusta av de två när en bas är sällsynt, vilket är fallet ett mediansamtal blir fel.\n:param percentile: Avgränsningen för ``\"percentile\"``.\n:param gpu: Låt den unmixing multiplicera kör på kortet. En liten matris appliceras på varje punkt i varje cykel är en stor multiplicera med en liten operand, som är den form som går till ett kort väl.\n:returns: korrigerade intensiteter, samma form.\n:raises ValueError: på ett okänt ``method``.",
       "translation_source_blocks_sha256": [
         "d119535e6cc1a1bef0e56a13c430f15ca980f23471d8d314eeb667f2b3115c94",
         "2ef65119251e11b936cff2c2361a6c0c4c1d39d03adb9381eaa3721396352090",
@@ -46444,6 +47237,7 @@
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "df6df4be9f575ade5683d1589138ecd6f816cd5439f80fe3b9024319a5bcf646",
         "e0de7449010e14aad436160bf11b07a9b44e4fa61a86a997ed659a748a9208e7",
+        "51cb558cd09ff72fdc396ab37c9c091f6adc9516203a202fd871fc48bb69dcf5",
         "53dd85f57fc8a4baf9311b40189b6719cb4b01de7e68d897a566143b034c2ef4",
         "e6e850efb68f91cf6e6d1545a822de8295742df497be0b183bc9921f653d9090"
       ]
@@ -46517,16 +47311,18 @@
         "d83ecd03a3123c1a8e38946f74a778e69403902bd1daeda069bf5947bf4197ea",
         "0f2f1f5f875d485a86fea3a08c093b17958acb30b642cba774ce5a485934bb5d",
         "403e9ca6aa0805780f3eacaf6b9670c25e1a7dc8422b384abb6292e3927cb623",
+        "23459a1f9e95377ee90b40d70a09b0a2240b2ed8f4081ce165f1421e44e4fc0b",
         "ef0888375647a92111ed9db9dda820f33a24b5f8dc06cc43f29d22478a7e9076"
       ],
-      "source_sha256": "f41dffad95c9ddaa6ca6939ef88f7d4dd39468c616b2289d37f4aa61b9cc1bce",
-      "text": "Lokala maxima på ``score``, som en ``(N, 2)`` matris av ``(y, x)``.\n\nEn vanlig \"är denna pixel den största i sitt fönster\" test returnerar en klump av angränsande pixlar för en punkt, så fönstret max jämförs för Equality med pixeln och band bryts genom att ta den första -- vilket är vad som gör en punkt avkastning en topp.\n\n:param score: kartan från :func:`estimate_read_locations`.\n:param min_distance: Halvbredd av undertrycksfönstret, i bildpunkter. Två läser närmare än detta kan inte båda hittas, vilket är en egenskap hos optiken snarare än av denna funktion.\n:param threshold: ignorera maxima under detta. ``None`` håller varje lokalt maximum och lämnar beslutet till uppringaren, vilket är rätt standard eftersom den användbara cutoff beror på fläcken.\n:returns: Toppkoordinater, starkast först.",
+      "source_sha256": "e38a680f35db5124ab64a367cea4c15267467cad08c183e3d4575bf389fd5b2a",
+      "text": "Lokala maxima på ``score``, som en ``(N, 2)`` matris av ``(y, x)``.\n\nEn vanlig \"är denna pixel den största i sitt fönster\" test returnerar en klump av angränsande pixlar för en punkt, så fönstret max jämförs för Equality med pixeln och band bryts genom att ta den första -- vilket är vad som gör en punkt avkastning en topp.\n\n:param score: kartan från :func:`estimate_read_locations`.\n:param min_distance: Halvbredd av undertrycksfönstret, i bildpunkter. Två läser närmare än detta kan inte båda hittas, vilket är en egenskap hos optiken snarare än av denna funktion.\n:param threshold: ignorera maxima under detta. ``None`` håller varje lokalt maximum och lämnar beslutet till uppringaren, vilket är rätt standard eftersom den användbara cutoff beror på fläcken.\n:param gpu: Låt det fönsterna maximalt köras på kortet där det finns en användbar. Det är en maxpool, som är det enskilt dyraste steget i avkoda kedjan på ett mikroplatta provpositionsstort mikroskopfält och operationen en GPU finns för. Resultatet är identiskt åt båda håll - se `tests/test_the_ops_primitives_agree_on_every_backend.py`.\n:returns: Toppkoordinater, starkast först.",
       "translation_source_blocks_sha256": [
         "f6d7969965f7b331a1f935f185d915990a244e6dba6d2428fcad12c568fb9d80",
         "2fe51487d4ef5072d31d1fdb54c7ef92150ca9530286ba799f3bb7a4f185bb25",
         "d83ecd03a3123c1a8e38946f74a778e69403902bd1daeda069bf5947bf4197ea",
         "0f2f1f5f875d485a86fea3a08c093b17958acb30b642cba774ce5a485934bb5d",
         "403e9ca6aa0805780f3eacaf6b9670c25e1a7dc8422b384abb6292e3927cb623",
+        "bdbd04b95d3690f1d224bb41ef6a628e136c0642cbcd061b0363066a6b75e8ee",
         "ef0888375647a92111ed9db9dda820f33a24b5f8dc06cc43f29d22478a7e9076"
       ]
     },
@@ -46576,6 +47372,202 @@
         "418e8046e3cc7353a34b3e2452e0f009a6952f40924797fbaf7bfa0980ed715d",
         "b941fe26c40b89987b98e5dc23c40e74e783ef107bd30fba7feecf829822f6c6",
         "46ffd6cf496269539fefecf32d115ef7981fc7b72dc5832dc7007dcb86958d02"
+      ]
+    },
+    "spacr.ops_solve": {
+      "source_blocks_sha256": [
+        "8f23a8992a6aa831795dfe889f0cee3f54963734469ae164754b7f9811208ca1",
+        "37c3f0683fe04e4b9be9186c5587c9c32cf981298e3cec5cb92862ac0d710fb7"
+      ],
+      "source_sha256": "9526723b063d003cc97035a7844e32bd7b9b66e3b92b3a451d259da97221080f",
+      "text": "Absolut mikroskop bildfält positioner från parvisa förskjutningar en mikroplate provposition produceras.\n\nDet tredje verbet. :mod:`spacr.ops_layout` säger vilka brickor som vidrör, :mod:`spacr.ops_register` säger hur långt isär ett rörande par är, och det står där varje bricka hamnar. Hålls åtskilt från båda eftersom ``ops_layout`` är ren geometri som endast importerar :mod:`math` och bör förbli importerad var som helst, och ``ops_register`` hela ämnet är två brickor och ett skift.",
+      "translation_source_blocks_sha256": [
+        "eb166deeff14960f570415144b4de471613fb7a453285f82b6a11bd6b4b75cb6",
+        "0fd2891e320c9ce9fe0838a7b788df8bc96f015ac11ebebba4fb05165f61906f"
+      ]
+    },
+    "spacr.ops_solve.solve_placements": {
+      "source_blocks_sha256": [
+        "e270080e0482f3b9c74753f2e6f9ffff20266c00f1b25a80d3b67326058135c4",
+        "888fb453729d0367468224e6ffa1133a6415b1093b5c2c4a9bbde6eb29c10a5d",
+        "508f9bbfd090167eb74548d27805081fe4070165e04c9bb8701c0c826a507c1e",
+        "f62d74a324e2ebfe590ec954902ceb82f6053d831f1d3c5d585744dc8ef5f6ad",
+        "7501874718789b7ab65bac72fdb4b29b26abc70a8ec73d891845c8ea8311269d",
+        "e07ef893ee680af6adc17fd6580c96ab8518acb0af427504140c5209a079caa3"
+      ],
+      "source_sha256": "3aec2a3c4b8bc802f15bb834c0743094f978114426c08c82b0e6f9ef85e269e9",
+      "text": "Absoluta kakelpositioner från de parvisa förskjutningarna.\n\nEn minst-kvadrat lösa, inte en promenad. Kedja placeringar från ett frö ger varje mikroskop bildfält ackumulerade fel oavsett väg nådde det, och på en rund brunn vägarna är långa; lösa alla kanter på en gång sprider resten istället och ger ett svar oavsett vilket mikroskop bildfältet kallas ursprunget.\n\nUrsprunget är fäst vid den lägsta numrerade platsen för varje ansluten komponent, så en mikroplatta provposition som registrerar i två bitar fortfarande returnerar både snarare än misslyckas -- anroparen kan se komponenterna i resultatet och säga så.\n\n:param edges: ``(a, b) -> (dy, dx)``, b:s position minus a:s.\n:param sites: varje plats att placera, inklusive någon utan kant.\n:returns: ``site -> (y, x)`` i pixlar, en komponent fastsatt vid ursprunget och de andra fastsatt på sin egen lägsta plats.",
+      "translation_source_blocks_sha256": [
+        "e270080e0482f3b9c74753f2e6f9ffff20266c00f1b25a80d3b67326058135c4",
+        "8c954ebc80374de7d417077a425803e0fd0aacef5f985b27c8d03f2d6a2e9f44",
+        "48f97c1d50ccbe63d625d20587ecc7eb054ee9edb88bb5214b418d57a84a7076",
+        "f62d74a324e2ebfe590ec954902ceb82f6053d831f1d3c5d585744dc8ef5f6ad",
+        "7501874718789b7ab65bac72fdb4b29b26abc70a8ec73d891845c8ea8311269d",
+        "e07ef893ee680af6adc17fd6580c96ab8518acb0af427504140c5209a079caa3"
+      ]
+    },
+    "spacr.ops_stitch": {
+      "source_blocks_sha256": [
+        "844455288d4f68f13e53d9197cfa5409cea7fb2195a50d8adf13d0789f19eb25",
+        "9c6341e9eb6362f9dce99f5284d37efea7ebc7f9789476e36b5b6fb8bab33bf0",
+        "8567d8a7ed5e362bcb3036bed81324a4706c8731bbb222a3209c0c1feeab6dbc",
+        "d707e89a1750ff7bff8c55d5dff327c9c3fd06fcab8e9fc4d54a35a805304b3a",
+        "537647c673449bcb4b5ac1c66b09665becc26201103eee2d9d0485228493fef4",
+        "5aa6e3653be0b8bac060ba2b6fed35b0b68f497b1505a787f353bb2725df38cc",
+        "6a9c060bb74f28824d1cd51ed23c5f7942561a530e43a4fb52426872f3187d3c",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ],
+      "source_sha256": "b8fe1936055511bbdbbf01faaf167610b159be5275012fb45e6143abda06dc29",
+      "text": "En mikroplatta provposition, en cykel, från en mapp av mikroskop bildfält till en tabell av positioner.\n\nDet fjärde verbet, och det som skriver ut. :mod:`spacr.ops_layout` säger vilka mikroskopbildfält som berör, :mod:`spacr.ops_register` säger hur långt isär ett rörande par är, :mod:`spacr.ops_solve` säger var varje mikroskopbildsfält hamnar, och detta kör dem tre över en mikroplatta provposition och rapporterar vad som hände.\n\nUtgången är koordinater, inte bildpunkter. En mikroplatta provposition av detta förvärv är 26.855 x 26.865 px och en är tillräckligt för att avgasa en maskin; transform tabellen är några kilobyte och varje senare fas läser igenom den. En duk, om någon vill ha en, återges från detta på vad ned urvalet passar programvyn.\n\nDet skriver ut tre siffror och inte två, och det är hela anledningen till att denna modul finns snarare än tre samtal på en samtalsplats. Den första slutpunkt-till-slutpunkt-körningen av det här arbetsflödet rapporterades\n\n    333 av 333 placerade resterande median 0,2 px duk 35 374 x 35 367\n\noch det var WRONG: föraren förnekade korrelationens skifte, den oplastade sedan valde den representativa en period ut, identiskt i varje kant i en riktning, och mikroplattan provposition kom ut en ton per kolumn för stor i båda axlarna. Varje kant fortfarande överens med varje annan kant, så återstoden var perfekt och räkningen var perfekt. ett enhetligt fel är osynligt för en rest. Endast duken sade annorlunda, och endast eftersom 21 kolumner av en känd tonhöjd har ett aritmetiskt svar -- 20 x 1267 + 1480 = 26,820 -- för att kontrollera det mot.\n\nSå :meth:`StitchedWell.summary` ger räkningen, resten OCH duken i en rad, och :attr:`StitchedWell.expected_canvas` bär vad layouten säger att duken ska vara, eftersom ett tal utan något att jämföra den med inte är en kontroll.\n\nTypisk användning::\n\n    from spacr.ops_stitch import stitch_well\n\n    well = stitch_well(read_tile, overlap=213, tolerance=4)\n    print(well.summary())\n    positions = well.placements          # site -> (y, x), in well pixels",
+      "translation_source_blocks_sha256": [
+        "94ed169845aa64b42a8badc8db8537f9b5260b48c1eb270cf4138cb5ff2e171e",
+        "6fe1a3978296e6512353535806a264fec08aa7b5fe3fe6e08192b4587324fd65",
+        "ebd03694d1d896280f1ef928c800421e9c269754da347bc0ecaf5f74967d261b",
+        "21e4721ce514ec633667657f8bc706d7dc905dfa4a04c3e8d9894a4228d5c0d9",
+        "537647c673449bcb4b5ac1c66b09665becc26201103eee2d9d0485228493fef4",
+        "a1d39606f2e228acaca2b41177894cf0ab2f0507c09192a678e57ad32fa6dddd",
+        "6a9c060bb74f28824d1cd51ed23c5f7942561a530e43a4fb52426872f3187d3c",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell": {
+      "source_blocks_sha256": [
+        "f7f4dd2a1f7286f840becadab3f1df6f2411b530685ac7269a07f75ed50026ef",
+        "3caa5e89fc6f3640cb57f43f776f298844e8b4cdd759f87f40a0a99b2a19e006",
+        "cc184fc6db9ed95534c9eecadede53c98b7514d96a342405ba872d6dab481483",
+        "9a5bb278f16b22842ce2df21abc31c81862d0c7c9ae934bc29737f378b0f33a9",
+        "39ce1ae857629f68d8835894ae8e64716eb61ba55088a6079ad39abb916fa7b1",
+        "32ef50073a504010c1395b87267d489baf59839e47820bd5a0635061f87a762c"
+      ],
+      "source_sha256": "276e565083e9b2d7be11b084785046f0904d56d9965a533400edc70e19ce205c",
+      "text": "Vad en mikroplatta prov position s stygn produceras, och vad det kostar.\n\n:ivar placements: ``site -> (y, x)`` i väl pixlar, från lösningen.\n:ivar edges: ``(a, b) -> Registration`` för varje par den layout som föreslås, accepteras eller inte. Ett vägrat par är ett faktum om förvärvet och hör till `ops_geometry`, inte i en felsökningslogg.\n:ivar tile_shape: ``(height, width)`` av en bricka.\n:ivar layout: Mikroplattans provpositionsmodell som paren kom från.\n:ivar overlap: Överlappningen i bildpunkter var tillsagd att förvänta sig, eller None när den inte blev informerad.",
+      "translation_source_blocks_sha256": [
+        "87d1b4cc24e8c67cb741836ebc381047d2bf5533724ae274b5854d09d5fdc1d7",
+        "3caa5e89fc6f3640cb57f43f776f298844e8b4cdd759f87f40a0a99b2a19e006",
+        "dd4cdeda1b2664bfce265e7a664f9e3755e22012529b45557f9a4edfde77a846",
+        "9a5bb278f16b22842ce2df21abc31c81862d0c7c9ae934bc29737f378b0f33a9",
+        "7701c77a19c43737eb9f386abb11a0c6dda325b39f6fa5f662615b1349c00b6c",
+        "32ef50073a504010c1395b87267d489baf59839e47820bd5a0635061f87a762c"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.accepted": {
+      "source_blocks_sha256": [
+        "87babd5dcfd605183c587e3502827e7ef8c72d4b1a9cf00a042ce164d8b68dcc"
+      ],
+      "source_sha256": "87babd5dcfd605183c587e3502827e7ef8c72d4b1a9cf00a042ce164d8b68dcc",
+      "text": "Hur många föreslagna par registrerade.",
+      "translation_source_blocks_sha256": [
+        "87babd5dcfd605183c587e3502827e7ef8c72d4b1a9cf00a042ce164d8b68dcc"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.canvas": {
+      "source_blocks_sha256": [
+        "b603e5ed5c87958ac73b07ce0e8e04ca812522a00869a2e9b31b35797c3b6138"
+      ],
+      "source_sha256": "b603e5ed5c87958ac73b07ce0e8e04ca812522a00869a2e9b31b35797c3b6138",
+      "text": "``(height, width)`` de placerade brickornas spännvidd, i pixlar.",
+      "translation_source_blocks_sha256": [
+        "b603e5ed5c87958ac73b07ce0e8e04ca812522a00869a2e9b31b35797c3b6138"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.canvas_agrees": {
+      "source_blocks_sha256": [
+        "287c5782b6b555ad8928eb92e7cd6a65e8d1fbc497ee309a1fec48bda7c7f75f",
+        "58c48059a257ddf6c3ba4171fcb616626d365055298f39e4b864722fa8db9e16",
+        "4dcbee82cee473acf1795707c3ca8caa933117967b08f1dab1aecf9553daa7c3"
+      ],
+      "source_sha256": "14d5c25c93ca0f780ebc25e3f6cfb2c730bf4f204f01cfdb7c65b2786bb040d2",
+      "text": "Om den uppmätta duken matchar layoutens aritmetik.\n\n:param tolerance: Tillåten bråkskillnad på båda axlarna. En procent, eftersom layoutens nummer är exakt och stygnen inte är det: den bär den verkliga scenens skev.\n:returns: True när båda axlarna är överens inom ``tolerance``.",
+      "translation_source_blocks_sha256": [
+        "287c5782b6b555ad8928eb92e7cd6a65e8d1fbc497ee309a1fec48bda7c7f75f",
+        "58c48059a257ddf6c3ba4171fcb616626d365055298f39e4b864722fa8db9e16",
+        "4dcbee82cee473acf1795707c3ca8caa933117967b08f1dab1aecf9553daa7c3"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.expected_canvas": {
+      "source_blocks_sha256": [
+        "509aa11166602ffcd0f47e2df4f33d87d0d6a7e88699dc69defce851905daff2",
+        "a9003cfc29fec291dcdbc97b998ad1351eee6e467c14d665686ecf2bf449f6a1"
+      ],
+      "source_sha256": "778400301a650241e1a64cec24acea5777517fc80aaa9bcb38b4f01372ef29bc",
+      "text": "Vad layouten säger att duken ska vara.\n\nDet enda som fångade det enhetliga felet. Kolumner minus en pitchs plus ett mikroskop bildfält, och samma ner för den högsta kolumnen. En uppmätt duk utan något att jämföra den med är ett tal, inte en kontroll.",
+      "translation_source_blocks_sha256": [
+        "509aa11166602ffcd0f47e2df4f33d87d0d6a7e88699dc69defce851905daff2",
+        "c9699ff288c66e0bd9a536ddf5383e6cdacfeedeb4222a75ffda28b5deb5c4be"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.placed": {
+      "source_blocks_sha256": [
+        "720a41344fc61166b94cd57a925c2af103408f1dc6c78f20c9ac525bba1220eb"
+      ],
+      "source_sha256": "720a41344fc61166b94cd57a925c2af103408f1dc6c78f20c9ac525bba1220eb",
+      "text": "Hur många plattor fick en position.",
+      "translation_source_blocks_sha256": [
+        "720a41344fc61166b94cd57a925c2af103408f1dc6c78f20c9ac525bba1220eb"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.proposed": {
+      "source_blocks_sha256": [
+        "1b51a00b339762a592f77dab01110203958ed760c6c634e8234172cc08acd2eb"
+      ],
+      "source_sha256": "1b51a00b339762a592f77dab01110203958ed760c6c634e8234172cc08acd2eb",
+      "text": "Hur många par layout erbjuds.",
+      "translation_source_blocks_sha256": [
+        "1b51a00b339762a592f77dab01110203958ed760c6c634e8234172cc08acd2eb"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.residuals": {
+      "source_blocks_sha256": [
+        "70565cc6a557025f1f3b37693695c926d5042799aaeede3c06c2343ffc6bc6ea",
+        "92d2b3c8bacdad418ae156bb363562035dec83936eb7d73629dc8ea0a25a0709"
+      ],
+      "source_sha256": "3036018b4efed2ee2d745e94b137c8e63562cc6e1a9883f9e9938ed5b965bcfd",
+      "text": "Perkantig oenighet mellan lösningen och mätningen.\n\nAvståndet, i pixlar, mellan där en accepterad kant SAID sina två mikroskop bildfält sitter i förhållande till varandra och där lösa sätta dem. Sub-pixel över en mikroplatta provposition är vad som säger geometrin stängd.",
+      "translation_source_blocks_sha256": [
+        "70565cc6a557025f1f3b37693695c926d5042799aaeede3c06c2343ffc6bc6ea",
+        "0f10d6d0578f0223bf91e1b23a4d724d8d747e78573dd44232561c8eadeda232"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.summary": {
+      "source_blocks_sha256": [
+        "8ace74fc3568343423963837ef5910f5d4313a304341bda57df25c025d09b889"
+      ],
+      "source_sha256": "8ace74fc3568343423963837ef5910f5d4313a304341bda57df25c025d09b889",
+      "text": "De tre siffrorna, på en rad, eftersom två av dem ligger ensamma.",
+      "translation_source_blocks_sha256": [
+        "8ace74fc3568343423963837ef5910f5d4313a304341bda57df25c025d09b889"
+      ]
+    },
+    "spacr.ops_stitch.stitch_well": {
+      "source_blocks_sha256": [
+        "8685cd118c361d094485bd9688d22fc5f721251322921ba426b74cf45e079b0c",
+        "d504cde23e248636fb38122695b5568aa6435c1225a437bb522e0b8c984e3182",
+        "22941aa206938334f2f2ab25b1333ee459705e121b944b942c5a365afdcefed7",
+        "3bda58600c0224b0c6e310282c6ab5f22ba37a7d1f88b2cd0ae4fac5100228bb",
+        "1d267cfe58b8d0f7e6889736d54d4b2006a6eeb6c9bb61d277788e32f26f3100",
+        "a05cce94a2cd28636e0b474cd6ff150e50b30b9d1f3fd3a0b6768457b8ded9fd",
+        "b87528f5c0967c3a5f698ddcfcb1bf3c9fe815ff4ffbe243ce322bf41810f649",
+        "619fe2f54b87486c408939f16a83a2d4d5697c7ce074ceeeb236691220338189",
+        "4cac791fbfc0d1c08462e1bb9ae01a807ccbc67deba1fb050e34c85e377c8fa8",
+        "8db2c073d7a9ece7ca6e300f0290065eb40f39db0cbbf68da5ef0bcd25599f07",
+        "252d4644a262472a4e8fbba22aff93a84db091e4ddf5ee34348032398cd3f183",
+        "e3ac86deecc1c78e097ef5e932bb234c98445422eae473a5eacd1433463aa60c"
+      ],
+      "source_sha256": "a090e7d4f23676b5d2622d9f05011cd669bfde5e173c08f8c16bc23377cc5bd1",
+      "text": "Registrera en mikroplatta provposition mikroskop bildfält mot varandra och lösa sina positioner.\n\nEn mikroplatta provposition åt gången, och ett mikroskop bildfält par i taget inom det. ``tiles`` är normalt en KALLBAR, eftersom 333 mikroskop bildfältet på 1480 px är 2,9 GB och ingenting här behöver två av dem bosatt: uppringaren bestämmer vad att hålla och vad att läsa om.\n\n:param tiles: ``site -> 2-D array``, eller en anropbar som tar en plats.\n:param layout: brunnsmodellen. None passar cirkeln till ``sites`` eller, om så inte är fallet, till det uppmätta siktfältet på 333-mikroskopet väl.\n:param overlap: rasterns överlappning i bildpunkter. Eftersom det ställer in registreringens förväntningar och layoutens duk aritmetisk; utelämnas, båda faller tillbaka till svagare svar, så skicka det.\n:param tolerance: Hur långt rastret en kant kan landa från layoutens förutsägelse och fortfarande accepteras. Detta är acceptansen den verkliga väl använd -- 624 av 624 -- och utan det toppförhållandet bestämmer, vilken på en verklig laboratoriemikroplatta det inte kan.\n:param skew: Hur långt det kan gå. Scenens skev är verklig och konstant -- 9 px på den uppmätta plattan -- så det är ett separat tal från toleransen. None tar `spacr.ops_register.SKEW_PX`.\n:param gpu: gick vidare till registreringen.\n:param sites: vilka platser som ska placeras. None använder varje plats layouten innehåller.\n:param kwargs: övergick till :func:`spacr.ops_register.register_edge`.\n:returns: maskan, dess kanter och resterna av den.\n:raises ValueError: När mikroplattans provposition inte innehåller några mikroskopiska bildfält alls, vilket är ett anropsfel snarare än ett tomt resultat.",
+      "translation_source_blocks_sha256": [
+        "3c299e32b18a543601dc49b72a30428ba218bccb3684a972fec53ae1b2d4925b",
+        "a7c77e23c075abdf38fc2c81e9ad4b60b93bf30c48426162e949e7b85aec2017",
+        "22941aa206938334f2f2ab25b1333ee459705e121b944b942c5a365afdcefed7",
+        "4ec11fa91b5f322e6bd0bdb3045bdeb0b7787aebdaba33c73771eb057ce89ec0",
+        "1d267cfe58b8d0f7e6889736d54d4b2006a6eeb6c9bb61d277788e32f26f3100",
+        "58a5c9dfd93178d3ccc6b5da96db06c0ae3815ef300bfcee470cb7ff857ed450",
+        "b87528f5c0967c3a5f698ddcfcb1bf3c9fe815ff4ffbe243ce322bf41810f649",
+        "619fe2f54b87486c408939f16a83a2d4d5697c7ce074ceeeb236691220338189",
+        "4cac791fbfc0d1c08462e1bb9ae01a807ccbc67deba1fb050e34c85e377c8fa8",
+        "8db2c073d7a9ece7ca6e300f0290065eb40f39db0cbbf68da5ef0bcd25599f07",
+        "252d4644a262472a4e8fbba22aff93a84db091e4ddf5ee34348032398cd3f183",
+        "76dee1d5ac609690f186a4a70a6b2f79bae62bb92147885149f24b068378d74a"
       ]
     },
     "spacr.organelle_types": {
@@ -62024,6 +63016,22 @@
         "05450baea92bd33962fd33225066d116e677886e145099625913fe662d1589e8"
       ]
     },
+    "spacr.qt.i18n.ui_language_resolved_once": {
+      "source_blocks_sha256": [
+        "85128a5f40906b3de86634db9e9a11f5e2c7157aaad547a1a12d58fa293a8790",
+        "870bbcc6c21347a17dba5b55fa24fff53b8f1032833fd2e54f8e7f465f7c59f8",
+        "c7701dd07464fcb0655c9e22f8ff221118590e677b4a76ebbdaac4c8224e922a",
+        "b25ce8d8d0e6659f516c5787d161ff077eacab55d4d110a0b85ff524a96cea23"
+      ],
+      "source_sha256": "76aa0162017d4f596e0ba01c938cc45723c37a222b0dace06fe5778ce05e28f6",
+      "text": "Lös upp språket UI en gång för kroppen av en synkron byggnad.\n\n:func:`current_language` når in i ``QSettings`` på varje samtal, och en dialogruta bygger kallar det en gång per :func:`tr`. Bygginställningar mättes fråga preferenslager vilket språk gränssnittet var i **346 gånger**, genom 415 ``QSettings`` läser, för en dialog, Mask programvyn har samma form på 3,516.\n\nRäckvidden är enheten, inte processen. En permanent cache skulle hålla ett språk som användaren just har ändrat, vilket är det enda ögonblick svaret måste läsas om; inuti en enda synkron byggnad kan det inte ändras, eftersom ingenting kör mellan samtalen. Nestad omfattning delar den yttersta nyckelvärde mappning och bara den yttersta kasserar den, så en screening som sveper hela sin byggnad och en hjälpare som lindar sig själv inte slåss.\n\nDetta är ContextVar armen av :func:`current_language`, som förklarades och lästes men inte satt någonstans tills detta existerade. Miljön åsidosätter fortfarande vinner: det konsulteras innan omfattningen fylls.",
+      "translation_source_blocks_sha256": [
+        "85128a5f40906b3de86634db9e9a11f5e2c7157aaad547a1a12d58fa293a8790",
+        "9c2feff11a46d8514874e52514389e2346b798283b221a4f638c284f40519808",
+        "5157834fb1c9b1072555d2e1ea4b45c5d50d1c8a43e71925c5ff3108c1caabc9",
+        "b25ce8d8d0e6659f516c5787d161ff077eacab55d4d110a0b85ff524a96cea23"
+      ]
+    },
     "spacr.qt.i18n_module_summaries": {
       "source_blocks_sha256": [
         "9992a06241673f3a6e56527785db52df2c52ef42e0cd5d21ca5e49e24de66aac",
@@ -66063,37 +67071,33 @@
     "spacr.qt.preferences.PreferencesDialog": {
       "source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
-        "1c3a722aeac26ef176660c1a6dd135973d49fba708c09dbfa0c17116481ffa42",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "0a2e47a3e536e5e27932999c25110663e8727b1db5085aafc2b84531a8aaf297",
-      "text": "Wrapper som bygger dialogrutan modal Inställningar på begäran.\n\nBehålls som en fabrik (inte en riktig klass underklass) så att modulen kan importeras utan grafiskt gränssnitt utan att dra i QtWidgets. Den verkliga :class:`QDialog` returneras av ``PreferencesDialog(parent)``. Bygg och returnera inställningsdialogrutan.\n\nA ``__new__`` returnerar en vanlig ``QDialog`` snarare än en ``__init__`` på en underklass: allt Qt importeras inne i samtalet, så att importera modulen kostar ingenting förrän en dialogruta faktiskt efterfrågas.\n\nFönstret är fristående från fönsterhanterarens synvinkel, så användaren kan sätta det där de vill -- det är fortfarande modererat, fortfarande modal och fortfarande ringer ``exec``, och bara fönsterTYP ändras.\n\n:param parent: överliggande komponent, eller ``None``.\n:returns: dialogrutan, klar till ``exec``.",
+      "source_sha256": "6ceea9d63225649b020d318358c4253dc927b1ddbb7fe794eeb56503c8fdd0c0",
+      "text": "Wrapper som bygger dialogrutan modal Inställningar på begäran.\n\nDen här modulen kan importeras utan grafiskt gränssnitt utan att man drar i QtWidgets. Den verkliga :class:`QDialog` returneras av ``PreferencesDialog(parent)``. Bygg dialogrutan med språket UI löst en gång.\n\nOmfattningen är hela anledningen till att det här omslaget finns. Att bygga dialogrutan mättes med att fråga preferensbutiken vilket språk gränssnittet är 346 gånger, genom 415 ``QSettings`` läser, och inget av dessa svar kunde skilja sig åt: ingenting går mellan dem.\n\n:param parent: överliggande komponent, eller ``None``.\n:returns: dialogrutan, klar till ``exec``.",
       "translation_source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
-        "1c3a722aeac26ef176660c1a6dd135973d49fba708c09dbfa0c17116481ffa42",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog.__new__": {
       "source_blocks_sha256": [
-        "a1716e834508931def2a409b696992f2f209b52947093bdd71b984eb305ae004",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "e38484cc3601ecf4f3ab3007e425b331ac336bc315aa2b7217faf9ed5ad93bd2",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "16fd27aac848a406a339df6932ac702400d0b641355631c118d324187498c974",
-      "text": "Skapa och returnera inställningsdialogrutan.\n\nA ``__new__`` returnerar en vanlig ``QDialog`` snarare än en ``__init__`` på en underklass: allt Qt importeras inne i samtalet, så att importera modulen kostar ingenting förrän en dialogruta faktiskt efterfrågas.\n\nFönstret är fristående från fönsterhanterarens synvinkel, så användaren kan sätta det där de vill -- det är fortfarande modererat, fortfarande modal och fortfarande ringer ``exec``, och bara fönsterTYP ändras.\n\n:param parent: överliggande komponent, eller ``None``.\n:returns: dialogrutan, klar till ``exec``.",
+      "source_sha256": "eef7455d7645dc94e2f12a5a210b7af6e111d7f1eceb17392cbd860247586086",
+      "text": "Bygg dialogrutan med språket UI löst en gång.\n\nOmfattningen är hela anledningen till att det här omslaget finns. Att bygga dialogrutan mättes med att fråga preferensbutiken vilket språk gränssnittet är 346 gånger, genom 415 ``QSettings`` läser, och inget av dessa svar kunde skilja sig åt: ingenting går mellan dem.\n\n:param parent: överliggande komponent, eller ``None``.\n:returns: dialogrutan, klar till ``exec``.",
       "translation_source_blocks_sha256": [
-        "a1716e834508931def2a409b696992f2f209b52947093bdd71b984eb305ae004",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "e38484cc3601ecf4f3ab3007e425b331ac336bc315aa2b7217faf9ed5ad93bd2",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
@@ -79710,6 +80714,24 @@
         "1414757f88bb0c1e8ec727f1c8d9ba6e1feaf65ff9c787d6cf8b5050f2e44c68"
       ]
     },
+    "spacr.qt.screens.map_barcodes.hide_as_page": {
+      "source_blocks_sha256": [
+        "ff95a79f8c77d8cc4b6d479fbfd73914f0550a441d5ff3bb4e2a9ce3f7b5a3d2",
+        "30b6fc41f7667c64999535a8f93e30ea37c5727f5d9c169837e0802c87efabfd",
+        "d42df450ffb04d6856920abd4d9184665bd5ca5bb6868b7251b1e456331c5230",
+        "adcbd00ec82ec453e44944345789cae6c5e31afee3acdfde9195997e45092140",
+        "e5e8c9028cd54a564f4b717b8d50233afe81a32c2b6e629606e681e0c497b278"
+      ],
+      "source_sha256": "2e79bdcde400493b81d15b34d6f5cde47cfc05ca665a4683068c9ccb80414f4a",
+      "text": "Ta bort ``screen`` av ``host`` sidremsan och behåll skärmen.\n\nMotsvarigheten till :func:`show_as_page`, för en kontroll som stänger det som den öppnade. Den tar samma väg som bandets eget närmärke tar -- :func:`_close_fold_page` -- så en sida som stängs av en brytare och en sida stängd av dess kors lämnar modulen i samma tillstånd, laddad och av remsan istället för förstörd.\n\n:param screen: den vikta modulens widget.\n:param host: Värdmodulens screening.\n:returns: True när en sida togs bort från remsan, False när värden inte har någon remsa eller den grafiska komponenten inte finns på den.",
+      "translation_source_blocks_sha256": [
+        "ff95a79f8c77d8cc4b6d479fbfd73914f0550a441d5ff3bb4e2a9ce3f7b5a3d2",
+        "30b6fc41f7667c64999535a8f93e30ea37c5727f5d9c169837e0802c87efabfd",
+        "d42df450ffb04d6856920abd4d9184665bd5ca5bb6868b7251b1e456331c5230",
+        "adcbd00ec82ec453e44944345789cae6c5e31afee3acdfde9195997e45092140",
+        "e5e8c9028cd54a564f4b717b8d50233afe81a32c2b6e629606e681e0c497b278"
+      ]
+    },
     "spacr.qt.screens.map_barcodes.host_pages": {
       "source_blocks_sha256": [
         "13078d4a55c66faf0c85bd9f907108caea35cbf8974c94fa9520daad07b17e08",
@@ -79832,15 +80854,17 @@
     },
     "spacr.qt.screens.mask": {
       "source_blocks_sha256": [
-        "6b736b07f83ba15e0dfe9f645749b36578e0f04a0bb54fdf6f5bb6e73d43de58",
+        "64e1ceaa3a5d63f8f05ed944da20d83834e6e42bb93390f40e26a4967a4dad21",
+        "d934a682721cf6c4943a6c980fed3e88364a82036ef163740f6b9f9ec50c438d",
         "ef640354b395eeddd783e456f6402b9ad3acb5b386077b1f5284e82ab3f04102",
         "8e50c247c30894c1b0d5674ea385a76ca4ac2d14c0038025f40551fdf4f724aa",
         "54e4a886c26296d8f39c12688abe56e193f7a99f397114eb75bb02843d55e5da"
       ],
-      "source_sha256": "aeccc93c5fe0394bf674446f611692637021f2692dfb1421809c2b21f6ff45fa",
-      "text": "Timelapse segmentering och spårningskontroller integrerade med Mask.\n\nTimelapse-brytaren möjliggör ``timelapse=True`` för standardflödet mask och visar de ytterligare tidsserierna och spårningsinställningarna på Mask-formuläret. Inställningar som skapats för Timelaps-modulen förblir kompatibla; :func:`sync_folds` återställer switch-tillståndet från datavalsgränsen för arbetsflödet.\n\nDen integrerade spårningsförhandsgranskningen utvärderar objektbindning över ramar, medan standardmaskförhandsgranskning utvärderar segmentering av ett enskilt mikroskopfält. Motilitetsanalys förblir under Mät eftersom den kvantifierar befintliga masker och skriver mätningar istället för att generera masker.\n\nKategorimontering och synkronisering med vikläge delas med de andra vyerna för värdprogram genom :mod:`spacr.qt.screens.map_barcodes`.",
+      "source_sha256": "187a6cb1f27a4e6d32802b7d56d9f0339ae0fe42084ef6a21cc193da6360f5b7",
+      "text": "Modulerna vikta på Mask Generation: Timelapse och OPS.\n\nTvå typer av veck möts här, och skillnaden är vad var och en gör på den här skärmen. Timelapse är SETINGS: att byta det på monterar sina kategorier på Mask egen form och sätter arbetsflödet data-val gräns bearbetningssessionen läser, så dess switch hör till på mastheadremsan bredvid rubriken. OPS är en SIDAN: den har 63 inställningar av sin egen och sin egen kör ingångspunkt, av vilken ingen är `preprocess_generate_masks`, så att slå på den sätter den på denna skärms sidremsa istället och dess switch sitter i åtgärdsraden bredvid Live -- \"Lägg till ops knappen till Mask lägga till den bredvid Live och 3D knapparna i samma format\", 2026-09-09. Se :data:`CATEGORY_FOLDS`, :data:`PAGE_FOLDS` och :func:`install_ops_switch`.\n\nTimelapse-brytaren möjliggör ``timelapse=True`` för standardflödet mask och visar de ytterligare tidsserierna och spårningsinställningarna på Mask-formuläret. Inställningar som skapats för Timelaps-modulen förblir kompatibla; :func:`sync_folds` återställer switch-tillståndet från datavalsgränsen för arbetsflödet.\n\nDen integrerade spårningsförhandsgranskningen utvärderar objektbindning över ramar, medan standardmaskförhandsgranskning utvärderar segmentering av ett enskilt mikroskopfält. Motilitetsanalys förblir under Mät eftersom den kvantifierar befintliga masker och skriver mätningar istället för att generera masker.\n\nKategorimontering och synkronisering med vikläge delas med de andra vyerna för värdprogram genom :mod:`spacr.qt.screens.map_barcodes`.",
       "translation_source_blocks_sha256": [
-        "6b736b07f83ba15e0dfe9f645749b36578e0f04a0bb54fdf6f5bb6e73d43de58",
+        "64e1ceaa3a5d63f8f05ed944da20d83834e6e42bb93390f40e26a4967a4dad21",
+        "77961f29353c64a0185d1cdf12b7c3c06ad43a4af979419226c7fe789c648440",
         "665ed54203c6aea8ced63588cf58260b7ab232ed43825f9f7ab11135f734ff50",
         "49e26fda6e4f24bfb85bfcdeaa96aca720f17e9fd10356f517b938596dc88668",
         "61bc127860cf6823e11c888d8d96a00641488ebd89702b7e64ae4b9371289fc2"
@@ -79910,6 +80934,24 @@
         "589fe15519b880a64516c936e6cc32200390bed9237be1396cb46bd60aacdfa2"
       ]
     },
+    "spacr.qt.screens.mask.install_ops_switch": {
+      "source_blocks_sha256": [
+        "efa60c570757e5996050df15de8460da49d74058f49669f584c4cad7aeff739d",
+        "4408951c0e31153e87731f2c5aa34adb46de9d38655d6682a1679195fd8730af",
+        "1428b1f63b4a225b4864f9b3d3eb269b60dc944263ec761d9b336694862c3122",
+        "1180fb2d487f962ca35507600ffe0107a78412c022fed71c49b002f926b137f2",
+        "c32c2b286c9a5c458196ec75d7a398732930d65618229be2639d9b3627e7c7ee"
+      ],
+      "source_sha256": "30677cb5d782dd663263398d41cc2671d403c5ce2cceeaeffcc9e92f950e031d",
+      "text": "Koppla en åtgärdsrad till OPS-sidan.\n\nBefogenhet: Ett andra samtal med samma programvy returnerar den första installationen och ansluter inget vidare.\n\n:param screen: Skärmen Mask Generation.\n:param switch: Växla för att ansluta.\n:returns: installationen, eller None när detta inte är värddatorskärmen.",
+      "translation_source_blocks_sha256": [
+        "efa60c570757e5996050df15de8460da49d74058f49669f584c4cad7aeff739d",
+        "551a07e73be5f0fbff658c7ac93d4884704fade6acc450cbea23eb516b759c50",
+        "1428b1f63b4a225b4864f9b3d3eb269b60dc944263ec761d9b336694862c3122",
+        "1180fb2d487f962ca35507600ffe0107a78412c022fed71c49b002f926b137f2",
+        "c32c2b286c9a5c458196ec75d7a398732930d65618229be2639d9b3627e7c7ee"
+      ]
+    },
     "spacr.qt.screens.mask.load_the_example_images": {
       "source_blocks_sha256": [
         "d0b30158292148141d26cf1724ac0837b882bd75e682e9daff74e850f47353fa",
@@ -79942,6 +80984,16 @@
         "48f477dd9b00e81f9362aeced5c52b7e0e16251a353ae36747c573c730bf2793",
         "6724761aeecf6a96bb8c334ca144b11925cdf763e1c88419255375e704fe99be",
         "7433ebdd05af746fc22f14dbd830a5e21cb851fc10ccf7043c662cd54bd262e1"
+      ]
+    },
+    "spacr.qt.screens.mask.ops_page": {
+      "source_blocks_sha256": [
+        "3b912723b54fbb3f9b21255520b071314d2924b5bb29660cdf376de15ad8d398"
+      ],
+      "source_sha256": "3b912723b54fbb3f9b21255520b071314d2924b5bb29660cdf376de15ad8d398",
+      "text": "OPS-brytaren installerad på ``screen`` eller None.",
+      "translation_source_blocks_sha256": [
+        "3b912723b54fbb3f9b21255520b071314d2924b5bb29660cdf376de15ad8d398"
       ]
     },
     "spacr.qt.screens.mask.sync_folds": {
@@ -95168,10 +96220,11 @@
         "2cd10b66bfc2e22a9d31c188dbf5eba43350b2e33848164268f1d74bce33a125",
         "b0fc197b82f2d4e08186419766f48f515b5697d8802edd32a758f76dfe6e0440",
         "61ec94a96f66d6d0718775f537b804fbea671bb06f316403e6cea5e64aa05a4f",
-        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f"
+        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f",
+        "407aa846cc6bff1c3c1aa35d85be61815968ee6ed36132a49884bf639e783dc3"
       ],
-      "source_sha256": "217b37494ccf20c7ec0a5756892e7ca8213b5e8cf3f63369f08da71944f80748",
-      "text": "Lägg ut en rad grafiska komponenter över sektionerna i ett ``QHeaderView``.\n\nVarje hanterad komponent bär antingen ett kolumnindex -- den är centrerad i den kolumnens spännvidd, fastklämd till sin bredd -- eller ``None``, i vilket fall den placeras i en vanlig vänster-till-höger körning efter den sista inställda kolumnen.\n\nRubriken läses, skrivs aldrig. Ingenting här kallar ``resizeSection`` eller ett ändra storleksläge, så användarens egna kolumnbredder förblir den enda källan till sanning för vad en kolumn är.\n\n:param header: den ``QHeaderView`` vars sektioner raden ligger i linje med. LÄS, skriv aldrig -- ingenting här kallar `resizeSection` eller ett ändra storleksläge, så användarens egna kolumnbredder förblir den enda källan till geometrin.\n:param parent: överliggande komponent.\nLägg en rad ut mot ett rubrik kolumnbredder.\n\nPasserar ``parent`` installerar detta som den grafiska komponentens layout, vilket är anledningen till att anroparen måste ha tagit bort den föregående först.\n\n:param header: Rubrikvyn vars sektioner ställde in kolumnbredden. Raden följer dess storleksändring, omordning och omläggning.\n:param parent: widgeten att bli layouten för, eller ``None``.",
+      "source_sha256": "c634c5a344bee1840a1a5b8d9b8f52471605eca1582b6f2aa7d826b753bc2b8a",
+      "text": "Lägg ut en rad grafiska komponenter över sektionerna i ett ``QHeaderView``.\n\nVarje hanterad komponent bär antingen ett kolumnindex -- den är centrerad i den kolumnens spännvidd, fastklämd till sin bredd -- eller ``None``, i vilket fall den placeras i en vanlig vänster-till-höger körning efter den sista inställda kolumnen.\n\nRubriken läses, skrivs aldrig. Ingenting här kallar ``resizeSection`` eller ett ändra storleksläge, så användarens egna kolumnbredder förblir den enda källan till sanning för vad en kolumn är.\n\n:param header: den ``QHeaderView`` vars sektioner raden ligger i linje med. LÄS, skriv aldrig -- ingenting här kallar `resizeSection` eller ett ändra storleksläge, så användarens egna kolumnbredder förblir den enda källan till geometrin.\n:param parent: överliggande komponent.\nLägg en rad ut mot ett rubrik kolumnbredder.\n\nPasserar ``parent`` installerar detta som den grafiska komponentens layout, vilket är anledningen till att anroparen måste ha tagit bort den föregående först.\n\n:param header: Rubrikvyn vars sektioner ställde in kolumnbredden. Raden följer dess storleksändring, omordning och omläggning.\n:param parent: widgeten att bli layouten för, eller ``None``.\n:param on_invalidate: anropas utan argument när en hanterad widgets storleksinslag ändras. Raden kan inte agera på den själv: en knapp som växte behöver dess COLUMN vidgas, huvudet läses och skrivs aldrig här, och en layout som skrev tillbaka till geometrin som den läser skulle skriva in sig själv på den ändrade storlek den orsakade. Så den talar om för vem som än äger huvudet istället.",
       "translation_source_blocks_sha256": [
         "15c6ce790d0b1f7d2c95a38ca00d871fef8322cc7a5d1827d0e76e0d1c4416c5",
         "eabcacd079e27604b49b7d3c609302a9273e9e76c8945005421725f50bbe95dc",
@@ -95181,7 +96234,8 @@
         "2cd10b66bfc2e22a9d31c188dbf5eba43350b2e33848164268f1d74bce33a125",
         "b0fc197b82f2d4e08186419766f48f515b5697d8802edd32a758f76dfe6e0440",
         "61ec94a96f66d6d0718775f537b804fbea671bb06f316403e6cea5e64aa05a4f",
-        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f"
+        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f",
+        "60d4bb3099cb71e0bdfd527e803029d491bd4843068b4532f424ce1fd1d941ab"
       ]
     },
     "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.addItem": {
@@ -95238,6 +96292,22 @@
       "text": "Endast horisontellt. QLayouts standardanspråk båda, vilket gör att formuläret ger denna en knapphög rad varje extra pixel höjd.",
       "translation_source_blocks_sha256": [
         "9a1da8c0b8e29da984afc588fb38ff8f950ab1bece10d8fca693ee72b8a73731"
+      ]
+    },
+    "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.invalidate": {
+      "source_blocks_sha256": [
+        "b435adec8a93ab965e9b220a293640c258701e955e897002a21e42e3e2c06d4a",
+        "233ba701dfb9173a319db2375ee86e7735d0d99528ed2285412e8c29dc73aa58",
+        "73c3f444ee8f5824c1e7d3e36ab0430e616b13375d6813153dbc9c7c5089c156",
+        "b9f4c71ac367dd6aacdf42529ee06b5fa4b898928fe8a8f03781db36e85b7188"
+      ],
+      "source_sha256": "2f24cc8f40fe17d7a7872861371f3965de80e63d2cf5a4d650ae58d8c3aa77a2",
+      "text": "Berätta för sidhuvudets ägare att en hanterad widget ändrade storlek.\n\nVarför detta finns och vad det kostar. En knapps rubrik är inställd på engelska när raden är byggd och REPLACED av språket passerar efteråt, och \"Count\" är 100 px där \"Contagem\" är 151. Kolumnen var storlek en gång, före översättningen, och raden klämde sedan fast den bredare bildtexten i den smalare kolumnen för skärmens livslängd -- vilket är att denna klass beter sig exakt som dokumenterat och fortfarande visar ett cut-off-ord.\n\nQt rapporterar redan händelsen: `setText` anropar `updateGeometry`, vilket ogiltigförklarar moderlayouten. Raden förmedlar den istället för att agera, eftersom breddning av en kolumn är huvudägarens jobb och gör det härifrån skulle skriva in den här layouten igen.\n\nAldrig kastar: en misslyckad ombyggnad är en kolumn som stannar där den var, och en layout som höjdes här skulle ta hela remsan med sig.",
+      "translation_source_blocks_sha256": [
+        "b435adec8a93ab965e9b220a293640c258701e955e897002a21e42e3e2c06d4a",
+        "5909e063ca7ab99cce71f6ac09da297529d5d9532bf7a33d6f9dfb431acc94a7",
+        "73c3f444ee8f5824c1e7d3e36ab0430e616b13375d6813153dbc9c7c5089c156",
+        "aa64f8b0e6f3f93473055f41e3e42be1a0ccdc9b216561668acfda738140ef5d"
       ]
     },
     "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.itemAt": {
@@ -95309,16 +96379,18 @@
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
+        "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
         "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
       ],
-      "source_sha256": "52370872f3cc90f4efa3cff5a32d5d3bb5d30459ace3936ce9c82cadac23c81b",
-      "text": "Omläggning ``strip`` s grafiska komponenter ut över ``header`` avsnitt.\n\nBefogenhet: en remsa som redan följer det här huvudet returneras oförändrad, så en upprepad show kostar ingenting och kan inte stapla två layouter.\n\n:param strip: komponenten som håller i knapparna. Dess befintliga layout töms och förstörs – komponenterna överlever, återföräldras på ``strip``.\n:param header: den ``QHeaderView`` vars kolumner följs.\n:param columns: ``(widget, column index or None)`` i den ordning de ojusterade ska följa med in.\n:returns: den installerade layouten, eller ``None`` när det inte fanns något att göra.",
+      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
+      "text": "Omläggning ``strip`` s grafiska komponenter ut över ``header`` avsnitt.\n\nBefogenhet: en remsa som redan följer det här huvudet returneras oförändrad, så en upprepad show kostar ingenting och kan inte stapla två layouter.\n\n:param strip: komponenten som håller i knapparna. Dess befintliga layout töms och förstörs – komponenterna överlever, återföräldras på ``strip``.\n:param header: den ``QHeaderView`` vars kolumner följs.\n:param columns: ``(widget, column index or None)`` i den ordning de ojusterade ska följa med in.\n:param on_invalidate: skickas till layouten; anropas när en hanterad widget storlek tips ändras, så att huvudets ägare kan anpassa kolumnen till en bildtext som sedan dess har översatts.\n:returns: den installerade layouten, eller ``None`` när det inte fanns något att göra.",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
         "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
+        "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
         "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
       ]
     },
@@ -108572,6 +109644,48 @@
         "a318c91b836ecaaab9fd39ddc43cf6b101c7fd5c5ec5ce3366e447f61c9fa24b",
         "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
         "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.tour_leg_seconds": {
+      "source_blocks_sha256": [
+        "8176d688975c709c8b414df64f59d0c355d7634fb078a2edb48b42facb0c5b2e",
+        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
+        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
+        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
+        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
+        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
+        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
+      ],
+      "source_sha256": "c4c8dd84d17b70a881d08a5d7968ae35fd42579264c14eb450ca8ad6da823d3b",
+      "text": "Dwell och resa så att en del av turen är ett dyk.\n\n:param seconds_per_decade: Hur lång nedstigningen är per decennium.\n:param max_depth: årtionden innan dyket startar på ytan.\n:param travel: Sekunder att spendera på att flytta mellan två regioner.\n:returns: ``(dwell, travel)`` för :class:`RegionTour`.\n\nFlyttningen måste ske nära ytan. Trettio decennier nedåt är utsikten smalare än klyftan mellan två regioner med trettio storleksordningar, så att resa den klyftan finns det en vit blixt snarare än en float - och hela begäran var att det inte ska läsas som ett hopp. Storleken på boet som \"dyket, mindre draget\" sätter draget vid omstart, där ett sidosteg är en flygning över uppsättningen.\n\nBåda är golv över noll, så en inställningsfil som ber om ett dyk kortare än flytten fortfarande producerar en tur som rör sig.",
+      "translation_source_blocks_sha256": [
+        "81edb313b9834f50afd29ed97861c91d3e6a3b2512aee61add2f53e0f5e9206b",
+        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
+        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
+        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
+        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
+        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
+        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.tour_offset": {
+      "source_blocks_sha256": [
+        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
+        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
+        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
+        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
+        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
+        "8fe3c89c2817876bfc920c6e6a29400dad2fee103d4dd48c18dabcaf9e9e57be"
+      ],
+      "source_sha256": "9f6685beaf9f869c4276edf8707f9771458d8a421669e8de2458d84e6d283284",
+      "text": "Turens mål, som en offset från referensbanans centrum.\n\n:param tour: turen styr kameran.\n:param seconds: sekunder sedan turnén började.\n:param orbit_centre: ``(re, im)`` i referensbanan.\n:returns: ``(offset_re, offset_im)``, eller ``None`` när turen inte styrs -- så en anropare lämnar kameran där användaren satte den istället för att få en koordinat som den måste ignorera.\n\nOmräknad från omloppsbanan, aldrig integrerad. Referensbanan flyttas till gränsen när dyket går ner och kamerans offset återställs till noll när den landar; en tur som kom ihåg sin egen offsets skulle kastas av regionen varje gång som hände. Fråga var regionen är i förhållande till var referensen är NU är immun mot den.",
+      "translation_source_blocks_sha256": [
+        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
+        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
+        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
+        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
+        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
+        "701d733fca4b56df17477e4561fa4224d72870f590630041e6cf4e687c930f5f"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {

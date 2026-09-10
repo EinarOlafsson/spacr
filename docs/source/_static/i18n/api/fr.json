@@ -46260,6 +46260,380 @@
         "d0bf714f0381edc065398b452a55c13e608893f66aa5960227b4547f387676e7"
       ]
     },
+    "spacr.ops_accel": {
+      "source_blocks_sha256": [
+        "6ec6cb9f1b1709a83405f6777fee3a9b5ec274d055983172cdb26681d3e86b12",
+        "82d2c5e2de52245ea4daccc9a7dbc991b40c35e9f9754ddd60bf566d056ae204",
+        "37d00402722dce6deb4a6da50412cc36ebc37699f699353c8dcc8a1ea99f4516",
+        "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+        "6b7bee0d9d406e5763c5c3576999cd6bad2266f9bc6ba7e1df8b71f4c5ce52ba",
+        "40e1866ae386d33c8aa81e77f69ac4c1cdb1a19671c19109577cd5f63d126b2d"
+      ],
+      "source_sha256": "47c08255db5cc68dae00efe1e3a6cd0b97176d2facd1a6797db9c61c3d2840ac",
+      "text": "Les trois opérations de tableau OPS est fait, sur n'importe quel matériel il y a.\n\nLa question matérielle a une réponse courte, et il indique ce qu'il faut mettre sur la carte: \"la chaîne d'affines par fenêtre; le pic de détection et la matrice démixante se multiplient; la segmentation cellpose, qui a déjà un chemin GPU\" -- et, pour la fusion, \"ORB détecte + Hamming descripteur appariement\" et \"cellules de correspondance\": Strip les noms et c'est trois primitifs: un maximum fenêtré, une matrice se multiplie, Ils sont recueillis ici plutôt qu'exprimés sur chaque site d'appel, donc il y a UN endroit qui connaît les appareils, et les modules qui les utilisent continuent à lire comme la science qu'ils sont.\n\n    Ordre du moteur : PyTorch d'abord, CuPy second, NumPy toujours. Torch est déjà une dépendance spaCR par Cellpose, donc rien de nouveau n'est installé, et un chemin de code atteint CUDA, ROCm et Apple MPS.\n\nChaque fonction prend et RETOURS NUMPY, donc aucun appelant n'apprend quel moteur a couru et aucun appelant ne doit changer quand on est ajouté. Chacun a un test qui exécute les deux chemins sur la même entrée et affirme qu'ils sont d'accord -- pas \"la version GPU passe son propre test\", c'est ainsi qu'un retour en arrière devient tranquillement une seconde implémentation que personne ne compare.\n\nEt il ne suppose jamais que la carte est libre. Un GPU partagé est le cas courant -- celui-ci exécute également la prédiction de la structure -- donc `ops_gpu=False` refuse un dispositif qui existe, et un moteur qui se lève à l'exécution (un hors mémoire, un pilote qui s'est absenté) tombe à travers le prochain plutôt que d'échouer la plaque.\n\n    Le CPU PATH n'est pas une erreur PATH. C'est ce qui s'exécute sur un ordinateur portable, en CI, et sur la machine dont la carte est occupée, qui entre eux est la plupart du temps que ce code va jamais exécuter.",
+      "translation_source_blocks_sha256": [
+        "6ec6cb9f1b1709a83405f6777fee3a9b5ec274d055983172cdb26681d3e86b12",
+        "82d2c5e2de52245ea4daccc9a7dbc991b40c35e9f9754ddd60bf566d056ae204",
+        "f629155cbc7f5728ecdcf49f81a21700b9d29b08dd9d35b298098ef9a845028e",
+        "ca338f4e91273b40cde20d1466147b2d89212d79a932aa13f75fbce434f47e3d",
+        "8e52e8b11f9226c71e0068ba512ef183fd5f1b5e9a782ea00c1c7da06a8d6d9c",
+        "9bba0f23e6385bf641efb50d20480aed9e6be09d78b66833444dfb9e2d2268ac"
+      ]
+    },
+    "spacr.ops_accel.accelerated_backends": {
+      "source_blocks_sha256": [
+        "9f7376944e8e281bca81fa787515557a8a3710a42390467fc5ac617df061f258",
+        "20e97d3e529624305f3ddf3336595b87f2ceead5bb6c1c0843dfe42c7e341de6",
+        "fc4c5a6b12a2aee899c6469ea4b55c16adfbc660f62800467f33d54bcf40af55"
+      ],
+      "source_sha256": "73dffce4726bac86b4a46e02a764b16c656a93464e919d5348dacf6765e732f9",
+      "text": "Quels backends peuvent courir ici, le meilleur d'abord, toujours se terminant dans \"numpy\".\n\n:param gpu: False refuse carrément les accélérés.\n:returns: les noms utilisables.",
+      "translation_source_blocks_sha256": [
+        "9f7376944e8e281bca81fa787515557a8a3710a42390467fc5ac617df061f258",
+        "20e97d3e529624305f3ddf3336595b87f2ceead5bb6c1c0843dfe42c7e341de6",
+        "fc4c5a6b12a2aee899c6469ea4b55c16adfbc660f62800467f33d54bcf40af55"
+      ]
+    },
+    "spacr.ops_accel.matmul": {
+      "source_blocks_sha256": [
+        "6c3b1924171fda44edc493508f4f63ba5309140ef013f0361beadb206b2ad7e2",
+        "0fe29f175155aa7e91866faf3fadf576809fe2ba54c72d7145e146e7abfb2b71",
+        "45fbbe7eade4098353f185e501ae6a99cc38973a94990789b76fcc219be17ff6",
+        "09331ec19dfd6c4a95614c1d69fa1a7c56bad13cb9f2873068f8c41c40c2411a",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "36239f30993fc6a9951c608cceebe0315fe6edbc86b193dc8d4567aeb51ea748"
+      ],
+      "source_sha256": "8b6f5436d55f119ccc5f7a4e5c624317b81ed8dc675a076477504b0d6b828b90",
+      "text": "``first @ second``, sur la chose la plus rapide disponible.\n\nLe démixage est ceci. Corriger le teint saigné est une petite matrice appliquée à chaque point de chaque cycle, qui est un grand multiplier par un petit opérande -- la forme qui va à une carte bien et la forme une boucle Python serait absurde pour.\n\n:param first: opérande de gauche.\n:param second: opérande droit.\n:param gpu: False le garde sur le CPU.\n:param backend: Forcez-en un.\n:returns: le produit, comme float32 NumPy.",
+      "translation_source_blocks_sha256": [
+        "6c3b1924171fda44edc493508f4f63ba5309140ef013f0361beadb206b2ad7e2",
+        "45abcd1946e7f8e3b41525dabf646668da9e8800ce38c53cd204d719ba8ca1ce",
+        "45fbbe7eade4098353f185e501ae6a99cc38973a94990789b76fcc219be17ff6",
+        "09331ec19dfd6c4a95614c1d69fa1a7c56bad13cb9f2873068f8c41c40c2411a",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "36239f30993fc6a9951c608cceebe0315fe6edbc86b193dc8d4567aeb51ea748"
+      ]
+    },
+    "spacr.ops_accel.maximum_filter": {
+      "source_blocks_sha256": [
+        "db53750c7ab8ead2bef60334a1c059898c48a5a60f6c289d7a38448ebfb113e7",
+        "3471030fb7620ff74e305338b0096436ea31d6b2729d3f53e887251125c08005",
+        "0ce27fb85aab385f9bca9377480671e647bea06589349535088d2954b39f9331",
+        "546146a4c9f6d3df9993c5461fdaffc1b3fb1295983f0dcab83ea0e6351e4d7d",
+        "2e217f1d202aa71c3b963f428bec1766f7981ba82addfa578d2b9454d47536d5",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "c9b9c7d65976728de27acfbc743e867b4dcd6464352b87ab8211e5d43ec34471"
+      ],
+      "source_sha256": "4e01a89759b06cf8c15afcd99f4ce80b00c2e63c52f8d7742d7725b437b1a294",
+      "text": "Le maximum de chaque fenêtre ``size x size``, centrée sur chaque pixel.\n\nUne lecture est un maximum local du score spot, et \"local\" signifie cela. Sur un champ de vision microplaqué de la position d'échantillon, il est aussi la chose la plus chère dans la chaîne de décodage, et c'est un pot max -- qui est l'opération qu'un GPU existe.\n\nLes bords répètent le pixel de bordure, correspondant à `scipy.ndimage.maximum_filter` avec ``mode=\"nearest\"``, parce que l'alternative est un bord de faux maxima tout le long du champ.\n\n:param field: un tableau 2-D.\n:param size: le bord de la fenêtre, en pixels. Même les tailles sont élevées à l'étrange suivante: une fenêtre sans centre ne peut pas être centrée.\n:param gpu: False le garde sur le CPU.\n:param backend: Forcez-en un.\n:returns: le champ filtré, la même forme et compatible dtype.",
+      "translation_source_blocks_sha256": [
+        "db53750c7ab8ead2bef60334a1c059898c48a5a60f6c289d7a38448ebfb113e7",
+        "e7e3e52093768d57933b412350c99ccf3fe94cb92f68ca7565ce62e48f1dc263",
+        "0ce27fb85aab385f9bca9377480671e647bea06589349535088d2954b39f9331",
+        "546146a4c9f6d3df9993c5461fdaffc1b3fb1295983f0dcab83ea0e6351e4d7d",
+        "2e217f1d202aa71c3b963f428bec1766f7981ba82addfa578d2b9454d47536d5",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "c9b9c7d65976728de27acfbc743e867b4dcd6464352b87ab8211e5d43ec34471"
+      ]
+    },
+    "spacr.ops_accel.nearest_neighbours": {
+      "source_blocks_sha256": [
+        "8d11c1fa658312f0288c8ba50089f19a2b604d8824ac2744ff190359332417ae",
+        "97f6b90834c035a940808cb4cfcaa11fc3d86ffe00e45093cc4472e5bc26a3cd",
+        "af9029fadadf2f279fbce6bd1267a07edcf9338dc7b6f0013e1600c6e09d4657",
+        "fdc6218a190c04c5ebae807051bf88719e54fef14899fcb78303910976285384",
+        "14cbc8d2ac12f68b94c088f83ff5b0487ff87e415ed43ad7b2d9681c809300e3",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "74d2febe588d2cafbe26efa0707278ed4f160bab85acf8de5f2154f308937981",
+        "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
+      ],
+      "source_sha256": "46e27ca23bb0fc58a24672bc85bf96b966921c7b1f49db4825cecef3ee76a85f",
+      "text": "Pour chaque ligne de ``source``, la ligne la plus proche de ``target``.\n\nCHUNKED, ALWAYS. Une position d'échantillon de microplaques peut transporter une centaine de milliers de noyaux, et la matrice de distance complète entre deux ensembles est de 40 Go -- plus que la carte et plus que l'hôte. Couper le premier ensemble limite l'ensemble de travail à ``chunk x M`` quelle que soit la taille de la position de l'échantillon, ce qui est le même argument PARTIE 5 fait sur la mosaïque: le plafond ne doit pas dépendre de la quantité de données qu'il y a.\n\nLes liens vont à l'index inférieur, sur chaque moteur, de sorte qu'un appelant qui couple les voisins les plus proches obtient les mêmes paires quel que soit le courant.\n\n:param source: Les points ``(N, D)``.\n:param target: Les points ``(M, D)``.\n:param gpu: False le garde sur le CPU.\n:param backend: Forcez-en un.\n:param chunk: lignes de ``source`` par passe.\n:returns: ``(indices, distances)``, les deux longueurs N.",
+      "translation_source_blocks_sha256": [
+        "8d11c1fa658312f0288c8ba50089f19a2b604d8824ac2744ff190359332417ae",
+        "a7c5d7022b77d6b52a0c698f3b3cf0b869260e6c455098f325a9396744c72c4e",
+        "af9029fadadf2f279fbce6bd1267a07edcf9338dc7b6f0013e1600c6e09d4657",
+        "fdc6218a190c04c5ebae807051bf88719e54fef14899fcb78303910976285384",
+        "14cbc8d2ac12f68b94c088f83ff5b0487ff87e415ed43ad7b2d9681c809300e3",
+        "b48cf147a409cd0670658bcde874cbdce77ef7a65855f4bb028ec08a5b4c360b",
+        "fadd6142fae0bafa9fcade07e6a03954058a377a62a73b2c981149ec2cd1db44",
+        "74d2febe588d2cafbe26efa0707278ed4f160bab85acf8de5f2154f308937981",
+        "4e34f910f108c2819bfe523d9133c11544a209f0fe253984b6330618755ab609"
+      ]
+    },
+    "spacr.ops_cycles": {
+      "source_blocks_sha256": [
+        "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
+        "59eba82e68561e13220794fd3a3318f848654998412cc57c0fbfd0ee0bb6e516",
+        "b5c2a3301612b0237721e7e027c5fcef9356ad279043251c629ffc9785e9294b",
+        "7096248994d74057fe4c683729f92aa3f77532af0f3a151aecc1c3392cb5557a",
+        "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
+        "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
+        "fc0202df87d042b6351dfea6e31dc398fe8ec41de8dbb0fd9f5f2f601680cbbb",
+        "346b886d87b02facc49c1c17a06ed7561d4217a5268f15213c7ac6dffb08bc28"
+      ],
+      "source_sha256": "1bcc5138b1fbf4b4f51a4a7d1a8e66ee39cbc6568a14ae31851e08214ed08b4c",
+      "text": "Enregistrant un champ à travers les cycles de séquençage qui l'imagent.\n\nL'axe du cycle n'est pas l'axe de champ d'image du microscope, et la différence décide de tout dans ce module. :mod:`spacr.ops_register` place deux champs de vue du microscope DIFFÉRENT qui se chevauchent par une fraction d'un champ d ́image du micro; ici le même champ de vision du microscope est représenté onze fois et l'étape y revient, de sorte que le déplacement est une poignée de pixels plutôt qu'un pas.\n\nL'instruction 372 PARTIE 10 a mesuré cette acquisition : le cycle 1 contient un canal de données à cinq images ``DAPI-CY3-A594-CY5-CY7`` pile par site et les cycles 2 à 11 contiennent quatre fichiers distincts de canaux de données de base avec NO DAPI. Ainsi, l'enregistrement de l'axe des champs d'images du microscope n'existe pas sur cet axe après le premier cycle, et le plan de la PARTIE 7 de Hoechst moyen à travers les cycles ne peut pas fonctionner non plus.\n\nCe qui le remplace, c'est la réponse de l'implémentation de référence. ``ops/firesnake.py:_align_SBS`` offre ``method='SBS_mean'`` pour exactement ce cas : le maximum à travers les canaux de base, normalisé par un haut percentile et clippé, qui transforme quatre canaux spot clairsemés en une cible dense.\n\n    site 100 poste de pointe/moyenne 169 à 236 (-6..-27, 0..10) poste 200 poste de crête/moyenne 218 à 281 (-4..-25, 11..21)\n\n    20 des 20 cycles enregistrés.\n\nCe n'est pas un repli, c'est le meilleur canal de données d'image. L'axe des tuiles sur DAPI pics à 23 à 85; ces pics de 169 à 281. Les taches sont ponctuelles et abondantes et les noyaux sont lisses et peu nombreux, donc perdre le Hoechst ne coûte rien ici.\n\nEt l'offset appartient au site, pas au cycle. Le site 100 se situe à x = 0 à 10 sur les onze cycles et le site 200 à x= 11 à 21. Une transformation rigide par cycle pour un puits entier porterait cette différence dans chaque champ de vision du microscope, de sorte que chaque site est enregistré par rapport à sa propre référence -- ce qui est aussi ce que fait l'implémentation de référence, un champ de cycle du microscope de la pile de vision à la fois.",
+      "translation_source_blocks_sha256": [
+        "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
+        "adf1e305ae9dba79b070d83b2f725902c8a06d9df956a8efd987d42d8c981c67",
+        "172c1dd510b62b029e4078701df69973133b62439ab1bd59041689aa10406209",
+        "36253605dd997bcb78170c81396384029bcbdcbb1091448a58c07a6a0747de18",
+        "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
+        "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
+        "d1754e5a119818c82cb0350fa1a4df74dd42a6dc492bd7326580fd287e52684a",
+        "91d2295728c16dc85ed8eaee7a42e650d3131fc40138a0dfdce30a5d3fd6f1a2"
+      ]
+    },
+    "spacr.ops_cycles.accepted_cycles": {
+      "source_blocks_sha256": [
+        "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
+        "189ef2c640cc4948f8cd45eac06526124706e0dfa6f7a086988f80cf59613c70",
+        "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
+      ],
+      "source_sha256": "c746b2ae67d3f7d761156846367fda16674ec98aeba18911ad5901521a838b18",
+      "text": "Les cycles dont l'enregistrement a été cru, dans l'ordre.\n\n:param registrations: le résultat de :func:`register_cycles`.\n:returns: les nombres de cycles acceptés, ascendants.",
+      "translation_source_blocks_sha256": [
+        "9a4c8a315b1d538d0c7cdd69d46f645000a4878bcd444ff29627972bd09fe703",
+        "189ef2c640cc4948f8cd45eac06526124706e0dfa6f7a086988f80cf59613c70",
+        "6b12fc84c5912cbd94c651980d85c0fe65d96f8f13d143068bc78ff89511f293"
+      ]
+    },
+    "spacr.ops_cycles.register_cycles": {
+      "source_blocks_sha256": [
+        "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
+        "510d01a7f5078c112521fad928e51306abcacd59630d8940af5e37af3452da7a",
+        "929d5ea897e0c467240b54b505133588441737d7a9ba0e4d95f32fd30de13c28",
+        "39ad02ad11d6a84112f08e56f99b8f8222774a8d97f97c03ee67602572d175e5",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "c59a1e0612cf4f629e785ca821ffe717a8878eaad508d8567ef2dc801b975227",
+        "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
+      ],
+      "source_sha256": "18a1ccd2997c07dbdfd6224dbea3ff82d1dabb356c8de8f140bba51c889c9275",
+      "text": "Placez chaque cycle d'un champ contre la référence de ce champ.\n\nChaque cycle contre la référence directement, jamais contre son prédécesseur. Chainage c1->c2->c3 sauve un enregistrement et fait dépendre chaque cycle ultérieur de tout précédent : un seul mauvais lien déplace le reste et le résiduel ne dit pas quel lien a échoué. L'enregistrement indépendant de chaque cycle permet de laisser tomber un cycle sans coûter les autres -- Règle de la PARTIE 9 selon laquelle un cycle qui ne s'enregistrera pas ne doit pas coûter la position de l'échantillon microplaqué.\n\n:param reference: la cible du cycle de référence, à partir de :func:`sbs_mean_target`.\n:param cycles: numéro de cycle jusqu'à la cible de ce cycle.\n:param tolerance: jusqu'à quel point un cycle peut atterrir de la référence et être toujours accepté, en pixels.\n:param kwargs: passé à :func:`spacr.ops_register.phase_correlate`.\n:returns: le numéro du cycle vers sa :class:`Registration`, y compris ceux qui ont été refusés -- quiconque rapporte `n_cycles` doit savoir qu'un cycle a été tenté puis refusé, et non seulement qu'il est absent.",
+      "translation_source_blocks_sha256": [
+        "b4ed40222baaf09d1045844108e9031df11f1f48ccc5eb74a99c87767782c016",
+        "8b8b9128b0d28f037b6fb3ea9be9d2d40be17f96207b205abc6e38135d34b057",
+        "929d5ea897e0c467240b54b505133588441737d7a9ba0e4d95f32fd30de13c28",
+        "39ad02ad11d6a84112f08e56f99b8f8222774a8d97f97c03ee67602572d175e5",
+        "b6de52ebb442d6ff29f7e2ccb0d567da7c67e3d9518bccd1cf0bd7ab42a39141",
+        "c59a1e0612cf4f629e785ca821ffe717a8878eaad508d8567ef2dc801b975227",
+        "90f42c33b07de85de39c0e99b97db3f6e522da3d813a10d34a6a4cbf6e0c42dd"
+      ]
+    },
+    "spacr.ops_cycles.sbs_mean_target": {
+      "source_blocks_sha256": [
+        "6db6b85f4f75403b2dd58619fb180ab5203b8b50b9b490f06c19ea79c0104386",
+        "5fabdcec3c390d7020b220001de0d9aafca5715437b3adfd445955a87c86a591",
+        "d6a0f7452e4cdb7a3fd3972dbeb35cced9d0c18c4fa453513eceb45eb86908ce",
+        "f3d3b1c5c446ceb480673975be351649340ff1648f2e9e3eb8a482af8e2d628b",
+        "2030330d4011bd9fee4b1c2dfc1bb7e356b5e42d631099c22641a879e5dc13c0",
+        "6a935c89571df1480c53c063d93ab36b0bc3dcc14c15ec53f7eed1955b802c59",
+        "bb960a6c641e084bf65fc91c45228734d52308daf9a5ffb99b3692c8eaca0389"
+      ],
+      "source_sha256": "8312ed0bb12210fd85cb6b71e36fab14393c63794d68824d8d91056a75f273de",
+      "text": "Transformez les canaux de base d'un cycle en une seule cible d'enregistrement.\n\nLe maximum, pas la moyenne, sur les canaux. Une lecture est lumineuse dans exactement un canal par cycle -- c'est ce qu'est un appel de base -- donc la moyenne des quatre divise chaque point par quatre et laisse le fond où il était. Le maximum maintient chaque point à sa propre luminosité quel que soit le canal porté.\n\n:param planes: les canaux de base pour un cycle d'un champ de vision du microscope.\n:param percentile: le percentile le résultat est divisé par.\n:param cutoff: la valeur que le résultat est coupé après, de sorte qu'un point saturé ne peut pas dominer la corrélation par lui-même.\n:returns: une image float32, la même forme qu'une seule couche d'image.\n:raises ValueError: quand aucune couche d'image n'est donnée, ou qu'ils ne sont pas en forme.",
+      "translation_source_blocks_sha256": [
+        "6db6b85f4f75403b2dd58619fb180ab5203b8b50b9b490f06c19ea79c0104386",
+        "e3a8e1d5f59d6566b6e774ec0cfb3eed05a1d8ce355f980d8b03b301a07ba9c4",
+        "bce0d62faaa581506c9d6451eb30f5cef1f8c35c9f9a8ab6d3c24ac0436641ee",
+        "f3d3b1c5c446ceb480673975be351649340ff1648f2e9e3eb8a482af8e2d628b",
+        "2030330d4011bd9fee4b1c2dfc1bb7e356b5e42d631099c22641a879e5dc13c0",
+        "62bdf79ee8ac132b0b5fa3f41170dd83ec81628fd40e4f184cede7c42517bc73",
+        "fe20db7a756230d7f9654f3ea9accd518edd81b53df9f96e378da3b4eb859367"
+      ]
+    },
+    "spacr.ops_layout": {
+      "source_blocks_sha256": [
+        "2a2ae3e9c8647ec5167329b0a954f529068d907d0ad9ca37d95e51a6b580dd63",
+        "90e0781448bf1b6e54fcca9fdf4391efbc49e7726d8fadc845eb85f90efab3d7",
+        "a050b3e22b99c9d502eac4ba6cc0fe9628016229dd42715d816a3c83881dbbd0",
+        "5a1e405a5b54cb57f0492a88f8881840f4a6dc9a6c91aceb01ef1ed0fe8bfe2a",
+        "6991244c058a3e5c5926ab9700fab1ca966b3f3b0930e6de7ba5d11cf10c60e2",
+        "ffb7a8a7be45a83ef05794e4bc961ed18695c29d51fd6152fc959cc7bbe9faf1",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ],
+      "source_sha256": "872d3ac6200edb91421cacad3edaa8a28a499d96fc25b134d8ef11b9a4e35223",
+      "text": "Où se trouve chaque champ d'image au microscope d'un puits rond, sous forme fermée.\n\nTrois prototypes précédents ont essayé de reconnaître la grille à partir des liens qui s'inscrivaient -- une serpentine avec un pas constant, puis s'exécute délimitée par un lien échoué, puis des colonnes comme des passages maximaux de liens verticaux. Les trois ont déduit la grille des bords qui manquaient, et les trois ont échoué sur la même acquisition : 27 des 333 champs d'images au microscope placés.\n\nLa position de l'échantillon de microplaques est RONDE. Chaque colonne contient autant de champs de vue du microscope que ceux qui s'inscrivent dans le cercle à ce x, de sorte que les colonnes ont des hauteurs différentes et l'index décalé à la colonne suivante est la hauteur de cette colonne -- c'est pourquoi les décalages horizontaux mesurés étaient +11, +4, -11, -9, -4, -13 et -5 plutôt qu'un seul nombre.::\n\n    columns   21, snaked down (even columns top to bottom)\n    circle    radius 10.25 grid units, centre at column 10, row -10\n    heights   5, 9, 13, 15, 17, 17, 19, 19, 21, 21, 21, 21, 21,\n              19, 19, 17, 17, 15, 13, 9, 5                SUM = 333\n\nSept décalages mesurés par rapport à quatre paramètres libres ne seraient qu'un ajustement; le modèle a ensuite été demandé de prédire les quatre voisins de six sites qu'il n'avait jamais vus -- 20, 60, 140, 200, 260, 300 -- et l'enregistrement confirmé 24 de 24, au sommet/moyenne 23,6 à 53,1 contre des paires de contrôles de 9,0 à 15.6 Les contrôles sont revenus au poste (0,0), ce qui est la signature sans overlaps qui se comporte comme il se doit.\n\nL'erreur qui a coûté le premier modèle quatre de sept, enregistrée parce qu'il s'agit de la même classe d'erreur que les décalages enveloppés dans la PARTIE 6-A de 372 : les lignes ont été indexées à partir du haut de chaque colonne. Dans un puits rond, chaque colonne commence à une ligne différente, de sorte que « la ligne 3 de la colonne c » et « la colonne 3 de c+1 » ne sont pas côte à côte. le voisin est à la même ligne de grille absolue, c'est pourquoi :meth:`WellLayout.position` retourne les lignes absolues et :meth:`WellLayout.neighbours` les regarde directement.\n\nCe que cela remplace. `max_site_gap` et la recherche de paires fenêtre dans `spacr.spacrops`: 128 paires de candidats par champ d'image du microscope, dont quatre pourraient être réels, donnant 993 paires de points et 994 QC superpositions pour une position d'échantillon de microplaques. Ce module offre quatre candidats par champs d'images du microscope et chacun des 24 testés est une adjacence réelle, donc environ 640 bords réels sont marqués au lieu de 993 principalement imaginaires.\n\nUtilisation typique::\n\n    from spacr.ops_layout import round_well_layout\n\n    layout = round_well_layout(333)\n    for a, b, axis in layout.pairs():\n        shift = register(tile(a), tile(b))    # phase correlation, per 372",
+      "translation_source_blocks_sha256": [
+        "23761d685c8c4fc6ac08d44109dfee08811c1ea51dcbc25404a3c92944f67f01",
+        "df48544ee48423094d5bf77420c51c75925f5cf33cb446d6631c0656a777bee7",
+        "51d26f89d8aca36b53c3cb5c9695d401be1301616ad2a6683c8aa6dd820187e7",
+        "24efc80878680c4e40e1baff489b84f6bc214f3e65e5c772d68a73e08d9a1d7b",
+        "a55f6c5a6af314eca7c64b84f4f3f587a1292f53782f9dbc222b9b1228a8f492",
+        "5f583a77e71e03c0f8791e006f440033838d2f2841939312a185e17d60e957e1",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ]
+    },
+    "spacr.ops_layout.WellLayout": {
+      "source_blocks_sha256": [
+        "2407709191550d1517beb60c7331c48e3284aa3b120492b09890e6afe96d73a9",
+        "e40bb0d8f684269939ccd2a5d22d7421ac4da379980a3cec9b1ccdfd30c9eb7f",
+        "1dd8a5dbc5eda72b2cde8b6e5a8f6dcd96e3db03b9fc9228869bd5dadbb6854e",
+        "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+      ],
+      "source_sha256": "435b0796cae0975cc48ed06ba508058d1fdb4adfff84688c6d7d5194dd65b1eb",
+      "text": "Les champs d'image au microscope d'un puits rond, indiqués par l'index du site et par la position de la grille.\n\n:ivar columns: combien de colonnes de champs de vue microscope le raster d'acquisition a.\n:ivar radius: le rayon de la position de l'échantillon de la microplaque, en unités de grille (un champ d'image du microscope = 1).\n:ivar centre: ``(column, row)`` du centre du cercle. La ligne est négative pour le puits mesuré car le site 0 est au TOP et les lignes augmentent vers le bas.\n:ivar snake: si les serpents d'acquisition -- colonnes impaires recueillies en bas en haut. Le plugin HCS de Micro-Manager le fait, c'est pourquoi l'implémentation de référence porte un `remap_snake` du tout.",
+      "translation_source_blocks_sha256": [
+        "83c474c5db52a90504971d35c2d3d36da56e3bd1bc0392390eac9421c599c543",
+        "02670dea8d0c21ad12eb680d75acc0cde68cf015c5fbfa83765a31ce4f8bb8dd",
+        "71556bf7e9f35f28c8520cb67fc5f78a504e29f0c85808711cf8b90d14d8d4df",
+        "f25be1856641e943d603aea97b8e041914c6882e65212ad9621096bf61617ee5",
+        "ceafa6fde25af19feca61b45bf029e3a19dc6fde56f1a4554adfa1a4de3b7a16"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.heights": {
+      "source_blocks_sha256": [
+        "05200b6a43b57c3a50592097da2a0f3172d8d53f413a5806183000644afdb9dd"
+      ],
+      "source_sha256": "05200b6a43b57c3a50592097da2a0f3172d8d53f413a5806183000644afdb9dd",
+      "text": "Combien de champs chaque colonne tient, de gauche à droite.",
+      "translation_source_blocks_sha256": [
+        "05200b6a43b57c3a50592097da2a0f3172d8d53f413a5806183000644afdb9dd"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.micron_position": {
+      "source_blocks_sha256": [
+        "f5435ed49fafdd002a9b65d04bb6a4b9686b9febbf62a4ef2effe496ec784af2",
+        "4b4c5930b131a743098e4f297e11900421b8ca7b46723e0afb838b837ef3a12e",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "e9c832523af7f412c4fa5f2f9fdb2fdcd1a962f92bc82fffa801bb968f5b5321",
+        "93608f4712e9aed31119e6942bb6911621678d7181a8333274bd624fecf37aa1"
+      ],
+      "source_sha256": "17e22297d224575b437d28d678d84377cbd4da8703745df176938af3ad72241c",
+      "text": "Où la mise en œuvre de référence dit qu'une tuile est, en microns.\n\nLe score honnête pour un point est le résidu contre CEIN, pas un compte du nombre de champs d'images au microscope ont été placés -- la PARTIE 6-A de 372, et la raison `plate_coordinate` a été lue à partir de la source plutôt que décrite.\n\n:param site: l'index du site.\n:param pitch: microns entre les centres de tuiles.\n:returns: ``(x, y)`` en microns, par rapport au centre du cercle.",
+      "translation_source_blocks_sha256": [
+        "f5435ed49fafdd002a9b65d04bb6a4b9686b9febbf62a4ef2effe496ec784af2",
+        "be1d3d44ee0a6328c34db81854bb3fd192279fdd2bf7cce9fe277aa614b8bd2a",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "e9c832523af7f412c4fa5f2f9fdb2fdcd1a962f92bc82fffa801bb968f5b5321",
+        "93608f4712e9aed31119e6942bb6911621678d7181a8333274bd624fecf37aa1"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.neighbours": {
+      "source_blocks_sha256": [
+        "27c767570796de48b02731a7040712364824f85d53cdc9eb21590af7fc7b970c",
+        "723fb0ad04fdb59113525ae547663f69132e1bef4209937cac80e67b0738ddfa",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "7da6f97984b5534598203748bce972b499d6043f80d5fc5251b31f51d5fd9fd3"
+      ],
+      "source_sha256": "54fc01c9c9884a20e11b6d1bde97bb4afbee62ad4f70a0023b227a824aa4ba48",
+      "text": "Les sites sont physiquement adjacents à un site.\n\nQuatre candidats, NON 128. Chacun d'entre eux est une adjacence réelle: c'est ce qui remplace la fenêtre de `max_site_gap`, qui offrait une bande de voisins index dont au plus quatre pourraient être touchants.\n\n:param site: l'index du site.\n:returns: ``{direction: site}`` pour les voisins qui existent.",
+      "translation_source_blocks_sha256": [
+        "27c767570796de48b02731a7040712364824f85d53cdc9eb21590af7fc7b970c",
+        "322118fbba61e08f50b51d0283b1086cfbf85e72a807be12aa951d8131ffd2b2",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "7da6f97984b5534598203748bce972b499d6043f80d5fc5251b31f51d5fd9fd3"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.pairs": {
+      "source_blocks_sha256": [
+        "8788811a9e9333e82ce1f50eadcb755c31618bb734ceff53f32150c4a3bd89fb",
+        "c0bcc2969f175cebcde4f3cacf49a9611367195f1012c25b45f52e1cd1bc41f3",
+        "359c2ccc04cb664daaf3dea89e38f2307bcf00d43d2efbc90e49dd738d21e84e",
+        "4c9b967908948d8e027a247eac38833e7f34dd27d2a70b8a74dabab9ba57fcb7"
+      ],
+      "source_sha256": "0e5575cf2aecf56ed26f0fa5878bcdf8107c675bbc4ca7926d82f22f7a8d184a",
+      "text": "Chaque paire adjacente une fois, comme ``(first, second, axis)``.\n\nONCE, pas deux fois : enregistrer une paire dans les deux directions double le travail et pose la même question. L'axe est \"vertical\" ou \"horizontal\", ce que l'appelant veut parce qu'un lien vertical continue une colonne et qu'une horizontale traverse un virage serpent -- et parce que les deux portent des déplacements prévus différents.\n\nOrdonné par la géométrie, pas par l'index du site, et c'est celui qui n'échouera pas fort. Le champ d'image du microscope SECOND est toujours celui BELOW pour une paire verticale et celui à DROITE pour une image horizontale, parce que c'est ce qu'un appelant recadrage une bande de chevauchement doit supposer -- `register_edge` prend le bas du premier et le haut du second. Ordonner par index semble identique et est faux sur chaque colonne impaire : les serpents raster, donc dans une colonne de bas en haut le champ d'image du microscope ABOVE porte l'index supérieur. Il coûte la moitié des bords d'un puits de jouet et se déclare comme un résidu de 0.00 px, car chaque composant survivant reste parfaitement résolu.\n\n:returns: les paires, commandées par leur premier site.",
+      "translation_source_blocks_sha256": [
+        "8788811a9e9333e82ce1f50eadcb755c31618bb734ceff53f32150c4a3bd89fb",
+        "c0bcc2969f175cebcde4f3cacf49a9611367195f1012c25b45f52e1cd1bc41f3",
+        "7c56a85a9f3b6f098fdc41ba99c59bb44ec79ef4e24d8c96148e8b7120925387",
+        "4c9b967908948d8e027a247eac38833e7f34dd27d2a70b8a74dabab9ba57fcb7"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.position": {
+      "source_blocks_sha256": [
+        "32a29efe9cc46b6b3b8f18349a619d26a9ac2df4cbc1bd57682dba4f8a4a8c1a",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "1d394c58d84db17d34b1f0913a7713be25ec4d2de14c9b585d0137192df2fcc6",
+        "275e92376a6e210c1956a05baf1c6e2983544384afc8b81e11f3039653e4840a"
+      ],
+      "source_sha256": "8c193029fb8a7cc72a9443952587de4e56689a71e8bc98dbac0575863a3061e2",
+      "text": "Le ``(column, row)`` d'un site.\n\n:param site: l'index du site.\n:returns: la colonne et la ligne de grille ABSOLUTE -- pas la ligne comptée dans le haut de cette colonne. Voir la note du module.\n:raises IndexError: lorsque la position de l'échantillon de microplaques ne tient pas un tel site.",
+      "translation_source_blocks_sha256": [
+        "32a29efe9cc46b6b3b8f18349a619d26a9ac2df4cbc1bd57682dba4f8a4a8c1a",
+        "a5458d6148f6b18f42e2cf27c2722d6cb3d4829c34dfba9b714fe3635bf9b39f",
+        "1d394c58d84db17d34b1f0913a7713be25ec4d2de14c9b585d0137192df2fcc6",
+        "fb78c5b86d7ac82543bfbc71760c1a8ecda8000d12767ee2d4f96e37cda4f39f"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.positions": {
+      "source_blocks_sha256": [
+        "40e435a3c7e93ddee51f22a63c8fde45c937c99aa68703b582462205fa450e2a"
+      ],
+      "source_sha256": "40e435a3c7e93ddee51f22a63c8fde45c937c99aa68703b582462205fa450e2a",
+      "text": "``site -> (column, row)`` pour chaque site, par ordre d'index.",
+      "translation_source_blocks_sha256": [
+        "40e435a3c7e93ddee51f22a63c8fde45c937c99aa68703b582462205fa450e2a"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.site": {
+      "source_blocks_sha256": [
+        "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "592c92de07f8c0b80837e00849d4ee48e2cb00593aec1fdd3be4011990d7cb56",
+        "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
+      ],
+      "source_sha256": "c9b42659fd7136d663bd74ffb2901ffcecc88d4379d564a95f895d03cfd07a5a",
+      "text": "L'index du site à une position de grille, ou None lorsqu'il est vide.\n\n:param column: l'index des colonnes.\n:param row: la ligne de grille absolue.\n:returns: l'index du site, ou None à l'extérieur du cercle.",
+      "translation_source_blocks_sha256": [
+        "cbc795c42947639e4d823c957c0a26406f1bb43858e12c79e07f6f599271be00",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "592c92de07f8c0b80837e00849d4ee48e2cb00593aec1fdd3be4011990d7cb56",
+        "5c2ede49c270e3cacec8e74a093d9f8f56c5231df11b8c19e52d1220c707e05e"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.site_count": {
+      "source_blocks_sha256": [
+        "cff47dba157f65752746b2cc42d7422896e449f2728380f71dd92dfc4ddf613c"
+      ],
+      "source_sha256": "cff47dba157f65752746b2cc42d7422896e449f2728380f71dd92dfc4ddf613c",
+      "text": "Combien de champs d'image au microscope la position de l'échantillon de microplaques tient.",
+      "translation_source_blocks_sha256": [
+        "cb8b38bdf0d661c1767d2790fab63e8fe20ee04f73f5434f586484f0b4b8b18e"
+      ]
+    },
+    "spacr.ops_layout.WellLayout.span": {
+      "source_blocks_sha256": [
+        "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+      ],
+      "source_sha256": "8ce6cbe1c72dd601b8154e144f82f6ea5d502e4abb0d23b545837a2d0d67e37c",
+      "text": "``(first row, last row)`` d'une colonne, ou None si elle est vide.\n\n:param column: l'index des colonnes.\n:returns: la gamme de rangées absolues inclusives à l'intérieur du cercle.",
+      "translation_source_blocks_sha256": [
+        "250fe641c3b1c854e8b7b196c5e79921800a40b4c87e4d9a1c1e63fb6f854f40",
+        "589b499ea2305858927e8f12f7b6c0f0fb627ce3c934fc39902e17a976843c82",
+        "709527e11e70517ca626315394b9dcf65b098880d3d14175df90bb5eaa47a2a0"
+      ]
+    },
+    "spacr.ops_layout.round_well_layout": {
+      "source_blocks_sha256": [
+        "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
+        "7619125def20ced78e2946ad77985f1728799f754e04ace16d29f9b80fa43451",
+        "2c3cc617cc24727b4210a8dd67fa23af8d3dfb12ad2ee7a5a3560b39bdea1959",
+        "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
+        "5f9697ed74dc5cc31a1fc7867b8e9e434ff5ebef0a620a2beba10665fbb9c422"
+      ],
+      "source_sha256": "424f2519dc4cfbe48ad17d1d33a2c49ea72c9bdb6d5d248bfac935d15e845394",
+      "text": "La disposition dont le cercle contient exactement les champs ``site_count``.\n\nLe puits mesuré est retourné inchangé pour 333, de sorte que le modèle confirmé n'est jamais re-dérivé. Pour tout autre comptage, le rayon est recherché -- un puits illustré à un grossissement différent ou un format de microplaque de laboratoire différent est le même cercle avec un nombre différent de champs de vue au microscope.\n\n:param site_count: combien de champs d'image microscope l'acquisition détient.\n:param columns: le nombre de colonnes, quand il est connu. Dérivé du cercle autrement.\n:returns: la mise en page.\n:raises ValueError: quand aucun cercle ne contient exactement autant de champs de vision du microscope, ce qui est la réponse honnête -- un compte qu'aucun puits rond ne produit signifie que l'acquisition n'est pas un, et deviner le plus proche placerait chaque champ d'image du microscope légèrement mal.",
+      "translation_source_blocks_sha256": [
+        "84dec89d9823b0200e2974787569665943a05b704eeeec5ca32752817a19b1da",
+        "c91147024efddab4317ffbb9fcddc27b708f286153a97bc3d2153da09113d782",
+        "422badeb089edccd9e0d3666b00db879896f12f16774d37d87dc5bca4af4c8e3",
+        "75bc6ae1d673da7f15672f66bf20b00f5c70c7f7501b7d5c818a3b5883be8426",
+        "b51c3da6ac842c7d7795ad6c9bdcf8831c7dbc269ff759afd56ab199dfc12023",
+        "022fedb5794bf48bc372d1c87b78f0d6fc2382f19c3e0b5344b52134234fc219"
+      ]
+    },
     "spacr.ops_merge": {
       "source_blocks_sha256": [
         "82b1a75c97d080ce74ad2a3119929bd6416cb85af4e190a3b38c184d29a30cb7",
@@ -46314,10 +46688,11 @@
         "fbabe0c5e721057d2479392d8661b2d2fe10379e44461bde61ac59aafbe3c05b",
         "2eb4ffb05b445a76c6eb39b07486888e9bf2342ce7ad9529462103cdc9368ae3",
         "24845efd3d5d331e8ec51bdf9ce7adcabcb8320f9b7570ac9f2e2bab72291627",
+        "167ba402cf77ee5c094e932ddff032b9d179f31305150c78566cf2253c61945d",
         "ca32deedb124ace8a2a66aaa4162328d1b86d2e86865b34b99651436ce9fa6b4"
       ],
-      "source_sha256": "1671aca36af5973f5705a7694582a7f37dce81cc47de6aa1e0881ca3a9532b1c",
-      "text": "Jumelez des cellules un à un, ne gardant que les voisins les plus proches.\n\nUne paire ne survit que lorsque chaque cellule est la plus proche de l'autre ET qu'elle se trouve à l'intérieur de ``threshold``. Deux cellules rivalisent pour le même partenaire perdent toutes les deux. Cette asymétrie est délibérée : une cellule à mal appariée mains un vrai phénotype du code-barres de quelqu'un d'autre et corrompt discrètement chaque statistique calculée à partir de lui, alors qu'une cellule abandonnée ne coûte que la sensibilité de détection statistique que plus de cellules peuvent récupérer.\n\n:param source: ``(N, 2)`` centroïdes.\n:param target: ``(M, 2)`` centroïdes.\n:param transform: ``(scale, rotation, translation)`` de :func:`align_by_triangles`, appliqué en premier à ``source``. ``None`` signifie que les deux ensembles sont déjà dans le même cadre.\n:param threshold: la plus grande distance, en unités de TARGET, qui peut encore être appelée la même cellule.\n:returns: ``(K, 2)`` tableau de paires ``(source_index, target_index)``.",
+      "source_sha256": "fad21bbe8d6fa90ef4c60e767ba78fef40b63c1fab0b45d71c1ea5fb6852f8ed",
+      "text": "Jumelez des cellules un à un, ne gardant que les voisins les plus proches.\n\nUne paire ne survit que lorsque chaque cellule est la plus proche de l'autre ET qu'elle se trouve à l'intérieur de ``threshold``. Deux cellules rivalisent pour le même partenaire perdent toutes les deux. Cette asymétrie est délibérée : une cellule à mal appariée mains un vrai phénotype du code-barres de quelqu'un d'autre et corrompt discrètement chaque statistique calculée à partir de lui, alors qu'une cellule abandonnée ne coûte que la sensibilité de détection statistique que plus de cellules peuvent récupérer.\n\n:param source: ``(N, 2)`` centroïdes.\n:param target: ``(M, 2)`` centroïdes.\n:param transform: ``(scale, rotation, translation)`` de :func:`align_by_triangles`, appliqué en premier à ``source``. ``None`` signifie que les deux ensembles sont déjà dans le même cadre.\n:param threshold: la plus grande distance, en unités de TARGET, qui peut encore être appelée la même cellule.\n:param gpu: effectuer les deux recherches de voisinage les plus proches sur la carte où il y en a une utilisable. Une position d'échantillon de microplaques transporte des dizaines de milliers de noyaux de chaque côté et la recherche se fait deux fois, une fois dans chaque direction; `spacr.ops_accel.nearest_neighbours` la découpe de sorte que l'ensemble de travail ne se développe pas avec la position de l'échantillon microplaque.\n:returns: ``(K, 2)`` tableau de paires ``(source_index, target_index)``.",
       "translation_source_blocks_sha256": [
         "ea76f4753cbb1ab0a30c95c506413653696103702f264930677918dd065301b0",
         "e243c6dc3ee259b8cd7a1ea9ebd85bc8e0ac1ae1ebea1aad562d07ef21bcf66a",
@@ -46325,6 +46700,7 @@
         "fbabe0c5e721057d2479392d8661b2d2fe10379e44461bde61ac59aafbe3c05b",
         "2eb4ffb05b445a76c6eb39b07486888e9bf2342ce7ad9529462103cdc9368ae3",
         "24845efd3d5d331e8ec51bdf9ce7adcabcb8320f9b7570ac9f2e2bab72291627",
+        "88c47cc44cec3ffa2c94585a68474220bed56a31d4ae9d8ff28438fc409fb6e7",
         "ca32deedb124ace8a2a66aaa4162328d1b86d2e86865b34b99651436ce9fa6b4"
       ]
     },
@@ -46342,6 +46718,422 @@
         "4284f7e376c2b415cd2950e14b4a049ac51297de01fea7ca23986df819b2bf90",
         "97c2bed9d6e30ad48a18ebcb280604b6527d89f8c0a56c45bf5da9eb35f16c79",
         "d049bbab3f5ef63d99108ae55d6aff94556ee72a51ad282a085249831158d6fe"
+      ]
+    },
+    "spacr.ops_phenotype": {
+      "source_blocks_sha256": [
+        "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
+        "234152f444ed13a4ca3b088c4e4e7ab701e99acd84c438adb0c7ba9248bc34e6",
+        "aba66c01e9fd3ca1e4f3ee03f851444b1e73a9b7277187cc7e89d4d43f1f054c",
+        "1e905db470b8f54f7dac6b8d239145f7797eb95d1dc45337bcc4d0c5ddcbf816",
+        "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
+        "a83c7def9a453dc0402410eb42e0f6a677b3d3f9555ff2be9a6beaadb421a14b",
+        "5607acd4c2f46376cf0c7b7ee4acf752e2b1b62a47a212c2da3330ce1393c2ac",
+        "bf4cd9bd465d330b3e27b08bfa7134ca5f33b3b171e37f0f5104bba8681abe12"
+      ],
+      "source_sha256": "d89e59c264803f17d46f2750cca9a3c9b633042c3fb3c30f75e54d64579d1e1e",
+      "text": "Phase A4 : mettre l'acquisition du phénotype sur le séquençage.\n\nLes images phénotypes sont 2960x2960 à 20X et les images séquentielles sont 1480x1480 à 10X, du même puits rond. La phase A4 de l'instruction 372 demande une transformation par champ de vision du microscope phénotype dans le cadre de séquençage, aligné sur la tache nucléaire, \"et ne pas rééchantillonner l'un dans l'autre -- aligné, pas moyen\".\n\nPourquoi ce n'est pas un problème de pixel. A travers un changement de grossissement et deux acquisitions différentes un voisinage de  pixels ne signifie rien, mais un noyau est un noyau à deux échelles. Ainsi l'alignement fonctionne sur des centroïdes nucléaires, et :func:`spacr.ops_merge.align_by_triangles` propose la transformation de leur arrangement seul.\n\nPourquoi cette proposition n'est pas la réponse. Mesurée sur la plaque réelle, le consensus triangle est biaisé et le biais se développe à mesure que la correspondance s'amincit. Contrôles synthétiques construits à partir de 593 noyaux réels, transformer connu exactement:\n\n    ce qui a été demandé pour l'échelle retournent l'identité des inliers 0,9878 56 % échelle 0,25 0,2469 100 % échelle 0,25, 1 px de jitter 0,2065 53 % échelle 0,55, la moitié des points gardés 0,2916 23 % échelle0,25, une troisième tenue 0,3596 15 %\n\nUne erreur d'échelle de 1,2 % est de 18 px de déplacement à travers un champ de vision de 1480 px, c'est pourquoi une copie EXACT d'un jeu de points marque 56 % plutôt que 100. Et les deux dernières lignes sont la forme de chaque paire réelle sur laquelle ce module a été essayé pour la première fois -- deux champs d'image de microscope qui se chevauchent partiellement, image deux fois, sont exactement « certains des points, déplacé un peu ».\n\nCe module le prend, trouve les correspondances qu'il implique, et RE-SOLVES la similitude de ces correspondances sous forme fermée; puis le fait à nouveau sur les lettres que la meilleure transformation implique. C'est le même argument :func:`align_by_triangles` fait déjà pour sa traduction -- « pas un raffinement, c'est la différence entre le travail et non » -- appliquée à l'échelle et à la rotation aussi bien.\n\nEt il rapporte combien de noyaux sont d'accord, ce que le consensus triangle ne fait pas. `align_by_triangles` a retourné une transformation pour chaque paire qu'il a jamais été remis, y compris des champs d'image au microscope phénotype et séquençage des champs de l'image microscope des côtés opposés de la position d'échantillon de microplaques, parce que trois triangles semblables coïncidant peuvent toujours être trouvés en deux séries de quelques centaines de points. Un alignement sans compte inlier n'est pas une preuve, et la PARTIE 6-A de 372 enregistre la même leçon sur les placements: un compte de choses tentées n'a pas été une mesure de quoi que ce soit réussi.",
+      "translation_source_blocks_sha256": [
+        "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
+        "7cd5a5b42e496ee2815fb08a2435cbc801e461e914bb6e331896ad464af218f3",
+        "2a5bf43216a2c6f0047419ee44c50da1cfadfee8b5ee404cd4346d442da6e06d",
+        "7b5d35684483202edc44ae2b4d5baca74a2815aa0a77f2736664002df39f5545",
+        "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
+        "d7984f58c0ca49a6ea814b8e917aca184628841f26cf41826880f2b5bd06b883",
+        "c87e02a4294499a7faaacdf7d5e87e007b1ec368055fea1f4f48c0108b59f8f3",
+        "21f95cfc8804bad488fb536cd47601da70cc4533fad2bc04f85162522b814ef0"
+      ]
+    },
+    "spacr.ops_phenotype.Alignment": {
+      "source_blocks_sha256": [
+        "d4c5c356374628b3d02f07ffd0d6ef18a18afcd5c1d997b3315ac582c9d70ad7",
+        "b5349c6e5ff39aec7714c4152f3b79479c673bd1aa4ed8fb06d7082ad68ff820",
+        "aee359b1f7ed221b8348385893e3e13680d8ce6028e998516270bff3a678bbb1",
+        "06ebe53ef808fa907c14581f7f07ac2ff8719a7111299ca9d788aef0f592bca6",
+        "021952094dd08e2baf7c14c67d25574fcfc53b867e192500189a1a8cd107f298",
+        "8b7ce9a3fb22e919b01818a39f4a7b1f28e2643c68eba672211c1111a37a6c80",
+        "37b05c8985391bd4e2ad217b3448d726db584ae486d4b7038da0ea0c799c4071"
+      ],
+      "source_sha256": "cfdaf5dfd9dab096ddae5d1acacbcf7321479354ef01435359a733c248d11845",
+      "text": "Un champ phénotype placé dans le cadre de séquençage.\n\n:param scale: pixels cibles par pixel source.\n:param rotation: la rotation 2x2, le cadre source vers le cadre cible.\n:param translation: l'offset, appliqué après échelle et rotation.\n:param inliers: combien de noyaux sont d'accord, à :data:`MATCH_RADIUS_PX`.\n:param residual_px: la distance médiane entre les noyaux d'accord, en pixels cibles. Le nombre à lire lorsqu'on demande à quel point il est bon; `inliers` indique s'il faut le croire du tout.\n:param points: combien de noyaux sources ont été offerts.",
+      "translation_source_blocks_sha256": [
+        "d4c5c356374628b3d02f07ffd0d6ef18a18afcd5c1d997b3315ac582c9d70ad7",
+        "b5349c6e5ff39aec7714c4152f3b79479c673bd1aa4ed8fb06d7082ad68ff820",
+        "aee359b1f7ed221b8348385893e3e13680d8ce6028e998516270bff3a678bbb1",
+        "06ebe53ef808fa907c14581f7f07ac2ff8719a7111299ca9d788aef0f592bca6",
+        "021952094dd08e2baf7c14c67d25574fcfc53b867e192500189a1a8cd107f298",
+        "8b7ce9a3fb22e919b01818a39f4a7b1f28e2643c68eba672211c1111a37a6c80",
+        "37b05c8985391bd4e2ad217b3448d726db584ae486d4b7038da0ea0c799c4071"
+      ]
+    },
+    "spacr.ops_phenotype.Alignment.apply": {
+      "source_blocks_sha256": [
+        "def75d9a25843a6f3205e22ca6c2c9901d44f6da3236a94ee7c36bdca6c7a569",
+        "d1a5ead8a9f1569f6ecc0b13f486da0a652374d84200bff9ee25f99d999d9308"
+      ],
+      "source_sha256": "95e9eeae3009e3fae0577166c9cf03d81e552435f6be647dc67c06d2c1be4f0d",
+      "text": "Déplacer les coordonnées de la source ``(N, 2)`` dans le cadre cible.\n\nLa transformation stockée, appliquée -- donc un appelant n'a jamais à reconstruire la convention et l'obtenir de la mauvaise façon, ce qui a coûté 372's PARTIE 11-C une toile un pas par colonne trop grande.",
+      "translation_source_blocks_sha256": [
+        "def75d9a25843a6f3205e22ca6c2c9901d44f6da3236a94ee7c36bdca6c7a569",
+        "d1a5ead8a9f1569f6ecc0b13f486da0a652374d84200bff9ee25f99d999d9308"
+      ]
+    },
+    "spacr.ops_phenotype.Alignment.degrees": {
+      "source_blocks_sha256": [
+        "2a16d98207d58dc20d7143aa9c3d4c66ae91cc9119d69d556af31e240f30a994"
+      ],
+      "source_sha256": "2a16d98207d58dc20d7143aa9c3d4c66ae91cc9119d69d556af31e240f30a994",
+      "text": "La rotation en degrés, pour une personne qui lit une table.",
+      "translation_source_blocks_sha256": [
+        "2a16d98207d58dc20d7143aa9c3d4c66ae91cc9119d69d556af31e240f30a994"
+      ]
+    },
+    "spacr.ops_phenotype.align_phenotype_to_sbs": {
+      "source_blocks_sha256": [
+        "b4e10952127033d56f9c00470766533636663c70932d3c9e8422f64ba3652d61",
+        "6855aad4e7b6fe5f225052bd353a464041f0fd063b6a5eb283365ed9eb379f63",
+        "5fc7d6e6250c4891ac8684d23f704a5668d0e0822ede99c28e56d7242456ce0f",
+        "f3c4a82b2402c9c642e311d6223f7bd4ca74ec5339f10402e95fd022e41042db",
+        "4c2e783d22b737cd19dc0a12719e80da11ea8f003097a897384ca47a0ecb71cf",
+        "ee56dcc23250a9956f826b7c8cee8af3844d981b889ca60f14c3d191cd03063e",
+        "a19e197e9810a99c5675eeb06ca875d232431235157aa5840d8a6c646318fd78",
+        "9d64ea6f967a5464cf9cb2e08a044c02a5a901d57497d72df21d329ef56147bf",
+        "35b1cb980d0c20db6b55c5d148bcd0d70042dadca07322fe0e593a5bc3af0724",
+        "45fb81bf2ec0f0abd87abf14adf9e7e5b4f188f818dc733f4b69c670e08632ca",
+        "5ef34a3e2e9b49afa65a09555aaa402f4d08f4daa3346b02d5b9c5af8cf39baa",
+        "103a5c4ec7fb24d2680b9593b227e660fa4b25c71d8deef21174cd91d3e1f02f",
+        "dd83543bcd153a413bca18e97ec8a668f77a92153518a5ec80b822dad51cc6e0",
+        "bfe77738efb3ae0de37b880e1cbbac0cf6b7051ad55b3890a127c1db274f532d"
+      ],
+      "source_sha256": "b25888ccb6714e93449c7cfb01477baead43e607fbfab64c10a6166db5014dea",
+      "text": "Un champ phénotype se transforme en cadre de séquençage.\n\n:param phenotype_points: ``(N, 2)`` centres nucléaires dans le domaine du phénotype.\n:param sbs_points: ``(M, 2)`` centres nucléaires dans le domaine du séquençage.\n:param expected_scale: pixel cible par source, quand l'acquisition dit. Étant donné, une seconde graine est essayée avec l'échelle fixe -- voir :func:`seed_by_scaled_pairs` pour pourquoi cela compte plus qu'il ne sonne.\n:param tolerance: Tolérance en forme de triangle pour la graine consensuelle.\n:param radius: à quel point un noyau déplacé doit atterrir pour être d'accord.\n:param rounds: des rondes de raffinement.\n:param min_inliers: le moins de noyaux d'accord pour rendre quoi que ce soit.\n:param max_rotation: la plus grande rotation, les deux acquisitions peuvent différer de, en degrés.\n:param scale_tolerance: jusqu'à quelle distance l'échelle de la réponse peut s'asseoir de ``expected_scale``, en fraction. Ignorée sans une.\n:param min_chance_ratio: combien de fois le taux d'accord de chance le vrai doit battre. Voir :data:`MIN_CHANCE_RATIO`.\n:returns: le :class:`Alignment`, ou None -- qui est ce à quoi « ces deux champs ne se chevauchent pas » ressemble, et il faut le dire.\n\nDeux graines, et celle avec plus de noyaux derrière elle gagne. Le raffinage converge vers n'importe quel bassin où sa graine est dans, donc essayer une graine et le raffiner est une décision prise avant toute preuve est dedans.\n\nMais les inliers ne décident qu'entre les candidats qui sont physiquement possibles. Score sur les inducteurs seulement, une mauvaise réponse gagne : une solution de 148 degrés a rassemblé 194 noyaux, et un à l'échelle 0.2069 contre un vrai 0.25 a rassemblé 319 -- plus que la vérité -- parce que rétrécir le champ de vision du microscope emporte les points. Les deux sont exclus ici avant qu'ils soient notés, par la rotation et les limites d'échelle, et les deux limites sont des faits au sujet du microscope plutôt que des seuils que quiconque a accordé.",
+      "translation_source_blocks_sha256": [
+        "b4e10952127033d56f9c00470766533636663c70932d3c9e8422f64ba3652d61",
+        "6855aad4e7b6fe5f225052bd353a464041f0fd063b6a5eb283365ed9eb379f63",
+        "5fc7d6e6250c4891ac8684d23f704a5668d0e0822ede99c28e56d7242456ce0f",
+        "f3c4a82b2402c9c642e311d6223f7bd4ca74ec5339f10402e95fd022e41042db",
+        "4c2e783d22b737cd19dc0a12719e80da11ea8f003097a897384ca47a0ecb71cf",
+        "ee56dcc23250a9956f826b7c8cee8af3844d981b889ca60f14c3d191cd03063e",
+        "a19e197e9810a99c5675eeb06ca875d232431235157aa5840d8a6c646318fd78",
+        "9d64ea6f967a5464cf9cb2e08a044c02a5a901d57497d72df21d329ef56147bf",
+        "35b1cb980d0c20db6b55c5d148bcd0d70042dadca07322fe0e593a5bc3af0724",
+        "45fb81bf2ec0f0abd87abf14adf9e7e5b4f188f818dc733f4b69c670e08632ca",
+        "5ef34a3e2e9b49afa65a09555aaa402f4d08f4daa3346b02d5b9c5af8cf39baa",
+        "103a5c4ec7fb24d2680b9593b227e660fa4b25c71d8deef21174cd91d3e1f02f",
+        "90cba5aa5bf288fac748d550567a23ce9bf3226f99f2d27b8359dea6a13ea4a3",
+        "cd1f75be9ff74db6345d819b934715b0985d021a6fc3553eaa8590a3b21d3066"
+      ]
+    },
+    "spacr.ops_phenotype.nuclear_points": {
+      "source_blocks_sha256": [
+        "d01a719d0630d54ec381764f5b21b5ad1ec73e7798d7d40b0bdcdd10a0603d5d",
+        "57efe019cb2b13e64d50d09199d8a51b650d72ed418f78f80deb9dc8a2e19572",
+        "4c0cc15a1edd5ff0fc85ff31e46868048587adf20b8d1588db50c3b880db9ed4",
+        "2ebe1e78d51a717d9e998a524e5907bde0502eb7a854e527b5f4c646d9bf1645",
+        "f7d2b63a774fc3967f5b099fc51a03e12432477d0a9dd4134c050a7fba6199c8",
+        "3271779e65cf7ffde76f7380cb4cb548290f96b47f9caffe40277dd5512200bc",
+        "557d96f0f045514099e38866ac5f5b56b5fa1a01f496702413c6c93866d16a99",
+        "b3b888c77ac48168eda06b383ae4aee6847a7de349d3b9b44b0d6ade61b0ac15"
+      ],
+      "source_sha256": "b15958bb4c33110c402916aebc23c5c070f51a117982beefeda92a8569ea8447",
+      "text": "Des centres nucléaires à partir d'une tache nucléaire, sans rien segmenter.\n\n:param image: une couche d'image 2D d'un canal de données d'images nucléaires.\n:param sigma: Le lissage gaussien avant la découverte du pic; un noyau est un blob, et le lissage à sa propre échelle est ce qui empêche un noyau de répondre comme trois.\n:param min_distance: les deux pics acceptés les plus proches peuvent être, en pixels.\n:param top: Le matcheur triangle est quadratique dans le nombre de points et les quelques centaines de noyaux les plus brillants d'un champ sont aussi informatifs que tous les autres.\n:param percentile: le plancher d'intensité, comme un percentile de l'image lissée. Relativement plutôt qu'absolu, parce que les deux acquisitions que ce module compare ont été prises à des expositions différentes.\n:returns: ``(N, 2)`` centres de rangée/colonne.\n\nA4 n'a pas besoin de masques. Il a besoin de points qui signifient la même chose dans deux cadres, et un maximum local lissé sur une tache nucléaire est qu'à une fraction du coût d'une segmentation. Phase B segments, une fois, sur le composite; ce n'est pas cette étape et ne doit pas le devenir.",
+      "translation_source_blocks_sha256": [
+        "d01a719d0630d54ec381764f5b21b5ad1ec73e7798d7d40b0bdcdd10a0603d5d",
+        "21675a1e6d5f49185ce257af3317c037894b964f82498a9e034deab3a55fe49b",
+        "4c0cc15a1edd5ff0fc85ff31e46868048587adf20b8d1588db50c3b880db9ed4",
+        "2ebe1e78d51a717d9e998a524e5907bde0502eb7a854e527b5f4c646d9bf1645",
+        "f7d2b63a774fc3967f5b099fc51a03e12432477d0a9dd4134c050a7fba6199c8",
+        "3271779e65cf7ffde76f7380cb4cb548290f96b47f9caffe40277dd5512200bc",
+        "557d96f0f045514099e38866ac5f5b56b5fa1a01f496702413c6c93866d16a99",
+        "e31eaad6b7680496d8ef9d345e058a6ca960a30f515faba7507ca15ec34bf494"
+      ]
+    },
+    "spacr.ops_phenotype.phenotype_site_map": {
+      "source_blocks_sha256": [
+        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
+        "e75a05712ef4239e25f3696792ed3442aad28ee2fbc257153cb01985fbd2e947",
+        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
+        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "ef5571c032cd0d7d40425d899263e526150c9aab7337ef26944d77aeaa269fd3"
+      ],
+      "source_sha256": "fdb5eaf6703a2c5a928257740bfda3b0065722325b7faaf3ddfa45e8e114c3cd",
+      "text": "Le séquençage des tuiles couvre chaque tuile phénotypique.\n\n:param phenotype_sites: le nombre de champs de vision au microscope que détient l'acquisition du phénotype.\n:param sbs_sites: combien d'acquisitions de séquençage détient.\n:returns: ``{phenotype site -> sequencing site}``, en omettant toute tuile phénotype dont la position de séquençage est à l'extérieur de ce cercle.\n:raises ValueError: quand l'un ou l'autre compte n'est pas un puits rond, qui :func:`spacr.ops_layout.round_well_layout` décide.\n\nC'est une question de mise en page, pas une image, et répondre par l'image était comment les trois premières tentatives à A4 ont passé un après-midi: le site phénotype N a été jumelé au site séquençage N, qui est une partie différente du puits, et chaque paire est revenue à 2-9 % inliers. La mise en place le dit en forme fermée. L'acquisition mesurée correspond à 41 colonnes au rayon 20.15 contre le puits séquentielle 21 à 10.25 -- le même rond bien à deux fois la densité du champ d'image du microscope, et 41 = 2 * 21 - 1 -- donc une position de grille phénotype moitié autour du centre.",
+      "translation_source_blocks_sha256": [
+        "b9bc614ff1e13f729aaa47107a59535ef05868ea4394d45dec15b1139dc60811",
+        "ab9a59257c1c23fa317e0fc02f4941f59f8d1efa35b0f64f53d525dde8b780d8",
+        "67aa56b7a0c5ec0f5813406127c8f4f8cd70e5e1b3ff180f628f3d5d754bc90c",
+        "1cda9f6525695edc478bdaa0852c2260ab2e6dfc5a0b228db5123eace4bf9dad",
+        "9b94ec5c41878f6c22068de7e067c60b238315d29531e962b836945207c69ba4",
+        "ad004c2f9c7a9994138a70118994b3ac9e9df26b9cc63b71a3a363a586031c5b"
+      ]
+    },
+    "spacr.ops_phenotype.refine_similarity": {
+      "source_blocks_sha256": [
+        "47318d012262c5cac2b95a8a4628dec163e7b5a021a45c2c69d273a5c241188f",
+        "35adac8816ec203db9afd6eaf3bd15256b806d469e8153209836d782c02af996",
+        "8abeef48b7baf15b7c0efd02da9485b04c62ef47776a639e2dd4b34beac9775a",
+        "6aa145c7914c043c3b4ef2a29abec7dbf5e527eb34d0d59a2f7b1bdd8a0e3343",
+        "b361c77cabccce70c132eec6687ceae62785c247991b9bda50c6543add6951ab",
+        "668932f2e6824257fd51fc8fbb2dde83348acc98b362e461c4293ccdc2bed44a",
+        "2f2ac36eeba4119e8ec79ebe9870b0ea4fd6d3ce4b5f28e68ee10a45ac89e5e1",
+        "5968df4fa6f69f88f7551aed045468decdd81a84e772b7f0b3417d38d2586594"
+      ],
+      "source_sha256": "970678b337b18ea375390602c12f3c5ecf168667e7ce5335199dfdb3c6cba875",
+      "text": "Résoudre une graine transformée à partir des correspondances qu'elle implique.\n\n:param source: ``(N, 2)`` points dans le cadre en cours de déplacement.\n:param target: ``(M, 2)`` points dans le cadre déplacé vers.\n:param seed: ``(scale, rotation, translation)`` pour commencer à partir de.\n:param radius: à quelle distance un point déplacé doit se poser pour être compté comme une correspondance.\n:param rounds: Combien de fois pour ré-soudre.\n:returns: ``(scale, rotation, translation, source_in, target_in, distances)``, ou None lorsqu'un tour trouve trop peu de correspondances à résoudre.\n\nLa graine est permise à être pauvre. C'est le point: le consensus triangle est biaisé jusqu'à 44 % d'échelle sur des données rares, et un biais qui grand met encore la plupart du champ à l'intérieur de quelques pixels de la vérité près du centre de rotation, qui est assez de correspondance pour résoudre correctement à partir.",
+      "translation_source_blocks_sha256": [
+        "47318d012262c5cac2b95a8a4628dec163e7b5a021a45c2c69d273a5c241188f",
+        "35adac8816ec203db9afd6eaf3bd15256b806d469e8153209836d782c02af996",
+        "8abeef48b7baf15b7c0efd02da9485b04c62ef47776a639e2dd4b34beac9775a",
+        "6aa145c7914c043c3b4ef2a29abec7dbf5e527eb34d0d59a2f7b1bdd8a0e3343",
+        "b361c77cabccce70c132eec6687ceae62785c247991b9bda50c6543add6951ab",
+        "668932f2e6824257fd51fc8fbb2dde83348acc98b362e461c4293ccdc2bed44a",
+        "2f2ac36eeba4119e8ec79ebe9870b0ea4fd6d3ce4b5f28e68ee10a45ac89e5e1",
+        "56bdda0a90f5ba8a9a706696375749ef641a2f3bb32122e91c401e51d9829ee4"
+      ]
+    },
+    "spacr.ops_phenotype.seed_by_scaled_pairs": {
+      "source_blocks_sha256": [
+        "d8ab6a638bf635c148fef108b16a97cd7180f3adfa7995ac07fffdac62026f63",
+        "5753a834c9c456410ed35461d2c9047f8d696bee130706d8fb8f91b0c16d7781",
+        "5304741aaeddeea28cd4312f5f989a8b211a32b815f49cad9ec2b0fc398e7619",
+        "b8ad0f50140e84c57c950863cadbd5f1b3ecc8cae658b930c8bec46d39e9cdd7",
+        "3d9cb3063070574dfdfa5510225a1e0f734935bf837b20b5fbf5621b3d7b72b1",
+        "23f5c8e3a4f9c442aa35a7f1ff83f98866255284d0cf55a3a8eab2118db19649",
+        "02fc33b209d42e707895a421a5088ae8109e91c8660bc88713ff0f0acba13e48",
+        "77b3b2025721600671724cf8b48bf743fbd77bfaebdfe174110fc07c0db4a4bd",
+        "18948a570b939fead5bcc9ec54b23d679467a384b9eb9255a0904f5ca68d5494",
+        "5127036b7d4b3e6fef4f20c428178792ed3bfee385124beeb50986678b9a2067",
+        "2d0f699104a952b7784b3e450ef6f5621a22b03d72d599aa8901ab1c2ab8432b",
+        "0d8aa566706826aa1c301f4aa9a46cf9df226e4c06841d919fbf7a1e00c56863",
+        "f1dc4c248bb0912acf949ddd426bf278cbb59bd274d5f8bb9a78453601d97103"
+      ],
+      "source_sha256": "22294b02cb1df4a17c04142fe92d3f5d25df8fee08706d61f0fdd448a087acdc",
+      "text": "Une graine se transforme à partir de correspondances à deux points, avec l'échelle connue.\n\n:param source: ``(N, 2)`` points à déplacer.\n:param target: ``(M, 2)`` pointe vers lequel se déplacer.\n:param scale: pixels cibles par pixel source, de l'acquisition.\n:param radius: à quel point un point déplacé doit atterrir pour être d'accord.\n:param trials: combien de correspondances à essayer. None l'écrase avec la cible, ce qui est ce qu'elle a à écheller avec -- voir :data:`PAIR_TRIALS`.\n:param tolerance: un relâchement fractionnel sur la séparation d'une paire.\n:param max_rotation: la plus grande rotation à considérer, en degrés. Voir :data:`MAX_ROTATION_DEGREES` -- c'est ce qui empêche la recherche de retourner une coïncidence symétrique avec un bon score.\n:param seed: la graine aléatoire, donc un essai est reproductible.\n:returns: ``(scale, rotation, translation)`` pour la correspondance la mieux notée, ou None si aucun point n'a été noté au-dessus de deux points.\n\nLe consensus estime l'échelle, et sur la correspondance clairsemée ou bruyante il l'estime mal -- 0,36 où la vérité était 0,25, mesurée. Le raffinement ne peut pas se remettre de cela: une transformation qui fausse trouve un petit cluster de points autocohérents près de son propre point fixe et converge avec bonheur sur elle. L'échelle n'est cependant pas quelque chose A4 à estimer. C'est le rapport des emplacements de champ d'image au microscope des deux acquisitions, et la mise en page le sait.\n\nUne paire de sources séparée par ``d`` doit atterrir sur une paire de cibles séparée par le ``scale * d``, et cette seule contrainte suffit pour faire un échantillonnage aléatoire pas cher : pour un point cible échantillonné, seuls ses voisins à la bonne distance peuvent être le partenaire.\n\nUne transformation qui cartographie quatre points en quatre points n'est rien de mieux qu'une transformation qui mesure deux cents points dans le rayon d'un noyau est la réponse.",
+      "translation_source_blocks_sha256": [
+        "d8ab6a638bf635c148fef108b16a97cd7180f3adfa7995ac07fffdac62026f63",
+        "5753a834c9c456410ed35461d2c9047f8d696bee130706d8fb8f91b0c16d7781",
+        "5304741aaeddeea28cd4312f5f989a8b211a32b815f49cad9ec2b0fc398e7619",
+        "b8ad0f50140e84c57c950863cadbd5f1b3ecc8cae658b930c8bec46d39e9cdd7",
+        "3d9cb3063070574dfdfa5510225a1e0f734935bf837b20b5fbf5621b3d7b72b1",
+        "23f5c8e3a4f9c442aa35a7f1ff83f98866255284d0cf55a3a8eab2118db19649",
+        "02fc33b209d42e707895a421a5088ae8109e91c8660bc88713ff0f0acba13e48",
+        "77b3b2025721600671724cf8b48bf743fbd77bfaebdfe174110fc07c0db4a4bd",
+        "18948a570b939fead5bcc9ec54b23d679467a384b9eb9255a0904f5ca68d5494",
+        "5127036b7d4b3e6fef4f20c428178792ed3bfee385124beeb50986678b9a2067",
+        "902f16b384a8a5604e0f6e83be5b6f67f62d008f757c9cc36c26d3eb25fe9df5",
+        "0d8aa566706826aa1c301f4aa9a46cf9df226e4c06841d919fbf7a1e00c56863",
+        "7f492ab081c71d2e18b8de93a2ebadddfe24c32d99ab42a6f3c725dfa06387d9"
+      ]
+    },
+    "spacr.ops_phenotype.similarity_from_correspondences": {
+      "source_blocks_sha256": [
+        "e209bfecfeb5ac4785b2c91235b83567bd594a13406805f57ebcbba70f55118a",
+        "8cf516c18769a7942fa129d0f8ff9874a6c5ffda24c594c1669eb54c3babd7c5",
+        "365cdc19ee34cd1a37ad10a38cbc8fc9a8c3416f975ef697d929542824ef0099",
+        "8a486f925077ff26bacd33b97bfb822cebbd3b0165c14e16de02771809900a35",
+        "44fc1be1506b27ee6fc9e6353619e5d3727257a89be57552dc8e153668be1f8f"
+      ],
+      "source_sha256": "cfd842921b114d6f37c7d76f1bda7703dcab73a4ebde617ef1c628066ccdcbb4",
+      "text": "La meilleure similarité prenant ``source`` sur ``target``, sous forme fermée.\n\n:param source: Les points ``(N, 2)``.\n:param target: ``(N, 2)`` points, dans le même ordre.\n:returns: ``(scale, rotation, translation)``, ou None pour moins de deux points ou une source dégénérée.\n\nLa solution d'Umeyama : l'échelle des moindres carrés, la rotation et la traduction sur chaque correspondance à la fois. Réflexions sont refusées -- deux acquisitions d'une position d'échantillon de microplaques diffèrent par un mouvement rigide et un grossissement, jamais par un miroir, et permettant à un mauvais ensemble de correspondance de produire une transformation qui convient parfaitement et ne signifie rien.",
+      "translation_source_blocks_sha256": [
+        "e209bfecfeb5ac4785b2c91235b83567bd594a13406805f57ebcbba70f55118a",
+        "8cf516c18769a7942fa129d0f8ff9874a6c5ffda24c594c1669eb54c3babd7c5",
+        "365cdc19ee34cd1a37ad10a38cbc8fc9a8c3416f975ef697d929542824ef0099",
+        "8a486f925077ff26bacd33b97bfb822cebbd3b0165c14e16de02771809900a35",
+        "f8291a78acd46a199077471c7bd5a53767f62150f044bae3396daecc6a58b076"
+      ]
+    },
+    "spacr.ops_register": {
+      "source_blocks_sha256": [
+        "a460804801598c5fe60084c0a60ca470e7741be622e2b99885edd8f358320695",
+        "7882c8ee7cb3b825d3f943d39d393b950856dfdcfc1029f6bacb934097c2bb15",
+        "3032c0e7dec47ab1beeb41d84d13eb1116a2798d9a890f18c6235bd43f3c0421",
+        "43cd8c39204db6e25f20c3a88398d7d77db10f56bd7a06dbe1d83c2c02037dee",
+        "5e6c0132bea5fa43a2b179c1a06e8f03d21efc062ef99d2a2b9ca9de4e865cda",
+        "0d2e3e69fde89774dfaa16f3ebb3b8e44d8202496e32ba114b50ee623b9abfcf",
+        "074d155592812fc3d5e4e7335893cc093b4b6c0ee3649c3c1c9067f72b045f21",
+        "80d41f8dffef7957a06bebba862a4da259019ad16c3b4496ed4e08e09be68f40",
+        "0ca2b845f8500f2222ea89ff72195cc60466381e33a6ae1ab97d14bf93b4a9d9",
+        "90c95204836925dff481463ff29947ad90f124864db553914909e6d5c0358402",
+        "3ab3fa7a762c066ea0648577b457278f94ef064abd3dbfa0f5c624a496172506"
+      ],
+      "source_sha256": "5024848a67a2c7c425b11d1f48306d1a27022422380080df06139e87a718e96c",
+      "text": "Enregistrez deux champs d'image du microscope qui se chevauchent par corrélation de phase, sur n'importe quel matériel.\n\nLes deux ont été exécutés sur les mêmes pixels -- bien A1 cycle 1 de `screenA/20200202_6W-LaC024A`, 333 champs d'images au microscope de 10X SBS DAPI:\n\n    ORB + RANSAC 993 paires notées, score médian 0.0002, max 0.0985 26 de 333 tuiles placées, 307 la corrélation de phase larguée la géométrie instantanément, pic/moyenne 23,6 à 53,1 contre les paires témoins à 9,0 à 15,6\n\nLes Nuclei à 10X sont des blobs ronds. Ils n'ont pas de coins, donc un détecteur de coin ne trouve essentiellement rien et les scores du matcheur sont du bruit. La corrélation de phase pose une question différente -- ce que la traduction unique rend ces deux champs de vision microscope d'accord -- et un champ de vue au microscope de blobs lui répond très bien., et ce n'est pas celui-là: l'étape phénotype-à-SBS sur les grossissements, où l'échelle et la rotation sont réelles.\n\nTrois choses qui rendent la réponse juste, toutes apprirent la voie dure et toutes mesurèrent:\n\n  * Un FFT ne sait rien de la façon dont il est négatif : un déplacement de -213 px d'un champ d'image de microscope 1480 px arrive au +1267. La lecture de celui-ci a fait les déplacements du premier prototype des sottises tandis que chaque enregistrement individuel était correct. :func:`unwrap` replie n'importe quoi au-delà d'une demi-champ d'images de microscope dans la moitié négative.\n  * (0,0) Est la signature sans chevauchement, pas un alignement parfait. Deux champs d'image de microscope qui ne touchent pas ont aucune traduction qui les rend d'accord, et le pic atterrit à l'origine. Il est REJETÉ plutôt que cru, ce qui est ce que les trois paires de contrôle dans la PARTIE 11-B de 372 confirmé.\n  * Un pic n'est qu'un pic sur son fond. La hauteur absolue ne signifie rien; le pic/moyen le fait. True voisins mesurés 23,6 à 53,1 et non voisins 9,0 à 15,6, donc `min_peak_ratio` a une vraie place entre eux.\n\nLe moteur est une indirection sur le module tableau, qui est toute la question GPU est ici: c'est un FFT, un multiplier et un argmax. CuPy d'abord là où il existe, `torch.fft` second -- torch est déjà une dépendance spaCR par Cellpose, donc il ne coûte rien d'installer et d'atteindre CUDA, ROCm et Apple MPS par un seul chemin -- et NumPy toujours.\n\n    Le CPU PATH n'est pas une erreur PATH. Les deux lancent le même fixture et doivent accepter à l'intérieur d'un pixel, ce qui est ce que `tests/test_the_ops_registration_agrees_on_every_backend.py` affirme.\n\nEt il ne suppose jamais que la carte est libre. Un GPU partagé est le cas courant -- celui-ci exécute également la prédiction de la structure. `spacr.accelerator` est la couture qui décide s'il y a un dispositif utilisable du tout, `gpu=False` refuse un dispositif qui existe, et un moteur qui monte au moment de l'exécution tombe à travers le prochain plutôt que de manquer la position d'échantillon microplaqué.",
+      "translation_source_blocks_sha256": [
+        "3d4312a3abd39b4f1b84ebd7307baf29c21fc448d17c1b533925da44a0b342d8",
+        "9ef7f821f2eb74f1dbfc178aa58531805340384256d7cc933f533fef46d14119",
+        "3032c0e7dec47ab1beeb41d84d13eb1116a2798d9a890f18c6235bd43f3c0421",
+        "245545e58d6dac69947bb1dcd633b1e969a52f917135539a8abfbadc55d73391",
+        "c2ccf3b4822084a213ec1724dbf6e259a8f20740491d5eda2beaeed90f49b31b",
+        "32b195d6ae08e1e76b4ce897790f96b844422966b4fc029faeedf38f48863471",
+        "ab13b1d501c79deeab7eb2f18d5e7c1d8638b98d719f01cd57be5c49f2beafff",
+        "9cde7551f12585f5ae9aa87fe6f660d49233881fd3fbb76331f2ed6414678086",
+        "d3d221a759d918cf3aea44f10509da3afe5585f0e882e307c5e7dda0e938b630",
+        "efa1e123b1a02bff4f9ef97b3270da13731a568b2116e52bf3dd15d726c3b9d1",
+        "3581975b62a588b2f74346170b4cd682d0b4059e97a53247f4dd29b85e763e0d"
+      ]
+    },
+    "spacr.ops_register.Registration": {
+      "source_blocks_sha256": [
+        "61d9095a038ae18469d895272d088cfb02a0374e74223a54e54f02f84bdc2497",
+        "fd20cbee10f13d04e2c8821e6dc07ca8774ae53718f667fd8245317e75697b66",
+        "92fc02dc4854dd67f4a4da4406cfb64936e394b3be67dccc8ab4431c5682b214",
+        "ebaa390c55065c35d93db3d1a8ddfcc4365d140fc71c0b187945f41ff11170df",
+        "2811b697d9eb79fc278f6790c613a2f4172b499500ebde571dbd170f50190df8",
+        "8b391525c43e4d5f5b87f3540e82f2b0af9418208834aad3429abec89c335f05"
+      ],
+      "source_sha256": "fa9bb1633cac0671c2f77aa54f3ec0d4f27054a55049736cd418d33bf688a4f6",
+      "text": "Ce qu'une paire de tuiles a mesuré.\n\n:ivar dy: rangées pour déplacer la deuxième tuile pour la poser sur la première, déballée dans ``[-height/2, height/2)``.\n:ivar dx: la même chose entre les colonnes.\n:ivar peak_ratio: le pic de corrélation par rapport à la moyenne de la surface. La preuve, pas le décalage.\n:ivar accepted: s'il s'agit d'un véritable chevauchement: un pic au-dessus du seuil qui n'est pas à l'origine.\n:ivar backend: quel module de tableau a répondu, donc une session de traitement peut dire ce qu'il a exécuté plutôt que de le laisser à déduire.",
+      "translation_source_blocks_sha256": [
+        "61d9095a038ae18469d895272d088cfb02a0374e74223a54e54f02f84bdc2497",
+        "fd20cbee10f13d04e2c8821e6dc07ca8774ae53718f667fd8245317e75697b66",
+        "92fc02dc4854dd67f4a4da4406cfb64936e394b3be67dccc8ab4431c5682b214",
+        "ebaa390c55065c35d93db3d1a8ddfcc4365d140fc71c0b187945f41ff11170df",
+        "2811b697d9eb79fc278f6790c613a2f4172b499500ebde571dbd170f50190df8",
+        "82f4c90cf5b90c01eb893e2f26754439db1e6f98d5995912dca33e0ed75cfe25"
+      ]
+    },
+    "spacr.ops_register.Registration.shift": {
+      "source_blocks_sha256": [
+        "1c54228e195b455068a6ffd2734ac2c53b98a9a0a10c44c7e7f2ed424ed88363"
+      ],
+      "source_sha256": "1c54228e195b455068a6ffd2734ac2c53b98a9a0a10c44c7e7f2ed424ed88363",
+      "text": "``(dy, dx)``, pour un appelant qui veut la paire.",
+      "translation_source_blocks_sha256": [
+        "1c54228e195b455068a6ffd2734ac2c53b98a9a0a10c44c7e7f2ed424ed88363"
+      ]
+    },
+    "spacr.ops_register.available_backends": {
+      "source_blocks_sha256": [
+        "afd351430a584f82fa76cda46797ed456ea22a982fb8cffe7c68eb55684dc41f",
+        "aee75842e114682e597cfaefda66b7c36a8b63c70429496c5854407700fbf997",
+        "899aae8fc56150c50643ce72254c026da0abe3a8c966e0dedb009d6e80c38cb8"
+      ],
+      "source_sha256": "2093c2aa135cf53295d2702326156a7af4d8ac6bf00b6604f2ac683e952a0e38",
+      "text": "Quel moteur cette machine peut réellement fonctionner, la meilleure d'abord.\n\n:param gpu: False refuse les accélérés proprement, ce qui signifie que le paramètre `gpu` -- une carte qui existe et qui est occupée avec le travail de quelqu'un d'autre n'est pas une carte que cette session de traitement peut prendre.\n:returns: les noms utilisables, se terminant toujours dans ``\"numpy\"``.",
+      "translation_source_blocks_sha256": [
+        "afd351430a584f82fa76cda46797ed456ea22a982fb8cffe7c68eb55684dc41f",
+        "a87b96a5c1304e7225f277139f4223c83495cf176d3758b34e8cc14813e34e1b",
+        "899aae8fc56150c50643ce72254c026da0abe3a8c966e0dedb009d6e80c38cb8"
+      ]
+    },
+    "spacr.ops_register.phase_correlate": {
+      "source_blocks_sha256": [
+        "7f5cb98dacbcdd8831d726d0b7ff22bdb0c3e41633bdd0143a196bb8b3b6e867",
+        "dc21adc517c1e6deff5a94861fe8f9657683d8a1efd5e5b9f15f9454a78a272f",
+        "e57c8cf693bf6fffe13e651316f92ca1fcb9518b410088d8067b88420bbc2285",
+        "aab58397b744b2ca4a4a8fc302a930723ae331c065fe994fdc3d2fe9ecae1d55",
+        "a1f4a05a8d632f1dfb0b83b62e7592155759368ffd826fe50b1d4acbb2d6bd4a",
+        "94e61b6a503a6092280c268ea9d9f970696f4facd62829f9a753f21c26f69194",
+        "20b4081e8c6bc66b6354253346aeba86410eb9559739c6ef3ceedfaa888084a5",
+        "bb48f1d66cd67b23acc744bde941da596c001f121eafc5622428995fd8ec533e",
+        "bf52cec9d491ee29d6998d36a5ce5937cc91e80f0706ccda97dfbb371250e0da",
+        "d02d5b6231c62fcfa70bf3e4704ec4dc9e7309d95154da13c74e7b6f5dd42150",
+        "621b64883b8e7cd8c72609b04d37cf0032b6cb46eee9e29c0f01f55f15d046da",
+        "885fa350503c6783d3578f7e1ccd4b234ba2405f17e7627c5a7cabb91b6a2014",
+        "43b19f95eda0546e3aa8592074ce57e1928df7429f045b39ceb9a71776aad3b3"
+      ],
+      "source_sha256": "4c94172e934e763799ee8584e734d8c03390b0d55fcc346afbf4adc606e6f835",
+      "text": "Mesurer la traduction entre deux champs qui se chevauchent.\n\nLe résultat est le déplacement qui atterrit ``second`` sur ``first`` : rouler ``second`` par ``(dy, dx)`` l'amène dans le cadre de ``first``.\n\nPrend et retourne NumPy n'importe quoi exécuté, donc aucun appelant n'apprend quel moteur a répondu -- le nom est sur le résultat pour l'enregistrement, pas pour la branchement.\n\n:param first: le champ de référence, 2-D.\n:param second: le champ à placer contre lui, la même forme.\n:param expected: La valeur par défaut de (0, 0) se replie dans la demi-échelle, ce qui est juste pour deux champs entiers d'image du microscope et WRONG pour deux bandes de chevauchement -- voir :func:`unwrap`.\n:param tolerance: la distance par rapport à ``expected`` un changement peut se poser et être toujours accepté, en pixels. quand il est donné, c'est le test, et le rapport de crête devient un nombre enregistré plutôt que la limite de sélection des données -- voir la note sur :data:`MIN_PEAK_RATIO`.\n\n    Une paire de nombres est acceptée et c'est généralement ce qu'on veut : ``(rows, columns)``. Les deux axes ne sont pas la même question -- un vrai bord se trouve à l'intérieur d'un pixel ou de deux AJUSTANT le raster et jusqu'à l'écheveau de la scène ACROSS il -- et un nombre pour les deux, soit rejette la échevette ou admet un voisin une tuile entière. Voir :data:`SKEW_PX`.\n:param backend: force un; None prend le meilleur disponible.\n:param gpu: False le garde sur le CPU même lorsqu'une carte existe.\n:param min_peak_ratio: au-dessous de cela, la paire n'est pas un voisin.\n:returns: l'enregistrement, accepté ou non.\n:raises ValueError: lorsque les deux champs d'image du microscope ne sont pas de la même forme 2D, ce qui est une erreur d'appelant plutôt qu'une inscription ratée et ne doit pas revenir en confiance (0, 0).",
+      "translation_source_blocks_sha256": [
+        "7f5cb98dacbcdd8831d726d0b7ff22bdb0c3e41633bdd0143a196bb8b3b6e867",
+        "dc21adc517c1e6deff5a94861fe8f9657683d8a1efd5e5b9f15f9454a78a272f",
+        "e57c8cf693bf6fffe13e651316f92ca1fcb9518b410088d8067b88420bbc2285",
+        "aab58397b744b2ca4a4a8fc302a930723ae331c065fe994fdc3d2fe9ecae1d55",
+        "a1f4a05a8d632f1dfb0b83b62e7592155759368ffd826fe50b1d4acbb2d6bd4a",
+        "e61c30f7b2ed958e6692830a9614ba9e9bc1f5f4ca1ab01bbb85d26f24ef53c7",
+        "d076293a57f0ad6ecae8acb0c7aaf04e248db7acfba13c0b88c67427ccecc454",
+        "2ae4bc68bab25270fde957e90617e6f11aeaa78c6725739187b3675abcbba97a",
+        "bf52cec9d491ee29d6998d36a5ce5937cc91e80f0706ccda97dfbb371250e0da",
+        "d02d5b6231c62fcfa70bf3e4704ec4dc9e7309d95154da13c74e7b6f5dd42150",
+        "621b64883b8e7cd8c72609b04d37cf0032b6cb46eee9e29c0f01f55f15d046da",
+        "885fa350503c6783d3578f7e1ccd4b234ba2405f17e7627c5a7cabb91b6a2014",
+        "f0bc22791146b570df904ceb2ba8b8946625004e1038bec421f2a224e3bf083f"
+      ]
+    },
+    "spacr.ops_register.register_edge": {
+      "source_blocks_sha256": [
+        "b3266359318c74870049c9b84f58e98bb97ed1c5039ddef663780596eea2c0e0",
+        "43ea4cbd0dbc2a861db95292a12a906877c4651c86d53e390296aa214e0a27c6",
+        "81fc680103e08de241decf67221faaf3b980d8318c43d96c33b55d0d24ba0e51",
+        "14d282942a718d7556a7cdf11581dbb56e2ed494b8e5019a6828ef04aea396b9",
+        "8eeeda7641bc9058e0c8295b6d8d961358c0440dd47deda9864d7053be45cbf6",
+        "81dbecac6a83350a04997e04a796a89ad6a8e9e0784d534730ea8a3e0ec8adba",
+        "428a466935e72c167e9e3a5aec97da02efd223b89764aa0d23cba2d3f5caeeeb",
+        "f954c508321761136ae70b949184153d5555bfbe4cd7eddd7b21e49cb012c90d",
+        "aca6eb7b66175190c21e9c95c12140783e65eee2f2a87e0162bafd641dbe667c",
+        "72385c3024de11bd01d062850f6568b23d46f08fbdd2ff055d5d282b5c4897fb",
+        "e6dc7b6ea07dc390e2bc0bfad41324b9198bbd5dc43f0bf62c92651c12a171f0",
+        "a1c60d93565f5fb0eb6a36e6619968fd2e68345195e5334baef70d35cf946898",
+        "02d0397c9f9a4c5d81590a698722669d207884329ef91d9d1f50062b71a62558"
+      ],
+      "source_sha256": "eff0688c160b40177c3830839c2a65d04b2ac6836edea77fb8dacebb3f3bdd56",
+      "text": "Enregistrer deux tuiles qui touchent le long d'un bord, en utilisant ce bord seulement.\n\nCorréler la bande qui peut convenir, et non le champ d'image du microscope. Le raster chevauche ses champs de vue du microscope d'environ 14 % -- 213 px de 1480 -- donc 86 % d'une corrélation de champ image du microscope entier est le signal que CANNOT correspond et ne peut ajouter que le fond à la surface sur laquelle le pic est jugé.::\n\n    whole tile      peak/mean 15.2, shift WRONG, rejected\n    30 % strip      peak/mean 29.2, shift exact, accepted\n                    control pair 14.0, correctly rejected\n\nLa bande doit être plus WIDER que le chevauchement et pas beaucoup plus large: 40 % l'ont diluée à 15,4 et ont perdu le décalage à nouveau.\n\n:param first: la tuile contre laquelle le bord est mesuré.\n:param second: son voisin, en dessous pour \"vertical\" et à sa droite pour \"horizontal\" -- l'ordre :meth:`WellLayout.pairs` les renvoie.\n:param axis: \"vertical\" or \"horizontal\".\n:param overlap_fraction: combien de la tuile le strip prend.\n:param expected_overlap: le chevauchement en pixels, lorsque le pas est connu. Il définit l'attente du déballage, qui est ce qui arrête un vrai déplacement plus grand que la moitié de la lecture de bande comme un négatif.\n:param tolerance: jusqu'à quel point le décalage mesuré peut s'aplanir du chevauchement prévu et être accepté. C'est l'acceptation du vrai bien utilisé; sans elle, le rapport de crête décide, et le ratio de crête ne peut pas décider -- voir :data:`MIN_PEAK_RATIO`.\n:param skew: jusqu'où ACROSS peut-il atterrir. L'équerre de l'étape est une vraie ~9 px sur la plaque mesurée et n'est pas une erreur, donc il s'agit d'un nombre distinct: une tolérance pour les deux axes rejetée 525 de 624 adjacences vraies à 8 px. Voir :data:`SKEW_PX`.\n:param kwargs: passé à :func:`phase_correlate`.\n:returns: l'enregistrement, dans les coordonnées de champ d'image du microscope plutôt que de les supprimer -- l'appelant a demandé au sujet de deux champs d'images du microscope.\n:raises ValueError: sur un axe inconnu.",
+      "translation_source_blocks_sha256": [
+        "b3266359318c74870049c9b84f58e98bb97ed1c5039ddef663780596eea2c0e0",
+        "fef2684003ed9b83cf60607598c66a0ee7d2944691da2914f26e3b1af95cc0f6",
+        "81fc680103e08de241decf67221faaf3b980d8318c43d96c33b55d0d24ba0e51",
+        "14d282942a718d7556a7cdf11581dbb56e2ed494b8e5019a6828ef04aea396b9",
+        "8eeeda7641bc9058e0c8295b6d8d961358c0440dd47deda9864d7053be45cbf6",
+        "81dbecac6a83350a04997e04a796a89ad6a8e9e0784d534730ea8a3e0ec8adba",
+        "428a466935e72c167e9e3a5aec97da02efd223b89764aa0d23cba2d3f5caeeeb",
+        "f954c508321761136ae70b949184153d5555bfbe4cd7eddd7b21e49cb012c90d",
+        "aca6eb7b66175190c21e9c95c12140783e65eee2f2a87e0162bafd641dbe667c",
+        "72385c3024de11bd01d062850f6568b23d46f08fbdd2ff055d5d282b5c4897fb",
+        "e6dc7b6ea07dc390e2bc0bfad41324b9198bbd5dc43f0bf62c92651c12a171f0",
+        "f99180d17f4e4173f6a2e6c40d935b715abb063cd1902cde45c241fe21a8639e",
+        "02d0397c9f9a4c5d81590a698722669d207884329ef91d9d1f50062b71a62558"
+      ]
+    },
+    "spacr.ops_register.register_pairs": {
+      "source_blocks_sha256": [
+        "437abc16ce0e8d7e1607dd46076cf662c988fc73120a36352a4aeee7f73301b6",
+        "b398d2fefe530e5cee54eca8a4b7518284e6baa0861b1d550aff8aefdd316d30",
+        "00aa932ee014d542956b6daef64310dfc85cf062a837db5b5647251aa4987c81",
+        "0450224f0fb486becd4ea536aa9fb874715809c008370e33859175bdab11fffc",
+        "33839dc11ea7f5f00752738a9a8797639aaede55765fac74ebea5f070b9ca118",
+        "c67e6bc3698b1bd4f998aad89532b11adaee0619c0596ad445e8d9595f940a28",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "edf17c6de79bf3a7fb26577d4d4684297ae561e7716b36837efcb49dfeb1c171",
+        "1e466bd2ecd7b7512ca2aede078d82ab4acb437e28dea971ec4c5ffb707193ce"
+      ],
+      "source_sha256": "8b9d7181d1db2931afd19450fdb111457a4527fbd7d3fdeecbafc8ce1df6d2c7",
+      "text": "Enregistrez chaque adjacence une mise en page offre.\n\n:param tiles: ``site -> 2-D array``, ou n'importe quel appel à prendre un site. a appelable est le point pour un vrai puits: 333 champs d'image de microscope de 1480 px est plus que nécessaire pour être résident, et l'appelant décide ce qu'il faut garder.\n:param pairs: quoi enregistrer, à partir de :meth:`spacr.ops_layout.WellLayout.pairs`.\n:param expected_overlap: le chevauchement du raster en pixels, lorsqu'il est connu.\n:param tolerance: jusqu'à quel point un changement peut atterrir le long du bord.\n:param skew: jusqu'où peut-être -- la scène est la même, mesurée.\n:param gpu: Je suis passé par là.\n:param min_peak_ratio: Je suis passé par là.\n:param kwargs: passé à :func:`register_edge`.\n:returns: ``{(a, b): Registration}``, y compris les rejetés -- une paire qui a échoué est un fait sur l'acquisition et appartient à `ops_geometry`, pas dans un journal de débogage.",
+      "translation_source_blocks_sha256": [
+        "437abc16ce0e8d7e1607dd46076cf662c988fc73120a36352a4aeee7f73301b6",
+        "f93b3955fc1b0114e9476d01614b8d5ce5d9f70c8871a9dd11540726bec6fbfa",
+        "00aa932ee014d542956b6daef64310dfc85cf062a837db5b5647251aa4987c81",
+        "0450224f0fb486becd4ea536aa9fb874715809c008370e33859175bdab11fffc",
+        "33839dc11ea7f5f00752738a9a8797639aaede55765fac74ebea5f070b9ca118",
+        "c67e6bc3698b1bd4f998aad89532b11adaee0619c0596ad445e8d9595f940a28",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "3247745041d7f1dcf6acaeea6b14697d99942f40d6b7699359c8f0650b5eca0d",
+        "edf17c6de79bf3a7fb26577d4d4684297ae561e7716b36837efcb49dfeb1c171",
+        "1e466bd2ecd7b7512ca2aede078d82ab4acb437e28dea971ec4c5ffb707193ce"
+      ]
+    },
+    "spacr.ops_register.unwrap": {
+      "source_blocks_sha256": [
+        "f6b91bc6cb2a5ae183327d1e79feebe7d0184c9244e9592c8f774f159b24647d",
+        "f82e25a90f8bd94106ad5a3309e0a0444fb59de8f4b9f40e3ea569834d65fe0b",
+        "d8e1b58f94186698a7906170f01deac8dc2a8043a759dcb3b79e737b8257485b",
+        "f3721bc75cbb8730b97fa9a302a6d1540b5d5a3fdd6b259e4cdf46324e674873",
+        "d0291097f3932c7129ced787a4a0e9b8ce93f74b9680fd50bb64557e28d92b6f",
+        "c8efa7e19c8b644a875bbfa2d4105b8fe50c9a3b0010490233585404e143b7b9",
+        "3f54d20af058e945ec56bbe3d500b9b92b0a4a9e6d1ed0304caecb0c674c012d"
+      ],
+      "source_sha256": "3ef5c80ee17ea6d74b0f53cec373ccf54683bdee3553ecd2436abb7013b6a24e",
+      "text": "Pliez un quart de travail FFT emballé au représentant le plus proche ``about``.\n\nUne traduction de -213 dans un champ d'image de microscope 1480 px revient comme +1267, parce que la transformation est périodique et n'a pas de notion de direction. La lecture a fait déballé 372 premiers déplacements de prototypes absurdes tandis que chaque enregistrement individuel était correct.\n\n``about`` N'est pas la décoration et la valeur par défaut est le cas dangereux. Avec ``about=0`` cela se replie en ``[-extent/2, extent/2)``, ce qui est juste seulement lorsque le vrai déplacement est plus petit que la moitié de l'axe. Ce n'est, chaque fois que la corrélation court sur un chevauchement STRIP: une bande 222 px portant un vrai déplacement de 116 plis à -106, un nombre qui est à la fois faux et plausible. L'appelant sait à peu près où est le voisin -- le pas raster le dit -- donc il passe cela, et le représentant le plus proche est la réponse.\n\n:param value: la coordonnée brute du pic.\n:param extent: la longueur de l'axe.\n:param about: le déplacement que l'appelant attend, dans les mêmes unités.\n:returns: le représentant du ``value`` mod ``extent`` le plus proche de ``about``.",
+      "translation_source_blocks_sha256": [
+        "f6b91bc6cb2a5ae183327d1e79feebe7d0184c9244e9592c8f774f159b24647d",
+        "c29fad7328260a49fa83ee3680f478a3528db6934471021f6140f1b384874583",
+        "6037ad57f424334bcb1172e662cbd955bdfb392f483535502a14212e7db79e3f",
+        "f3721bc75cbb8730b97fa9a302a6d1540b5d5a3fdd6b259e4cdf46324e674873",
+        "d0291097f3932c7129ced787a4a0e9b8ce93f74b9680fd50bb64557e28d92b6f",
+        "c8efa7e19c8b644a875bbfa2d4105b8fe50c9a3b0010490233585404e143b7b9",
+        "3f54d20af058e945ec56bbe3d500b9b92b0a4a9e6d1ed0304caecb0c674c012d"
       ]
     },
     "spacr.ops_sbs": {
@@ -46432,11 +47224,12 @@
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "df6df4be9f575ade5683d1589138ecd6f816cd5439f80fe3b9024319a5bcf646",
         "e0de7449010e14aad436160bf11b07a9b44e4fa61a86a997ed659a748a9208e7",
+        "51cb558cd09ff72fdc396ab37c9c091f6adc9516203a202fd871fc48bb69dcf5",
         "53dd85f57fc8a4baf9311b40189b6719cb4b01de7e68d897a566143b034c2ef4",
         "e6e850efb68f91cf6e6d1545a822de8295742df497be0b183bc9921f653d9090"
       ],
-      "source_sha256": "cc9608b9b41f6791b967b149fc5bfb1e068907414000b3fc023a1983f039a26e",
-      "text": "Défaire le colorant saigné à travers, donc le canal le plus brillant EST la base.\n\nL'argmax brut n'est pas la base. Chaque colorant émet dans les canaux de ses voisins, donc un canal qui est lumineux dans l'ensemble gagne des comparaisons qu'il devrait perdre, et le biais est systématique plutôt que le bruit: il mal appelle la même base partout.\n\nLa correction est ajustée à partir des données plutôt qu'à partir d'un fichier d'étalonnage, car elle dépend de la tache, des filtres et de l'exposition -- qui sont les propriétés de la course, et non pas l'instrument. Pour chaque canal de données d'image, les points où domine ce canal de donnée d'images sont trouvés, et leur vecteur moyen devient l'axe du canal de Données d'Image; la matrice de ces axes, inversés, cartes a observé l'intensité de retour sur l'identité de base.\n\n:param values: ``(N, cycles, channels)`` à partir de :func:`extract_bases`.\n:param method: ``\"percentile\"`` prend des taches au-dessus de ``percentile`` dans un canal; ``\"median\"`` prend les taches où le canal est l'argmax. Percentile est le plus robuste des deux quand une base est rare, ce qui est le cas d'un appel médian se trompe.\n:param percentile: la coupure pour ``\"percentile\"``.\n:returns: intensités corrigées, même forme.\n:raises ValueError: sur un ``method`` inconnu.",
+      "source_sha256": "198fb741aebfe14ca9c4b481cac886bbe339b5f59b2bc8531a01eb4202191db3",
+      "text": "Défaire le colorant saigné à travers, donc le canal le plus brillant EST la base.\n\nL'argmax brut n'est pas la base. Chaque colorant émet dans les canaux de ses voisins, donc un canal qui est lumineux dans l'ensemble gagne des comparaisons qu'il devrait perdre, et le biais est systématique plutôt que le bruit: il mal appelle la même base partout.\n\nLa correction est ajustée à partir des données plutôt qu'à partir d'un fichier d'étalonnage, car elle dépend de la tache, des filtres et de l'exposition -- qui sont les propriétés de la course, et non pas l'instrument. Pour chaque canal de données d'image, les points où domine ce canal de donnée d'images sont trouvés, et leur vecteur moyen devient l'axe du canal de Données d'Image; la matrice de ces axes, inversés, cartes a observé l'intensité de retour sur l'identité de base.\n\n:param values: ``(N, cycles, channels)`` à partir de :func:`extract_bases`.\n:param method: ``\"percentile\"`` prend des taches au-dessus de ``percentile`` dans un canal; ``\"median\"`` prend les taches où le canal est l'argmax. Percentile est le plus robuste des deux quand une base est rare, ce qui est le cas d'un appel médian se trompe.\n:param percentile: la coupure pour ``\"percentile\"``.\n:param gpu: Une petite matrice appliquée à chaque endroit de chaque cycle est un grand multiplicateur par un petit opérande, qui est la forme qui va à une carte bien.\n:returns: intensités corrigées, même forme.\n:raises ValueError: sur un ``method`` inconnu.",
       "translation_source_blocks_sha256": [
         "d119535e6cc1a1bef0e56a13c430f15ca980f23471d8d314eeb667f2b3115c94",
         "2ef65119251e11b936cff2c2361a6c0c4c1d39d03adb9381eaa3721396352090",
@@ -46444,6 +47237,7 @@
         "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
         "df6df4be9f575ade5683d1589138ecd6f816cd5439f80fe3b9024319a5bcf646",
         "e0de7449010e14aad436160bf11b07a9b44e4fa61a86a997ed659a748a9208e7",
+        "51cb558cd09ff72fdc396ab37c9c091f6adc9516203a202fd871fc48bb69dcf5",
         "53dd85f57fc8a4baf9311b40189b6719cb4b01de7e68d897a566143b034c2ef4",
         "e6e850efb68f91cf6e6d1545a822de8295742df497be0b183bc9921f653d9090"
       ]
@@ -46517,16 +47311,18 @@
         "d83ecd03a3123c1a8e38946f74a778e69403902bd1daeda069bf5947bf4197ea",
         "0f2f1f5f875d485a86fea3a08c093b17958acb30b642cba774ce5a485934bb5d",
         "403e9ca6aa0805780f3eacaf6b9670c25e1a7dc8422b384abb6292e3927cb623",
+        "23459a1f9e95377ee90b40d70a09b0a2240b2ed8f4081ce165f1421e44e4fc0b",
         "ef0888375647a92111ed9db9dda820f33a24b5f8dc06cc43f29d22478a7e9076"
       ],
-      "source_sha256": "f41dffad95c9ddaa6ca6939ef88f7d4dd39468c616b2289d37f4aa61b9cc1bce",
-      "text": "Maxima local de ``score``, comme tableau ``(N, 2)`` de ``(y, x)``.\n\nUn test simple \"est ce pixel le plus grand de sa fenêtre\" renvoie un empilement de pixels voisins pour un spot, de sorte que le maximum de fenêtre est comparé pour EQUALITY avec le pixel et les liens sont brisés en prenant le premier -- ce qui fait qu'un spot donne un pic.\n\n:param score: la carte de :func:`estimate_read_locations`.\n:param min_distance: La moitié de la largeur de la fenêtre de suppression, en pixels. Deux lit plus près que cela ne peut pas être trouvé à la fois, qui est une propriété de l'optique plutôt que de cette fonction.\n:param threshold: ignorez maxima ci-dessous. ``None`` conserve chaque maximum local et laisse la décision à l'appelant, qui est la bonne par défaut parce que la coupure utile dépend de la tache.\n:returns: les coordonnées de pointe, les plus fortes d'abord.",
+      "source_sha256": "e38a680f35db5124ab64a367cea4c15267467cad08c183e3d4575bf389fd5b2a",
+      "text": "Maxima local de ``score``, comme tableau ``(N, 2)`` de ``(y, x)``.\n\nUn test simple \"est ce pixel le plus grand de sa fenêtre\" renvoie un empilement de pixels voisins pour un spot, de sorte que le maximum de fenêtre est comparé pour EQUALITY avec le pixel et les liens sont brisés en prenant le premier -- ce qui fait qu'un spot donne un pic.\n\n:param score: la carte de :func:`estimate_read_locations`.\n:param min_distance: La moitié de la largeur de la fenêtre de suppression, en pixels. Deux lit plus près que cela ne peut pas être trouvé à la fois, qui est une propriété de l'optique plutôt que de cette fonction.\n:param threshold: ignorez maxima ci-dessous. ``None`` conserve chaque maximum local et laisse la décision à l'appelant, qui est la bonne par défaut parce que la coupure utile dépend de la tache.\n:param gpu: Il s'agit d'un pool max, qui est l'étape la plus coûteuse dans la chaîne de décodage sur un champ de vue microplaqué de la position de l'échantillon et l'opération pour laquelle un GPU existe. Le résultat est identique dans les deux cas -- voir `tests/test_the_ops_primitives_agree_on_every_backend.py`.\n:returns: les coordonnées de pointe, les plus fortes d'abord.",
       "translation_source_blocks_sha256": [
         "f6d7969965f7b331a1f935f185d915990a244e6dba6d2428fcad12c568fb9d80",
         "2fe51487d4ef5072d31d1fdb54c7ef92150ca9530286ba799f3bb7a4f185bb25",
         "d83ecd03a3123c1a8e38946f74a778e69403902bd1daeda069bf5947bf4197ea",
         "0f2f1f5f875d485a86fea3a08c093b17958acb30b642cba774ce5a485934bb5d",
         "403e9ca6aa0805780f3eacaf6b9670c25e1a7dc8422b384abb6292e3927cb623",
+        "bdbd04b95d3690f1d224bb41ef6a628e136c0642cbcd061b0363066a6b75e8ee",
         "ef0888375647a92111ed9db9dda820f33a24b5f8dc06cc43f29d22478a7e9076"
       ]
     },
@@ -46576,6 +47372,202 @@
         "418e8046e3cc7353a34b3e2452e0f009a6952f40924797fbaf7bfa0980ed715d",
         "b941fe26c40b89987b98e5dc23c40e74e783ef107bd30fba7feecf829822f6c6",
         "46ffd6cf496269539fefecf32d115ef7981fc7b72dc5832dc7007dcb86958d02"
+      ]
+    },
+    "spacr.ops_solve": {
+      "source_blocks_sha256": [
+        "8f23a8992a6aa831795dfe889f0cee3f54963734469ae164754b7f9811208ca1",
+        "37c3f0683fe04e4b9be9186c5587c9c32cf981298e3cec5cb92862ac0d710fb7"
+      ],
+      "source_sha256": "9526723b063d003cc97035a7844e32bd7b9b66e3b92b3a451d259da97221080f",
+      "text": "Positions absolues du champ d'image du microscope à partir des déplacements par paire d'une position d'échantillon de microplaques produite.\n\nLe troisième verbe. :mod:`spacr.ops_layout` indique quelles tuiles touchent, :mod:`spacr.ops_register` indique à quelle distance se trouve une paire touchante, et ceci indique où chaque tuile finit. Conservé séparé des deux parce que ``ops_layout`` est une géométrie pure qui importe seulement :mod:`math` et devrait rester importable n'importe où, et ``ops_register`` tout le sujet est deux tuilées et un décalage.",
+      "translation_source_blocks_sha256": [
+        "eb166deeff14960f570415144b4de471613fb7a453285f82b6a11bd6b4b75cb6",
+        "0fd2891e320c9ce9fe0838a7b788df8bc96f015ac11ebebba4fb05165f61906f"
+      ]
+    },
+    "spacr.ops_solve.solve_placements": {
+      "source_blocks_sha256": [
+        "e270080e0482f3b9c74753f2e6f9ffff20266c00f1b25a80d3b67326058135c4",
+        "888fb453729d0367468224e6ffa1133a6415b1093b5c2c4a9bbde6eb29c10a5d",
+        "508f9bbfd090167eb74548d27805081fe4070165e04c9bb8701c0c826a507c1e",
+        "f62d74a324e2ebfe590ec954902ceb82f6053d831f1d3c5d585744dc8ef5f6ad",
+        "7501874718789b7ab65bac72fdb4b29b26abc70a8ec73d891845c8ea8311269d",
+        "e07ef893ee680af6adc17fd6580c96ab8518acb0af427504140c5209a079caa3"
+      ],
+      "source_sha256": "3aec2a3c4b8bc802f15bb834c0743094f978114426c08c82b0e6f9ef85e269e9",
+      "text": "Positions absolues des tuiles à partir des déplacements par paire.\n\nLes emplacements enchaînés d'une graine donnent à chaque champ d'image de microscope l'erreur accumulée du chemin qui l'a atteint, et sur un puits rond les chemins sont longs; la résolution de tous les bords à la fois étend le résidu à la place et donne une réponse quelle que soit la zone d'images de microscope est appelée l'origine.\n\nL'origine est épinglée au site numéroté le plus bas de chaque composant connecté, de sorte qu'une position d'échantillon de microplaques qui s'enregistre en deux morceaux retourne toujours à la fois au lieu d'échouer -- l'appelant peut voir les composants dans le résultat et le dire.\n\n:param edges: ``(a, b) -> (dy, dx)``, la position de b moins a.\n:param sites: chaque site à placer, y compris n'importe quel sans bord.\n:returns: ``site -> (y, x)`` en pixels, un composant épinglé à l'origine et les autres épinglés à leur site le plus bas.",
+      "translation_source_blocks_sha256": [
+        "e270080e0482f3b9c74753f2e6f9ffff20266c00f1b25a80d3b67326058135c4",
+        "8c954ebc80374de7d417077a425803e0fd0aacef5f985b27c8d03f2d6a2e9f44",
+        "48f97c1d50ccbe63d625d20587ecc7eb054ee9edb88bb5214b418d57a84a7076",
+        "f62d74a324e2ebfe590ec954902ceb82f6053d831f1d3c5d585744dc8ef5f6ad",
+        "7501874718789b7ab65bac72fdb4b29b26abc70a8ec73d891845c8ea8311269d",
+        "e07ef893ee680af6adc17fd6580c96ab8518acb0af427504140c5209a079caa3"
+      ]
+    },
+    "spacr.ops_stitch": {
+      "source_blocks_sha256": [
+        "844455288d4f68f13e53d9197cfa5409cea7fb2195a50d8adf13d0789f19eb25",
+        "9c6341e9eb6362f9dce99f5284d37efea7ebc7f9789476e36b5b6fb8bab33bf0",
+        "8567d8a7ed5e362bcb3036bed81324a4706c8731bbb222a3209c0c1feeab6dbc",
+        "d707e89a1750ff7bff8c55d5dff327c9c3fd06fcab8e9fc4d54a35a805304b3a",
+        "537647c673449bcb4b5ac1c66b09665becc26201103eee2d9d0485228493fef4",
+        "5aa6e3653be0b8bac060ba2b6fed35b0b68f497b1505a787f353bb2725df38cc",
+        "6a9c060bb74f28824d1cd51ed23c5f7942561a530e43a4fb52426872f3187d3c",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ],
+      "source_sha256": "b8fe1936055511bbdbbf01faaf167610b159be5275012fb45e6143abda06dc29",
+      "text": "Une position d'échantillon de microplaques, un cycle, d'un dossier de champs d'images au microscope à une table de positions.\n\nLe quatrième verbe, et celui qui est imprimé. :mod:`spacr.ops_layout` indique quel champ d'image du microscope touche, :mod:`spacr.ops_register` indique à quelle distance une paire touchante est, :mod:`spacr.ops_solve` indique où chaque champ se termine, et cela exécute les trois sur une position d'échantillon de microplaques et rapporte ce qui s'est passé.\n\nLa sortie est des coordonnées, pas des pixels. Une position d'échantillon de microplaques de cette acquisition est 26,855 x 26,865 px et une suffit pour épuiser une machine; la table de transformation est de quelques kilooctets et chaque phase ultérieure lit à travers elle. Une toile, si quelqu'un en veut une, est rendue à partir de cela à n'importe quel abaissement de l'échantillon convient à la vue d'application.\n\nIl imprime trois numéros et non deux, et c'est la raison pour laquelle ce module existe plutôt que trois appels sur un site d'appel.\n\n    333 de 333 ont placé la toile médiane résiduelle 0,2 px 35 374 x 35 367\n\net c'était WRONG: le conducteur a nié le décalage de la corrélation, le déballage a ensuite choisi le représentant une période hors, identiquement dans chaque bord d'une direction, et la position de l'échantillon de microplaques est sortie une hauteur par colonne trop grande dans les deux axes. Chaque bord était toujours d'accord avec chaque autre bord, donc le résidu était parfait et le compte était parfait. une erreur uniforme est invisible à un résiduel. Seulement la toile a dit le contraire, et seulement parce que 21 colonnes d'une hauteur connue a une réponse arithmétique -- 20 x 1267 + 1480 = 26 820 -- pour la vérifier.\n\nDonc :meth:`StitchedWell.summary` donne le nombre, le résiduel ET la toile en une ligne, et :attr:`StitchedWell.expected_canvas` porte ce que la mise en page dit que la toile doit être, parce qu'un nombre avec rien à comparer n'est pas un contrôle.\n\nUtilisation typique::\n\n    from spacr.ops_stitch import stitch_well\n\n    well = stitch_well(read_tile, overlap=213, tolerance=4)\n    print(well.summary())\n    positions = well.placements          # site -> (y, x), in well pixels",
+      "translation_source_blocks_sha256": [
+        "94ed169845aa64b42a8badc8db8537f9b5260b48c1eb270cf4138cb5ff2e171e",
+        "6fe1a3978296e6512353535806a264fec08aa7b5fe3fe6e08192b4587324fd65",
+        "ebd03694d1d896280f1ef928c800421e9c269754da347bc0ecaf5f74967d261b",
+        "21e4721ce514ec633667657f8bc706d7dc905dfa4a04c3e8d9894a4228d5c0d9",
+        "537647c673449bcb4b5ac1c66b09665becc26201103eee2d9d0485228493fef4",
+        "a1d39606f2e228acaca2b41177894cf0ab2f0507c09192a678e57ad32fa6dddd",
+        "6a9c060bb74f28824d1cd51ed23c5f7942561a530e43a4fb52426872f3187d3c",
+        "4c057cef9f41cdf7718ab91446dad267199e6e0eae2e9e929201f59ef1ee70a8"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell": {
+      "source_blocks_sha256": [
+        "f7f4dd2a1f7286f840becadab3f1df6f2411b530685ac7269a07f75ed50026ef",
+        "3caa5e89fc6f3640cb57f43f776f298844e8b4cdd759f87f40a0a99b2a19e006",
+        "cc184fc6db9ed95534c9eecadede53c98b7514d96a342405ba872d6dab481483",
+        "9a5bb278f16b22842ce2df21abc31c81862d0c7c9ae934bc29737f378b0f33a9",
+        "39ce1ae857629f68d8835894ae8e64716eb61ba55088a6079ad39abb916fa7b1",
+        "32ef50073a504010c1395b87267d489baf59839e47820bd5a0635061f87a762c"
+      ],
+      "source_sha256": "276e565083e9b2d7be11b084785046f0904d56d9965a533400edc70e19ce205c",
+      "text": "Quel est le point produit par la position d'un échantillon de microplaques, et ce qu'il coûte.\n\n:ivar placements: ``site -> (y, x)`` en pixels de puits, à partir de la solution.\n:ivar edges: ``(a, b) -> Registration`` pour chaque paire la mise en page proposée, acceptée ou non. Une paire refusée est un fait sur l'acquisition et appartient à `ops_geometry`, pas dans un journal de débogage.\n:ivar tile_shape: ``(height, width)`` d'une tuile.\n:ivar layout: le modèle de position de l'échantillon microplaqué dont les paires proviennent.\n:ivar overlap: le chevauchement en pixels que l'on a dit à l'exécution d'attendre, ou None quand on ne l'a pas dit.",
+      "translation_source_blocks_sha256": [
+        "87d1b4cc24e8c67cb741836ebc381047d2bf5533724ae274b5854d09d5fdc1d7",
+        "3caa5e89fc6f3640cb57f43f776f298844e8b4cdd759f87f40a0a99b2a19e006",
+        "dd4cdeda1b2664bfce265e7a664f9e3755e22012529b45557f9a4edfde77a846",
+        "9a5bb278f16b22842ce2df21abc31c81862d0c7c9ae934bc29737f378b0f33a9",
+        "7701c77a19c43737eb9f386abb11a0c6dda325b39f6fa5f662615b1349c00b6c",
+        "32ef50073a504010c1395b87267d489baf59839e47820bd5a0635061f87a762c"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.accepted": {
+      "source_blocks_sha256": [
+        "87babd5dcfd605183c587e3502827e7ef8c72d4b1a9cf00a042ce164d8b68dcc"
+      ],
+      "source_sha256": "87babd5dcfd605183c587e3502827e7ef8c72d4b1a9cf00a042ce164d8b68dcc",
+      "text": "Combien de paires proposées ont été enregistrées.",
+      "translation_source_blocks_sha256": [
+        "87babd5dcfd605183c587e3502827e7ef8c72d4b1a9cf00a042ce164d8b68dcc"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.canvas": {
+      "source_blocks_sha256": [
+        "b603e5ed5c87958ac73b07ce0e8e04ca812522a00869a2e9b31b35797c3b6138"
+      ],
+      "source_sha256": "b603e5ed5c87958ac73b07ce0e8e04ca812522a00869a2e9b31b35797c3b6138",
+      "text": "``(height, width)`` la portée des tuiles placées, en pixels.",
+      "translation_source_blocks_sha256": [
+        "b603e5ed5c87958ac73b07ce0e8e04ca812522a00869a2e9b31b35797c3b6138"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.canvas_agrees": {
+      "source_blocks_sha256": [
+        "287c5782b6b555ad8928eb92e7cd6a65e8d1fbc497ee309a1fec48bda7c7f75f",
+        "58c48059a257ddf6c3ba4171fcb616626d365055298f39e4b864722fa8db9e16",
+        "4dcbee82cee473acf1795707c3ca8caa933117967b08f1dab1aecf9553daa7c3"
+      ],
+      "source_sha256": "14d5c25c93ca0f780ebc25e3f6cfb2c730bf4f204f01cfdb7c65b2786bb040d2",
+      "text": "Indique si la toile mesurée correspond à l'arithmétique de la mise en page.\n\n:param tolerance: Un pour cent, parce que le numéro de la mise en page est exact et que le point n'est pas : il porte l'équerre de la scène réelle.\n:returns: True lorsque les deux axes sont d'accord à l'intérieur de ``tolerance``.",
+      "translation_source_blocks_sha256": [
+        "287c5782b6b555ad8928eb92e7cd6a65e8d1fbc497ee309a1fec48bda7c7f75f",
+        "58c48059a257ddf6c3ba4171fcb616626d365055298f39e4b864722fa8db9e16",
+        "4dcbee82cee473acf1795707c3ca8caa933117967b08f1dab1aecf9553daa7c3"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.expected_canvas": {
+      "source_blocks_sha256": [
+        "509aa11166602ffcd0f47e2df4f33d87d0d6a7e88699dc69defce851905daff2",
+        "a9003cfc29fec291dcdbc97b998ad1351eee6e467c14d665686ecf2bf449f6a1"
+      ],
+      "source_sha256": "778400301a650241e1a64cec24acea5777517fc80aaa9bcb38b4f01372ef29bc",
+      "text": "Ce que la mise en page dit que la toile devrait être.\n\nLa seule chose qui a attrapé l'erreur uniforme. Colonnes moins un emplacement plus un champ d'image de microscope, et la même en bas de la colonne la plus haute. Une toile mesurée avec rien à comparer est un nombre, pas un chèque.",
+      "translation_source_blocks_sha256": [
+        "509aa11166602ffcd0f47e2df4f33d87d0d6a7e88699dc69defce851905daff2",
+        "c9699ff288c66e0bd9a536ddf5383e6cdacfeedeb4222a75ffda28b5deb5c4be"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.placed": {
+      "source_blocks_sha256": [
+        "720a41344fc61166b94cd57a925c2af103408f1dc6c78f20c9ac525bba1220eb"
+      ],
+      "source_sha256": "720a41344fc61166b94cd57a925c2af103408f1dc6c78f20c9ac525bba1220eb",
+      "text": "Combien de tuiles ont eu une position.",
+      "translation_source_blocks_sha256": [
+        "720a41344fc61166b94cd57a925c2af103408f1dc6c78f20c9ac525bba1220eb"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.proposed": {
+      "source_blocks_sha256": [
+        "1b51a00b339762a592f77dab01110203958ed760c6c634e8234172cc08acd2eb"
+      ],
+      "source_sha256": "1b51a00b339762a592f77dab01110203958ed760c6c634e8234172cc08acd2eb",
+      "text": "Combien de paires de la mise en page offerte.",
+      "translation_source_blocks_sha256": [
+        "1b51a00b339762a592f77dab01110203958ed760c6c634e8234172cc08acd2eb"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.residuals": {
+      "source_blocks_sha256": [
+        "70565cc6a557025f1f3b37693695c926d5042799aaeede3c06c2343ffc6bc6ea",
+        "92d2b3c8bacdad418ae156bb363562035dec83936eb7d73629dc8ea0a25a0709"
+      ],
+      "source_sha256": "3036018b4efed2ee2d745e94b137c8e63562cc6e1a9883f9e9938ed5b965bcfd",
+      "text": "Différend per-edge entre la solution et la mesure.\n\nLa distance, en pixels, entre un bord accepté SAID ses deux champs d'image de microscope s'assoient l'un par rapport à l'autre et où la solution les met. Le sous-pixel sur une position d'échantillon microplate est ce qui dit que la géométrie s'est fermée.",
+      "translation_source_blocks_sha256": [
+        "70565cc6a557025f1f3b37693695c926d5042799aaeede3c06c2343ffc6bc6ea",
+        "0f10d6d0578f0223bf91e1b23a4d724d8d747e78573dd44232561c8eadeda232"
+      ]
+    },
+    "spacr.ops_stitch.StitchedWell.summary": {
+      "source_blocks_sha256": [
+        "8ace74fc3568343423963837ef5910f5d4313a304341bda57df25c025d09b889"
+      ],
+      "source_sha256": "8ace74fc3568343423963837ef5910f5d4313a304341bda57df25c025d09b889",
+      "text": "Les trois chiffres, sur une ligne, parce que deux d'entre eux sont seuls.",
+      "translation_source_blocks_sha256": [
+        "8ace74fc3568343423963837ef5910f5d4313a304341bda57df25c025d09b889"
+      ]
+    },
+    "spacr.ops_stitch.stitch_well": {
+      "source_blocks_sha256": [
+        "8685cd118c361d094485bd9688d22fc5f721251322921ba426b74cf45e079b0c",
+        "d504cde23e248636fb38122695b5568aa6435c1225a437bb522e0b8c984e3182",
+        "22941aa206938334f2f2ab25b1333ee459705e121b944b942c5a365afdcefed7",
+        "3bda58600c0224b0c6e310282c6ab5f22ba37a7d1f88b2cd0ae4fac5100228bb",
+        "1d267cfe58b8d0f7e6889736d54d4b2006a6eeb6c9bb61d277788e32f26f3100",
+        "a05cce94a2cd28636e0b474cd6ff150e50b30b9d1f3fd3a0b6768457b8ded9fd",
+        "b87528f5c0967c3a5f698ddcfcb1bf3c9fe815ff4ffbe243ce322bf41810f649",
+        "619fe2f54b87486c408939f16a83a2d4d5697c7ce074ceeeb236691220338189",
+        "4cac791fbfc0d1c08462e1bb9ae01a807ccbc67deba1fb050e34c85e377c8fa8",
+        "8db2c073d7a9ece7ca6e300f0290065eb40f39db0cbbf68da5ef0bcd25599f07",
+        "252d4644a262472a4e8fbba22aff93a84db091e4ddf5ee34348032398cd3f183",
+        "e3ac86deecc1c78e097ef5e932bb234c98445422eae473a5eacd1433463aa60c"
+      ],
+      "source_sha256": "a090e7d4f23676b5d2622d9f05011cd669bfde5e173c08f8c16bc23377cc5bd1",
+      "text": "Enregistrez les champs d'image microscopique d'une position d'échantillon de microplaques l'un contre l'autre et résolvez leurs positions.\n\nUne position d'échantillon de microplaques à la fois, et une paire de champs d'images de microscope à la même heure à l'intérieur. ``tiles`` est normalement un APPELABLE, parce que 333 champs de microscope d'image de 1480 px est 2,9 Go et rien ici n'a besoin de deux d'entre eux résident: l'appelant décide quoi garder et ce qu'il faut relire.\n\n:param tiles: ``site -> 2-D array``, ou un callable prenant un site.\n:param layout: le modèle de puits. None correspond au cercle à ``sites`` ou, à défaut, au champ de vision mesuré de 333 microscopes.\n:param overlap: le chevauchement du raster en pixels. Vu, il définit l'attente de l'enregistrement et l'arithmétique de la toile de la mise en page; omis, les deux retombent à des réponses plus faibles, alors passez-le.\n:param tolerance: jusqu'à quel point un bord peut s'atterrir de la prédiction de la mise en page et être encore accepté. C'est l'acceptation du réel bien utilisé -- 624 de 624 -- et sans elle le rapport de crête décide, qui sur une vraie microplaque de laboratoire il ne peut pas.\n:param skew: jusqu'à quelle distance ACROSS il peut. L'escroquerie de l'étape est réelle et constante -- 9 px sur la plaque mesurée -- donc c'est un nombre distinct de la tolérance. None prend `spacr.ops_register.SKEW_PX`.\n:param gpu: transmis à l'enregistrement.\n:param sites: quels sites placer. None utilise chaque site que la mise en page détient.\n:param kwargs: passé à :func:`spacr.ops_register.register_edge`.\n:returns: la maille, ses bords et ses résidus.\n:raises ValueError: lorsque la position de l'échantillon de microplaques ne contient aucun champ d'image au microscope, ce qui est une erreur d'appelant plutôt qu'un résultat vide.",
+      "translation_source_blocks_sha256": [
+        "3c299e32b18a543601dc49b72a30428ba218bccb3684a972fec53ae1b2d4925b",
+        "a7c77e23c075abdf38fc2c81e9ad4b60b93bf30c48426162e949e7b85aec2017",
+        "22941aa206938334f2f2ab25b1333ee459705e121b944b942c5a365afdcefed7",
+        "4ec11fa91b5f322e6bd0bdb3045bdeb0b7787aebdaba33c73771eb057ce89ec0",
+        "1d267cfe58b8d0f7e6889736d54d4b2006a6eeb6c9bb61d277788e32f26f3100",
+        "58a5c9dfd93178d3ccc6b5da96db06c0ae3815ef300bfcee470cb7ff857ed450",
+        "b87528f5c0967c3a5f698ddcfcb1bf3c9fe815ff4ffbe243ce322bf41810f649",
+        "619fe2f54b87486c408939f16a83a2d4d5697c7ce074ceeeb236691220338189",
+        "4cac791fbfc0d1c08462e1bb9ae01a807ccbc67deba1fb050e34c85e377c8fa8",
+        "8db2c073d7a9ece7ca6e300f0290065eb40f39db0cbbf68da5ef0bcd25599f07",
+        "252d4644a262472a4e8fbba22aff93a84db091e4ddf5ee34348032398cd3f183",
+        "76dee1d5ac609690f186a4a70a6b2f79bae62bb92147885149f24b068378d74a"
       ]
     },
     "spacr.organelle_types": {
@@ -62024,6 +63016,22 @@
         "05450baea92bd33962fd33225066d116e677886e145099625913fe662d1589e8"
       ]
     },
+    "spacr.qt.i18n.ui_language_resolved_once": {
+      "source_blocks_sha256": [
+        "85128a5f40906b3de86634db9e9a11f5e2c7157aaad547a1a12d58fa293a8790",
+        "870bbcc6c21347a17dba5b55fa24fff53b8f1032833fd2e54f8e7f465f7c59f8",
+        "c7701dd07464fcb0655c9e22f8ff221118590e677b4a76ebbdaac4c8224e922a",
+        "b25ce8d8d0e6659f516c5787d161ff077eacab55d4d110a0b85ff524a96cea23"
+      ],
+      "source_sha256": "76aa0162017d4f596e0ba01c938cc45723c37a222b0dace06fe5778ce05e28f6",
+      "text": "Résoudre la langue UI une fois pour le corps d'une construction synchrone.\n\n:func:`current_language` atteint ``QSettings`` sur chaque appel, et une compilation de dialogue l'appelle une fois par :func:`tr`. Les Préférences de construction ont été mesurées demandant à la préférence de stocker quel langage l'interface était dans **346 fois**, en passant par 415 ``QSettings`` lit, pour une boîte de dialogue; la construction du panneau de l'application Mask avait la même forme à 3 516.\n\nLe champ d'application est l'unité, pas le processus. Un cache permanent garderait une langue que l'utilisateur vient de changer, ce qui est le moment où la réponse doit être relue; à l'intérieur d'une seule construction synchrone, il ne peut pas changer, parce que rien n'exécute entre les appels.\n\nC'est le bras ContextVar de :func:`current_language`, qui a été déclaré et lu mais n'a pas été placé jusqu'à ce que cela existait. L'environnement dépasse toujours la victoire : il est consulté avant que le champ d'application soit rempli.",
+      "translation_source_blocks_sha256": [
+        "85128a5f40906b3de86634db9e9a11f5e2c7157aaad547a1a12d58fa293a8790",
+        "9c2feff11a46d8514874e52514389e2346b798283b221a4f638c284f40519808",
+        "5157834fb1c9b1072555d2e1ea4b45c5d50d1c8a43e71925c5ff3108c1caabc9",
+        "b25ce8d8d0e6659f516c5787d161ff077eacab55d4d110a0b85ff524a96cea23"
+      ]
+    },
     "spacr.qt.i18n_module_summaries": {
       "source_blocks_sha256": [
         "9992a06241673f3a6e56527785db52df2c52ef42e0cd5d21ca5e49e24de66aac",
@@ -66063,37 +67071,33 @@
     "spacr.qt.preferences.PreferencesDialog": {
       "source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
-        "1c3a722aeac26ef176660c1a6dd135973d49fba708c09dbfa0c17116481ffa42",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "0a2e47a3e536e5e27932999c25110663e8727b1db5085aafc2b84531a8aaf297",
-      "text": "Wrapper qui construit la boîte de dialogue Préférences modales à la demande.\n\nConservé en usine (pas une sous-classe de classe réelle) donc ce module peut être importé sans interface graphique sans tirer dans QtWidgets. Le vrai :class:`QDialog` est retourné par ``PreferencesDialog(parent)``. Construisez et retournez la boîte de dialogue des préférences.\n\nUn ``__new__`` retournant un ``QDialog`` plaine plutôt qu'un ``__init__`` sur une sous-classe : tout Qt est importé à l'intérieur de l'appel, donc l'importation de ce module ne coûte rien tant qu'une boîte de dialogue n'est pas demandée.\n\nLa fenêtre est détachée du point de vue du gestionnaire de fenêtres, de sorte que l'utilisateur peut la mettre là où ils le souhaitent -- elle est encore parentée, toujours modale et appelle toujours ``exec``, et seule la fenêtre TYPE change.\n\n:param parent: widget parent, ou ``None``.\n:returns: la boîte de dialogue, prête à ``exec``.",
+      "source_sha256": "6ceea9d63225649b020d318358c4253dc927b1ddbb7fe794eeb56503c8fdd0c0",
+      "text": "Wrapper qui construit la boîte de dialogue Préférences modales à la demande.\n\nConservé en usine (pas une sous-classe de classe réelle) donc ce module peut être importé sans interface graphique sans tirer dans QtWidgets. Le vrai :class:`QDialog` est retourné par ``PreferencesDialog(parent)``. Construisez la boîte de dialogue avec le langage UI résolu une fois.\n\nLa portée est toute la raison pour laquelle ce wrapper existe. Construire ce dialogue a été mesuré demandant à la préférence stocker quel langage l'interface est en 346 fois, à travers 415 ``QSettings`` lit, et aucune de ces réponses ne pourrait différer: rien ne court entre eux.\n\n:param parent: widget parent, ou ``None``.\n:returns: la boîte de dialogue, prête à ``exec``.",
       "translation_source_blocks_sha256": [
         "6c3e97961f7e505570487f48cbfc3def3efecd520a4f9b804958c04cea3c1e48",
-        "1c3a722aeac26ef176660c1a6dd135973d49fba708c09dbfa0c17116481ffa42",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "cace078c558447578bd909207314d7d321d8b01fee2a352f9ee7d83dfe3470c9",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
     },
     "spacr.qt.preferences.PreferencesDialog.__new__": {
       "source_blocks_sha256": [
-        "a1716e834508931def2a409b696992f2f209b52947093bdd71b984eb305ae004",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "e38484cc3601ecf4f3ab3007e425b331ac336bc315aa2b7217faf9ed5ad93bd2",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ],
-      "source_sha256": "16fd27aac848a406a339df6932ac702400d0b641355631c118d324187498c974",
-      "text": "Construisez et retournez la boîte de dialogue des préférences.\n\nUn ``__new__`` retournant un ``QDialog`` plaine plutôt qu'un ``__init__`` sur une sous-classe : tout Qt est importé à l'intérieur de l'appel, donc l'importation de ce module ne coûte rien tant qu'une boîte de dialogue n'est pas demandée.\n\nLa fenêtre est détachée du point de vue du gestionnaire de fenêtres, de sorte que l'utilisateur peut la mettre là où ils le souhaitent -- elle est encore parentée, toujours modale et appelle toujours ``exec``, et seule la fenêtre TYPE change.\n\n:param parent: widget parent, ou ``None``.\n:returns: la boîte de dialogue, prête à ``exec``.",
+      "source_sha256": "eef7455d7645dc94e2f12a5a210b7af6e111d7f1eceb17392cbd860247586086",
+      "text": "Construisez la boîte de dialogue avec le langage UI résolu une fois.\n\nLa portée est toute la raison pour laquelle ce wrapper existe. Construire ce dialogue a été mesuré demandant à la préférence stocker quel langage l'interface est en 346 fois, à travers 415 ``QSettings`` lit, et aucune de ces réponses ne pourrait différer: rien ne court entre eux.\n\n:param parent: widget parent, ou ``None``.\n:returns: la boîte de dialogue, prête à ``exec``.",
       "translation_source_blocks_sha256": [
-        "a1716e834508931def2a409b696992f2f209b52947093bdd71b984eb305ae004",
-        "a905ab8169a6d7b9b4a69b4a326b620d5e24d9f73db0e0d218e80a1ec316e2d5",
-        "96a390f4f220f55455b27df9c0bdcb161791f03e1b6e7ca376c64a5d3d0f4d90",
+        "e38484cc3601ecf4f3ab3007e425b331ac336bc315aa2b7217faf9ed5ad93bd2",
+        "fa747bd284bfe28253c9bbcbf24e1e5d19a984236934ad2daf145569be1987bb",
         "94cef54259ca54b303eabed9ae1e0be3a9534d7d1dea5d2eb0b31e5a46c09cb6",
         "d12e1c844886fc10ca8b8932b53ecf712cfd1d2fd9a2c4dcfa425ee4dde23b24"
       ]
@@ -95216,10 +96220,11 @@
         "2cd10b66bfc2e22a9d31c188dbf5eba43350b2e33848164268f1d74bce33a125",
         "b0fc197b82f2d4e08186419766f48f515b5697d8802edd32a758f76dfe6e0440",
         "61ec94a96f66d6d0718775f537b804fbea671bb06f316403e6cea5e64aa05a4f",
-        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f"
+        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f",
+        "407aa846cc6bff1c3c1aa35d85be61815968ee6ed36132a49884bf639e783dc3"
       ],
-      "source_sha256": "217b37494ccf20c7ec0a5756892e7ca8213b5e8cf3f63369f08da71944f80748",
-      "text": "Placez une rangée de widgets sur les sections d'un ``QHeaderView``.\n\nChaque widget géré porte soit un index de colonne -- il est centré dans la portée de cette colonne, serré à sa largeur -- soit ``None``, auquel cas il est placé dans une simple course de gauche à droite après la dernière colonne alignée.\n\nL'en-tête est lu, jamais écrit. Rien ici n'appelle ``resizeSection`` ou un mode redimensionné, de sorte que les largeurs de colonne de l'utilisateur restent la seule source de vérité pour ce qu'est une colonne.\n\n:param header: le ``QHeaderView`` dont les sections sont alignées sur la ligne. LIRE, jamais écrit -- rien ici n'appelle `resizeSection` ou un mode redimensionné, de sorte que les largeurs de colonne de l'utilisateur restent la seule source de la géométrie.\n:param parent: widget parent.\nPlacez une rangée sur les largeurs de colonnes d'un en-tête.\n\nPassage de ``parent`` installe ceci comme la mise en page de ce widget, c'est pourquoi l'appelant doit avoir supprimé le précédent d'abord.\n\n:param header: la vue d'en-tête dont les sections fixent la largeur des colonnes; la ligne suit ses redimensionnements, réordres et repositionnements.\n:param parent: le widget pour devenir la mise en page de, ou ``None``.",
+      "source_sha256": "c634c5a344bee1840a1a5b8d9b8f52471605eca1582b6f2aa7d826b753bc2b8a",
+      "text": "Placez une rangée de widgets sur les sections d'un ``QHeaderView``.\n\nChaque widget géré porte soit un index de colonne -- il est centré dans la portée de cette colonne, serré à sa largeur -- soit ``None``, auquel cas il est placé dans une simple course de gauche à droite après la dernière colonne alignée.\n\nL'en-tête est lu, jamais écrit. Rien ici n'appelle ``resizeSection`` ou un mode redimensionné, de sorte que les largeurs de colonne de l'utilisateur restent la seule source de vérité pour ce qu'est une colonne.\n\n:param header: le ``QHeaderView`` dont les sections sont alignées sur la ligne. LIRE, jamais écrit -- rien ici n'appelle `resizeSection` ou un mode redimensionné, de sorte que les largeurs de colonne de l'utilisateur restent la seule source de la géométrie.\n:param parent: widget parent.\nPlacez une rangée sur les largeurs de colonnes d'un en-tête.\n\nPassage de ``parent`` installe ceci comme la mise en page de ce widget, c'est pourquoi l'appelant doit avoir supprimé le précédent d'abord.\n\n:param header: la vue d'en-tête dont les sections fixent la largeur des colonnes; la ligne suit ses redimensionnements, réordres et repositionnements.\n:param parent: le widget pour devenir la mise en page de, ou ``None``.\n:param on_invalidate: appelé sans arguments chaque fois que l'indice de taille d'un widget géré change. la ligne ne peut pas agir sur elle-même: un bouton qui a grandi a besoin de son COLUMN élargi, l'en-tête est lu et jamais écrit ici, et une mise en page qui a écrit à la géométrie qu'il lit réentrerait sur le redimensionnement qu'elle a causé.",
       "translation_source_blocks_sha256": [
         "15c6ce790d0b1f7d2c95a38ca00d871fef8322cc7a5d1827d0e76e0d1c4416c5",
         "eabcacd079e27604b49b7d3c609302a9273e9e76c8945005421725f50bbe95dc",
@@ -95229,7 +96234,8 @@
         "2cd10b66bfc2e22a9d31c188dbf5eba43350b2e33848164268f1d74bce33a125",
         "b0fc197b82f2d4e08186419766f48f515b5697d8802edd32a758f76dfe6e0440",
         "61ec94a96f66d6d0718775f537b804fbea671bb06f316403e6cea5e64aa05a4f",
-        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f"
+        "682750364da4860e7e7872fee6104935a694676e385d2a8009510cf63496740f",
+        "60d4bb3099cb71e0bdfd527e803029d491bd4843068b4532f424ce1fd1d941ab"
       ]
     },
     "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.addItem": {
@@ -95286,6 +96292,22 @@
       "text": "Horizontalement seulement. Les revendications par défaut de QLayout les deux, ce qui fait que le formulaire donne cette ligne d'un bouton-haut chaque pixel de rechange de la hauteur.",
       "translation_source_blocks_sha256": [
         "9a1da8c0b8e29da984afc588fb38ff8f950ab1bece10d8fca693ee72b8a73731"
+      ]
+    },
+    "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.invalidate": {
+      "source_blocks_sha256": [
+        "b435adec8a93ab965e9b220a293640c258701e955e897002a21e42e3e2c06d4a",
+        "233ba701dfb9173a319db2375ee86e7735d0d99528ed2285412e8c29dc73aa58",
+        "73c3f444ee8f5824c1e7d3e36ab0430e616b13375d6813153dbc9c7c5089c156",
+        "b9f4c71ac367dd6aacdf42529ee06b5fa4b898928fe8a8f03781db36e85b7188"
+      ],
+      "source_sha256": "2f24cc8f40fe17d7a7872861371f3965de80e63d2cf5a4d650ae58d8c3aa77a2",
+      "text": "Dites au propriétaire de l'en-tête qu'un widget géré a changé de taille.\n\nPourquoi cela existe et ce qu'il coûte. La légende d'un bouton est définie en anglais quand la ligne est construite et REMPLACÉE par la langue passe ensuite, et \"Count\" est 100 px où \"Contagem\" est 151. La colonne a été dimensionnée une fois, avant la traduction, et la ligne a ensuite serré la légende plus large dans la colonne plus étroite pour la vie de le criblage -- qui est cette classe se comporte exactement comme documenté et montre toujours un mot de coupure.\n\nQt rapporte déjà l'événement : `setText` appelle `updateGeometry`, ce qui invalide la mise en page parent. La ligne la passe plutôt que d'agir, parce que l'élargissement d'une colonne est le travail du propriétaire de l'en-tête et le faire à partir d'ici serait d'entrer de nouveau dans cette disposition.\n\nNe lancez jamais : une remise en forme ratée est une colonne qui reste là où elle était, et une mise en page qui se lève ici emporterait toute la bande avec elle.",
+      "translation_source_blocks_sha256": [
+        "b435adec8a93ab965e9b220a293640c258701e955e897002a21e42e3e2c06d4a",
+        "5909e063ca7ab99cce71f6ac09da297529d5d9532bf7a33d6f9dfb431acc94a7",
+        "73c3f444ee8f5824c1e7d3e36ab0430e616b13375d6813153dbc9c7c5089c156",
+        "aa64f8b0e6f3f93473055f41e3e42be1a0ccdc9b216561668acfda738140ef5d"
       ]
     },
     "spacr.qt.widgets.column_aligned_row.ColumnAlignedRow.itemAt": {
@@ -95357,16 +96379,18 @@
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
+        "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
         "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
       ],
-      "source_sha256": "52370872f3cc90f4efa3cff5a32d5d3bb5d30459ace3936ce9c82cadac23c81b",
-      "text": "Repositionner les widgets ``strip`` sur les sections ``header``.\n\nIdémpotent : une bande qui suit déjà cet en-tête est retournée inchangée, donc un affichage répété ne coûte rien et ne peut pas empiler deux mises en page.\n\n:param strip: le widget tenant les boutons. Sa disposition existante est vidée et détruite -- les widgets survivent, reparented on ``strip``.\n:param header: le ``QHeaderView`` dont les colonnes sont suivies.\n:param columns: ``(widget, column index or None)`` dans l'ordre où les non alignés devraient suivre.\n:returns: la mise en page installée, ou ``None`` quand il n'y avait rien à faire.",
+      "source_sha256": "dabcf6588ca5c4a4f30cd9c8e3b717cf0e2ab754e8e3ba400578e6cf3a5cea00",
+      "text": "Repositionner les widgets ``strip`` sur les sections ``header``.\n\nIdémpotent : une bande qui suit déjà cet en-tête est retournée inchangée, donc un affichage répété ne coûte rien et ne peut pas empiler deux mises en page.\n\n:param strip: le widget tenant les boutons. Sa disposition existante est vidée et détruite -- les widgets survivent, reparented on ``strip``.\n:param header: le ``QHeaderView`` dont les colonnes sont suivies.\n:param columns: ``(widget, column index or None)`` dans l'ordre où les non alignés devraient suivre.\n:param on_invalidate: passé à la mise en page; appelé lorsque l'indice de taille d'un widget géré change, de sorte que le propriétaire de l'en-tête peut re-adapter la colonne à une légende qui a depuis été traduite.\n:returns: la mise en page installée, ou ``None`` quand il n'y avait rien à faire.",
       "translation_source_blocks_sha256": [
         "1d027bfcfd9210dcdbc58785d18d05bc90971737883f281325d8211f8b6d55d8",
         "db93827e50fd5861e93237f7fd901cb6781f0bdb7210ceb075852f8bd6201009",
         "93b9bd24f6d013a0e84ab3d64cac1c07632278437e682bd56e0fabd79aa5eb5c",
         "3ded0dfd7c5311f8fe08a9a1270a476a7e538e7bf4f948132a3e1bd10bffec88",
         "7b259578d5de9b82d8b13bc1f20772fb12a9efe051287de87ee7af8c2aa2d6fb",
+        "acbaeaa72163960db71238c7393144a3bf23f8cc44c38798a825e9e25b57a05b",
         "e4a5496eff817ef56a05a7ba71fb32a9d0a63620b240319b823b0740e8f1118e"
       ]
     },
@@ -108620,6 +109644,48 @@
         "a318c91b836ecaaab9fd39ddc43cf6b101c7fd5c5ec5ce3366e447f61c9fa24b",
         "b69f2af53315d084d8d3b292a6b8c986284986c2d1d0db4b11a36c4e989f0b21",
         "423636c0a461924836f2cf2c0c6417a606e1fadf9de6001e2c382bd99393c84b"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.tour_leg_seconds": {
+      "source_blocks_sha256": [
+        "8176d688975c709c8b414df64f59d0c355d7634fb078a2edb48b42facb0c5b2e",
+        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
+        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
+        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
+        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
+        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
+        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
+      ],
+      "source_sha256": "c4c8dd84d17b70a881d08a5d7968ae35fd42579264c14eb450ca8ad6da823d3b",
+      "text": "Plongez et voyagez pour qu'une étape de la tournée soit une seule plongée.\n\n:param seconds_per_decade: combien de temps la descente passe par décennie.\n:param max_depth: Des décennies avant le redémarrage de la plongée à la surface.\n:param travel: secondes pour passer le déplacement entre deux régions.\n:returns: ``(dwell, travel)`` pour :class:`RegionTour`.\n\nLe déplacement doit se faire près de la surface. Trente ans plus bas, la vue est plus étroite que l'écart entre deux régions de trente ordres de grandeur, ce qui fait qu'il y a un éclair blanc plutôt qu'un flotteur -- et toute la demande était qu'elle ne se lisait pas comme un saut. Tailler l'habit comme « la plongée, moins le mouvement » place le mouvement au redémarrage, où une marche latérale est un vol à travers l'ensemble.\n\nLes deux sont au-dessus de zéro, donc un fichier de paramètres qui demande une plongée plus courte que le mouvement produit encore une visite qui se déplace.",
+      "translation_source_blocks_sha256": [
+        "81edb313b9834f50afd29ed97861c91d3e6a3b2512aee61add2f53e0f5e9206b",
+        "a8eee0c64af4fde3254ce2155ccb6ab13be223599defc0f2656ce11d1737ff35",
+        "3a09e2c25ff78be9f500180f1a2799263533f804c3d8e0025145f36905504216",
+        "c272db69ca9b082888996f66a75bedac55c2ac4ff18af231c8b856686c593866",
+        "5a379805e5acc7e58865e7ffa26d55d80436eab91c50055b792b837fbf57abcb",
+        "e2c83c521e1a302d536e77dc76a0124856bea2fba685fc96f1f20ef8749895c3",
+        "c0810bb1fa4b19c7376956409fcaed401ea1eba6675cbf33307f957c24ffd248"
+      ]
+    },
+    "spacr.qt.widgets.fractal_travel.tour_offset": {
+      "source_blocks_sha256": [
+        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
+        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
+        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
+        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
+        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
+        "8fe3c89c2817876bfc920c6e6a29400dad2fee103d4dd48c18dabcaf9e9e57be"
+      ],
+      "source_sha256": "9f6685beaf9f869c4276edf8707f9771458d8a421669e8de2458d84e6d283284",
+      "text": "La cible du tour, comme un décalage par rapport au centre de l'orbite de référence.\n\n:param tour: le tour de direction de la caméra.\n:param seconds: secondes depuis le début de la tournée.\n:param orbit_centre: ``(re, im)`` de l'orbite de référence.\n:returns: ``(offset_re, offset_im)``, ou ``None`` lorsque le tour ne tourne pas -- donc un appelant quitte la caméra où l'utilisateur la met plutôt que de se voir remettre une coordonnée qu'il doit ignorer.\n\nL'orbite de référence est déplacée vers la frontière lorsque la plongée descend et le décalage de la caméra est remis à zéro lorsqu'elle atterrit; une visite qui se rappelait son propre décalage serait jetée hors de la région chaque fois qu'il se passait. Demander où la région est relative à l'endroit où la référence est NOW est immunisée à elle.",
+      "translation_source_blocks_sha256": [
+        "74ea754b14ad4c63897a06c1858e44c619a1abec79bd1ece9d83177db1adf95b",
+        "8553b9367244eba281098ccd238620de3ce4bda0570b6fe4565744f21fe996cd",
+        "b6ede02efa5cef9c0e451c78affd39c259f802bf184f532b46507dd206788a4e",
+        "951510adde3e9aacc674012d117434dc085d66b649b728bb58e44d0f4f40d5c4",
+        "16a596cf4611d8bf607ddc2423d5091a03b27af435c6abe705325b45ccd3722b",
+        "701d733fca4b56df17477e4561fa4224d72870f590630041e6cf4e687c930f5f"
       ]
     },
     "spacr.qt.widgets.gate_canvas": {

@@ -1,0 +1,55 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "label": "spacr.ops_accel#1",
+      "source_sha256": "82d2c5e2de52245ea4daccc9a7dbc991b40c35e9f9754ddd60bf566d056ae204",
+      "source": "The hardware question has a short answer, and it names what to put on the card: \"the per-window affine warp; peak finding and the unmixing matrix multiply; cellpose segmentation, which already has a GPU path\" -- and, for the merge, \"ORB detect + Hamming descriptor matching\" and \"match cells: mutual nearest neighbour\". Strip the names away and that is three primitives: a windowed maximum, a matrix multiply, and a nearest-neighbour search. They are collected here rather than spelled out at each call site so there is ONE place that knows about devices, and the modules that use them go on reading as the science they are.",
+      "context": "The hardware question has a short answer, and it names what to put on the card: \"the per-window affine warp; peak finding and the unmixing matrix multiply; cellpose segmentation, which already has a GPU path\" -- and, for the merge, \"ORB detect + Hamming descriptor matching\" and \"match cells: mutual nearest neighbour\". Strip the names away and that is three primitives: a windowed maximum, a matrix multiply, and a nearest-neighbour search. They are collected here rather than spelled out at each call site so there is ONE place that knows about devices, and the modules that use them go on reading as the science they are.",
+      "translation": "Vélbúnaðarspurningin á sér stutt svar, og það nefnir hvað eigi að setja á kortið: \"aflögun hvers glugga; leit að toppum og fylkjamargföldunin sem afblandar; skiptingu með cellpose, sem hefur þegar leið um GPU\" -- og, fyrir samrunann, \"ORB greining ásamt mátun Hamming-lýsinga\" og \"mátun frumna: gagnkvæmur nálægasti nágranni\". Sviptu nöfnunum burt og eftir standa þrjár frumaðgerðir: hámark yfir glugga, fylkjamargföldun og leit að nálægasta nágranna. Þær eru teknar saman hér fremur en stafaðar út á hverjum kallstað, svo að EINN staður viti af tækjum og einingarnar sem nota þær lesist áfram sem vísindin sem þær eru."
+    },
+    {
+      "label": "spacr.ops_accel#4",
+      "source_sha256": "6b7bee0d9d406e5763c5c3576999cd6bad2266f9bc6ba7e1df8b71f4c5ce52ba",
+      "source": "AND IT NEVER ASSUMES THE CARD IS FREE. A shared GPU is the common case -- this one also runs structure prediction -- so `ops_gpu=False` refuses a device that exists, and a backend that raises at runtime (an out-of-memory, a driver that went away) falls through to the next rather than failing the plate.",
+      "context": "And it never assumes the card is free. A shared GPU is the common case -- this one also runs structure prediction -- so `ops_gpu=False` refuses a device that exists, and a backend that raises at runtime (an out-of-memory, a driver that went away) falls through to the next rather than failing the plate.",
+      "translation": "OG HÚN GENGUR ALDREI ÚT FRÁ ÞVÍ AÐ KORTIÐ SÉ LAUST. Samnýtt GPU er venjan -- á þessu keyrir líka byggingarspá -- svo `ops_gpu=False` hafnar tæki sem er til staðar, og bakendi sem kastar villu á keyrslutíma (minnisþrot, rekill sem hvarf) fellur niður á þann næsta í stað þess að láta plötuna misheppnast."
+    },
+    {
+      "label": "spacr.ops_accel.matmul#1",
+      "source_sha256": "0fe29f175155aa7e91866faf3fadf576809fe2ba54c72d7145e146e7abfb2b71",
+      "source": "THE UNMIXING IS THIS. Correcting dye bleed-through is one small matrix applied to every spot of every cycle, which is a large multiply by a tiny operand -- the shape that goes to a card well and the shape a Python loop would be absurd for.",
+      "context": "The unmixing is this. Correcting dye bleed-through is one small matrix applied to every spot of every cycle, which is a large multiply by a tiny operand -- the shape that goes to a card well and the shape a Python loop would be absurd for.",
+      "translation": "AFBLÖNDUNIN ER ÞETTA. Að leiðrétta litaleka er eitt lítið fylki sem er beitt á hvern blett í hverri lotu, sem er stór margföldun með örsmáum þætti -- lögunin sem fer vel á kort og lögunin sem Python-lykkja væri fáránleg fyrir."
+    },
+    {
+      "label": "spacr.ops_layout.WellLayout.pairs#2",
+      "source_sha256": "359c2ccc04cb664daaf3dea89e38f2307bcf00d43d2efbc90e49dd738d21e84e",
+      "source": "ORDERED BY GEOMETRY, NOT BY SITE INDEX, and this is the one that will not fail loudly. The SECOND tile is always the one BELOW for a vertical pair and the one to the RIGHT for a horizontal one, because that is what a caller cropping an overlap band has to assume -- `register_edge` takes the bottom of the first and the top of the second. Ordering by index instead looks identical and is wrong on every odd column: the raster snakes, so in a bottom-to-top column the tile ABOVE carries the higher index. It cost half the edges of a toy well and reported itself as a residual of 0.00 px, because each surviving component still solved perfectly.",
+      "context": "Ordered by geometry, not by site index, and this is the one that will not fail loudly. The SECOND microscope image field is always the one BELOW for a vertical pair and the one to the RIGHT for a horizontal one, because that is what a caller cropping an overlap band has to assume -- `register_edge` takes the bottom of the first and the top of the second. Ordering by index instead looks identical and is wrong on every odd column: the raster snakes, so in a bottom-to-top column the microscope image field ABOVE carries the higher index. It cost half the edges of a toy well and reported itself as a residual of 0.00 px, because each surviving component still solved perfectly.",
+      "translation": "RAÐAÐ EFTIR RÚMFRÆÐI, EKKI EFTIR SÍÐUNÚMERI, og þetta er sú sem bilar ekki hátt. SEINNI flísin er alltaf sú FYRIR NEÐAN í lóðréttu pari og sú til HÆGRI í láréttu, því það er það sem sá sem sker skörunarrönd verður að ganga út frá -- `register_edge` tekur neðri brún þeirrar fyrri og efri brún þeirrar seinni. Að raða eftir númeri í staðinn lítur eins út og er rangt í hverjum oddatöludálki: rastinn hlykkjast, svo í dálki sem gengur neðan frá og upp ber flísin FYRIR OFAN hærra númerið. Það kostaði helming brúnanna í leikfangabrunni og tilkynnti sig sem leif upp á 0,00 px, því hver eining sem eftir lifði leystist enn fullkomlega."
+    },
+    {
+      "label": "spacr.ops_merge.match_cells#6",
+      "source_sha256": "167ba402cf77ee5c094e932ddff032b9d179f31305150c78566cf2253c61945d",
+      "source": "run the two nearest-neighbour searches on the card where there is a usable one. A well carries tens of thousands of nuclei on each side and the search is done twice, once in each direction; `spacr.ops_accel.nearest_neighbours` chunks it so the working set does not grow with the well.",
+      "context": "run the two nearest-neighbour searches on the card where there is a usable one. A microplate sample position carries tens of thousands of nuclei on each side and the search is done twice, once in each direction; `spacr.ops_accel.nearest_neighbours` chunks it so the working set does not grow with the microplate sample position.",
+      "translation": "keyrðu leitirnar tvær að nálægasta nágranna á kortinu þar sem nothæft kort er til. Brunnur ber tugi þúsunda kjarna hvorum megin og leitin er gerð tvisvar, einu sinni í hvora átt; `spacr.ops_accel.nearest_neighbours` bútar hana niður svo vinnumengið vaxi ekki með brunninum."
+    },
+    {
+      "label": "spacr.ops_register#3",
+      "source_sha256": "43cd8c39204db6e25f20c3a88398d7d77db10f56bd7a06dbe1d83c2c02037dee",
+      "source": "Nuclei at 10X are round blobs. They have no corners, so a corner detector finds essentially nothing and the matcher's scores are noise. Phase correlation asks a different question -- what single translation makes these two fields agree -- and a field of blobs answers it very well. Feature matching still earns its keep in ONE place, and it is not this one: the phenotype-to-SBS step across magnifications, where scale and rotation are real.",
+      "context": "Nuclei at 10X are round blobs. They have no corners, so a corner detector finds essentially nothing and the matcher's scores are noise. Phase correlation asks a different question -- what single translation makes these two microscope fields of view agree -- and a microscope field of view of blobs answers it very well. Feature matching still earns its keep in ONE place, and it is not this one: the phenotype-to-SBS step across magnifications, where scale and rotation are real.",
+      "translation": "Kjarnar við 10X eru kringlóttir klessur. Þeir hafa engin horn, svo hornaskynjari finnur nánast ekkert og einkunnir mátarans eru hávaði. Fasafylgni spyr annarrar spurningar -- hvaða eina hliðrun lætur þessi tvö svið falla saman -- og svið af klessum svarar henni mjög vel. Eiginleikamátun vinnur enn fyrir sér á EINUM stað, og hann er ekki þessi: skrefið frá svipgerð yfir í SBS milli stækkana, þar sem kvarði og snúningur eru raunveruleg."
+    },
+    {
+      "label": "spacr.ops_solve#1",
+      "source_sha256": "37c3f0683fe04e4b9be9186c5587c9c32cf981298e3cec5cb92862ac0d710fb7",
+      "source": "THE THIRD VERB. :mod:`spacr.ops_layout` says which tiles touch, :mod:`spacr.ops_register` says how far apart a touching pair is, and this says where every tile ends up. Kept separate from both because ``ops_layout`` is pure geometry that imports only :mod:`math` and should stay importable anywhere, and ``ops_register``'s whole subject is two tiles and one shift.",
+      "context": "The third verb. :mod:`spacr.ops_layout` says which tiles touch, :mod:`spacr.ops_register` says how far apart a touching pair is, and this says where every tile ends up. Kept separate from both because ``ops_layout`` is pure geometry that imports only :mod:`math` and should stay importable anywhere, and ``ops_register``'s whole subject is two tiles and one shift.",
+      "translation": "ÞRIÐJA SÖGNIN. :mod:`spacr.ops_layout` segir hvaða flísar snertast, :mod:`spacr.ops_register` segir hversu langt er á milli snertandi pars, og þessi segir hvar hver flís endar. Haldið aðskildu frá báðum því ``ops_layout`` er hrein rúmfræði sem flytur aðeins inn :mod:`math` og á að vera hægt að flytja inn hvar sem er, og allt viðfangsefni ``ops_register`` er tvær flísar og ein hliðrun."
+    }
+  ]
+}

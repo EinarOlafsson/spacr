@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "ops_gpu",
+      "source_sha256": "332c0cde4a752a86de0702b170f368844aa7adf4eed513abc706b89a9f14271e",
+      "source": "Let this run use the graphics card where spaCR finds a usable one: the tile registration's FFTs and the Cellpose outlines both have a GPU path, and both fall back to the CPU on their own if the card refuses. Turn it OFF when the card is busy with another job -- a shared GPU is the common case, and an out-of-memory in the middle of a plate costs more than the time the GPU saves. Default True.",
+      "translation": "当 spaCR 找到可用的显卡时，让本次运行使用它：图块配准的 FFT 与 Cellpose 的轮廓都有 GPU 路径，若显卡拒绝，两者都会自行回退到 CPU。当显卡正忙于其他任务时请关闭它 -- 共享 GPU 是常见情况，而在一块微孔板处理到一半时发生显存不足，代价比 GPU 节省的时间更大。默认 True。"
+    }
+  ]
+}

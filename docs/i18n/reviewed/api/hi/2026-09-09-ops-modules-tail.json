@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "label": "spacr.ops_layout.WellLayout.micron_position#3",
+      "source_sha256": "e9c832523af7f412c4fa5f2f9fdb2fdcd1a962f92bc82fffa801bb968f5b5321",
+      "source": "microns between tile centres.",
+      "context": "microns between tile centres.",
+      "translation": "टाइल केंद्रों के बीच माइक्रोमीटर।"
+    },
+    {
+      "label": "spacr.ops_register#3",
+      "source_sha256": "43cd8c39204db6e25f20c3a88398d7d77db10f56bd7a06dbe1d83c2c02037dee",
+      "source": "Nuclei at 10X are round blobs. They have no corners, so a corner detector finds essentially nothing and the matcher's scores are noise. Phase correlation asks a different question -- what single translation makes these two fields agree -- and a field of blobs answers it very well. Feature matching still earns its keep in ONE place, and it is not this one: the phenotype-to-SBS step across magnifications, where scale and rotation are real.",
+      "context": "Nuclei at 10X are round blobs. They have no corners, so a corner detector finds essentially nothing and the matcher's scores are noise. Phase correlation asks a different question -- what single translation makes these two microscope fields of view agree -- and a microscope field of view of blobs answers it very well. Feature matching still earns its keep in ONE place, and it is not this one: the phenotype-to-SBS step across magnifications, where scale and rotation are real.",
+      "translation": "10X पर केंद्रक गोल धब्बे होते हैं। उनमें कोई कोना नहीं होता, इसलिए कोना-संसूचक को व्यावहारिक रूप से कुछ नहीं मिलता और मिलानकर्ता के अंक शोर मात्र होते हैं। फ़ेज़ सहसंबंध एक अलग प्रश्न पूछता है -- कौन सा एक स्थानांतरण इन दो क्षेत्रों को आपस में मिला देता है -- और धब्बों से भरा क्षेत्र उसका उत्तर बहुत अच्छे से देता है। विशेषता-मिलान अब भी एक ही जगह अपनी उपयोगिता सिद्ध करता है, और वह यह नहीं है: आवर्धनों के आर-पार फ़ीनोटाइप-से-SBS चरण, जहाँ मापक्रम और घूर्णन वास्तविक होते हैं।"
+    }
+  ]
+}
