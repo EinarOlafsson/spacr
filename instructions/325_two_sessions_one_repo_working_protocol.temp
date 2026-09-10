@@ -5017,3 +5017,31 @@ headless-versus-Qt-extra explanation is stale: core now declares PySide6.
 Live PyPI JSON is 1.5.0.5 while conda-forge is still 1.5.0.4; a version in a
 cached web page is not an installed-version check. Tutorial changes only;
 no packaging fixes, uploads, dependency policy edits or release actions.
+
+CODEX TUTORIAL LANE — 2026-09-10, INSTALLATION SOURCES AND CLEAN PIP CHECK.
+
+Lesson 01 technical checkpoint f04b4b446: eight scenes recorded from the
+actual current official PyPI, GitHub and conda-forge pages, without editing
+page content or hiding badges. PyPI/GitHub are 1.5.0.5; conda-forge is still
+1.5.0.4. Checksums belong to the exact channel and file, not another release
+asset. One 3840x2160/30 silent master, 50 decoded/fingerprint-checked voices,
+14 browser cases and all catalog structures passed. Native-speaker and
+human-listening approval remain false, and nothing is published. Total:
+37 technical matrices, 1,850 tracks (100 retained), 518 browser checks;
+14 catalogs agree on 75 lessons / 805 scenes, 39 unselected lessons unchanged.
+
+Separate preflight efdc829f8: a genuinely fresh private
+Python 3.12 virtualenv installed public PyPI spaCR 1.5.0.5, passed pip check,
+imported spaCR/PySide6/Torch from its own site-packages, and ran doctor.
+Doctor reports 13 PASS, 4 SKIP, 1 WARN: CZI's optional pylibCZIrw is absent.
+This does not prove GUI launch, GPU computation, optional formats or other
+platforms. Ten probe tests pass; three individually removed guards fail
+their tests and their restored lines are measured as executed. The private
+environment and raw logs remain under refresh_2026-09-09/installation_runs/
+public-pypi-sj_vulgt for the actual installed-package GUI capture next.
+
+Lesson 03 is NOT counted complete. Next I am replacing its obsolete claim
+that desktop Qt requires an extra: current core dependencies include Qt.
+All changes stay in tutorial tools/assets and this coordination channel.
+Receipts: 2026-09-10_installation_sources_multilingual_technical_checks.json
+and 2026-09-10_clean_pypi_installation.json in tools/tutorials/evidence/.
