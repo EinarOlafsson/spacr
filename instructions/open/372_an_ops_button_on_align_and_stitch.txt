@@ -3260,3 +3260,49 @@ PART 14-B proposed: `PAIR_TRIALS` scales with the target point count.
 A tile-sized target holds ~600 nuclei and a well-frame window ~3,000, and
 the chance of a random pair landing on a true correspondence falls with the
 square of that.
+
+--------------------------------------------------------------------------------
+PART 14-D -- TWENTY FIELDS OF THE PHENOTYPE ACQUISITION ARE EMPTY DIRECTORIES
+NAMED `.tif`. 2026-09-10.
+--------------------------------------------------------------------------------
+
+Found by a sweep dying on one of them.
+
+    IsADirectoryError: [Errno 21] Is a directory:
+      .../20X_DAPI-GFP-A594-AF750_A1_DAPI-GFP_Site-864.tif
+
+    find ... -maxdepth 1 -type d -name "*.tif"   ->  20
+
+Twenty paths that end in `.tif` are DIRECTORIES, empty, dated Sep 3 2022 --
+the day the screen was downloaded. Four of them are in well A1's DAPI-GFP
+channel alone: sites 864, 867, 871 and 909. The rest are spread over A2's
+A594, AF750 and DAPI-GFP.
+
+They are almost certainly a partial transfer: a sync that creates the
+destination as a directory when the file fails is a known failure mode of
+`aws s3 sync` and of `rsync` interrupted mid-file. PART 10 already counted
+"partial downloads 0-3 each" on the sequencing cycles, so this is the same
+defect in the phenotype half and it was not counted there.
+
+WHY IT MATTERS TO THE CODE AND NOT ONLY TO THE DATA:
+
+  * `os.path.exists` SAYS TRUE. Every existence check that is not
+    `os.path.isfile` passes on these, and the failure then arrives from
+    inside the reader, as an IsADirectoryError from `tifffile.imread`, at
+    whatever depth the call stack happens to be.
+  * `except FileNotFoundError` DOES NOT CATCH IT. `IsADirectoryError` is a
+    sibling under `OSError`, not a subclass of `FileNotFoundError`, so a
+    handler written for a missing file lets this one through. That is
+    exactly how the sweep died: 81 fields in, having already read 11 GB.
+  * AND A FIELD WITH NO IMAGE IS A REAL CASE, not a corruption to refuse
+    over. Twenty of 7,686 phenotype fields is a quarter of a percent, and a
+    plate is not worth failing for it. It belongs in the same place a
+    refused A4 alignment and a refused A3 cycle belong: recorded per field,
+    with a reason, and excluded from the denominator rather than from the
+    record.
+
+THE RULE FOR THE MODULE: check `os.path.isfile`, catch `OSError` rather than
+`FileNotFoundError`, and carry "no image" as a distinct outcome from "no
+alignment". A field that was never acquired and a field that could not be
+placed are different facts about the plate, and a barcode assembled from
+what survived has to be able to tell them apart.
