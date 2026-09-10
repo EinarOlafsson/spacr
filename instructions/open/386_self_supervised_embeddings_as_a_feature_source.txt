@@ -2,10 +2,29 @@
 A LABEL-FREE EMBEDDING FOR EVERY OBJECT, ALONGSIDE THE MEASURED FEATURES
 ================================================================================
 
-Status:    OPEN, filed 2026-09-09. HOLD UNTIL AFTER THE 1.5.0.5 BUMP, at the
-           maintainer's instruction: "for all of these add them to
-           instructions but add to the instruction to hold of on working on
-           them untill the next version bump 1.5.0.5."
+Status:    ENGINE BUILT 2026-09-10 -- steps 1, 2 and half of 4. The hold is
+           lifted: 1.5.0.5 is tagged, DOI 10.5281/zenodo.22692340.
+
+           `spacr/embeddings.py` takes the crops spacr.crops already produces
+           and returns a float32 matrix keyed by object id. STEP 2 IS
+           SETTLED AND RECORDED, which this instruction asks for explicitly:
+           per-channel encoding then concatenation is the DEFAULT, because
+           channel identity survives it and the attribution is the point;
+           projection onto three is selectable, and it REFUSES four channels
+           rather than dropping a stain by default. The `emb_` column family
+           is defined and a column names its own channel.
+
+           STILL OPEN: step 3, model_zoo registration with a checksum and
+           370's scorecard; the second half of step 4, the feature_dict
+           wiring that would let column_groups group the family in the UI
+           (it goes through parse_column and is a wider change); step 5, the
+           consumers, which should need no changes; step 6, a GUI, which the
+           instruction puts last if at all.
+
+           Filed 2026-09-09 and held until the bump at the maintainer's
+           instruction: "for all of these add them to instructions but add
+           to the instruction to hold of on working on them untill the next
+           version bump 1.5.0.5."
 Requested: 2026-09-09 -- asked what would be most valuable to add; this was
            the first of three filed together (386, 387, 388).
 Owner:     unassigned. Lands in a new `spacr/embeddings.py`, with the column
