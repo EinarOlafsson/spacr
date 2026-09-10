@@ -3183,3 +3183,80 @@ WHAT IS LEFT FOR A4: run all 1,281, write the transform table, and decide
 what a refusal means for Phase C -- a field with no transform has no
 phenotype measurements, and that has to be recorded per field rather than
 silently dropped, exactly as A3 records a refused cycle.
+
+--------------------------------------------------------------------------------
+PART 14-C -- NO ANCHOR IS NEEDED. PART 14-A's CONCLUSION WAS WRONG AND THE
+CLOSED-FORM SITE MAP WAS RIGHT ALL ALONG. 2026-09-10.
+--------------------------------------------------------------------------------
+
+PART 14-A concluded from ten refusals that "a phenotype tile straddles four
+sequencing tiles" and that the site map therefore could not be trusted.
+PART 14-B then found that four of five refusals were the SEED SEARCH not
+looking long enough. Those two cannot both be the explanation, so the
+experiment that separates them: the ORIGINAL mapping-based match -- no
+anchor, no calibrated raster, just `phenotype_site_map` -- with the trial
+count raised.
+
+    p    sbs   inl   floor   scale     deg   resid
+    0      1   143      40   0.2510   +0.02   1.54
+    1      2   202      40   0.2499   +0.02   1.49
+    2      2   173      40   0.2510   +0.01   1.55
+    3      2   198      40   0.2497   +0.02   1.38
+   40     24   119      40   0.2506   -0.03   1.32
+   41     23   163      40   0.2511   -0.06   1.50
+   42     22    99      40   0.2507   +0.01   1.54
+  120     36   164      40   0.2508   -0.03   1.62
+  300     79   147      40   0.2510   -0.01   1.46
+  640    166   100      40   0.2516   +0.17   1.90
+  900    255     -      40   REFUSED
+ 1200    307   195      40   0.2499   -0.02   1.41
+
+    ELEVEN OF TWELVE, with no anchor at all.
+
+THE TRIAL COUNT WAS THE WHOLE THING. Every one of PART 14's ten "refusals",
+PART 14-A's whole-well calibration, and the anchor-calibrated raster of
+PART 14-B were work done to route around a stochastic search that had been
+given 300 tries where it needed a few thousand.
+
+WHAT THIS RETRACTS. The straddling argument in PART 14-A is WRONG as an
+explanation of the refusals -- a phenotype tile does sit across a sequencing
+boundary, and the tiles align anyway, because a quarter-area tile still
+overlaps its mapped tile enough to carry a hundred agreeing nuclei. The
+window matters (163 inliers in the well frame against 132 in one tile) and
+it was never the difference between working and not.
+
+WHAT SURVIVES IT, and is worth keeping:
+
+  * THE WELL FRAME IS STILL RIGHT, for the reason PART 14-A gives and not
+    the one it measured: A4's output has to be a transform into the frame
+    Phase B numbers objects in, and composing per-tile transforms with A2
+    afterwards is a second chance to get a convention backwards.
+  * `stitch_well` IS ELEVEN SECONDS for 333 tiles, 624 of 624 edges, 0.201
+    px residual median.
+  * AND THE PHENOTYPE ACQUISITION IS A ROUND WELL OF 1,281 FIELDS whose
+    layout the same model fits -- 41 columns at radius 20.15 -- which is
+    what makes the site map closed-form in the first place.
+
+THE LESSON IS THE ONE THIS FILE KEEPS LEARNING. PART 6-A: a placement count
+is not a measure of a stitch. PART 13-E: 624 of 624 was not evidence the
+strip worked. Here: TEN REFUSALS WERE NOT EVIDENCE THE MAP WAS WRONG. Each
+time the mistake was reading a null result as a positive one about
+something else, and each time the fix was to vary the thing that was
+actually uncertain -- here, the one parameter of the search -- before
+building a theory around the outcome.
+
+    site 40    300 trials -> 10 inliers      8,000 trials -> 119
+    site 120   300 trials ->  8 inliers      2,000 trials -> 175
+    site 300   300 trials ->  7 inliers      2,000 trials -> 149
+    site 640   300 trials -> 12 inliers      2,000 trials -> 191
+
+SITE 900 REFUSES AT 12,000 TRIALS and is the only real refusal in twelve.
+That is what A4 is supposed to do with a field it cannot place, and Phase C
+has to record it per field rather than dropping it silently -- exactly as
+A3 records a refused cycle.
+
+WHAT THE MODULE NEEDS, and it is one line rather than the machinery
+PART 14-B proposed: `PAIR_TRIALS` scales with the target point count.
+A tile-sized target holds ~600 nuclei and a well-frame window ~3,000, and
+the chance of a random pair landing on a true correspondence falls with the
+square of that.
