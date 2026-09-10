@@ -422,6 +422,10 @@ def main() -> int:
             from capture_invasion import record_invasion
             record_invasion(app, window, screen, stage, captures, capture,
                             settle, write_json, args.timeout)
+        if args.module == 'analyze_plaques':
+            from capture_plaque import record_plaque
+            record_plaque(app, window, screen, stage, captures, capture,
+                          settle, write_json, args.timeout)
         if args.mask_editor_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,
