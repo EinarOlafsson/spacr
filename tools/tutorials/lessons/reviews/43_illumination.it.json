@@ -1,0 +1,34 @@
+{
+  "lesson": "43_illumination",
+  "english_sha256": "1c529856bd0237d6e1669dd8439d55975c0b3fd0ab23dfbf6952b0dc742eea78",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; real exported-file viewing, reciprocal correction and in-sample validation boundary retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Correzione dell’illuminazione",
+  "description": "Stimate un campo d’illuminazione da immagini scaricate nella pagina Illumination di Measure, esaminate il controllo qualità esportato e distinguete il miglioramento numerico dalla validazione biologica.",
+  "objectives": [
+    "Aprire la pagina integrata e scegliere i canali d’intensità dei campi uniti.",
+    "Confrontare correzione disattivata e attivata ed esaminare modello e controllo qualità salvati.",
+    "Riutilizzare un modello esaminato senza confondere diagnostica sui dati di adattamento e validazione indipendente."
+  ],
+  "prerequisite": "Si usano copie inalterate di sedici campi plate1 scaricati, da 1994 × 1994 pixel e sette piani memorizzati. Il canale zero è un indice d’intensità, non l’identità di una colorazione; i piani di etichette non sono intensità. Originali e copie vengono preservati. Dopo l’esecuzione grafica, una formula indipendente verifica 7.952.072 pixel corretti tramite l’API pubblica, senza sostituire risultati nell’interfaccia. Modello e controllo qualità usano gli stessi sedici campi: non è validazione indipendente né verità ottica o biologica. L’offset zero non è una calibrazione misurata. Il pannello Figures resta vuoto; il vero PNG viene aperto in un visualizzatore esterno. Non vengono modificati codice applicativo o immagini originali. Si sostituisce la vecchia simulazione di cinque scene.",
+  "scenes": [
+    "Aprite Measure e poi il pulsante Illumination. Questa pagina integrata stima un modello di correzione prima di un’analisi più grande. È diverso dal semplice attivare la correzione durante una misurazione e non trasforma l’intera applicazione in una sessione corretta automaticamente.",
+    "Impostate Source sulla cartella merged che contiene gli array delle immagini, non sul database delle misure. Usiamo nuove copie di tutti e sedici i campi della piastra d’esempio scaricabile. Gli originali restano invariati e il modello d’illuminazione viene salvato accanto alla cartella merged.",
+    "L’impostazione Channels indica le posizioni nell’array d’intensità memorizzato. Qui scegliamo il canale zero. Controllate la vostra mappatura di acquisizione invece di presumere che zero indichi sempre la stessa colorazione. Non selezionate mai un piano di maschera a etichette come se fosse intensità di fluorescenza.",
+    "All’inizio la correzione è disattivata. Run termina, ma la console dice esplicitamente che non è stato stimato alcun campo. Abbiamo verificato che non è stato creato un modello. Un messaggio di completamento riuscito, quindi, non dimostra da solo che la correzione sia avvenuta.",
+    "Attivate Illumination correction. L’esempio usa lo stimatore polynomial di grado quattro e lascia vuoto Illumination model per stimare un nuovo campo. Più flessibilità non significa automaticamente meglio: una correzione che segue cellule o schemi di trattamento può eliminare la biologia che volevate misurare.",
+    "Tenete separati i gruppi di acquisizione con Illumination per plate. Qui campioniamo tutti e sedici i campi disponibili. Una copertura rappresentativa conta più che aumentare ciecamente un numero: un modello adattato a un solo angolo affollato può confondere struttura biologica e illuminazione irregolare.",
+    "Illumination dark è un offset additivo della camera in unità grezze, non un fondo biologico appreso. Zero è l’impostazione della dimostrazione, non un risultato di calibrazione. Scegliete l’offset da controlli di acquisizione appropriati, invece di regolarlo finché scompare un fenotipo.",
+    "Lasciate Illumination QC attivo e controllate la politica per i modelli mancanti. Usiamo error affinché una correzione non disponibile per una piastra interrompa l’operazione, invece di mescolare silenziosamente campi corretti e non corretti. Questi controlli non sostituiscono l’esame del campo stimato.",
+    "Eseguite di nuovo con la correzione attiva. La console ora riporta il campo adattato, le pendenze diagnostiche e il percorso del modello salvato. Questo passaggio autonomo lascia invariati i file delle immagini; non ha ripetuto la segmentazione né prodotto nuove misure cellulari.",
+    "In questa versione l’immagine di controllo qualità viene salvata, ma non appare nel pannello Figures integrato. Aprite illumination, trattino basso, QC, trattino basso, plate uno, punto PNG, dalla cartella illumination nel vostro visualizzatore di immagini. È la vera figura esportata in un visualizzatore separato, non un pannello spaCR simulato.",
+    "Il pannello sinistro mostra il campo d’illuminazione stimato, con media uno. La correzione sottrae l’offset della camera e divide per questo campo. Anche se il titolo lo chiama gain, non moltiplicate le intensità per la mappa mostrata: la correzione usa il suo reciproco. Controllate che strutture biologiche non entrino nella stima.",
+    "La pendenza radiale passa da circa meno zero virgola uno otto uno a più zero virgola zero due sei. La riduzione riportata dell’ottantacinque virgola quattro per cento coincide con il nostro calcolo indipendente, ma la curva dopo la correzione non è piatta. Sono gli stessi campi usati per adattare il modello: non è quindi una validazione indipendente.",
+    "Per riutilizzarlo, indicate il percorso del modello salvato e attivate esplicitamente la correzione nel workflow Mask o Measure previsto. Conservate insieme modello, mappatura dei canali, identità delle piastre e impostazioni. Esaminate campi indipendenti ed evitate di correggere due volte intensità già corrette prima di interpretare differenze biologiche."
+  ]
+}
