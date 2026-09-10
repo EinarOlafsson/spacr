@@ -208,9 +208,17 @@ def write_suggestions(db_path: str, annotation_column: str,
     """
     if suggestions.empty or "png_path" not in suggestions.columns:
         return 0
-    # 379-C, MADE SAFE WITHOUT ANSWERING IT. Whether this scheme should
-    # extend past two classes is the maintainer's decision and is still
-    # open; what is NOT open is that it must never silently collide. The
+    # 379-C, ANSWERED 2026-09-10 AND NOT THE WAY IT WAS ASKED. The question
+    # was "should this extend past two classes"; the answer is that it
+    # already does. `suggest_from_scores` argmaxes across N score columns
+    # and nothing in it counts to two, so classes 1 to 9 round-trip today --
+    # driven in
+    # `tests/test_the_suggestion_offset_holds_more_than_two_classes.py`.
+    #
+    # THE LIMIT IS A CLASS VALUE, NOT A CLASS COUNT, and that is what the
+    # refusal below is for. The maintainer confirmed he does not use class
+    # values of ten or more, so the offset stays at 10 and this guard stays
+    # a refusal rather than becoming a bound. The
     # offset assumes real class values stay below it, and with a class 11 a
     # suggested 1 and an answered 11 are the same integer -- so a bulk KEEP
     # would rewrite somebody's class 11 to a 1 and nothing would ever say
@@ -224,9 +232,9 @@ def write_suggestions(db_path: str, annotation_column: str,
                 f"class {collides[0]} cannot be suggested: values at or "
                 f"above {SUGGESTION_OFFSET} collide with the suggestion "
                 f"offset, so a suggested 1 and an answered "
-                f"{SUGGESTION_OFFSET + 1} would be the same number. See "
-                f"379-C -- extending the scheme past two classes is an open "
-                f"decision, and this is the collision it has to avoid.")
+                f"{SUGGESTION_OFFSET + 1} would be the same number. "
+                f"Classes 1 to 9 are fine and always have been -- it is the "
+                f"VALUE that collides, not the count.")
     # 379-C, THE OTHER DIRECTION, and the one the guard above does not
     # reach. That one refuses to SUGGEST a class at or above the offset.
     # This refuses to write suggestions into a column that ALREADY HOLDS
@@ -261,8 +269,8 @@ def write_suggestions(db_path: str, annotation_column: str,
             f"stored as {SUGGESTION_OFFSET + 1}, so the two cannot be told "
             f"apart and a bulk KEEP would rewrite the answer to a 1. "
             f"Resolve any outstanding suggestions first; if these are real "
-            f"answers, 379-C has to be decided before Suggest can run on "
-            f"this column.")
+            f"answers, this column uses class values Suggest cannot mark, "
+            f"and the offset would have to move above them.")
 
     rows = [(int(s), str(p)) for s, p in
             zip(suggestions["stored"], suggestions["png_path"])

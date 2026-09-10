@@ -2,6 +2,27 @@
 A SUGGEST BUTTON THAT LABELS THE REST
 ================================================================================
 
+Status:    COMPLETE. 379-C CLOSED 2026-09-10, AND NOT THE WAY IT WAS ASKED
+           -- it needed measuring rather than building. The question was
+           "should the offset scheme extend past two classes"; it already
+           does. Classes 1 to 9 round-trip today, driven in
+           `tests/test_the_suggestion_offset_holds_more_than_two_classes.py`:
+           three classes in, suggestions stored as 11/12/13, decoding back
+           to 1/2/3.
+
+           THE LIMIT IS A CLASS VALUE, NOT A CLASS COUNT. `SUGGESTION_OFFSET`
+           is 10, so only a class value of ten or more collides. The
+           maintainer confirmed he does not use values that large, so the
+           guard stays a refusal and nothing needs building.
+
+           I ASKED HIM THE WRONG QUESTION FIRST and he answered "extend it
+           to three or more" against my premise. Re-asked with the
+           measurement and the answer changed to "then it's already done",
+           which is the whole reason to re-ask rather than proceed: he was
+           deciding about work that did not exist.
+
+           PREVIOUS STATUS FOLLOWS.
+
 Status:    COMPLETE except 379-C, 2026-09-07. The button is built and
            wired, and the one-class case PART 1-B said was missing is now
            built too -- `retrain_round` gained `balance` and
