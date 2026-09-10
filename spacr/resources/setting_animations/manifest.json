@@ -1214,15 +1214,14 @@
       "scene": "normalization",
       "settings": [
         "normalization_percentiles",
-        "normalize",
-        "normalize_plots"
+        "normalize"
       ],
       "slug": "normalization_percentiles",
       "title": "Image normalization percentiles",
       "validation": {
-        "bytes": 135342,
+        "bytes": 76306,
         "frames": 18,
-        "sha256": "27e9a5f564d74f11baf42cd187522556786d1abdf8dca8309060ba263d73a8ff",
+        "sha256": "1bc3ad2f1a516017eee3eef8ba9997b7c98bf9afb21f4ac589365f5bd93ebb87",
         "unique_frames": 17
       }
     },

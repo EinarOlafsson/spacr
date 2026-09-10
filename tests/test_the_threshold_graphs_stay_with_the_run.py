@@ -71,7 +71,14 @@ def _screen_on_disk(tmp_path, wells=4, cells=60, guides=8):
         "dependent_variable": "pred", "tolerance": 0.02,
         "min_cells_per_well": None,
         "target_unique_count": 5, "filter_column": "columnID",
-        "control_wells": [], "log_x": False, "log_y": False,
+        # `control_wells` SAID TWO THINGS AND WAS SPLIT (364). The
+        # sequencing and regression side -- the wells a fit leaves out --
+        # is `analysis_excluded_wells`; the invasion assay's stain
+        # baseline is the other half. A settings CSV naming the old key
+        # still works, because `_fold_renamed_settings` sends its value
+        # to BOTH names, but that runs in the factory and this dict is
+        # handed straight to the function.
+        "analysis_excluded_wells": [], "log_x": False, "log_y": False,
     }, folder
 
 

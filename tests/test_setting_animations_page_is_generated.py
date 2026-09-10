@@ -131,7 +131,11 @@ def test_no_animation_documents_a_setting_the_shipped_manifest_does_not_carry():
     # 135 since 2026-09-08: the two retired organelle `*_size` spellings
     # left the specs. tests/test_setting_animations.py carries the same
     # count twice more and says why.
-    assert sum(len(keys) for keys in specs.values()) == 135
+    # 135 -> 134 on 2026-09-09: `normalize_plots` left the
+    # `normalization_percentiles` spec when it was retired (357-Q4).
+    # Nothing read it, so an animation offered under its name illustrated
+    # a control the run does not have.
+    assert sum(len(keys) for keys in specs.values()) == 134
 
 
 def test_the_gallery_names_only_settings_spacr_actually_has():
