@@ -1,0 +1,13 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Project to three (:data:`CHANNEL_PROJECT`). One pass over a fixed image data channel-to-RGB mapping. Cheaper, and irreversible: once image data channels are mixed, no downstream column can be attributed to a stain, and a screen cannot ask \"was this the parasite image data channel or the host one?\".",
+      "label": "spacr.embeddings#4",
+      "source": "PROJECT TO THREE (:data:`CHANNEL_PROJECT`). One pass over a fixed channel-to-RGB mapping. Cheaper, and irreversible: once channels are mixed, no downstream column can be attributed to a stain, and a screen cannot ask \"was this the parasite channel or the host one?\".",
+      "source_sha256": "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
+      "translation": "投影到三个通道（:data:`CHANNEL_PROJECT`）。对固定的图像数据通道到 RGB 的映射只做一次前向传播。更省算力，但不可逆：图像数据通道一旦混合，任何下游列都无法再归因到某一种染色，筛选也就无法追问“这来自寄生虫的图像数据通道还是宿主的图像数据通道”。"
+    }
+  ],
+  "schema": 1
+}
