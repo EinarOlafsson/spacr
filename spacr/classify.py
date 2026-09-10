@@ -50,7 +50,11 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
         "model_type", "custom_model_path", "image_size",
         "train_channels", "epochs", "optimizer_type", "schedule", "loss_type",
         "dropout_rate", "init_weights", "amsgrad", "weight_decay",
-        "gradient_accumulation", "gradient_accumulation_steps",
+        # `gradient_accumulation` retired 2026-09-09 (364): the step count
+        # alone says whether to accumulate, and `steps = 1` IS the off
+        # position. A greying table naming a key that no longer exists
+        # greys nothing.
+        "gradient_accumulation_steps",
         "early_stopping_patience", "augment", "pin_memory", "use_checkpoint",
         "resume_checkpoint", "tensorboard", "focal_gamma", "focal_alpha",
         "label_smoothing", "logit_adjust_tau", "train", "test",

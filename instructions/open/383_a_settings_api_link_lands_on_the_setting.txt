@@ -575,3 +575,72 @@ these numbers. The ceiling is now 7,500 -- the same 500 of headroom the old
 one carried -- and the measurement is in the test's docstring rather than in
 this file only. Zero warnings matters as much as the clock: the docs job
 runs `-W`, so an unresolvable xref fails it as surely as a timeout does.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE RESIDUE IS FULLY EXPLAINED. 23 PAIRS, TWO CAUSES, NO GAP.
+--------------------------------------------------------------------------------
+
+The 19 settings behind the remaining 23 links were audited one at a time,
+which is what the earlier note asked for and did not do. There is no third
+cause and nothing left to fix in this instruction.
+
+CAUSE 1 -- A CURATED TARGET WITH NO SYMBOL TO POINT AT. 15 pairs, already
+recorded above as a real limit and confirmed here per app:
+
+    classify_merged/nested_cv_inner_folds -> classifier_evaluation
+    umap/random_seed                      -> hyperparam
+    ... and the batch and evaluation keys named earlier
+
+A hand-written target is a decision a person made, the flow fallback must
+not overrule it, and the curated module holds no symbol for the key because
+the reading happens elsewhere. `random_seed` is the clearest case: it IS
+read, exactly, in `annotation_dataset.generate_annotation_dataset`, and
+Image UMAP's link still lands on `hyperparam` because that is where a
+person decided a UMAP reader should go.
+
+CAUSE 2 -- THE ONLY CONSUMER IS THE SETTING'S OWN DEFAULTS SETTER. Eight
+settings, and this is a finding about the PACKAGE rather than about the
+links:
+
+    denoise            load_path_regex     mask_array
+    normalization      normalization_scope normalize_plots
+    save_to_db         visualize
+
+Each has exactly ONE consumer in `docs/setting_consumers.json`, and in
+every case it is `spacr.settings`'s own `set_default_*` function. The flow
+page deliberately drops a setting whose only reader is its defaults setter
+-- there is nothing to draw -- so they have no section, so the fallback has
+nowhere to send them, so the link lands on a module page. That is the
+correct behaviour of three mechanisms in a row. THE PROBLEM IS UPSTREAM OF
+ALL THREE.
+
+  CHECKED FOR THE DYNAMIC READS THAT WOULD MAKE THIS WRONG, because
+  "nothing reads it" is exactly the claim a broken detector produces --
+  this file has now met that twice. Every mention of all eight was read:
+
+    * `classify.FAMILY_SETTINGS` and `stream_dataset.METHOD_SETTINGS` list
+      several of them, and neither is a read: they are the tables that
+      decide which controls to GREY, so a name there means "this family
+      would use it", not "this code consumes it".
+    * `spacr/timelapse.py:_prepare_for_tracking(mask_array)` and
+      `spacr/utils.py:load_image_paths(c, visualize)` take parameters of
+      the same name. Neither is called with the setting -- the consumer
+      map finds no read that could reach them -- and the first takes a
+      label array rather than a flag.
+    * `align.py`'s `normalization` is a LOCAL loop variable over
+      ('phase', None), which is phase correlation's own option and not
+      this setting.
+    * `visualize` was already known to be a false member: its only match
+      is a COMMENT, `# 'cell', not settings['visualize']`.
+
+  So they are settings a user can see and set, that the package reads
+  nowhere. That belongs to instruction 364 -- audit every setting for
+  necessity -- and is filed there rather than worked around here. A link
+  cannot point at a consumer that does not exist, and inventing a target
+  for one would be the fifth mechanism papering over the first four.
+
+WHAT THIS INSTRUCTION HAS LEFT: nothing. 622 of 800 links land on a
+function anchor, 155 on the settings-flow page, and the 23 that land on a
+module page are the two causes above -- one a recorded decision, the other
+a defect in a different instruction.

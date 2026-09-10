@@ -1254,3 +1254,56 @@ source never had. That is the same shape as this instruction's
 silent-divergence bugs -- two spellings, one meaning, and only one of them is
 the contract -- and it will reach `stain_baseline_wells` and
 `nontargeting_control_grnas` the moment they gain translated labels.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- EIGHT SETTINGS THE PACKAGE READS NOWHERE, FOUND BY 383's AUDIT
+--------------------------------------------------------------------------------
+
+Instruction 383 audited the 23 API links that still land on a bare module
+page and found that eight of them are not a link problem at all:
+
+    denoise            load_path_regex     mask_array
+    normalization      normalization_scope normalize_plots
+    save_to_db         visualize
+
+EACH HAS EXACTLY ONE CONSUMER, AND IT IS ITS OWN DEFAULTS SETTER. In
+`docs/setting_consumers.json` every one of the eight has a single row, and
+in every case the reader is `spacr.settings`'s own `set_default_*`
+function putting the default in. Nothing in the package then reads the
+value back.
+
+THE DYNAMIC READS WERE CHECKED, because "nothing reads it" is the one
+claim that looks identical whether it is true or the detector is broken --
+383 met that twice and says so. Every mention of all eight was read by
+hand:
+
+  * `classify.FAMILY_SETTINGS` and `stream_dataset.METHOD_SETTINGS` name
+    several of them. Neither is a read: both are the tables that decide
+    which controls to GREY, so a name there means "this family would use
+    it", not "this code consumes it".
+  * `timelapse._prepare_for_tracking(mask_array)` and
+    `utils.load_image_paths(c, visualize)` take parameters of the same
+    name; neither is called with the setting, and the first takes a label
+    array rather than a flag.
+  * `align.py`'s `normalization` is a local loop variable over
+    ('phase', None) -- phase correlation's own option, not this setting.
+  * `visualize`'s only match is a COMMENT: `# 'cell', not
+    settings['visualize']`.
+
+WHAT TO DO WITH THEM IS THIS INSTRUCTION'S QUESTION, not 383's, and it is
+not the same answer for all eight. Some are probably genuinely dead and
+should be retired the way `gradient_accumulation` and the `_size` pair
+were. Others may be a FEATURE THAT WAS NEVER WIRED -- `denoise` and
+`normalization` both name real capabilities spaCR has -- in which case the
+control is a promise the pipeline does not keep, which is worse than a
+dead setting rather than better.
+
+  EACH NEEDS ITS OWN VERDICT AND THE MAINTAINER'S FOR ANY THAT ARE
+  FEATURES. Retiring a control that was meant to work would remove the
+  evidence that it was.
+
+ALSO FOUND, AND FIXED: `classify.FAMILY_SETTINGS["cv"]` still named
+`gradient_accumulation`, which this instruction retired earlier the same
+day. A greying table naming a key that no longer exists greys nothing and
+reads as though the control is still there.
