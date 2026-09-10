@@ -304,3 +304,54 @@ STILL OPEN AFTER THIS
     launch rather than resolved once and recorded with the metrics that
     justified it.
   * The real M4 smoke test, which no simulation closes.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- WHY THE SETTINGS COLUMN CANNOT GROW: THE ARITHMETIC
+--------------------------------------------------------------------------------
+
+The note above records that `regression` wants 970 px of settings content and
+the column's viewport is 832 px at a 2,560 px window. Here is why, because
+the number is not a mystery and the fix is not a search.
+
+`app_screen.py:1490-1514`, the body splitter:
+
+    body.setStretchFactor(0, 1)     # settings
+    body.setStretchFactor(1, 2)     # runtime
+    body.setSizes([400, 800])
+
+ONE THIRD. The settings column gets a third of whatever the window has, for
+ever, at every width. 2,500 px of splitter divided 1:2 is 833, which is the
+832 that was measured -- so the measurement and the arithmetic agree to one
+pixel and there is nothing else to look for.
+
+WHAT THAT MEANS FOR THE REPORT. "Widening some settings containers did not
+widen their fields" is exactly right, and it is milder than the truth:
+widening the window DOES widen the column, by a third of what was added, and
+that third is never enough for the modules that need it. For `regression` to
+reach 970 px of column the window would have to be 2,910 px wide, which is
+wider than the display the report came from.
+
+SO THE FIX IS PART 2's AND IT IS ONE OF THREE, all in that one call:
+
+  1. DERIVE THE INITIAL SPLIT FROM THE CONTENT. This item already asks for
+     it -- "Initial module layout must derive a preferred settings width
+     from real content size hints and font metrics, then clamp it to the
+     available screen". `[400, 800]` is a constant where a size hint
+     belongs. NOTE that `setSizes` values are treated as PROPORTIONS when
+     they do not sum to the splitter's width, so handing it
+     `[wanted, 800]` does not give the column `wanted`; the pair has to be
+     computed together against the real width.
+  2. GIVE THE COLUMN A FLOOR, so the splitter cannot squeeze it below what
+     its own content needs. The risk is the mirror image -- a floor wider
+     than half the window crushes the runtime panel -- so the floor wants
+     the same clamp the window size got: never more than about 45 %.
+  3. OR MAKE THE CONTENT NARROWER. `PairedFileTableWidget`'s 750 px
+     minimum is the single widest thing in regression's column, and a
+     table that wide inside a settings form may simply belong somewhere
+     else. That is a design question, not a layout one.
+
+NOT DONE HERE. All three change what the user sees on every module screen,
+and this session has no display. (1) and (2) are small and (3) is not, but
+the reason they are not attempted is the same one this file gives for the
+policy artifact: a layout change measured only offscreen is a change nobody
+has seen.
