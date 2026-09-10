@@ -495,3 +495,52 @@ the backdrop shading four times the pixels at 4K for the same frame rate.
 BUILDING the panel is now a third candidate, with a number attached: 146 ms
 of deferred translation, four full-tree walks, on a panel whose widgets were
 already translated once as they were constructed.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE BUILD'S 146 ms, LOCATED: THE TREE IS TRANSLATED THREE TIMES
+--------------------------------------------------------------------------------
+
+Following the number the correction above freed up. Instrumented
+`_LateCaptionTranslator._translate` and counted every pass and every
+descendant it walked, building one Measure screen:
+
+    pass  batch  root                 descendants
+      0      1   AmbientWidget                  1
+      1      1   ModuleHeader                   6
+      2      1   Divider                        0
+      3      1   QSplitter                  8,034
+      4      6   QWidget                    7,389
+      5      6   QScrollArea                  641
+      6      6   QSplitterHandle                0
+      7      6   QSplitterHandle                0
+      8      7   QSplitter                  7,327
+      9      7   Card                          31
+     10      7   QWidget                       20
+     11      7   QLabel                         5
+     12      7   QLabel                         0
+
+    13 passes, 23,454 widget visits, of which THREE PASSES ARE 22,750.
+
+THE THREE BIG ONES ARE NESTED AND IN DIFFERENT BATCHES -- 1, 6 and 7. Each
+is a near-root walk triggered when another large container is parented in,
+so the tree is translated roughly three times over as it is assembled, and
+every widget in it was already translated once as it was constructed.
+
+WHY THE OBVIOUS FIX DOES NOT WORK. Deduplicating roots WITHIN one
+`_on_arrivals_in` batch would save nothing: the three expensive passes are
+in three different batches, an event turn apart. The saving needs a marker
+that survives between turns -- "this subtree was translated at generation
+N" -- so a later overlapping pass skips what is already done and redoes it
+only when the language actually changes.
+
+NOT ATTEMPTED TONIGHT, and the reason is the risk rather than the work. The
+failure mode of getting it wrong is a widget left in English in one of nine
+locales, which is invisible on this machine and to this test suite. It IS
+verifiable headlessly -- capture every translated widget's text after a
+build, apply the change, compare the sets -- and that verification is the
+first half of the job, not an afterthought.
+
+    WHOEVER TAKES IT: the cost is build-time only. Interaction latency is
+    now measured as clean (4 ms to expand, 0.07 ms to type, no dropped
+    frames), so this is about how long a module screen takes to appear, not
+    about smoothness once it is there.
