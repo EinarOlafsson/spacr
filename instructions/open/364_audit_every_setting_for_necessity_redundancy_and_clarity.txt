@@ -1364,3 +1364,50 @@ ALSO FOUND, AND FIXED: `classify.FAMILY_SETTINGS["cv"]` still named
 `gradient_accumulation`, which this instruction retired earlier the same
 day. A greying table naming a key that no longer exists greys nothing and
 reads as though the control is still there.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- WHY THE LAST THREE RENAMES ARE NOT STARTED, WITH THE SURVEY DONE
+--------------------------------------------------------------------------------
+
+    positive_control -> positive_control_id
+    negative_control -> negative_control_id
+    controls         -> nontargeting_control_grnas
+
+THESE THREE ARE NOT LIKE THE FIRST THREE, and the difference is not size.
+`expected_end`, `min_n` and `min_cell_count` are distinctive strings: a
+grep for them finds the setting and almost nothing else, which is what made
+a careful blanket replace safe once the two traps were known.
+
+`controls` IS A COMMON WORD DOING FOUR JOBS. 38 occurrences outside the
+generated catalogs, and they are not one thing:
+
+    spacr/core.py:1650             the SETTING, read into annotate_conditions
+    spacr/regression_summary.py    the SETTING, read through _setting()
+    spacr/baseline.py:32           CONTROLS = "controls", a constant naming
+                                   a column or a payload field
+    spacr/parameter_sweep.py:834   "controls": dict(controls or {}) -- a
+                                   sweep payload key
+    spacr/sweep_child.py:103       the same payload, read back
+    spacr/regression_annotation.py a "needs" token in a dependency
+                                   declaration, three sites
+
+Only the first two are the setting. A blanket replace renames a payload
+field and a dependency token, and the failure that produces looks like the
+rename being wrong -- which is exactly the shape the `min_cell_count` pass
+already met once in `regression_summary` and `regression_qc`.
+
+`positive_control` and `negative_control` are 50 and 49 mentions each, and
+carry the same hazard in a milder form: they appear as column values, as
+plot labels and as the setting.
+
+  SO EACH OF THE THREE WANTS ITS OCCURRENCES CLASSIFIED ONE AT A TIME, not
+  a regex. That is an hour of judgement per name, and judgement is the
+  thing that degrades at the end of a long session. Stopping with three
+  landed and proven is better than landing a fourth with one site wrong,
+  because a wrong site here is silent: a payload key that no longer
+  matches, or a setting read that returns the default.
+
+THE SURVEY IS DONE AND IS WRITTEN ABOVE so the next pass starts from the
+classification rather than from the grep. The mechanism is proven, the two
+traps are recorded as steps, and the branch is one `git checkout` away.
