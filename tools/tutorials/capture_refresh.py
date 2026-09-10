@@ -80,6 +80,15 @@ def main() -> int:
         runs_destination = Path.home() / '.spacr/runs'
         queue_binds = []
         manager_binds = []
+        if args.module == 'pipeline_graph':
+            from pipeline_graph_data import prepare
+            state = stage / 'pipeline_graph_state' / f'{args.capture_name or args.module}.json'
+            if state.exists():
+                raise RuntimeError('Use a new capture name for a fresh private Pipeline Graph example')
+            prepared = prepare(stage)
+            write_json(state, prepared)
+            manager_binds = ['--ro-bind', prepared['source'], prepared['original_readonly'],
+                             '--bind', prepared['clone'], prepared['source']]
         if args.module == 'project_browser':
             from project_browser_data import prepare
             state = stage / 'project_browser_state' / f'{args.capture_name or args.module}.json'
@@ -286,6 +295,10 @@ def main() -> int:
         from capture_project_browser import record_browser
         record_browser(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'pipeline_graph':
+        from capture_pipeline_graph import record_graph
+        record_graph(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
