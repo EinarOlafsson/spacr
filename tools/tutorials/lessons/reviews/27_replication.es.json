@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Ensayo de replicación",
+  "description": "Cuente los parásitos por vacuola, examine las distribuciones y ajuste las leyendas sin cambiar los datos. El ejemplo es sintético y no demuestra un efecto terapéutico.",
+  "objectives": [
+    "Contar por vacuola, no por célula huésped.",
+    "Conservar los recuentos que no sean potencias de dos y revisar los resúmenes por pocillo y condición.",
+    "Usar los controles reales de las figuras y revisar los avisos de exportación."
+  ],
+  "prerequisite": "Una nueva copia de la base sintética contiene 1992 filas de parásitos inventadas, 480 vacuolas, 240 grupos de células huésped y doce pocillos artificiales. Vehicle e inhibitor son nombres didácticos; los seis pocillos de cada grupo repiten la misma distribución. No hay imágenes adquiridas ni un botón de descarga específico en este módulo. La base original permanece intacta. Cálculos independientes verifican 6588 campos CSV, además de las alturas y bases de las barras. No se validan segmentación, valores p ni eficacia. Para trabajar con datos biológicos, use mediciones, relaciones entre vacuolas y réplicas experimentales realmente validadas.",
+  "scenes": [
+    "Abra Replication Assay en la sección Assays de Home. Cuenta los parásitos medidos por vacuola; aquí no segmenta imágenes. Este ejemplo es explícitamente sintético: los gráficos enseñan los controles y las reglas de recuento, no un efecto biológico del tratamiento.",
+    "Elija la carpeta del experimento preparado que contiene measurements, barra, measurements punto db. Nuestra nueva copia privada contiene mil novecientas noventa y dos filas de parásitos inventadas. Conservamos la base original y empezamos sin archivos de resultados antiguos, de modo que cada salida mostrada corresponde a esta ejecución.",
+    "Establezca Vacuole key en la columna de identificadores explícitos de vacuola. Hay cuatrocientas ochenta vacuolas, pero solo doscientos cuarenta grupos de células huésped: cada huésped contiene dos vacuolas. Contar por célula huésped las fusionaría y respondería a otra pregunta. Valide esta relación en imágenes reales antes de analizar sus datos.",
+    "Require host cell excluye los objetos sin un vínculo válido con un huésped. Así evita incluir objetos sin asignar, pero también puede eliminar parásitos reales si falló la segmentación del huésped. Todas las filas didácticas tienen vínculos válidos; este ejemplo no valida su segmentación.",
+    "La mayor categoría nombrada que es una potencia de dos es dieciséis, no un límite que recorte todos los recuentos mayores. Las potencias superiores tienen una categoría de desbordamiento y los demás recuentos se mantienen separados. Cada pocillo artificial incluye dos vacuolas de tres parásitos: no redondee un recuento de tres a cuatro.",
+    "Compruebe la correspondencia entre condiciones y pocillos. Aquí, la primera columna se llama vehicle y la segunda inhibitor, con seis pocillos artificiales por grupo. Estos nombres forman parte del diseño didáctico inventado. No demuestran que se haya aplicado un fármaco, y una diferencia visualmente convincente no prueba su eficacia.",
+    "Pulse Run solo después de revisar la fuente, la clave de asignación, los filtros y la configuración de salida. Es un análisis de tablas, no una nueva segmentación Cellpose ni una prueba de rendimiento de la GPU. El proceso real produce las figuras por pocillo y por condición.",
+    "Lea cada barra apilada como la distribución de recuentos por vacuola en un pocillo. El ejemplo vehicle tiene doscientos veintiocho parásitos en cuarenta vacuolas; el ejemplo inhibitor, ciento cuatro en cuarenta. Ambos conservan un cinco por ciento de vacuolas fuera de las potencias de dos. Comprobamos las alturas mostradas con recuentos independientes, no solo los nombres de los archivos.",
+    "Si la leyenda aparece cortada, abra Figure settings y la pestaña de ejes; después cambie Legend position. Elegimos una posición interior mediante estos controles reales. Es un cambio de presentación: los valores de las barras y los archivos de datos permanecen intactos.",
+    "La vista por condición agrupa las vacuolas del ejemplo en dos distribuciones. Los seis pocillos de cada grupo repiten el mismo patrón inventado. No cite las pruebas de significación resultantes como un efecto terapéutico: una inferencia real requiere réplicas auténticas y una unidad experimental independiente defendible.",
+    "Lea la consola además del gráfico. Esta ejecución avisa de que algunos colores elegidos tienen poco contraste en una página exportada clara. Revise las figuras exportadas y elija una paleta accesible: una vista oscura legible en pantalla no garantiza automáticamente una figura guardada legible.",
+    "Con Save activado, los resultados se guardan en results, barra, analyze replication: recuentos por vacuola, distribuciones por pocillo, resúmenes por condición, tablas estadísticas y figuras. Conserve también la configuración y los identificadores de origen. Para su ensayo, revise imágenes reales y controles biológicos antes de interpretar estos resúmenes."
+  ]
+}

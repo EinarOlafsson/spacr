@@ -5261,3 +5261,19 @@ The current embedded figure legends extend beyond the viewport, so I will
 improve the genuine viewing controls before freezing narration. No application
 or Qt edits; no native-language or completed-lesson claim for 27 yet.
 Receipt: tools/tutorials/evidence/2026-09-10_replication_native_numeric_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, REPLICATION FIGURE CONTROLS VERIFIED.
+
+9f21b7a86: final native capture checks 6,588 output CSV fields and 168 actual
+Matplotlib bar height/base fields against independent synthetic input counts.
+Both clipped legends moved inside using the genuine Figure settings dialog;
+all bar geometry and CSV bytes remain unchanged. Console warning and Finished
+are visible, and both dialogs fit the screen. Sixteen focused tests pass; six
+isolated figure-verifier mutations turn tests red. A zero-height placeholder
+assumption in my verifier was corrected from actual plotted geometry, not by
+changing application code. Twelve English scenes frozen; all 24 English voices
+rendered and the seven other spoken languages are rendering under the 110 GiB
+guard. Six caption-only drafts and the final media checks follow. Technical
+total remains 41 until the complete matrix passes. Synthetic data are explicitly
+labelled; no acquired images, drug-effect, inference, native/listening or public
+release claim. Receipt: 2026-09-10_replication_native_figure_checks.json.

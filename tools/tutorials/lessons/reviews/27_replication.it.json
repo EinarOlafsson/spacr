@@ -1,0 +1,33 @@
+{
+  "lesson": "27_replication",
+  "english_sha256": "d7c97694723984931f561f4b50c9735ff203e83868522f9a0162230126de215c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic-data caveats, counting unit, numeric results and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Saggio di replicazione",
+  "description": "Contate i parassiti per vacuolo, esaminate le distribuzioni e regolate le legende senza cambiare i dati. L’esempio è sintetico e non dimostra un effetto terapeutico.",
+  "objectives": [
+    "Contare per vacuolo, non per cellula ospite.",
+    "Conservare i conteggi diversi dalle potenze di due e leggere i riepiloghi per pozzetto e condizione.",
+    "Usare i comandi reali delle figure e controllare gli avvisi di esportazione."
+  ],
+  "prerequisite": "Una nuova copia del database sintetico contiene 1.992 righe inventate di parassiti, 480 vacuoli, 240 gruppi di cellule ospiti e dodici pozzetti artificiali. Vehicle e inhibitor sono nomi didattici; i sei pozzetti di ogni gruppo ripetono la stessa distribuzione. Non ci sono immagini acquisite né un pulsante di download dedicato in questo modulo. Il database originale rimane invariato. Calcoli indipendenti verificano 6.588 campi CSV e le altezze e basi delle barre. Non sono convalidati segmentazione, valori p o efficacia. Per dati biologici servono misure, relazioni tra vacuoli e repliche sperimentali realmente validate.",
+  "scenes": [
+    "Aprite Replication Assay nella sezione Assays di Home. Conta i parassiti misurati per vacuolo; qui non segmenta immagini. Questo esempio è esplicitamente sintetico: i grafici insegnano i comandi e le regole di conteggio, non un effetto biologico del trattamento.",
+    "Scegliete la cartella dell’esperimento preparato che contiene measurements, barra, measurements punto db. La nuova copia privata contiene mille novecentonovantadue righe inventate di parassiti. Conserviamo il database originale e partiamo senza vecchi risultati, così ogni output mostrato appartiene a questa esecuzione.",
+    "Impostate Vacuole key sulla colonna degli identificatori espliciti dei vacuoli. L’esempio contiene quattrocentottanta vacuoli, ma solo duecentoquaranta gruppi di cellule ospiti: due vacuoli condividono ogni ospite. Contare per cellula ospite li unirebbe e risponderebbe a un’altra domanda. Validate questa relazione su immagini reali prima di analizzare i vostri dati.",
+    "Require host cell esclude gli oggetti senza un collegamento valido a un ospite. Impedisce agli oggetti non assegnati di entrare nel risultato, ma può eliminare anche veri parassiti se la segmentazione dell’ospite è fallita. Tutte le righe didattiche hanno collegamenti validi; l’esempio non convalida la vostra segmentazione.",
+    "La categoria nominata più grande corrispondente a una potenza di due è sedici, non un limite che tronca tutti i conteggi maggiori. Le potenze superiori hanno una categoria di eccedenza e gli altri conteggi restano separati. Ogni pozzetto artificiale comprende due vacuoli con tre parassiti: non arrotondate un conteggio di tre a quattro.",
+    "Controllate la corrispondenza tra condizioni e pozzetti. Qui la prima colonna si chiama vehicle e la seconda inhibitor, con sei pozzetti artificiali per gruppo. Questi nomi fanno parte del disegno didattico inventato. Non provano che sia stato applicato un farmaco, e una differenza visivamente convincente non dimostra efficacia.",
+    "Premete Run solo dopo aver controllato fonte, chiave di assegnazione, filtri e impostazioni di output. È un’analisi di tabelle, non una nuova segmentazione Cellpose o un test di prestazioni della GPU. Il processo reale produce entrambe le figure: per pozzetto e per condizione.",
+    "Ogni barra impilata rappresenta la distribuzione dei conteggi per vacuolo in un pozzetto. L’esempio vehicle ha duecentoventotto parassiti in quaranta vacuoli; l’esempio inhibitor, centoquattro in quaranta. Entrambi conservano il cinque per cento di vacuoli fuori dalle potenze di due. Abbiamo confrontato le altezze visualizzate con conteggi indipendenti, non solo verificato i nomi dei file.",
+    "Se la legenda è tagliata, aprite Figure settings e la scheda degli assi, poi cambiate Legend position. Scegliamo una posizione interna attraverso questi comandi reali. È una modifica della presentazione: tutti i valori delle barre e i file di dati rimangono invariati.",
+    "La vista per condizione riunisce i vacuoli dell’esempio in due distribuzioni. Tutti e sei i pozzetti di ogni gruppo ripetono lo stesso schema inventato. Non citate i test di significatività risultanti come effetto terapeutico: una vera inferenza richiede repliche autentiche e un’unità sperimentale indipendente giustificabile.",
+    "Leggete la console oltre al grafico. Questa esecuzione avverte che alcuni colori scelti hanno poco contrasto su una pagina esportata chiara. Controllate le figure esportate e scegliete una tavolozza accessibile: una vista scura leggibile sullo schermo non garantisce automaticamente una figura salvata leggibile.",
+    "Con Save attivo, i risultati finiscono in results, barra, analyze replication: conteggi per vacuolo, distribuzioni per pozzetto, riepiloghi per condizione, tabelle statistiche e figure. Conservate anche impostazioni e identificatori delle fonti. Per il vostro saggio, esaminate immagini reali e controlli biologici prima di interpretare questi riepiloghi."
+  ]
+}
