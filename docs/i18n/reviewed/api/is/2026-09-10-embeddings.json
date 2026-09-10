@@ -1,0 +1,13 @@
+{
+  "language": "is",
+  "records": [
+    {
+      "context": "PER-image data channel, then concatenate (:data:`CHANNEL_PER_CHANNEL`, the default). Each image data channel is encoded on its own and the vectors are joined. image data channel identity SURVIVES: dimension 517 belongs to image data channel 2 and to nothing else, so :mod:`spacr.attribution_columns` can say which stain a hit came from and a reader can drop an image data channel without re-embedding. Costs N forward passes.",
+      "label": "spacr.embeddings#3",
+      "source": "PER-CHANNEL, THEN CONCATENATE (:data:`CHANNEL_PER_CHANNEL`, the default). Each channel is encoded on its own and the vectors are joined. Channel identity SURVIVES: dimension 517 belongs to channel 2 and to nothing else, so :mod:`spacr.attribution_columns` can say which stain a hit came from and a reader can drop a channel without re-embedding. Costs N forward passes.",
+      "source_sha256": "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
+      "translation": "Hver myndgagnarás fyrir sig og vigrarnir síðan tengdir saman (:data:`CHANNEL_PER_CHANNEL`, sjálfgefið). Hver myndgagnarás er kóðuð sjálfstætt og vigrarnir úr þeim eru tengdir saman. Auðkenni myndgagnarásarinnar VARÐVEITIST: vídd 517 tilheyrir myndgagnarás 2 og engu öðru, þannig að :mod:`spacr.attribution_columns` getur sagt frá hvaða litun niðurstaða kom, og lesandi getur sleppt einni myndgagnarás án þess að kóða allt upp á nýtt. Kostar N framhlaup."
+    }
+  ],
+  "schema": 1
+}
