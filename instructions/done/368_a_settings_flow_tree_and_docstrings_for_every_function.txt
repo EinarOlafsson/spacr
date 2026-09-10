@@ -401,3 +401,50 @@ these files. Phase 4's real yield was not the percentage.
 WHAT REMAINS OF 368: nothing in phase 4. The settings-flow page (phases 1-3)
 is published, reads its tooltips through `ast`, and 383 now links 182 settings
 to it. This instruction can close.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- "THE SETTINGS-FLOW PAGE IS PUBLISHED" WAS NOT TRUE, AND IS NOW
+--------------------------------------------------------------------------------
+
+The closing note above says the page "is published". It was not. A CLOSED
+item is exactly where this is worth writing down, because nobody was going
+to look again.
+
+    docs/source/index.rst:120: WARNING: toctree contains reference to
+    nonexisting document 'settings_flow'
+
+Every documentation build since 2026-09-08 has failed on that line, and
+`docs.yml` treats warnings as errors. It was invisible for two reasons at
+once: the catalog audit runs BEFORE the Sphinx step and was failing on its
+own, so the build never got far enough to say this; and the failing runs
+were themselves being cancelled by the next push before anybody read them.
+
+WHAT WAS MISSING WAS THE WRAPPER, NOT THE PAGE. dfa06eb45 committed
+`_generated/settings_flow.rst` -- 1,924 lines of it -- and pointed the
+toctree at `docs/source/settings_flow.rst`, which "owns the heading and says
+what the page is for". That wrapper was written and never committed.
+`.gitignore` carries `/docs/source/*` and an explicit allowlist of the pages
+that are kept, and nobody added this one to it, so `git add` ignored it
+SILENTLY -- an ignored path is not an error -- and the file existed on the
+machine that wrote it for as long as that machine did.
+
+So the page was finished twice and invisible twice: first because nothing
+included the fragment (which this file already records), then because the
+file that includes it was not in the repository.
+
+FIXED, AND MEASURED RATHER THAN ASSERTED:
+
+    sphinx-build -W -E -b html --keep-going   exit 0
+    docs/_build/html/settings_flow.html       3.3 MB
+    anchors                                   1,108   -- one per setting
+    tests/test_tooltip_api_links_resolve.py   8 passed
+
+The allowlist now names the file, with the reason beside it.
+
+THE TRANSFERABLE PART. A `.gitignore` that works by allowlist turns "I
+forgot to add the file" into "the file is silently not in the repository",
+and no local check can tell the difference -- the tree is complete on the
+machine that made it. `git status` says nothing, `git add` says nothing, and
+the build is green locally forever. If a page is added under
+`docs/source/`, the allowlist entry belongs in the same commit, and the way
+to prove it is `git ls-files --error-unmatch <path>`.
