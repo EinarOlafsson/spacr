@@ -1,0 +1,35 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "it",
+  "title": "Feature Explorer: classificare misure reali mantenendo esplicito il confronto",
+  "description": "Apri il sottomodulo di Classify, confronta le misure reali delle righe della piastra, esamina le distribuzioni, filtra in tempo reale, aggiungi una colonna calcolata ed esporta la graduatoria desiderata senza addestrare un classificatore.",
+  "objectives": [
+    "Aprire Feature Explorer da Classify e caricare misure cellulari esistenti.",
+    "Distinguere AUC e separazione, verificando numerosità e distribuzioni delle classi.",
+    "Filtrare in tempo reale senza ignorare cambiamenti automatici della colonna di confronto.",
+    "Impostare Top consapevolmente, verificare una colonna riscalata ed esportare la graduatoria effettiva."
+  ],
+  "prerequisite": "Usa l’esempio scaricato di Annotate, non misure inventate. La registrazione apre una copia privata identica byte per byte del database di 2.341 cellule e 276 colonne. I gruppi rowID sono le righe spaziali r12 e r5, non trattamenti accertati; le cellule condividono campi e pozzetti e non sono esperimenti indipendenti. I dati originali restano invariati. AUC, KS, ordinamento e conteggi di valori finiti sono verificati indipendentemente per i confronti previsti tra due classi. Il confronto automatico tra otto classi è un avvertimento, non un’inferenza validata indipendentemente. Shuffle test resta disattivato. Qui non avvengono addestramento, nuova analisi di immagini, download dedicato, operazioni GPU o richieste all’IA; gli istogrammi sono i grafici del modulo.",
+  "scenes": [
+    "Apri Classify, poi il pulsante Feature Explorer. Questo strumento annidato ordina misure esistenti; aprirlo non addestra un classificatore. Usiamo l’esempio reale scaricabile di Annotate su una copia privata del database. Segui la lezione Annotate per ottenerlo e mantieni invariata la tua fonte sperimentale.",
+    "Scegli Load table, seleziona il database delle misure e la tabella cell, poi imposta Split by su rowID. Ci sono duemilatrecentoquarantuno cellule e duecentosettantasei colonne. I due gruppi sono righe registrate della piastra, non trattamenti accertati; queste cellule non sono esperimenti indipendenti.",
+    "Ordina per AUC e leggi entrambe le colonne numeriche. Separation è il valore assoluto di due volte AUC meno uno: una separazione di circa zero virgola trentaquattro non è un’AUC di zero virgola trentaquattro. Higher in indica la direzione; min n conta le misure finite nella classe più piccola, non le repliche sperimentali.",
+    "Imposta Top a quattro per esaminare quattro istogrammi sovrapposti. Per ogni variabile le classi condividono gli stessi bordi degli intervalli, e l’altezza delle barre indica conteggi. La variabile prima in graduatoria non è automaticamente un biomarcatore utile. Leggi l’avvertimento: AUC può non rilevare differenze di dispersione anche con distribuzioni diverse.",
+    "Export ranking con Top quattro scrive quattro righe di variabili. In questa versione l’esportazione segue Top, nonostante il testo suggerisca la graduatoria completa. Non esporta le cellule sottostanti né salva un modello addestrato. Abbiamo confrontato ogni valore esportato con la graduatoria realmente visualizzata.",
+    "Imposta Top a cinquecento prima di esportare tutte le variabili valutate in questo esempio. Duecentosessantuno sono valutabili; due candidate numeriche non lo sono. L’esportazione contiene tutte le duecentosessantuno righe, ma lo schermo disegna al massimo otto distribuzioni. Numero di variabili, righe della tabella e pannelli grafici sono quantità diverse.",
+    "Passa da Rank by a KS per confrontare il massimo divario tra distribuzioni cumulative, poi torna ad AUC. KS può rivelare differenze che AUC non rileva, ma da solo non indica la direzione. Le altre statistiche hanno propri limiti; leggi l’avvertimento invece di trattare una graduatoria come un test di significatività.",
+    "In Filter aggiungi cell_area e imposta il minimo a ventunomilanovecentoventicinque. La popolazione visibile diventa di millecentosettantuno cellule, con duecentocinquantacinque variabili valutabili. Questa soglia dimostrativa basata sulla mediana non è un limite biologico di qualità. Graduatorie e distribuzioni si aggiornano senza rimisurare le immagini.",
+    "Clear all rimuove i filtri di visualizzazione, non i dati. Tornano tutte le duemilatrecentoquarantuno cellule e la graduatoria originale. Ricontrolla popolazione e Split by quando cambi i filtri. Una differenza che cambia dopo il filtraggio descrive un’altra popolazione selezionata, non un nuovo esperimento.",
+    "Questa versione nasconde un’insidia importante. Filtrare rowID su r12 elimina l’altra riga, ma lo schermo cambia silenziosamente Split by in cell_channel_0_maxima_count. Ora confronta otto gruppi, con un solo oggetto nel più piccolo. Quei punteggi impressionanti non sono il confronto originale tra righe né la prova di una scoperta biologica.",
+    "Cancella il filtro e scegli di nuovo esplicitamente rowID. Cancellare soltanto non ripristina necessariamente il confronto iniziale. Verifica colonna della classe e popolazione prima di esportare. Shuffle test offre cinquanta permutazioni delle etichette, ma lo lasciamo spento: permutare liberamente queste cellule correlate non dimostrerebbe effetti a livello di pozzetto o trattamento.",
+    "Apri Columns e chiama una nuova colonna area_k. Inserisci cell_area diviso uno e tre, cioè mille, e scegli Add column senza sostituzione. Questo riscala l’area; non calibra unità fisiche né aggiunge una nuova misura. Preview controlla le prime duemila righe; l’aggiunta applica la formula all’intera tabella.",
+    "La colonna riscalata entra nella graduatoria e nell’esportazione, portando le variabili valutate a duecentosessantadue. AUC e KS coincidono con quelli di cell_area perché una riscalatura positiva conserva l’ordine. Abbiamo controllato ogni valore calcolato. Rimuovi la formula per tornare alle duecentosessantuno variabili originali; il database delle misure resta invariato.",
+    "Usa queste graduatorie per l’esplorazione descrittiva, non come validazione indipendente di una variabile scelta o di un classificatore addestrato. In Python, spacr.qt.widgets.feature_rank fornisce rank_features ed ExplorerSpec. Per tabelle grezze o altri confronti, continua con Database Browser e Graph Builder. Non sono state eseguite nuove analisi di immagini né richieste all’IA."
+  ]
+}
