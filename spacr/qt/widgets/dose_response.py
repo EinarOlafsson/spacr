@@ -189,6 +189,7 @@ __all__ = [
     "DoseResponseSpec", "DoseResponseResult",
     "GroupFit", "DoseResponseSet",
     "fit_dose_response", "fit_frame",
+    "SelectivityIndex", "selectivity_index",
     "candidate_concentration_columns", "candidate_response_columns",
 ]
 
@@ -1864,3 +1865,178 @@ def candidate_response_columns(frame: pd.DataFrame) -> Tuple[str, ...]:
     kinds = _kinds(frame)
     return tuple(sorted(name for name, kind in kinds.items()
                         if kind == CONTINUOUS))
+
+
+@dataclass(frozen=True)
+class SelectivityIndex:
+    """Host toxicity over parasite killing, with the interval it deserves.
+
+    THE NUMBER THAT DECIDES WHETHER ANYBODY CARES about an anti-parasitic
+    compound is not the EC50, it is this ratio. A compound that kills the
+    parasite at 1 uM and the host monolayer at 1.2 uM is not a hit, and an
+    EC50 quoted with a clean confidence interval says nothing about that.
+
+    QUOTED WITH ITS INTERVAL OR NOT AT ALL, for the same reason this module
+    already refuses a naked EC50: a ratio of two uncertain numbers is more
+    uncertain than either of them, and a selectivity index without its
+    interval invites a reader to treat 1.2 and 12 as the same kind of claim.
+
+    :param status: :data:`STATUS_FITTED`, :data:`STATUS_UNBOUNDED` or
+        :data:`STATUS_REFUSED`, reusing the vocabulary the single-curve fits
+        already speak rather than inventing a second one.
+    :param index: the quotable ratio, or ``None`` when it is not quotable.
+    :param index_low: lower end of the interval, or ``None`` for an open side.
+    :param index_high: upper end, or ``None`` for an open side.
+    :param log10_index: the difference of the two log10 midpoints, always
+        present when both curves fitted. An extrapolation when either EC50 is
+        unbounded, exactly as :attr:`DoseResponseResult.ec50_unconstrained`
+        is.
+    :param host: the host-viability fit.
+    :param pathogen: the parasite fit.
+    :param note: why, when the index is refused or one-sided.
+    """
+
+    status: str
+    index: Optional[float]
+    index_low: Optional[float]
+    index_high: Optional[float]
+    log10_index: Optional[float]
+    host: Optional[DoseResponseResult]
+    pathogen: Optional[DoseResponseResult]
+    confidence: float = DEFAULT_CONFIDENCE
+    note: str = ""
+
+    def summary_row(self) -> Dict[str, Any]:
+        """One row for the results table, refusal included."""
+        blank = float("nan")
+        return {
+            "metric": "selectivity_index",
+            "status": self.status,
+            "selectivity_index": blank if self.index is None else self.index,
+            "si_low": blank if self.index_low is None else self.index_low,
+            "si_high": blank if self.index_high is None else self.index_high,
+            "host_ec50": blank if (self.host is None or self.host.ec50 is None)
+                         else self.host.ec50,
+            "pathogen_ec50": (blank if (self.pathogen is None
+                                        or self.pathogen.ec50 is None)
+                              else self.pathogen.ec50),
+            "note": self.note,
+        }
+
+
+def _log10_standard_error(result: DoseResponseResult) -> Optional[float]:
+    """A log10 standard error read back off the interval the fit reported.
+
+    The engine already chose between a profile-likelihood and a Wald interval
+    and applied the right quantile; re-deriving a standard error from the
+    covariance matrix here would silently use a different one and disagree
+    with the interval printed beside it. So the half-width IS the source of
+    truth, divided by the normal quantile at the same confidence.
+
+    :param result: a fit with a closed log10 interval.
+    :returns: the standard error, or ``None`` when either side is open.
+    """
+    low, high = result.log10_ec50_ci
+    if low is None or high is None:
+        return None
+    quantile = float(stats.norm.ppf(0.5 + result.confidence / 2.0))
+    if not np.isfinite(quantile) or quantile <= 0:
+        return None
+    width = float(high) - float(low)
+    if not np.isfinite(width) or width <= 0:
+        return None
+    return width / (2.0 * quantile)
+
+
+def selectivity_index(pathogen: Optional[DoseResponseResult],
+                      host: Optional[DoseResponseResult], *,
+                      confidence: Optional[float] = None
+                      ) -> SelectivityIndex:
+    """Divide a host EC50 by a parasite EC50, and carry the uncertainty.
+
+    THE TWO FITS COME OFF ONE PLATE, which is the argument for computing this
+    here rather than in a spreadsheet. spaCR segments host cell and pathogen
+    as separate object types from the same image, so host viability and
+    parasite burden are measured at the same doses in the same run. Most
+    selectivity indices divide two numbers from two experiments and hope the
+    conditions matched; these cannot fail to match.
+
+    THE INTERVAL IS PROPAGATED IN LOG SPACE, where the fit lives and where a
+    ratio is a difference: ``log10 SI = log10 CC50 - log10 EC50``, and the
+    two variances add. Back-transforming at the end gives an interval that is
+    asymmetric in linear space, which is the honest shape for a ratio.
+
+    REFUSAL PROPAGATES TOO. If either curve was refused the index is refused;
+    if either EC50 is unbounded the index is unbounded, and whichever side of
+    the interval the data still supports is reported rather than dropped --
+    "at least 8-fold" is a useful sentence and this returns it.
+
+    :param pathogen: the parasite-burden fit, or ``None`` if it was refused.
+    :param host: the host-viability fit, or ``None`` if it was refused.
+    :param confidence: overrides the level carried by the fits.
+    :returns: a :class:`SelectivityIndex`, never an exception, because a
+        refusal is a result the caller has to show.
+    """
+    level = (confidence if confidence is not None
+             else (host.confidence if host is not None
+                   else pathogen.confidence if pathogen is not None
+                   else DEFAULT_CONFIDENCE))
+    if pathogen is None or host is None:
+        missing = "parasite" if pathogen is None else "host"
+        return SelectivityIndex(
+            status=STATUS_REFUSED, index=None, index_low=None,
+            index_high=None, log10_index=None, host=host, pathogen=pathogen,
+            confidence=level,
+            note=f"the {missing} curve was refused, so the ratio has no "
+                 f"numerator or denominator to be a ratio of")
+
+    log10_index = float(host.log10_ec50) - float(pathogen.log10_ec50)
+
+    # ONE-SIDED RATHER THAN DROPPED. Interval arithmetic on whichever ends
+    # survive: the smallest possible index divides the host's lower bound by
+    # the parasite's upper one, and vice versa. Conservative, and it is the
+    # only form available when a fit is open on one side.
+    def _ratio(numerator, denominator):
+        if numerator is None or denominator is None:
+            return None
+        if not np.isfinite(numerator) or not np.isfinite(denominator):
+            return None
+        if denominator <= 0:
+            return None
+        return float(numerator) / float(denominator)
+
+    if not (host.ec50_bounded and pathogen.ec50_bounded):
+        unbounded = ("host" if not host.ec50_bounded else "parasite")
+        both = not host.ec50_bounded and not pathogen.ec50_bounded
+        return SelectivityIndex(
+            status=STATUS_UNBOUNDED, index=None,
+            index_low=_ratio(host.ec50_low, pathogen.ec50_high),
+            index_high=_ratio(host.ec50_high, pathogen.ec50_low),
+            log10_index=log10_index, host=host, pathogen=pathogen,
+            confidence=level,
+            note=("neither EC50 is bounded by the concentrations tested"
+                  if both else
+                  f"the {unbounded} EC50 is not bounded by the "
+                  f"concentrations tested, so the ratio is one-sided"))
+
+    host_se = _log10_standard_error(host)
+    pathogen_se = _log10_standard_error(pathogen)
+    if host_se is None or pathogen_se is None:
+        return SelectivityIndex(
+            status=STATUS_UNBOUNDED, index=10.0 ** log10_index,
+            index_low=_ratio(host.ec50_low, pathogen.ec50_high),
+            index_high=_ratio(host.ec50_high, pathogen.ec50_low),
+            log10_index=log10_index, host=host, pathogen=pathogen,
+            confidence=level,
+            note="one of the curves reported an open interval, so the ratio "
+                 "carries interval arithmetic rather than a propagated one")
+
+    combined = float(np.hypot(host_se, pathogen_se))
+    quantile = float(stats.norm.ppf(0.5 + level / 2.0))
+    half = quantile * combined
+    return SelectivityIndex(
+        status=STATUS_FITTED, index=10.0 ** log10_index,
+        index_low=10.0 ** (log10_index - half),
+        index_high=10.0 ** (log10_index + half),
+        log10_index=log10_index, host=host, pathogen=pathogen,
+        confidence=level, note="")
