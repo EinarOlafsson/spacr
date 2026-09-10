@@ -1,0 +1,88 @@
+{
+  "accepted": true,
+  "installation_performed": false,
+  "folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev",
+  "tag": "v1.5.0.5",
+  "github_response_sha256": "a4b819e3a3e5605f1adb971023fd79ecdbe8659b1ee096db2c15bbd6c2ca16fe",
+  "installer": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/spaCR-1.5.0.5-Linux-x86_64-Online.run",
+  "installer_bytes": 69453,
+  "sha256": "21e1040ef7bb3b372268d3504bd0028ff83bba363de46ab98f34de1329e32488",
+  "checksum_manifest_sha256": "2764814230ef0143fa7e0dc82344a382382e3f36fb1530a0c8d5b4ef44b99434",
+  "scope": "Downloaded bytes match exact public release; no installation or GUI success claimed",
+  "script_preflight_checks": [
+    {
+      "command": [
+        "bash",
+        "-n",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/spaCR-1.5.0.5-Linux-x86_64-Online.run"
+      ],
+      "returncode": 0,
+      "output": ""
+    },
+    {
+      "command": [
+        "bash",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/spaCR-1.5.0.5-Linux-x86_64-Online.run",
+        "--help"
+      ],
+      "returncode": 0,
+      "output": "Usage: install_spacr_unix.sh [options]\n\nOptions:\n  --platform linux|macos  Override automatic platform detection (linux or macos).\n  --install-root PATH     Install into PATH.\n  --package-spec SPEC     Install SPEC instead of the released spaCR build.\n  --torch-backend NAME    PyTorch backend (default: auto; use cpu to disable hardware acceleration).\n  --launcher-dir PATH     Put the command launcher in PATH (mainly for CI).\n  --no-command-launcher   Do not install a command-line launcher.\n  --skip-system-deps      Do not install Linux Qt runtime libraries.\n  --no-launch             Do not launch spaCR after installation.\n  --dry-run               Print the resolved plan without downloading.\n  --share-diagnostics     Include redacted logs in report previews.\n  --report-issues         Show the public GitHub report action.\n  --sign-in-now           Open account setup on first launch.\n  --consent-collected     Record that these choices were reviewed.\n  -h, --help              Show this help.\n"
+    },
+    {
+      "command": [
+        "bash",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/spaCR-1.5.0.5-Linux-x86_64-Online.run",
+        "--dry-run",
+        "--install-root",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/runtime",
+        "--launcher-dir",
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/bin",
+        "--skip-system-deps",
+        "--no-launch"
+      ],
+      "returncode": 0,
+      "output": "spaCR lightweight online installer\n  platform:       linux\n  application:    spacr[qt]==1.5.0.5\n  private Python: 3.12\n  install root:   /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/runtime\n  PyTorch backend: auto\n  GPU benchmark: RTX 3090 measured 13x faster Cellpose segmentation and 20x faster ResNet classification than CPU; hardware varies.\n  resolver guards: numba>=0.60,<1.0 llvmlite>=0.43,<1.0\nDRY RUN: would download https://astral.sh/uv/0.11.32/install.sh\nDRY RUN: would create and validate /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/runtime/venv\nDRY RUN: would install launcher /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-c6p7c6ev/bin/spacr\n"
+    }
+  ],
+  "lesson": "04_platform_installers",
+  "status": "Release download and dry-run verified; installation and tutorial not yet complete",
+  "previous_attempt": {
+    "folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/installation_runs/linux-installer-pnucamrv",
+    "accepted": false,
+    "reason": "Recorder mistakenly treated .run as a Makeself archive. --info and --check were correctly rejected with exit 2; corrected to the actual plain-Bash syntax/help/dry-run contract, without changing the downloaded installer."
+  },
+  "unit_tests_passed": 7,
+  "guard_lines_executed": [
+    27,
+    28,
+    29,
+    30,
+    36,
+    37,
+    40,
+    41
+  ],
+  "guard_mutations": [
+    {
+      "guard": "exact checksum filename",
+      "failed": 1,
+      "passed": 6
+    },
+    {
+      "guard": "checksum occurrence count",
+      "failed": 2,
+      "passed": 5
+    },
+    {
+      "guard": "asset occurrence count",
+      "failed": 1,
+      "passed": 6
+    },
+    {
+      "guard": "exact URL and bounded size",
+      "failed": 5,
+      "passed": 2
+    }
+  ],
+  "scope_note": "Mutations run separately against isolated in-memory source copies; restored source passes all seven tests. No application/packaging changes, no installed runtime, no GUI proof, no hardware-speed claim, no media upload."
+}
