@@ -1,0 +1,34 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Saggio di invasione",
+  "description": "Configurare il saggio attuale a due colori, distinguere i pozzetti di riferimento della colorazione dalle condizioni sperimentali e leggere soglie, grafici e file reali. La banca dati dimostrativa è esplicitamente sintetica.",
+  "objectives": [
+    "Associare le colorazioni esterna e totale alle colonne corrette.",
+    "Usare il controllo rinominato del riferimento di colorazione e verificare la sensibilità alla soglia.",
+    "Leggere figure e denominatori per pozzetto senza attribuire significato biologico a dati sintetici."
+  ],
+  "prerequisite": "La banca dati sintetica esistente viene conservata e l’interfaccia attuale opera su una nuova copia identica. Le 1.800 misure inventate comprendono 360 oggetti di riferimento e 1.440 oggetti del saggio in dodici pozzetti artificiali. Non sono disponibili immagini acquisite a due colori; nemmeno la piastra scaricabile generale dimostra il protocollo prima e dopo permeabilizzazione. Vehicle e inhibitor sono nomi didattici, non trattamenti sperimentati. Si usa la media perché queste colonne sono disponibili, non come scelta generalmente migliore per una colorazione superficiale. Calcoli indipendenti controllano classificazioni, soglie, conteggi, riepiloghi e geometria, senza validare immagini, efficacia o inferenza statistica. Le due banche dati di input restano inalterate. Il controllo è ora stain_baseline_wells anziché control_wells; il limite di bimodalità a sei decimali è registrato esattamente.",
+  "scenes": [
+    "Aprire Invasion Assay nella sezione Assays di Home. Il modulo classifica parassiti già misurati; qui non segmenta immagini. La banca dati utilizzata è esplicitamente sintetica. Le figure illustrano impostazioni e calcoli, non un’invasione osservata né un effetto del trattamento.",
+    "Scegliere la cartella dell’esperimento contenente measurements, barra, measurements punto db. Questa nuova copia privata contiene milleottocento parassiti inventati: trecentosessanta oggetti di riferimento della colorazione e millequattrocentoquaranta nei pozzetti del saggio. La normale piastra scaricabile non sostituisce un esperimento validato di colorazione a due colori.",
+    "Outside channel indica la colorazione prima della permeabilizzazione, qui il canale uno. Total channel indica quella successiva, qui il canale zero. Un parassita positivo per il segnale esterno è classificato attached; con intensità pari o inferiore alla soglia, invaded. Una colorazione esterna debole può quindi generare classificazioni invaded false.",
+    "Scegliamo mean perché questa banca dati didattica contiene colonne di intensità media. Non è una raccomandazione generale per una colorazione superficiale. Nei dati reali, verificare quali misure del bordo o dei percentili siano disponibili e appropriate. Anche un anello di fondo locale è diverso dal canale della colorazione esterna.",
+    "Impostare Stain baseline wells sulla colonna uno. Questo nome sostituisce il precedente control wells e identifica il riferimento artificiale di colorazione negativa, non la condizione veicolo. Questi oggetti definiscono la soglia e sono esclusi dai denominatori del saggio. Vehicle e inhibitor restano nelle colonne due e tre.",
+    "Control quantile vale zero virgola novantanove. I trecentosessanta oggetti di riferimento producono una soglia di circa ventidue virgola otto unità di intensità. Lasciamo vuoto Outside threshold per usare la soglia derivata dal riferimento. In questa esecuzione non viene applicata la soglia del metodo automatico.",
+    "Threshold sensitivity vale zero virgola venticinque: la soglia viene valutata anche al venticinque per cento in meno e in più. Aumentarla può classificare più parassiti come invaded. Esaminare l’intervallo di efficienza e gli indicatori di qualità prima di interpretare variazioni; un’esecuzione riuscita non dimostra l’affidabilità della colorazione.",
+    "Extracellular class stabilisce come trattare gli oggetti privi di un legame con una cellula ospite. Qui usiamo classify, lasciando la decisione alla colorazione; tutte le righe didattiche hanno già un legame con un ospite. Nei dati reali, scegliere consapevolmente fra attached, exclude e classify dopo aver controllato la segmentazione dell’ospite.",
+    "Run produce tre figure reali. La pagina delle soglie mostra una distribuzione per pozzetto, non per parassita. Qui la linea applicata deriva dal riferimento e tutti i dodici pozzetti sono visibili. Valutare se separa popolazioni plausibili: queste distribuzioni inventate non sostituiscono l’esame di immagini rappresentative della colorazione.",
+    "Se una legenda esce dal riquadro della figura, aprire Figure settings e selezionare best per Legend position nella scheda degli assi. Confermare per mantenere visibili le etichette. È soltanto una modifica grafica: abbiamo verificato che valori tracciati e tabelle salvate restano invariati.",
+    "Le barre per pozzetto mostrano le frazioni attached e invaded, con centoventi parassiti classificati sopra ogni barra. I pozzetti di riferimento non compaiono. Conservare il denominatore accanto alla proporzione: una frazione elevata basata su pochissimi oggetti non equivale alla stessa frazione in un pozzetto ben campionato.",
+    "Le due condizioni inventate contengono ciascuna settecentoventi parassiti classificati. Le loro frazioni invaded sono circa trentanove virgola sette e sessantotto virgola nove per cento. Il riepilogo riporta anche la media fra pozzetti, che generalmente non coincide con l’aggregazione degli oggetti. Né questi nomi né un valore p dimostrano qui un effetto biologico.",
+    "Esaminare console e cartella dei risultati: classificazioni, soglie per campo, efficienze per pozzetto, riepiloghi e confronti. Per l’inferenza servono pozzetti sperimentali indipendenti, non singoli parassiti come repliche intercambiabili. spaCR AI è facoltativo e non è stato usato in questa analisi locale. Validare colorazione e immagini prima di trarre conclusioni biologiche."
+  ]
+}
