@@ -2868,3 +2868,57 @@ TWO LESSONS, AND THE SECOND IS THE ONE TO KEEP.
 WHAT IS STILL UNPROVEN: nobody has yet run the STRIP over the real well
 with the corrected pair order. 624 of 624 with whole-tile is not the same
 claim, and the number to beat is 624 of 624 with the strip.
+
+
+--------------------------------------------------------------------------------
+PART 12-A -- A3 THROUGH THE MODULE, ON THE PLATE. 40 OF 40. 2026-09-09.
+--------------------------------------------------------------------------------
+
+PART 12 measured the cycle axis with a scratch script. `spacr/ops_cycles.py`
+is that measurement as a module, and this is it run against well A1 through
+the shipped code and `ops_register.phase_correlate` rather than a private
+correlation:
+
+    site   accepted   peak/mean        dy          dx
+      30   10/10      269.6..367.3    -27..-7     -2..+8
+     100   10/10      169.0..235.5    -27..-6     +0..+10
+     200   10/10      218.4..280.7    -25..-4    +11..+21
+     300   10/10      218.7..314.9    -22..-1     +6..+16
+
+     TOTAL 40 of 40 cycles registered.
+
+SITES 100 AND 200 ARE IDENTICAL TO PART 12. The same ranges to one decimal,
+from different code. That is what makes PART 12 evidence rather than an
+anecdote, and it is the check the work session asked for on `ops_stitch`
+before believing it: a module that reproduces the script is proven, one that
+merely exists is not.
+
+AND THE TWO NEW SITES BEHAVE THE SAME, which PART 12 could not say from two.
+
+THE PER-SITE OFFSET IS CONFIRMED ON TWICE THE DATA. dx runs -2..+8 at site
+30, +0..+10 at 100, +11..+21 at 200 and +6..+16 at 300, while dy is
+negative at every site. A single rigid transform per cycle for the whole
+well would carry that difference into every field, so each site registers
+against its own reference -- which is also what `_align_SBS` does, one
+field's cycle stack at a time.
+
+TWO THINGS THE MODULE PINS THAT THE SCRIPT DID NOT:
+
+  * EVERY CYCLE AGAINST THE REFERENCE, NEVER ITS PREDECESSOR. A test makes
+    cycle 3 nonsense and asserts cycle 4 is unmoved. Chained, one bad link
+    displaces every cycle after it and the residual does not say which link
+    failed; independent registration is what lets PART 9's rule work -- a
+    cycle that will not register is dropped without costing the others.
+
+  * A REFUSED CYCLE IS REPORTED, NOT DROPPED. `register_cycles` returns the
+    refused ones too. A missing key and a refused registration mean
+    different things to a barcode assembled from what survived, and
+    `ops_barcodes.n_cycles` has to know a cycle was TRIED.
+
+AND THE SIGN CONVENTION COST TWO TESTS BEFORE IT COST DATA. `phase_correlate`
+returns the shift that lands SECOND on FIRST, so a roll of (+5, -3) is
+answered with (-5, +3). Both failures were my expectations and neither was
+the module. The tests now assert it against a known `np.roll` rather than
+describing it, because a convention written in prose is one nobody can
+check -- and because the same convention, assumed rather than asserted, is
+what produced PART 11-C's canvas that was one pitch per column too large.
