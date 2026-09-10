@@ -1,0 +1,149 @@
+{
+  "id": "57_layer_viewer",
+  "number": 57,
+  "slug": "layer_viewer",
+  "series": 5,
+  "app_key": "layer_viewer",
+  "section": "Explore",
+  "title": "Layer Viewer: real image-mask overlays, display controls and source-safe inspection",
+  "description": "Open Layer Viewer inside QC, inspect a genuine matched intensity image and cell mask, test visibility, opacity, blending and layer order, navigate in world coordinates and distinguish display changes from editing or calibrated measurements.",
+  "objectives": [
+    "Find the current QC submodule and load genuine matched image and mask files with its own controls.",
+    "Use selected-layer visibility, opacity, blending, colour and order without changing source measurements.",
+    "Recognize the pane-shape limitation of Fit and verify native zoom, pan and label picking.",
+    "Distinguish empty auxiliary layers, absent export/drawing controls and unassigned field identity from supported API workflows."
+  ],
+  "prerequisite": "Reuse the verified fov01 TIFF pair from the External Masks tutorial: a 1994×1994 uint16 intensity plane and aligned 44-object cell-label plane. They exactly match planes 1 and 4 of the preserved acquired plate1_E01_1_1 array, with 3,976,036 pixels and no physical calibration supplied. Neutral fov01 filenames are not acquisition metadata. Private copies and all originals remain byte-identical. Nineteen small oracle tests and observed-red mutations accompany independent checks of 5,041 actual screen pixels in each of 26 states, with zero RGB-byte discrepancy. Full source arrays, histogram-derived 2/98 contrast limits, layer properties and gesture geometry are also checked; this is not complete pixel-by-pixel validation of arbitrary layers, multichannel/3D data, soft coverage, biological segmentation accuracy or physical calibration. Fit can stretch the image to its pane. No pipeline, AI request, image editing, direct export, linked-view object handoff or Points/Shapes drawing was performed. This screen's controls differ from the other image previews.",
+  "scenes": [
+    {
+      "visual": "01_qc_host",
+      "narration": "Open QC from Home, then choose its nested Layer Viewer button. The QC project selector belongs to the parent dashboard; this viewer has its own image and mask buttons. We reuse the genuine, matched image and cell-mask pair from the External Masks tutorial on private copies. Layer Viewer has no dedicated test-data downloader.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "31_external_masks",
+        "54_qc_dashboard"
+      ]
+    },
+    {
+      "visual": "04_raw_image_in_wide_pane",
+      "narration": "Choose plus Image and open the single-channel TIFF. The field is one thousand nine hundred ninety-four pixels square, with sixteen-bit intensity values. The display uses a two-to-ninety-eight percentile stretch: one hundred eighteen to twenty-three thousand two hundred twenty-three here. Bright displayed pixels do not mean the source values were overwritten or converted to eight-bit measurements.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_fit_after_actual_splitter_resize",
+      "narration": "In this build, Fit fills the canvas and can stretch a square field in a wide pane. Drag the actual divider until the image pane is approximately square, then choose Fit again. Do not infer physical shape from the distorted view. Our data use one pixel per world unit, not a calibrated micrometre spacing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_real_44_label_overlay",
+      "narration": "Choose plus Mask and load the matching cell-label TIFF, not another intensity image. It contains forty-four nonzero object labels aligned to the same source field. Zero is background and is transparent in the overlay. The colours distinguish labels; they do not identify treatments, cell types or verified segmentation quality.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_mask_visible_again",
+      "narration": "Select mask in the layer list before adjusting its controls. The selected row determines which layer changes; adding a layer need not select it automatically. Use the mask's checkbox to hide and reveal it while inspecting the image underneath. Neither the labels nor the underlying intensity measurements change.",
+      "hold_after": 0.7,
+      "focus": [
+        1970,
+        365,
+        1840,
+        100
+      ]
+    },
+    {
+      "visual": "10_opacity_zero_not_deleted",
+      "narration": "Set the selected mask's Opacity to zero. Its coloured pixels disappear, but the mask remains in the layer list and its forty-four labels remain in memory. This is a display choice, not deletion, filtering or a correction to the segmentation. Keep the layer selection in view so you know what the slider controls.",
+      "hold_after": 0.7,
+      "focus": [
+        1970,
+        1800,
+        1840,
+        250
+      ]
+    },
+    {
+      "visual": "11_full_label_colours",
+      "narration": "Move mask Opacity to one hundred percent. The label colours now cover the underlying image wherever the mask has a nonzero label. Background stays transparent. This can help inspect the label shapes, but it hides the intensity texture beneath them. It does not turn labelled regions into new measurements.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_half_opacity_restored",
+      "narration": "Return mask Opacity to fifty percent with translucent blending. The image and label colour contribute to the visible overlay. Our independent checks compare real screen samples with the source image and labels; they do not establish that the segmentation is biologically correct. Use the raw image when judging boundaries.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_blend_additive",
+      "narration": "Open the blending menu and choose additive. Label colour is added to the image and values can saturate in the displayed composite. The source intensities remain unchanged. These are display operations, not intensity normalization for analysis. Select the intended layer before experimenting with the other blending choices.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_blend_minimum",
+      "narration": "The multiply and minimum modes produce different darkening effects. Multiply attenuates the image using the overlay colour; minimum mixes in the darker value in each colour channel. This scene shows minimum. Compare them on the same source field, but do not interpret a darker composite as a lower measured fluorescence intensity.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_blend_opaque",
+      "narration": "Choose opaque while keeping mask Opacity at fifty percent. For this binary coverage mask, it looks like translucent at the same opacity: opaque does not force the slider to one hundred. Its different treatment of soft coverage is not demonstrated by these integer labels. Restore translucent before continuing.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_cyan_image_not_changed_measurements",
+      "narration": "Select image, then choose cyan in the colour-map selector. The single-channel intensity image changes colour while the mask keeps its object colours. No measurement or biological channel identity changes. This screen has no channel selector or editable contrast range; do not promise those controls from a different preview. Restore gray afterward.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_mask_under_image",
+      "narration": "Select mask and use the down arrow to move it below the image. The list is top-first: the upper entry is drawn in front. The opaque image now hides the mask, even though the mask is still visible and its data remain intact. Move the mask up again before inspecting or picking its objects.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_actual_label_no_field_identity",
+      "narration": "Click a visible labelled region. The status reports its world position and label nine in this example. A bare mask loaded through this file picker has no assigned field key, so this click does not identify an experiment-wide object or open its crop elsewhere. Do not infer plate and well metadata from the neutral demonstration filename.",
+      "hold_after": 0.7,
+      "focus": [
+        295,
+        1920,
+        3500,
+        165
+      ]
+    },
+    {
+      "visual": "22_native_wheel_zoom_keeps_world_anchor",
+      "narration": "Roll the mouse wheel over the object to zoom. Three upward steps increase magnification by one point two cubed, keeping the same world coordinate under the pointer. The viewer redraws from the source layers at the new scale. Zoom changes your view, not the mask, pixel values or physical calibration.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_native_pan",
+      "narration": "Hold Shift and drag with the left mouse button to pan; the middle button is another pan gesture. Here we move the displayed field without changing its source coordinates. The tested gesture preserves the current zoom. Use panning to inspect another region rather than treating a shifted view as a shifted or registered image.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "24_fit_restores_original_view",
+      "narration": "Choose Fit to return to the full field in the current pane. This restores the pre-zoom view in our recording. Remember the pane-shape limitation: Fit does not independently guarantee equal horizontal and vertical display scale. Source spacing and the current canvas geometry are separate concepts; neither should be guessed from a screenshot.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "25_empty_shapes_layer",
+      "narration": "Plus Points and plus Shapes create empty auxiliary layers; this scene shows the empty shapes layer. They do not activate a drawing tool in this screen, and ordinary clicks did not add points or regions in our checks. Remove the empty layer when finished. For actual mask-editing gestures, use the Make Masks tutorial and its real editing controls.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "14_make_masks"
+      ]
+    },
+    {
+      "visual": "28_remove_mask_only_from_view",
+      "narration": "Select mask and choose the remove control. Only the layer leaves this view; the image remains and the source mask file is still unchanged. Removing a layer is not saving an edit or deleting a file. We verified both private TIFFs and the original acquired data stayed unchanged throughout this demonstration.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "28_remove_mask_only_from_view",
+      "narration": "For code, stack_from_paths in spaCR's Qt layer_viewer module loads the layers, and LayerStack.render_uint8 returns a composite image array for your export code. Spacing and FieldKey require known calibration and identity metadata. This screen has no dedicated export button, analysis run, GPU pipeline or spaCR AI console. Keep viewing separate from measurement and saved mask editing.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "06_api",
+        "14_make_masks",
+        "31_external_masks"
+      ]
+    }
+  ]
+}
