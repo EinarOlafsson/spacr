@@ -5,6 +5,13 @@
   "records": [
     {
       "table": "setting_tooltips",
+      "key": "nontargeting_control_grnas",
+      "source_sha256": "7ae3717a942308af9d7dfcf2ae0cfc09565b894cced8fa55bf2831a95dea967b",
+      "source": "Non-targeting control gRNA identifiers. Their coefficients set the volcano effect-size cutoff: abs(median(control coefficients)) + threshold_multiplier × spread, with threshold_method selecting the spread estimator. A wider control distribution raises the cutoff; None disables it. Default ['000000'] names the non-cutting control gene, which spaCR resolves to all associated guides in the loaded library. Individual guide identifiers also work, with or without the organism prefix.",
+      "translation": "非靶向对照 gRNA 标识符。其系数设定火山图效应量阈值：abs(median(control coefficients)) + threshold_multiplier × spread，其中 threshold_method 选择离散度估计方法。对照系数分布越宽，阈值越高；None 会禁用该阈值。默认值 ['000000'] 指定非切割对照基因，spaCR 会将其解析为已加载文库中的所有相关向导。也可以使用单个向导标识符，无论是否带有生物体前缀。"
+    },
+    {
+      "table": "setting_tooltips",
       "key": "exclude_grnas",
       "source_sha256": "9ab00bce68d05eb485ee0e981f0ec0757cc996b5ca22828186158b4471589f5b",
       "source": "gRNA or gene identifiers known not to occur in cells, such as primer or plasmid carry-over. These sequences are removed before guide fractions are calculated, and retained guides are renormalized. This differs from background subtraction, which corrects spurious reads assigned to a real guide. A gene identifier matches all of its guides. Default None.",

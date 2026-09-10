@@ -95,13 +95,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "tolerance",
-      "source_sha256": "b84b7431ad4a7aa493ea08d88faa646c745e931b687e063003d4defc27f36bc1",
-      "source": "How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cells_per_well when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
-      "translation": "minimum_cell_simulation 이 표본 수를 충분하다고 판단하려면 하위 표본 웰 평균이 전체 웰 평균에 얼마나 가까워야 하는지 정합니다. min_cells_per_well 를 None 으로 두면 이 값으로 그 수를 정합니다. int 는 백분율(2 는 2%), float 는 비율(0.02 는 같은 값) 로 읽으며 다른 형식은 ValueError 를 냅니다. 0.01 쪽으로 엄격하게 하면 웰마다 더 많은 세포를 요구해 더 많은 웰을 버리고, 0.05 쪽으로 완화하면 웰별 점수 잡음이 늘지만 드문 웰을 유지합니다. 기본값 0.02."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "trackastra_model",
       "source_sha256": "e68951aec1277d3c4471a62ab084fa38a6e3b2b53ed172e21aa9fd2891e53f13",
       "source": "Pretrained Trackastra checkpoint used for frame linking. 'general_2d' is the general-purpose two-dimensional model for live-cell data. This setting is used only when timelapse_mode='trackastra'. Select a different checkpoint only when it was trained for substantially different image characteristics. Default 'general_2d'.",

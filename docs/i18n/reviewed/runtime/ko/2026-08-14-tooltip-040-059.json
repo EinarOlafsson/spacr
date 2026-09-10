@@ -46,6 +46,13 @@
     },
     {
       "table": "setting_tooltips",
+      "key": "negative_control_id",
+      "source_sha256": "d4ad22ab908cdd34ab6d58d288b1918e8efcd8444e8105f8ec5578bddeb5be18",
+      "source": "Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
+      "translation": "음성 대조 클래스의 식별자입니다. ML 스크리닝에서는 location_column 의 값(예: 'c1') 이며 해당 객체를 훈련 클래스 0 으로 표시합니다. gRNA 회귀에서는 계수 이름에 맞출 유전자/gRNA ID 부분 문자열(예: '233460') 이며 결과와 화산 그림에서 'nc' 태그를 붙입니다. 각 기본값은 'c1' 과 '233460' 입니다."
+    },
+    {
+      "table": "setting_tooltips",
       "key": "nucleus_intensity_merge",
       "source_sha256": "abfa54900cad844be049052e68cf839866cdfa868283ce56661d1ace2ee8004b",
       "source": "Merge touching nucleus labels when the mean intensity along their shared boundary is at least as high as the dimmer object's own intensity statistic - i.e. there is no dark seam between them, so the split is spurious. Controlled by nucleus_intensity_threshold_method and nucleus_intensity_percentile. Default False; enable when Cellpose over-segments single nuclei.",
