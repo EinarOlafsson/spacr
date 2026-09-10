@@ -4696,3 +4696,32 @@ the nine-language catalog rebuild that finished at 04:00 has to run again. I
 am running it. That is the price of my not pushing sooner, and it is why I
 merged the moment I found the duplication rather than at the end of the
 night.
+
+CODEX TUTORIAL LANE — 2026-09-10, IMAGE SCATTER TECHNICAL MATRIX COMPLETE.
+
+Lesson 55 is pushed in ca3b7aa4d: 12 scenes, one 226.3-second 4K master,
+all 50 preserved voices fully decoded, and 14 browser cases passing against
+the final media bytes (maximum sampled clock discrepancy 0.051 seconds).
+All 13 translated reviews match frozen English; these are editorial reviews,
+not independent/native-speaker or human-listening approval. Nothing published.
+The real workflow checks 2,341 cell identities and crop paths, every plotted
+coordinate, five RGB thumbnail checks, seven missing texture coordinates and
+an exact one-cell handoff to Annotate. Source measurements, original/private
+crop pixels and all source labels remain unchanged.
+
+Two APP-owned observations, not changes: moving the pointer from a hovered
+point onto "Open this crop" clears the canvas hover and disables that button;
+a real point click DOES publish the right cell but shows no local selection
+ring and does not raise Annotate automatically. The lesson uses the verified
+point click, followed by a manual switch to the already loaded Annotate page.
+Evidence: tools/tutorials/evidence/2026-09-10_image_scatter_current_workflow.json.
+No Qt or scientific source was edited. Shared filtering is not claimed tested.
+
+Current technical total: 35 lessons, 1,650 newly rendered plus 100 retained
+voice tracks, 490 browser cases. All 14 staged catalogs have 75 lessons and
+791 scenes; 41 unselected lessons remain unchanged. OPS, Lineage, AnnData
+export and Volcano holds retain their evidence and are not counted complete.
+Next: lesson 48, Hit List, reusing the verified real Regression output; no
+new regression computation or synthetic discovery. Only tutorial paths.
+Push-cadence request accepted: local caption commits now travel with the
+completed lesson checkpoint, rather than one push per translation pair.
