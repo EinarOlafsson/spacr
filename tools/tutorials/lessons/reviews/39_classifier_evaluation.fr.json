@@ -1,0 +1,35 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "d9da8212743ee89a056df79ef56309fe92e486b28ef6f83d734da9567d4c8f0c",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Évaluation des classifieurs",
+  "description": "Inspectez des prédictions réelles enregistrées dans Classify et repérez le chevauchement entre entraînement et test.",
+  "objectives": [
+    "Ouvrir l’inspecteur imbriqué avec l’exemple téléchargeable.",
+    "Lire les matrices, listes de confiance, métriques et filtres interactifs.",
+    "Distinguer l’inspection des résultats d’une validation indépendante."
+  ],
+  "prerequisite": "Extrayez REAL_evaluation_known_overlap.zip dans un nouveau dossier et sélectionnez celui contenant evaluation_manifest.json. Il contient 234 prédictions réelles, mais ni recadrages, ni base d’annotations, ni modèle. Les trois puits de test figurent aussi dans l’entraînement. Seuls les chemins privés deviennent des références crops-not-included; valeurs et identités sont conservées. infected_1 et infected_2 sont des étiquettes héritées. Les titres OOF ne prouvent pas une validation croisée. API : spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle et load_evaluation_bundle. Aucun entraînement, nouvelle inférence ou appel à spaCR AI.",
+  "scenes": [
+    "Ouvrez Classify, puis son raccourci Classifier Evaluation. Il s’agit d’un inspecteur de résultats imbriqué, pas d’un module Home distinct ni d’un formulaire d’entraînement. La leçon Classify explique la production des prédictions; ici, nous examinons un ensemble de résultats déjà enregistré.",
+    "Téléchargez l’exemple de résultats lié ci-dessous et extrayez-le dans un nouveau dossier. Cliquez sur Browse et choisissez le dossier contenant evaluation manifest point json. Cette petite archive contient de vraies prédictions et tables enregistrées, mais aucun recadrage, aucune base d’annotations et aucun modèle entraîné.",
+    "Summary indique deux cent trente-quatre prédictions de test issues d’une exécution d’une époque. infected un et infected deux sont des étiquettes héritées du jeu de données, pas des états d’infection nouvellement vérifiés. Le chargement lit des résultats; il n’entraîne, ne prédit ni ne répare les données.",
+    "Consultez Leakage audit avant d’interpréter l’exactitude. Les trois puits de test figurent aussi dans l’entraînement : l’audit échoue donc. Les identités de la base ont révélé un chevauchement manqué par l’ancien audit des noms. Ces chiffres illustrent l’inspecteur, pas une validation biologique ou sur des puits indépendants.",
+    "Dans Confusion matrix, les lignes correspondent aux classes enregistrées et les colonnes aux prédictions. La diagonale contient cent quatre et cent onze. Les autres cases contiennent onze et huit désaccords, soit dix-neuf au total. L’accord avec ces étiquettes ne prouve pas leur justesse.",
+    "Cliquez sur la case contenant onze : classe enregistrée infected un, classe prédite infected deux. Au seuil de confiance zéro virgule soixante-quinze, six désaccords sont dans la liste haute et cinq dans la basse. Ce sont deux files d’inspection de la même case, pas de nouvelles classifications.",
+    "Portez le seuil à zéro virgule quatre-vingt-quinze. La liste haute contient maintenant deux recadrages et la basse neuf. Les probabilités, classes prédites et onze désaccords restent inchangés. Ce contrôle interactif répartit la file; il ne recalibre pas le modèle et ne relance pas l’inférence.",
+    "Interprétez les explications automatiques avec prudence. Un désaccord très confiant ne prouve pas une annotation erronée, et une seule plaque ne permet pas d’établir une cause liée à la plaque. Les suggestions modèle ou puits sont des hypothèses. Examinez acquisition, étiquettes et données réellement indépendantes avant de corriger.",
+    "Per-plate metrics contient une ligne avec les deux cent trente-quatre prédictions. Cette vue localise les résultats par plaque, mais l’exemple ne compare pas des plaques et n’estime pas d’effet de plaque. La forte exactitude ne supprime pas le problème des puits partagés dans Leakage audit.",
+    "Calibration compare la probabilité prédite moyenne à la fréquence de classe observée, dans cinq intervalles par classe. Les effectifs comptent : les intervalles peu remplis sont incertains. Aucune correction de calibration n’a été appliquée. Cet onglet décrit des résultats déjà préparés; il ne propose pas d’ajuster la calibration.",
+    "Dans Predictions, saisissez r cinq tiret bas c deux pour examiner ce puits. La table passe de deux cent trente-quatre à cent vingt-huit lignes. C’est un filtre textuel interactif sur des enregistrements, pas un filtrage d’images, une segmentation ou une modification des fichiers de résultats.",
+    "Effacez le filtre : les deux cent trente-quatre lignes reviennent. Les chemins indiquent explicitement que les recadrages sont absents. Pour ouvrir ceux de votre projet, ouvrez d’abord l’expérience correspondante dans Annotate. L’archive ne fournit pas cette base; ses boutons désactivés ne démontrent pas une ouverture fonctionnelle des recadrages.",
+    "Le téléchargement conserve aussi les figures natives de calibration et de confusion. Vérifiez leur contraste avant de les présenter. Les titres et noms génériques out-of-fold ne transforment pas cette seule partition de test en validation croisée. Probabilités et effectifs sont inchangés; seuls les chemins privés ont été remplacés par des références.",
+    "Conservez l’avertissement de fuite de données avec toute métrique exportée. La référence API explique la préparation et le chargement; Training Runs compare des journaux de progression enregistrés. spaCR AI peut expliquer le vocabulaire, mais ne certifie ni les étiquettes ni l’indépendance. Aucun appel à un fournisseur n’était nécessaire."
+  ]
+}
