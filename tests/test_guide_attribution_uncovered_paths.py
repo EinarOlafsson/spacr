@@ -189,3 +189,109 @@ def test_the_slots_always_use_every_cell_and_no_more(fractions, n):
     assert sum(got.counts.values()) == n
     assert len(got.guides) == n
     assert AMBIGUOUS not in got.guides
+
+
+# --- the two arcs the whole suite still never drove ------------------------
+
+class TestTheGuardTheReadOnceFIXMADEUNREACHABLE:
+    """`attributable`'s `total <= 0` arm, and why it is not tested.
+
+    It cannot be reached from the outside any more, and that is a
+    RESULT rather than a gap. Three things have to hold at once for
+    `total` to be zero: `p < 1` (or the function has already returned),
+    every competitor filtered out (they are, when their weight is not
+    positive), and the fallback competitor's weight `1 - p` also zero --
+    which contradicts the first.
+
+    The one way it used to happen is named in the comment above it: a
+    weight whose conversion is not pure could pass the positivity filter
+    as one number and be stored as another. Reading it ONCE closed that,
+    and `test_a_weight_is_read_once_in_attributable.py` is what keeps it
+    closed.
+
+    So the arm stays as a guard over an invariant asserted elsewhere.
+    Writing a test that reaches it would mean weakening the invariant to
+    make the guard reachable, which is the wrong way round.
+    """
+
+    def test_a_full_prior_is_answered_before_the_guard(self):
+        """`p >= 1` returns first, which is what makes `total` positive."""
+        from spacr.guide_attribution import attributable
+
+        can, best = attributable(1.0, 1.0, 1.0, others=())
+        assert (can, best) == (True, 1.0)
+
+    def test_rivals_that_weigh_nothing_leave_the_fallback_carrying_it_all(self):
+        from spacr.guide_attribution import attributable
+
+        can, best = attributable(3.0, 0.5, 0.9,
+                                 others=((0.5, 0.0), (-0.5, 0.0)))
+        assert best > 0.0, (
+            "every rival was filtered out and the leftover mass should "
+            "have become one synthetic competitor")
+
+    def test_a_rival_with_real_weight_is_a_different_answer(self):
+        from spacr.guide_attribution import attributable
+
+        can, best = attributable(3.0, 0.5, 0.9, others=((0.0, 0.1),))
+        assert best > 0.0
+
+
+class TestNoRowCanUnderflowToNothing:
+    """`posterior_multivariate`'s `dead` fallback, and why it cannot fire.
+
+    The arm exists to stop a row of zeros dividing by zero in the fitting
+    and poisoning the matrix with NaN. It is unreachable from outside,
+    and the line above it is the reason:
+
+        log_density -= log_density.max(axis=1, keepdims=True)
+
+    Re-centring on the row's own maximum leaves at least one entry at
+    exactly zero, so `exp` gives that column 1.0 and the row sum is never
+    zero. A row that is entirely NaN does not reach it either, because
+    `NaN <= 0` is False.
+
+    So the tests here assert the PROPERTY that makes the guard
+    unnecessary rather than contriving a way past it -- measured on the
+    three inputs that look most likely to break it: a zero measurement
+    (whose log is -inf), a negative one, and NaN. All three come back
+    finite.
+    """
+
+    def test_the_inputs_that_should_underflow_do_not(self):
+        import numpy as np
+
+        from spacr.guide_attribution import posterior_multivariate
+
+        priors = {"g1": 0.5, "g2": 0.5}
+        effects = {"g1": [0.0], "g2": [3.0]}
+        for label, values in (
+                ("a zero measurement", np.array([[0.0], [1.0]])),
+                ("a negative measurement", np.array([[-5.0], [1.0]])),
+                ("a missing measurement", np.array([[np.nan], [1.0]])),
+        ):
+            r, _guides, _diag = posterior_multivariate(
+                values, priors, effects, scales=[1.0],
+                correct_for_correlation=False)
+            assert np.isfinite(r).all(), label
+            assert (r >= 0).all(), label
+            assert r[0].sum() > 0, (
+                f"{label} produced a row with no mass, which is what the "
+                "fallback exists to catch")
+
+    def test_an_ordinary_cell_is_not_flattened_to_its_prior(self):
+        """The control: evidence still decides where a cell goes."""
+        import numpy as np
+
+        from spacr.guide_attribution import posterior_multivariate
+
+        priors = {"g1": 0.5, "g2": 0.5}
+        effects = {"g1": [0.0], "g2": [3.0]}
+        values = np.array([[0.0], [3.0]], dtype=float)
+        r, _guides, _diag = posterior_multivariate(
+            values, priors, effects, scales=[0.5],
+            correct_for_correlation=False)
+
+        assert r[0].argmax() != r[1].argmax(), (
+            "both cells were assigned to the same guide, so the evidence "
+            "was not read")

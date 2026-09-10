@@ -119,3 +119,54 @@ RETIRED INTO 288 AND THIS ITEM, which is where that goal actually lives now:
 created for 60; a third home for the same goal is how this drifted in the
 first place. The baseline JSON stays where it is -- it is data, and data with
 no owning instruction is still evidence.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- guide_attribution: 8 ITEMS ON THE LIST, 2 IN THE TREE, 0 WORTH A TEST
+--------------------------------------------------------------------------------
+
+Taken as the first module of this item because it is small, in one lane, and
+carries 8 items on the stale list above. Measured on the current tree with
+every test file that imports it -- seventeen of them, not the five whose
+names say "guide_attribution":
+
+    with the five obviously-named files    87.39 %   27 missing
+    with all seventeen                     98.83 %    2 missing
+
+THE FIRST NUMBER IS THE TRAP THIS ITEM WARNS ABOUT, from the other side. A
+module measured against "its own" tests looks twenty-five items worse than it
+is, and twenty-five tests written against that reading would duplicate cover
+that already exists in `test_option_c_reads_every_measurement`,
+`test_a_guide_and_a_probability_for_every_cell` and a dozen others. The unit
+of measurement is the SUITE, not the file whose name matches.
+
+THE TWO THAT ARE LEFT ARE BOTH UNREACHABLE DEFENSIVE GUARDS, and neither
+should be driven:
+
+  * `attributable`, line 343, `if total <= 0: return False, 0.0`. Three
+    things must hold together for it: `p < 1` (or the function has already
+    returned `(True, 1.0)`), every competitor filtered out, and the fallback
+    competitor's weight `1 - p` also zero -- which contradicts the first. The
+    one way it used to happen is named in the comment above it: a weight
+    whose conversion is not pure could pass the positivity filter as one
+    number and be stored as another. READING IT ONCE CLOSED THAT, and
+    `test_a_weight_is_read_once_in_attributable.py` keeps it closed.
+
+  * `posterior_multivariate`, line 761, the `dead` row fallback. The line
+    above it re-centres each row on its own maximum, so at least one entry
+    is exactly zero, `exp` gives that column 1.0, and the row sum is never
+    zero. An all-NaN row does not reach it either -- `NaN <= 0` is False.
+
+WHAT WAS WRITTEN INSTEAD OF TWO TESTS THAT REACH THEM. Two classes that
+assert the INVARIANT making each guard unnecessary, and say so in their
+docstrings -- including the three inputs most likely to break the second
+one (a zero measurement, whose log is -inf; a negative one; NaN), all three
+measured and all three finite. Reaching either arm would mean weakening the
+invariant to make the guard reachable, which is the wrong way round, and is
+exactly the shape of the four tests 288 records as "passing while exercising
+nothing".
+
+SO guide_attribution IS DONE for this item at 98.83 %, and the two remaining
+statements are recorded here as deliberate rather than left to look like
+debt. THE LIST ABOVE IS STALE IN BOTH DIRECTIONS -- it says 8 -- and the
+next module should be re-measured the same way before any test is written
+for it.
