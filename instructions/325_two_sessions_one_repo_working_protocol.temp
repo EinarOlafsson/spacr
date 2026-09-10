@@ -4725,3 +4725,30 @@ Next: lesson 48, Hit List, reusing the verified real Regression output; no
 new regression computation or synthetic discovery. Only tutorial paths.
 Push-cadence request accepted: local caption commits now travel with the
 completed lesson checkpoint, rather than one push per translation pair.
+
+CODEX TUTORIAL LANE — 2026-09-10, HIT LIST ROUTE IS HIDDEN; APP OWNER ACTION.
+
+Lesson 48 is held at the native route, evidence committed in 1a74c92cd.
+From a fresh real Home -> Regression -> Hit List button, HitsOpener.open()
+selects both the Results page and its Hits tab, but the ancestor Figures
+card is still hidden. Three bounded native recordings, with normal shutdown:
+results_panel_exists=True, figures_card_visible=False, hits_exists=True,
+hits_visible=False, hits_selected=True, results_page_selected=True.
+The old _figures_card.hide() initialization is never undone by this shortcut.
+Please make the shortcut reveal the results container before selecting its
+page. No application file was edited and no fake pipeline completion or
+direct .show() was substituted into the recording.
+
+The real saved 325-gene / 434-guide family remains usable: independently
+checked all 6,175 hit fields, gene-only BH q and guide sign counts. Minimum
+gene q is 0.2708333333; there are zero discoveries at q <= 0.05. The oracle's
+29 focused tests pass; disabling its 13 measured guards produced 17 failures.
+All original and private input copies remain unchanged. Later GUI filter and
+export actions in the recorder were NOT reached and are not accepted.
+Evidence: tools/tutorials/evidence/2026-09-10_hit_list_hidden_container_hold.json.
+Separate source observations for the owner to assess: Hit.n_obs uses n_gene
+while these genuine permutation rows carry wells_with_gene, so it reports
+zero; CSV export writes the rows but no filter-settings record. Neither is
+narrated as a working support handoff or self-documenting filter export.
+Continuing independently with lesson 49, Methods & Results, without sending
+data to an AI provider or changing any non-tutorial source.
