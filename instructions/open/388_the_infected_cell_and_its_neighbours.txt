@@ -133,3 +133,116 @@ in spatial transcriptomics. Rejected as premature: those methods assume many
 cell types in structured tissue. A monolayer with two states does not need
 them, and importing the vocabulary would suggest a richness the assay does
 not have.
+
+--------------------------------------------------------------------------------
+PROGRESS -- 2026-09-10
+--------------------------------------------------------------------------------
+
+STEP 1, BYSTANDER CLASSIFICATION: code done, setting not wired.
+`spacr/bystanders.py` is new and holds STATUSES ("infected", "bystander",
+"distal"), `reach_from_diameter`, `distance_to_infected`, `classify` and
+`counts`. The reach is a multiple of the measured cell diameter, as the
+instruction requires. WHAT IS LEFT is exposing it as a SETTING with
+`expected_types`, `tooltips` and a `categories` entry -- held because the
+runtime catalog rebuild that would carry the new tooltip into nine locales
+is home's and has not landed. The code takes the reach as an argument
+today, so nothing is blocked on it but the GUI.
+
+  ONE CORRECTION WORTH KEEPING. The first draft claimed touching cells sit
+  at distance 0, taken from `surface_distance_transform`'s docstring. That
+  is false for DISJOINT abutting labels: the nearest infected PIXEL is one
+  step away, so touching cells sit at one spacing unit, not zero. A reach
+  threshold written as `<= 0` would have classified every bystander as
+  distal on exactly the plates the feature is for.
+
+STEP 2, NEIGHBOURHOOD COMPOSITION: DONE. `neighbourhood(cell_mask,
+infected_labels, k=6, spacing=None)` returns `label`,
+`neighbours_counted`, `neighbours_infected` and `local_infected_fraction`,
+over a cKDTree of the centroids the package already builds. It queries
+k+1 and drops the first hit, because the first hit is always the cell
+itself, and it REPORTS the denominator rather than assuming k -- a field
+with fewer than k+1 cells cannot supply k neighbours, and a fraction over
+an assumed denominator would be wrong in exactly the sparse fields a
+bystander analysis is for.
+
+STEP 3, RIPLEY'S K AND L: DONE, in `spacr/point_patterns.py` -- a new
+module beside `object_distances`, not inside it, as this file asks.
+`ripley_k`, `csr_envelope`, `ripley_test` and `suggest_radii`.
+
+  EDGE CORRECTION IS THE REDUCED-SAMPLE (BORDER) ONE and it is the
+  default. Analytic isotropic corrections assume a window whose geometry
+  is known in closed form; a well with a torn monolayer is not one. The
+  border correction is exact for ANY mask, and its cost -- points thrown
+  away at large r -- is reported in `n_contributing` rather than hidden.
+  `tests/test_a_well_is_clustered_or_it_is_not.py` reproduces the artefact
+  the instruction warns about: uncorrected, a KNOWN random pattern reports
+  dispersion at every radius, and the deficit grows with r.
+
+  THE FRAME EDGE IS A BOUNDARY, and this is the subtle half. The
+  distance-to-boundary field runs on a mask padded with one row of
+  background, because `distance_transform_edt` measures to the nearest
+  zero IN THE ARRAY -- a mask filling the image has no zero to find and
+  every pixel comes back as deep interior, so no point is ever dropped
+  however large r gets. The pad is one line of code and it is the
+  difference between a correction and the appearance of one.
+
+  THE NULL IS SCATTERED IN THE MASK, without replacement. With
+  replacement, a repeated point is a pair at distance zero, which puts
+  clustering into the null itself and raises the envelope at exactly the
+  small radii a focus of infection would show at.
+
+  THE TEST IS A SIMULATION, NOT A PLATE, as required: random stays inside
+  its envelope, clustered leaves it upwards, a lattice leaves it
+  downwards, and the same three answers come back on a DISC window whose
+  area is under 64% of its bounding box.
+
+  ONE RECORDED PROPERTY, so nobody "fixes" it later: a lattice OVERSHOOTS
+  at its own spacing. Below the spacing a grid has no neighbours at all
+  and K sits under the envelope; at the spacing four neighbours arrive at
+  once, and a step function crossing lambda*pi*r^2 must overshoot. K
+  oscillates around the null for a regular pattern -- only the small-r
+  deficit is a stable read of dispersion. There is a test named for it.
+
+STEP 4, THE THREE-WAY CONTRAST: DONE. `bystanders.compare(frame, feature)`
+gives one row per neighbourhood with `n`, `mean`, `std` and `median`, every
+requested status present even at n = 0 so a join across plates cannot
+silently change meaning. `std` is ddof=1 deliberately: the confound this
+item exists to remove is an INFLATED CONTROL VARIANCE, so the spread
+reported has to be the sample estimate a reader would compare against.
+NO TEST STATISTIC IS CHOSEN HERE -- summarising is safe on any column,
+but the test depends on how the wells nest and what the null is, and
+belongs where those are known. A test pins the confound directly: the same
+six cells pooled as "uninfected" have a wider spread than either
+population inside them.
+
+WHAT REMAINS BEFORE THIS FILE CAN MOVE TO done/:
+
+  * The reach as a setting (waiting on home's runtime catalog rebuild).
+  * The column family through `spacr/columns.py`, so regression and hit
+    calling pick the labels up with no changes.
+  * THE PAYOFF MEASUREMENT, which needs a real screen: split an existing
+    infected-versus-uninfected comparison's uninfected arm and report
+    whether the effect size moves. That is the maintainer's data to run,
+    and this file should record the answer either way.
+  * The API catalog rebuild for the two new modules, which per 288 waits
+    until the surface stops moving -- the setting above is the last thing
+    that will move it.
+
+    THE EXACT NUMBERS, MEASURED 2026-09-10, so the one pass does not have
+    to rediscover them. Both ratchets in `tests/test_docstring_correctness.py`
+    are red on nightly RIGHT NOW and that is expected, not a regression:
+
+      public callables      8,498 -> 8,508   (+10)
+      documented symbols   10,294 -> 10,306  (+12)
+
+    The +10 callables are `bystanders.reach_from_diameter`,
+    `.distance_to_infected`, `.classify`, `.counts`, `.neighbourhood` and
+    `.compare` (6), plus `point_patterns.suggest_radii`, `.ripley_k`,
+    `.csr_envelope` and `.ripley_test` (4). The +12 documented symbols are
+    those ten plus the two module docstrings.
+
+    MEASURED WITH THE MODULES MOVED ASIDE, which is the only way to tell a
+    pending rebuild from a real regression: with `point_patterns.py` out of
+    the tree and `bystanders.py` at its committed state the counts were
+    8,502 and 10,299 -- already four and five over, from step 1's own
+    module. Nothing else on nightly is moving them.
