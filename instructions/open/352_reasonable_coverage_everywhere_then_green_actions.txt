@@ -170,3 +170,37 @@ statements are recorded here as deliberate rather than left to look like
 debt. THE LIST ABOVE IS STALE IN BOTH DIRECTIONS -- it says 8 -- and the
 next module should be re-measured the same way before any test is written
 for it.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- regression_annotation: 7 ITEMS ON THE LIST, 99.06 % -> 99.57 %
+--------------------------------------------------------------------------------
+
+Second module, same method, and it went the other way from the first --
+three of the four remaining statements WERE behaviours and now have tests:
+
+  * `Strategy.describe()` when a strategy is declared and not built. Every
+    shipped strategy is implemented, so the sentence has never been produced
+    by the real menu -- but the field exists so a strategy can be OFFERED
+    for discussion before it is built, and a menu entry that reads like a
+    working feature is the failure it prevents.
+  * `strategy()` handed an entry where a key is expected. The caller that
+    matters passes a resolved entry through a second layer, and looking it
+    up again would fail for a strategy that is not on the menu at all --
+    which is exactly the case a caller holding the object is in.
+  * `LeakageReport.summary()` when the INCLUSIVE fit is itself at chance.
+    Survival is the fraction of that fit's lift retained after removing the
+    score's own inputs; with no lift there is nothing to retain, so the
+    report says so in words instead of printing a ratio nobody can read.
+
+THE FOURTH IS AN UNREACHABLE GUARD, and it is left alone.
+`_run_self_training` raises `NotEnoughLabels` when `best is None`, and the
+loop is `range(max(1, int(request.rounds)))` -- it runs at least once
+whatever the request asks for, and the first pass assigns `best`. Reaching
+it would mean removing that floor, which trades an unreachable line for a
+real way to get no fit at all.
+
+TWO MODULES IN, THE PATTERN IS THE SAME BOTH TIMES: the stale list's number
+is wrong, the per-file measurement is wrong in the pessimistic direction,
+and what is left at the end is defensive guards over invariants asserted
+elsewhere. The work is the measurement and the reading; the tests are
+small.
