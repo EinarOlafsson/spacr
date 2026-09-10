@@ -1154,14 +1154,25 @@ worse.
 2026-09-10 -- `--source=` SEGFAULTS THE Qt SUITE. MEASURE WIDE, FILTER LATE.
 --------------------------------------------------------------------------------
 
-THE TRIGGER IS `--source=`, NOT COVERAGE. Measured on
+THE TRIGGER IS A SINGLE-MODULE `--source=`, AND NOTHING WIDER. Measured on
 `tests/qt/test_cov_r5_cell_montage_view.py`, everything else held fixed --
 same file, same deterministic order under `-p no:randomly`, same tracer:
 
-    coverage run --source=spacr.qt.widgets.cell_montage_view -m pytest ...
-        Segmentation fault, 3 runs out of 3
-    coverage run                                            -m pytest ...
-        17 passed, 2 runs out of 2
+    --source=spacr                                  17 passed
+    --source=spacr.qt                               17 passed
+    --source=spacr.qt.widgets                       17 passed
+    --source=spacr.qt.widgets.cell_montage_view     Segmentation fault
+    (no --source, .coveragerc's source=spacr)       17 passed, 2 of 2
+
+    and the crashing one dies 3 runs out of 3.
+
+CI IS NOT AFFECTED AND NEITHER IS A FULL SWEEP. `.coveragerc` sets
+`source = spacr` and `tools/run_coverage_batches.py` passes `--cov=spacr`;
+both are package-scoped and both are fine. This bites ONLY someone doing
+what a per-module measurement invites -- naming the one module they are
+measuring. An earlier version of this note said "`--source=` segfaults",
+which was measured on one scope and generalised to all of them; that was
+wrong and it would have sent the next person looking at the wrong thing.
 
 TWO EXPLANATIONS WERE WRONG BEFORE THAT ONE, and both are recorded because
 each cost a measurement:

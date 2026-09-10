@@ -263,6 +263,13 @@ WHAT WAS ACTUALLY LEFT:
     read back as absent: a setting that appears to save and does not. The
     guard is cheap; the invariant is what keeps the settings window honest.
 
+MEASURED AGAIN AFTER THE TESTS, which is the half that is usually skipped:
+99.74 % -> 99.79 %, 32 of 32 processes clean, and `_clear()`'s loop body
+is covered. What is left is exactly the three unreachable guards named
+above -- one statement (3340) and two branches -- so this module is DONE
+for this item, at a number whose remainder is accounted for rather than
+merely small.
+
 THREE MODULES IN, THE PATTERN HAS NOT CHANGED: the stale list's number is
 wrong, the per-file measurement is wrong pessimistically, and what is left
 at the end is guards over invariants plus the occasional real behaviour
