@@ -1554,3 +1554,63 @@ is being re-run. Nothing was lost. The rules that follow:
 
     Ten identical numbers, or one of them was built against a different
     tree. Run it before committing the catalogs, every time.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- `tests/qt` IN ONE PROCESS WEDGES AFTER ~2,400 TESTS, IN
+`futex_do_wait`, WITH 108 LIVE THREADS
+--------------------------------------------------------------------------------
+
+325's note says "tests/qt still dies partway through a single process, so
+there is no clean full-suite signal". Here is the signal, measured.
+
+    elapsed        43 min
+    CPU time       29:51 and NOT ADVANCING -- sampled three times, identical
+    state          S (sleeping), wchan `futex_do_wait`
+    threads        108
+    last progress  01:20:02, then nothing for 13 minutes
+    RSS            2.3 GB
+
+It is a DEADLOCK, not slowness. A process that is sleeping on a futex with
+no CPU accruing is waiting for a lock nobody will release.
+
+WHERE IT STOPPED, and this is where it stops being useful without more
+instrumentation. The newest pytest tmpdirs are
+`test_the_score_column_and_the_...` and `test_a_table_with_no_intercept...`,
+both from `tests/qt/test_cells_behind_the_dot_tab.py`, so the wedge is in
+that file's teardown or in whatever ran next.
+
+  AND IT DOES NOT REPRODUCE IN A WINDOW. That file plus the four that follow
+  it alphabetically -- 113 tests -- finished in 57 seconds, green. So the
+  cause is ACCUMULATED, not local, and no amount of bisecting around that
+  file will find it.
+
+WHAT THE SUITE ALREADY KNEW. `tests/conftest.py` reports, at session end:
+
+    4 JobRunner(s) are still busy; each owns a QThread that shutdown() was
+    never called on
+
+108 threads and a futex wait is what that report looks like once there are
+enough of them. The report is correct, read-only by deliberate design -- its
+docstring records that the one fixture which reached across live widgets
+during teardown "crashed the run three different ways" -- and it has one
+fatal limitation for this: IT RUNS AT SESSION END, and this session never
+reaches session end.
+
+WHAT WAS ADDED, and it respects that design. An autouse fixture that counts
+two list lengths before and after every test -- busy `JobRunner`s and parked
+`QThread`s -- and records the delta against the test's own nodeid.
+`THREAD_LEAKS_BY_TEST`, reported worst-first beside the existing session
+report. It stops nothing and touches nothing; it only names.
+
+    A SESSION TOTAL CANNOT SAY WHICH TEST. That is the whole gap. "Four
+    runners are still busy" is true and unactionable; "these six tests each
+    left one" is a list somebody can fix.
+
+NEXT, AND IT NEEDS ONE FULL RUN TO GET THERE: run `tests/qt` under a
+generous timeout, let it wedge, and read the per-test list out of the
+partial output -- or run it in two halves, each of which completes, and
+compare. The leakers are then named and each one is a `shutdown()` that a
+test did not call.
+
+THIS IS THE 288 GATE. Not a failing assertion anywhere: a suite that cannot
+finish cannot be green, and `tests.yml` runs `tests/qt` as its own job.

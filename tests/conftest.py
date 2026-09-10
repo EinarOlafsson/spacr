@@ -991,6 +991,79 @@ def pytest_runtestloop(session):
     arm_shutdown_watchdog(teardown_budget(session.config))
 
 
+#: ``test nodeid -> (runners it left busy, threads it left parked)``, for
+#: every test that ended with more of either than it started with.
+#:
+#: WHY PER TEST AND NOT ONLY AT THE END. The session report below names how
+#: many QThreads are still alive when everything is over, which is the right
+#: number to know and the wrong one to act on: it cannot say WHICH test left
+#: them, and a full ``tests/qt`` run does not reach that report anyway.
+#:
+#: Measured 2026-09-10: the whole directory in one process wedged after
+#: roughly 2,400 tests, blocked in ``futex_do_wait`` with 108 live threads
+#: and no CPU time accruing, and the same five files re-run alone finished
+#: in 57 seconds. A leak that only deadlocks in aggregate is exactly the
+#: kind a per-test count finds and a session total cannot.
+#:
+#: READ-ONLY, LIKE THE SESSION REPORT, and for the reason its docstring
+#: gives: "the one fixture in this suite's history that reached across live
+#: widgets during teardown crashed the run three different ways". This
+#: counts two list lengths. It stops nothing and touches nothing.
+THREAD_LEAKS_BY_TEST: dict = {}
+
+
+def _live_thread_counts():
+    """``(busy JobRunners, parked QThreads)``, or ``(0, 0)`` off Qt."""
+    runners = parked = 0
+    try:
+        from spacr.qt import job_runner
+        runners = sum(1 for runner in list(job_runner._LIVE_RUNNERS)
+                      if runner.is_busy())
+    except Exception:                                            # noqa: BLE001
+        runners = 0
+    try:
+        from spacr.qt import bridge
+        parked = len(bridge._PARKED_THREADS)
+    except Exception:                                            # noqa: BLE001
+        parked = 0
+    return runners, parked
+
+
+@pytest.fixture(autouse=True)
+def _count_what_this_test_left_running(request):
+    """Record any QThread this test leaves behind, against its own name."""
+    before = _live_thread_counts()
+    yield
+    after = _live_thread_counts()
+    grew = (after[0] - before[0], after[1] - before[1])
+    if grew[0] > 0 or grew[1] > 0:
+        THREAD_LEAKS_BY_TEST[request.node.nodeid] = grew
+
+
+def _thread_leak_report():
+    """The tests that left a QThread running, worst first."""
+    if not THREAD_LEAKS_BY_TEST:
+        return ""
+    ranked = sorted(THREAD_LEAKS_BY_TEST.items(),
+                    key=lambda row: sum(row[1]), reverse=True)
+    runners = sum(value[0] for value in THREAD_LEAKS_BY_TEST.values())
+    parked = sum(value[1] for value in THREAD_LEAKS_BY_TEST.values())
+    lines = [f"{len(ranked)} test(s) ended with a QThread still running: "
+             f"{runners} busy JobRunner(s) and {parked} parked thread(s) "
+             f"between them. Each one is a thread the rest of the session "
+             f"carries."]
+    for nodeid, (left_runners, left_parked) in ranked[:20]:
+        parts = []
+        if left_runners:
+            parts.append(f"{left_runners} runner(s)")
+        if left_parked:
+            parts.append(f"{left_parked} parked")
+        lines.append(f"    {nodeid}  --  {', '.join(parts)}")
+    if len(ranked) > 20:
+        lines.append(f"    ... and {len(ranked) - 20} more")
+    return "\n".join(lines)
+
+
 @pytest.hookimpl(trylast=True)
 def pytest_sessionfinish(session, exitstatus):
     """Name what would hold the run open, then bound how long it may.
@@ -1020,6 +1093,9 @@ def pytest_sessionfinish(session, exitstatus):
     held = qt_things_that_outlive_the_session()
     if held:
         _say(_qt_things_report(held))
+    leaked = _thread_leak_report()
+    if leaked:
+        _say(leaked)
     if not arm_shutdown_watchdog(SHUTDOWN_WATCHDOG_S) \
             and SHUTDOWN_WATCHDOG_S > 0:
         # Said out loud rather than swallowed: a watchdog nobody armed is
