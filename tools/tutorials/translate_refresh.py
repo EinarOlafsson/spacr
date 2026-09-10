@@ -93,9 +93,16 @@ def main():
                         choices=list(spoken.LANGUAGES) + list(captions.LANGUAGES))
     parser.add_argument('--threads', type=int, default=2)
     parser.add_argument('--batch-size', type=int, default=2)
+    parser.add_argument('--device', choices=('cpu', 'cuda'), default='cpu',
+                        help='Use CUDA only when no other tutorial GPU writer is active')
     args = parser.parse_args()
     if not 1 <= args.threads <= 4 or not 1 <= args.batch_size <= 4:
         parser.error('Keep this background draft pass to 1–4 threads and 1–4 strings per batch')
+    if args.device == 'cuda':
+        import torch
+        if not torch.cuda.is_available():
+            parser.error('CUDA requested but unavailable; no silent device fallback')
+        torch.cuda.set_per_process_memory_fraction(0.15, 0)
     english = args.stage / 'catalog/lessons_en.json'
     source = read(english)
     selected = set(args.lessons)
@@ -123,9 +130,9 @@ def main():
         started = time.monotonic()
         current = read(target if target.exists() else baseline / filename)
         if language in spoken.LANGUAGES:
-            translated = spoken.translate_language(expanded, language, args.batch_size, args.threads, 'cpu')
+            translated = spoken.translate_language(expanded, language, args.batch_size, args.threads, args.device)
         else:
-            translated = captions.translate(expanded, language, model, args.batch_size, args.threads)
+            translated = captions.translate(expanded, language, model, args.batch_size, args.threads, args.device)
         translated = rejoin_sentences(translated, partial, sentence_counts, language)
         # Translation is long-running; never label output against edited English.
         latest = read(english)
@@ -137,6 +144,7 @@ def main():
         manifest[language] = {'state': 'machine_draft_requires_semantic_review',
                              'source_sha256': digest, 'selected_lessons': args.lessons,
                              'draft_sha256': hashlib.sha256(target.read_bytes()).hexdigest(),
+                             'device': args.device,
                              'elapsed_seconds': round(time.monotonic() - started, 2)}
         write(manifest_path, manifest)
         print(f'{language}: saved review-only draft ({manifest[language]["elapsed_seconds"]}s)', flush=True)
