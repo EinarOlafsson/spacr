@@ -1,0 +1,74 @@
+{
+  "id": "34_database",
+  "number": 34,
+  "slug": "database",
+  "title": "Database Browser",
+  "series": 4,
+  "app_key": "db_browser",
+  "section": "Data",
+  "description": "Browse, filter, and export spaCR measurement databases without a command line.",
+  "objectives": [
+    "Open and page through a database safely.",
+    "Filter a complete table without confusing it with the preview.",
+    "Export a traceable subset."
+  ],
+  "prerequisite": "Have a spaCR SQLite database or run folder available.",
+  "scenes": [
+    {
+      "narration": "Database Browser inspects large spaCR databases in a bounded, read-only view.",
+      "visual": "01_overview",
+      "hold_after": 0.7,
+      "focus_key": "screen",
+      "speech_text": "Database Browser inspects large spacer databases in a bounded, read-only view."
+    },
+    {
+      "narration": "Choose a measurements database or its run folder and open it.",
+      "visual": "02_open",
+      "hold_after": 0.7,
+      "focus_key": "source",
+      "speech_text": "Choose a measurements database or its run folder and open it."
+    },
+    {
+      "narration": "Select a table after reviewing its purpose and read-only status.",
+      "visual": "03_tables",
+      "hold_after": 0.7,
+      "focus_key": "tables",
+      "speech_text": "Select a table after reviewing its purpose and read-only status."
+    },
+    {
+      "narration": "The preview loads a bounded page while reporting the complete row and column counts separately.",
+      "visual": "04_cell_table",
+      "hold_after": 0.7,
+      "focus_key": "preview",
+      "speech_text": "The preview loads a bounded page while reporting the complete row and column counts separately."
+    },
+    {
+      "narration": "Search columns to make wide feature tables readable without changing the underlying rows.",
+      "visual": "05_column_search",
+      "hold_after": 0.7,
+      "focus_key": "column_search",
+      "speech_text": "Search columns to make wide feature tables readable without changing the underlying rows."
+    },
+    {
+      "narration": "Build a structured filter. Column names and operators are validated, and values are bound safely.",
+      "visual": "08_filter",
+      "hold_after": 0.7,
+      "focus_key": "filter",
+      "speech_text": "Build a structured filter. Column names and operators are validated, and values are bound safely."
+    },
+    {
+      "narration": "The exact filtered count describes the full query even though only one page is drawn.",
+      "visual": "09_filtered",
+      "hold_after": 0.7,
+      "focus_key": "status",
+      "speech_text": "The exact filtered count describes the full query even though only one page is drawn."
+    },
+    {
+      "narration": "Export the complete current filter and visible-column selection. The source database remains unchanged.",
+      "visual": "10_export",
+      "hold_after": 0.7,
+      "focus_key": "export",
+      "speech_text": "Export the complete current filter and visible-column selection. The source database remains unchanged."
+    }
+  ]
+}

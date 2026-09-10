@@ -70,6 +70,33 @@ def test_check_only_still_rejects_changed_lesson_identity(project):
         stage.stage_lesson(lesson, 'home', root, check_only=True)
 
 
+@pytest.mark.parametrize('defect', [None, 'stale', 'missing', 'outside'])
+def test_visual_only_focus_preserves_lesson_and_rejects_drift(project, defect):
+    import hashlib
+    root, capture, lesson, changed, retained = project
+    changed['scenes'][0].pop('focus_modules')
+    stage.write(lesson, changed)
+    canonical = hashlib.sha256(json.dumps(changed, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    override = {'english_sha256': canonical, 'scenes': {'home': [50, 20, 100, 80]}}
+    if defect == 'stale':
+        override['english_sha256'] = 'stale'
+    elif defect == 'missing':
+        override['scenes'] = {}
+    elif defect == 'outside':
+        override['scenes']['home'] = [3839, 0, 20, 20]
+    focus_map = lesson.with_name('focus.json')
+    stage.write(focus_map, override)
+    before = (root / 'catalog/lessons_en.json').read_bytes()
+    if defect:
+        with pytest.raises(ValueError):
+            stage.stage_lesson(lesson, 'home', root, focus_map=focus_map)
+        assert (root / 'catalog/lessons_en.json').read_bytes() == before
+    else:
+        stage.stage_lesson(lesson, 'home', root, focus_map=focus_map)
+        assert stage.read(root / 'production/home/lesson.en.json') == changed
+        assert stage.read(root / 'production/home/visual.json')['scenes'][0]['focus'] == [50, 20, 100, 80]
+
+
 @pytest.mark.parametrize('defect', ['failed_capture', 'changed_image', 'missing_link',
                                    'missing_control', 'changed_number', 'bad_focus',
                                    'partial_pipeline', 'failed_scientific_check'])

@@ -22,6 +22,12 @@ from stage_lesson import DEFAULT_STAGE, read, write
 WORKSPACE = DEFAULT_STAGE.parent
 
 
+def check_related_links(actual, expected):
+    """Require exactly the authored links, including a genuinely linkless lesson."""
+    if sorted(set(actual)) != sorted(set(expected)):
+        raise ValueError(f'Related lesson links differ: {actual!r} != {expected!r}')
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *args):
         pass
@@ -197,7 +203,7 @@ def main():
             expected = sorted({identity for scene in lesson['scenes'] for identity in scene.get('related_lessons', [])})
             actual = page.locator('#chapter-list [data-related-lesson]').evaluate_all(
                 '(nodes) => [...new Set(nodes.map(n => n.dataset.relatedLesson))].sort()')
-            assert actual == expected, (actual, expected)
+            check_related_links(actual, expected)
             page.evaluate('elements.audio.muted = true; elements.video.muted = true')
             page.locator('.chapter-button').nth(5).click()
             try:
@@ -215,7 +221,10 @@ def main():
             page.evaluate('elements.audio.pause(); elements.video.pause()')
             page.screenshot(path=str(output / 'desktop.png'), full_page=True)
             page.locator('#transcript-tab').click()
-            assert page.locator('#transcript-list [data-related-lesson]').count() > 0
+            transcript_links = page.locator('#transcript-list [data-related-lesson]').evaluate_all(
+                '(nodes) => nodes.map(n => n.dataset.relatedLesson)')
+            check_related_links(transcript_links, expected)
+            evidence['chapter_and_transcript_links'] = expected
             page.set_viewport_size({'width': 390, 'height': 844})
             assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
             page.screenshot(path=str(output / 'mobile.png'), full_page=True)
