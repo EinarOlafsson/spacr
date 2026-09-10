@@ -1541,7 +1541,7 @@ def set_default_analyze_screen(settings):
     settings.setdefault('min_max','allq')
     settings.setdefault('cmap','viridis')
     settings.setdefault('channel_of_interest',3)
-    settings.setdefault('min_cell_count', 25)
+    settings.setdefault('min_cells_per_well', 25)
     settings.setdefault('reg_alpha',0.1)
     settings.setdefault('reg_lambda',1.0)
     settings.setdefault('learning_rate',0.001)
@@ -1608,6 +1608,10 @@ RENAMED_SETTINGS = {
     # wells behind a hit -- and the tooltip had to spell that out twice
     # over ("gRNA hits need n_grna > min_n, gene hits need n_gene > min_n").
     "min_n": "min_observations_per_hit",
+    # "min_cell_count" counts cells and drops WELLS, and the count is
+    # per well -- which the tooltip has to say ("Wells with fewer than
+    # this many cells are dropped") because the name does not.
+    "min_cell_count": "min_cells_per_well",
 }
 
 
@@ -2609,7 +2613,7 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('outlier_detection',True)
     settings.setdefault('agg_type','mean')
     # 100 cells: below that a well's score is noise dressed as a measurement.
-    settings.setdefault('min_cell_count', 100)
+    settings.setdefault('min_cells_per_well', 100)
     # MIXED IS THE DEFAULT, and the maintainer's reason is the design
     # rationale rather than a preference: "mixed answers the most central
     # question best" (2026-08-17, instruction 132). The central question a
@@ -3657,7 +3661,7 @@ expected_types = {
     "intercept": str,
     "intercept_value": float,
     "agg_type": str,
-    "min_cell_count": int,
+    "min_cells_per_well": int,
     "denoise":bool,
     "target_height": (int, type(None)),
     "target_width": (int, type(None)),
@@ -4593,7 +4597,7 @@ tooltips = {
     "wide_predictor_columns": "(list) - Guide columns in a wide independent-variable table. Leave empty to use all numeric columns other than plate/well metadata; list them explicitly when the table contains additional numeric metadata. Ignored for long input. Default [].",
     "model_data_layout": "(str) - Shape handed to a fixed-effects estimator. 'long' preserves the historical repeated well-guide formula; 'wide' pivots guide or gene fractions to one row per independent well before fitting. Mixed models and Freedman-Lane permutation testing require the long representation and convert wide input back to long automatically. Default 'long'.",
     "fdr_alpha": "(float) - Family-level rejection threshold for adjusted P values in guide_permutation mode. Must be between 0 and 1. Default 0.05.",
-    "tolerance": "(int or float) - How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cell_count when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
+    "tolerance": "(int or float) - How close a subsampled well mean has to be to the full-well mean before minimum_cell_simulation calls that sample size sufficient, which is what sets min_cells_per_well when you leave it None. An int is read as a percentage (2 means 2%), a float as a fraction (0.02 means the same); anything else raises ValueError. Tighten it toward 0.01 to demand more cells per well and drop more wells, loosen it to 0.05 to keep sparse wells at the cost of noisier per-well scores. Default 0.02.",
     "invert_dependent_variable": "(bool or int) - Transform the response before per-well aggregation when lower scores represent a stronger phenotype. False or 0 leaves the response unchanged, True or 1 uses 1 - x (appropriate for probabilities), and -1 uses 1 / x (appropriate for distances or counts). Any other value raises ValueError in process_scores. The transformation changes coefficient signs and therefore the side of the volcano plot on which significant effects appear. Default False.",
     "y_lims": "(list or None) - Limits of the -log10(p) axis of the Toxoplasma volcano plot. None auto-scales to the data; [low, high] fixes the axis so several plates can be compared at the same scale; [[low1, high1], [low2, high2]] draws a broken axis with the gap between the two ranges removed, which keeps a handful of extremely significant genes on the plot without flattening everything else. Any other shape raises ValueError. Default None.",
     "dialate_png_ratios": "(list of float) - Dilation amount as a fraction of object size: the mask is grown by ratio * sqrt(object area) pixels of binary dilation, so 0.2 expands a cell by roughly 20% of its diameter and pulls in surrounding background. Only used when dialate_pngs is True. A single value applies to every crop_mode entry; pass a list only when the modes need different ratios. Default [0.2].",
@@ -4650,7 +4654,7 @@ tooltips = {
     "measurement": "(str) - Measurement column(s) from measurements.db used to prefilter which object crops the annotator loads, applied together with threshold and threshold_direction. Accepts a single column, a comma-separated list (each paired with the same-index threshold), or a JSON list-of-lists where an inner pair is filtered as a ratio (first divided by second). Empty (default) loads every crop unfiltered.",
     "merge_edge_pathogen_cells": "(bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True.",
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
-    "min_cell_count": "(int) - Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
+    "min_cells_per_well": "(int) - Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
     "tsne_perplexity": "(float) - t-SNE neighborhood scale. It must be smaller than the number of rows; values around 5-50 are typical. Low values emphasize very local structure and can fragment populations; high values smooth them together. Used only by t-SNE. Default 30.",
     "tsne_learning_rate": "(float) - t-SNE optimization step size. Too small crowds points into a dense ball; too large can scatter them. Used only by t-SNE. Default 200.",
@@ -5562,7 +5566,7 @@ categories = {
     # across the old list with the fitting knobs between them, so it was not
     # obvious that four separate settings each drop data.
     "Regression: Quality Filters": [
-        "min_cell_count", "min_observations_per_hit", "fraction_threshold",
+        "min_cells_per_well", "min_observations_per_hit", "fraction_threshold",
         "calibrate_fraction_threshold",
         # DIRECTLY UNDER THE THRESHOLD IT DIVIDES BY. It is only
         # meaningful in terms of what that threshold removed, so a

@@ -136,7 +136,7 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "'focal_loss'", "'auto'", REPAIRED_TOOLTIP,
         "The merged classifier resolves auto from the output-head shape.",
     ),
-    ("classify_merged", "min_cell_count"): DefaultVariant(
+    ("classify_merged", "min_cells_per_well"): DefaultVariant(
         "100", "25", ACCURATE_SHARED,
         "The tooltip explicitly names 25 for the screen classifier.",
     ),

@@ -52,7 +52,7 @@ def test_a_renamed_setting_names_its_replacement():
     problem = _check_retired_keys({"minimum_cell_count": 30})[0]
     text = " ".join(str(getattr(problem, f, "")) for f in
                     ("message", "fix", "advice", "hint", "remedy"))
-    assert "min_cell_count" in text
+    assert "min_cells_per_well" in text
 
 
 def test_every_named_replacement_is_a_live_setting():

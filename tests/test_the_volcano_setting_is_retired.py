@@ -70,11 +70,11 @@ def test_the_rest_of_an_old_file_survives():
     """Dropping the retired key must not drop anything beside it."""
     settings = _regression_defaults({
         "volcano": "all", "regression_type": "rlm", "fdr_alpha": 0.01,
-        "min_cell_count": 250})
+        "min_cells_per_well": 250})
 
     assert settings["regression_type"] == "rlm"
     assert settings["fdr_alpha"] == 0.01
-    assert settings["min_cell_count"] == 250
+    assert settings["min_cells_per_well"] == 250
 
 
 # --------------------------------------------------------------------------- #

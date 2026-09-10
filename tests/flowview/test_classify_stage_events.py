@@ -436,7 +436,7 @@ def test_ml_pipeline_events_wrap_load_fit_evaluate_and_writeback(
         "grouping": "mean",
         "min_max": None,
         "cmap": "viridis",
-        "min_cell_count": 1,
+        "min_cells_per_well": 1,
     }
 
     monkeypatch.setattr(

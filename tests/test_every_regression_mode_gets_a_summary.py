@@ -167,7 +167,7 @@ def _settings(regression_type, inference):
         "multiple_testing_method": "fdr_bh",
         "fdr_alpha": 0.05,
         "fraction_threshold": 0.01,
-        "min_cell_count": 25,
+        "min_cells_per_well": 25,
         "level": "both",
         "regression_backend": "statsmodels",
         "model_plate_position": True,

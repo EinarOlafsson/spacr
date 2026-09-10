@@ -69,7 +69,7 @@ def _screen_on_disk(tmp_path, wells=4, cells=60, guides=8):
     return {
         "score_data": [str(score_path)], "count_data": [str(count_path)],
         "dependent_variable": "pred", "tolerance": 0.02,
-        "min_cell_count": None,
+        "min_cells_per_well": None,
         "target_unique_count": 5, "filter_column": "columnID",
         "control_wells": [], "log_x": False, "log_y": False,
     }, folder
@@ -292,7 +292,7 @@ def test_a_run_leaves_both_threshold_graphs_in_its_own_folder(tmp_path):
     so the figures have to be IN it.
 
     Driven through `perform_regression` with nothing stubbed, and with
-    `fraction_threshold=None` and `min_cell_count=None` so both helpers are
+    `fraction_threshold=None` and `min_cells_per_well=None` so both helpers are
     the ones that choose -- which is the only condition under which either
     figure is drawn at all.
     """
@@ -304,7 +304,7 @@ def test_a_run_leaves_both_threshold_graphs_in_its_own_folder(tmp_path):
         "score_data": [score], "count_data": [count],
         "dependent_variable": "pred", "regression_type": "ols",
         "inference": "parametric",
-        "min_cell_count": None, "fraction_threshold": None,
+        "min_cells_per_well": None, "fraction_threshold": None,
         "metadata_files": [], "toxo": False, "controls": None,
         "outlier_detection": False, "alpha": 1.0, "regression_qc": False,
     })
@@ -386,7 +386,7 @@ def test_a_set_fraction_threshold_is_shown_on_the_sweep_and_kept(tmp_path,
         "score_data": [score], "count_data": [count],
         "dependent_variable": "pred", "regression_type": "ols",
         "inference": "parametric",
-        "min_cell_count": None, "fraction_threshold": 0.02,
+        "min_cells_per_well": None, "fraction_threshold": 0.02,
         "metadata_files": [], "toxo": False, "controls": None,
         "outlier_detection": False, "alpha": 1.0, "regression_qc": False,
     })

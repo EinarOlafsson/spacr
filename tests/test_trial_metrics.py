@@ -1,7 +1,7 @@
 """What a sweep row has to carry to be worth reading.
 
 A row saying "10 hits" cannot be used to CHOOSE a configuration, which is the
-only reason to sweep. The nightly run made that concrete: min_cell_count=50
+only reason to sweep. The nightly run made that concrete: min_cells_per_well=50
 reported MORE hits than 100 while quietly losing GRA14, and no column said so.
 """
 import numpy as np

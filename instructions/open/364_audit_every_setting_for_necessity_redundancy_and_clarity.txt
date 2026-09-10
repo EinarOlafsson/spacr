@@ -1367,6 +1367,61 @@ reads as though the control is still there.
 
 
 --------------------------------------------------------------------------------
+2026-09-09 -- THREE OF THE SEVEN RENAMES ARE BUILT, ON A BRANCH. WHAT EACH COST.
+--------------------------------------------------------------------------------
+
+    expected_end     -> window_length              DONE
+    min_n            -> min_observations_per_hit   DONE
+    min_cell_count   -> min_cells_per_well         DONE
+    control_wells    -> stain_baseline_wells       HELD, see 357-Q6
+    positive_control -> positive_control_id        not started
+    negative_control -> negative_control_id        not started
+    controls         -> nontargeting_control_grnas not started
+
+ON A BRANCH (`364-renames`) AND NOT ON NIGHTLY. A setting rename adds a
+`SETTING_LABELS` and a `SETTING_TOOLTIPS` key in nine RUNTIME catalogs and
+orphans the old pair. Those are built by `tools/build_i18n_catalogs.py` --
+a DIFFERENT pipeline from the API catalogs under `docs/`, which the other
+session is close to making green after five days red. `docs.yml` runs both
+audits, so landing these on nightly now trades one green audit for two red
+ones. They land together when that dispatch is away, and one runtime
+rebuild covers all of them.
+
+WHAT THE FIRST THREE TAUGHT, and it is not what the survey predicted.
+
+  1. THE WRITERS MATTER AS MUCH AS THE READERS. `spacr/qt/synthetic.py`
+     BUILDS demo settings, and it went on naming `expected_end` after the
+     key was renamed -- so the Map Barcodes demo produced a settings dict
+     its own pre-flight refused. Three test files parse the demo's window
+     with that key too. A survey that greps for reads is half a survey;
+     this one was found by the tests.
+  2. THE CATEGORY MAP IS IN TWO PLACES. `settings.categories` and
+     `settings_model`'s per-module ordered lists are separate, and
+     updating only the first put the renamed key under "Additional
+     Settings" -- a heading nobody chose, which is exactly what that
+     ordered list exists to prevent.
+  3. THE NOTEBOOKS CARRY THE KEYS AS LITERALS.
+     `tools/build_notebook_settings.py` regenerates them and a test
+     compares the committed copies against what it writes, so a rename
+     that skips them is caught -- but only by that one test.
+  4. A COMMON WORD IS A TRAP AND THE TRAP IS REAL.
+     `regression_summary.py` uses `min_cell_count` as an internal FIELD
+     NAME as well as reading the setting, and `regression_qc.py` uses it
+     as a report key that has nothing to do with the setting. A blanket
+     replace renamed the field and broke the mapping that names it. The
+     label a user reads follows the rename; the internal wiring does not.
+  5. AND A BLANKET REPLACE OVER `tests/` HIT A NON-UTF8 FILE and stopped
+     part way, leaving the suite half-renamed and 28 tests red for a
+     reason that had nothing to do with the rename. Skip what cannot be
+     decoded rather than letting one `.pyc` truncate the pass.
+
+WHAT IS STILL RED ON THE BRANCH, ON PURPOSE:
+`tests/qt/test_the_chrome_captions_have_catalog_rows.py` reads
+`sv.SETTING_LABELS['min_observations_per_hit']`, which does not exist until
+the runtime catalogs are rebuilt. That is the branch saying what it is
+waiting for.
+
+--------------------------------------------------------------------------------
 2026-09-09 -- WHY THE LAST THREE RENAMES ARE NOT STARTED, WITH THE SURVEY DONE
 --------------------------------------------------------------------------------
 

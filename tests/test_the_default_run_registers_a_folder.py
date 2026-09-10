@@ -50,7 +50,7 @@ def default_run(tmp_path_factory):
         columns=["Key", "Value"],
     ).to_csv(settings_csv, index=False)
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
-    settings["min_cell_count"] = None
+    settings["min_cells_per_well"] = None
     np.random.seed(0)
     output = perform_regression(settings)
     owned = tuple(

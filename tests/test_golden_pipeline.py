@@ -1048,7 +1048,7 @@ def wells(tables):
          "pathogen_channel_0_mean_intensity"]]
     aggregated, response = process_scores(
         frame, "pathogen_channel_0_mean_intensity", plate=None,
-        min_cell_count=1, agg_type="mean")
+        min_cells_per_well=1, agg_type="mean")
     order = {well_prc(well): index for index, well in enumerate(WELLS, start=1)}
     aggregated = aggregated.copy()
     aggregated["well_index"] = aggregated["prc"].map(order)

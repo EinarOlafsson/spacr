@@ -1073,6 +1073,9 @@ RETIRED_SETTINGS: Dict[str, str] = {
     # "min_n" is the minimum of an unnamed n. The n is OBSERVATIONS behind
     # a hit -- wells -- which the tooltip had to spell out twice over.
     "min_n": "min_observations_per_hit",
+    # "min_cell_count" counts cells and drops WELLS. The count is per well
+    # and the name does not say so, which is why the tooltip had to.
+    "min_cell_count": "min_cells_per_well",
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
     "minimum_cell_count": "min_cell_count",

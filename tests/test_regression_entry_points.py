@@ -674,7 +674,7 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     and ``score_column``) and ``graph_sequencing_stats`` (which iterates
     ``control_wells``) both run for real.
 
-    ``min_cell_count`` USED TO BE None by default, which is what made the
+    ``min_cells_per_well`` USED TO BE None by default, which is what made the
     simulation run here without being asked for. It is 100 now -- a deliberate
     change, requested in d6eb6ca3 along with transform=log and
     multiple_testing_method=none, on the ground that below 100 cells a well's
@@ -703,7 +703,7 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     ).to_csv(settings_csv, index=False)
 
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
-    assert settings["min_cell_count"] == 100, (
+    assert settings["min_cells_per_well"] == 100, (
         "the requested default; if this moves, move it here deliberately")
     # `inference` DEFAULTS TO NONPARAMETRIC since 2026-08-18, which routes the
     # run through guide permutation and returns a different result shape. The
@@ -719,7 +719,7 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
     assert settings["fraction_threshold"] == 0.02
 
     # …and now drive the simulated path, which the default no longer reaches.
-    settings["min_cell_count"] = None
+    settings["min_cells_per_well"] = None
 
     np.random.seed(0)
     out = perform_regression(settings)
@@ -760,7 +760,7 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
         assert os.path.isfile(os.path.join(res, name)), name
 
     # The simulation and the threshold sweep both produced a value.
-    assert isinstance(settings["min_cell_count"], (int, float, np.integer))
+    assert isinstance(settings["min_cells_per_well"], (int, float, np.integer))
     assert isinstance(settings["fraction_threshold"], (int, float, np.floating))
 
     # And the snapshot beside the results records all six.

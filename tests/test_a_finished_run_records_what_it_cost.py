@@ -109,7 +109,7 @@ def test_the_record_covers_the_FIT_and_not_only_the_setup(tmp_path):
          ("toxo", "False"), ("metadata_files", "[]")],
         columns=["Key", "Value"]).to_csv(settings_csv, index=False)
     settings = resolve_settings(MODULES[APP_KEY], str(settings_csv))
-    settings["min_cell_count"] = None
+    settings["min_cells_per_well"] = None
     np.random.seed(0)
 
     out = perform_regression(settings)

@@ -1664,7 +1664,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     For the wells with the most objects, repeatedly subsamples cells at
     increasing sample sizes and records the mean absolute difference from
     the well's full mean. Plots the smoothed curve with a ±1 s.d. band,
-    marks the elbow point (or ``settings['min_cell_count']`` when it is
+    marks the elbow point (or ``settings['min_cells_per_well']`` when it is
     set) and writes ``cell_min_threshold.pdf`` into ``dst``.
 
     Pass ``dst`` to keep the figure in a specific run folder. When omitted,
@@ -1674,7 +1674,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     :param settings: Requires ``score_data`` (CSV path or list of paths),
         ``dependent_variable``, ``tolerance`` (int percent or float
         fraction) and
-        ``min_cell_count``. ``count_data`` is needed only when ``dst`` is
+        ``min_cells_per_well``. ``count_data`` is needed only when ``dst`` is
         left unset, and only to locate the figure.
     :param num_repeats: Subsamples drawn per sample size. Default ``10``.
     :param sample_size: Number of wells, taken largest-first by cell
@@ -1810,8 +1810,8 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     dst = os.path.abspath(os.path.expanduser(os.fspath(dst)))
     os.makedirs(dst, exist_ok=True)
 
-    mark = (elbow_point['sample_size'] if settings['min_cell_count'] is None
-            else settings['min_cell_count'])
+    mark = (elbow_point['sample_size'] if settings['min_cells_per_well'] is None
+            else settings['min_cells_per_well'])
     fig_file_path = _draw_the_cell_count_sweep(
         summary_df, mark, os.path.join(dst, 'cell_min_threshold.pdf'))
     if fig_file_path:
@@ -3848,7 +3848,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                 f"finite and strictly positive; got "
                 f"{np.nanmin(n_total)}-{np.nanmax(n_total)}. A well with no "
                 f"cells has no rate to estimate and must be filtered out "
-                f"(min_cell_count) rather than offset by log(0).")
+                f"(min_cells_per_well) rather than offset by log(0).")
         return np.log(n_total)
 
     def _glm_auto():
@@ -8711,7 +8711,7 @@ def _perform_regression(settings):
     # own `src`, so the RUN folders are already separate -- but the default
     # destination here comes from `count_data`, which every trial shares, and
     # this figure is drawn on EVERY trial (the call is unconditional; only
-    # whether its ANSWER is used depends on min_cell_count). So n_jobs
+    # whether its ANSWER is used depends on min_cells_per_well). So n_jobs
     # workers wrote one path at once, and "every figure whose stamp changed
     # since I started" cannot tell one worker's curve from another's: a trial
     # could file the neighbouring trial's picture as its own, or copy one
@@ -8723,12 +8723,12 @@ def _perform_regression(settings):
     sim_min_count = minimum_cell_simulation(
         settings, tolerance=settings['tolerance'], dst=res_folder)
 
-    if settings['min_cell_count'] is None:
-        settings['min_cell_count'] = sim_min_count
-        _AUTOMATIC_SETTINGS['min_cell_count'] = sim_min_count
+    if settings['min_cells_per_well'] is None:
+        settings['min_cells_per_well'] = sim_min_count
+        _AUTOMATIC_SETTINGS['min_cells_per_well'] = sim_min_count
         
     if settings['verbose']:
-        print(f"Minimum cell count: {settings['min_cell_count']}")
+        print(f"Minimum cell count: {settings['min_cells_per_well']}")
         print(f"Dependent variable after minimum cell count filter: {len(score_data_df)}")
         display(score_data_df)
 
@@ -8743,7 +8743,7 @@ def _perform_regression(settings):
     try:
         _before_transform, _ = process_scores(
             score_data_df, settings['dependent_variable'], None,
-            settings['min_cell_count'], settings['agg_type'],
+            settings['min_cells_per_well'], settings['agg_type'],
             None, settings['regression_type'],
             settings['invert_dependent_variable'])
     except Exception:                                            # noqa: BLE001
@@ -8753,7 +8753,7 @@ def _perform_regression(settings):
 
     dependent_df, dependent_variable = process_scores(
         score_data_df, settings['dependent_variable'], None,
-        settings['min_cell_count'], settings['agg_type'],
+        settings['min_cells_per_well'], settings['agg_type'],
         settings['transform'], settings['regression_type'],
         settings['invert_dependent_variable'])
 
@@ -10141,20 +10141,20 @@ def clean_controls(df,values, column):
                     print(f'Removed data from {value}')
     return df
 
-def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols', invert_dependent_variable=False):
+def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_type='mean', transform=None, regression_type='ols', invert_dependent_variable=False):
     """Aggregate per-object model scores to per-well summaries, ready for regression.
 
     Ensures ``plateID/rowID/columnID/prc`` columns exist, applies an
     optional inversion of the raw response, aggregates by well according
     to ``agg_type`` (or with ``sum`` for the count models
     ``'poisson'`` and ``'horseshoe'``), enforces
-    ``min_cell_count`` and optionally transforms the aggregated response.
+    ``min_cells_per_well`` and optionally transforms the aggregated response.
 
     :param df: Per-object score DataFrame.
     :param dependent_variable: Column being aggregated.
     :param plate: Plate identifier to stamp when the frame is
         single-plate; ignored (with warning) when multiple plates exist.
-    :param min_cell_count: Wells with fewer objects are dropped.
+    :param min_cells_per_well: Wells with fewer objects are dropped.
         Default ``25``.
     :param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.
     :param transform: Optional post-aggregation transform name
@@ -10323,7 +10323,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     print("1 test")
     display(dependent_df)
 
-    dependent_df = dependent_df[dependent_df['cell_count'] >= min_cell_count]
+    dependent_df = dependent_df[dependent_df['cell_count'] >= min_cells_per_well]
 
     print("2 test")
     display(dependent_df)
@@ -10658,7 +10658,7 @@ def generate_ml_scores(settings):
                                 grouping=settings['grouping'],
                                 min_max=settings['min_max'],
                                 cmap=settings['cmap'],
-                                min_count=settings['min_cell_count'],
+                                min_count=settings['min_cells_per_well'],
                                 verbose=settings['verbose'])
 
     data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features = get_ml_results_paths(src1, settings['model_type_ml'], settings['channel_of_interest'])

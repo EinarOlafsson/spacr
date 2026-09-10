@@ -143,7 +143,7 @@ def _ml_settings(src, **over):
         n_estimators=5,
         n_repeats=1,
         test_size=0.25,
-        min_cell_count=1,
+        min_cells_per_well=1,
         cross_validation=False,
         remove_highly_correlated_features=False,
         nuclei_limit=True,

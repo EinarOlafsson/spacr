@@ -85,7 +85,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "log_data", "log_x", "log_y", "loss_type", "lower_percentile", "magnification",
     "manders_thresholds", "masks", "max_displacement", "measurement",
     "merge_edge_pathogen_cells", "merge_pathogens", "metadata_files", "metadata_type",
-    "metadata_type_by", "metadata_types", "metric", "min_cell_count", "min_dist", "min_max",
+    "metadata_type_by", "metadata_types", "metric", "min_cells_per_well", "min_dist", "min_max",
     "min_n", "min_samples", "minimum_cell_count", "mix", "mode", "model_name", "model_path",
     "model_type", "model_type_ml", "motility_analysis", "motility_xlim", "motility_ylim",
     "n_epochs", "n_estimators", "n_jobs", "n_neighbors", "n_repeats", "nc", "nc_loc", "neg",
@@ -183,6 +183,10 @@ KEYS_RETIRED = frozenset({
     # which n twice over: "gRNA hits need n_grna > min_n, gene hits need
     # n_gene > min_n".
     "min_n",
+    # RENAMED to `min_cells_per_well` on 2026-09-09, instruction 364.
+    # It counts cells and drops WELLS, and the count is per well --
+    # which the tooltip has to say because the name does not.
+    "min_cells_per_well",
     # FOLDED into `gradient_accumulation_steps` on 2026-09-09, instruction
     # 364. The boolean sat beside the step count and could contradict it:
     # `gradient_accumulation: false` with the default four steps says two
@@ -191,10 +195,10 @@ KEYS_RETIRED = frozenset({
     # `false` to one step, and `validate.RETIRED_SETTINGS` tells an old
     # settings CSV what replaced it.
     "gradient_accumulation",
-    # MERGED into `min_cell_count` on 2026-08-23, at the maintainer's
+    # MERGED into `min_cells_per_well` on 2026-08-23, at the maintainer's
     # instruction ("Merge the names, and fix whatever breaks, never mind
     # old runs"). The two were one idea under two names that differ by
-    # four letters: drop a well that holds too few cells. `min_cell_count`
+    # four letters: drop a well that holds too few cells. `min_cells_per_well`
     # did it before a regression fit, `minimum_cell_count` before the
     # machine-learning plate heatmap. They never appeared on the same
     # screen, so nobody could see they were different -- which is what made
@@ -315,6 +319,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
     "min_observations_per_hit",
+    # and `min_cells_per_well`, the new name for `min_cells_per_well`.
+    "min_cells_per_well",
     "opencv_threads", "out_png", "out_tif", "outline_alpha",
     "outline_source", "pair_batch_size", "phenotype_source",
     "preview_downsample", "ransac_thresh_px", "recursive",

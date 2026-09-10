@@ -121,7 +121,7 @@ def settings_for(score, count, **over):
         # ``regression_type`` or fit a model, so the backend contract must
         # request parametric inference explicitly.
         "inference": "parametric",
-        "min_cell_count": 3,
+        "min_cells_per_well": 3,
         "fraction_threshold": 0.01,
         "metadata_files": [],
         "toxo": False,

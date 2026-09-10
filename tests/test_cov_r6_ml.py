@@ -376,7 +376,7 @@ def test_process_scores_has_the_well_columns_without_a_second_check():
     bare = _prcfo_scores()
     assert not {"plateID", "rowID", "columnID"} & set(bare.columns)
     aggregated, name = ml.process_scores(bare.copy(), "pred", plate=None,
-                                         min_cell_count=1, agg_type="mean")
+                                         min_cells_per_well=1, agg_type="mean")
     assert name == "pred"
     assert sorted(aggregated["prc"]) == ["plate1_r1_c1", "plate1_r1_c2"]
 
@@ -404,14 +404,14 @@ def test_process_scores_never_returns_a_prcfo_column_to_drop():
     then asks for it back, three statements later.
     """
     aggregated, _name = ml.process_scores(_prcfo_scores(), "pred", plate=None,
-                                          min_cell_count=1, agg_type=None)
+                                          min_cells_per_well=1, agg_type=None)
     assert "prcfo" not in aggregated.columns
     assert {"prc", "pred", "cell_count"}.issubset(set(aggregated.columns))
 
     # the one input that puts 'prcfo' back on the aggregate -- and cannot finish
     with pytest.raises(KeyError, match="prcfo"):
         ml.process_scores(_prcfo_scores(), "prcfo", plate=None,
-                          min_cell_count=1, agg_type=None)
+                          min_cells_per_well=1, agg_type=None)
 
 
 # ---------------------------------------------------------------------------

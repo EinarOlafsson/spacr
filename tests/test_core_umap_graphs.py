@@ -111,7 +111,7 @@ def _umap_settings(src, **over):
         "save_figure": False, "analyze_clusters": False,
         "resnet_features": False, "color_by": None,
         "verbose": False, "n_jobs": 1, "visualize": "cell",
-        "min_cell_count": None,
+        "min_cells_per_well": None,
     }
     s.update(over)
     return s

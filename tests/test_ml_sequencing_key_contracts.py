@@ -101,7 +101,7 @@ def base_settings(score, count, **over):
         # application default is nonparametric and therefore writes the
         # guide-permutation result shape instead of fitting OLS.
         "inference": "parametric",
-        "min_cell_count": 3,
+        "min_cells_per_well": 3,
         "fraction_threshold": 0.005,
         "toxo": False,
         "controls": list(CONTROLS),

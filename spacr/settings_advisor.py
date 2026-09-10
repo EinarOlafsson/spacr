@@ -928,7 +928,7 @@ def _thresholds(reading: Reading, chosen: List[Choice],
     if objects is not None and objects > 0:
         floor = max(int(objects * 0.1), 1)
         chosen.append(Choice(
-            "min_cell_count", floor,
+            "min_cells_per_well", floor,
             f"a well holds {objects:.0f} objects here; a well with fewer "
             f"than {floor} has a fraction too noisy to model, and dropping "
             f"it is cheaper than letting it set a coefficient"))

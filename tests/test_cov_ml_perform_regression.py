@@ -250,7 +250,7 @@ def base_settings(screen, **over):
     CSVs had been read and ``settings/regression.csv`` had been written.
 
     Only keys that are a deliberate *test* choice belong in the literal below:
-    the tiny synthetic wells (``min_cell_count``), a fixed threshold instead of
+    the tiny synthetic wells (``min_cells_per_well``), a fixed threshold instead of
     the sweep (``fraction_threshold``), the toxo reports off by default. Adding
     a key here that the builder is supposed to supply hides the next such bug.
     """
@@ -261,7 +261,7 @@ def base_settings(screen, **over):
         "count_data": [screen["count"]],
         "dependent_variable": "pred",
         "regression_type": "ols",
-        "min_cell_count": 3,
+        "min_cells_per_well": 3,
         "fraction_threshold": 0.005,
         "metadata_files": [screen["meta"], screen["meta"]],
         "toxo": False,
@@ -604,14 +604,14 @@ def test_non_list_filter_value_disables_control_well_removal(screen, stubs):
 # threshold / simulation / sequencing-stats wiring
 # ---------------------------------------------------------------------------
 
-def test_min_cell_count_none_is_filled_from_the_simulation(screen, stubs):
-    """min_cell_count=None takes the elbow point returned by the simulation."""
+def test_min_cells_per_well_none_is_filled_from_the_simulation(screen, stubs):
+    """min_cells_per_well=None takes the elbow point returned by the simulation."""
     from spacr.ml import perform_regression
 
-    settings = base_settings(screen, min_cell_count=None)
+    settings = base_settings(screen, min_cells_per_well=None)
     perform_regression(settings)
 
-    assert settings["min_cell_count"] == 3
+    assert settings["min_cells_per_well"] == 3
     # `dst` joined `tolerance` on 2026-08-17. It is not decoration: the curve
     # used to be drawn into <count folder>/results/, one path shared by every
     # run of the screen, and `run_sweep_parallel` fits n_jobs trials of that
