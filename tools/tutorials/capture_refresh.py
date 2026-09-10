@@ -320,6 +320,10 @@ def main() -> int:
         from capture_volcano import record_volcano
         record_volcano(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'hit_list':
+        from capture_hit_list import record_hits
+        record_hits(app, window, stage, captures, capture,
+                    settle, write_json, args.timeout)
     elif args.module == 'image_scatter':
         from capture_image_scatter import record_scatter
         record_scatter(app, window, stage, captures, capture,
