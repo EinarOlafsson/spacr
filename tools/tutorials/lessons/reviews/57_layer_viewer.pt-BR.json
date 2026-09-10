@@ -1,0 +1,41 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "baa9efcdba48d277e8a0e1d5083527989563b55348b0eb88246a8eb655c6f978",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked real image-mask overlays, actual controls and display limitations; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "pt-BR",
+  "title": "Layer Viewer: imagens e máscaras reais, controles de exibição e fontes preservadas",
+  "description": "Abra Layer Viewer dentro de QC, sobreponha uma imagem de intensidade e sua máscara celular, teste visibilidade, opacidade, mistura e ordem, distinguindo navegação, edição e calibração.",
+  "objectives": [
+    "Localizar o submódulo de QC e carregar uma dupla real de imagem e máscara.",
+    "Ajustar a camada selecionada sem alterar medições originais.",
+    "Reconhecer a distorção de Fit e verificar zoom, deslocamento e leitura de rótulos.",
+    "Distinguir camadas auxiliares vazias e metadados ausentes das funções disponíveis pela API."
+  ],
+  "prerequisite": "Reutilize os TIFF fov01 verificados em External Masks: intensidade uint16 de 1994×1994 e 44 rótulos celulares alinhados. Correspondem exatamente aos planos 1 e 4 do array adquirido plate1_E01_1_1, com 3.976.036 pixels e sem calibração física. Nomes neutros não são metadados de aquisição. Originais e cópias privadas permanecem idênticos. Dezenove testes e mutações observadas falhando acompanham a conferência independente de 5.041 pixels de tela em cada um dos 26 estados, sem diferenças RGB. Arrays completos, percentis 2/98 calculados por histograma, propriedades das camadas e geometria dos gestos também foram conferidos. Isso não valida todos os pixels, camadas arbitrárias, dados multicanal/3D, cobertura suave, qualidade biológica ou calibração. Fit pode esticar a imagem. Não houve pipeline, solicitação de IA, edição, exportação direta, seleção vinculada entre vistas nem desenho de Points/Shapes. Os controles diferem de outras prévias.",
+  "scenes": [
+    "Abra QC pela Home e escolha o botão aninhado Layer Viewer. O seletor de projeto pertence ao painel QC; este visualizador tem seus próprios botões de imagem e máscara. Usamos cópias privadas da dupla real verificada em External Masks. Layer Viewer não tem download próprio de dados de teste.",
+    "Escolha mais Image e abra o TIFF de um canal. O campo tem mil novecentos e noventa e quatro pixels de lado, com intensidades de dezesseis bits. A exibição estende os percentis dois a noventa e oito: aqui, de cento e dezoito a vinte e três mil duzentos e vinte e três. Pixels brilhantes na tela não significam dados sobrescritos nem medições convertidas para oito bits.",
+    "Nesta versão, Fit preenche a tela de imagem e pode esticar um campo quadrado dentro de um painel largo. Arraste o divisor até o painel ficar aproximadamente quadrado e escolha Fit novamente. Não deduza formas físicas da vista distorcida. Aqui uma unidade de coordenada equivale a um pixel, não a micrômetros calibrados.",
+    "Escolha mais Mask e carregue o TIFF de rótulos celulares correspondente, não outra imagem de intensidade. Ele contém quarenta e quatro rótulos não nulos alinhados ao mesmo campo. Zero é o fundo transparente. As cores distinguem rótulos, não tratamentos, tipos celulares ou qualidade de segmentação validada.",
+    "Selecione mask na lista antes de ajustar os controles. A linha selecionada determina qual camada muda; adicionar uma camada não necessariamente a seleciona. Use a caixa da máscara para ocultar e exibir a sobreposição enquanto observa a imagem abaixo. Rótulos e intensidades medidas não mudam.",
+    "Coloque Opacity da máscara selecionada em zero. As cores desaparecem, mas a camada continua na lista e seus quarenta e quatro rótulos permanecem na memória. É uma escolha visual, não exclusão, filtragem ou correção da segmentação. Confira sempre qual camada o controle deslizante ajusta.",
+    "Leve Opacity da máscara a cem por cento. As cores cobrem a imagem onde há rótulos diferentes de zero; o fundo continua transparente. Isso ajuda a observar as formas, mas esconde a textura de intensidade abaixo. Não cria novas medições das regiões rotuladas.",
+    "Volte a cinquenta por cento com mistura translucent. A imagem e a cor do rótulo contribuem para a sobreposição. As verificações independentes comparam amostras da tela com as fontes; não demonstram que a segmentação seja biologicamente correta. Consulte a imagem bruta ao avaliar os contornos.",
+    "Abra o menu de mistura e escolha additive. A cor do rótulo é somada à imagem e pode saturar o composto exibido. As intensidades originais não mudam. São operações visuais, não normalização para análise. Selecione a camada correta antes de experimentar outros modos.",
+    "multiply e minimum escurecem de maneiras diferentes. multiply atenua a imagem com a cor sobreposta; minimum incorpora o valor mais escuro de cada canal de cor. Esta cena mostra minimum. Compare o mesmo campo sem interpretar um composto mais escuro como menor fluorescência medida.",
+    "Escolha opaque mantendo Opacity em cinquenta por cento. Nesta máscara de cobertura binária, parece translucent com a mesma opacidade: opaque não força o controle a cem. Estes rótulos inteiros não demonstram o tratamento diferente de cobertura suave. Restaure translucent antes de continuar.",
+    "Selecione image e depois cyan no seletor de cores. A imagem de um canal muda de cor, enquanto a máscara preserva as cores dos objetos. Não mudam medições nem identidade biológica do canal. Esta tela não tem seletor de canal ou faixa de contraste editável; não atribua a ela controles de outra prévia. Depois restaure gray.",
+    "Selecione mask e use a seta para baixo para colocá-la sob a imagem. A lista mostra primeiro a camada superior, desenhada à frente. A imagem opaca esconde a máscara, embora ela continue visível nas propriedades e seus dados permaneçam intactos. Suba a máscara novamente antes de inspecionar ou clicar nos objetos.",
+    "Clique numa região rotulada visível. O estado mostra a posição nas coordenadas do mundo e, aqui, o rótulo nove. Uma máscara carregada por este seletor não tem chave de campo: o clique não identifica um objeto no experimento inteiro nem abre seu recorte em outra vista. Não deduza placa e poço do nome neutro.",
+    "Gire a roda sobre o objeto para ampliar. Três passos para cima multiplicam a ampliação por um vírgula dois ao cubo, mantendo a coordenada sob o ponteiro. O visualizador redesenha as camadas na nova escala. O zoom altera a vista, não a máscara, os valores ou a calibração.",
+    "Segure Shift e arraste com o botão esquerdo para deslocar; o botão central também permite esse gesto. O campo exibido se move sem mudar as coordenadas originais. O gesto testado preserva o zoom. Explorar outra região assim não equivale a deslocar ou registrar os dados da imagem.",
+    "Escolha Fit para voltar ao campo completo no painel atual. Aqui ele restaura a vista anterior ao zoom. Lembre a limitação do formato do painel: Fit não garante sozinho escalas horizontal e vertical iguais. Espaçamento da fonte e geometria da tela são conceitos separados; não os deduza de uma captura.",
+    "Mais Points e mais Shapes criam camadas auxiliares vazias; esta cena mostra shapes vazio. Não ativam uma ferramenta de desenho nesta tela, e cliques comuns não adicionaram pontos nem regiões nos testes. Remova a camada vazia ao terminar. Para editar máscaras, consulte os controles reais do tutorial Make Masks.",
+    "Selecione mask e use o controle de remoção. Só a camada sai desta vista; a imagem permanece e o arquivo original da máscara continua intacto. Remover uma camada não salva uma edição nem apaga um arquivo. Os dois TIFF privados e os dados adquiridos originais permaneceram inalterados.",
+    "No código, stack_from_paths no módulo Qt layer_viewer do spaCR carrega as camadas; LayerStack.render_uint8 retorna um array composto para seu código de exportação. Spacing e FieldKey exigem calibração e identidade conhecidas. Esta tela não oferece exportação própria, análise, pipeline GPU nem console spaCR AI. Separe visualização, medições e edição salva de máscaras."
+  ]
+}
