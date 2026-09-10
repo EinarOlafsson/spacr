@@ -1518,3 +1518,39 @@ without their catalogs:
 That is this file's own rule about docstrings staling nine catalogs, landing
 on CI. The nine-language rebuild covering `ops_accel`, `ops_layout`,
 `ops_cycles`, `ops_solve` and `ops_phenotype` is what closes it.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- DO NOT TOUCH GIT'S WORKING TREE WHILE A REBUILD IS RUNNING
+--------------------------------------------------------------------------------
+
+Nearly cost four locales for the second time in two days, and the near-miss
+is worth more than the rule.
+
+The builder reads the ENGLISH MANIFEST off the working tree at the start of
+each language, and writes that language's catalog at the end. A
+`git stash push` of the catalog paths -- to make room for a rebase -- reverts
+`en.json` to HEAD for as long as the stash is out. Any language that STARTS
+in that window reads the old manifest and produces a catalog against a
+source that no longer exists, and nothing anywhere reports it: the file is
+written, the audit passes for that language in isolation, and the symbol
+counts disagree only when all nine are compared.
+
+The window here was about fifteen seconds and `pt` started inside it, so it
+is being re-run. Nothing was lost. The rules that follow:
+
+  * NO `git stash`, `git checkout`, `git rebase` or `git pull` while a
+    rebuild is running. Not on the catalog paths, not on anything --
+    a rebase rewrites the whole tree, and the builder also reads
+    `spacr/**` to extract the manifest in the first place.
+  * COMMITS ARE FINE. They move HEAD and leave the working tree alone.
+  * AND THE CHECK THAT CATCHES IT is the symbol count across all nine plus
+    English, which must be one number:
+
+        python -c "import json,pathlib
+        for l in ('en','sv','de','es','zh_CN','pt','hi','ko','is','fr'):
+            d=json.loads(pathlib.Path(
+                f'docs/source/_static/i18n/api/{l}.json').read_text())
+            print(l, len(d['symbols']))"
+
+    Ten identical numbers, or one of them was built against a different
+    tree. Run it before committing the catalogs, every time.
