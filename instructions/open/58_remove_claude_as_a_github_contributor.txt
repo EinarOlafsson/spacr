@@ -46,16 +46,43 @@ author. The 38 are historical, from before that rule.
 THAT RULE IS NOT SELF-ENFORCING, and 2026-09-10 proved it. The three commits
 merging nightly into main were each written with a `Co-Authored-By: Claude
 Opus 5` trailer, because the agent writing them is instructed by its own
-harness to add one -- an instruction that knows nothing about this repo. The
-count on the merge branch went 3 -> 6 before anyone looked. They were caught
-before the push and stripped with a msg-filter over `origin/main..HEAD`,
-which rewrote those three and left every nightly and main commit at its
-original SHA, verified by the merge commit still naming 880638e26 and
-6ac8285ed as its parents.
+HARNESS to add one -- an instruction that arrives from outside the
+repository, where no hook, test or instruction file can reach it. They were
+caught before the push and stripped, and the branch is back to zero.
 
-The lesson for whoever runs the rewrite: check the trailer count again
-immediately before doing it, because the number is not stable just because
-this file says what the rule is.
+    COUNT IT WITH THE PATTERN ANCHORED, or the number is wrong:
+
+        git log --format=%B <ref> | grep -cE "^[ \t]*Co-Authored-By:[ \t]*Claude"
+
+    Unanchored, that grep also counts commits that MENTION the trailer in
+    their prose -- including c0651ed93, e2ec65498 and 4a5c087c9, which are
+    commits about this very problem. Measured 2026-09-10, unanchored says
+    main=1 nightly=2; anchored says main=0 nightly=0. "38 trailers" and "38
+    commits discussing trailers" are different numbers and only the second
+    survives a careless re-count. The 38 in the section above were counted
+    before this distinction was written down and should be re-measured with
+    the anchored pattern before any rewrite is planned around them.
+
+    THE RANGE LOOKS CATASTROPHIC AND IS NOT. Stripping with
+
+        git filter-branch -f --msg-filter '...' origin/main..HEAD
+
+    traverses every commit in the range -- 5,313 of them here -- but a
+    commit whose message, tree, parents and author are all unchanged comes
+    out with its ORIGINAL SHA. Only the commits actually edited move. That
+    was verified rather than trusted: after the strip, the merge commit
+    still named 880638e26 and 6ac8285ed as its parents and
+    `HEAD..origin/nightly` was 0. Stated here because the next person will
+    otherwise refuse to run the command, or will reach for a narrower range
+    and miss commits.
+
+THE REAL FIX IS A PRE-PUSH CHECK. A commit hook catches only the sessions
+that run it, and the instruction to add the trailer reaches the agent from
+outside this repository entirely -- so no amount of writing the rule into
+CONTRIBUTING, into the instruction folder, or into a session's context
+prevents the next one from arriving with it. A check at the push boundary is
+the only place that catches it regardless of who is committing or what they
+were told.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
