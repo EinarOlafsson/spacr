@@ -445,7 +445,7 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
     its fields by about 14 % -- 213 px of 1480 -- so 86 % of a whole-tile
     correlation is signal that CANNOT match and can only add background
     to the surface the peak is judged against. Measured on a blob fixture
-    at exactly that overlap:
+    at exactly that overlap::
 
         whole tile      peak/mean 15.2, shift WRONG, rejected
         30 % strip      peak/mean 29.2, shift exact, accepted

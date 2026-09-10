@@ -11,7 +11,7 @@ circle at that x, so the columns have DIFFERENT HEIGHTS and the index
 offset to the next column is that column's height -- which is why the
 measured horizontal offsets were +11, +4, -11, -9, -4, -13 and -5 rather
 than one number. Fitting the circle takes four parameters and answers
-every tile at once:
+every tile at once::
 
     columns   21, snaked down (even columns top to bottom)
     circle    radius 10.25 grid units, centre at column 10, row -10
