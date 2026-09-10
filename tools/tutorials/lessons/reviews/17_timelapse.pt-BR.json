@@ -1,0 +1,37 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic data, cached-mask comparison, explicit final Re-link and warning limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Rastreamento temporal",
+  "description": "Execute oito quadros sintéticos pelo fluxo integrado ao Mask e compare vínculos de máscaras reais no Track preview.",
+  "objectives": [
+    "Encontrar Timelapse no Mask e preservar o eixo temporal e as imagens originais.",
+    "Comparar trajetórias iniciais, fragmentadas e restauradas nas mesmas máscaras.",
+    "Distinguir indicadores, reprodução, inferência e movimento biológico medido."
+  ],
+  "prerequisite": "Use Help > Demos > Timelapse demo em uma pasta nova: oito tempos sintéticos de 256 por 256 pixels, núcleo no canal 0 e célula no canal 1. Ative Plot e Keep original images; os dezesseis TIFF são preservados. O ZIP contém os planos celulares exatos dessa execução, não dados adquiridos nem máscaras de referência. Selecione separadamente image_sequences/field_A01 e label_sequences/field_A01, canal 0, oito quadros e um campo. O limiar 0.1 produz dezesseis trajetórias completas; 1.0 produz 128 de um quadro. Ao restaurar 0.1, espere e clique em Re-link: digitar pode iniciar uma passagem com valor intermediário. Não clique em Propagate settings, que não transfere o limiar IoU. São informados os avisos sobre flow threshold, relações e estado das configurações. Sem validação biológica ou de velocidade física. API: spacr.core.preprocess_generate_masks e spacr.timelapse. AI permanece desativado.",
+  "scenes": [
+    "Abra Mask e ative o interruptor Time. Timelapse agora fica dentro de Mask, não em um bloco independente da Home. Ele acrescenta configurações do eixo temporal e do rastreamento ao fluxo de segmentação. As medidas de motilidade pertencem ao Measure, uma etapa posterior.",
+    "Escolha Help, Demos e Timelapse demo, e selecione uma pasta nova. Isso cria oito quadros sintéticos com objetos em movimento e carrega suas configurações. São imagens didáticas, não um experimento biológico nem uma prova de precisão da segmentação.",
+    "Confira a origem e os canais preenchidos. Esta demonstração tem intensidade nuclear no canal zero e celular no canal um, sem canal de patógeno. Os nomes dos arquivos codificam o tempo separadamente do campo e do canal. Não substitua uma série temporal pela placa estática de teste habitual.",
+    "Frame limits define limites de fatia com índice começando em zero: de zero a oito inclui os oito quadros, excluindo o limite final. Mantenha juntos os tempos de um mesmo campo. A taxa de reprodução não fornece um intervalo de aquisição ausente; esta demonstração não estabelece velocidades físicas.",
+    "Rastreie células com o modo de sobreposição, chamado iou. Ele vincula máscaras pela interseção dividida pela união entre quadros adjacentes. Outros mecanismos têm pressupostos e dependências opcionais diferentes. Deslocamento não é limiar de sobreposição; use os controles realmente lidos pelo mecanismo escolhido.",
+    "Ative Keep original images antes de Run. Caso contrário, a limpeza pode remover as pastas de imagens intermediárias e originais. Esta gravação mantém os dezesseis TIFF gerados inalterados e nunca toca nos dados antigos dos tutoriais. Sempre mantenha uma cópia de segurança separada de um experimento adquirido.",
+    "Ative Plot e execute este exemplo pequeno. A implementação atual processa os oito quadros juntos mesmo se o lote solicitado for menor. Observe o console e o monitor de recursos: mais quadros, imagens maiores e objetos adicionais podem exigir muito mais memória.",
+    "A execução produz cinco figuras e oito matrizes combinadas. Nesta exibição normalizada, os dois primeiros planos são intensidades; os dois últimos são rótulos de células e núcleos, não canais adicionais de aquisição. A tabela celular salva contém dezesseis trajetórias, cada uma abrangendo oito quadros.",
+    "Leia os avisos além de Finished. Esta versão alerta sobre valores herdados do limiar de fluxo, uma tabela de relações indisponível e o estado das configurações. Verificamos separadamente máscaras e trajetórias salvas; isso não é uma validação sem ressalvas da versão nem substitui executar Measure.",
+    "Abra Track preview. Para reproduzir o exercício de vinculação, baixe e extraia o arquivo sintético indicado abaixo. Ele contém exatamente os planos de imagem e máscara celular do lote gravado. Carregar essas máscaras testa os vínculos sem executar outro modelo de segmentação.",
+    "Escolha a pasta da sequência de imagens do campo A zero um. As imagens exportadas contêm apenas o plano de intensidade celular original, então selecione o canal zero aqui. Mantenha imagens e rótulos em pastas superiores separadas; defina Frames previewed como oito e Fields como um.",
+    "Escolha a pasta de rótulos correspondente usando Masks. São máscaras calculadas, não uma referência verdadeira. Deixe Keep only full-length tracks desativado e não clique em Propagate settings. Os controles do modelo não criam novas máscaras ao ler uma sequência de máscaras existente.",
+    "Execute a prévia com o limiar de sobreposição em zero vírgula um. Ela informa dezesseis trajetórias de oito quadros, sem trajetórias curtas neste exemplo. Fragmentação e saltos são indicadores calculados sem referência verdadeira; valores pequenos não provam, por si só, que as identidades estejam biologicamente corretas.",
+    "Aumente o limiar de sobreposição para um. Exigir sobreposição exata divide este exemplo em movimento em cento e vinte e oito trajetórias de um quadro. Imagens e máscaras permanecem iguais; só os vínculos mudam. Esse valor deliberadamente excessivo demonstra fragmentação, não é uma configuração recomendada.",
+    "Restaure zero vírgula um, espere a prévia atual terminar e clique em Re-link. Digitar pode iniciar uma passagem com valor intermediário; confirme explicitamente a passagem final. As dezesseis trajetórias completas voltam. Não clique em Propagate settings: o limiar não é transferido para o formulário do lote.",
+    "Avance até o quadro oito para inspecionar os objetos vinculados. A velocidade de reprodução muda apenas a visualização, não o tempo de aquisição. Continue em Measure e Motility com intervalo e escala validados. A API e spaCR AI ajudam a explicar configurações, mas não substituem conferir imagens, trajetórias e avisos."
+  ]
+}
