@@ -427,12 +427,32 @@ def align_phenotype_to_sbs(phenotype_points: np.ndarray,
                      points=int(source.shape[0]))
 
 
-#: How many two-point correspondences to try when the scale is known.
+#: The FEWEST two-point correspondences to try when the scale is known.
 #:
-#: Each trial is a KD-tree query over a few hundred points, so the whole
-#: search costs a fraction of a second. Three hundred is where the best
-#: score stopped improving on the real fields this was measured against.
+#: A FLOOR, NOT THE NUMBER. What the search needs scales with how crowded
+#: the target is: a random source pair has to land on a true correspondence,
+#: and the chance of that falls with the target point count. Measured on the
+#: real plate, one field per row, same window, same everything else:
+#:
+#:     site 40    300 trials ->  10 inliers      8,000 trials -> 119
+#:     site 120   300 trials ->   8 inliers      2,000 trials -> 175
+#:     site 300   300 trials ->   7 inliers      2,000 trials -> 149
+#:     site 640   300 trials ->  12 inliers      2,000 trials -> 191
+#:
+#: THREE HUNDRED WAS MEASURED ON A TILE, which holds about 600 nuclei, and
+#: it is fine there. A well-frame window holds about 3,000 and it is not:
+#: five fields "refused" at 300 and four of them aligned at 2,000, and an
+#: afternoon went into theories about the specimen before the one parameter
+#: of the search was varied. The default is now proportional to the target,
+#: with this as the floor.
 PAIR_TRIALS: int = 300
+
+#: Trials per target point, above :data:`PAIR_TRIALS`.
+#:
+#: Two, from the table above: 3,000 target points want about 6,000 trials
+#: and four of the five recovered at 2,000, so this has margin without
+#: being expensive -- a trial is one KD-tree query.
+TRIALS_PER_TARGET_POINT: float = 2.0
 
 #: How far a target pair's separation may be from the expected one, as a
 #: fraction. Two acquisitions of one well differ by a magnification and a
@@ -443,7 +463,7 @@ PAIR_TOLERANCE: float = 0.04
 
 def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
                          scale: float, *, radius: float = MATCH_RADIUS_PX,
-                         trials: int = PAIR_TRIALS,
+                         trials: Optional[int] = None,
                          tolerance: float = PAIR_TOLERANCE,
                          max_rotation: float = MAX_ROTATION_DEGREES,
                          seed: int = 0):
@@ -453,7 +473,9 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     :param target: ``(M, 2)`` points to move to.
     :param scale: target pixels per source pixel, from the acquisition.
     :param radius: how close a moved point must land to agree.
-    :param trials: how many correspondences to try.
+    :param trials: how many correspondences to try. None scales it with
+        the target, which is what it has to scale with -- see
+        :data:`PAIR_TRIALS`.
     :param tolerance: fractional slack on a pair's separation.
     :param max_rotation: the largest rotation to consider, in degrees. See
         :data:`MAX_ROTATION_DEGREES` -- this is what stops the search
@@ -487,6 +509,9 @@ def seed_by_scaled_pairs(source: np.ndarray, target: np.ndarray,
     dst = np.asarray(target, float)
     if src.shape[0] < 2 or dst.shape[0] < 2:
         return None
+    if trials is None:
+        trials = max(PAIR_TRIALS,
+                     int(TRIALS_PER_TARGET_POINT * dst.shape[0]))
     tree = cKDTree(dst)
     rng = np.random.default_rng(seed)
     best = None

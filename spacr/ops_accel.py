@@ -286,7 +286,20 @@ def nearest_neighbours(source: np.ndarray, target: np.ndarray, *,
             for start in range(0, src.shape[0], chunk):
                 block = torch.as_tensor(src[start:start + chunk],
                                         device=device)
-                gaps = torch.cdist(block, target_tensor)
+                # NOT THE DEFAULT compute_mode. `cdist` switches to the
+                # ||a||^2 + ||b||^2 - 2ab expansion when the batch is big
+                # enough, so chunk=500 and chunk=7 run different arithmetic
+                # and the expansion's cancellation error is what differs --
+                # which is a nearest-neighbour DISTANCE that changes with
+                # the working-set size, on a function whose whole contract
+                # is that it does not. Measured on 500 x 300 float32
+                # points: default and `use_mm` are chunk-dependent at
+                # 4.14e-03 against the exact answer; this one is
+                # chunk-independent at 4.77e-07, which is float32's own
+                # floor and matches the numpy path.
+                gaps = torch.cdist(
+                    block, target_tensor,
+                    compute_mode="donot_use_mm_for_euclid_dist")
                 best = torch.argmin(gaps, dim=1)
                 indices[start:start + chunk] = best.to("cpu").numpy()
                 distances[start:start + chunk] = torch.gather(
