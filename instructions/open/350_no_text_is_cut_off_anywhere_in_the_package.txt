@@ -2,6 +2,16 @@
 A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
 ================================================================================
 
+Status:    GREEN IN EVERY COMBINATION IT RUNS, and a SIXTH defect class
+           found 2026-09-10 that the sweep structurally cannot see: seven
+           settings columns capped in DEVICE PIXELS, so they cannot grow
+           with the font. All seven go through `scaled_px` now and a
+           source-level test refuses an eighth. See the 2026-09-10 note at
+           the foot of this file, and read it before adding to the sweep --
+           the instrument it describes is a different one.
+
+           PREVIOUS STATUS FOLLOWS.
+
 Status:    GREEN IN EVERY COMBINATION IT RUNS, 2026-09-09. Four locales at
            two font scales over 26 screens and the dialogs added so far:
            208 cases, no clipped caption anywhere, and `KNOWN_OFFENDERS` is

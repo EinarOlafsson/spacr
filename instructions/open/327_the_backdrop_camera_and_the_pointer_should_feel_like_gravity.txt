@@ -1,6 +1,19 @@
 327 — THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
 ==================================================================
 
+Status:    (2), (3) AND (4) ARE DONE. (3) was wired on 2026-09-10 -- the
+           camera tours the twenty mapped regions as a third Path, offered
+           in Preferences, and `RegionTour` finally has a caller. What is
+           left is ONE thing: the GPU renderer cannot shed work, so a weak
+           integrated GPU asked to draw this fullscreen has nothing to give
+           up. `target_render_size` and the user's `scale` are read only by
+           the CPU widget. See the 2026-09-10 note at the foot of the file.
+
+           NOT THE DEFAULT: `path` stays "fixed". Turning the tour on for
+           everyone changes what every user sees and is the maintainer's
+           call -- and worth asking, because "the camera will automatically
+           smoothely float towards" reads like it was meant to be on.
+
 ASKED FOR (2026-08-31), four things, in the user's words
 --------------------------------------------------------
 1. "the fullscreen mode fractal is super choppy while the normal
