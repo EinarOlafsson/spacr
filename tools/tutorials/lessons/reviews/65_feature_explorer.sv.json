@@ -1,0 +1,35 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "sv",
+  "title": "Feature Explorer: rangordna verkliga mätningar och håll jämförelsen tydlig",
+  "description": "Öppna undermodulen i Classify, jämför verkliga mätvärden mellan plattrader, granska fördelningar, filtrera direkt, lägg till en beräknad kolumn och exportera önskad rangordning utan att träna en klassificerare.",
+  "objectives": [
+    "Hitta Feature Explorer i Classify och läsa in befintliga cellmätningar.",
+    "Skilja AUC från separation och kontrollera klassantal och fördelningsskillnader.",
+    "Filtrera direkt utan att missa automatiska byten av jämförelsekolumn.",
+    "Använda Top medvetet, kontrollera en omskalad kolumn och exportera den faktiska rangordningen."
+  ],
+  "prerequisite": "Använd det nedladdade Annotate-exemplet, inte påhittade mätningar. Inspelningen öppnar en byteidentisk privat kopia av databasen med 2 341 celler och 276 kolumner. rowID-grupperna är plattans rumsliga rader r12 och r5, inte fastställda behandlingar; cellerna delar bildfält och brunnar och är inte oberoende experiment. Originaldata förblir oförändrade. AUC, KS, ordning och klassantal för ändliga värden har kontrollerats oberoende för de avsedda tvåklassjämförelserna. Den automatiskt valda åttaklassjämförelsen är ett varningsexempel, inte oberoende validerad inferens. Shuffle test är avstängt. Ingen träning, ny bildanalys, särskild nedladdning, GPU-åtgärd eller AI-förfrågan sker här; histogrammen är modulens egna diagram.",
+  "scenes": [
+    "Öppna Classify och sedan knappen Feature Explorer. Det här inbäddade verktyget rangordnar befintliga mätningar; att öppna det tränar ingen klassificerare. Vi använder det verkliga nedladdningsbara Annotate-exemplet på en privat databaskopia. Följ Annotate-lektionen för att hämta det och behåll din experimentella källa oförändrad.",
+    "Välj Load table, mätdatabasen och dess cell-tabell, och sätt Split by till rowID. Det finns 2 341 celler och 276 kolumner. Våra två grupper är registrerade plattrader, inte fastställda behandlingar; dessa celler är inte oberoende experiment.",
+    "Rangordna efter AUC och läs båda sifferkolumnerna. Separation är absolutbeloppet av två gånger AUC minus ett: ungefär 0,34 separation är inte 0,34 AUC. Higher in anger riktningen; min n räknar ändliga mätvärden i den mindre klassen, inte experimentella upprepningar.",
+    "Sätt Top till fyra för att granska fyra överlagrade histogram. Inom varje variabel använder klasserna samma intervallgränser och stapelhöjderna anger antal. Den högst rankade variabeln är inte automatiskt en användbar biomarkör. Läs varningen: AUC kan missa spridningsskillnader även när fördelningarna skiljer sig.",
+    "Export ranking med Top fyra skriver fyra variabelrader. I den här versionen följer exporten Top, trots att texten antyder hela rangordningen. Den exporterar inte de underliggande cellerna och sparar ingen tränad modell. Vi jämförde varje exporterat värde med den faktiska aktuella rangordningen.",
+    "Sätt Top till 500 innan du exporterar alla poängsatta variabler i det här exemplet. 261 kan poängsättas; två numeriska kandidater kan inte det. Exporten innehåller alla 261 rader, medan skärmen ritar högst åtta fördelningar. Variabelantal, tabellrader och diagrampaneler är olika storheter.",
+    "Byt Rank by till KS för att jämföra det största avståndet mellan kumulativa fördelningar och återgå sedan till AUC. KS kan visa fördelningsskillnader som AUC missar, men anger inte riktning i sig. Andra statistiska mått har egna begränsningar; läs varningen i stället för att behandla en rangordning som ett signifikanstest.",
+    "Lägg till cell_area under Filter och sätt minimum till 21 925. Den synliga populationen blir 1 171 celler och 255 variabler kan fortfarande poängsättas. Denna medianbaserade demonstrationsgräns är inte en biologisk kvalitetsgräns. Rangordningar och fördelningar uppdateras utan att bilderna mäts om.",
+    "Clear all tar bort visningsfilter, inte data. Alla 2 341 celler och den ursprungliga rangordningen återkommer. Kontrollera populationen och Split by när du ändrar filter. En skillnad som ändras efter filtrering beskriver en annan vald population, inte ett nytt experiment.",
+    "Den här versionen har en viktig fallgrop. Att filtrera rowID till r12 tar bort den andra raden, men skärmen byter utan varning Split by till cell_channel_0_maxima_count. Nu jämförs åtta grupper med bara ett objekt i den minsta. De imponerande poängen är varken den ursprungliga radjämförelsen eller bevis för en biologisk upptäckt.",
+    "Rensa filtret och välj uttryckligen rowID igen. Enbart rensning återställer inte nödvändigtvis den ursprungliga jämförelsen. Kontrollera både klasskolumn och population före export. Shuffle test erbjuder 50 omblandningar av etiketter men lämnas avstängt: fri omblandning av dessa korrelerade celler skulle inte ge evidens på brunns- eller behandlingsnivå.",
+    "Öppna Columns och kalla en ny kolumn area_k. Skriv cell_area delat med 1e3, alltså 1 000, och välj Add column med ersättning avstängd. Det skalar om arean; det kalibrerar inte fysiska enheter och lägger inte till en ny mätning. Preview kontrollerar de första 2 000 raderna; tillägget använder formeln på hela tabellen.",
+    "Den omskalade kolumnen kommer med i rangordning och export, vilket ger 262 poängsatta variabler. Dess AUC och KS är samma som för cell_area eftersom positiv omskalning bevarar ordningen. Vi kontrollerade varje beräknat värde. Ta bort formeln för att återgå till ursprungliga 261 variabler; mätdatabasen är oförändrad.",
+    "Använd dessa rangordningar för beskrivande utforskning, inte oberoende validering av en vald variabel eller tränad klassificerare. I Python tillhandahåller spacr.qt.widgets.feature_rank rank_features och ExplorerSpec. Fortsätt med Database Browser och Graph Builder för råtabeller eller andra jämförelser. Ingen ny bildanalyspipeline eller AI-förfrågan kördes."
+  ]
+}
