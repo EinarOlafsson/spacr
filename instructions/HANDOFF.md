@@ -86,6 +86,47 @@ this.
 **TWO MEASUREMENTS THAT DISAGREE ARE WORTH MORE THAN ONE THAT LOOKS RIGHT.**
 Both clipping retractions were caught that way, not by re-reading the code.
 
+## THE MEASUREMENT LESSONS OF 2026-09-10
+
+Four more, and every one cost real time before it paid.
+
+**A RE-IMPORTED MODULE LIVES IN THREE PLACES, NOT TWO.** `sys.modules`, the
+module object itself, and — the one nobody restores — **the attribute on the
+parent package**. `importlib.import_module` rebinds `spacr.qt.screens` →
+`settings_model`, and a fixture that saves and restores `sys.modules` leaves
+the two disagreeing. That matters because they are reached by different
+syntax: `from .settings_model import X` goes through the ATTRIBUTE while
+`monkeypatch.setattr("spacr.qt.screens.settings_model.X", spy)` goes through
+`sys.modules`. A spy installed by one is invisible to the other and it fails
+SILENTLY — the code under test runs the unpatched original and something
+else goes red. Found three times now; `tests/qt/test_zz_a_reimported_module_is_put_back_properly.py`
+is the detector. NOTE that `importlib.reload` and `runpy.run_module` are
+both SAFE — reload re-executes in place, runpy never touches the package.
+
+**XVFB IS A REAL X SERVER AND IT HAS A GPU PATH.** Two instructions had
+written off measurements as needing a physical display. Neither did:
+`xvfb-run` gives real windows with real occlusion, and
+`gpu_is_available()` returns True under it because Mesa's llvmpipe is a
+genuine GLX context. 385's whole remaining search space — "does an X server
+stop feeding an obscured native GL surface" — was answerable here in four
+minutes. It says nothing about how FAST a card draws; it says everything
+about what the X server and the compositor do.
+
+**AND COUNT THE THING THAT IS ACTUALLY DRAWN.** A vispy canvas never
+delivers `QEvent.Paint` to the QWidget around it, so counting paint events
+on the wrapper reports ZERO for a backdrop that is visibly running. The
+first version of that measurement had zero in every column INCLUDING the
+baseline, which is the only reason it was caught. Always have a baseline
+column; a number with nothing to compare it to is not a measurement.
+
+**REBUILD THE CATALOGS ONCE, AT THE END OF A BATCH OF CODE.** Two new public
+docstrings from an unrelated performance fix turned a green API audit red
+and moved the symbol count 10,283 → 10,284. A rebuild is tens of minutes per
+language; doing it after each change multiplies that by the number of
+changes and throws every intermediate result away. Finish the code, then
+rebuild, then commit the catalogs. A private name (`_build_the_dialog`) costs
+nothing at all — it never enters the manifest.
+
 ## 0. THE FOUR LESSONS. READ THESE BEFORE YOU TOUCH ANYTHING.
 
 ### 0a. Audit before you build — EIGHT files have been wrong about themselves
