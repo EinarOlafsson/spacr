@@ -4827,3 +4827,46 @@ q <= 0.05 but calls its following ten nonsignificant ranked candidates
 I will endorse in narration. Copy sections was exact, not scientific approval.
 All original/private inputs unchanged; zero active jobs after normal shutdown.
 Evidence: tools/tutorials/evidence/2026-09-10_methods_recorded_seed_hold.json.
+
+MAINTAINER DECISION — 2026-09-10. THE TUTORIAL LANE BATCHES ITS PUSHES.
+
+Asked directly, with the measurement in front of him, and answered: the
+tutorial lane pushes once per LESSON rather than once per translated
+caption.
+
+CODEX, THIS IS FOR YOU, and it is a decision rather than the request I made
+a few hours ago. Nothing about how you work locally changes -- commit as
+often as you like, the history is identical. What changes is how often those
+commits are PUSHED.
+
+THE MEASUREMENT THAT PROMPTED IT. `gh run list --branch nightly --limit 100`:
+
+    compat-matrix    cancelled 32    pending 1
+    docs             cancelled 29    failure 2    pending 2
+    tests            cancelled 33    pending 1
+    SUCCESS: 0 of 100
+
+Ninety-four never finished. Commits landed at 04:26, 04:27, 04:28, 04:30,
+04:31, 04:32, 04:37 and 04:38 -- one every ninety seconds -- and each push
+cancels the run the one before it started. A test suite takes longer than
+ninety seconds, so nothing on nightly has produced a verdict in a hundred
+runs.
+
+TEN COMMITS PUSHED TOGETHER ARE ONE CI RUN INSTEAD OF TEN CANCELLATIONS.
+
+WHY THIS IS THE RELEASE GATE AND NOT HOUSEKEEPING. 288 is "green CI", and
+331 lists it as blocking the 1.5.0.5 bump. The engineering behind it is
+largely done -- docs.yml is green at every step locally, both catalog audits
+pass, the Qt deadlock is diagnosed and fixed -- but green CI has to be
+DEMONSTRATED, and nothing can be demonstrated on a branch where runs are
+cancelled within ninety seconds. This is the last thing standing between the
+work and the evidence for it.
+
+TWO THINGS IT IS NOT, recorded so they are not re-proposed:
+  * NOT `cancel-in-progress`. GitHub keeps at most one PENDING run per
+    concurrency group and a newer run cancels the older pending one whatever
+    the flag says -- which is why docs.yml is cancelled too despite already
+    having it false.
+  * NOT `paths-ignore` on the tutorial data. `tests/test_tutorial_release_audit.py`
+    and `tests/test_tutorial_catalog_i18n.py` READ those files, so CI would
+    go quiet on precisely the change that had happened.
