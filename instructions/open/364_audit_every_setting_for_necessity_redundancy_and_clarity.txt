@@ -1229,6 +1229,22 @@ batch_correction.py and classify_classes.py, for all seven renames
 and for the retirements that read into those files: `grna`, `Toxoplasma`,
 the three `*_mask_dim` keys and `img_size`.
 
+BEFORE THE ORDER: FIND THE WRITERS, NOT ONLY THE READERS.
+
+A settings key is not only read. It is BUILT -- by the demo generator, by
+the notebook generator, by fixtures, by anything that hands a dict to a
+factory -- and a rename that updates every reader and no writer produces a
+settings dict that the pipeline's own pre-flight refuses. `qt/synthetic.py`
+did exactly that on the first rename: the Map Barcodes demo went on naming
+`expected_end` and failed its own validation, and it was the TESTS that
+found it, because the survey had grepped for reads.
+
+    grep for the key in every file, not for `settings[` and `.get(`
+
+This is a step and not a caveat. A reader-side survey cannot see it, and
+the failure it produces looks like the rename being wrong rather than
+incomplete.
+
 THE ORDER, AND IT IS NOT INTERCHANGEABLE:
 
   1. READERS FIRST, accepting BOTH spellings.
