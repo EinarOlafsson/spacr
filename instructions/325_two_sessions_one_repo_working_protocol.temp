@@ -5122,3 +5122,23 @@ private tutorial directory; --skip-system-deps and --no-launch are explicit.
 No consent answers are supplied, no accounts connected, no system packages
 installed. This run must finish its own import/doctor checks before it can
 be called successful. Neither installation tutorial is counted complete.
+
+CODEX TUTORIAL LANE — 2026-09-10, PUBLIC LINUX INSTALLER COMPLETED.
+
+ba8d933fa: the exact checksum-verified 1.5.0.5 public Linux installer ran
+successfully in its new private runtime. Installer, isolated import and
+doctor all returned zero. Automatic backend selection chose CUDA, with
+Torch 2.14.0+cu132, Qt 6.11.2, private Python 3.12.13. Doctor reports
+14 PASS, 3 SKIP, one optional CZI WARN. This is NOT a GPU speed benchmark
+or GUI proof. No system dependencies were installed, no personal launcher
+overwritten, no consent answers supplied and no accounts connected.
+The private install-profile confirms every consent flag is false.
+One positive/negative identity test passes; separately changing either
+measured private-receipt/exact-asset guard makes it fail. Receipt:
+tools/tutorials/evidence/2026-09-10_public_linux_installation.json.
+
+Recording work continues. The older Conda 1.5.0.4 package lacks both
+--no-setup and set_preload_policy, so its recorder must use that version's
+actual launcher/defaults rather than calling newer APIs or patching spaCR.
+The first attempted Conda recorder correctly failed on the missing newer
+preference API; the rejected take is retained, not counted as an app bug.
