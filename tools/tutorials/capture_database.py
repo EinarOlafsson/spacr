@@ -549,17 +549,21 @@ def _record_database(app, window, screen, stage, captures, capture, settle, writ
     # Extra evidence for the current footer's SQL sorting. None of these
     # frames adds a sentence to the retained eight-scene lesson.
     fill(screen._col_search, 'cell_area')
-    if screen.visible_columns() != ['cell_area']:
-        raise RuntimeError('The area column search is not unique')
+    # Search is a substring filter: the acquired table also contains
+    # cell_area_filled and cell_area_bbox. Select the exact cell_area header
+    # within those real matches, not an invented exact-match search mode.
+    area_columns = [column for column in facts['columns'] if 'cell_area' in column.lower()]
+    if screen.visible_columns() != area_columns:
+        raise RuntimeError('The area column search differs from the actual schema matches')
     for label, order in [('06_sort_descending', ('cell_area', True)),
                          ('06b_sort_ascending', ('cell_area', False)),
                          ('06c_sort_cleared', None)]:
         header = screen._view.horizontalHeader()
         section = _visible_header_section(screen.visible_columns(), 'cell_area')
-        if (screen._model.columnCount() != 1 or header.count() != 1
+        if (screen._model.columnCount() != len(area_columns) or header.count() != len(area_columns)
                 or screen._model.headerData(section, Qt.Horizontal, Qt.DisplayRole) != 'cell_area'
                 or header.isSectionHidden(section)):
-            raise RuntimeError('The actual model/header does not expose the unique cell_area section')
+            raise RuntimeError('The actual model/header does not expose the exact cell_area section')
         point = QPoint(header.sectionViewportPosition(section) + header.sectionSize(section) // 2,
                        header.viewport().height() // 2)
         if (not header.viewport().rect().contains(point)

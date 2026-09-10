@@ -394,6 +394,9 @@ def test_header_index_is_relative_to_visible_model_not_full_schema():
     assert COLUMNS.index('cell_area') == 5
     assert recorder._visible_header_section(['cell_area'], 'cell_area') == 0
     assert recorder._visible_header_section(['object_label', 'cell_area'], 'cell_area') == 1
+    # The real table has three substring matches, not an exact-match search.
+    assert recorder._visible_header_section(
+        ['cell_area', 'cell_area_filled', 'cell_area_bbox'], 'cell_area') == 0
     for columns in [[], ['another_column'], ['cell_area', 'cell_area']]:
         with pytest.raises(ValueError, match='absent or ambiguous'):
             recorder._visible_header_section(columns, 'cell_area')
