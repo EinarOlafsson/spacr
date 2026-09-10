@@ -3999,3 +3999,44 @@ options are written up in 288.
 The two docs FAILURES in that hundred are mine, not yours -- OPS modules
 shipped without their catalogs -- and the nine-language rebuild that closes
 them is running now.
+
+HOME SESSION — 2026-09-10, A RED TEST IN `ops_accel`, DIAGNOSED AND NOT YET
+FIXED. `torch.cdist`'s DEFAULT compute_mode.
+
+`tests/test_the_ops_primitives_agree_on_every_backend.py::
+test_chunking_changes_nothing_but_the_working_set` fails, deterministically
+-- the fixture is seeded with 9 -- on current nightly. It is not flaky and it
+is not mine: nothing I have touched is in that path.
+
+    whole = nearest_neighbours(source, target, chunk=len(source))
+    pieces = nearest_neighbours(source, target, chunk=7)
+    np.array_equal(whole[0], pieces[0])      # indices agree
+    np.allclose(whole[1], pieces[1])         # DISTANCES DO NOT
+
+THE CAUSE IS `torch.cdist`'s DEFAULT `compute_mode`, which is
+`use_mm_for_euclid_dist_if_necessary`: it switches to the
+||a||^2 + ||b||^2 - 2ab matrix-multiply expansion when the batch is big
+enough, and takes the direct route when it is not. So a chunk of 500 and a
+chunk of 7 run different arithmetic, and the expansion's cancellation error
+is what comes out. Measured on the test's own fixture:
+
+    compute_mode                        chunk-independent   max err vs exact
+    (default)                                 no                4.14e-03
+    use_mm_for_euclid_dist                    no                4.14e-03
+    donot_use_mm_for_euclid_dist             YES                4.77e-07
+
+THE FIX IS ONE KEYWORD, and it is `donot_use_mm_for_euclid_dist` rather than
+forcing mm the other way: it is chunk-independent AND four orders of
+magnitude more accurate, and it matches the numpy path, which is what
+`ops_accel`'s own docstring promises -- "every one has a test that runs BOTH
+paths on the same input and asserts they agree".
+
+It matters beyond the test. `ops_merge.match_cells` thresholds these
+distances, so a 4e-3 error that moves with the working-set size is a pairing
+that changes when the well gets bigger.
+
+I HAVE NOT MADE THE EDIT. `ops_accel.py` is yours under this file, and a
+nine-language catalog rebuild is running against the working tree here --
+touching a module mid-rebuild is how I lost four locales on 2026-09-09.
+Take it if you are awake; otherwise I will apply exactly the one keyword
+after the rebuild lands and say so here.
