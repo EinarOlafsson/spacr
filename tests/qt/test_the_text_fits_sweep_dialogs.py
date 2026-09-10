@@ -207,6 +207,82 @@ def _a_figure():
     return figure
 
 
+def _gate_settings():
+    """The Gate Editor's own default settings object.
+
+    THIS DIALOG WAS EXCLUDED ON A PREMISE THAT IS NOT TRUE. The note below
+    says `GateSettingsDialog` "wants an object with a ``sample_fraction``
+    attribute, and handing it a stand-in WOULD be building a fixture", and
+    files it with the 24. But `GateEditorSettings` is a frozen dataclass
+    that constructs with NO arguments and comes up with
+    ``sample_fraction = 1.0`` -- so the real object is free, and this is
+    the same case as `AnnotateSettings()`, which the same note accepts
+    because it "is the object Annotate itself constructs before it opens
+    the dialog".
+    """
+    from spacr.qt.widgets.gate_settings import GateEditorSettings
+
+    return GateEditorSettings()
+
+
+def _a_measurement_table():
+    """A measurements frame, with the column names spaCR actually writes.
+
+    `AggregationRulesDialog` offers one row per COLUMN, so the frame's
+    columns are the dialog's content: a frame with two made-up names
+    would build a two-row dialog and measure almost nothing. These are the
+    names a measure run produces, and the long ones are the point --
+    `cell_channel_1_percentile_75` is the kind of caption that overruns a
+    column header.
+    """
+    import pandas as pd
+
+    return pd.DataFrame({
+        "plateID": ["plate1"], "rowID": ["r1"], "columnID": ["c1"],
+        "cell_area": [1024.0],
+        "cell_perimeter": [128.0],
+        "cell_channel_1_mean_intensity": [0.42],
+        "cell_channel_1_percentile_75": [0.61],
+        "nucleus_channel_0_mean_intensity": [0.33],
+        "pathogen_channel_2_integrated_intensity": [98.7],
+        "cytoplasm_channel_3_standard_deviation": [0.07],
+    })
+
+
+def _compare_inputs():
+    """Object rows and the groups they are split into.
+
+    Both halves are what the Compare screen holds before it opens this:
+    a frame of object rows and a mapping of group name to the object-index
+    values in it. The group names are deliberately long, because they are
+    drawn as captions and a short one measures nothing.
+    """
+    import pandas as pd
+
+    objects = pd.DataFrame({
+        "object_index": [0, 1, 2, 3],
+        "plateID": ["plate1"] * 4,
+        "rowID": ["A", "A", "B", "B"],
+        "columnID": ["01", "02", "01", "02"],
+        "cell_area": [900.0, 1100.0, 850.0, 1250.0],
+    })
+    groups = {"TSG101 knockout": [0, 1],
+              "non-targeting control": [2, 3]}
+    return objects, groups
+
+
+def _metadata_rows():
+    """Preview rows and a destination, as the mapper hands them over."""
+    return ([
+        {"filename": "plate1_A01_f01_DAPI.tif", "plateID": "plate1",
+         "rowID": "A", "columnID": "01", "fieldID": "1", "channel": "0"},
+        {"filename": "plate1_A01_f01_GFP.tif", "plateID": "plate1",
+         "rowID": "A", "columnID": "01", "fieldID": "1", "channel": "1"},
+        {"filename": "plate1_B12_f09_Cy5.tif", "plateID": "plate1",
+         "rowID": "B", "columnID": "12", "fieldID": "9", "channel": "2"},
+    ], tempfile.gettempdir())
+
+
 DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.screens.annotate", "_SettingsDialog", _annotate_settings),
     ("spacr.qt.screens.annotate", "_GenerateAnnotationDatabaseDialog",
@@ -222,6 +298,16 @@ DIALOGS_WITH_ARGUMENTS = [
     ("spacr.qt.widgets.figure_settings", "FigureSettingsDialog", _a_figure),
     ("spacr.qt.widgets.save_figure_dialog", "SaveFigureDialog", _a_figure),
     ("spacr.qt.widgets.umap_explorer", "UmapDisplaySettings", dict),
+    # ADDED 2026-09-10. The first was excluded on a premise that does not
+    # hold -- see `_gate_settings`; the second's frame IS its content.
+    ("spacr.qt.widgets.gate_settings", "GateSettingsDialog", _gate_settings),
+    ("spacr.qt.widgets.aggregation_rules", "AggregationRulesDialog",
+     _a_measurement_table),
+    # The figure-queue one takes a figure like the other two, and
+    # `UmapAppearanceDialog` reads its argument with `.get`, so an empty
+    # mapping is the documented case rather than a shortcut.
+    ("spacr.qt.widgets.figure_queue", "_FigureSettingsDialog", _a_figure),
+    ("spacr.qt.widgets.umap_search_viewer", "UmapAppearanceDialog", dict),
 ]
 
 #: Dialogs taking more than one genuinely-suppliable argument.
@@ -240,6 +326,10 @@ DIALOGS_WITH_ARGUMENTS_MULTI = [
                "plate1_A01_f02_DAPI.tif", "plate1_B12_f09_Cy5.tif"],)),
     ("spacr.qt.widgets.measurement_compare_dialog", "_WellChoice",
      lambda: (["A01", "A02", "A03", "B01", "B02", "B03"],)),
+    ("spacr.qt.widgets.metadata_table", "MetadataTableDialog",
+     _metadata_rows),
+    ("spacr.qt.widgets.measurement_compare_dialog",
+     "MeasurementCompareDialog", _compare_inputs),
     ("spacr.qt.ai.issue_preview", "IssuePreviewDialog",
      lambda: ({"title": "Mask fails on 16-bit input from a Nikon ND2",
                "body": "Steps to reproduce, the settings used, and the "

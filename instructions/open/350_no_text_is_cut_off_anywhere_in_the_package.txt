@@ -1511,3 +1511,62 @@ MeasurementCompareDialog, MetadataColumnDialog, MetadataTableDialog,
 QCFieldBrowser, SettingsAdvisorDialog, UmapAppearanceDialog. Five of those
 want a live panel or screen, which is a fixture; the rest want a frame, a
 plan or a request, which is the line this file already drew.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- SIX MORE, AND ONE WAS EXCLUDED ON A PREMISE THAT IS NOT TRUE
+--------------------------------------------------------------------------------
+
+37 of the 47 dialogs are swept now, from 26 this morning. All six added
+here came up clean, so this is coverage repaid rather than defects found --
+which is worth recording, because a sweep that only ever appears in the log
+when it finds something looks like it is not running.
+
+    GateSettingsDialog          the real GateEditorSettings()
+    AggregationRulesDialog      a measurements frame
+    MetadataTableDialog         preview rows and a destination
+    MeasurementCompareDialog    object rows and their groups
+    _FigureSettingsDialog       a live figure, as the other two take
+    UmapAppearanceDialog        an empty mapping, which is documented
+
+THE FIRST ONE WAS EXCLUDED BY THIS FILE, BY NAME, AND THE REASON DOES NOT
+HOLD. The 2026-09-07 note says `GateSettingsDialog` "is deliberately absent:
+it wants an object with a ``sample_fraction`` attribute, and handing it a
+stand-in WOULD be building a fixture. It belongs with the other 24."
+
+But `GateEditorSettings` is a frozen dataclass that constructs with NO
+arguments and comes up with `sample_fraction = 1.0`. The real object is
+free. So this is the same case as `AnnotateSettings()`, which the very same
+note ACCEPTS on the grounds that it "is the object Annotate itself
+constructs before it opens the dialog" -- and the two were filed on opposite
+sides of the line for no difference that exists.
+
+  THE EXCLUSION WAS NEVER TESTED, which is how it survived. "It wants an
+  object with a sample_fraction attribute" is true and reads like a
+  reason; nobody tried `GateEditorSettings()` to see whether supplying one
+  cost anything. A LINE DRAWN ON AN ASSUMPTION IS WORTH RE-DRAWING ONCE
+  SOMEBODY CAN CHECK IT CHEAPLY.
+
+AND THE FIXTURES ARE THE DIALOG'S CONTENT, NOT A PLACEHOLDER FOR IT.
+`AggregationRulesDialog` offers one row per COLUMN, so a frame with two
+made-up names would build a two-row dialog and measure almost nothing; the
+frame carries the names a measure run actually writes, including
+`cytoplasm_channel_3_standard_deviation`, because the long ones are what
+overrun a header. The same rule governed the figure fixture added earlier.
+
+TEN LEFT, and they divide cleanly:
+
+    a live panel or screen   CommandPalette, RecipeDialog,
+                             UmapSearchSettingsDialog, WalkAxesDialog,
+                             LiveSettingsDialog, CropSettingsDialog
+    a domain object          ConfirmDeleteDialog (a PrunePlan),
+                             MetadataColumnDialog (a request),
+                             QCFieldBrowser (targets_from_digest records),
+                             SettingsAdvisorDialog (a reading and a current)
+
+THE FIRST SIX MAY NOT BE FIXTURES EITHER, by the same argument that moved
+`GateSettingsDialog`. A real `AppScreen` is what the user has, and
+`screen_in_a_container` in the sibling sweep already builds one for every
+declared module -- so a panel taken off a built screen is the object the
+dialog is handed in production, not a stand-in for it. That is worth
+trying before it is written off; the four domain objects are the harder
+half and may genuinely be fixtures.
