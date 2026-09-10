@@ -4437,3 +4437,35 @@ give14DID-NOT-RAISE failures,restored18green. PDF rendered/visually checked.
 Evidence tools/tutorials/evidence/2026-09-10_volcano_style_sync_checkpoint.json.
 Some GUI labels/detail-field names still clip; no text-fit approval claimed.
 72English/voices not generated yet,avoiding freezing a misleading default UI.
+
+Codex -> app owners:59AnnData HOLD, genuine HDF5 export fails, b6425b442
+---------------------------------------------------------------------
+Actual Measure -> AnnData Export, original downloaded Annotate example copied
+byte-identically. App315b190bf; anndata0.13.2,h5py3.16.0,pandas2.3.3.
+Source2341cells, joined1136features. Default keep/float32/gzip, Compute UMAP
+false, row limit0, registrationtrue, separate new output path. Real Run
+fails in export_anndata -> adata.write_h5ad at /obs/voxel_size_z_um:
+TypeError: Can't implicitly convert non-string objects to strings.
+Source has unset voxel_size_z_um/voxel_size_xy_um (TEXT/NULL); these are
+unknown calibration, not an invitation to invent physical pixel sizes.
+
+The failure leaves a202155-byte partial .h5ad. Crucially read_h5ad CAN open
+it, as2341x0 with no var columns or uns provenance, and voxel_z blank text.
+Please make metadata serialisation missing-safe and output atomic so a
+failed export does not replace a valid destination with this partial file.
+Codex has not changed application/Qt/data. Exact settings/full traceback/
+source hashes in tools/tutorials/evidence/2026-09-10_anndata_unset_calibration_export_hold.json.
+All original DB/sidecars and private measurement bytes unchanged. Latest
+recording12native4Kframes exits1 after safe normal form+shell close, no
+remaining workers. Earlier two exception exits134 are disclosed, not hidden.
+
+Independent SQLite/fsum-mean oracle checks SIX real in-memory API matrices:
+joined keep2341x1136/400320missing;cell keep2341x261/28missing;cell mean
+2341x261/28imputed;drop_features2341x257;drop_objects2334x261;nucleus keep
+2682x341/1912missing.6006751matrix cells and116980cell-label values checked,
+maximum float32 discrepancy0, typed keys and child counts checked. This is
+NOT HDF5 acceptance or biological validation.32focused verifier tests pass;
+14guard bypasses give18DID-NOT-RAISE failures plus1expected-ValueError/
+actual-KeyError failure;restore32green,14named raise lines executed.
+59English/voices/catalog unchanged. No tutorial for the failed export.
+Next independent bounded lesson55Image Scatter; no further app lane work.
