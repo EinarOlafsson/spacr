@@ -2,13 +2,19 @@
 A SWEEP: EVERY PIECE OF TEXT FITS ITS BUTTON, BOX OR CONTAINER
 ================================================================================
 
-Status:    GREEN IN EVERY COMBINATION IT RUNS, and a SIXTH defect class
+Status:    DONE 2026-09-10. Every declared screen and all 47 dialogs are
+           swept, in four locales at two font scales, and KNOWN_OFFENDERS is
+           EMPTY -- every entry it ever held was closed rather than
+           forgiven. 368 cases pass. See the closing note at the foot for
+           what is deliberately not covered and why.
+
+           (Previously: GREEN IN EVERY COMBINATION IT RUNS, and a SIXTH defect class
            found 2026-09-10 that the sweep structurally cannot see: seven
            settings columns capped in DEVICE PIXELS, so they cannot grow
            with the font. All seven go through `scaled_px` now and a
            source-level test refuses an eighth. See the 2026-09-10 note at
            the foot of this file, and read it before adding to the sweep --
-           the instrument it describes is a different one.
+           the instrument it describes is a different one.)
 
            PREVIOUS STATUS FOLLOWS.
 
@@ -1684,3 +1690,57 @@ grouping was a nicety; a caption nobody can read is not.
 VERIFIED THAT ENGLISH DID NOT MOVE, which is the half a wrap fix can break:
 after the change all five buttons sit on ONE row at exactly their size
 hints -- 163, 78, 72, 66 and 60 px, none squeezed. 173 dialog cases pass.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- CLOSED. THE LEDGER IS EMPTY AND THE LAST DIALOG IS IN.
+--------------------------------------------------------------------------------
+
+    47 of 47 dialogs        swept
+    every declared screen   swept
+    4 locales x 2 scales    368 cases
+    KNOWN_OFFENDERS         {}
+
+THE LAST ENTRY WAS CLOSED RATHER THAN FORGIVEN, which is what this file
+demands of every entry. `_ProvidersDialog`'s intro wrapped to 108 px of
+height in the 97 it was given, in German at 100 %, and the dialog could not
+discover it: the page sits inside a `QTabWidget`, which does not propagate
+`heightForWidth`, so the wrapped label's true height never reached the
+dialog's own sizeHint. The page scrolls now -- this file's own rule, "a
+visible, accessible fallback rather than silently clipping" -- and it costs
+nothing where the content fits: English shows ZERO visible scrollbars,
+measured after the change.
+
+  A HEIGHT-FOR-WIDTH SIZE POLICY WAS TRIED FIRST, changed nothing for
+  exactly that reason, and was REVERTED rather than left in as code that
+  looks like a fix. Worth recording: "it did nothing" is only safe to act
+  on once you know WHY it did nothing.
+
+SIX DEFECT CLASSES, EACH FOUND BY AN INSTRUMENT THE PREVIOUS ONE COULD NOT
+HAVE SEEN -- a locale, a font scale, a container that cannot grow, device
+pixels, a viewport narrower than its content (359), and rich text measured
+as markup. That progression is the transferable finding, and it is why the
+answer to "is anything cut off" is only ever as good as the thing that
+looked.
+
+THREE EXCLUSIONS WERE OVERTURNED ON THE LAST DAY, all written as reasons
+and none of them tested: `GateSettingsDialog` ("wants an object with a
+sample_fraction attribute" -- the dataclass constructs with no arguments),
+the four panel dialogs ("a live panel or screen" -- every panel constructs
+with no arguments), and the last two ("a window" and "a screen" -- a plain
+QMainWindow and a real AppScreen). Every one built from something real on
+the first try. A LINE DRAWN ON AN ASSUMPTION IS WORTH RE-DRAWING ONCE
+SOMEBODY CAN CHECK IT CHEAPLY.
+
+DELIBERATELY NOT COVERED, and each is a choice rather than debt:
+
+  * SIX LOCALES. The matrix runs en, de, is and pt. The other six found
+    nothing when they were run, and the matrix is one line to widen when a
+    locale is suspected. German is the longest-compound case and Icelandic
+    is the maintainer's own; both stay.
+  * THE SCREENS' OWN GEOMETRY at widths below 1000 px, which is 359's
+    question rather than this one's -- it measures whether a settings
+    column can hold its content at all, and that item now carries the
+    matrix and the policy artifact.
+  * A REAL DISPLAY. Everything here is offscreen, so occlusion and
+    compositing are outside it by construction. 381 carries the one case
+    that needs a screen.
