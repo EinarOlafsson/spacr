@@ -1640,7 +1640,7 @@ def default_region_tour(**kwargs) -> RegionTour:
     return RegionTour(REGIONS, **kwargs)
 
 
-class TourPilot:
+class _TourPilot:
     """Points a steering camera at the twenty regions, frame by frame.
 
     It joins :class:`RegionTour` to the camera, and it is a PLAIN OBJECT
@@ -2253,7 +2253,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 # one motion rather than a slide that starts and stops.
                 pilot = getattr(self, "_pilot", None)
                 if pilot is None:
-                    pilot = TourPilot()
+                    pilot = _TourPilot()
                     self._pilot = pilot
                 pilot.steer(camera, float(seconds), span)
                 return camera.advance(time.perf_counter())

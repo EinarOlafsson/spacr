@@ -1,0 +1,87 @@
+#!/bin/sh
+# Refuse to PUSH any commit that credits Claude.
+#
+# WHY A SECOND GUARD, WHEN commit-msg ALREADY REFUSES ONE. The two catch
+# different failures and neither covers the other:
+#
+#   * `commit-msg` runs only in a clone where somebody has run
+#     `git config core.hooksPath tools/hooks`. That is one command a person
+#     can forget, and a session working in a fresh worktree has forgotten it
+#     by construction.
+#   * `tests/test_no_commit_credits_claude.py` runs in CI whether or not
+#     anybody remembered -- but it reports AFTER the push, and it only
+#     reports when CI runs. Measured 2026-09-10: 24 of the last 30 runs on
+#     nightly were cancelled before finishing, so the backstop that is
+#     supposed to be unconditional currently fires about once in fifteen.
+#
+# THE PUSH IS THE LAST MOMENT THE REPOSITORY CAN STILL SAY NO, and it is the
+# only boundary that does not depend on either a per-clone setting or on CI
+# reaching the end of a run.
+#
+# AND THE RULE CANNOT BE ENFORCED FROM INSIDE THE REPOSITORY ALONE, which is
+# the reason this file exists rather than a better comment somewhere. The
+# instruction to add `Co-Authored-By: Claude` arrives from OUTSIDE the tree,
+# in the harness that runs the agent, where no hook, test or instruction file
+# can reach it. Seventy trailers reached nightly that way after the history
+# had already been cleaned once, and three more reached a release merge
+# branch on 2026-09-10 in the very repository where 58 exists to remove them.
+#
+# Switch it on per clone, the same way as the commit-msg guard:
+#
+#     git config core.hooksPath tools/hooks
+#
+# Reads git's pre-push protocol on stdin: one line per ref being pushed,
+# `<local ref> <local sha> <remote ref> <remote sha>`.
+
+zero=$(git hash-object --stdin </dev/null | tr '0-9a-f' '0')
+found=0
+
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+    # A DELETION PUSHES NOTHING, so there is nothing to inspect. Without
+    # this the range below becomes `<sha>..0000000` and git errors on a
+    # push that is entirely legitimate.
+    [ "$local_sha" = "$zero" ] && continue
+
+    if [ "$remote_sha" = "$zero" ]; then
+        # A NEW BRANCH HAS NO REMOTE SIDE TO SUBTRACT. Bounding it by every
+        # other ref the remote already has keeps this to the commits the
+        # push actually introduces; scanning from the root would read the
+        # whole history on every first push of a topic branch.
+        range="$local_sha --not --remotes"
+    else
+        range="$remote_sha..$local_sha"
+    fi
+
+    # ANCHORED TO THE START OF A LINE. An unanchored match counts the
+    # commits that DISCUSS the trailer -- this repository has three, and
+    # counting them as instances is how a clean history was reported as
+    # dirty on 2026-09-10.
+    offenders=$(git log $range \
+        --format='%H %s%n%(trailers:key=Co-Authored-By,valueonly)' \
+        2>/dev/null | grep -B1 -iE '^[[:space:]]*claude' | head -20)
+
+    if [ -n "$offenders" ]; then
+        echo "pre-push: REFUSED — a commit being pushed credits Claude." >&2
+        echo "$offenders" >&2
+        found=1
+    fi
+
+    people=$(git log $range --format='%an|%cn' 2>/dev/null \
+        | grep -iE 'claude|anthropic' | sort -u | head -10)
+    if [ -n "$people" ]; then
+        echo "pre-push: REFUSED — a commit being pushed is authored or" >&2
+        echo "  committed by Claude:" >&2
+        echo "$people" >&2
+        found=1
+    fi
+done
+
+if [ "$found" -ne 0 ]; then
+    echo "" >&2
+    echo "  This repository is authored by Einar Olafsson alone." >&2
+    echo "  Rewrite the offending messages and push again; see" >&2
+    echo "  instructions/open/58_remove_claude_as_a_github_contributor.txt" >&2
+    exit 1
+fi
+
+exit 0

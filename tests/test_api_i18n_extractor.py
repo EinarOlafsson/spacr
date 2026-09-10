@@ -951,7 +951,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     #          is a translation nine locales had already paid for. Cheap
     #          here because they were hours old; it would not be if they had
     #          shipped.
-    expected = 10_306
+    # 10,306 -> 10,299. THIS COMMENT'S OWN WARNING FIRED, and correctly:
+    # it says a FALL means a public name went away and that nine locales
+    # had already paid for its translation. Twelve did. They were hours
+    # old and had never shipped, which is the case the note calls cheap,
+    # and they were withdrawn because none of the four symbols behind
+    # them was API -- each has exactly one caller inside the package.
+    expected = 10_294
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -969,7 +975,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # ALIASES ARE ZERO NOW, so this equals `expected`. The assertion is kept
     # rather than collapsed: the day an alias is legitimately added, this is
     # what fails separately from the surface count and says so.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_306
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_294
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1004,6 +1010,12 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     assert builder.AUTOAPI_NON_RENDERED_MODULES == {
         "spacr.qt.__main__",
         "spacr._v1_v2_bridge",
+        # ADDED 2026-09-10 with `spacr/qt/layout_policy.py` becoming
+        # private. AutoAPI hides a leading-underscore module because
+        # `conf.py` sets no `private-members`; this extractor does not,
+        # so the two are told separately and this frozenset is the
+        # hand-maintained mirror of what the site actually drops.
+        "spacr.qt._layout_policy",
     }
     assert builder.AUTOAPI_NON_RENDERED_SYMBOLS == {
         "spacr.qt.run_without_setup",
@@ -1075,7 +1087,17 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # pre-filter 10,509, post-filter 10,296, boundary 213 -- and every
     # bucket below still reports the count printed beside it, which is the
     # part that says nothing crossed.
-    assert 10_519 - len(docs) == 213
+    # 213 -> 220. The boundary itself did not move; the SURFACE
+    # did, so the difference grows by the seven the filter now
+    # subtracts. 2026-09-10, second MOVE THAT DAY: four symbols added the night
+    # before came OFF the public surface. `open_at_the_measured_width`
+    # and `the_missing_pip_escape` have one caller each inside
+    # `qt/app.py`, `TourPilot` is instantiated once inside
+    # `fractal_travel`, and `layout_policy` is read by nothing but
+    # `app.py` -- none of the four was API, and twelve entries were
+    # about to be translated into nine languages for helpers nobody
+    # outside the package calls.
+    assert 10_519 - len(docs) == 225
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

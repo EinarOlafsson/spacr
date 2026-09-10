@@ -1470,7 +1470,7 @@ def test_the_layout_policy_reader_imports_nothing_heavy():
     accidental `import numpy` at the top of the reader would be invisible.
     """
     root = Path(__file__).resolve().parent.parent
-    source = (root / "spacr" / "qt" / "layout_policy.py").read_text(
+    source = (root / "spacr" / "qt" / "_layout_policy.py").read_text(
         encoding="utf-8")
     for heavy in ("import numpy", "import pandas", "import torch",
                   "import matplotlib", "from PySide6", "import PySide6",

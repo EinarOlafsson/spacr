@@ -15,7 +15,7 @@ import json
 
 import pytest
 
-from spacr.qt import layout_policy as lp
+from spacr.qt import _layout_policy as lp
 
 
 @pytest.fixture

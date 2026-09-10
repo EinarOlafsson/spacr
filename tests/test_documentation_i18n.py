@@ -45,7 +45,26 @@ TOOLS = ROOT / "tools"
 #: and never mid-batch -- a public docstring added between passes stales
 #: every locale that has already been rebuilt and nothing reports it until
 #: the counts are compared across all ten catalogs.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_306
+#: 10,306 -> 10,299 on 2026-09-10, -12/+5, and this one SHRINKS the
+#: surface deliberately. Four symbols added the night before were not
+#: public API and should never have been on it: `open_at_the_measured_width`
+#: and `the_missing_pip_escape` have one caller each inside `qt/app.py`,
+#: `TourPilot` is instantiated once inside `fractal_travel`, and
+#: `spacr/qt/layout_policy.py` is read by nothing but `app.py`. All four are
+#: private now, which takes twelve entries off (the two helpers, TourPilot
+#: and its four members, the module and its four functions) and puts five
+#: back under `_layout_policy` -- a module keeps its docstring on the
+#: inventory whatever it is called; only the leading underscore on a
+#: FUNCTION or CLASS removes it.
+#:
+#: WHY IT IS WORTH A REBUILD RATHER THAN LEAVING THEM. Those twelve entries
+#: were about to be translated into nine languages and maintained there, for
+#: helpers with one caller each. The rebuild has to happen either way: the
+#: same four docstrings were edited the same night to take instruction
+#: numbers out of published text, which changed their English and staled
+#: their hashes in every locale. This makes the one pass smaller instead of
+#: adding a sixth.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_299
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",
