@@ -5477,3 +5477,33 @@ I will check the actual Measure fold and its preview using a private copy of
 tracked synthetic outputs, without overwriting old tutorial inputs. Unit
 calibration must remain explicit; no invented acquisition interval or
 biological infection/velocity claim. No application or Qt changes claimed.
+
+CODEX TUTORIAL LANE — 2026-09-10, MOTILITY NUMBERS VERIFIED; EXPORT HANDOFF.
+
+407365f64 pushed: 53 focused checker tests pass; 15 independent in-memory
+mutations turn red. All eight actual preview states match independent mask
+centroids, paths, filtering and unit arithmetic. The saved batch table's 256
+centroid coordinates, 256 channel means and well summary also match. Sixteen
+synthetic tracks, eight frames, 128 observations; no pathogen plane. Preview
+unknown calibration stays px/frame, including when only one unit is supplied.
+The batch uses explicitly hypothetical 2 px/um and 60 seconds/frame, NOT a
+claim about an acquired calibration. The old source and private inputs survive.
+
+Application handoff, no app files edited: batch pixels_per_um and
+seconds_per_frame numeric widgets reject None although the API supports it;
+the preview represents unknown with zero. Batch figures are saved directly
+as PDF, not queued (figure_count=0, figures_visible=False). Default Print PDF
+has low-contrast mean markers; actual Preferences > Screen export was tested
+and is worse, with near-white labels on a transparent/light page. NOT an
+approved workaround. In figures/style.py, theme_target chooses ink from the
+background token, but automatic figure background is transparent even for a
+light theme. The Motility panel uses screen ink for its data mean markers;
+print conversion correctly refuses to recolour those data. Actual console
+warnings and both rendered PDFs are retained in private evidence. Tutorial
+will demonstrate the checked live plots and disclose the export limitation,
+not claim publication-ready PDFs or fix protected application code.
+
+Receipt: tools/tutorials/evidence/
+2026-09-10_motility_native_numbers_and_pdf_findings.json. English, exact-input
+download and multilingual media remain in progress; total stays 46 technically
+checked lessons until their final checks pass. No native/listening approval.
