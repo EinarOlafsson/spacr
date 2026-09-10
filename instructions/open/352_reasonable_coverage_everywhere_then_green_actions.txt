@@ -204,3 +204,67 @@ is wrong, the per-file measurement is wrong in the pessimistic direction,
 and what is left at the end is defensive guards over invariants asserted
 elsewhere. The work is the measurement and the reading; the tests are
 small.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- qt/widgets/cell_montage_view: THE STALE LIST SAID 6, IT IS 4
+--------------------------------------------------------------------------------
+
+Third module, same method, same result in the same direction: the list at
+the top of this file says 6 items for `qt/widgets/cell_montage_view.py`.
+Measured today over all 32 test files that touch it -- 1,516 statements,
+420 branches -- it is 99.74 %, with TWO uncovered statements and TWO
+partial branches. One of the four was a behaviour; three are guards over
+invariants asserted elsewhere.
+
+THE MEASUREMENT WAS THE HARD PART AGAIN, and it produced a trap worth more
+than the number. See the note in 288_coverage_state: `--source=` makes this
+module's suite SEGFAULT, three runs out of three, and removing it makes the
+same suite pass, two out of two. Measure without `--source` and filter with
+`--include` at report time.
+
+  HOW WRONG A PARTIAL MEASUREMENT LOOKS. Three numbers came out of the same
+  module today before the method was right: 98.09 % (a combine that had
+  silently dropped a crashed process), 89.05 % (a combine run while the
+  loop was still going) and 54.60 % (a `coverage combine` that ERASED the
+  target instead of merging into it -- it does that unless told otherwise,
+  and it takes the source files with it). None of them announced that it
+  was partial. Check the file count in the combine line against the number
+  of test files you ran, every time.
+
+WHAT WAS ACTUALLY LEFT:
+
+  * `_clear()`'s loop body, line 3574 -- A REAL BEHAVIOUR AND NOW TESTED.
+    `clear()` is the entry point the Regression screen calls when the
+    loaded run changes, and it is the subject of issue 116, where a user's
+    Cells tab kept showing the previous run. THE EXISTING REGRESSION TEST
+    CALLS IT ON A VIEW WITH NO TABS OPEN, so it proved the method exists
+    and nothing about what it does; the loop body had never run. The new
+    test builds a real montage, asserts the grids have something in them,
+    clears, and asserts the TABS SURVIVE and the GRIDS EMPTY -- clearing is
+    not closing, and a `clear()` that took the tabs away would break
+    comparing one gene against another.
+
+  * `_announce`'s "nothing selected" branch, line 3340 -- UNREACHABLE, and
+    the reason is worth keeping. `_announce` prints `reason()` when it is
+    non-empty and only otherwise falls through to a branch testing
+    `not self._name`. But `reason()` returns a sentence for BOTH ways
+    `_name` can be falsy and returns `''` only after passing its own
+    `if not self._name` guard -- so `_name` is always truthy by the time
+    the second check runs. THE SENTENCE IS NOT LOST: a user who has
+    selected nothing still sees `NOTHING_SELECTED`, from `reason()`,
+    through the first branch. The dead code is the duplicate, not the
+    message, which is why the branch is asserted rather than deleted.
+
+  * The two `elif isinstance(widget, QLineEdit)` fall-throughs in
+    `_write_back` and `_read_back`, branches 2874->2858 and 2897->2888 --
+    UNREACHABLE over an invariant, and the invariant is now parametrized
+    over all eight mirrored settings. Neither loop has an `else`, so a
+    mirrored widget of any other type would be written back as nothing and
+    read back as absent: a setting that appears to save and does not. The
+    guard is cheap; the invariant is what keeps the settings window honest.
+
+THREE MODULES IN, THE PATTERN HAS NOT CHANGED: the stale list's number is
+wrong, the per-file measurement is wrong pessimistically, and what is left
+at the end is guards over invariants plus the occasional real behaviour
+that a test touched without exercising. THE LIST AT THE TOP OF THIS FILE
+SHOULD NOT BE TRUSTED FOR ANY MODULE -- re-measure before writing a test.

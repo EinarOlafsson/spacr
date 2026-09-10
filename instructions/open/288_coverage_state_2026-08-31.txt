@@ -1149,3 +1149,49 @@ DO NOT INSTALL IT TO MAKE THE OLD COMMAND WORK. The env is shared with the
 AF3 job and with other sessions, and a package added mid-run is a change to
 their environment as well as to this one. The three-line form above is not
 worse.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- `--source=` SEGFAULTS THE Qt SUITE. MEASURE WIDE, FILTER LATE.
+--------------------------------------------------------------------------------
+
+THE TRIGGER IS `--source=`, NOT COVERAGE. Measured on
+`tests/qt/test_cov_r5_cell_montage_view.py`, everything else held fixed --
+same file, same deterministic order under `-p no:randomly`, same tracer:
+
+    coverage run --source=spacr.qt.widgets.cell_montage_view -m pytest ...
+        Segmentation fault, 3 runs out of 3
+    coverage run                                            -m pytest ...
+        17 passed, 2 runs out of 2
+
+TWO EXPLANATIONS WERE WRONG BEFORE THAT ONE, and both are recorded because
+each cost a measurement:
+
+  * "PySide6 crashes raising TypeError from `addWidget` under a tracer."
+    A four-line reproduction -- QApplication, a QVBoxLayout, `addWidget`
+    with a plain `object()` -- raises cleanly WITH coverage and without.
+    The traceback naming that line names where the process died, not what
+    killed it.
+  * "It is order-dependent, so `pytest-randomly` is the cause." `-p
+    no:randomly` crashes too, and the single test alone under coverage
+    passes. It needs the file's other tests AND `--source`.
+
+  IT IS NOT THE TRACER IMPLEMENTATION EITHER: `COVERAGE_CORE=sysmon` and
+  `COVERAGE_CORE=pytrace` both crash with `--source` set.
+
+WHAT TO DO. Measure WIDE and filter at report time -- the number is
+identical and no test has to be dropped:
+
+    python -m coverage run --data-file=<outside the worktree> -m pytest <file> ...
+    python -m coverage report --data-file=<...> --include="*/<module>.py"
+
+  THE ALTERNATIVE WAS DESELECTING THE TEST THAT DIED, which would have
+  measured this module with one of its tests removed and called the result
+  coverage. `--include` costs nothing and keeps all 32 files.
+
+AND `coverage combine` ERASES ITS TARGET unless told otherwise. Combining
+into a data file that already holds a previous combination REPLACES it, and
+it deletes the per-process files it read on the way -- `--keep` did not
+preserve them here. Two measurements were lost to this in one night. Copy
+the raw files aside first, combine ONCE at the end, and check the
+"Combined N files" line against the number of processes you ran: 16 when
+you ran 32 is a silently partial number that reports as a clean one.
