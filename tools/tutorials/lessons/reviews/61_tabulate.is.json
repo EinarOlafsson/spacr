@@ -1,0 +1,39 @@
+{
+  "lesson": "61_tabulate",
+  "english_sha256": "f09a40c85fa7b4a0c02c18d7fc14858799cdd4342e43b4630a7a480d73536ccd",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine pivot, exports and numeric scatter; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Tabulate: flokka raunverulegar mælingar, athuga fjölda og uppfæra línuritið",
+  "description": "Opnaðu Tabulate í Database Browser, taktu saman niðurhalaðar mælingar eftir brunnum og myndsviðum, skoðaðu gildi sem vantar, flyttu út sannreynda tölfræði og greindu uppfærða töflu frá úreltu eða flokkaskiptu línuriti.",
+  "objectives": [
+    "Finna undirverkfærið og draga raunverulega dálka í hópa eftir brunnum og myndsviðum.",
+    "Lesa fjölda, samsetningar sem vantar, staðalfrávik úrtaks og hlutfallsmörk án þess að búa til óháðar endurtekningar.",
+    "Sía mælingar, uppfæra línuritið sérstaklega og greina flokkaása frá talnaásum.",
+    "Flytja út alla samantektina og skrá hópaskiptingu, tölfræði og síur."
+  ],
+  "prerequisite": "Notaðu niðurhalanlega Annotate-dæmið á einkaeintaki af measurements.db sem er eins bæti fyrir bæti: 2.341 hlutur, fjórir brunnar og 51 mæld samsetning brunns og myndsviðs. Þetta eru ekki 2.341 óháðar tilraunir; rowID er staðsetningarmerking, ekki staðfest meðferð. Öll sýnd tölfræðigildi, CSV-reitir og 51 lokahæð punkta voru athuguð óháð útreikningum appsins. Líffræðileg áhrif, ásamerkingar sem vantar, óendanleg gildi og stór takmörkuð net eru ekki staðfest. Tabulate tekur saman fyrirliggjandi gögn án eigin niðurhals, myndforskoðunar, GPU-vinnslu, gervigreindarstjórnborðs eða almenns Plot-rofa. Notaðu eigin Load table og Export CSV þess, ekki stýringar Database Browser utan um það.",
+  "scenes": [
+    "Opnaðu Help, síðan Database browser, og veldu innfellda Tabulate-hnappinn. Þetta er undirverkfæri Database Browser, ekki sjálfstæður reitur á Home. Við notum einkaeintak af raunverulega niðurhalanlega Annotate-dæminu. Fyrri Annotate-leiðbeiningarnar sýna hvernig gagnasafnið er sótt.",
+    "Veldu Load table innan Tabulate, opnaðu afrit mæligagnagrunnsins og veldu cell. Taflan öll inniheldur 2.341 hlut. Database Browser utan um hana hefur eigin stýringar; þær eru ekki inntak eða útflutningur þessarar samantektartöflu. Innlestur einn velur ekki hópaskiptinguna.",
+    "Veldu Plate / row / column. Lyklarnir þrír birtast í Rows í stigskiptri röð. Hafðu Values tómt til að telja upprunaraðir: Brunnarnir fjórir innihalda 615, 525, 700 og 501 hlut. Þetta er frumufjöldi, ekki fjöldi óháðra tilraunaendurtekninga.",
+    "Leitaðu að fieldID og dragðu það í Columns. Fjórir brunnar og 13 myndsviðsmerkingar gefa 52 mögulegar samsetningar, en aðeins 51 inniheldur mælingar. Haltu bendlinum yfir auða reitnum fyrir raðmerkingu 5, dálkamerkingu 2 og myndsvið 20. Engar upprunaraðir eru fyrir þá samsetningu; þetta er ekki mælt núllgildi.",
+    "Tæmdu Columns-svæðið, leitaðu að cell_area og dragðu það í Values. Sjálfgefin tölfræði er fjöldi, meðaltal og staðalfrávik úrtaks. Taflan reiknast aftur þegar ásar eða tölfræði breytast. Leitarglugginn síar dálkanöfn, ekki frumuhópinn.",
+    "Í þessari útgáfu geta lágar töfluraðir falið síðari textalínur, þar á meðal n. Haltu bendlinum yfir niðurstöðureit til að lesa alla tölfræðina og fjöldann á bak við hana. Staðalfrávikið lýsir breytileika milli hluta, ekki óvissu milli óháðra brunna. Hjálpartextinn námundar tölurnar sem birtast.",
+    "Kveiktu á median, sem og quantile. Við 0,75 er quantile efra fjórðungsmarkið, reiknað með línulegri brúun. SEM er staðalfrávik úrtaks deilt með kvaðratrót fjölda tiltækra mælinga. Það leiðréttir ekki fyrir því að hlutir deili myndsviði eða brunni og er því ekki óháð líffræðileg óvissa.",
+    "Breyttu Quantile at í 0,5. Hlutfallsmarkið er nú jafnt miðgildinu: 22.400 í fyrsta brunninum. Hin tölfræðin breytist ekki. Settu aftur 0,75 og slökktu á viðbótartölfræðinni áður en þú ferð aftur í einfaldari samantektina.",
+    "Skiptu flatarmáli út fyrir einsleitnimælingu rásar 0 við fjarlægð 32. Þar vantar í raun sjö gildi, svo 2.334 mæligildi eru tiltæk. Í þessum brunni gefur 501 upprunaröð aðeins 498 gildi. Fjöldinn fer eftir völdum mæliþætti; mælingar sem vantar eru ekki núll.",
+    "Veldu aftur cell_area og Export CSV í Tabulate með nýju skráarnafni. Brunnasamantektin hefur fjórar raðir og sex dálka: þrjá hóplykla, n, meðaltal og staðalfrávik. Hvert útflutt gildi var borið saman við upprunann. Skráðu hópaskiptingu, tölfræði og síur sérstaklega; CSV-skráin er ekki vistuð gagnvirk forskrift.",
+    "Veldu Plot this table og dragðu columnID á X, mean á Y og rowID á Colour. Línuritið fær fjórar samantektarraðir, ekki þúsundir einstakra frumna. Athugaðu: Automatic meðhöndlar þessi fjögur ólíku meðaltöl sem flokka og teiknar hitakort. Það sýnir ekki stærðir þeirra á samfelldum kvarða.",
+    "Bættu cell_area við síuna hægra megin og stilltu lágmarkið á 21.925. Taflan tekur strax saman þá 1.171 hluti sem eftir eru. Línuritið heldur gömlu samantektinni þar til þú ýtir aftur á Plot this table. Sýnilegt línurit sannar ekki að það endurspegli núverandi síu.",
+    "Ýttu aftur á Plot this table til að flytja endurreiknuð meðaltöl yfir. Línuritið inniheldur nú fjóra síaða hópa, þó Automatic meðhöndli meðaltölin enn sem flokka. Athugasemd segir að upprunalega flatarmálssían geti ekki beinst að samantektinni: Hún inniheldur mean, ekki cell_area. Það þýðir ekki að taflan fyrr í vinnslunni hafi hunsað síuna.",
+    "Veldu Clear all í síunni hægra megin og síðan Plot this table aftur. Upprunalegir 2.341 hlutir og brunnsmeðaltöl koma aftur. Síun hér eyðir ekki upprunamælingum. Flyttu síaðar og ósíaðar samantektir út undir mismunandi nöfnum ef þú þarft báðar.",
+    "Til að fá aðra sýn á myndsviðsstigi skaltu draga fieldID í Rows á eftir brunnslyklunum. Netið hefur 52 raðir og 51 mældan hóp. Tölfræðin lýsir nú myndsviði innan brunns, ekki öllum brunninum. Hver mældur hópur inniheldur 15–88 hluti; fleiri hópar búa ekki til óháðar tilraunir.",
+    "Ýttu á Plot this table, settu fieldID á X, haltu mean á Y og rowID á Colour og veldu Scatter undir Plot. Með þessum 51 ólíku myndsviðsmeðaltölum merkir raunverulegi dálkalistinn mean sem samfellt. Athugaðu hlutverk og ásamerkingar í stað þess að gera ráð fyrir að tölur séu alltaf meðhöndlaðar tölulega.",
+    "Línuritið sýnir nú 51 raunverulegt myndsviðsmeðaltal á samfelldum lóðréttum kvarða. Hæð hvers punkts var athuguð gegn sjálfstætt reiknaðri samantekt. Endurteknar myndsviðsmerkingar tilheyra mismunandi brunnum; litir sýna staðsetningarmerkingar raða, ekki staðfestar meðferðir. Þessi hópaða tafla hefur enga hlutalykla, svo val með bursta getur ekki valið einstakar myndir.",
+    "Flyttu myndsviðssamantektina út: 52 raðir og sjö dálkar, þar sem ein raunverulega tóm samsetning er áfram auð. Við flutning í línuritið er þeim hópi sleppt og því verða punktarnir 51. Í endurtakanlegum kóða taka pivot og PivotSpec í Qt-einingunni pivot_spec í spaCR við þessum valkostum og to_csv skrifar niðurstöðuna. Varðveittu upprunann og skráðu nákvæma hópaskiptingu og síu."
+  ]
+}
