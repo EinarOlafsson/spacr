@@ -4,13 +4,6 @@
   "records": [
     {
       "table": "setting_tooltips",
-      "key": "denoise",
-      "source_sha256": "e8d3043fff3f1ec5931210d6e8734bf591c5de426bad9eb21a43833ede036c17",
-      "source": "Legacy denoising toggle for the mask pipeline. This key is not read and has no effect. To enable denoising, set the per-object restore settings (cell_restore_type, nucleus_restore_type, or pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
-      "translation": "마스크 파이프라인의 레거시 노이즈 제거 토글입니다. 이 키는 읽히지 않으므로 효과가 없습니다. 노이즈 제거를 사용하려면 객체별 복원 설정 cell_restore_type, nucleus_restore_type 또는 pathogen_restore_type 을 'denoise' 로 지정하십시오. 그러면 분할이 Cellpose 의 CellposeDenoiseModel 을 통해 수행됩니다. 기본값 False."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "dependent_variable",
       "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
       "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
@@ -18,7 +11,7 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "expected_end",
+      "key": "window_length",
       "source_sha256": "532977eddbbb1d45214aec1cf68b7173f3402339123008ba82e8529b44d7589a",
       "source": "Number of bases sliced out of each read starting at offset_start relative to the target_sequence hit; this window is what the regex is matched against. It must span the whole barcode block (column + gRNA + row) or the regex stops matching and reads are dropped; shorter reads are padded with 'N'. Default 89.",
       "translation": "target_sequence 가 발견된 위치를 기준으로 offset_start 에서 시작해 각 읽기에서 잘라낼 염기 수입니다. 정규식은 이 구간과 일치시킵니다. 열, gRNA, 행으로 된 전체 바코드 블록을 포함해야 하며, 짧으면 정규식이 맞지 않아 읽기가 버려집니다. 더 짧은 읽기는 'N' 으로 채웁니다. 기본값 89."
@@ -106,13 +99,6 @@
       "source_sha256": "c65de1e47b95f846333d5770627464c353d27934fb59976c22c97d997f7fe72d",
       "source": "How the elastic-net penalty is split between L1 and L2: 1.0 is a pure lasso (sparse, picks one gRNA out of a correlated group), 0.0 is a pure ridge (dense, shares the effect across the group), and values between keep some of both. Use 0.5 when correlated gRNAs of the same gene should be selected together rather than arbitrarily. Read only by regression_type 'elasticnet'. Default 0.5.",
       "translation": "elastic-net 벌점을 L1 과 L2 로 나누는 비율입니다. 1.0 은 순수 lasso 로 희소하며 상관된 gRNA 그룹에서 하나를 고르고, 0.0 은 순수 ridge 로 조밀하며 효과를 그룹에 나눕니다. 중간 값은 두 성질을 섞습니다. 같은 유전자의 상관된 gRNAs 를 임의로 하나만 고르지 않고 함께 선택하려면 0.5 를 사용하십시오. regression_type 'elasticnet' 에서만 읽습니다. 기본값 0.5."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "location_column",
-      "source_sha256": "b731d5126775b4848e98f08f48537deb7615c5ef98ef12d2ab44d7b6c281c42f",
-      "source": "Metadata column searched for positive_control and negative_control values when labelling rows for machine-learning training, normally 'columnID' or 'rowID'. Set 'rowID' when controls are arranged along plate rows instead of columns. annotation_column overrides this setting when specified. Default 'columnID'.",
-      "translation": "머신 러닝 훈련용 행에 레이블을 지정할 때 positive_control 과 negative_control 값을 검색하는 메타데이터 열이며, 일반적으로 'columnID' 또는 'rowID' 입니다. 대조군이 플레이트 열이 아니라 행을 따라 배치된 경우 'rowID' 를 설정하십시오. annotation_column 을 지정하면 이 설정보다 우선합니다. 기본값 'columnID'."
     },
     {
       "table": "setting_tooltips",

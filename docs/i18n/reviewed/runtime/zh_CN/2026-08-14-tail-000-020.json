@@ -102,13 +102,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "denoise",
-      "source_sha256": "e8d3043fff3f1ec5931210d6e8734bf591c5de426bad9eb21a43833ede036c17",
-      "source": "Legacy denoising toggle for the mask pipeline. This key is not read and has no effect. To enable denoising, set the per-object restore settings (cell_restore_type, nucleus_restore_type, or pathogen_restore_type) to 'denoise', which routes segmentation through Cellpose's CellposeDenoiseModel. Default False.",
-      "translation": "掩模流水线的旧版去噪开关。此键不会被读取，因此不起作用。若要启用去噪，请将各对象的恢复设置（cell_restore_type、nucleus_restore_type 或 pathogen_restore_type）设为 'denoise'，这样分割会通过 Cellpose 的 CellposeDenoiseModel 执行。默认值为 False。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "dependent_variable",
       "source_sha256": "77cf66911bed70b5d009006312bd6888bbec98dcdbb1ccd07a4d8dc7dd6b5bb9",
       "source": "Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",

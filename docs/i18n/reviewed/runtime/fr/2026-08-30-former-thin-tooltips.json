@@ -11,24 +11,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "normalize_plots",
-      "source_sha256": "9f271636f7570707541db59d0a5f36cd1c25dba4262e80e7483963c8c491050a",
-      "source": "Legacy compatibility field retained in settings snapshots. Current plotting paths do not read it; use each plot's normalize and percentile controls instead. Changing this value has no effect on figures or measurements. Default True.",
-      "translation": "Champ de compatibilité hérité conservé dans les instantanés de paramètres. Les chemins de tracé actuels ne le lisent pas ; utilisez plutôt les contrôles de normalisation et de percentiles propres à chaque graphique. Modifier cette valeur n'affecte ni les figures ni les mesures. Valeur par défaut True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "organelle_chann_dim",
       "source_sha256": "67f7df6badb6d135b07a1dcfbcb99bdb32d7f7d05f80890e80122c6e40f46c7d",
       "source": "Legacy merge field retained for older settings files. Current Mask uses organelle_channel to decide whether to append the mask plane, and Measure uses organelle_mask_dim to locate that plane; changing this field has no effect. Default None.",
       "translation": "Champ de fusion hérité conservé pour les anciens fichiers de paramètres. Le module Mask actuel utilise organelle_channel pour décider d'ajouter ou non le plan de masque, et Measure utilise organelle_mask_dim pour localiser ce plan ; modifier ce champ n'a aucun effet. Valeur par défaut None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "visualize",
-      "source_sha256": "170380ce413dd6a38de871cf210f5a2d523ce7a348e1bd31d07ac5850ff50b6f",
-      "source": "Legacy Image UMAP crop selector retained in saved settings. The current workflow always joins measurement tables and crops cell images so that thumbnail labels match measurement rows; changing this value does not change the embedding or thumbnails. Default 'cell'.",
-      "translation": "Sélecteur hérité de recadrage Image UMAP conservé dans les paramètres enregistrés. Le flux de travail actuel joint toujours les tables de mesure et recadre des images de cellules afin que les libellés des miniatures correspondent aux lignes de mesure ; modifier cette valeur ne change ni la projection ni les miniatures. Valeur par défaut 'cell'."
     },
     {
       "table": "setting_tooltips",

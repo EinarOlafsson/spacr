@@ -151,13 +151,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "control_wells",
-      "source_sha256": "c2973f1861aec26da18854b73c62efeb1b764afbda87f3489a8737d342588dd7",
-      "source": "These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value. Regression initializes it from filter_value plus any declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
-      "translation": "这些孔用于设定预通透染色的经验阴性分布，并且不参与效率计算。可指定寄生虫未接受染色的列（'c12'）、行（'r1'）、孔（'r1_c12'）或完整的微孔板键；None 使用自动的逐视野方法。筛选回归会将此键复用为与 filter_value 匹配的列表。回归会根据 filter_value 以及任何已声明的对照区组进行初始化（随附的默认值为 ['c1', 'c2', 'c3']）。默认值为 None。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "custom_model",
       "source_sha256": "c7dac75d0952971d5bd01b9717200d27bc9368bcc084bb30d64353c013e6d98a",
       "source": "Path to a saved Cellpose model, loaded as pretrained_model by the mask-finetune tool. When set, model_type is passed as None and diameter as diam_mean (which Cellpose 4.x ignores with a warning). model_name remains active and selects the channel pair sent to model.eval; an incompatible value therefore segments the wrong channels. Default None.",

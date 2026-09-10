@@ -11,24 +11,10 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "normalize_plots",
-      "source_sha256": "9f271636f7570707541db59d0a5f36cd1c25dba4262e80e7483963c8c491050a",
-      "source": "Legacy compatibility field retained in settings snapshots. Current plotting paths do not read it; use each plot's normalize and percentile controls instead. Changing this value has no effect on figures or measurements. Default True.",
-      "translation": "Legacy-Kompatibilitätsfeld, das in Einstellungsabbildern erhalten bleibt. Die aktuellen Diagrammpfade lesen es nicht; verwenden Sie stattdessen die Normalisierungs- und Perzentilregler des jeweiligen Diagramms. Eine Änderung dieses Werts beeinflusst weder Abbildungen noch Messungen. Standard True."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "organelle_chann_dim",
       "source_sha256": "67f7df6badb6d135b07a1dcfbcb99bdb32d7f7d05f80890e80122c6e40f46c7d",
       "source": "Legacy merge field retained for older settings files. Current Mask uses organelle_channel to decide whether to append the mask plane, and Measure uses organelle_mask_dim to locate that plane; changing this field has no effect. Default None.",
       "translation": "Legacy-Zusammenführungsfeld für ältere Einstellungsdateien. Das aktuelle Modul Mask verwendet organelle_channel, um zu entscheiden, ob die Maskenebene angefügt wird, und Measure verwendet organelle_mask_dim, um diese Ebene zu finden; eine Änderung des Felds hat keine Wirkung. Standard None."
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "visualize",
-      "source_sha256": "170380ce413dd6a38de871cf210f5a2d523ce7a348e1bd31d07ac5850ff50b6f",
-      "source": "Legacy Image UMAP crop selector retained in saved settings. The current workflow always joins measurement tables and crops cell images so that thumbnail labels match measurement rows; changing this value does not change the embedding or thumbnails. Default 'cell'.",
-      "translation": "Legacy-Beschnittauswahl für Image UMAP, die in gespeicherten Einstellungen erhalten bleibt. Der aktuelle Arbeitsablauf verknüpft immer Messtabellen und beschneidet Zellbilder, damit die Miniaturbeschriftungen den Messzeilen entsprechen; eine Änderung des Werts ändert weder die Einbettung noch die Miniaturen. Standard 'cell'."
     },
     {
       "table": "setting_tooltips",
