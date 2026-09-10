@@ -78,6 +78,100 @@ def _documented_blocks(path: Path):
         yield start, "\n".join(block)
 
 
+def _api_builder():
+    """The API extractor, imported the way `tools/` expects.
+
+    `build_documentation_i18n` imports `build_i18n_catalogs` as a TOP-LEVEL
+    name, so `tools/` has to be on the path -- importing it as
+    `tools.build_documentation_i18n` finds the parent package and then fails
+    on the sibling.
+    """
+    import importlib
+    import sys
+    from pathlib import Path
+
+    tools = str(Path(__file__).resolve().parents[1] / "tools")
+    if tools not in sys.path:
+        sys.path.insert(0, tools)
+    return importlib.import_module("build_documentation_i18n")
+
+
+#: Published DOCSTRINGS that still name an instruction, with the session
+#: that owns each. A SHRINKING LIST: an entry may be removed and never
+#: added, and the test below fails on anything not named here.
+#:
+#: WHY A LIST RATHER THAN SIX FIXES IN THIS COMMIT. Editing a docstring
+#: stales all nine API catalogs, and 288's rule -- written after five
+#: rebuild passes in one night -- is to finish the code and rebuild ONCE.
+#: Six docstrings owned by two sessions is one batch. Four of these are the
+#: other session's and it is actively in those files; racing it there to
+#: save a rebuild that has to happen anyway would trade a merge conflict
+#: for nothing.
+#:
+#: So the class is closed for NEW code today, the existing six are named,
+#: and whoever writes the last of the six runs the one pass.
+DOCSTRINGS_STILL_NAMING_AN_INSTRUCTION = {
+    # home session
+    "spacr.ops_cycles": "instruction 372",
+    "spacr.ops_phenotype": "instruction 372",
+    # work session -- 359, 01 and 327, all landed 2026-09-09/10
+    "spacr.qt.app.open_at_the_measured_width": "INSTRUCTION 359",
+    "spacr.qt.app.the_missing_pip_escape": "instruction 01",
+    "spacr.qt.layout_policy": "INSTRUCTION 359",
+    "spacr.qt.widgets.fractal_travel.TourPilot": "instruction 327",
+}
+
+
+def test_published_docstrings_do_not_expose_internal_provenance():
+    """The same rule as below, applied where AutoAPI actually publishes.
+
+    THE `#:` SWEEP BELOW SCANS COMMENT BLOCKS AND NOTHING ELSE, which is
+    the gap the other session found: a module docstring opening
+    "INSTRUCTION 359" is published exactly as visibly as a documented
+    assignment and no test looked at it. Measured when the gap was found:
+    six of 10,306 published docstrings, across both sessions.
+
+    WHY IT MATTERS AND IS NOT PEDANTRY. 368 retired a `#:` comment reading
+    "asked for on 2026-09-08" for this reason: an instruction number is a
+    fact about how spaCR is DEVELOPED, and the reader of an API page is
+    trying to use it. "INSTRUCTION 359" tells them nothing they can act on
+    and implies a document they cannot open.
+    """
+    builder = _api_builder()
+
+    unexpected = []
+    for symbol, text in builder.public_docstrings().items():
+        match = INTERNAL_PROVENANCE.search(text)
+        if match and symbol not in DOCSTRINGS_STILL_NAMING_AN_INSTRUCTION:
+            unexpected.append(f"{symbol}: {match.group(0)!r}")
+
+    assert not unexpected, (
+        "a published docstring names an instruction, or other development "
+        "history a reader cannot act on:\n  " + "\n  ".join(unexpected) +
+        "\n\nSay what the code does, not which item asked for it. If this "
+        "is one of the six being cleared in a batch, add it to "
+        "DOCSTRINGS_STILL_NAMING_AN_INSTRUCTION with its owner.")
+
+
+def test_the_docstring_allowlist_only_shrinks():
+    """An entry that has been cleared must be REMOVED, not left standing.
+
+    A stale allowlist is worse than none: it reads as debt somebody is
+    carrying deliberately when it is really debt somebody already paid.
+    """
+    builder = _api_builder()
+
+    docs = builder.public_docstrings()
+    cleared = []
+    for symbol in DOCSTRINGS_STILL_NAMING_AN_INSTRUCTION:
+        text = docs.get(symbol)
+        if text is None or not INTERNAL_PROVENANCE.search(text):
+            cleared.append(symbol)
+    assert not cleared, (
+        "these are named in DOCSTRINGS_STILL_NAMING_AN_INSTRUCTION and no "
+        f"longer need to be: {cleared}. Delete the entries.")
+
+
 def test_documented_assignments_do_not_expose_internal_provenance():
     failures = []
     for path in PACKAGE.rglob("*.py"):
