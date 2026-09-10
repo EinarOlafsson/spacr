@@ -1346,8 +1346,38 @@ GROUP 2 -- THE TUTORIAL LIBRARY, WHICH IS THE TUTORIALS LANE'S.
   in one session's scrollback is a failure nobody owns. They are named so
   the next run does not rediscover them.
 
-EVERYTHING ELSE PASSED. Fifteen of the 24 chunks at the time of writing --
-roughly 26,000 tests -- and every red is one of the five files above.
+ALL 24 CHUNKS RAN. The complete list of failing FILES is nine, and four of
+them were fixed the same evening:
+
+    FIXED HERE
+      test_api_i18n_extractor.py     pins to 10,279, symbols named
+      test_test_suite_hygiene.py     a crash-recovery test asserted nothing
+      test_user_facing_docstrings.py four OPS module docstrings named the
+                                     instruction and two named a person;
+                                     the rule is right and they were
+                                     rewritten to describe behaviour
+      test_notebook_settings.py      the generated notebooks carry setting
+                                     keys as literals and a rename had not
+                                     reached them
+
+    WAITING ON THE CATALOG REBUILD
+      test_api_i18n_frontend.py      REAL_SYMBOL_COUNT, claimed, moves with
+                                     the number that will hold
+      test_i18n_coverage_audit.py    COVERAGE.md and REVIEW_SCOPE, taken by
+                                     the other session, same commit as the
+                                     catalogs so the three cannot disagree
+
+    THE TUTORIALS LANE
+      test_docs_media_budget.py      two tests
+      test_the_name_is_spaCR.py      three characters of casing
+      test_tutorial_release_audit.py 'ops' has no lesson -- the SAME failure
+                                     this file has carried for days, and
+                                     the only one of the nine that is not
+                                     new
+
+  SO THE SUITE IS GREEN EXCEPT FOR TWO PIPELINES MID-REBUILD AND ONE LANE
+  NOBODY HERE MAY TOUCH. That is a different sentence from "there are nine
+  failures", and it is the one the evidence supports.
 
   AND THE COUNT OF SYMBOLS MOVED AGAIN WHILE THIS WAS BEING WRITTEN, by
   one, from a fix that had nothing to do with any of it:
