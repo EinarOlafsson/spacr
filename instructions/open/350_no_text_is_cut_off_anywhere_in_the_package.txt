@@ -1308,3 +1308,72 @@ Regression screen: 5.3 microseconds per refit and 5.5 per invalidate, which
 is 0.03 % of a 60 Hz frame. Instruction 380's rule cuts both ways: a change
 that makes something better by making something else slower has to say so,
 and this one does not.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- SEVEN SETTINGS COLUMNS CAPPED IN DEVICE PIXELS. THE SWEEP CANNOT
+SEE THIS CLASS AND THAT IS THE FINDING.
+--------------------------------------------------------------------------------
+
+Codex filed a nonblocking observation while recording the Control Charts
+tutorial: "Control Charts' settings panel maximum width 330 clips long closed
+choices and toggle labels even at 125% font in a 4K window." The sweep covers
+`control_chart` at both font scales and reports nothing. Both are right, and
+the gap between them is worth more than either.
+
+FIRST, WHAT IT IS NOT -- and this is a SIXTH false-positive class for the
+list at the top of this file.
+
+  A CLOSED QCOMBOBOX ELIDES; IT DOES NOT CLIP. Asked what the style would
+  actually paint at the width it has:
+
+      item text            528 px
+      edit field rect      528 px
+      would paint          'moving_range — individuals / moving ran…'
+
+  And the popup is not bound by the box. Opened against a combo capped at
+  300 px, the view came up 572 px wide -- wider than the control -- so the
+  full choice is one click away and never unreachable.
+
+  So the sweep is correct to stay silent: rule 4 forgives a control that owns
+  its own elision, and there is nowhere the user cannot read the whole
+  string.
+
+WHAT IS REAL IS THE CAP ITSELF. It is a device-pixel constant, and the text
+inside it is not. Measured on Control Charts -- the column's own sizeHint
+against its maximumWidth:
+
+    font scale 1.00    wants  586 px    cap 330
+    font scale 1.25    wants  707 px    cap 330
+    font scale 2.00    wants 1107 px    cap 330
+
+    (identical in en, de, is and pt: the chart-type strings are not
+     translated, so this is not a locale defect and never was)
+
+That is the same defect this instruction already fixed on `UsageBar`, which
+put `setFixedWidth(48)` on a caption column that needs 66 px of text at
+200 %: the glyphs double and the box does not.
+
+AND IT IS SEVEN SCREENS, not one. Every settings column in the package
+carried a bare number:
+
+    control_chart    330      outliers        360
+    pca              320      trellis         360
+    feature_explorer 340      graph_builder   320
+    tabulate         320
+
+All seven now go through `scaled_px`, which is the helper that exists for
+exactly this -- "widget sizes set from Python don't grow when the
+stylesheet's font size grows".
+
+THE SWEEP'S BLIND SPOT IS THE LESSON. It asks "is any painted caption cut
+off". A container that cannot grow answers no, because everything inside it
+elides politely. A second, cheaper instrument was needed and it is a source
+sweep, not a rendered one: `tests/qt/test_a_settings_column_grows_with_the_font.py`
+fails on any `setMaximumWidth(<number>)` of 300 px or more anywhere under
+`spacr/qt/screens/`. Three hundred is the line between a COLUMN OF TEXT and a
+field sized to its own content -- `dose_response`'s 70 px unit box and
+`data_manager`'s 140 px progress bar carry no prose and are left alone.
+
+The table of seven is written down in that file rather than discovered, and a
+third test asserts the table has not drifted from the code in either
+direction.

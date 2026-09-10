@@ -162,7 +162,16 @@ class TabulateScreen(QWidget):
         body.addWidget(stack)
 
         self.filters = DataFilterPanel(self, link=link)
-        self.filters.setMaximumWidth(320)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 320 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        self.filters.setMaximumWidth(scaled_px(320))
         body.addWidget(self.filters)
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 0)

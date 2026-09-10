@@ -428,7 +428,16 @@ class ControlChartScreen(QWidget):
         three statistical choices that change the answer."""
         panel = QWidget(self)
         panel.setObjectName(CONTROLS_OBJECT)
-        panel.setMaximumWidth(330)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 330 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        panel.setMaximumWidth(scaled_px(330))
         form = QFormLayout(panel)
         # Room for the panel's own rounded surface: the column sits ON a
         # page surface now rather than straight on the window.

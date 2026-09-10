@@ -121,7 +121,16 @@ class TrellisScreen(QWidget):
         body.addWidget(self.panel)
 
         side = QTabWidget(self)
-        side.setMaximumWidth(360)
+        # SCALED, NOT A DEVICE-PIXEL CONSTANT. This cap exists to stop the
+        # settings column eating the figure beside it, and 360 px is the
+        # right answer at 100 %% -- and only there. The glyphs inside it
+        # double at 200 %% and the box did not, which is the same defect
+        # instruction 350 already fixed on UsageBar's fixed 48 px caption
+        # column. Measured on Control Charts: the column's own sizeHint
+        # wants 586 px at 100 %%, 707 at 125 %% and 1107 at 200 %%, against a
+        # cap that stayed 330 in all three.
+        from ..preferences import scaled_px
+        side.setMaximumWidth(scaled_px(360))
         self.filters = DataFilterPanel(self, link=link)
         side.addTab(self.filters, "Filter")
         self.formulas = FormulaPanel(self)
