@@ -1838,7 +1838,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Sequencing Input", ("src", "mode", "single_direction")),
         ("Barcode References", ("grna_csv", "row_csv", "column_csv")),
         ("Read Parsing", (
-            "target_sequence", "regex", "offset_start", "expected_end",
+            "target_sequence", "regex", "offset_start", "window_length",
             # How far a read may be from a listed barcode and still be
             # called as it -- a parsing tolerance, filed with the rest of
             # the parse. Left out of this layout it fell into "Additional

@@ -1063,6 +1063,13 @@ RETIRED_SETTINGS: Dict[str, str] = {
     # collapsing the step count to 1, so a settings file in the wild keeps
     # meaning what it meant instead of quietly starting to accumulate.
     "gradient_accumulation": "gradient_accumulation_steps",
+    # RENAMED, NOT REMOVED (364). "Expected end" reads as a coordinate and
+    # the value is a LENGTH -- the parameter's own docstring had to say
+    # "window *length*, not an end coordinate", which is a name explaining
+    # itself away. `settings._fold_renamed_settings` moves an old key onto
+    # the new one before any default is filled in, so a settings file in
+    # the wild keeps working and this entry tells its owner what happened.
+    "expected_end": "window_length",
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
     "minimum_cell_count": "min_cell_count",

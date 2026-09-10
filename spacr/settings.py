@@ -1587,6 +1587,47 @@ def _set_classifier_evaluation_defaults(settings):
     return settings
 
 
+#: ``old name -> new name`` for the settings instruction 364 renamed.
+#:
+#: THE FOLD IS WHAT KEEPS OLD SETTINGS FILES WORKING, and it is the whole
+#: reason a rename is safe to make at all: every CSV anyone has saved names
+#: the old key, and a missing key is a DEFAULT rather than an error, so a
+#: rename without this is a silent behaviour change on somebody else's
+#: machine. `spacr.validate.RETIRED_SETTINGS` tells them what happened;
+#: this makes the run work meanwhile.
+#:
+#: ONE ENTRY PER LANDED RENAME, added as each one lands rather than all at
+#: once. 364 approved seven and each touches 16 to 29 files under `spacr/`
+#: -- seven at once is one commit nobody can review and one mistake nobody
+#: can bisect.
+RENAMED_SETTINGS = {
+    # "window length, not an end coordinate" is what the parameter's own
+    # docstring already had to say, which is the argument for the name.
+    "expected_end": "window_length",
+}
+
+
+def _fold_renamed_settings(settings):
+    """Move any renamed key onto its new name, before anything reads it.
+
+    The NEW name wins where both are present: an explicit new spelling is
+    a decision made later than the file it sits beside, and silently
+    preferring the old one would make a corrected settings file behave
+    like the uncorrected one.
+
+    :param settings: the settings mapping, edited in place.
+    :returns: the same mapping, for chaining.
+    """
+    if not isinstance(settings, dict):
+        return settings
+    for old, new in RENAMED_SETTINGS.items():
+        if old not in settings:
+            continue
+        value = settings.pop(old)
+        settings.setdefault(new, value)
+    return settings
+
+
 def _fold_gradient_accumulation(settings):
     """Let ``gradient_accumulation_steps`` alone say whether to accumulate.
 
@@ -3984,7 +4025,7 @@ expected_types = {
     # show up as a value that does not survive its own default.
     'regex': str,
     'target_sequence': str,
-    'expected_end': int,
+    'window_length': int,
     'column_csv': str,
     'grna_csv': str,
     'row_csv': str,
@@ -4456,7 +4497,7 @@ tooltips = {
     "shuffle": "(bool) - Shuffle the tar dataset in the DataLoader when generating activation maps, so each batch-grid PDF contains a mixed sample rather than consecutive files from one plate or class. False preserves deterministic file order and permits direct alignment with the dataset listing. Default True.",
     "correlation": "(bool) - Correlate every input channel with every activation-map channel per image and write the result to the <cam_type>_correlations table: a Pearson coefficient plus Manders M1/M2 at each manders_thresholds percentile (15, 50, and 75 by default). This provides quantitative evidence of stain-specific model attention beyond visual heatmap inspection. save=True is required to write the results to the database. Default True.",
     "mode": "(str) - Read-pairing strategy for barcode extraction: 'paired' locates target_sequence in R1 and in the reverse complement of R2 and merges them base-by-base into a quality-weighted consensus; 'single' scans one mate alone, chosen by single_direction. Paired calls barcodes more accurately but discards any read whose anchor is missing from either mate. Default 'paired'.",
-    "expected_end": "(int) - Number of bases sliced out of each read starting at offset_start relative to the target_sequence hit; this window is what the regex is matched against. It must span the whole barcode block (column + gRNA + row) or the regex stops matching and reads are dropped; shorter reads are padded with 'N'. Default 89.",
+    "window_length": "(int) - Number of bases sliced out of each read starting at offset_start relative to the target_sequence hit; this window is what the regex is matched against. It must span the whole barcode block (column + gRNA + row) or the regex stops matching and reads are dropped; shorter reads are padded with 'N'. Default 89.",
     "infection_intensity_qc_scope": "(str) - Whether infection QC is fitted once or per group: 'combined'/'global'/'all' fits one model on everything, 'plate'/'per_plate' one per plateID, 'well'/'per_well' one per plate-well, and 'none'/'off' skips QC; an unrecognised string falls back to combined behaviour with a warning. Per-well fitting absorbs staining and exposure differences but needs enough cells per well; every group still writes its own QC plot, only the QC payload embedded in the summary panel is taken from the first processed group. Default 'per_well'.",
     "adjust_cells": "(bool) - After segmentation, merge cell labels that divide a single pathogen or nucleus, and absorb an anucleate cell fragment into the neighbouring label with which it shares the largest perimeter. Requires cell, nucleus, and pathogen channels and is skipped for timelapse runs. Enable when large infected cells are systematically fragmented by segmentation. Default True.",
     "agg_type": "(str) - How per-object scores are collapsed to one value per well before regression: 'mean', 'median', 'quantile' (75th percentile), or None to skip aggregation and regress on individual objects. Median resists a handful of extreme cells; None keeps power but ignores within-well correlation. Forced to a per-well sum for poisson and to None for quantile. Default 'mean'.",
@@ -4753,7 +4794,7 @@ tooltips = {
     "pathogen_plate_metadata": "(list of lists) - Well locations of each pathogen condition, one inner list per entry in pathogen_types. Every item must be a row or column ID string such as 'c1' or 'r3'; anything else is silently ignored and those wells stay unannotated. Ranges like 'c2-c11' are not expanded - list each row/column. Do not leave it None while pathogen_types is set: annotation is not skipped, every row is labelled with the first pathogen_types entry. Defaults: None in the plot-from-db settings, [['c1','c2','c3'],['c4','c5','c6']] for recruitment analysis.",
     "treatment_plate_metadata": "(list of lists) - Wells that received each treatment, with one inner list per treatment in the same order, for example [['r1','r2','r3'],['r4','r5','r6']]. Entries must start with 'r' (row) or 'c' (column); other entries are ignored and receive no treatment label. Unlisted wells remain in the output, and their condition values contain only the available cell, pathogen, or treatment labels. Default None. Recruitment starts with [['r1', 'r2', 'r3'], ['r4', 'r5', 'r6']], positionally paired with its two initial treatment names.",
     "regex": "(str) - Regex applied with re.match to each extracted read window; it must define the named groups columnID, grna and rowID, whose captured sequences are looked up in the three barcode CSVs. Non-matching reads are silently dropped, so a wrong group name or barcode orientation yields zero counts. The default captures an 8 bp column, 20-21 bp gRNA and 8 bp row barcode.",
-    "target_sequence": "(str) - Constant vector sequence used as the anchor: every read is scanned for an exact match and the barcode window is then sliced relative to that hit using offset_start and expected_end. Reads without an exact match are skipped entirely, so it must be error-free and given in the orientation of the read being scanned. Default 'TGCTGTTTCCAGCATAGCTCTTAAAC'.",
+    "target_sequence": "(str) - Constant vector sequence used as the anchor: every read is scanned for an exact match and the barcode window is then sliced relative to that hit using offset_start and window_length. Reads without an exact match are skipped entirely, so it must be error-free and given in the orientation of the read being scanned. Default 'TGCTGTTTCCAGCATAGCTCTTAAAC'.",
     "column_csv": "(path) - CSV mapping column barcodes to well names; it must have 'sequence' and 'name' columns. Reads are matched verbatim against it with no reverse-complementing, so the sequences must be in the same orientation as the reads - run barecodes_reverse_complement on the file if they are not. Unmatched reads get NA for columnID. Default the bundled spacr/resources/data/barcodes_column.csv; barcode QC (sequencing_qc) instead defaults this key to empty, where the reference is optional.",
     "row_csv": "(path) - CSV mapping row barcodes to well names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so the sequences must be in the same orientation as the reads - use barecodes_reverse_complement to flip the file if needed. Unmatched reads get NA for rowID. Default: the bundled spacr/resources/data/barcodes_row.csv.",
     "grna_csv": "(path) - CSV mapping gRNA barcode sequences to gRNA names; it must have 'sequence' and 'name' columns. Reads are matched verbatim with no reverse-complementing, so orientation must match the reads (barecodes_reverse_complement flips a file). Rows whose gRNA does not match are written as NA and dropped from the counts. Default: the bundled spacr/resources/data/grna_barcodes.csv.",
@@ -5534,7 +5575,7 @@ categories = {
 
     "Activation Maps": ["smoothgrad_samples", "smoothgrad_sigma", "occlusion_window", "occlusion_stride", "ig_steps", "ig_baseline", "attribution_steps", "attribution_baseline", "sanity_check", "object_type", "cam_type", "target_layer", "overlay", "correlation", "manders_thresholds", "normalize_input"],
 
-    "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "expected_end", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
+    "Sequencing": ["mode", "single_direction", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
     "Plot": ["cmap", "figuresize", "normalize_plots", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
     # Replication-specific vacuole assignment and scoring. The shared parasite
@@ -6770,6 +6811,10 @@ def set_default_generate_barecode_mapping(settings=None):
     """
     if settings is None:
         settings = {}
+    # BEFORE ANY DEFAULT IS FILLED IN. A settings file naming the old key
+    # must reach the new one carrying its VALUE, and a `setdefault` that
+    # ran first would have already put the default there.
+    _fold_renamed_settings(settings)
     settings.setdefault('src', 'path')
     # Group names MUST be columnID / rowID (not column / row): the read
     # processors in sequencing.py read match.group('columnID') /
@@ -6779,7 +6824,7 @@ def set_default_generate_barecode_mapping(settings=None):
     settings.setdefault('regex', DEFAULT_BARCODE_REGEX)
     settings.setdefault('target_sequence', 'TGCTGTTTCCAGCATAGCTCTTAAAC')
     settings.setdefault('offset_start', -8)
-    settings.setdefault('expected_end', 89)
+    settings.setdefault('window_length', 89)
     settings.setdefault('column_csv', bundled_barcode_path('column'))
     settings.setdefault('grna_csv', bundled_barcode_path('grna'))
     settings.setdefault('row_csv', bundled_barcode_path('row'))

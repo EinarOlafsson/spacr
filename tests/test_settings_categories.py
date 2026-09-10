@@ -169,6 +169,15 @@ KEYS_BEFORE_REGROUP = frozenset({
 #: legitimately dropping out of the category map is distinguishable from one
 #: that fell out by accident -- which is the whole point of this file.
 KEYS_RETIRED = frozenset({
+    # RENAMED to `window_length` on 2026-09-09, instruction 364. "Expected
+    # end" reads as a coordinate and the value is a LENGTH -- the
+    # parameter's own docstring had to say "window *length*, not an end
+    # coordinate", which is a name explaining itself away. The new name is
+    # categorised in its place, `validate.RETIRED_SETTINGS` maps the pair,
+    # and `settings._fold_renamed_settings` moves an old key onto the new
+    # one before any default is filled in, so a settings file in the wild
+    # keeps working.
+    "expected_end",
     # FOLDED into `gradient_accumulation_steps` on 2026-09-09, instruction
     # 364. The boolean sat beside the step count and could contradict it:
     # `gradient_accumulation: false` with the default four steps says two
@@ -297,6 +306,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # themselves. It is `ops_gpu` and not `gpu` because Image UMAP already
     # owns `gpu` with a different meaning.
     "ops_gpu",
+    # `window_length`, the new name for `expected_end` (364, 2026-09-09).
+    "window_length",
     "opencv_threads", "out_png", "out_tif", "outline_alpha",
     "outline_source", "pair_batch_size", "phenotype_source",
     "preview_downsample", "ransac_thresh_px", "recursive",
