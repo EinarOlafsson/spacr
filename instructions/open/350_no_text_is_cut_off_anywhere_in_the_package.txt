@@ -1570,3 +1570,73 @@ declared module -- so a panel taken off a built screen is the object the
 dialog is handed in production, not a stand-in for it. That is worth
 trying before it is written off; the four domain objects are the harder
 half and may genuinely be fixtures.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- FOUR PANEL DIALOGS, AND A SEGFAULT THAT WAS THE HARNESS'S FAULT
+--------------------------------------------------------------------------------
+
+41 of the 47 dialogs are swept now. The four added here are the ones the
+note above filed under "a live panel or screen", and that line does not hold
+either:
+
+    LiveSettingsDialog        LivePreviewPanel()
+    CropSettingsDialog        MeasurePreviewPanel()
+    UmapSearchSettingsDialog  HyperparamPanel()
+    WalkAxesDialog            HyperparamPanel()
+
+EVERY ONE OF THOSE PANELS CONSTRUCTS WITH NO ARGUMENTS. A panel is not a
+fixture when the application builds it the same way. And the two live
+dialogs RE-PARENT the panel's own widgets into themselves for the duration,
+returning them in `closeEvent` -- so the rows this sweep measures are the
+panel's real controls, and handing them anything else would be the stand-in.
+
+THEN IT CRASHED THE PROCESS, and the chase is the part worth keeping.
+
+`CropSettingsDialog` segfaulted the run. Isolating it went through three
+negatives before the answer:
+
+    built once, standalone            survives
+    built four times in one process   survives
+    built across a font-scale restyle survives
+
+so it was none of the obvious things. The faulthandler traceback named the
+site, and it was not in the test that crashed -- it was in the NEXT test's
+setup, inside `tests/conftest.py`'s
+`_the_widget_tree_does_not_outgrow_the_session`, at
+
+    QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+
+which is the fixture whose entire job is to deliver deletions their owners
+already requested. It was delivering one to freed memory.
+
+THE MECHANISM, AND IT IS AN OWNERSHIP BUG IN THE HARNESS RATHER THAN THE
+PRODUCT. These dialogs do `super().__init__(panel)`, so the PANEL OWNS THE
+DIALOG. The sweep registered only the dialog with `qtbot`, so once the test
+function returned nothing held a Python reference to the panel: it was
+collected, its C++ half destroyed its children including the dialog, and the
+`DeferredDelete` already queued for that dialog was then delivered to an
+object that no longer existed.
+
+    A PARENT MUST OUTLIVE THE CHILD IT OWNS, and a test harness that
+    registers the child and not the parent has inverted that. `_build_with`
+    now registers every QWidget it supplied as an argument, so pytest-qt
+    keeps the parent alive and tears the pair down in one place.
+
+WHY THIS IS NOT FILED AS A PRODUCT DEFECT: in the application the panel is
+owned by a screen and outlives every dialog opened over it, which is the
+ordering the code is written for -- `closeEvent` returning the widgets to
+`self._panel` only makes sense if the panel is still there. The crash needs
+a caller that lets the panel go first, and only the sweep did that.
+
+  IT IS STILL WORTH THE PARAGRAPH. A segfault delivered one test LATER than
+  its cause, in a fixture that is doing exactly what it says, is the hardest
+  shape of failure to read in this repository -- and the next person to add
+  a parented dialog to any sweep will hit it. 165 pass.
+
+SIX LEFT: CommandPalette (a window), RecipeDialog (a screen),
+ConfirmDeleteDialog (a PrunePlan), MetadataColumnDialog (a request),
+QCFieldBrowser (targets_from_digest records), SettingsAdvisorDialog (a
+reading and a current). The first two may fall to the same argument as the
+four above -- `screen_in_a_container` already builds a real AppScreen for
+every declared module. The last four want a domain object and are the
+honest remainder.

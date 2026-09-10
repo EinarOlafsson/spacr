@@ -34,6 +34,7 @@ import tempfile
 import warnings
 
 import pytest
+from PySide6.QtWidgets import QWidget
 
 from spacr.qt import i18n as I
 from spacr.qt.preferences import FONT_SCALE_MAX
@@ -249,6 +250,36 @@ def _a_measurement_table():
     })
 
 
+def _live_preview_panel():
+    """The live-preview panel, built the way the application builds it.
+
+    A PANEL IS NOT A FIXTURE WHEN IT CONSTRUCTS WITH NO ARGUMENTS. The
+    note above files six dialogs under "a live panel or screen" as though
+    supplying one meant inventing it. `LivePreviewPanel()` takes nothing,
+    and `LiveSettingsDialog` then RE-PARENTS the panel's own widgets into
+    itself for the lifetime of the dialog -- so the rows this sweep
+    measures are the panel's real controls, not copies of them. Handing it
+    anything else would be the fixture.
+    """
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    return LivePreviewPanel()
+
+
+def _measure_preview_panel():
+    """The measure-preview panel. Takes no arguments either."""
+    from spacr.qt.widgets.measure_preview import MeasurePreviewPanel
+
+    return MeasurePreviewPanel()
+
+
+def _hyperparam_panel():
+    """The hyperparameter panel, which two dialogs hang off."""
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    return HyperparamPanel()
+
+
 def _compare_inputs():
     """Object rows and the groups they are split into.
 
@@ -308,6 +339,15 @@ DIALOGS_WITH_ARGUMENTS = [
     # mapping is the documented case rather than a shortcut.
     ("spacr.qt.widgets.figure_queue", "_FigureSettingsDialog", _a_figure),
     ("spacr.qt.widgets.umap_search_viewer", "UmapAppearanceDialog", dict),
+    # THE FOUR PANEL-BASED ONES. Every panel constructs with no arguments,
+    # so none of these is the fixture the note above assumed.
+    ("spacr.qt.widgets.live_preview", "LiveSettingsDialog",
+     _live_preview_panel),
+    ("spacr.qt.widgets.measure_preview", "CropSettingsDialog",
+     _measure_preview_panel),
+    ("spacr.qt.screens.hyperparam", "UmapSearchSettingsDialog",
+     _hyperparam_panel),
+    ("spacr.qt.screens.hyperparam", "WalkAxesDialog", _hyperparam_panel),
 ]
 
 #: Dialogs taking more than one genuinely-suppliable argument.
@@ -356,6 +396,22 @@ def _build_with(module_path: str, class_name: str, make_argument, qtbot):
         # entries to add six new ones.
         args = supplied if isinstance(supplied, tuple) else (supplied,)
         dialog = getattr(module, class_name)(*args)
+    # ANY WIDGET WE SUPPLIED IS REGISTERED TOO, and this is not tidiness.
+    # Four of these dialogs take a PANEL and parent themselves to it, so the
+    # panel owns the dialog. Registering only the dialog left the panel with
+    # no Python reference once the test returned: it was collected, its C++
+    # half destroyed its children, and the DeferredDelete already queued for
+    # the dialog was then delivered to freed memory. That crashed the
+    # process -- not in this test but in the NEXT one, inside
+    # `_the_widget_tree_does_not_outgrow_the_session`, which is the fixture
+    # whose whole job is to deliver deletions their owners requested.
+    #
+    # A PARENT MUST OUTLIVE THE CHILD IT OWNS. Registering both makes
+    # pytest-qt keep the panel alive for the test and tear the pair down in
+    # one place.
+    for supplied_widget in args:
+        if isinstance(supplied_widget, QWidget):
+            qtbot.addWidget(supplied_widget)
     qtbot.addWidget(dialog)
     dialog.show()
     qtbot.waitExposed(dialog)
