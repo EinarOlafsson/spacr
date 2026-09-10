@@ -1,0 +1,30 @@
+{
+  "id": "51_control_charts",
+  "number": 51,
+  "slug": "control_charts",
+  "series": 5,
+  "app_key": "control_chart",
+  "host_app_key": "qc_dashboard",
+  "section": "Data",
+  "title": "Control Charts: inspect a campaign with explicit controls and limits",
+  "description": "Open the specialist tool inside QC, load a clearly synthetic thirty-plate campaign, check the selected control and baseline, and export independently verified chart points.",
+  "objectives": [
+    "Find Control Charts inside QC and load the supplied synthetic CSV.",
+    "Distinguish well-level input rows from plate-level means and select exactly one control.",
+    "Compare rule sets, change and restore the control and baseline, and read the resulting warnings.",
+    "Export the actual points table without claiming an image export or biological validation."
+  ],
+  "prerequisite": "The CSV at tools/tutorials/fixtures/control_chart_campaign.csv is entirely synthetic, adapted from the application's seeded test campaign: thirty fictitious plates, three wells per control type per plate, and a programmed upward drift after plate twenty. The dates are illustrative order labels, not acquisition records. This specialist panel currently has no Load test data button; no microscopy download, model, GPU analysis or AI request is used. The old two-plate recording was rejected because the application refused to estimate limits. The current narrow settings column clips long choices when closed; the real open dropdowns expose their full names. The optional Z-prime and re-estimation modes are not exercised here.",
+  "scenes": [
+    {"visual": "01_qc_host", "narration": "Open QC, then its Control Charts button. This specialist workflow charts repeated controls across a campaign. Our supplied CSV is explicitly synthetic, including the drift: it demonstrates the software, not an acquired experiment or a validated assay.", "hold_after": 0.7, "related_lessons": ["54_qc_dashboard"]},
+    {"visual": "03_load_synthetic_csv", "narration": "Choose Load table and open the example CSV. It contains two hundred and seventy well-level rows: thirty plates, each with three negative-control, three positive-control and three sample wells. The chart will show one selected-control mean per plate, not one point per cell.", "hold_after": 0.7, "focus": [1550, 790, 740, 510]},
+    {"visual": "05_negative_control_default_rules", "narration": "Check Plate, Run order, Measurement and Control column against the displayed names. Select only neg in Control is. This list allows multiple selections; leaving every level unselected charts all rows, so never assume that loading the file has already selected your intended control.", "hold_after": 0.7, "focus": [290, 460, 740, 700]},
+    {"visual": "05a_sigma_choices", "narration": "Open Sigma from to read its full choices. Auto chooses the subgroup estimator here because each plate has three selected wells. The limits use baseline within-plate variation, adjusted for the mean's sample size, rather than the standard deviation of the whole drifting series.", "hold_after": 0.7, "focus": [290, 980, 1760, 600]},
+    {"visual": "05b_rule_choices", "narration": "Rules offers the usual four, all eight, or Limits only. More rules also create more opportunities for false alarms. We choose Limits only to isolate the three-sigma rule; changing this dropdown recomputes the chart without a separate Run button.", "hold_after": 0.7, "focus": [290, 1160, 1900, 450]},
+    {"visual": "06_limits_only", "narration": "Baseline plates is twenty: P zero one through P twenty set the limits, which are applied to the remaining plates. Nine points, P twenty-two through P thirty, exceed the upper limit. The report and rule table identify them; these programmed signals are not biological discoveries.", "hold_after": 0.7, "focus": [1010, 450, 2790, 1600]},
+    {"visual": "07_positive_control", "narration": "Untick neg and select only pos. The chart now shows the other control's means and its own baseline limits, with no rule-one violations in this example. A quiet chart alone does not prove an assay is valid. Restore neg before continuing.", "hold_after": 0.7},
+    {"visual": "09_shorter_baseline", "narration": "Change Baseline plates to twelve and watch the centre and limits change, then restore twenty. The app requires at least eight baseline plates, but that minimum is not a recommendation. Plan and justify the baseline; do not tune it simply to remove unwanted alerts.", "hold_after": 0.7, "focus": [295, 1400, 2600, 375]},
+    {"visual": "11_actual_export_picker", "narration": "With the original control and twenty-plate baseline restored, choose Export points and save a separate CSV. It contains thirty rows with plate identity, order, mean, subgroup size and spread, limits, standardized distance, baseline membership and fired rules. This is not a chart-image or full-configuration export.", "hold_after": 0.7, "focus": [1550, 790, 740, 510]},
+    {"visual": "12_exported", "narration": "Every exported identity and numeric field was checked against the source CSV, including rule-one flags. The original input is unchanged. For scripted use, the control chart widget module exposes ControlChartSpec and control_chart; its result provides points_frame. Keep your input, settings and acquisition notes together when investigating real alerts.", "hold_after": 0.7, "related_lessons": ["06_api", "54_qc_dashboard"]}
+  ]
+}
