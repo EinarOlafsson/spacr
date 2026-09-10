@@ -56,6 +56,22 @@ def test_the_map_is_the_window_wide_keys_plus_the_per_screen_ones():
     assert all(spec.scope != sc.EVERYWHERE for spec in sc.SCREEN_SHORTCUTS)
 
 
+def _is_gesture(keys: str) -> bool:
+    """Whether a spec describes a GESTURE rather than a key sequence.
+
+    Recognised by SHAPE, the same way test_shortcut_overlay.py does it: a
+    real sequence is "Ctrl+Shift+A" with no spaces, so a spec whose keys
+    carry a space around "+" is prose describing something the hands do.
+    378's "Z + scroll" is a modifier held while the wheel turns, caught in an
+    event filter -- there is no QKeySequence that can express it, so nothing
+    can bind it and `install()` was never going to.
+
+    By shape rather than by naming "Z + scroll": a second gesture then needs
+    no edit here, and a mistyped real sequence still fails as it should.
+    """
+    return " + " in keys
+
+
 def test_install_binds_every_key_it_is_responsible_for(window):
     """`installed()` is the promise that `install()` wires these; a key it
     lists and nobody binds on the window is a cheat-sheet entry that does
@@ -71,6 +87,8 @@ def test_install_binds_every_key_it_is_responsible_for(window):
     bound = {shortcut.key().toString(QKeySequence.NativeText)
              for shortcut in window.findChildren(QShortcut)}
     for spec in sc.installed():
+        if _is_gesture(spec.keys):
+            continue
         assert sc.native(spec.keys) in bound, spec.keys
 
 
@@ -79,7 +97,7 @@ def test_install_binds_every_key_that_is_not_bound_elsewhere(window):
     bound = {shortcut.key().toString(QKeySequence.NativeText)
              for shortcut in window.findChildren(QShortcut)}
     for spec in sc.installed():
-        if spec.scope != sc.EVERYWHERE:
+        if spec.scope != sc.EVERYWHERE or _is_gesture(spec.keys):
             continue
         assert sc.native(spec.keys) in bound, spec.keys
     # Window actions own these rather than ``install()``.
