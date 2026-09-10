@@ -5561,3 +5561,36 @@ were disabled because Annotate's opener was not initialized; no fake crop
 handoff was shown. Source inputs and the loaded bundle remain byte-identical.
 Receipt: tools/tutorials/evidence/
 2026-09-10_evaluation_native_inspector_checkpoint.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, EVALUATION 39 TECHNICAL MATRIX COMPLETE.
+
+46449bcc1 pushed. Fourteen scenes now show the actual Classify > Classifier
+Evaluation saved-bundle inspector, not the old evaluation-configuration form.
+The 199,726-byte download reproduces 234 genuine saved predictions and all
+six inspector tabs. All three test wells overlap training; this is explicitly
+NOT independent validation. It includes tables and native PNGs, not crops,
+an annotation database or a model. Only sample display paths were replaced by
+explicit crops-not-included references; numeric cells and identities survive.
+SHA-256: a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4.
+
+Checks match 44,424 GUI prediction cells, 44 confusion cells, eight confidence
+list states, eleven summary fields and ten calibration rows. The fresh font
+2.0 capture rechecks all eleven snapshots and corrects the measured folder
+picker highlight. All fifty tracks fully decode with current pronunciation
+and runtime fingerprints; fourteen browser language cases pass. Shared 4K/30
+master: 7,884 frames, 262.8 seconds, 16,848,796 bytes. Thirty-nine numerical
+helper tests, twenty red mutations; the helper alone has 121 statements and
+72 branches at 100%. Nine archive tests and eight red mutations also pass.
+No application, whole-repository coverage or biological-validation claim.
+
+Fourteen catalogs agree on 75 lessons / 856 scenes; twenty-eight unselected
+entries remain unchanged, including the already-retained Plate Viewer.
+Total: 48 technically checked lessons, 2,400 tracks (100 retained), 672
+browser cases. Twenty-seven original lessons remain, plus the separately
+held, unproven OPS workflow. No native/listening approval or publication.
+Receipt: tools/tutorials/evidence/
+2026-09-10_evaluation_multilingual_technical_checks.json.
+
+NEXT CLAIM: Curate 42, tutorial-only native interaction, exact edit/undo/save
+checks on private copies and a decision about retaining the old narration.
+No change to the protected application, Qt or global-translation lanes.
