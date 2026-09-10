@@ -1,0 +1,29 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "previous_english_sha256": "d9da8212743ee89a056df79ef56309fe92e486b28ef6f83d734da9567d4c8f0c",
+  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "change": "Native font preference 1.0 -> 2.0; focus rectangles updated for the measured dialog and visible table content. Narration, scene order, timing holds and related lessons are unchanged.",
+  "capture": "evaluation_readable_known_overlap",
+  "independently_rechecked_snapshots": 11,
+  "rechecked_prediction_cells": 44424,
+  "native_font_scale": 2,
+  "dialog_rect": [
+    1563,
+    798,
+    1400,
+    950
+  ],
+  "changed_scene_fields": [
+    "focus"
+  ],
+  "translation_source_pin_policy": "Only visual geometry changed; all 13 translation texts were retained after checking the unchanged English narration. The source pins now include the new geometry.",
+  "audio_verification": {
+    "tracks": 50,
+    "errors": 0,
+    "scope": "Full decoded audio, all current render fingerprints and preserved pronunciation configuration"
+  },
+  "app_source_modified": false,
+  "published": false,
+  "native_speaker_signoff": false,
+  "listening_review": false
+}

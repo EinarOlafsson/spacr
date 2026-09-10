@@ -1,0 +1,35 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "zh-CN",
+  "title": "分类器评估",
+  "description": "在 Classify 中检查真实的已保存预测，并识别训练集与测试集的孔位重叠。",
+  "objectives": [
+    "用可下载示例打开嵌套的评估查看器。",
+    "查看混淆矩阵、置信度列表、校准和实时筛选。",
+    "区分结果检查与独立验证。"
+  ],
+  "prerequisite": "将 REAL_evaluation_known_overlap.zip 解压到新文件夹，选择包含 evaluation_manifest.json 的目录。示例包含234条真实预测，不包含裁剪图、标注数据库或模型。三个测试孔都出现在训练集中。只有私有路径被替换为 crops-not-included 引用，数值和对象身份保持不变。infected_1 和 infected_2 是沿用的标签；OOF 文件名和标题不证明交叉验证。API：spacr.classifier_evaluation.evaluate_predictions、write_evaluation_bundle、load_evaluation_bundle。未重新训练、推理或调用 spaCR AI 服务。",
+  "scenes": [
+    "打开 Classify，再打开其中的 Classifier Evaluation 快捷入口。这是嵌套的结果查看器，不是独立的 Home 模块，也不是模型训练表单。Classify 教程介绍如何生成预测；这里检查的是已经保存的结果包。",
+    "从下方链接下载结果示例，解压到新文件夹。点击 Browse，选择包含 evaluation manifest 点 json 的目录。这个小型压缩包提供真实的已保存预测和表格，但不包含裁剪图、标注数据库或训练好的模型。",
+    "Summary 显示一次单轮训练运行生成的二百三十四条测试预测。infected 一和 infected 二是沿用的数据集标签，不是重新核实的感染状态。加载结果包只读取已有结果，不会训练、预测或修复数据集。",
+    "解释准确率之前，先查看 Leakage audit。三个测试孔也都出现在训练集中，因此审计不通过。数据库中的真实身份揭示了旧文件名审计遗漏的重叠。这些数字用于演示查看器，不代表独立孔位上的性能，也不构成生物学验证。",
+    "在 Confusion matrix 中，行表示记录的类别，列表示预测类别。对角线计数为一百零四和一百一十一。另外两格分别有十一和八条不一致，共十九条。与这些标签一致，并不能证明标签本身正确。",
+    "点击计数为十一的单元格：记录类别为 infected 一，预测为 infected 二。置信度阈值为零点七五时，六条不一致进入高置信度列表，五条进入低置信度列表。这是同一个单元格的两条检查队列，不是新的分类结果。",
+    "把置信度阈值提高到零点九五。高置信度列表现在有两个裁剪对象，低置信度列表有九个。概率、预测类别和十一条不一致都不变。这个实时控件只划分队列，不会重新校准模型，也不会重新执行推理。",
+    "请谨慎看待自动解释。高置信度的不一致不证明标注错误，只有一块板也不能确定问题由板造成。界面关于模型或孔位的建议是待检验的假设。决定修正什么之前，应检查采集过程、标签和真正独立的数据。",
+    "Per-plate metrics 只有一行，包含全部二百三十四条预测。它便于按板定位结果，但这个示例不能比较不同板，也不能估计板效应。较高的准确率并不能消除 Leakage audit 中显示的孔位重叠问题。",
+    "Calibration 为每个类别使用五个区间，比较平均预测概率与观察到的类别频率。要留意计数列：样本少的区间具有较大不确定性。这个结果包没有应用校准修正。此标签页只展示之前计算的结果，不提供校准拟合控件。",
+    "在 Predictions 中输入 r 五、下划线、c 二，检查该孔。表格从二百三十四行缩小到一百二十八行。这是对已保存记录的实时文本筛选，不是图像过滤或分割，也不会修改底层结果文件。",
+    "清空筛选条件，全部二百三十四行重新出现。样本路径明确注明不包含裁剪图。若要打开自己项目中的不一致对象，请先在 Annotate 中打开对应实验。此压缩包不能提供该数据库，禁用的按钮也不是已演示成功的裁剪图工作流程。",
+    "下载包还保留了原生校准图和混淆矩阵图。用于报告前请检查对比度。通用的 out-of-fold 标题和文件名，不会让这一次测试划分变成交叉验证。保存的概率和计数没有改变，只有私有样本路径被替换为明确的引用。",
+    "最后，请把数据泄漏警告与导出的指标一起保留。API 参考说明结果包的准备和加载，Training Runs 介绍已保存训练日志的比较。spaCR AI 可以解释术语，但不能证明标签正确或数据独立。这个示例不需要向服务提供商发送请求。"
+  ]
+}

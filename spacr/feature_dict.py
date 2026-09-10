@@ -1088,6 +1088,45 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "the object namespace refuses a non-numeric column, and any name "
         "carrying 'label' is folded into the merge key.",
     ),
+    # ---------------- infection neighbourhood (bystanders.py)
+    "is_bystander": PropertyInfo(
+        "spatial",
+        "1 when this cell holds no pathogen but lies within the bystander "
+        "reach of one that does, 0 otherwise.",
+        _DIMLESS + ", 0 or 1",
+        "spacr.bystanders.classify via spacr.measure._with_bystanders",
+        "Written only when bystander_measurements is enabled. An infected "
+        "cell is 0 here AND 0 in is_distal, so the two flags carry three "
+        "states between them rather than two. The reach is a multiple of "
+        "the field's median cell diameter, so the same plate measured at a "
+        "different magnification gives the same answer and a plate with "
+        "larger cells gets a proportionally larger reach.",
+    ),
+    "is_distal": PropertyInfo(
+        "spatial",
+        "1 when this cell holds no pathogen and lies beyond the bystander "
+        "reach of every cell that does, 0 otherwise.",
+        _DIMLESS + ", 0 or 1",
+        "spacr.bystanders.classify via spacr.measure._with_bystanders",
+        "The population that 'uninfected' means once bystanders are taken "
+        "out of it. In a well with no parasites at all every cell is "
+        "distal, which is the first thing to check if a control well "
+        "reports bystanders.",
+    ),
+    "distance_to_infected": PropertyInfo(
+        "spatial",
+        "Distance from this cell to the nearest pixel of the nearest cell "
+        "that holds a pathogen; 0 for an infected cell itself.",
+        _PX,
+        "spacr.bystanders.distance_to_infected via "
+        "spacr.measure._with_bystanders",
+        "-1.0 IS A SENTINEL AND NOT A DISTANCE: it marks a field with no "
+        "infected cell in it, where the real value is infinite. It must not "
+        "be averaged. NaN is not used because one non-finite value deletes "
+        "the column from every model matrix. Two cells that merely touch "
+        "sit one spacing unit apart rather than at 0, because the labels "
+        "are disjoint and the nearest infected pixel is one step away.",
+    ),
     # ---------------- object geometry (object_distances.py)
     "distance_to_own_boundary": PropertyInfo(
         "spatial",
@@ -2286,6 +2325,16 @@ _set_scope(
                 "the cell's, restated. Written for every configured organelle "
                 "mask when requested; organelle type may add an interpretation "
                 "caveat but never removes the output columns."))
+_set_scope(
+    ("is_bystander", "is_distal", "distance_to_infected"),
+    _scope(
+        ("cell",), CHANNEL_NONE, module="spacr.bystanders",
+        when="bystander_measurements=True. THE CELL TABLE ONLY, and that is "
+             "not an omission: infection is a property of a cell, so a "
+             "nucleus or a pathogen has no bystander status of its own, and "
+             "a cytoplasm's would be its cell's restated. The reach is a "
+             "multiple of the field's median cell diameter, so the columns "
+             "mean the same thing across magnifications."))
 _set_scope(
     ("distance_to_own_boundary", "relative_radial_position",
      "distance_to_field_edge", "centre_to_<other>_surface",

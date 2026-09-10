@@ -1,0 +1,37 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic data, cached-mask comparison, explicit final Re-link and warning limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Tracciamento temporale",
+  "description": "Esegui otto fotogrammi sintetici dal flusso annidato in Mask e confronta i collegamenti delle maschere in Track preview.",
+  "objectives": [
+    "Trovare Timelapse in Mask e conservare asse temporale e immagini originali.",
+    "Confrontare tracce iniziali, frammentate e ripristinate sulle stesse maschere.",
+    "Distinguere indicatori, riproduzione, inferenza e movimento biologico misurato."
+  ],
+  "prerequisite": "Scegli Help > Demos > Timelapse demo in una nuova cartella: otto tempi sintetici di 256 per 256 pixel, nucleo nel canale 0 e cellula nel canale 1. Attiva Plot e Keep original images; i sedici TIFF restano invariati. Lo ZIP contiene piani cellulari esatti di questa esecuzione, non dati acquisiti né verità di riferimento. Seleziona separatamente image_sequences/field_A01 e label_sequences/field_A01, canale 0, otto fotogrammi e un campo. La soglia 0.1 dà sedici tracce complete; 1.0 ne dà 128 da un fotogramma. Ripristina 0.1, attendi e premi Re-link: la digitazione può avviare un valore intermedio. Non premere Propagate settings, che non trasferisce la soglia IoU. Sono dichiarati gli avvisi su flow threshold, tabella delle relazioni e stato delle impostazioni. Nessuna validazione biologica o velocità fisica. API: spacr.core.preprocess_generate_masks e spacr.timelapse. AI rimane disattivato.",
+  "scenes": [
+    "Apri Mask e attiva l'interruttore Time. Timelapse ora è annidato in Mask, non è una scheda separata in Home. Aggiunge impostazioni dell'asse temporale e del tracciamento al flusso di segmentazione. Le misure di motilità appartengono a Measure, un passaggio successivo.",
+    "Scegli Help, Demos, poi Timelapse demo e seleziona una nuova cartella. Verranno creati otto fotogrammi sintetici con oggetti in movimento e caricate le relative impostazioni. Sono immagini didattiche, non un esperimento biologico né una prova dell'accuratezza della segmentazione.",
+    "Controlla la sorgente e i canali caricati. Questa demo ha intensità nucleare nel canale zero e cellulare nel canale uno, senza canale del patogeno. I nomi dei file codificano il tempo separatamente da campo e canale. Non sostituire una serie temporale con la normale piastra statica di prova.",
+    "Frame limits usa estremi di intervallo indicizzati da zero: da zero a otto include tutti gli otto fotogrammi, escludendo l'estremo finale. Mantieni insieme i tempi di un singolo campo. La frequenza di riproduzione non fornisce un intervallo di acquisizione mancante; qui non si stabiliscono velocità fisiche.",
+    "Traccia le cellule con la modalità basata sulla sovrapposizione, chiamata iou. Collega le maschere tramite il rapporto tra intersezione e unione nei fotogrammi adiacenti. Gli altri motori hanno ipotesi e dipendenze facoltative diverse. Lo spostamento non è una soglia di sovrapposizione: usa i controlli effettivamente letti dal motore scelto.",
+    "Attiva Keep original images prima di Run. Altrimenti la pulizia può eliminare le cartelle delle immagini intermedie e originali. Questa registrazione conserva invariati tutti i sedici TIFF generati e non tocca i dati dei vecchi tutorial. Mantieni sempre una copia di sicurezza separata degli esperimenti acquisiti.",
+    "Attiva Plot ed esegui questo piccolo esempio. La pipeline attuale elabora insieme tutti gli otto fotogrammi anche se richiedi un lotto più piccolo. Osserva console e monitor delle risorse: più fotogrammi, immagini più grandi e oggetti aggiuntivi possono richiedere molta più memoria.",
+    "L'esecuzione produce cinque figure e otto array combinati. In questa visualizzazione normalizzata, i primi due piani sono intensità; gli ultimi due sono etichette di cellule e nuclei, non altri canali di acquisizione. La tabella cellulare salvata contiene sedici tracce, ciascuna lunga otto fotogrammi.",
+    "Leggi gli avvisi oltre a Finished. Questa versione segnala valori ereditati della soglia di flusso, una tabella delle relazioni non disponibile e un avviso sullo stato delle impostazioni. Abbiamo verificato separatamente maschere e tracce salvate: non è una validazione completa della versione né un sostituto di Measure.",
+    "Apri Track preview. Per riprodurre l'esercizio di collegamento, scarica ed estrai l'archivio sintetico collegato sotto. Contiene gli esatti piani di immagine e maschera cellulare del lotto registrato. Caricare quelle maschere consente di provare i collegamenti senza eseguire un altro modello di segmentazione.",
+    "Scegli la cartella della sequenza di immagini del campo A zero uno. Le immagini esportate contengono solo il piano di intensità cellulare originale: qui scegli quindi il canale zero. Conserva immagini ed etichette sotto cartelle principali separate; imposta Frames previewed a otto e Fields a uno.",
+    "Scegli la cartella delle etichette corrispondente con Masks. Sono maschere calcolate, non una verità di riferimento. Lascia Keep only full-length tracks disattivato e non premere Propagate settings. I controlli del modello non creano nuove maschere quando viene letta una sequenza di maschere esistente.",
+    "Avvia l'anteprima con la soglia di sovrapposizione a zero virgola uno. Riporta sedici tracce di otto fotogrammi, senza tracce brevi in questo esempio. Frammentazione e salti sono indicatori calcolati senza verità di riferimento: valori bassi da soli non provano che le identità siano biologicamente corrette.",
+    "Porta la soglia di sovrapposizione a uno. Richiedere sovrapposizione esatta frammenta questo esempio in movimento in centoventotto tracce di un solo fotogramma. Immagini e maschere restano identiche; cambiano solo i collegamenti. Il valore volutamente eccessivo mostra la frammentazione, non è un'impostazione consigliata.",
+    "Ripristina zero virgola uno, attendi che finisca l'anteprima corrente e premi Re-link. La digitazione può avviare un calcolo con un valore intermedio: conferma esplicitamente quello finale. Tornano le sedici tracce complete. Non premere Propagate settings: la soglia non viene trasferita al modulo di elaborazione del lotto.",
+    "Sposta il cursore al fotogramma otto per ispezionare gli oggetti collegati. La velocità di riproduzione cambia soltanto la visione, non il tempo di acquisizione. Prosegui con Measure e Motility usando intervallo e scala validati. API e spaCR AI aiutano a spiegare le impostazioni, ma non sostituiscono il controllo di immagini, tracce e avvisi."
+  ]
+}

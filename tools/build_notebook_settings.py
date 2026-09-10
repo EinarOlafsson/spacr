@@ -1047,10 +1047,16 @@ _STATUS_OVERRIDES = {
         "organelle_channel": "conditional",
     },
     "spacr.ml.generate_ml_scores": {
-        # RENAMED BY 364, and the rename did not carry the classification:
-        # these fell through to "optional" while the notebook contract still
-        # called them conditionally required, which is the sort of drift that
-        # only shows up as a disagreement between two generated files.
+        # RENAMED BY 364 and missed here, because a rename's survey greps
+        # for the identifier and these are dict KEYS in a tool, not
+        # references to a setting. The cost was silent: the generator found
+        # no `positive_control` to mark conditional, so eight notebooks
+        # documented both controls as "optional" when a Classify (ML) run
+        # requires them unless annotation_column is set.
+        #
+        # Nothing raises on a miss like this. Both files stay internally
+        # consistent and only a test comparing the generated notebook
+        # against the CLI requirements can see the disagreement.
         "positive_control_id": "conditional",
         "negative_control_id": "conditional",
         "annotation_column": "conditional",

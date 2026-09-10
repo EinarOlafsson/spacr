@@ -1,0 +1,37 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; exact synthetic tracking comparison and limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "da",
+  "title": "Tidsseriefølgning",
+  "description": "Kør otte syntetiske billeder i Masks indlejrede arbejdsgang, og sammenlign virkelige maskelinks i Track preview.",
+  "objectives": [
+    "Find Timelapse i Mask, og bevar tidsakse og originalbilleder.",
+    "Sammenlign oprindelige, fragmenterede og gendannede spor på de samme masker.",
+    "Skeln mellem sporindikatorer, afspilning, inferens og målt biologisk bevægelse."
+  ],
+  "prerequisite": "Brug Help > Demos > Timelapse demo i en ny mappe: otte syntetiske tidspunkter på 256 × 256 pixels, kernekanal 0 og cellekanal 1. Slå Plot og Keep original images til; alle seksten TIFF-filer bevares. ZIP-filen indeholder de faktiske celle- og maskeplaner fra denne kørsel, ikke optagne forsøgsdata eller korrekte referenceetiketter. Vælg image_sequences/field_A01 og label_sequences/field_A01 hver for sig: forhåndsvisningskanal 0, otte billeder og ét felt. Tærskel 0.1 giver seksten hele spor; 1.0 giver 128 spor på ét billede. Gendan 0.1, vent, og klik udtrykkeligt på Re-link, da indtastning kan starte en mellemværdi. Klik ikke på Propagate settings; IoU-tærsklen overføres ikke. Advarsler om flowtærskel, relationstabel og indstillingsstatus beskrives åbent. Ingen biologisk validering eller fysisk hastighedsmåling. API: spacr.core.preprocess_generate_masks og spacr.timelapse. AI er slået fra.",
+  "scenes": [
+    "Åbn Mask, og slå Time til. Timelapse ligger nu inde i Mask, ikke som en selvstændig flise på Home. Funktionen tilføjer tidsakse- og sporingsindstillinger til segmenteringen. Måling af motilitet hører til Measure, som kommer senere.",
+    "Vælg Help, Demos og derefter Timelapse demo, og vælg en ny mappe. Det skaber otte syntetiske billeder med objekter i bevægelse og indlæser indstillingerne. Det er undervisningsbilleder, ikke et biologisk forsøg eller dokumentation for segmenteringsnøjagtighed.",
+    "Kontrollér den udfyldte kilde og kanalerne. Demoen har kerneintensitet i kanal nul og celleintensitet i kanal ét, uden patogenkanal. Filnavnene koder tid adskilt fra felt og kanal. Brug ikke den almindelige statiske testplade som erstatning for en tidsserie.",
+    "Frame limits er udsnitsgrænser med indeks fra nul: nul til otte omfatter alle otte billeder, mens slutgrænsen er udeladt. Hold ét felts tidspunkter samlet. Afspilningshastigheden giver ikke et manglende optagelsesinterval, og demoen fastlægger ikke hastigheder i fysiske enheder.",
+    "Følg celler med den overlapbaserede tilstand iou. Den forbinder masker via fællesareal divideret med foreningsareal mellem nabobilleder. Andre metoder har andre antagelser og valgfrie afhængigheder. Forskydning er ikke en overlaptærskel; brug indstillinger, som den valgte metode faktisk læser.",
+    "Slå Keep original images til før Run. Ellers kan oprydningen fjerne mapper med mellemresultater og originalbilleder. Denne optagelse bevarer alle seksten genererede TIFF-filer uændret og berører aldrig de gamle tutorialdata. Hav altid en særskilt sikkerhedskopi af et optaget forsøg.",
+    "Slå Plot til, og kør det lille eksempel. Den aktuelle pipeline behandler alle otte billeder samlet, selv hvis den ønskede batchstørrelse er mindre. Følg konsollen og ressourcevisningen: Flere billeder, større billeder og flere objekter kan kræve væsentligt mere hukommelse.",
+    "Kørslen danner fem figurer og otte samlede arrays. I denne normaliserede visning er de første to planer intensiteter; de sidste to er celle- og kernemærkater, ikke ekstra optagelseskanaler. Den gemte celletabel har seksten spor, der hver spænder over otte billeder.",
+    "Læs advarslerne sammen med Finished. Denne version advarer om nedarvede flowtærskler, en utilgængelig relationstabel og indstillingernes status. Vi kontrollerede de gemte masker og spor separat; det er ikke en fejlfri udgivelsestest eller en erstatning for at køre Measure.",
+    "Åbn Track preview. Hent og udpak det syntetiske forhåndsvisningsarkiv nedenfor for at gentage linkøvelsen. Det indeholder præcis cellebilled- og maskeplanerne fra den optagne kørsel. Indlæsning af disse masker tester links uden at køre en ny segmenteringsmodel.",
+    "Vælg billedsekvensmappen for felt A nul ét. De eksporterede billeder indeholder kun det oprindelige celleintensitetsplan, så vælg kanal nul her. Hold billed- og mærkatsekvenser under forskellige overordnede mapper, og sæt Frames previewed til otte og Fields til ét.",
+    "Vælg den tilsvarende mærkatsekvensmappe med Masks. Det er beregnede masker, ikke kendte referencefacit. Lad Keep only full-length tracks være slået fra, og klik ikke på Propagate settings. Modelindstillingerne danner ikke nye masker, når en eksisterende maskesekvens læses.",
+    "Kør forhåndsvisningen med overlaptærsklen nul komma ét. Den viser seksten spor på otte billeder og ingen korte spor i dette eksempel. Fragmentering og spring er indikatorer beregnet uden referencefacit; små værdier beviser ikke i sig selv biologisk korrekte identiteter.",
+    "Hæv overlaptærsklen til én. Kravet om nøjagtigt overlap deler det bevægelige eksempel i hundredeotteogtyve spor på ét billede. Billeder og masker er uændrede; kun forbindelserne ændres. Den bevidst for høje værdi demonstrerer fragmentering og er ikke en anbefalet analyseindstilling.",
+    "Gendan nul komma ét, vent til den aktuelle forhåndsvisning er færdig, og klik Re-link. Indtastning kan starte en kørsel med en mellemværdi, så bekræft den endelige kørsel udtrykkeligt. De seksten komplette spor vender tilbage. Klik ikke Propagate settings: Overlaptærsklen overføres ikke til batchformularen.",
+    "Flyt skyderen til billede otte for at kontrollere de forbundne objekter. Afspilningshastigheden ændrer kun visningen, ikke optagelsestiden. Fortsæt i Measure og Motility med valideret interval og skala. API og spaCR AI kan forklare indstillinger, men erstatter ikke kontrol af billeder, spor og advarsler."
+  ]
+}

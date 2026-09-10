@@ -1,0 +1,36 @@
+{
+  "lesson": "18_motility",
+  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, unknown and hypothetical calibration, infection and PDF limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Análisis de motilidad",
+  "description": "Explore filtros en vivo y unidades con trayectorias sintéticas reproducibles en Motility, dentro de Measure.",
+  "objectives": [
+    "Encontrar Motility dentro de Measure y cargar el ejemplo exacto.",
+    "Comparar filtros sin releer imágenes ni ejecutar otro modelo.",
+    "Distinguir unidades desconocidas, conversión hipotética y límites de los resultados."
+  ],
+  "prerequisite": "Extraiga SYNTHETIC_motility_tracks.zip en una carpeta nueva. Son ocho matrices sintéticas con intensidad nuclear 0, celular 1, máscara celular seguida 2 y nuclear 3; no hay patógeno ni calibración adquirida. Use la raíz que contiene merged. En Live: dos canales, plano seguido 2, patógeno -1, ocho fotogramas, longitud mínima 3 y calibración 0/0. Los valores 2 píxeles/µm y 60 segundos/fotograma solo ilustran aritmética. No active Propagate settings. Los PDF tienen marcas de bajo contraste; Screen no lo arregló. No se valida infección ni exactitud biológica. API: spacr.timelapse.automated_motility_assay. AI permanece desactivado.",
+  "scenes": [
+    "Abra Measure y después su acceso Time para llegar a Motility Assay. Es un módulo anidado, no una tarjeta independiente de Home. Timelapse, dentro de Mask, crea trayectorias; Motility las mide. Si sus imágenes aún no tienen seguimiento, consulte primero la lección Timelapse.",
+    "Descargue el ejemplo de matrices con seguimiento enlazado abajo y extráigalo en una carpeta nueva. En Source elija la carpeta que contiene merged. Sus ocho fotogramas contienen dieciséis trayectorias celulares. Seleccione cell, canal nuclear cero y celular uno, sin canal de patógeno.",
+    "En un experimento adquirido, use la escala de píxel y el intervalo reales. Aquí, dos píxeles por micrómetro y sesenta segundos por fotograma son deliberadamente hipotéticos, solo para demostrar aritmética. El formulario del lote exige números; sus valores predeterminados no prueban la calibración de su microscopio.",
+    "Deje Reuse existing measurements desactivado para esta copia nueva y active los gráficos de control de calidad. No hay canal de patógeno, así que el control de infección está desactivado en esta ejecución. No se prueban clasificadores opcionales ni se establece un efecto de infección con estas trayectorias didácticas.",
+    "Ejecute el ejemplo pequeño y lea la consola. El lote guarda ciento veintiocho observaciones y un resumen de dieciséis trayectorias por pocillo, además de archivos PDF. Estos no aparecen en la cola de figuras. Esta versión advierte de colores tenues al exportar; inspeccione los archivos antes de usarlos en un informe.",
+    "Active Live para abrir Motility preview. Contraiga Console y System si restan espacio a los gráficos y elija la misma carpeta extraída. Los ajustes del lote y las métricas de la vista previa son independientes. Deje Propagate settings desactivado para que un filtro temporal no modifique la siguiente ejecución completa.",
+    "Establezca dos canales de intensidad, plano de máscara seguido dos y plano de patógeno menos uno, es decir, ninguno. Visualice los ocho fotogramas. Una máscara nuclear no es una máscara de patógeno. Ponga ambos campos de calibración en cero para unidades desconocidas y pulse Run preview.",
+    "La vista previa lee ciento veintiocho observaciones y muestra dieciséis trayectorias utilizables con longitud mínima tres. La velocidad media es aproximadamente uno coma cuatro píxeles por fotograma. Sin ambos valores de calibración, no debe describirse como micrómetros por minuto.",
+    "Suba Min track length a nueve. Cada trayectoria tiene solo ocho fotogramas, así que las dieciséis quedan excluidas del resumen utilizable y la velocidad media no está disponible. No se eliminan las trayectorias ni las imágenes originales. Un resumen vacío no equivale a velocidad cero.",
+    "Restaure el mínimo a tres. Regresan las dieciséis trayectorias utilizables, la distribución de longitudes y los puntos de velocidad. Estas métricas se recalculan desde observaciones en caché. Cambiar una métrica no repite la segmentación ni demuestra que las identidades del seguimiento original fueran correctas.",
+    "Active Drop over-straight tracks con umbral cero coma noventa y cinco. La rectitud es el desplazamiento neto dividido por la longitud recorrida. Se excluyen quince trayectorias didácticas casi rectas y queda una. El movimiento recto puede ser real; este filtro no prueba automáticamente deriva ni constituye una recomendación de análisis.",
+    "Desactive el filtro y confirme que regresan las dieciséis trayectorias. Compare gráficos y cantidad retenida antes de aceptar una regla de filtrado. Aquí la etiqueta uninfected refleja únicamente la ausencia del plano de patógeno; no es un grupo biológico negativo validado.",
+    "Introduzca dos píxeles por micrómetro, pero deje desconocido el intervalo. La vista previa sigue indicando píxeles por fotograma. La escala espacial no aporta el tiempo ausente, y la velocidad de reproducción no es el intervalo de adquisición.",
+    "Introduzca ahora sesenta segundos por fotograma. Con ambos valores hipotéticos, la velocidad media pasa de unos uno coma cuatro píxeles por fotograma a cero coma siete micrómetros por minuto. Las identidades no cambian. El gráfico de trayectorias sigue etiquetando el desplazamiento en píxeles; aquí solo cambia la unidad de velocidad.",
+    "Devuelva ambos campos de calibración de la vista previa a cero. Regresa exactamente el resumen original en píxeles. Separe este ejercicio aritmético de los metadatos reales y consulte la función del lote en la referencia API. spaCR AI puede explicar ajustes, pero no certificar calibración, infección ni validez científica."
+  ]
+}

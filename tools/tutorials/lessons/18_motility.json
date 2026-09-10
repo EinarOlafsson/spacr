@@ -1,0 +1,196 @@
+{
+  "id": "18_motility",
+  "number": 18,
+  "slug": "motility",
+  "title": "Motility assay",
+  "series": 2,
+  "app_key": "motility",
+  "section": "Core",
+  "host_app_key": "measure",
+  "description": "Use Measure’s nested Motility workflow and reproducible synthetic tracks to explore live filters, unknown units and an explicitly hypothetical calibration.",
+  "objectives": [
+    "Find Motility inside Measure and load the exact tracked-array example.",
+    "Compare live length and straightness filters without rereading images or rerunning a model.",
+    "Distinguish pixel velocities, hypothetical unit conversion, infection labels and saved-figure limitations."
+  ],
+  "example_files": [
+    "SYNTHETIC_motility_tracks.zip"
+  ],
+  "prerequisite": "Complete the Timelapse lesson or extract the linked synthetic tracked-array archive into a new folder. These are exact outputs from Help > Demos > Timelapse demo: eight 256-by-256 uint16 arrays with nucleus intensity 0, cell intensity 1, tracked cell masks 2 and nucleus masks 3. Sixteen cell tracks span all eight frames. Masks are computed outputs, not ground truth; there is no pathogen plane or acquired physical calibration. Select the extracted root containing merged, not an ordinary static test plate. The recorded native batch uses cell tracking, channels [0,1], no pathogen channel, reuse_existing_measurements=False, n_jobs=1, displacement 50, straightness filtering off, infection QC scope none, QC graphs on and plot bounds [-30,30]. The batch numeric widgets cannot represent None; 2 pixels/um and 60 seconds/frame are explicitly hypothetical arithmetic inputs, not measured acquisition metadata. The live preview independently uses two intensity channels, tracked plane 2, pathogen plane -1, eight frames and unknown calibration 0/0. Minimum length 3 -> 9 -> 3 retains 16 -> 0 -> 16 usable tracks. Drop over-straight tracks at 0.95 retains one; disabling restores sixteen. A single supplied calibration value leaves px/frame; both hypothetical values change the mean from 1.4001441642 px/frame to 0.7000720821 um/min without changing tracks or the pixel trajectory axes. Independent checks verify all 128 observations, 256 saved centroid coordinates, 256 saved raw channel means, the well summary and every preview state. The batch saves tables and two PDF files but queues no GUI figures. Native PDFs have low-contrast marks; Screen export did not repair them. The tutorial shows genuine readable live plots and discloses this limitation, not a publication-ready PDF. Uninfected here means no supplied pathogen mask, not validated negative infection status. No XGBoost classifier or biological comparison was validated. API entry point: spacr.timelapse.automated_motility_assay. spaCR AI stayed off; no provider request was sent. Technical tutorial validation is not native-speaker/listening approval or release certification.",
+  "scenes": [
+    {
+      "visual": "01_measure_host",
+      "narration": "Open Measure, then its Time shortcut to reach the Motility Assay tab. This is a nested module, not a separate Home tile. Timelapse under Mask creates tracks; Motility measures them. Review the Timelapse lesson first if your images are not already tracked.",
+      "focus": [
+        3570,
+        1900,
+        220,
+        90
+      ],
+      "related_lessons": [
+        "08_measure",
+        "17_timelapse"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_actual_setting_src",
+      "narration": "Download the synthetic tracked-array example linked below and extract it into a new folder. Set Source to the folder containing merged. Its eight frames contain sixteen cell tracks. Choose cell, nucleus channel zero and cell channel one, with no pathogen channel.",
+      "focus": [
+        250,
+        305,
+        1185,
+        285
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_actual_setting_pixels_per_um",
+      "narration": "For an acquired experiment, use the actual pixel scale and frame interval. Here, two pixels per micrometre and sixty seconds per frame are deliberately hypothetical, solely to demonstrate arithmetic. The batch form requires numbers; its defaults are not evidence of your microscope calibration.",
+      "focus": [
+        250,
+        600,
+        1185,
+        150
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_actual_setting_infection_intensity_qc_graphs",
+      "narration": "Leave Reuse existing measurements off for this fresh copy, and enable the quality-control graphs. There is no pathogen channel, so infection quality control is disabled in this run. Optional infection classifiers are not being tested, and these teaching tracks cannot establish an infection effect.",
+      "focus": [
+        250,
+        810,
+        1185,
+        760
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_actual_finished",
+      "narration": "Run the small example and read the console. The batch saves one hundred twenty-eight frame observations and a sixteen-track well summary, plus P D F files. Those files do not appear in the figure queue. This build warns about faint export colours; inspect exports before using them in a report.",
+      "focus": [
+        1440,
+        305,
+        2375,
+        850
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_actual_preview",
+      "narration": "Enable Live to open Motility preview. Fold Console and System if they crowd the plots, then choose the same extracted plate folder. Preview metrics and batch settings are separate. Leave Propagate settings off while experimenting so a temporary filter does not change the next full run.",
+      "focus": [
+        1440,
+        305,
+        2375,
+        550
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_plane_and_unit_settings",
+      "narration": "Set two intensity channels, tracked mask plane two, and pathogen mask plane minus one, meaning none. Preview all eight frames. A nucleus mask is not a pathogen mask. Set both calibration fields to zero here to represent unknown units, then click Run preview.",
+      "focus": [
+        1455,
+        395,
+        2340,
+        300
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_actual_uncalibrated_preview",
+      "narration": "The preview reads one hundred twenty-eight object observations and reports sixteen usable tracks at minimum length three. Mean speed is about one point four pixels per frame. Without both calibration values, it must not be described as micrometres per minute.",
+      "focus": [
+        1455,
+        1600,
+        2340,
+        200
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_actual_all_short",
+      "narration": "Raise Min track length to nine. Each track has only eight frames, so all sixteen are excluded from the usable summary and mean speed becomes unavailable. This does not delete the underlying tracks or images. It demonstrates why an empty summary is not a zero speed.",
+      "focus": [
+        1455,
+        405,
+        2340,
+        1390
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_actual_length_restored",
+      "narration": "Restore the minimum to three. Sixteen usable tracks return, along with the length distribution and velocity points. The preview recomputes these metrics from cached observations. Changing a metric here does not rerun segmentation or prove that the original tracking identities were correct.",
+      "focus": [
+        1455,
+        690,
+        2340,
+        1110
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "13_actual_straightness_filter",
+      "narration": "Enable Drop over-straight tracks at a threshold of zero point nine five. Straightness is net displacement divided by path length. Fifteen nearly straight teaching tracks are excluded, leaving one. Straight motion can be genuine; this filter is not an automatic proof of drift or an analysis recommendation.",
+      "focus": [
+        1455,
+        405,
+        2340,
+        1390
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_actual_filter_restored",
+      "narration": "Switch that filter off and confirm all sixteen tracks return. Compare the plots and retained count before accepting any filtering rule. The uninfected label here only reflects the absent pathogen plane; it is not a validated biological negative group.",
+      "focus": [
+        1455,
+        690,
+        2340,
+        1110
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_actual_one_unit_unknown",
+      "narration": "Enter two pixels per micrometre but leave the frame interval unknown. The preview still reports pixels per frame. Spatial scale alone cannot supply missing time, and video playback speed is not the acquisition interval.",
+      "focus": [
+        3010,
+        400,
+        785,
+        255
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_actual_hypothetical_calibration",
+      "narration": "Now enter sixty seconds per frame. With both hypothetical values supplied, mean speed changes from about one point four pixels per frame to zero point seven micrometres per minute. Track identities do not change. The trajectory panel still labels displacement in pixels; only the velocity unit has changed here.",
+      "focus": [
+        1455,
+        405,
+        2340,
+        1390
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_actual_unknown_units_restored",
+      "narration": "Return both preview calibration fields to zero. The original pixel-unit summary returns exactly. Keep this arithmetic exercise separate from real acquisition metadata, and use the API reference for the batch function. spaCR AI can explain settings, but it cannot certify calibration, infection status or scientific validity.",
+      "focus": [
+        1455,
+        405,
+        2340,
+        1390
+      ],
+      "related_lessons": [
+        "06_api",
+        "17_timelapse",
+        "34_database"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "lesson": "18_motility",
+  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, unknown and hypothetical calibration, infection and PDF limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Análise de motilidade",
+  "description": "Explore filtros ao vivo e unidades com trajetórias sintéticas reproduzíveis em Measure > Motility.",
+  "objectives": [
+    "Encontrar Motility em Measure e carregar o exemplo exato.",
+    "Comparar filtros sem reler imagens nem executar outro modelo.",
+    "Distinguir unidades desconhecidas, conversão hipotética e limitações dos resultados."
+  ],
+  "prerequisite": "Extraia SYNTHETIC_motility_tracks.zip em uma pasta nova. Oito matrizes sintéticas: intensidade nuclear 0, celular 1, máscara celular rastreada 2 e nuclear 3. Sem patógeno nem calibração adquirida. Escolha a raiz que contém merged. Live: dois canais, plano rastreado 2, patógeno -1, oito quadros, comprimento mínimo 3, calibração 0/0. Dois pixels/µm e 60 segundos/quadro são apenas valores hipotéticos. Deixe Propagate settings desligado. Os PDFs têm marcas pouco contrastantes; Screen não resolveu. Não há validação biológica nem de infecção. API: spacr.timelapse.automated_motility_assay. AI desligado.",
+  "scenes": [
+    "Abra Measure e depois o atalho Time para chegar à aba Motility Assay. É um módulo aninhado, não um bloco separado na Home. Timelapse, dentro de Mask, cria trajetórias; Motility faz as medições. Se suas imagens ainda não foram rastreadas, consulte primeiro a aula Timelapse.",
+    "Baixe o exemplo sintético de matrizes rastreadas no link abaixo e extraia em uma pasta nova. Em Source, escolha a pasta que contém merged. Os oito quadros contêm dezesseis trajetórias celulares. Escolha cell, canal nuclear zero e celular um, sem canal de patógeno.",
+    "Para um experimento adquirido, use a escala de pixel e o intervalo reais. Aqui, dois pixels por micrômetro e sessenta segundos por quadro são deliberadamente hipotéticos, apenas para demonstrar a aritmética. O formulário do lote exige números; seus valores padrão não comprovam a calibração do microscópio.",
+    "Deixe Reuse existing measurements desligado para esta cópia nova e ative os gráficos de controle de qualidade. Como não há canal de patógeno, o controle de infecção fica desativado nesta execução. Os classificadores opcionais não estão sendo testados, e estas trajetórias didáticas não demonstram um efeito de infecção.",
+    "Execute o exemplo pequeno e leia o console. O lote salva cento e vinte e oito observações e um resumo de dezesseis trajetórias por poço, além de PDFs. Esses arquivos não aparecem na fila de figuras. Esta versão avisa sobre cores pouco visíveis na exportação; confira os arquivos antes de usá-los em um relatório.",
+    "Ative Live para abrir Motility preview. Recolha Console e System se ocuparem espaço dos gráficos e escolha a mesma pasta extraída. As métricas da prévia e os ajustes do lote são separados. Deixe Propagate settings desligado para que um filtro temporário não altere a próxima execução completa.",
+    "Defina dois canais de intensidade, plano da máscara rastreada dois e plano de patógeno menos um, ou seja, nenhum. Visualize os oito quadros. Uma máscara nuclear não é uma máscara de patógeno. Coloque ambos os campos de calibração em zero para unidades desconhecidas e clique em Run preview.",
+    "A prévia lê cento e vinte e oito observações e mostra dezesseis trajetórias utilizáveis com comprimento mínimo três. A velocidade média é aproximadamente um vírgula quatro pixels por quadro. Sem os dois valores de calibração, ela não deve ser descrita em micrômetros por minuto.",
+    "Aumente Min track length para nove. Cada trajetória tem apenas oito quadros, então as dezesseis ficam excluídas do resumo utilizável e a velocidade média fica indisponível. Isso não apaga trajetórias nem imagens originais. Um resumo vazio não significa velocidade zero.",
+    "Volte o mínimo para três. As dezesseis trajetórias utilizáveis retornam, com a distribuição de comprimentos e os pontos de velocidade. A prévia recalcula essas métricas a partir das observações em cache. Alterar uma métrica não repete a segmentação nem prova que as identidades do rastreamento original estavam corretas.",
+    "Ative Drop over-straight tracks com limiar zero vírgula noventa e cinco. Retilinearidade é o deslocamento líquido dividido pelo comprimento percorrido. Quinze trajetórias didáticas quase retas são excluídas, restando uma. Movimento reto pode ser real; o filtro não prova automaticamente uma deriva nem é uma recomendação de análise.",
+    "Desative o filtro e confirme o retorno das dezesseis trajetórias. Compare gráficos e quantidade mantida antes de aceitar qualquer regra. Aqui, uninfected reflete apenas a ausência do plano de patógeno; não é um grupo biológico negativo validado.",
+    "Insira dois pixels por micrômetro, mas deixe o intervalo desconhecido. A prévia continua em pixels por quadro. A escala espacial sozinha não fornece o tempo ausente, e a velocidade de reprodução não é o intervalo de aquisição.",
+    "Agora insira sessenta segundos por quadro. Com ambos os valores hipotéticos, a média passa de cerca de um vírgula quatro pixels por quadro para zero vírgula sete micrômetros por minuto. As identidades não mudam. O painel de trajetórias ainda indica deslocamento em pixels; aqui muda apenas a unidade da velocidade.",
+    "Volte ambos os campos de calibração da prévia para zero. O resumo original em pixels retorna exatamente. Separe este exercício dos metadados reais e consulte a função do lote na referência API. spaCR AI pode explicar ajustes, mas não certificar calibração, infecção ou validade científica."
+  ]
+}

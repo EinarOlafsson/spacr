@@ -5426,3 +5426,234 @@ actual Demos -> Timelapse action in a new private folder and inspect tracking
 and live preview before narrating. The old synthetic tutorial tree is retained
 unchanged; it has merged stacks/masks but no original raw TIFFs. No application,
 Qt, global translation or instruction-ledger changes are claimed.
+
+CODEX TUTORIAL LANE — 2026-09-10, TIMELAPSE NATIVE CHECKPOINT VERIFIED.
+
+a9741c875 pushed: sixteen scenes on the real Mask > Time fold, Help > Demos
+> Timelapse demo in a fresh folder, Plot on, eight frames / sixteen tracks.
+All sixteen raw TIFFs are preserved with Keep original images on. Independent
+checks cover 128 objects, 256 centroid coordinates and 1,048,576 loaded preview
+image/mask pixels. IoU 0.1 gives 16 eight-frame tracks; 1 gives 128 single-frame
+tracks; explicit Re-link at 0.1 restores the exact initial result. Four native
+MP4s fully decode. The downloadable synthetic ZIP is 1,050,432 bytes and
+contains only the actual exported planes, manifest and teaching instructions.
+33 checker tests plus 3 archive tests pass; 14 isolated mutations go red.
+The checker alone measures 85 statements / 54 branches at 100%, not spaCR.
+
+Qt handoff, no application files edited: typing 0.1 after 1 can launch an
+intermediate 0-valued preview; the final 0.1 request is refused while busy.
+The tutorial waits idle and explicitly clicks Re-link. Observed worker signal
+thresholds: 0.1, 1, 0, 0, 0.1 (signal observations, not five unique jobs).
+All observations had segmented=False. The first loaded-mask preview still
+says 'Masks built + linked', although no inference happened. Propagate
+settings omits IoU threshold, so the lesson says not to click that button.
+At font scale 1.5 the preview spinboxes clip their text; using the real 1.0
+preference is readable and guarded, without changing app widget geometry.
+Clear figures empties the queue but leaves the old canvas visible. The batch
+also emits inherited flow-threshold=100, missing relationships-table and
+settings-status warnings; these remain disclosed rather than hidden. Figure
+intensities use display normalization; no raw figure-pixel equivalence claim.
+
+English audio and the shared master are rendering under the 110 GiB guard.
+Translations and playback verification follow; total remains 45 technically
+checked lessons until that matrix passes. No native/listening approval or
+publication claim. Evidence: tools/tutorials/evidence/
+2026-09-10_timelapse_native_tracking_and_preview_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, TIMELAPSE TECHNICAL MATRIX COMPLETE.
+
+c98e8ea33 pushed: all fifty final voice tracks decode and match their source
+fingerprints; all fourteen language/caption browser cases pass. The shared
+4K/30 master fully decodes, all sixteen scene samples exist, and samples
+1, 9, 13, 14, 15 and 16 were visually checked. Fourteen catalogs agree on
+75 lessons / 842 scenes, with thirty unselected lessons unchanged. Total:
+46 technically checked lessons, 2,300 tracks (100 retained), 644 browser
+cases. Native-speaker/listening approval and publication remain separate.
+Receipt: tools/tutorials/evidence/
+2026-09-10_timelapse_multilingual_technical_checks.json.
+
+NEXT CLAIM: Motility 18, tutorial recorder, fixture validation and lesson only.
+I will check the actual Measure fold and its preview using a private copy of
+tracked synthetic outputs, without overwriting old tutorial inputs. Unit
+calibration must remain explicit; no invented acquisition interval or
+biological infection/velocity claim. No application or Qt changes claimed.
+
+CODEX TUTORIAL LANE — 2026-09-10, MOTILITY NUMBERS VERIFIED; EXPORT HANDOFF.
+
+407365f64 pushed: 53 focused checker tests pass; 15 independent in-memory
+mutations turn red. All eight actual preview states match independent mask
+centroids, paths, filtering and unit arithmetic. The saved batch table's 256
+centroid coordinates, 256 channel means and well summary also match. Sixteen
+synthetic tracks, eight frames, 128 observations; no pathogen plane. Preview
+unknown calibration stays px/frame, including when only one unit is supplied.
+The batch uses explicitly hypothetical 2 px/um and 60 seconds/frame, NOT a
+claim about an acquired calibration. The old source and private inputs survive.
+
+Application handoff, no app files edited: batch pixels_per_um and
+seconds_per_frame numeric widgets reject None although the API supports it;
+the preview represents unknown with zero. Batch figures are saved directly
+as PDF, not queued (figure_count=0, figures_visible=False). Default Print PDF
+has low-contrast mean markers; actual Preferences > Screen export was tested
+and is worse, with near-white labels on a transparent/light page. NOT an
+approved workaround. In figures/style.py, theme_target chooses ink from the
+background token, but automatic figure background is transparent even for a
+light theme. The Motility panel uses screen ink for its data mean markers;
+print conversion correctly refuses to recolour those data. Actual console
+warnings and both rendered PDFs are retained in private evidence. Tutorial
+will demonstrate the checked live plots and disclose the export limitation,
+not claim publication-ready PDFs or fix protected application code.
+
+Receipt: tools/tutorials/evidence/
+2026-09-10_motility_native_numbers_and_pdf_findings.json. English, exact-input
+download and multilingual media remain in progress; total stays 46 technically
+checked lessons until their final checks pass. No native/listening approval.
+
+CODEX TUTORIAL LANE — 2026-09-10, MOTILITY TECHNICAL MATRIX COMPLETE.
+
+635a6b844 pushed: all fifty final tracks fully decoded and fingerprint-checked;
+fourteen spoken/caption-only browser cases passed. One shared 4K/30 master
+fully decoded, all fifteen scene samples extracted, and 1, 3, 5, 8, 11, 14,
+15 visually checked. Exact-input download: 2,345,013 bytes, eleven members,
+SHA-256 c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7.
+Seven archive tests plus six isolated mutations check preservation and guards.
+One English track needed additional fingerprinted attenuation after its AAC
+peak exceeded the unchanged -1 dBFS gate. Final measured peak is -3.1 dBFS;
+two focused tests and three red mutations pin the narrow override. Other
+tracks retain their existing mastering. No pronunciation or timing shortcut.
+
+Fourteen catalogs agree on 75 lessons / 847 scenes; twenty-nine unselected
+entries remain untouched, including the already-verified retained Plate Viewer.
+Total is 47 technically checked lessons, 2,350 tracks (100 retained), 658
+browser cases. PDFs retain their disclosed contrast limitation. No publication,
+native-speaker approval, listening sign-off or biological validation claimed.
+Receipt: tools/tutorials/evidence/
+2026-09-10_motility_multilingual_technical_checks.json.
+
+NEXT CLAIM: Classifier Evaluation 39, tutorial-only recorder and numerical
+checks. Reusing the existing classifier_specialist_narration_audit: this is a
+saved-bundle inspector, not the old narrated evaluation-configuration form.
+Existing Classify demo splits have documented actual-well overlap; I will not
+present their metrics or their own leakage badge as independent validation.
+No application, Qt, global translation or other-session instruction work.
+
+CODEX TUTORIAL LANE — 2026-09-10, EVALUATION INSPECTOR NATIVE CHECKPOINT.
+
+2f4c941c4 pushed: actual Classify > Classifier Evaluation tab, native folder
+picker and all six inspector tabs recorded. The existing one-epoch run has
+234 test predictions and 2,102 training crops. A new private bundle was made
+through the standard evaluation APIs, with byte-identical crop copies named
+from the database's prcfo, not guessed from legacy filenames. The actual well
+overlap is three, so the new bundle truthfully says review required; this does
+not repair the old split, alter probabilities or validate its accuracy.
+Independent checks match eleven summary fields, ten calibration rows and
+all four confusion cells in each of eleven GUI snapshots. Sixteen tests pass;
+seven isolated source mutations turn red. Predicted-table rows and confidence
+lists are recorded, with their complete cell-by-cell checks still to follow.
+No English lesson, translation or media matrix has been accepted yet.
+
+App-text handoff, no protected edits: the same confusion cell says its spread
+over three wells proves it is the model's problem, then says its concentration
+on one plate proves it is NOT a model problem and should be fixed upstream.
+There is only one plate in the entire example, so that causal conclusion does
+not follow. High-confidence disagreement also does not prove a wrong label.
+The lesson will distinguish counts from those suggestions. Crop-open buttons
+were disabled because Annotate's opener was not initialized; no fake crop
+handoff was shown. Source inputs and the loaded bundle remain byte-identical.
+Receipt: tools/tutorials/evidence/
+2026-09-10_evaluation_native_inspector_checkpoint.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, EVALUATION 39 TECHNICAL MATRIX COMPLETE.
+
+46449bcc1 pushed. Fourteen scenes now show the actual Classify > Classifier
+Evaluation saved-bundle inspector, not the old evaluation-configuration form.
+The 199,726-byte download reproduces 234 genuine saved predictions and all
+six inspector tabs. All three test wells overlap training; this is explicitly
+NOT independent validation. It includes tables and native PNGs, not crops,
+an annotation database or a model. Only sample display paths were replaced by
+explicit crops-not-included references; numeric cells and identities survive.
+SHA-256: a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4.
+
+Checks match 44,424 GUI prediction cells, 44 confusion cells, eight confidence
+list states, eleven summary fields and ten calibration rows. The fresh font
+2.0 capture rechecks all eleven snapshots and corrects the measured folder
+picker highlight. All fifty tracks fully decode with current pronunciation
+and runtime fingerprints; fourteen browser language cases pass. Shared 4K/30
+master: 7,884 frames, 262.8 seconds, 16,848,796 bytes. Thirty-nine numerical
+helper tests, twenty red mutations; the helper alone has 121 statements and
+72 branches at 100%. Nine archive tests and eight red mutations also pass.
+No application, whole-repository coverage or biological-validation claim.
+
+Fourteen catalogs agree on 75 lessons / 856 scenes; twenty-eight unselected
+entries remain unchanged, including the already-retained Plate Viewer.
+Total: 48 technically checked lessons, 2,400 tracks (100 retained), 672
+browser cases. Twenty-seven original lessons remain, plus the separately
+held, unproven OPS workflow. No native/listening approval or publication.
+Receipt: tools/tutorials/evidence/
+2026-09-10_evaluation_multilingual_technical_checks.json.
+
+NEXT CLAIM: Curate 42, tutorial-only native interaction, exact edit/undo/save
+checks on private copies and a decision about retaining the old narration.
+No change to the protected application, Qt or global-translation lanes.
+
+CODEX TUTORIAL LANE — 2026-09-10, CURATE 42 NATIVE HISTORY HOLD.
+
+bf7f408d7 pushed. Twenty real GUI frames exercise private copies of the
+synthetic Timelapse output: all 65,536 mask pixels checked after paint, undo,
+save and reopen; 195 first-stroke pixels and 47 second-session pixels change.
+Track split/join/save/reload matches every cell (128 rows / 16 tracks); an
+overlapping-track join refuses without changes, and an unsaved deletion drops
+exactly eight rows before the saved CSV restores them. Original files retain
+their hashes. Fourteen helper tests pass, seven isolated mutations turn red;
+35 statements / 18 branches at 100%, numerical tutorial helper ONLY.
+
+PROTECTED-APP HANDOFF, empirically reproduced, no application edits:
+1. Curate's file picker advertises NPY, but stack_from_paths routes its mask
+   to load_preview_image -> PIL.Image.open and raises UnidentifiedImageError.
+   An exact uint16 TIFF copy loads; the native layer becomes int64 as designed.
+2. Save mask writes paint/undo/paint (3 ledger entries). Reopen it: Curate
+   says curated, but the Brush panel says no corrections and has 0 entries.
+   Paint once more and Save mask: disk ledger now contains ONLY that new
+   paint, losing all three original entries. Pixel contents remain correct.
+   Track reopening, in contrast, preserves its split/join ledger correctly.
+   Relevant consumer: CurateScreen.attach_brush -> BrushPanel -> MaskCuration
+   starts a new log rather than reading the existing sidecar.
+3. Track controls/ledger text are narrow and clip in this native 4K capture.
+
+42 remains held; no false complete-provenance narration, translations or
+production media were generated. Receipt (including exact private paths):
+tools/tutorials/evidence/2026-09-10_curate_mask_history_hold.json.
+NEXT CLAIM: Cellpose Masks 20, current Make Masks fold and real private
+example inference. Reusing the already-scoped channel/grayscale findings.
+No edits to Qt, spacr_cellpose, the translation lane or instruction ledger.
+
+CODEX TUTORIAL LANE — 2026-09-10, APPLY 20 NATIVE/REFERENCE CHECKPOINT.
+
+47c415012 pushed. Actual Home Make Masks > Cellpose Workbench > Apply route,
+three byte-identical real 512-square microscopy crop copies, stock CPSAM
+(NOT the old training checkpoint). GPU batch succeeds with 9 / 94 / 46
+objects and three native figures. A separate direct Cellpose call, bypassing
+spaCR's loader/shuffling/naming, matches all 786,432 saved mask pixels and
+3,932,160 original/overlay/flow figure values; each figure maps uniquely to
+its input despite randomized processing order. Inputs remain unchanged.
+Eleven helper tests, seven red mutations, 22 statements / 12 branches at
+100%, tutorial helper ONLY; not an accuracy or ground-truth claim.
+
+PROTECTED-APP HANDOFF: Apply's live preview is not its batch preflight.
+The form is normalize=True, percentiles=[2,99], resample=False. Preview seeds
+its upper-percentile display control to 98, not 99. Even after explicitly
+setting the visible preview to channel 0 / 2 / 99, it finds 95 objects where
+Apply saves 94. Every preview pixel exactly matches direct Cellpose on the
+RAW image with default preprocessing, not Apply's normalization settings.
+_segment_multi passes diameter/flow/probability, but no normalize/resample
+or percentile configuration to model.eval. The display controls are not an
+equivalent pipeline. No app edits; do not claim this reproduces Apply.
+The live area filter itself passes all 262,144 pixels: 95 -> 47 -> 95 at
+minimum area 1,838, surviving IDs renumbered, raw masks not recomputed.
+The preview is also too short below the three runtime cards to read well.
+20 remains held for the preview-equivalence claim, no production audio.
+Receipt: tools/tutorials/evidence/
+2026-09-10_cellpose_apply_preview_equivalence_hold.json.
+
+NEXT CLAIM: Parameter Sweep 73, current Regression fold and a bounded
+one-worker/two-trial demonstration, with independent saved-table checks.
+No Qt, scientific-module, global-translation or ledger edits.

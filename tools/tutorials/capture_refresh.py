@@ -47,9 +47,11 @@ def main() -> int:
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
     parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
+    parser.add_argument('--motility-screen-export-probe', action='store_true', help='Diagnose the real Screen PDF export preference; not a production tutorial workaround')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
+    parser.add_argument('--evaluation-from', type=Path, help='Private prepared known-overlap classifier evaluation bundle')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
     if args.preview_variants and not args.preview:
@@ -143,7 +145,7 @@ def main() -> int:
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
-            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter') else args.module)),
+            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation') else args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
@@ -283,6 +285,18 @@ def main() -> int:
         from capture_database import record_database
         screen = record_database(app, window, None, stage, captures, capture,
                                  settle, write_json, args.timeout)
+    elif args.module == 'curate':
+        from capture_curate import record_curate
+        record_curate(app, window, stage, captures, capture,
+                      settle, write_json, args.timeout)
+    elif args.module == 'cellpose_masks':
+        from capture_cellpose_masks import record_apply
+        record_apply(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
+    elif args.module == 'parameter_sweep':
+        from capture_parameter_sweep import record_sweep
+        record_sweep(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
@@ -331,6 +345,21 @@ def main() -> int:
         from capture_methods import record_methods
         record_methods(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'timelapse':
+        from capture_timelapse import record_timelapse
+        record_timelapse(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
+    elif args.module == 'motility':
+        from capture_motility import record_motility
+        record_motility(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout,
+                       probe_screen_export=args.motility_screen_export_probe)
+    elif args.module == 'classifier_evaluation':
+        from capture_evaluation import record_evaluation
+        if args.evaluation_from is None:
+            raise ValueError('The evaluation inspector requires --evaluation-from')
+        record_evaluation(app, window, stage, captures, capture, settle, write_json,
+                          args.timeout, args.evaluation_from)
     elif args.module == 'illumination':
         from capture_illumination import record_illumination
         record_illumination(app, window, stage, captures, capture,

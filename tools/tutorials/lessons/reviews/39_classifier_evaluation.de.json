@@ -1,0 +1,35 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Klassifikatoren auswerten",
+  "description": "Gespeicherte Vorhersagen in Classify prüfen und überlappende Trainings- und Test-Wells erkennen.",
+  "objectives": [
+    "Den verschachtelten Ergebnisbetrachter mit dem Downloadbeispiel öffnen.",
+    "Konfusionsmatrix, Konfidenzlisten, Kalibrierung und Live-Filter lesen.",
+    "Ergebnisinspektion von unabhängiger Validierung unterscheiden."
+  ],
+  "prerequisite": "REAL_evaluation_known_overlap.zip in einen neuen Ordner entpacken und den Ordner mit evaluation_manifest.json wählen. Enthalten sind 234 echte Vorhersagen, aber keine Bildausschnitte, Annotationsdatenbank oder Modelle. Alle drei Test-Wells kommen auch im Training vor. Nur private Pfade wurden durch crops-not-included-Verweise ersetzt; Zahlen und Identitäten bleiben gleich. infected_1 und infected_2 sind übernommene Labels. OOF-Titel belegen keine Kreuzvalidierung. API: spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle und load_evaluation_bundle. Kein neues Training, keine Inferenz und keine Anfrage an spaCR AI.",
+  "scenes": [
+    "Öffnen Sie Classify und dort den Kurzbefehl Classifier Evaluation. Dies ist ein verschachtelter Ergebnisbetrachter, kein eigenes Home-Modul und kein Trainingsformular. Die Classify-Lektion behandelt das Erzeugen von Vorhersagen; hier prüfen wir ein bereits gespeichertes Ergebnispaket.",
+    "Laden Sie das unten verlinkte Ergebnisbeispiel herunter und entpacken Sie es in einen neuen Ordner. Klicken Sie auf Browse und wählen Sie den Ordner mit evaluation_manifest.json. Das kleine Archiv enthält echte gespeicherte Vorhersagen und Tabellen, aber keine Bildausschnitte, Annotationsdatenbank oder trainierten Modelle.",
+    "Summary zeigt 234 Testvorhersagen aus einem Lauf mit einer Epoche. infected_1 und infected_2 sind übernommene Datensatzlabels, keine neu bestätigten Infektionszustände. Das Laden liest gespeicherte Ergebnisse. Es trainiert nicht, berechnet keine neuen Vorhersagen und repariert den Datensatz nicht.",
+    "Prüfen Sie Leakage audit vor der Interpretation der Genauigkeit. Alle drei Test-Wells kommen im Training vor; die Prüfung schlägt deshalb fehl. Datenbankidentitäten zeigten Überschneidungen, die die alte Dateinamenprüfung übersah. Diese Zahlen demonstrieren den Betrachter, keine Leistung auf unabhängigen Wells und keine biologische Validierung.",
+    "In Confusion matrix stehen die erfassten Klassen in den Zeilen und die Vorhersagen in den Spalten. Die Diagonale enthält 104 und 111. In den anderen Zellen stehen elf und acht Abweichungen, insgesamt 19. Übereinstimmung mit diesen Labels beweist nicht, dass die Labels korrekt sind.",
+    "Klicken Sie auf die Zelle mit elf: erfasst als infected_1, vorhergesagt als infected_2. Bei Konfidenz 0,75 stehen sechs Abweichungen in der hohen und fünf in der niedrigen Konfidenzliste. Dies sind zwei Prüfwarteschlangen derselben Zelle, keine neuen Klassifikationsergebnisse.",
+    "Erhöhen Sie die Konfidenzschwelle auf 0,95. Die hohe Liste enthält nun zwei Bildausschnitte, die niedrige neun. Wahrscheinlichkeiten, Klassenvorhersagen und die Zelle mit elf bleiben unverändert. Dieser Live-Regler teilt die Warteschlange; er kalibriert das Modell nicht neu und startet keine Inferenz.",
+    "Behandeln Sie automatische Erklärungen vorsichtig. Eine Abweichung mit hoher Konfidenz beweist keine falsche Annotation, und eine einzige Platte belegt keine plattenbedingte Ursache. Die angezeigten Modell- oder Well-Erklärungen sind Hypothesen. Prüfen Sie Aufnahmebedingungen, Labels und wirklich unabhängige Daten, bevor Sie Korrekturen festlegen.",
+    "Per-plate metrics enthält eine Zeile mit allen 234 Vorhersagen. Das ordnet Ergebnisse nach Platte, doch dieses Beispiel erlaubt weder einen Plattenvergleich noch die Schätzung eines Platteneffekts. Die hohe Genauigkeit beseitigt nicht das Problem gemeinsamer Wells in Leakage audit.",
+    "Calibration vergleicht mittlere vorhergesagte Wahrscheinlichkeit und beobachtete Klassenhäufigkeit in fünf Intervallen pro Klasse. Beachten Sie die Anzahl: schwach besetzte Intervalle sind unsicher. Dieses Paket verwendet keine Kalibrierungskorrektur. Der Tab zeigt vorher berechnete Ergebnisse; hier lässt sich keine Kalibrierung anpassen.",
+    "Geben Sie in Predictions r5_c2 ein, um dieses Well zu prüfen. Die Tabelle schrumpft von 234 auf 128 Zeilen. Dies ist ein Live-Textfilter für gespeicherte Datensätze, kein Bildfilter, keine Segmentierung und keine Änderung der zugrunde liegenden Ergebnisdateien.",
+    "Löschen Sie den Filter: Alle 234 Zeilen erscheinen wieder. Die Pfade sagen ausdrücklich, dass Bildausschnitte fehlen. Um abweichende Ausschnitte Ihres Projekts zu öffnen, laden Sie zuerst das passende Experiment in Annotate. Dieses Archiv liefert die Datenbank nicht; deaktivierte Schaltflächen demonstrieren keinen funktionierenden Bildaufruf.",
+    "Der Download bewahrt auch die ursprünglichen Kalibrierungs- und Konfusionsgrafiken. Prüfen Sie deren Kontrast vor der Verwendung in Berichten. Allgemeine out-of-fold-Titel und Dateinamen machen aus dieser einzelnen Testaufteilung keine Kreuzvalidierung. Wahrscheinlichkeiten und Anzahlen bleiben gleich; nur private Pfade wurden durch ausdrückliche Verweise ersetzt.",
+    "Bewahren Sie die Datenleck-Warnung bei allen exportierten Kennzahlen auf. Die API-Referenz erklärt Vorbereitung und Laden; Training Runs vergleicht gespeicherte Verlaufsprotokolle. spaCR AI kann Begriffe erklären, aber weder Labels noch Unabhängigkeit zertifizieren. Dieses Beispiel erforderte keine Anfrage an einen Anbieter."
+  ]
+}

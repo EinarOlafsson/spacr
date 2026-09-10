@@ -1206,3 +1206,74 @@ preserve them here. Two measurements were lost to this in one night. Copy
 the raw files aside first, combine ONCE at the end, and check the
 "Combined N files" line against the number of processes you ran: 16 when
 you ran 32 is a silently partial number that reports as a clean one.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- HOW TO RUN A COMPLETE SWEEP WITHOUT pytest-cov. THE METHOD.
+--------------------------------------------------------------------------------
+
+WRITTEN DOWN BECAUSE THE MEASUREMENT IS THE HARD PART and every previous
+note here describes a way it went wrong rather than the way that works.
+This is the way that works, validated on 2,738 files against a frozen tree.
+
+`tools/run_coverage_batches.py` IS THE CI PATH AND IT CANNOT RUN HERE. It
+passes `--cov=spacr --cov-branch --cov-config=.coveragerc`, which needs
+pytest-cov, which is no longer installed (see the note above). Do not
+install it to make that tool work -- the env is shared with other sessions
+and with the AF3 job, and a package added mid-run changes their environment
+too. The library needs no plugin.
+
+THE SHAPE:
+
+  1. FREEZE THE TREE FIRST. Commit before starting and record the SHA in
+     the run's own first line. A sweep that spans an edit to `spacr/`
+     measures two different trees and combines them into one number that
+     describes neither. Nothing in `spacr/` or `tests/` may be touched
+     until it finishes -- which is hours, and is the real cost of the
+     method.
+
+  2. ONE PROCESS PER CHUNK, NEVER xdist, chunks of about 40 files. Qt and
+     scientific imports retain enough state that thousands of tests in one
+     interpreter exhaust the machine.
+
+  3. LET `.coveragerc` SUPPLY THE SCOPE. It already sets `source = spacr`,
+     `branch = True` and `parallel = True`. Do NOT pass `--source` naming
+     one module: that is the single-module segfault above, and package
+     scope is what a sweep wants anyway.
+
+  4. DATA FILE OUTSIDE THE WORKTREE. `.coverage` in the tree is a binary
+     several sessions would write at once.
+
+  5. HONOUR CI'S SEVEN IGNORES. They measure wall-clock and RSS, and
+     tracing changes the quantity they measure:
+     `tests/test_perf_guard.py`, `tests/qt/test_gui_responsiveness.py`,
+     `tests/qt/test_home_stage_and_dock.py`, `tests/qt/test_figure_queue.py`,
+     `tests/qt/test_pca.py`,
+     `tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py`,
+     `tests/qt/test_the_backdrop_survives_a_run.py`.
+     CI's coverage marker is `not gui`; `not gpu` on top of it is this
+     box's standing rule.
+
+  6. RE-RUN A DEAD CHUNK FILE BY FILE. A chunk that segfaults writes NO
+     data for any of its forty files, and the loss is silent. Branch on
+     the EXIT CODE, not on text: 0 and 1 are fine (1 means tests failed and
+     the data is complete), anything else means the process died.
+
+     DO NOT PATTERN-MATCH THE CODE OUT OF A SUMMARY STRING. `*"exit=1"*`
+     also matches `exit=139`, so a segfault reads as a clean run with some
+     failures and forty files vanish without a word. This was written that
+     way first and caught before it ran.
+
+  7. COMBINE ONCE, AT THE END, AND CHECK THE COUNT. `coverage combine`
+     ERASES its target rather than merging into it and deletes the
+     per-process files it reads. The "Combined N files" line must match the
+     number of processes that ran; 16 out of 32 reports exactly like 32
+     out of 32.
+
+  8. THE SWEEP RECORDS COUNTS, NOT NAMES. Running with `--tb=no` and one
+     reused output file is what keeps it fast, and it means a failing chunk
+     tells you how many, never which. Re-run only the failing chunks
+     afterwards with `-rf` and NO coverage data file, purely to name them.
+
+ABOUT FOUR MINUTES PER CHUNK on this box with an AF3 job alongside, so
+about four and a half hours for the suite. Budget for it as an overnight
+job, not as a step in a larger task.

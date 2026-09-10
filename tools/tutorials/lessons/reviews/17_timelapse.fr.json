@@ -1,0 +1,37 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic data, cached-mask comparison, explicit final Re-link and warning limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Suivi temporel",
+  "description": "Utiliser le flux imbriqué dans Mask, exécuter huit images synthétiques et comparer les liens de masques dans Track preview.",
+  "objectives": [
+    "Trouver Timelapse dans Mask et préserver le temps et les images originales.",
+    "Comparer les trajectoires initiales, fragmentées et restaurées sur les mêmes masques.",
+    "Distinguer indicateurs, lecture vidéo, inférence et mouvement biologique mesuré."
+  ],
+  "prerequisite": "Dans un nouveau dossier, choisissez Help > Demos > Timelapse demo : huit instants synthétiques de 256 par 256 pixels, noyau au canal 0 et cellule au canal 1. Activez Plot et Keep original images pour conserver les seize TIFF. Le ZIP contient les plans cellulaires exacts de cette exécution, pas des données acquises ni une vérité terrain. Sélectionnez séparément image_sequences/field_A01 et label_sequences/field_A01 : canal 0, huit images, un champ. Le seuil 0.1 donne seize trajectoires complètes ; 1.0 en donne 128 d'une image. Après avoir rétabli 0.1, attendez puis cliquez sur Re-link : la saisie peut déclencher une valeur intermédiaire. Ne cliquez pas sur Propagate settings, qui ne transmet pas le seuil IoU. Les avertissements de seuil de flux, de relations et d'état des paramètres restent signalés. Aucune validation biologique ou vitesse physique. API : spacr.core.preprocess_generate_masks et spacr.timelapse. AI reste désactivé.",
+  "scenes": [
+    "Ouvrez Mask et activez son interrupteur Time. Timelapse est désormais intégré à Mask, et non proposé comme une tuile séparée sur Home. Il ajoute les paramètres temporels et de suivi au flux de segmentation. Les mesures de motilité relèvent de Measure, une étape ultérieure.",
+    "Choisissez Help, Demos, puis Timelapse demo, et sélectionnez un nouveau dossier. Huit images synthétiques d'objets en déplacement sont créées et leurs paramètres sont chargés. Ce sont des images pédagogiques, pas une expérience biologique ni une preuve de précision de segmentation.",
+    "Vérifiez la source et les canaux renseignés. Cette démonstration place l'intensité nucléaire dans le canal zéro et l'intensité cellulaire dans le canal un, sans canal pathogène. Les noms de fichiers encodent séparément le temps, le champ et le canal. Ne remplacez pas une série temporelle par la plaque statique habituelle.",
+    "Frame limits définit une tranche indexée à partir de zéro : zéro à huit inclut les huit images, avec une borne finale exclue. Gardez ensemble les temps d'un même champ. Une fréquence de lecture ne fournit pas un intervalle d'acquisition manquant ; cette démonstration n'établit aucune vitesse physique.",
+    "Suivez les cellules avec le mode de recouvrement nommé iou. Il relie les masques par leur intersection divisée par leur union entre images consécutives. Les autres moteurs ont des hypothèses et dépendances facultatives différentes. Un déplacement n'est pas un seuil de recouvrement ; utilisez les paramètres réellement lus par le moteur choisi.",
+    "Activez Keep original images avant Run. Sinon, le nettoyage peut supprimer les dossiers d'images intermédiaires et originales. Cet enregistrement conserve les seize TIFF générés à l'identique et ne touche jamais aux anciens fichiers pédagogiques. Gardez toujours une sauvegarde séparée d'une expérience acquise.",
+    "Activez Plot et lancez ce petit exemple. Le traitement actuel regroupe les huit images, même si la taille de lot demandée est inférieure. Surveillez la console et les ressources : davantage d'images, une résolution supérieure et plus d'objets peuvent exiger beaucoup plus de mémoire.",
+    "L'exécution produit cinq figures et huit tableaux combinés. Dans cet affichage normalisé, les deux premiers plans représentent les intensités ; les deux derniers sont les étiquettes des cellules et des noyaux, pas des canaux d'acquisition supplémentaires. La table cellulaire enregistrée contient seize trajectoires de huit images chacune.",
+    "Lisez les avertissements, pas seulement Finished. Cette version signale des seuils de flux hérités, une table de relations indisponible et un avertissement d'état des paramètres. Nous avons vérifié séparément les masques et trajectoires enregistrés ; ce n'est ni une validation sans réserve de la version ni un remplacement de Measure.",
+    "Ouvrez Track preview. Pour reproduire l'exercice de liaison, téléchargez et extrayez l'archive synthétique proposée ci-dessous. Elle contient exactement les plans d'image et de masque cellulaires du lot enregistré. Charger ces masques permet de tester les liens sans exécuter un autre modèle de segmentation.",
+    "Choisissez le dossier de la séquence d'images du champ A zéro un. Ces images exportées contiennent uniquement le plan d'intensité cellulaire original : choisissez donc ici le canal zéro. Séparez les dossiers parents des images et des étiquettes ; réglez Frames previewed sur huit et Fields sur un.",
+    "Choisissez le dossier des étiquettes correspondant avec Masks. Ce sont des masques calculés, pas une vérité terrain. Laissez Keep only full-length tracks désactivé et ne cliquez pas sur Propagate settings. Les réglages du modèle ne créent pas de nouveaux masques lorsqu'une séquence existante est lue.",
+    "Lancez la prévisualisation avec un seuil de recouvrement de zéro virgule un. Elle indique seize trajectoires de huit images, sans trajectoire courte ici. Fragmentation et sauts sont des indicateurs calculés sans vérité terrain ; de faibles valeurs ne prouvent pas à elles seules que les identités sont biologiquement correctes.",
+    "Portez le seuil de recouvrement à un. Exiger un recouvrement exact fragmente cet exemple mobile en cent vingt-huit trajectoires d'une image. Images et masques restent identiques ; seuls les liens changent. Cette valeur volontairement excessive illustre la fragmentation, ce n'est pas un réglage conseillé.",
+    "Rétablissez zéro virgule un, attendez la fin du calcul en cours, puis cliquez sur Re-link. La saisie peut lancer un calcul sur une valeur intermédiaire ; confirmez explicitement le calcul final. Les seize trajectoires complètes reviennent. Ne cliquez pas sur Propagate settings : le seuil n'est pas transféré au formulaire du lot.",
+    "Déplacez le curseur jusqu'à l'image huit pour inspecter les objets reliés. La vitesse de lecture ne change que l'affichage, pas le temps d'acquisition. Poursuivez dans Measure et Motility avec un intervalle et une échelle validés. L'API et spaCR AI expliquent les paramètres, mais ne remplacent pas la vérification des images, trajectoires et avertissements."
+  ]
+}

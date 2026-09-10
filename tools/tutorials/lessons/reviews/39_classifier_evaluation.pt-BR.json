@@ -1,0 +1,35 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Avaliação de classificadores",
+  "description": "Inspecione predições reais salvas dentro de Classify e reconheça a sobreposição entre treino e teste.",
+  "objectives": [
+    "Abrir o inspetor aninhado com o exemplo para download.",
+    "Explorar matriz, listas de confiança, calibração e filtros ao vivo.",
+    "Separar inspeção de resultados de validação independente."
+  ],
+  "prerequisite": "Extraia REAL_evaluation_known_overlap.zip em uma pasta nova e selecione a que contém evaluation_manifest.json. Há 234 predições reais, sem recortes, banco de anotações ou modelo. Os três poços de teste também aparecem no treino. Só os caminhos privados viraram referências crops-not-included; valores e identidades foram preservados. infected_1 e infected_2 são rótulos herdados. Os títulos OOF não demonstram validação cruzada. API: spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle e load_evaluation_bundle. Não houve novo treinamento, inferência ou chamada ao spaCR AI.",
+  "scenes": [
+    "Abra Classify e depois seu atalho Classifier Evaluation. Este é um inspetor aninhado de resultados, não um módulo separado de Home nem um formulário de treinamento. A aula Classify explica como produzir predições; aqui inspecionamos um conjunto de resultados já salvo.",
+    "Baixe o exemplo de resultados no link abaixo e extraia em uma pasta nova. Clique em Browse e escolha a pasta que contém evaluation manifest ponto json. Este pequeno arquivo inclui predições e tabelas reais salvas, mas não recortes, banco de anotações ou modelo treinado.",
+    "Summary informa duzentas e trinta e quatro predições de teste de uma execução de uma época. infected um e infected dois são rótulos herdados do conjunto, não estados de infecção recém-verificados. Carregar o pacote lê resultados; não treina, não prediz e não corrige o conjunto de dados.",
+    "Confira Leakage audit antes de interpretar a acurácia. Os três poços de teste também estão no treino, então a auditoria falha. As identidades do banco revelaram uma sobreposição que a antiga auditoria de nomes não detectou. Esses números demonstram o inspetor, não desempenho em poços independentes nem validação biológica.",
+    "Em Confusion matrix, as linhas são as classes registradas e as colunas são predições. A diagonal contém cento e quatro e cento e onze. As outras células têm onze e oito discordâncias: dezenove no total. Concordar com esses rótulos não prova que eles estejam corretos.",
+    "Clique na célula com onze: classe registrada infected um e predita infected dois. Na confiança zero vírgula setenta e cinco, seis discordâncias entram na lista de confiança alta e cinco na baixa. São duas filas de inspeção da mesma célula, não novos resultados de classificação.",
+    "Aumente o limiar para zero vírgula noventa e cinco. A lista alta agora contém dois recortes e a baixa nove. Probabilidades, classes preditas e a célula com onze não mudam. Esse controle ao vivo divide a fila; não recalibra o modelo nem executa nova inferência.",
+    "Interprete com cautela as explicações automáticas. Uma discordância muito confiante não prova anotação errada, e uma única placa não estabelece uma causa relacionada à placa. As sugestões sobre modelo ou poço são hipóteses. Revise aquisição, rótulos e dados realmente independentes antes de decidir o que corrigir.",
+    "Per-plate metrics contém uma linha com as duzentas e trinta e quatro predições. Ajuda a localizar resultados por placa, mas este exemplo não compara placas nem estima um efeito de placa. A acurácia alta não elimina o problema dos poços compartilhados mostrado em Leakage audit.",
+    "Calibration compara a probabilidade média predita com a frequência observada da classe em cinco intervalos por classe. A contagem importa: intervalos com poucos dados são incertos. Este pacote não usou correção de calibração. A aba descreve resultados já preparados; não oferece ajuste de calibração.",
+    "Em Predictions, digite r cinco sublinhado c dois para inspecionar esse poço. A tabela passa de duzentas e trinta e quatro para cento e vinte e oito linhas. É um filtro de texto ao vivo sobre registros salvos, não filtragem de imagens, segmentação ou alteração dos arquivos de resultados.",
+    "Limpe o filtro e todas as duzentas e trinta e quatro linhas retornam. Os caminhos dizem explicitamente que os recortes não estão incluídos. Para abrir discordâncias do seu projeto, abra primeiro o experimento correspondente em Annotate. Este arquivo não fornece esse banco; botões desativados não demonstram um fluxo funcional de recortes.",
+    "O download também preserva as figuras nativas de calibração e confusão. Confira o contraste antes de apresentá-las. Títulos e nomes genéricos out-of-fold não transformam esta única divisão de teste em validação cruzada. As probabilidades e contagens continuam iguais; apenas caminhos privados foram substituídos por referências explícitas.",
+    "Mantenha o aviso de vazamento de dados junto a qualquer métrica exportada. A referência API explica preparação e carregamento; Training Runs compara registros de progresso salvos. spaCR AI pode explicar termos, mas não certifica rótulos ou independência. Nenhuma solicitação a um provedor foi necessária neste exemplo."
+  ]
+}

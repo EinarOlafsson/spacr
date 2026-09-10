@@ -59,6 +59,48 @@ STATUSES: tuple = ("infected", "bystander", "distal")
 DEFAULT_REACH_IN_DIAMETERS: float = 1.0
 
 
+def _median_cell_diameter(cell_mask, spacing=None) -> float:
+    """The plate's own cell size, in the units ``spacing`` is given in.
+
+    :param cell_mask: the cell label image.
+    :param spacing: voxel size; ``None`` means pixels.
+    :returns: the median equivalent diameter, or ``0.0`` when nothing
+        measurable is present.
+
+    PRIVATE, AND THAT IS DELIBERATE: it takes nothing off the documented
+    API surface and adds nothing to it, so wiring the reach up as a setting
+    does not move the symbol count a third time in one night.
+
+    BORDER-TOUCHING CELLS ARE DROPPED. A cell clipped by the edge of the
+    field has an area that understates its size, and a median pulled down
+    by clipped fragments would give a reach shorter than a real cell --
+    which is the one error that silently turns every bystander distal.
+    Same rule as :func:`spacr.diameter._region_diameters`.
+
+    THE MEDIAN AND NOT THE MEAN, because a fused segmentation is one
+    enormous object and a shattered one is many tiny ones; both are
+    ordinary on a real plate and both move a mean.
+    """
+    labels = np.asarray(cell_mask)
+    if labels.ndim != 2 or not labels.any():
+        return 0.0
+    counts = np.bincount(labels.ravel())
+    edge = np.unique(np.concatenate([labels[0, :], labels[-1, :],
+                                     labels[:, 0], labels[:, -1]]))
+    keep = np.ones(counts.size, dtype=bool)
+    keep[0] = False
+    keep[edge[edge < counts.size]] = False
+    areas = counts[keep]
+    areas = areas[areas > 0]
+    if not areas.size:
+        return 0.0
+    scale = _as_neighbour_scale(spacing, 2)
+    # AREA IS A PRODUCT OF BOTH AXES, so the pixel area is the product of
+    # the two spacings; the diameter is its square root's companion.
+    pixel_area = float(scale[0]) * float(scale[1])
+    return float(np.median(2.0 * np.sqrt(areas * pixel_area / np.pi)))
+
+
 def reach_from_diameter(cell_diameter: float,
                         diameters: float = DEFAULT_REACH_IN_DIAMETERS
                         ) -> float:

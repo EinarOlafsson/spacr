@@ -138,7 +138,66 @@ not have.
 PROGRESS -- 2026-09-10
 --------------------------------------------------------------------------------
 
-STEP 1, BYSTANDER CLASSIFICATION: code done, setting not wired.
+STEP 1, BYSTANDER CLASSIFICATION: DONE, SETTING AND ALL.
+
+  `bystander_measurements` (bool, default False) and
+  `bystander_reach_in_diameters` (float, default 1.0), declared in
+  `expected_types`, `tooltips` and the Measurements category, and emitted
+  onto the CELL table by `measure._with_bystanders` as `is_bystander`,
+  `is_distal` and `distance_to_infected`.
+
+  OFF BY DEFAULT, UNLIKE ITS TWO SIBLINGS, and the difference is a
+  decision rather than caution by default. `spatial_measurements` and
+  `object_distances` were turned ON by the maintainer on 2026-09-01,
+  explicitly because "a default run that omitted them was discovered
+  after the run, when measuring again costs twenty minutes a plate". The
+  same argument applies here and the cost is LOWER than either of them --
+  one distance transform and one KD-tree. What is different is that
+  nobody has yet seen this column family on a real plate. It is a
+  one-line flip in `get_measure_crop_settings` once one has been
+  measured, and that is the maintainer's call.
+
+  THE COLUMNS ARE NUMERIC BECAUSE THEY HAVE TO BE. The object namespace
+  refuses a non-numeric column, so the three-state category cannot be
+  stored as a category: it is carried as two flags, and an infected cell
+  is 0 in both. `is_infected` is deliberately NOT emitted -- it is
+  neither flag, and a third column would be a third chance to disagree
+  with the pathogen table about the same fact.
+
+  -1.0 IS THE SENTINEL FOR "NOTHING INFECTED IN THIS FIELD", the same one
+  and for the same reason as `_SPATIAL_NO_NEIGHBOUR`: `classify` reports
+  infinity there, and `utils.filter_dataframe_features` does
+  `dropna(axis=1)`, so one non-finite value deletes the column from every
+  model matrix. It is a sentinel, not a distance, and must not be
+  averaged. The feature dictionary says so.
+
+  NO COLUMNS RATHER THAN WRONG ONES when no median diameter can be taken
+  -- every cell clipped by the field edge, or a mask this planar measure
+  does not cover. Emitting anyway would give a reach of zero, which marks
+  every uninfected cell DISTAL: a confident wrong answer where a missing
+  one is honest. It says so on stdout.
+
+  FIVE REGISTRIES, NOT ONE, and this is the part worth keeping for the
+  next person adding a measurement setting. Declaring it in
+  `expected_types` + `tooltips` + `categories` is NOT enough:
+
+    1. `settings.categories`               -- the shared map
+    2. the MEASURE PANEL'S OWN LAYOUT in `qt/screens/settings_model.py`
+       -- anything the layout does not list falls into the trailing
+       "Additional Settings" bucket, which is not a heading anyone chose.
+       The comment already sitting there records instruction 71's two
+       settings making exactly this mistake.
+    3. `KEYS_ADDED_BY_REGROUP` in `tests/test_settings_categories.py`
+    4. `feature_dict.KNOWN_PROPERTIES` -- or the column reports as family
+       `unknown` with no description, which is how a real measurement
+       comes to look like a stray column
+    5. `feature_dict.FEATURE_SCOPE`     -- every curated feature must say
+       where it is written
+
+  AND THE NOTEBOOKS ARE GENERATED FROM ALL OF IT: `tools/build_notebook_settings.py`
+  has to be re-run, or `tests/test_notebook_settings.py` goes red.
+
+STEP 1 AS ORIGINALLY WRITTEN -- code done, setting not wired.
 `spacr/bystanders.py` is new and holds STATUSES ("infected", "bystander",
 "distal"), `reach_from_diameter`, `distance_to_infected`, `classify` and
 `counts`. The reach is a multiple of the measured cell diameter, as the
@@ -240,6 +299,26 @@ WHAT REMAINS BEFORE THIS FILE CAN MOVE TO done/:
     `.compare` (6), plus `point_patterns.suggest_radii`, `.ripley_k`,
     `.csr_envelope` and `.ripley_test` (4). The +12 documented symbols are
     those ten plus the two module docstrings.
+
+    TWO DIFFERENT BASES GIVE TWO DIFFERENT PAIRS OF NUMBERS AND BOTH ARE
+    RIGHT. The figures above are measured on NIGHTLY. The home session's
+    API pass, run on main after merging nightly into it (main 6a863bea6),
+    reads 10,307 -> 10,319 for the same twelve symbols, because main
+    already carried five symbols of its own that nightly did not. SAME
+    DELTA (+12), DIFFERENT BASE. Neither is a correction of the other and
+    neither should be "fixed" to match.
+
+    THE TWELVE, NAMED, so a later count can be checked rather than
+    believed: `spacr.bystanders` and its `classify`, `compare`, `counts`,
+    `distance_to_infected`, `neighbourhood` and `reach_from_diameter`;
+    `spacr.point_patterns` and its `csr_envelope`, `ripley_k`,
+    `ripley_test` and `suggest_radii`.
+
+    WHY THE CATALOG IS BUILT ON MAIN AND NOT ON NIGHTLY, which is not
+    obvious and cost a wasted pass to establish: `docs.yml` deploys under
+    `github.ref == 'refs/heads/main'`, and the audit inside its build
+    compares against whatever ref the workflow checked out. A catalog
+    built on nightly would describe a tree the site never publishes.
 
     MEASURED WITH THE MODULES MOVED ASIDE, which is the only way to tell a
     pending rebuild from a real regression: with `point_patterns.py` out of

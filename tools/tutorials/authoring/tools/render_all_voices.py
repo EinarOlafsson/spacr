@@ -300,11 +300,26 @@ def track_fingerprint(
         "cadence_profile": (
             cadence_profile_identity() if language == "en" else None
         ),
-        "mastering": MASTERING_CONFIG,
+        "mastering": mastering_config(lesson["id"], language, voice),
         "pronunciation": PRONUNCIATION_IDENTITY,
         "synthesis_runtime": runtime_identity or {"state": "test-unbound"},
     }
     return render_fingerprint(payload), payload
+
+
+def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
+    """Keep existing tracks unchanged; pin a measured, narrowly scoped repair.
+
+    Motility's bf_isabella failed all three normal encodes: the last decoded
+    AAC true peak was -0.5 dBFS. Add 2 dB of attenuation only for this track,
+    before encoding, and still require the existing decoded -1 dBFS gate.
+    The extra chain is fingerprinted; no timing, voice or pronunciation changes.
+    """
+    result = dict(MASTERING_CONFIG)
+    result["filters"] = list(MASTERING_CONFIG["filters"])
+    if (lesson_id, language, voice) == ("18_motility", "en", "bf_isabella"):
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    return result
 
 
 def audio_equivalent_render_inputs(
@@ -575,7 +590,7 @@ def render_track(
         sf.write(temp.name, full, SAMPLE_RATE, subtype="PCM_16")
         with staged_output_path(m4a) as staged_m4a:
             decoded_peak = None
-            for loudness_filter in LOUDNESS_FILTERS:
+            for loudness_filter in fingerprint_inputs["mastering"]["filters"]:
                 subprocess.run(
                     [
                         "ffmpeg",

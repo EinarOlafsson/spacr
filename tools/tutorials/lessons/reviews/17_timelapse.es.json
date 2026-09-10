@@ -1,0 +1,37 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic data, cached-mask comparison, explicit final Re-link and warning limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Seguimiento temporal",
+  "description": "Ejecute el ejemplo sintético de ocho fotogramas desde Mask y compare enlaces de máscaras reales en Track preview.",
+  "objectives": [
+    "Encontrar Timelapse dentro de Mask y conservar el eje temporal y las imágenes originales.",
+    "Comparar los enlaces iniciales, fragmentados y restaurados sobre las mismas máscaras.",
+    "Distinguir indicadores de seguimiento, reproducción, inferencia y movimiento biológico medido."
+  ],
+  "prerequisite": "Use Help > Demos > Timelapse demo en una carpeta nueva: ocho tiempos sintéticos de 256 por 256 píxeles, núcleo en canal 0 y célula en canal 1. Active Plot y Keep original images; la ejecución conserva los dieciséis TIFF. El ZIP contiene planos celulares exactos de esa ejecución, no imágenes adquiridas ni máscaras de referencia. En la vista previa seleccione por separado image_sequences/field_A01 y label_sequences/field_A01, canal 0, ocho fotogramas y un campo. El umbral 0.1 produce dieciséis trayectorias completas; 1.0, 128 de un fotograma. Al restaurar 0.1, espere y pulse Re-link explícitamente: escribir puede iniciar un cálculo intermedio. No pulse Propagate settings; no transfiere el umbral IoU. Mantenga visibles las advertencias sobre flow threshold, relaciones y estado de ajustes. No se valida exactitud biológica ni velocidad física. API: spacr.core.preprocess_generate_masks y spacr.timelapse. AI permanece desactivado.",
+  "scenes": [
+    "Abra Mask y active su interruptor Time. Timelapse está ahora dentro de Mask, no en una tarjeta independiente de Home. Añade ajustes del eje temporal y del seguimiento al flujo de segmentación. Las mediciones de motilidad pertenecen a Measure, un paso posterior.",
+    "Elija Help, Demos y Timelapse demo, y seleccione una carpeta nueva. Se crean ocho fotogramas sintéticos con objetos en movimiento y se cargan sus ajustes. Son imágenes didácticas, no un experimento biológico ni una prueba de precisión de la segmentación.",
+    "Compruebe la fuente y los canales cargados. Este ejemplo tiene intensidad nuclear en el canal cero e intensidad celular en el canal uno, sin canal de patógeno. Los nombres codifican el tiempo por separado del campo y del canal. No sustituya una serie temporal por la placa estática habitual.",
+    "Frame limits son límites de intervalo con índice inicial cero: de cero a ocho incluye los ocho fotogramas, pero excluye el extremo final. Mantenga juntos los tiempos de un campo. La velocidad de reproducción no aporta un intervalo de adquisición ausente; este ejemplo no establece velocidades físicas.",
+    "Realice el seguimiento de células con el modo de solapamiento, llamado iou. Enlaza máscaras mediante la intersección dividida por la unión entre fotogramas consecutivos. Otros motores tienen supuestos y dependencias opcionales distintos. El desplazamiento no es un umbral de solapamiento; utilice los controles que realmente lee el motor elegido.",
+    "Active Keep original images antes de Run. De lo contrario, la limpieza puede eliminar las carpetas de imágenes originales e intermedias. Esta grabación conserva sin cambios los dieciséis TIFF generados y no toca los datos de tutoriales anteriores. Mantenga siempre una copia de seguridad independiente de cualquier experimento adquirido.",
+    "Active Plot y ejecute este ejemplo pequeño. La implementación actual procesa los ocho fotogramas juntos aunque solicite un lote menor. Observe la consola y el monitor de recursos: más fotogramas, imágenes mayores y objetos adicionales pueden necesitar mucha más memoria.",
+    "La ejecución genera cinco figuras y ocho matrices combinadas. En esta visualización normalizada, los dos primeros planos son intensidades; los dos últimos son etiquetas celulares y nucleares, no canales de adquisición adicionales. La tabla celular guardada contiene dieciséis trayectorias, cada una con ocho fotogramas.",
+    "Lea las advertencias además de Finished. Esta versión avisa sobre valores heredados del umbral de flujo y una tabla de relaciones no disponible, y muestra un aviso de estado de ajustes. Verificamos máscaras y trayectorias guardadas por separado; no es una validación limpia de la versión ni sustituye ejecutar Measure.",
+    "Abra Track preview. Para reproducir el ejercicio de enlace, descargue y extraiga el archivo sintético enlazado debajo. Contiene exactamente los planos de imagen y máscara celular de esta ejecución grabada. Cargar esas máscaras permite probar los enlaces sin ejecutar otro modelo de segmentación.",
+    "Elija la carpeta de imágenes del campo A cero uno. Estas imágenes exportadas contienen solo el plano de intensidad celular original, por lo que aquí debe seleccionar el canal cero. Mantenga imágenes y etiquetas bajo carpetas padre separadas; establezca Frames previewed en ocho y Fields en uno.",
+    "Elija la carpeta de etiquetas correspondiente mediante Masks. Son máscaras calculadas, no referencia verdadera. Deje Keep only full-length tracks desactivado y no pulse Propagate settings. Los controles del modelo no crean máscaras nuevas al leer una secuencia de máscaras existente.",
+    "Ejecute la vista previa con el umbral de solapamiento en cero coma uno. Indica dieciséis trayectorias de ocho fotogramas y ninguna corta en este ejemplo. La fragmentación y los saltos son indicadores calculados sin referencia verdadera; valores pequeños no demuestran por sí solos que las identidades sean biológicamente correctas.",
+    "Suba el umbral de solapamiento a uno. Exigir coincidencia exacta divide este ejemplo móvil en ciento veintiocho trayectorias de un solo fotograma. Las imágenes y las máscaras no cambian, solo sus enlaces. Este valor deliberadamente excesivo ilustra la fragmentación; no es un ajuste recomendado.",
+    "Restaure cero coma uno, espere a que termine la vista previa actual y pulse Re-link. Al escribir puede iniciarse un cálculo con un valor intermedio; confirme explícitamente el cálculo final. Regresan las dieciséis trayectorias completas. No pulse Propagate settings: el umbral de solapamiento no se transfiere al formulario del lote.",
+    "Desplace el control hasta el fotograma ocho para inspeccionar los objetos enlazados. La velocidad de reproducción cambia solo la visualización, no el tiempo de adquisición. Continúe en Measure y Motility con intervalo y escala validados. La API y spaCR AI explican ajustes, pero no sustituyen revisar imágenes, trayectorias y advertencias."
+  ]
+}

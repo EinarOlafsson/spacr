@@ -1,0 +1,35 @@
+{
+  "lesson": "39_classifier_evaluation",
+  "english_sha256": "b528765c05e0789e5a604ceca31eb1efc935ac0add1713d5f716187b4cb06eda",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, real overlap, inspection-only paths and causal limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "it",
+  "title": "Valutazione dei classificatori",
+  "description": "Esamina predizioni reali salvate in Classify e riconosci la sovrapposizione dei pozzetti tra addestramento e test.",
+  "objectives": [
+    "Aprire l’ispettore annidato con l’esempio scaricabile.",
+    "Leggere matrice, confidenza, calibrazione e filtri interattivi.",
+    "Distinguere l’ispezione dei risultati dalla validazione indipendente."
+  ],
+  "prerequisite": "Estrai REAL_evaluation_known_overlap.zip in una cartella nuova e seleziona quella con evaluation_manifest.json. Sono 234 predizioni reali, senza ritagli, database di annotazioni o modello. Tutti e tre i pozzetti di test sono anche nell’addestramento. Cambiano solo i percorsi privati, sostituiti da riferimenti crops-not-included; valori e identità restano invariati. infected_1 e infected_2 sono etichette ereditate, non stati biologici verificati. I titoli OOF non dimostrano validazione incrociata. API: spacr.classifier_evaluation.evaluate_predictions, write_evaluation_bundle e load_evaluation_bundle. Nessuna nuova inferenza o richiesta a spaCR AI.",
+  "scenes": [
+    "Apri Classify e poi il collegamento Classifier Evaluation. È un ispettore annidato di risultati, non un modulo Home separato né un modulo di addestramento. La lezione Classify spiega come produrre predizioni; qui esaminiamo un insieme di risultati già salvato.",
+    "Scarica l’esempio di risultati collegato sotto ed estrailo in una cartella nuova. Premi Browse e scegli la cartella contenente evaluation manifest punto json. Il piccolo archivio include predizioni e tabelle reali salvate, ma non ritagli, database di annotazioni o modello addestrato.",
+    "Summary riporta duecentotrentaquattro predizioni di test da un’esecuzione di un’epoca. infected uno e infected due sono etichette ereditate dal dataset, non stati d’infezione appena verificati. Caricare il pacchetto legge risultati salvati: non addestra, non predice e non ripara il dataset.",
+    "Controlla Leakage audit prima di interpretare l’accuratezza. Tutti e tre i pozzetti di test compaiono nell’addestramento, quindi l’audit fallisce. Le identità del database hanno rivelato una sovrapposizione sfuggita al vecchio controllo dei nomi. Questi numeri illustrano l’ispettore, non prestazioni indipendenti o validazione biologica.",
+    "In Confusion matrix le righe sono le classi registrate e le colonne le predizioni. Sulla diagonale trovi centoquattro e centoundici. Le altre celle contengono undici e otto disaccordi: diciannove in totale. L’accordo con queste etichette non dimostra che siano corrette.",
+    "Premi la cella con undici: classe registrata infected uno, predetta infected due. Alla confidenza zero virgola settantacinque, sei disaccordi entrano nell’elenco ad alta confidenza e cinque in quello a bassa. Sono due code d’ispezione della stessa cella, non nuove classificazioni.",
+    "Alza la soglia a zero virgola novantacinque. L’elenco ad alta confidenza contiene ora due ritagli, quello a bassa nove. Probabilità, classi predette e cella con undici restano invariati. Questo controllo interattivo divide la coda; non ricalibra il modello né ripete l’inferenza.",
+    "Considera con cautela le spiegazioni automatiche. Un disaccordo ad alta confidenza non prova un’annotazione errata, e una sola piastra non stabilisce una causa a livello di piastra. Le indicazioni su modello o pozzetto sono ipotesi. Esamina acquisizione, etichette e dati davvero indipendenti prima di decidere cosa correggere.",
+    "Per-plate metrics contiene una riga con tutte le duecentotrentaquattro predizioni. Aiuta a localizzare i risultati per piastra, ma l’esempio non confronta piastre né stima un effetto di piastra. L’accuratezza elevata non elimina il problema dei pozzetti condivisi mostrato in Leakage audit.",
+    "Calibration confronta la probabilità media predetta con la frequenza osservata della classe, in cinque intervalli per classe. Conta la numerosità: gli intervalli poco popolati sono incerti. Il pacchetto non ha applicato correzioni di calibrazione. La scheda descrive risultati precedenti; non contiene un controllo per adattare la calibrazione.",
+    "In Predictions digita r cinque trattino basso c due per ispezionare quel pozzetto. La tabella passa da duecentotrentaquattro a centoventotto righe. È un filtro testuale interattivo su record salvati, non un filtro d’immagini, una segmentazione o una modifica dei file di risultato.",
+    "Cancella il filtro e tornano tutte le duecentotrentaquattro righe. I percorsi dichiarano che i ritagli non sono inclusi. Per aprire i disaccordi del tuo progetto, apri prima l’esperimento corrispondente in Annotate. Questo archivio non fornisce quel database; i pulsanti disabilitati non dimostrano un’apertura funzionante dei ritagli.",
+    "Il download conserva anche le figure native di calibrazione e confusione. Verificane il contrasto prima di presentarle. Titoli e nomi generici out-of-fold non rendono questa singola suddivisione di test una validazione incrociata. Probabilità e conteggi sono invariati; solo i percorsi privati sono stati sostituiti da riferimenti espliciti.",
+    "Conserva l’avviso di contaminazione dei dati insieme alle metriche esportate. La documentazione API spiega preparazione e caricamento; Training Runs confronta registri di avanzamento salvati. spaCR AI può spiegare i termini, ma non certifica etichette o indipendenza. Per questo esempio non è stata necessaria alcuna richiesta a un fornitore."
+  ]
+}
