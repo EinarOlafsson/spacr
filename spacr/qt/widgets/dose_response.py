@@ -1997,6 +1997,15 @@ def selectivity_index(pathogen: Optional[DoseResponseResult],
     # the parasite's upper one, and vice versa. Conservative, and it is the
     # only form available when a fit is open on one side.
     def _ratio(numerator, denominator):
+        """One end of the interval, or ``None`` when that end is open.
+
+        Returns ``None`` rather than raising or substituting a sentinel: an
+        open side of a one-sided index is a fact about the experiment, and a
+        number here would make it look bounded.
+
+        :param numerator: a host EC50 bound, or ``None``.
+        :param denominator: a parasite EC50 bound, or ``None``.
+        """
         if numerator is None or denominator is None:
             return None
         if not np.isfinite(numerator) or not np.isfinite(denominator):

@@ -1047,8 +1047,12 @@ _STATUS_OVERRIDES = {
         "organelle_channel": "conditional",
     },
     "spacr.ml.generate_ml_scores": {
-        "positive_control": "conditional",
-        "negative_control": "conditional",
+        # RENAMED BY 364, and the rename did not carry the classification:
+        # these fell through to "optional" while the notebook contract still
+        # called them conditionally required, which is the sort of drift that
+        # only shows up as a disagreement between two generated files.
+        "positive_control_id": "conditional",
+        "negative_control_id": "conditional",
         "annotation_column": "conditional",
     },
     "spacr.deep_spacr.generate_activation_map": {
