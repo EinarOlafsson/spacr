@@ -77,9 +77,20 @@ def main() -> int:
         private_runs = stage / 'runs'
         private_runs.mkdir(parents=True, exist_ok=True)
         runs_destination = Path.home() / '.spacr/runs'
+        queue_binds = []
+        if args.module == 'queue':
+            # Queue persists outside XDG_CONFIG_HOME. Isolate the whole app
+            # state directory before constructing Home/Queue, without changing
+            # Path.home or replacing the application's persistence function.
+            queue_state = stage / 'queue_state' / (args.capture_name or 'queue')
+            queue_state.mkdir(parents=True, exist_ok=True)
+            if (queue_state / 'queue.json').exists():
+                raise RuntimeError('Use a new capture name for a fresh private queue')
+            queue_binds = ['--bind', str(queue_state), str(Path.home() / '.spacr')]
         os.environ['SPACR_TUTORIAL_CACHE_ISOLATED'] = '1'
         os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
                           '--dev-bind', '/dev', '/dev',
+                          *queue_binds,
                           '--bind', str(private_cache), str(destination),
                           '--bind', str(private_runs), str(runs_destination), '--',
                           sys.executable, str(Path(__file__).resolve()),
@@ -123,7 +134,7 @@ def main() -> int:
     set_preload_policy('on_demand')
     set_theme('dark')
     set_font_scale(args.font_scale)
-    if args.module == 'regression':
+    if args.module in ('regression', 'queue'):
         from spacr.qt.preferences import set_figure_format
         set_figure_format('png')
     apply_preferences_to_app(app)
@@ -229,6 +240,10 @@ def main() -> int:
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
                           settle, write_json, args.timeout)
+    elif args.module == 'queue':
+        from capture_plate_queue import record_queue
+        record_queue(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
