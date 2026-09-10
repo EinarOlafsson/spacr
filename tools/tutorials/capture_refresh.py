@@ -299,6 +299,10 @@ def main() -> int:
         from capture_pipeline_graph import record_graph
         record_graph(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'tabulate':
+        from capture_tabulate import record_tabulate
+        record_tabulate(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
     elif args.module == 'outliers':
         from capture_outliers import record_outliers
         record_outliers(app, window, stage, captures, capture,
