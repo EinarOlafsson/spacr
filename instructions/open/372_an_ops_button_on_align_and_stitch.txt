@@ -3306,3 +3306,56 @@ THE RULE FOR THE MODULE: check `os.path.isfile`, catch `OSError` rather than
 alignment". A field that was never acquired and a field that could not be
 placed are different facts about the plate, and a barcode assembled from
 what survived has to be able to tell them apart.
+
+--------------------------------------------------------------------------------
+PART 14-E -- THE SWEEP: 116 OF 161 FIELDS, AND EVERY REFUSAL IS IN THE SECOND
+HALF OF THE RASTER. 2026-09-10.
+--------------------------------------------------------------------------------
+
+Every eighth field of the 1,281, matched against its mapped sequencing tile
+in the well frame at 4,000 trials.
+
+    aligned            116 of 161
+    unreadable           1        (site 864 -- see PART 14-D)
+    refused             44
+
+AND THE REFUSALS ARE NOT SCATTERED. Every field below site 648 aligned --
+81 of 81 -- and 44 of the 79 at or above it refused. A 41-column well's
+middle column is around site 640, so the break is at the centre of the
+raster, which is the signature of a LAYOUT error rather than of the
+specimen: a snake parity or a row-origin that is right on one side of the
+well and wrong on the other. It is the same family as the mistake PART 11-A
+records for the sequencing well -- "rows were indexed from each column's own
+top. In a round well every column starts at a different row" -- which cost
+that model four of seven neighbours.
+
+MEASURED RATHER THAN ASSUMED, and this is where it stops being obvious. The
+closed-form map and the anchor-calibrated raster disagree by up to 900 px,
+and they disagree on BOTH sides of the break:
+
+    site      map centre        raster centre      gap
+       0    (2007,   749)     (1914,   720)         97
+     128    (5781,  4581)     (5754,  4615)         44
+     256    (5764,  7116)     (5092,  7189)        676
+     384   (-6923,  9561)    (-7817,  9676)        901
+     640    (3187, 13435)     (3113, 13622)        201
+     832    (8238, 16005)     (8246, 16882)        877
+    1280    (4366, 26116)     (4312, 26524)        411
+
+So neither prediction is the true one and the window (+/- 1600 px) is what
+has been covering for both. The disagreement is almost entirely in the ROW
+direction, which is the column-height axis -- exactly the axis PART 11-A had
+to solve with a circle fit rather than a constant.
+
+WHAT TO DO NEXT, and it is a measurement rather than a guess: take the
+fields that DID align, which now number 116 with a transform apiece, and fit
+the phenotype raster to them the way PART 11-A fitted the sequencing one --
+four parameters against 116 measured positions. That answers the row origin
+and the snake parity together, and the fields that refused then get a window
+in the right place instead of a wider one.
+
+    THE SAME SHAPE AS A2, WHICH IS THE POINT. A2 does not search for where a
+    tile goes; it registers the pairs it can, solves the layout, and places
+    the ones it could not. A4 should do the same with the fields it could
+    not align, and the 116 that did are already the measurement that makes
+    it possible.
