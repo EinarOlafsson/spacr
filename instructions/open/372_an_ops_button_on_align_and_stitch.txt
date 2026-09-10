@@ -3035,3 +3035,64 @@ module under 325 and the consensus it computes is a perfectly good SEED;
 what it lacks is a refinement and a way to say no, and both live in
 `ops_phenotype.py` instead. The measurement and an offer to move the
 refinement into `ops_merge` are recorded in 325.
+
+--------------------------------------------------------------------------------
+PART 14-A -- THE CALIBRATION ANSWERS IT: A PHENOTYPE TILE DOES NOT SIT INSIDE
+A SEQUENCING TILE. 2026-09-10.
+--------------------------------------------------------------------------------
+
+Four phenotype fields against ALL 333 sequencing fields of well A1, every
+pair scored the same way. 1,332 attempts:
+
+    phenotype    0   grid  (0, -22)     0 of 333 aligned
+    phenotype   41   grid  (3, -14)     1 of 333 aligned
+                        sbs 23  grid (2, -7)
+                        132 inliers, scale 0.2510, -0.03 deg, resid 1.58 px
+    phenotype  300   grid (11, -31)     0 of 333 aligned
+    phenotype  900   grid (27,  -3)     0 of 333 aligned
+
+TWO RESULTS, AND THE FIRST IS THE ONE TO KEEP.
+
+THE MATCHER'S SPECIFICITY IS NOT IN DOUBT ANY MORE. One hit in 333 for the
+field that has one, and ZERO false positives in the other 1,332 attempts --
+against a machinery that three days ago returned a transform for every pair
+it was handed. The rotation bound, the scale bound and the chance baseline
+do what PART 14 claimed they do, measured across the whole well rather than
+on the eleven pairs that suggested it.
+
+AND THE SECOND EXPLAINS EVERY REFUSAL: A PHENOTYPE TILE STRADDLES FOUR
+SEQUENCING TILES. It covers a quarter of a sequencing field's area, so
+unless the two rasters happen to line up at that point it sits across a
+boundary and no single sequencing tile holds more than a fraction of its
+nuclei. Site 41 is the one that landed inside one. Three of four did not,
+which is what a quarter-size tile on an unaligned grid should do.
+
+THE MISTAKE WAS ARCHITECTURAL, NOT NUMERICAL, and it is worth saying plainly
+because the whole of PART 14 was spent on the numerical reading of it: A4
+was written as tile-to-tile, and A4 IS NOT A TILE PROBLEM. PART 8 already
+says A3 gives "one rigid transform per cycle, composed with A2" -- in the
+WELL FRAME. A4 is the same shape and was not built that way.
+
+WHAT TO BUILD NEXT, and this is now a small change rather than a new idea:
+
+  1. PUT THE SEQUENCING NUCLEI IN THE WELL FRAME using the A2 placement
+     table that `ops_stitch` already produces. That is a translation per
+     tile and nothing else; the point clouds are tiny.
+  2. MATCH EACH PHENOTYPE TILE AGAINST THAT CLOUD, restricted to the
+     neighbourhood the layout predicts -- a 3x3 block of sequencing tiles
+     is 4.5 million px of well frame and a few thousand centroids, which
+     is the same problem size the tile-to-tile version was.
+  3. THE TRANSFORM IS THEN INTO THE WELL FRAME DIRECTLY, which is what
+     Phase C needs to sample phenotype channels at Phase B's object
+     coordinates. Tile-to-tile would have needed composing with A2
+     afterwards anyway.
+
+NOTHING IN `ops_phenotype.py` CHANGES FOR THIS. `align_phenotype_to_sbs`
+takes two point clouds and does not care which frame they are in; the
+expected scale is the same 0.2543; the rotation bound is the same fact about
+the plate. What changes is what is handed to it, and `phenotype_site_map`
+becomes a neighbourhood lookup rather than a one-to-one map.
+
+AND THE ONE CONFIRMED PAIR IS THE REGRESSION TEST FOR IT. Whatever the
+well-frame version returns for phenotype 41 must agree with scale 0.2510 and
+-0.03 degrees, composed through site 23's own placement.
