@@ -1,0 +1,38 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine scatter groups, limits, live filters and capped wrapping; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "pt-BR",
+  "title": "Small Multiples: grupos reais, filtros ao vivo e escalas fiéis",
+  "description": "Abra Small Multiples dentro do Graph Builder, compare medições baixadas em escalas comuns ou independentes, examine grupos vazios e facetas limitadas e crie uma coluna derivada reversível.",
+  "objectives": [
+    "Localizar o submódulo e montar uma grade de dispersão com objetos reais.",
+    "Comparar escalas compartilhadas, livres, por linha e por coluna sem confundi-las com mudanças nos dados.",
+    "Filtrar ao vivo, distinguir grupos vazios de espaços não usados e contar níveis omitidos.",
+    "Criar e remover um reescalonamento em memória, preservando a fonte e as escolhas do gráfico."
+  ],
+  "prerequisite": "Use uma cópia privada idêntica de measurements.db do exemplo baixável do Annotate: 2.341 objetos, quatro poços, 13 rótulos de campo e 51 combinações poço/campo observadas. Objetos não são réplicas experimentais independentes e rótulos espaciais não representam tratamentos estabelecidos. Coordenadas, pertencimento aos grupos, limites, títulos e visibilidade dos painéis demonstrados são verificados de forma independente. A prova limita-se a eixos contínuos finitos não degenerados e a estes dados sem subamostragem; não valida gráficos arbitrários, seleção entre visualizações, efeitos biológicos ou calibração física. Small Multiples é um submódulo tabular do Graph Builder, sem download próprio, prévia de imagens, pipeline GPU, console de IA, chave geral Plot ou botão de exportação. Reutilize os dados do Annotate e o botão Load table do submódulo.",
+  "scenes": [
+    "Abra Graph Builder pela Home e escolha o botão aninhado Small Multiples. Esse é o caminho atual do submódulo, não um bloco separado na Home. Reutilizamos as medições reais do exemplo baixável do Annotate em uma cópia privada; o tutorial do Annotate mostra como obter esse exemplo.",
+    "Use Load table dentro de Small Multiples, selecione a cópia do banco de medições e depois cell. Ele contém dois mil trezentos e quarenta e um objetos medidos em quatro poços. O Graph Builder principal possui outro botão Load table. Neste fluxo, use o que fica ao lado do título Small Multiples.",
+    "Procure cell_area e arraste para X; coloque cell_channel_1_mean_intensity em Y. Escolha Scatter em Plot. Arraste rowID para Facet down e columnID para Facet across. A busca reduz a lista de colunas, não a população celular. Cada ponto aqui representa um objeto já medido.",
+    "Com as duas escalas em shared, todos os quatro painéis usam os mesmos limites horizontais e verticais. Os títulos informam seiscentos e quinze, quinhentos e vinte e cinco, setecentos e quinhentos e um objetos. Os rótulos de linha e coluna descrevem posições, não tratamentos verificados. Essas células não são réplicas experimentais independentes.",
+    "Defina X scale e Y scale como free. Cada painel passa a usar seu próprio intervalo. Isso revela a forma interna de cada grupo, mas nuvens com a mesma largura podem abranger valores diferentes. Leia as marcações dos eixos antes de comparar. Mudar as escalas não altera as medições originais.",
+    "Escolha per row para as duas escalas. Painéis na mesma linha da grade compartilham limites, enquanto linhas diferentes podem ter limites distintos. É um agrupamento de escalas baseado na disposição, não uma correção estatística. Aqui, as duas colunas de cada linha podem ser comparadas com eixos correspondentes.",
+    "Escolha per column para as duas escalas. Painéis na mesma coluna compartilham limites. X e Y também podem ser configurados separadamente; nesta demonstração mudamos os dois juntos. Restaure shared em ambos antes de comparar todos os poços. Compartilhado significa comum na grade atual, não fixo após qualquer filtro posterior.",
+    "Na aba Filter, adicione cell_area e defina o limite inferior como vinte e um mil novecentos e vinte e cinco. A grade atualiza imediatamente para mil cento e setenta e um objetos. Os pontos e as contagens dos painéis mudam juntos. É um filtro de medições ao vivo, não segmentação de imagens nem uma nova execução de análise.",
+    "Escolha Clear all na aba Filter. Todos os dois mil trezentos e quarenta e um objetos voltam, com suas posições e limites compartilhados originais. Esse botão limpa o filtro; Clear all channels à esquerda remove as atribuições do gráfico. Nenhuma dessas ações apaga linhas do banco.",
+    "Para examinar um grupo realmente ausente, filtre columnID para c dois e fieldID para f vinte e f vinte e um, rolando a lista de categorias se necessário. Coloque fieldID em Facet across e mantenha rowID em Facet down. Restam cento e setenta e quatro células. O painel da linha cinco, campo vinte, tem n igual a zero: nenhum objeto de origem, não uma intensidade medida como zero.",
+    "Limpe os filtros e restaure columnID em Facet across. Defina Wrap at como cinco com os dois canais de facetas atribuídos. A grade continua dois por dois e o aviso informa que a quebra é ignorada. Wrap se aplica quando apenas um canal de facetas está em uso; não reorganiza uma grade bidimensional.",
+    "Limpe Facet down, coloque fieldID em Facet across e mantenha Wrap at em cinco. Os campos retidos formam três linhas de cinco posições. Só doze níveis são desenhados, embora a fonte tenha treze. As três posições não usadas são preenchimento de layout oculto, diferente de um grupo real exibido com n igual a zero.",
+    "Leia o aviso abaixo da grade. O campo vinte e um fica fora dos doze níveis exibidos, excluindo duzentos e sessenta e quatro objetos dos painéis. São desenhados dois mil e setenta e sete pontos, embora a tabela carregada ainda tenha duas mil trezentas e quarenta e uma linhas. A contagem carregada não prova que todas as linhas estão visíveis.",
+    "Desative Wrap e restaure rowID e columnID como as duas facetas. Em Columns, digite area_k como nome e cell_area dividido por mil como expressão, exatamente como aparece. A prévia verifica as primeiras duas mil linhas. Escolha Add column para calcular os valores derivados da tabela inteira sem reescrever o banco.",
+    "Arraste area_k para X. Cada coordenada horizontal agora é a área original dividida por mil; os valores de Y e os grupos não mudam. Isso é reescalonamento numérico, não calibração em micrômetros quadrados, nova medição ou evidência de efeito biológico. Todos os dois mil trezentos e quarenta e um valores derivados foram verificados.",
+    "Devolva cell_area a X antes de selecionar area_k em Columns e escolher Remove. O gráfico original de quatro painéis volta e a coluna derivada desaparece. Tanto o banco privado quanto os dados baixados originais permanecem inalterados. Registre variáveis, grupos, filtros e escalas para que outra pessoa possa reproduzir a visualização.",
+    "No código, trellis e TrellisSpec do módulo Qt trellis_spec do spaCR definem agrupamento, escalas e Wrap; GraphSpec define os canais do gráfico. Esta tela não possui botão de exportação nem conjunto baixável próprios. Use Tabulate para exportar resumos CSV verificados. Prévias de imagens, pipelines GPU e spaCR AI pertencem aos respectivos tutoriais de análise, não a esta visualização tabular."
+  ]
+}
