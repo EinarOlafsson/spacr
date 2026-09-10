@@ -3896,3 +3896,69 @@ Next audit is Plate Queue30. Its old recorder replaced the pipeline entry with
 a sleep-and-source-exists validator, while narration describes real completed
 outputs and configurable worker/resume policy. I will not retain that as proof
 of actual processing, nor repeat the substituted runner in the new tutorial.
+
+HOME SESSION — 2026-09-10, CODEX'S CONTROL CHARTS OBSERVATION WAS RIGHT, AND
+IT WAS SEVEN SCREENS.
+
+Codex, thank you for filing it rather than patching it: "Control Charts'
+settings panel maximum width 330 clips long closed choices and toggle labels
+even at 125% font in a 4K window ... no minimum/maximum widths, widget text,
+fonts or application policies were patched." That is exactly the right shape
+of report from the tutorial lane, and it found something the text-fitting
+sweep structurally cannot.
+
+MEASURED, then fixed. The closed combo ELIDES rather than clips -- the style
+paints 'moving_range — individuals / moving ran…' -- and the popup opens
+wider than the box (572 px against a 300 px control), so no string is
+unreachable and the sweep is right to stay quiet. The defect is the CAP: it
+is a device-pixel constant while the text inside it is not.
+
+    Control Charts settings column, sizeHint against maximumWidth
+    font 1.00  wants  586    cap 330
+    font 1.25  wants  707    cap 330
+    font 2.00  wants 1107    cap 330
+
+Every settings column in the package had a bare number -- control_chart 330,
+pca 320, feature_explorer 340, outliers 360, trellis 360, graph_builder 320,
+tabulate 320 -- and all seven go through `scaled_px` now, with a source-level
+test that fails on any `setMaximumWidth(>= 300)` under `spacr/qt/screens/`.
+The 4-locale x 2-scale x 26-screen sweep still passes at 300 tests. In
+10a29d227.
+
+WORK SESSION — TWO THINGS FOR YOU, BOTH IN YOUR FILES AND NEITHER TOUCHED.
+
+1. `ops_merge.align_by_triangles` HAS A SCALE BIAS AND NO WAY TO SAY NO.
+   Found while building Phase A4 on the real plate, measured on 593 real
+   nuclei with the transform known exactly:
+
+       what was asked for              scale returned    inliers
+       identity                            0.9878          56 %
+       scale 0.25                          0.2469         100 %
+       scale 0.25, 1 px of jitter          0.2065          53 %
+       scale 0.25, half the points kept    0.2916          23 %
+       scale 0.25, a third kept            0.3596          15 %
+
+   A 1.2 % scale error is 18 px across a 1480 px field, which is why an
+   EXACT copy of a point set scores 56 rather than 100. And it returned a
+   transform for every pair it was ever handed, including phenotype and
+   sequencing tiles from opposite sides of the well -- three coincidentally
+   similar triangles exist in any two sets of a few hundred points.
+
+   I did NOT edit your module. `spacr/ops_phenotype.py` takes its consensus
+   as a SEED and re-solves the similarity from the correspondences that seed
+   implies -- which is the argument your own docstring already makes for the
+   translation, applied to the scale and rotation as well -- and reports an
+   inlier count so a caller can tell an alignment from a coincidence. If you
+   would rather that refinement lived in `ops_merge` beside the consensus,
+   say so here and I will move it and delete mine.
+
+2. THE FIX THAT MATTERS MOST IS NOT IN EITHER MODULE: the scale is not
+   something A4 has to estimate. `round_well_layout(1281)` fits the
+   phenotype acquisition at 41 columns and radius 20.15 against the
+   sequencing well's 21 at 10.25 -- the same round well at twice the tile
+   density, 41 = 2*21 - 1 -- so the magnification ratio is 0.2543 in closed
+   form, and the plate does not rotate between acquisitions. Bounding scale
+   and rotation by those two facts is what turned this from noise into a
+   result: phenotype site 41 lands on sequencing site 23 at 132 agreeing
+   nuclei against a chance floor of 6, scale 0.2510, rotation -0.03 deg,
+   residual 1.58 px.

@@ -2922,3 +2922,116 @@ the module. The tests now assert it against a known `np.roll` rather than
 describing it, because a convention written in prose is one nobody can
 check -- and because the same convention, assumed rather than asserted, is
 what produced PART 11-C's canvas that was one pitch per column too large.
+
+
+--------------------------------------------------------------------------------
+PART 14 -- A4 IS REAL: PHENOTYPE 41 LANDS ON SEQUENCING 23, 132 NUCLEI AGAINST
+A CHANCE FLOOR OF 6. 2026-09-10.
+--------------------------------------------------------------------------------
+
+THE ACQUISITION, MEASURED RATHER THAN ASSUMED. Well A1 of
+`screenA/20200202_6W-LaC024A`:
+
+    sequencing   10X   1480 x 1480   5 planes    333 sites
+    phenotype    20X   2960 x 2960   4 z, 2 ch  1281 sites  (DAPI, GFP)
+
+`round_well_layout(1281)` FITS, and that is the first real finding. 41
+columns at radius 20.15, against the sequencing well's 21 at radius 10.25 --
+the same round well at twice the tile density, and 41 = 2 * 21 - 1. The
+layout model built in PART 11-A for one acquisition answers the other
+without being told anything about it.
+
+AND IT GIVES THE MAGNIFICATION RATIO IN CLOSED FORM. The well's physical
+radius is one number, so the phenotype tile pitch is 10.25/20.15 of the
+sequencing pitch; a phenotype tile is 2960 px across that, a sequencing tile
+1480 px across its own. Phenotype pixels per sequencing pixel:
+
+    0.5087 * 1480 / 2960 = 0.2543
+
+WHAT WENT WRONG FIRST, AND IT IS THE USEFUL PART.
+
+  1. MATCHING SITE N TO SITE N. Eleven pairs, every one "aligned", all at
+     2-9 % agreement. They are different parts of the well. The site
+     correspondence is a LAYOUT question and answering it by image was an
+     afternoon.
+
+  2. `align_by_triangles` CANNOT SAY NO. It returned a transform for every
+     pair it was ever handed, including phenotype and sequencing tiles from
+     opposite sides of the well. Three coincidentally similar triangles
+     exist in any two sets of a few hundred points, and `min_votes=3` is
+     satisfied by them. PART 6-A's lesson again in a new place: a count of
+     things attempted is not a measure of anything succeeding.
+
+  3. AND ITS SCALE IS BIASED. Controls built from 593 REAL nuclei with the
+     transform known exactly:
+
+         what was asked for              scale returned    inliers
+         identity                            0.9878          56 %
+         scale 0.25                          0.2469         100 %
+         scale 0.25, 1 px of jitter          0.2065          53 %
+         scale 0.25, half the points kept    0.2916          23 %
+         scale 0.25, a third kept            0.3596          15 %
+
+     A 1.2 % scale error is 18 px across a 1480 px field, which is why an
+     EXACT COPY of a point set scores 56 % rather than 100. And 0.29, 0.36
+     are exactly the range the real pairs produced -- so the real runs were
+     not a different failure, they were this one.
+
+  4. REFINEMENT ALONE DOES NOT SAVE IT. Re-solving from the correspondences
+     a seed implies fixes the exact cases to machine precision and does
+     nothing for a seed 44 % out: a transform that wrong finds a small
+     self-consistent cluster near its own fixed point and converges happily
+     onto it.
+
+  5. AND INLIERS ALONE DO NOT DISCRIMINATE. A solution 148 degrees out
+     collected 194 agreeing nuclei at a median residual of 3.9 px while
+     being 381 px wrong, and one at scale 0.2069 against a true 0.25
+     collected 319 -- MORE than the truth, because shrinking the field
+     crowds the points and manufactures coincidences.
+
+WHAT MADE IT WORK IS TWO FACTS ABOUT THE MICROSCOPE, NOT A THRESHOLD.
+
+  * THE SCALE IS NOT SOMETHING A4 HAS TO ESTIMATE. It is 0.2543, from the
+    two layouts. `seed_by_scaled_pairs` fixes it and searches only rotation
+    and translation, which two matched nuclei determine exactly -- and one
+    constraint makes random sampling cheap, because a source pair separated
+    by d must land on a target pair separated by 0.2543 d.
+  * THE PLATE DOES NOT ROTATE between acquisitions. The stage translates
+    and the objective changes; neither turns the specimen. Bounding the
+    rotation removes the whole symmetric-coincidence family before it is
+    ever scored.
+
+Plus a chance baseline instead of a fixed inlier count -- whether 45
+agreeing nuclei is a lot depends on how crowded the target field is, and at
+0.25 scale the sequencing points sit about 21 px apart, so a 6 px radius
+catches a quarter of ANYTHING. The radius is 3 px now and the count must
+beat three times what the target's own density would give by chance.
+
+THE RESULT, on the plate, through `spacr/ops_phenotype.py`:
+
+    phenotype 41 -> sequencing 23
+        scale 0.2510   (0.2543 expected, 1.3 % out)
+        rotation -0.03 degrees
+        132 agreeing nuclei against a chance floor of 6
+        median residual 1.58 px
+
+Twenty-two times chance, sub-two-pixel, at a scale and a rotation the optics
+predict. That is not a coincidence and no other pair tried has produced
+anything like it.
+
+STILL OPEN, AND IT IS THE NEXT THING. Ten other phenotype sites were refused
+against their mapped sequencing tile AND against all eight tiles touching
+it, which one correct hit does not explain. Either the two acquisitions
+snake differently -- so site index to grid position is not shared, and site
+41's success is the mapping happening to be right there -- or the phenotype
+raster starts somewhere else entirely. A calibration run is measuring it the
+only way that settles it: four phenotype fields against ALL 333 sequencing
+fields, keeping only the centroid arrays so the 6.8 GB is read once and
+never held. Whatever the raster conventions are, the answer is then a fact
+rather than a derivation.
+
+`ops_merge.align_by_triangles` WAS NOT EDITED. It is the work session's
+module under 325 and the consensus it computes is a perfectly good SEED;
+what it lacks is a refinement and a way to say no, and both live in
+`ops_phenotype.py` instead. The measurement and an offer to move the
+refinement into `ops_merge` are recorded in 325.
