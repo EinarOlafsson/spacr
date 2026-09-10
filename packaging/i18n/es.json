@@ -55,5 +55,11 @@
   "unsupported_platform_value": "Valor de plataforma no compatible: %s",
   "usage": "Uso: install_spacr_unix.sh [opciones]",
   "uv_missing": "uv no se instaló en la ruta esperada: %s",
-  "validating_install": "Validando la instalación antes de activarla..."
+  "validating_install": "Validando la instalación antes de activarla...",
+  "old_install_found": "Se encontró spaCR %s ya instalado en %s. Este instalador instala %s.",
+  "old_install_remove": "¿Eliminar esa instalación por completo antes de instalar esta?",
+  "old_install_removed": "Se eliminó la instalación anterior.",
+  "old_install_kept": "Se conserva. El entorno se reemplaza de todos modos; las cachés y los ajustes se mantienen.",
+  "old_install_noninteractive": "No es una terminal, así que no se preguntó nada. El entorno se reemplaza; las cachés y los ajustes se mantienen.",
+  "old_install_same": "Es la misma versión que trae este instalador."
 }

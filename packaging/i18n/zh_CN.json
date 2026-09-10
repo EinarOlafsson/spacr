@@ -55,5 +55,11 @@
   "unsupported_platform_value": "不支持的平台值：%s",
   "usage": "用法：install_spacr_unix.sh [选项]",
   "uv_missing": "uv 未安装到预期路径：%s",
-  "validating_install": "正在验证安装，然后再将其启用..."
+  "validating_install": "正在验证安装，然后再将其启用...",
+  "old_install_found": "在 %2$s 发现已安装的 spaCR %1$s。本安装程序将安装 %3$s。",
+  "old_install_remove": "是否在安装本版本之前完全删除该安装？",
+  "old_install_removed": "已删除先前的安装。",
+  "old_install_kept": "予以保留。环境无论如何都会被替换；缓存和设置将保留。",
+  "old_install_noninteractive": "并非终端，因此未作询问。环境将被替换；缓存和设置将保留。",
+  "old_install_same": "这与本安装程序所含版本相同。"
 }

@@ -55,5 +55,11 @@
   "unsupported_platform_value": "지원하지 않는 플랫폼 값: %s",
   "usage": "사용법: install_spacr_unix.sh [옵션]",
   "uv_missing": "uv가 예상 경로에 설치되지 않았습니다: %s",
-  "validating_install": "활성화하기 전에 설치를 검증하는 중..."
+  "validating_install": "활성화하기 전에 설치를 검증하는 중...",
+  "old_install_found": "%2$s에 spaCR %1$s이(가) 이미 설치되어 있습니다. 이 설치 프로그램은 %3$s을(를) 설치합니다.",
+  "old_install_remove": "이 버전을 설치하기 전에 해당 설치를 완전히 제거할까요?",
+  "old_install_removed": "이전 설치를 제거했습니다.",
+  "old_install_kept": "그대로 둡니다. 환경은 어차피 교체되며 캐시와 설정은 유지됩니다.",
+  "old_install_noninteractive": "터미널이 아니므로 아무것도 묻지 않았습니다. 환경은 교체되며 캐시와 설정은 유지됩니다.",
+  "old_install_same": "이 설치 프로그램이 포함한 버전과 같습니다."
 }
