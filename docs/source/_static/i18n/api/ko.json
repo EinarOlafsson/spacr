@@ -6378,6 +6378,156 @@
         "95acc186608059dca558b06739fdbc92817a54826a7a5b032e81bc4e3cf283ac"
       ]
     },
+    "spacr.bystanders": {
+      "source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "64eec22513bbf4bec521ca20fc1d35850587d33f7eda9eec0e9f706b7f1baf2e",
+        "f0b303b5608ab71ade5ea230861ae71d3cee95bb49fa9a852775f1b3fc2ef4f2",
+        "94d7e78f7165592ff2235af9d9f4f946cfaf966d5484f5119a623dbd4e4e41b0",
+        "9273d06cdc254a763c8d9a3fb4097232aa117811cffaad44ec5f573cca3c1dcf"
+      ],
+      "source_sha256": "fae99684314471b5bb7a79e26fb26cbb01d9294586b66e3c66ac5063fd453f0a",
+      "text": "어떤 감염되지 않은 세포가 감염된 세포 옆에 있고 어떤 세포는 그렇지 않습니다.\n\n아직 존재하지 않는 열. spaCR 각 세포를 스스로 측정하고, 내세포 병원균의 생물학은 그것이있는 세포에 제한되지 않습니다 : 감염된 세포는 이웃이하는 일을 변경합니다.\n\n두 가지 결과, 그리고 두 번째는 결과를 지불하는 하나입니다. 진정한 비스테르 현상은 찾을 수 없습니다, 왜냐하면 아무 열도 멀리 떨어져서 감염되지 않은 세포에서 비 스테르를 분리하지 않기 때문에. 그리고 모든 오염 된 통제는 조용히 녹여있다 : 만약 비스 테르가 현상적으로 전환되고 그들은 \"uninfected\"로 분할된다면, 통제 인구는 혼합, 그것의 변형은 팽창하고, 각 감염 비교의 효과 크기는 아무것도 방향으로 줄어들지 않습니다.\n\n거리가 이미 해결되고 여기서 아무것도 그것을 다시 구현하지 않습니다. :mod:`spacr.object_distances`는 오(사진 픽셀) 대신 O(쌍)에서 한 번 개체 유형에 따라 Euclidean 거리 변환을 계산하고이 모듈은 그 마이크로스코프 필드의 시야를 읽습니다.\n\n그것은 측정 된 세포 직경의 다중으로 표현되므로 20x와 63x의 인수와 세포가 단순히 더 큰 플레이트에 동일한 것을 의미합니다.",
+      "translation_source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "5236c1c8114f4fc380bca1f4b42924ec25011a86d00b303174de0ba3ca6ed387",
+        "f92bc40dd1c944d22b65799e447a45f4d3f7806bca09345c3110a85d7b29e93d",
+        "d558462d24bfba095002aaf51ae4e989e848a49ef88e064fdbd40e9dba218064",
+        "ac141e8ca96b18a24d79f5067ddb78e8af37181df84a68cd202c02c9b3f00e0c"
+      ]
+    },
+    "spacr.bystanders.classify": {
+      "source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "7c026167cab09bd2f77c36c6e21081f24b6d64dddb763927711f4c67d2423013",
+        "805b9d4e7b5a4af97465b112d1de623fbfa17045b66ed8379affe68105622a50"
+      ],
+      "source_sha256": "d7b35198ca1aa985f81e8cdc222542914511923812d7abf75e3ed26504d070a6",
+      "text": "모든 감염된 세포, 비스텐더 또는 디스탈을 표시합니다.\n\n:param cell_mask: 셀 라벨 이미지.\n:param infected_labels: 병원균을 운반하는 세포의 라벨.\n:param reach: 얼마나 가까운 감염되지 않은 세포가 ``spacing``과 동일한 단위에서 바이 스탠더로 계산되어야 하는지. 참조 :func:`reach_from_diameter`\n:param spacing: Voxel 크기\n:returns: ``label``, ``distance_to_infected`` 및 ``neighbourhood``에 해당되는 글 1건\n\n긍정적이지 않은 접근은 모든 감염되지 않은 세포를 분산시킵니다.이 행동은 사용자가 두 번째 설정 없이 분열을 끄는 것을 허용하는 행동입니다. - 잘못 정리 된 설정의 행동이 뒤로 떨어지기 때문에 비스턴트를 발명 할 수 없습니다.\n\n이것이 통과해야하는 수용 테스트는 기생충이없는 마이크로 플레이트 샘플 위치가 무한성을보고하지 않는다는 것입니다. `distance_to_infected`는 특별한 경우가 아닌 무한성이기 때문에 그 기능은 무한성으로 돌아갑니다.",
+      "translation_source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "3354b8db37095a449b00474ec3dc32f31cef09e40f541050dae1103e1c559889",
+        "a55e8e9e4981949c48ec281214b1e16420d2d24667a7ad71eaf91a2e996df86d"
+      ]
+    },
+    "spacr.bystanders.compare": {
+      "source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
+        "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
+        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+      ],
+      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
+      "text": "이웃에 한 줄, 한 측정된 특징을 위해.\n\n:param frame: ``neighbourhood`` 열을 가진 측정, :func:`classify`이 그것을 생성하기 때문에, 기능 테이블에 연결되어 있습니다.\n:param feature: 요약하기 위한 컬러입니다.\n:param statuses: 어떤 이웃에 보고해야 하는지, 순서대로.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` 및 ``median``\n\n전체 항목을 비교하는 것은, 그리고 그것이 가치가있는 이유는 추가 대신 삭감입니다 : 패키지는 이미 감염되지 않은 것과 비교할 수 있습니다. 그것이 할 수없는 것은 \"uninfected\"이 두 인구였다는 것을 알 수 있습니다, 그래서 부정적인 효과는 더 광범위한 통제 이외에 아무것도 나타납니다.\n\n각 요청된 상태는 ``n = 0``에서 마이크로 플레이트 샘플 위치가 없습니다. 실험실 마이크를 비교하는 호출자는 매번 동일한 세 줄이 필요합니다.\n\n여기에 테스트 통계가 없습니다, 의도적으로. 요약은 모든 열에 안전합니다; 테스트를 선택하는 것은 디자인에 대한 결정입니다 - 파이어 또는 아니면, 마이크로 플레이트 샘플의 위치가 어떻게 둥지, 무엇이 0입니다 - 그리고 그들이 알려진 곳에 속합니다.",
+      "translation_source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
+        "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
+        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+      ]
+    },
+    "spacr.bystanders.counts": {
+      "source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "1c78383afde58ac6082970041f6e01d674f2fe6c3199017880ddca4cd302e972"
+      ],
+      "source_sha256": "208fc59be9975d4515892fb68bbd13dc74f72fd7bcf473f032f75937bfab0cd4",
+      "text": "각 국가에 얼마나 많은 세포가 착륙했는지, 빈 세포를 포함하여.\n\n:param frame: 출력은 :func:`classify`입니다.\n:returns: 모든 이름은 :data:`STATUSES`, 0이없는 곳입니다.\n\n각 키는 항상 존재합니다. 마이크로 플레이트 샘플 위치를 비교하는 호출기는 실종되는 키가 아닌 0을 필요로합니다.이 마이크로는 샘프 위치에 \"비스턴트가 없음\"이 결과이며 KeyError이 아닙니다.",
+      "translation_source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "95e7d924f4ce69ddfb9d04756959774ae5960a226937c063df3645d6b89b7d94"
+      ]
+    },
+    "spacr.bystanders.distance_to_infected": {
+      "source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "a3204c3e72fbf553148b54c9aa30f51ec5aea0db7a9ea834c3bcb7dbe1817c0a",
+        "5447e660d19afe866ed6f7513df6339e54c3bf79ff90255f7307bb73d8957ae8",
+        "41e6b6c3af27f08038ead1d36872fba9f12542c732718ffb419e2bba8fc46c06"
+      ],
+      "source_sha256": "28b64218ec1c932e0689c53129bd85fe6ff2740781f1e3a0f6a27af826e06ed7",
+      "text": "각 세포의 표면은 가장 가까운 감염된 세포에서 얼마나 멀리 떨어져 있습니까?\n\n:param cell_mask: 셀 라벨 이미지.\n:param infected_labels: 병원균을 운반하는 세포의 라벨.\n:param spacing: voxel 크기, 그래서 거리는 물리적 단위를 운반합니다.\n:returns: ``label`` 및 ``distance_to_infected``, 셀 당 1 줄.\n\n감염된 세포에 대한 0, 즉각적인 이웃에 대한 1 픽셀, 그리고 차이점은 분명한 읽기가 잘못되기 때문에 주장할 가치가 있습니다. 필드는 모든 감염 된 픽슐에 대해 0이며 외부로 성장하므로 감염되어있는 세포와 경계를 공유하는 세포는 자신의 가장 가까운 피크셀을 한 걸음 떨어져있다 : 그 세포 위의 최소는 1이 아닙니다.\n\n`surface_distance_transform`의 도크스트링은 \"두 개의 터치 개체가 0에서 나옵니다\"라고 말하고, 그것은 그것이 묘사하는 경우에 사실입니다 - 마이크로스코프의 시야 필드를 한 지점에서 다른 개체에 들어가서, 이것은 과장하거나 포함 된 개체를 제공하는 것입니다. 두 개의 분리 된 라벨은 단순히 사라지지 않습니다, 그래서 그들은하지 않습니다. 세포 직경에 표현 된 경계는 하나의 픽셀보다 훨씬 크다; 노트는 여기에 그래서 아무도 1을 오류로 읽지 않습니다.\n\n``inf`` 감염된 세포가없는 마이크로 플레이트 샘플 위치에는 거리가 없으며 정직한 값은 0 대신 무한입니다. NaN 모든 세포는 자발적으로 존재하지 않는 인구에서 멀리 떨어져 있으며, 무한성은 유일하게 유지되는 가치입니다. `distance <= reach` False 모든 최종 접근을 위해.",
+      "translation_source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "c6554255c5500858d2f0f33cbee7b08f6e126ea15488f74415c1141af3d6cbbd",
+        "5d8d3c3fcb5d11be435469eb2a6b136040ffdbe81b0d0fdfc42d83bb6d6cffa4",
+        "4d2417c22a92008343be46284ce848126b63db6f34c700dbf25da3394fe611e7"
+      ]
+    },
+    "spacr.bystanders.neighbourhood": {
+      "source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "733fc84845e6aeb3979848c89aa3f8f2ab82320ba047a32451f4207d4647df03",
+        "15e7e1d0659ec5f35c3bf7b28c9db8fb8518654a19b9a38d989b542ef34f363c",
+        "f32e480fd432e8e394cba24bb150a161d2be4971464f9b48e516d9608025c423"
+      ],
+      "source_sha256": "40993069ffe0dc66dbbcc99cf195a2cd4fe499afe4658234f7da883bffb5beaa",
+      "text": "각 세포의 가장 가까운 이웃의 어떤 부분이 감염됩니다.\n\n:param cell_mask: 셀 라벨 이미지.\n:param infected_labels: 병원균을 운반하는 세포의 라벨.\n:param k: 얼마나 많은 이웃을 계산하고, 세포 자체를 제외합니다.\n:param spacing: voxel 크기, 그래서 \"nearest\"는 anisotropic 스택의 픽셀 대신 실제 공간에서 가장 가까운 것을 의미합니다.\n:returns: ``label``, ``neighbours_counted``, ``neighbours_infected`` 및 ``local_infected_fraction``\n\n이 질문의 두 번째 절반. :func:`classify` 대답 \"이것 근처에 감염된 세포가 있다\"는 한 거리에서 한 경계입니다.이 대답은 \"이 세포의 이웃이 어떻게 감염되었는지\"는 집중의 가장자리에있는 세포를 중간에있는 것과 분리하는 양입니다.\n\n세포 자체는 결코 자신의 이웃이 아니며, 감염된 세포는 여전히 한 부분을 얻습니다 : \"이 감염 된 세포가 감염되지 않은 세포들 사이에 앉아있다\"는 관찰은 \"이 하나가 클러스터에 서있다\", 그리고 감염되어있는 줄을 떨어 뜨리는 것은 두 번째를 던질 것입니다.\n\n`neighbours_counted`은 확실히 ``k``이라고 가정하는 대신입니다. ``k + 1`` 세포보다 적은 필드는 k 이웃을 공급 할 수 없으며, 가정 된 명칭자에 대해 계산 된 부분은 정확히 측정 된 필드에서 잘못 될 것입니다.",
+      "translation_source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "3bdcb2d570c79798c0446e509a11e64d0d0b6f3d32dd5caeb59f056f08c50696",
+        "353e2b0b1604a5e805399da0ced359f389e0c00feb3b56d756b96ce07c862ced",
+        "d05465030f8b6ec0df76cf02c052783f2b208ef74763a63c426f794174fb681e"
+      ]
+    },
+    "spacr.bystanders.reach_from_diameter": {
+      "source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ],
+      "source_sha256": "5b793945ae5f535284fab8928c0a4045033ecfdb7a3540b6c68f076a0f0d287f",
+      "text": "``cell_diameter`` 단위의 균형 범위는 측정됩니다.\n\n:param cell_diameter: 플레이트의 측정된 세포 직경, :mod:`spacr.diameter`에서.\n:param diameters: 얼마나 많은 다이아몬드가 이웃으로 계산됩니다.\n:returns: 동일한 단위의 거리, 결코 부정적인.\n\n그것은 그것의 자신의 기능으로, 그래서 변환은 하나의 장소에서 볼 수 있고, 호출자는 선택한 대신 범위가 추출되는 것을 볼 수 있습니다.",
+      "translation_source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ]
+    },
     "spacr.cancellation": {
       "source_blocks_sha256": [
         "3f84354a540370637d573e4799537b53d19d83e1bcb3c7200c3c4aecba4faabe",
@@ -39568,7 +39718,7 @@
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
       "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "개체별 특성으로 고전적 ML 분류기(XGBoost / logistic / RF)를 학습하고 스크리닝의 각 마이크로플레이트 표본 위치에 점수를 매깁니다.\n\n``measurements.db``를 읽습니다. 이 파일은 :func:`spacr.measure.measure_crop`가 생성합니다. 세포/핵/병원체/세포질 특성 테이블을 병합하고, ``positive_control`` / ``negative_control``로 표시된 마이크로플레이트 표본 위치(또는 어노테이션 열)를 학습 라벨로 사용하고, :func:`ml_analysis`에 적합을 위임하며, 개체별 예측, 순열 및 특성 중요도 테이블과 실험실 마이크로플레이트 히트맵을 원본 DB 옆의 ``results/``에 기록합니다.\n\n:param settings: 설정 키-값 매핑이며, :func:`spacr.settings.set_default_analyze_screen`를 통해 표준화됩니다. 구조화된 데이터 항목:\n\n    - ``src`` (문자열 또는 목록) — ``measurements/measurements.db``가 포함된 폴더입니다.\n    - ``channel_of_interest`` — 리크루트먼트 비율 특성에 사용할 0부터 시작하는 채널이며, 테이블 선택도 제어합니다.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 학습 라벨로 사용하는 마이크로플레이트 표본 위치 ID(예: ``'c2'`` / ``'c1'``)입니다.\n    - ``annotation_column`` — 대조군 대신 PNG 수준의 어노테이션 열을 사용합니다.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — 플레이트 히트맵에 표시되는 특징.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 두 요소 목록 ``[output, plate_heatmap]``입니다. ``output``은 :func:`ml_analysis`의 10개 요소 결과 목록이고 ``plate_heatmap``은 플레이트 히트맵 ``matplotlib`` 그림입니다. CSV 파일과 그림은 부작용으로 ``results/``에 기록되며, 해당 경로는 반환되지 않습니다.\n:raises ValueError: ``annotation_column``이 설정되어 있지만 ``png_list`` 테이블에 ``prcfo`` / 해당 열이 없거나, 테이블의 객체 ID가 측정 데이터와 조인되지 않거나, 관측된 클래스가 두 개 미만인 경우, 또는 ``heatmap_feature``이 학습된 특성에 포함되지 않은 경우입니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n참고: :func:`ml_analysis` — 내부 적합/평가 루틴. :func:`perform_regression` — 마이크로플레이트 표본 위치별 ML 점수에 대한 혼합효과 회귀.",
+      "text": "개체별 특성으로 고전적 ML 분류기(XGBoost / logistic / RF)를 학습하고 스크리닝의 각 마이크로플레이트 표본 위치에 점수를 매깁니다.\n\n``measurements.db``를 읽습니다. 이 파일은 :func:`spacr.measure.measure_crop`가 생성합니다. 세포/핵/병원체/세포질 특성 테이블을 병합하고, ``positive_control`` / ``negative_control``로 표시된 마이크로플레이트 표본 위치(또는 주석 열)를 학습 라벨로 사용하고, :func:`ml_analysis`에 적합을 위임하며, 개체별 예측, 순열 및 특성 중요도 테이블과 실험실 마이크로플레이트 히트맵을 원본 DB 옆의 ``results/``에 기록합니다.\n\n:param settings: 설정 키-값 매핑이며, :func:`spacr.settings.set_default_analyze_screen`를 통해 표준화됩니다. 구조화된 데이터 항목:\n\n    - ``src`` (문자열 또는 목록) — ``measurements/measurements.db``가 포함된 폴더입니다.\n    - ``channel_of_interest`` — 리크루트먼트 비율 특성에 사용할 0부터 시작하는 채널이며, 테이블 선택도 제어합니다.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — 학습 라벨로 사용하는 마이크로플레이트 표본 위치 ID(예: ``'c2'`` / ``'c1'``)입니다.\n    - ``annotation_column`` — 대조군 대신 PNG 수준의 주석 열을 사용합니다.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — 플레이트 히트맵에 표시되는 특징.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: 두 요소 목록 ``[output, plate_heatmap]``입니다. ``output``은 :func:`ml_analysis`의 10개 요소 결과 목록이고 ``plate_heatmap``은 플레이트 히트맵 ``matplotlib`` 그림입니다. CSV 파일과 그림은 부작용으로 ``results/``에 기록되며, 해당 경로는 반환되지 않습니다.\n:raises ValueError: ``annotation_column``이 설정되어 있지만 ``png_list`` 테이블에 ``prcfo`` / 해당 열이 없거나, 테이블의 객체 ID가 측정 데이터와 조인되지 않거나, 관측된 클래스가 두 개 미만인 경우, 또는 ``heatmap_feature``이 학습된 특성에 포함되지 않은 경우입니다.\n\n예시:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\n참고: :func:`ml_analysis` — 내부 적합/평가 루틴. :func:`perform_regression` — 마이크로플레이트 표본 위치별 ML 점수에 대한 혼합효과 회귀.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -52104,6 +52254,128 @@
         "ced3e30b9140ee9864498bd210106936e600174abddf4dc5191e2cc4624f8f5d",
         "1e6d5d257b6452481df697b499e0dbaa6909637cfdda492f685d1e360d0e63e2",
         "8c03003db283db3762624391d4608b341bf7df06efea695d16289affadac0db2"
+      ]
+    },
+    "spacr.point_patterns": {
+      "source_blocks_sha256": [
+        "5e6d40b8da1045db5738e70bf648b08ad15aa3ec8e515bbdfc7abe2ab5aa75a0",
+        "1cccded9482cef56b40d46a1b1929f08fb2208f40ffbd5c305feeca7e5333cf0",
+        "e88794e50fe16f12388be9a54aac50ce37aa29faac35c72584d4d8fa204c11e9",
+        "54ff3b1ba900429ec02fddf04631a956ef3df389bbfda5186c28a26a9de31dc7",
+        "c03cc5582cb00ef98dd144d0b7bd246bcafd7e3f1db320c2fb5b5591b501c18f"
+      ],
+      "source_sha256": "f6d369d32b71671fb501459da9f5e6ab7d64b61d554dcb54b4b1237b7928b5a2",
+      "text": "이 마이크로 플레이트 샘플 위치는 클러스터, 분산, 또는 아무것도 - 오른쪽 0에 대 한.\n\n패키지가 요구할 수 없는 것. :mod:`spacr.object_distances`은 하나의 물체가 다른 물체에서 얼마나 멀리 떨어져 있는지, :mod:`spacr.bystanders`은 세포가 감염된 이웃을 가지고 있는지 말한다. 심지어 감염의 초점이 실제로 질문에 대답하지 않습니다 :이 마이크로 플레이트 샘플 위치에있는 감염 된 세포가 기회가 그들을 넣을 것보다 더 밀접하게 배치되었습니까? 이것은 리플리의 K이며, \"이 두 개의 세포가 가까운\"을 \"this well is clustered\"로 변환하는 통계입니다.\n\n0은 전체 통계입니다. K는 비교할 것이 없으며, 비교는 세포가 점령 할 수있는 모양을 존중해야합니다. 마이크로 플레이트 샘플 위치는 직경이 아닙니다, 둥근 모노레이어가있는 미생물 시야 필드는 직경이지 않으며, 경계 상자 위의 점을 스카터하는 0은 각 마스크를 \"clustered\"로 호출합니다. - 점은 다른 곳이 없기 때문에 조직에 쌓여 있습니다.\n\nEdge 수정은 선택적이지 않으며 그것이 얻는 부분입니다. SKIPPED 국경 근처의 지점은 창문 밖에서 이웃의 일부를 가지고 있으므로 그것이 가지고있는 것보다 더 적은 이웃을 찾습니다; 수정되지 않은, 그 결핍은 분산으로 읽고, 그것은 정확히 누구나 돌보는 방사선에서 최악입니다. :func:`ripley_k` 낮은 샘플 (경계) 수정은 기본적으로 적용됩니다 : 라디오 r에서, 최소한 r 포인트 내부의 경계 기여. 그것은 정확성에 큰 r - 정직하게, 얼마나 많은 포인트가 남아있는지 보고하여 비용을 지불합니다 - 그리고 그것은 분석 이소트로피 수정이 아닌 모든 창 모양에 대해 정확합니다.\n\n프레임 끝은 또한 경계입니다. 거리에서 경계로 미크로스코프의 시야 필드는 전체 둥근 배경의 한 줄을 가진 마스크에 묶여 계산되므로 이미지의 경계에 도달하는 마스크는 그것이 있기 때문에 거기에서 절단으로 처리됩니다.",
+      "translation_source_blocks_sha256": [
+        "b3ab9e20b2684aaf7b4e0a81b26904ccb19d6c9151d13a98ab0f7387a1013dde",
+        "019d13cc2dd4383a7c971afc4aa87f74d893d4214171670580e7ce575ce2d40a",
+        "f9a19c412579ac24bd94ab5a72df3d8971e6402b72dba0a03f6ca62ce90c62dd",
+        "ec9c24b5f1edb98008505dfdc8dfc497973961ccbf1a6fd6a442eda36058ad7f",
+        "b63398c934a85785025f317fef0f7e82afb452ac0a7de4159c8604b33a236b4a"
+      ]
+    },
+    "spacr.point_patterns.csr_envelope": {
+      "source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "21dc32574b16c0ec8a0791ccb2e35aabc5624638beff72e5f37ac21ad0a445bc",
+        "88e2bd06b1f67fd1c68cedfea279f26c6d7e91b756b7f680ed0a749873979df5"
+      ],
+      "source_sha256": "e7846b22e2547ed9b8eae5d571f68e3c30706b5fcf48ab54d88c68fd16292b44",
+      "text": "``n_points``에 대한 L - r의 확산은 ``mask``에서 우연히 분산됩니다.\n\n:param mask: 같은 창에서 관찰 된 패턴이 측정되었습니다.\n:param n_points: 얼마나 많은 포인트가 분산 될 것인가 - 관찰 된 계산.\n:param radii: 똑같은 라디오\n:param spacing: 동일한 픽셀 크기\n:param simulations: 얼마나 많은 우연한 패턴이 있습니까?\n:param seed: 고정되어 있으므로 포장이 재생할 수 있습니다.\n:param correction: 사용되는 관찰과 동일한 수정.\n:returns: ``r``, ``lo``, ``hi`` 및 ``mean``의 ``l_minus_r``.\n\n포인트는 마스크에 흩어져 있고, 그것의 경계 상자에 있지 않습니다.이 기능이 분석 CSR 변형의 시각화가 아닌 존재하는 전체 이유입니다 : 분석 결과는 직경을 차지하고, 마이크로 플레이트 샘플 위치는 그 안에 구멍이있는 디스크입니다.\n\n두 측면에서 동일한 수정. - 아니었다 - 또는 그 반대가 아닌 포장에 대해 수정 된 관찰은 두 개의 다른 추정치를 비교하고 그들 사이의 차이점은 생물학처럼 보일 것입니다.",
+      "translation_source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "8a4024c0410fcc38162b2ce8a5817be02baa7eea0fa88f88ba01f1edc6421b86",
+        "906bc5e85acb9a19af89652c9ee902ffd44aad5c27d27e594ffa8b505f034896"
+      ]
+    },
+    "spacr.point_patterns.ripley_k": {
+      "source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "5d91064f893b652c8c8dba10435bf459391842b9dd74f9cf38a4181269e61cb8",
+        "4e78fd9e2255bad7aaa84912b30bd1d9691312ecc593ccf30ff2c0f981cb4cd2"
+      ],
+      "source_sha256": "6bcd283db0dee0c3cccf4e115c39f9e90617463ea81ec469806776fc4298478a",
+      "text": "Ripley의 K 및 L는 하나의 창에 하나의 포인트 패턴을 제공합니다.\n\n:param points: ``(n, 2)`` 센트로이드는 순서대로 (루, 열) 순서로, :func:`spacr.object_distances._centroids`이 그들을 반환합니다.\n:param mask: Boolean array, 진실 한 지점이있을 수있는 곳.\n:param radii: 라디오는 ``spacing``과 동일한 단위에서 평가할 수 있습니다.\n:param spacing: 픽셀 크기; ``None``는 라디오가 픽슐에 있는 것을 의미합니다.\n:param correction: ``\"border\"`` 삭감된 샘플 수정, 또는 ``\"none\"`` 수정이 가치가 있는지 확인합니다.\n:returns: ``r``, ``k``, ``l``, ``l_minus_r`` 및 ``n_contributing``\n\n``l_minus_r`` 읽을 수있는 열입니다. K는 r 평방으로 성장하므로 두 개의 곡선은 눈에 비교할 수 없습니다; L는 변형 안정된 평방 뿌리이며, 완전한 공간 우연성 L(r) = r 정확히, 그래서 L(R) - r는 밀도가 무엇이든 0에서 평평한 라인입니다.\n\n``n_contributing`` 장식이 아닙니다.그것은 그 라디오에 보관 한 경계 수정 포인트의 수이며, 단일 숫자로 떨어질 때 라인은 증거가 아닌 아리메틱입니다.",
+      "translation_source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "3656d2c174312852a20c3003e09028b103c2db0a7e3099edbfb33e239ad3272c",
+        "315c963c75c332c99a1f59359be6db00dd8deb93a7a5e9ad73949b4468bae852"
+      ]
+    },
+    "spacr.point_patterns.ripley_test": {
+      "source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "2f352cbe7ea9bbc4f55e3f37350296e88b868974e1e708847bb35df7a19fc383"
+      ],
+      "source_sha256": "e8350fe2b38c6cafe6f7bbceedc64aa7b86893be99b86b2cb99dad0eda89f8df",
+      "text": "K는 마스크를 존중하는 0에 대하여 관찰되었습니다.\n\n:param points: 관찰된 센트로이드\n:param mask: 창문을 다\n:param radii: ``None``는 :func:`suggest_radii`를 요청합니다.\n:param spacing: 픽셀 크기\n:param simulations: 덮개 뒤에 얼마나 많은 우연한 패턴이 있습니까?\n:param seed: 대답은 정해져서 반복할 수 있다.\n:param correction: 그것은 관찰과 null 모두에 적용됩니다.\n:returns: :func:`ripley_k`, 플러스 ``lo``, ``hi``,``clustered`` 및 ``dispersed``의 열.\n\n``clustered`` 및 ``dispersed``은 라디오 당이며 이것은 하나의 테스트가 아닙니다. 20 라디오는 2 % 포장을 떠날 수있는 20 가지 기회를 제공합니다, 그래서 단일 투어는 거의 의미가 없습니다; 근처의 라디오에서 그들을 실행하는 것은 믿을 수있는 것입니다. 열은 의도적으로 그들이 무엇인지에 대해 이름을 지정됩니다 -이 r에서 여행 - \"significant\" 대신.",
+      "translation_source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "852c2c0b81bd925217d7dc713b4d4281d8b58d22f53f37606bab58548d55c0f4"
+      ]
+    },
+    "spacr.point_patterns.suggest_radii": {
+      "source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "83d08d62437c6b9946e317ec569b83d28ee06c4071b80e75536977506c1835b7"
+      ],
+      "source_sha256": "120c2a81e9cfc6d500b2e4d025da6e95120a3c23718127caeb249993f401fe8d",
+      "text": "Radii는 이 창에서 K를 계산할 가치가 있습니다.\n\n:param mask: 한 점이 허용되는 곳에 대한 볼레안 아레이.\n:param spacing: 픽셀 크기, 그래서 라디오는 실제 길이로 돌아옵니다.\n:param count: 얼마나 많은 라디오\n:returns: ``count`` 라디오, 균일하게 넓어, 창의 짧은 측면의 :data:`MAX_RADIUS_FRACTION`로 끝납니다.\n\nK(0)는 건설에 따라 0이며 정보가 없으며 각 곡선이 동의하는 지점만 설정합니다.",
+      "translation_source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "b0237ca97524fd4b858b983345113d2c568231eda1bd48e562721a745fcc6515"
       ]
     },
     "spacr.portable_paths": {
