@@ -285,6 +285,10 @@ def main() -> int:
         from capture_database import record_database
         screen = record_database(app, window, None, stage, captures, capture,
                                  settle, write_json, args.timeout)
+    elif args.module == 'curate':
+        from capture_curate import record_curate
+        record_curate(app, window, stage, captures, capture,
+                      settle, write_json, args.timeout)
     elif args.module == 'feature_dict':
         from capture_feature_dictionary import record_dictionary
         record_dictionary(app, window, stage, captures, capture,
