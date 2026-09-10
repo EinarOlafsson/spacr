@@ -3497,3 +3497,83 @@ left, and it is 1.15x averaged over the well.
     wrong. The correction was not to argue about the reasoning but to go and
     count what the acquisition contains -- which took one pass over a
     placement table that already existed.
+
+--------------------------------------------------------------------------------
+PART 14-G -- 188 OF 321 FIELDS, AND THE ROW ERROR IS AN EXACT INTEGER PER
+COLUMN. 2026-09-10.
+--------------------------------------------------------------------------------
+
+Re-run over every FOURTH field with `PAIR_TRIALS` scaling to the target
+(the fix PART 14-F asked for):
+
+    188 of 321 aligned, against 77 of 161 at a flat 4,000 trials
+
+THE RASTER IS SQUARE AND THE SCALE IS SETTLED, on twice the data:
+
+    col_step  (-4.60, 633.79)   |633.81| px
+    row_step  (633.52,  4.52)   |633.53| px
+
+    column index error   median +0.000   sd 0.001
+    row index error      median +0.000   sd 0.997
+
+The column is right for all 188 -- sd of one THOUSANDTH of a column. The row
+is wrong, and it is wrong by an exact whole number of rows per column, with
+no spread inside a column at all:
+
+    col  height  offset   fields        col  height  offset   fields
+      0      5     -1        1           22     41      0        6
+      1     13     +2        1           23     39     +1        4
+      2     19     -1        4           25     39     +2        6
+      3-10  21-35   0     3..6           26     39     -2        5
+     11     37     -1        7           28     37     -2        7
+     12     37     +2        6           29     37     +1        6
+     14     39     +2        8           30-37 35-21    0     3..7
+     15     39     -2        5           38     19     +1        5
+     17     39     -1        7           40      5     +1        1
+     18-22  41      0     5..8
+
+    15 of 36 observed columns have a non-zero offset.
+
+AND THE PATTERN IS NOT PARITY. Every height in this well is ODD, so height
+parity explains nothing, and the offsets split evenly across column parity
+(8 of 19 even columns, 7 of 17 odd). What it IS is BANDED:
+
+    columns  3-10   heights 21-35   offset 0
+    columns 11-17   heights 37-39   offsets -1, +2, +2, -2, -1
+    columns 18-22   height  41      offset 0        <- the widest columns
+    columns 23-29   heights 37-39   offsets +1, +2, -2, -2, +1
+    columns 30-37   heights 35-21   offset 0
+
+Zero through the middle and through both shoulders; non-zero in two rings
+either side of the widest columns.
+
+FIVE COLUMNS ARE MISSING FROM THAT TABLE ENTIRELY -- 13, 16, 24, 27 and 39 --
+because NOTHING in them aligned. That is the same finding one step further:
+the search window is +/- 1,600 px and a row is 633, so an error of two rows
+is still inside it and an error of three is not. The columns with no
+alignments are where the error is largest, and they sit inside the same two
+rings.
+
+WHAT THAT MEANS, STATED CAREFULLY. The column index being exact says the
+per-column HEIGHTS are right -- a wrong height shifts every later column's
+index, and none shifted. So the heights are right and the ROW ORIGINS are
+wrong: where each column starts vertically. That is PART 11-A's mistake
+("rows were indexed from each column's own top") in the phenotype layout,
+and it is worth saying that `round_well_layout` SEARCHES for a radius that
+yields exactly 1,281 sites -- more than one circle can, and the one it found
+need not be the one the microscope used.
+
+WHAT IS ON DISK FOR WHOEVER FIXES IT:
+
+    scratchpad/a4_transforms_4.json   188 transforms, each with its
+                                      measured centre, grid position,
+                                      inlier count and residual
+    scratchpad/a4_placements.json     the 333 sequencing placements
+    scratchpad/a4_sbs_points.npz      185,153 nuclei in well pixels
+
+AND THE FIX IS PROBABLY NOT IN `ops_layout`. The honest move is to SOLVE the
+row origin per column from the alignments, the way A2 solves placements from
+registrations, rather than to keep deriving it from a circle that has
+already been shown not to match. 36 columns are observed and 15 are wrong;
+the remaining five have no observation, which is itself the evidence that
+they are the worst.
