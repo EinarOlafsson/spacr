@@ -1,0 +1,37 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; exact synthetic tracking comparison and limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Zeitreihen-Tracking",
+  "description": "Acht synthetische Bilder im eingebetteten Mask-Ablauf verarbeiten und echte Maskenverknüpfungen in Track preview vergleichen.",
+  "objectives": [
+    "Timelapse in Mask finden und Zeitachse sowie Originalbilder erhalten.",
+    "Anfängliche, fragmentierte und wiederhergestellte Spuren mit denselben Masken vergleichen.",
+    "Tracking-Indikatoren, Wiedergabe, Inferenz und gemessene biologische Bewegung unterscheiden."
+  ],
+  "prerequisite": "Help > Demos > Timelapse demo in einem neuen Ordner verwenden: acht synthetische Zeitpunkte mit 256 × 256 Pixeln, Kernkanal 0, Zellkanal 1. Plot und Keep original images einschalten; alle sechzehn TIFFs bleiben erhalten. Das ZIP enthält die tatsächlichen Zellbild- und Maskenebenen dieses Laufs, keine aufgenommenen Versuchsdaten oder Referenzmasken. image_sequences/field_A01 und label_sequences/field_A01 getrennt wählen: Vorschaukanal 0, acht Bilder, ein Feld. Schwelle 0.1 ergibt sechzehn vollständige Spuren; 1.0 ergibt 128 Einzelbildspuren. Nach Rückkehr zu 0.1 warten und ausdrücklich Re-link klicken; Tippen kann einen Zwischenwert starten. Propagate settings nicht klicken: Die IoU-Schwelle wird nicht übertragen. Warnungen zu Flussschwelle, Beziehungstabelle und Einstellungsstatus werden offengelegt. Keine biologische Validierung oder physikalische Geschwindigkeitsmessung. API: spacr.core.preprocess_generate_masks und spacr.timelapse. AI bleibt aus.",
+  "scenes": [
+    "Öffnen Sie Mask und aktivieren Sie den Schalter Time. Timelapse ist jetzt in Mask eingebettet und keine eigene Home-Kachel mehr. Es ergänzt den Segmentierungsablauf um Zeitachsen- und Tracking-Einstellungen. Motilitätsmessungen gehören zu Measure und folgen später.",
+    "Wählen Sie Help, Demos, dann Timelapse demo und einen neuen Ordner. Dadurch entstehen acht synthetische Bilder mit bewegten Objekten; ihre Einstellungen werden geladen. Das sind Lehrbilder, kein biologisches Experiment und kein Nachweis der Segmentierungsgenauigkeit.",
+    "Prüfen Sie die eingetragene Quelle und die Kanäle. Im Beispiel liegt Kernintensität in Kanal null und Zellintensität in Kanal eins, ohne Erregerkanal. Die Dateinamen kodieren Zeit getrennt von Feld und Kanal. Ersetzen Sie eine Zeitreihe nicht durch die gewöhnliche statische Testplatte.",
+    "Frame limits verwendet bei null beginnende Schnittgrenzen: Null bis acht umfasst alle acht Bilder, die Endgrenze ist ausgeschlossen. Halten Sie die Zeitpunkte eines Feldes zusammen. Eine Wiedergaberate liefert kein fehlendes Aufnahmeintervall; dieses Beispiel bestimmt keine Geschwindigkeiten in physikalischen Einheiten.",
+    "Verfolgen Sie Zellen mit dem überlappungsbasierten Modus iou. Er verknüpft Masken über Schnittmenge geteilt durch Vereinigungsmenge benachbarter Bilder. Andere Backends haben andere Annahmen und optionale Abhängigkeiten. Eine Verschiebung ist keine Überlappungsschwelle; verwenden Sie Einstellungen, die das gewählte Backend tatsächlich liest.",
+    "Schalten Sie Keep original images vor Run ein. Andernfalls kann die Bereinigung Ordner mit Zwischen- und Originalbildern entfernen. Diese Aufnahme erhält alle sechzehn erzeugten TIFFs unverändert und berührt die älteren Tutorialdaten nicht. Halten Sie von aufgenommenen Experimenten stets eine separate Sicherung bereit.",
+    "Schalten Sie Plot ein und starten Sie dieses kleine Beispiel. Die aktuelle Pipeline verarbeitet die gesamte Acht-Bilder-Sequenz gemeinsam, auch wenn eine kleinere Stapelgröße angefordert wird. Beobachten Sie Konsole und Ressourcenanzeige: Mehr Bilder, höhere Auflösung und zusätzliche Objekte können erheblich mehr Arbeitsspeicher benötigen.",
+    "Der Lauf erzeugt fünf Abbildungen und acht zusammengeführte Arrays. In dieser normalisierten Darstellung sind die ersten beiden Ebenen Intensitäten; die letzten beiden sind Zell- und Kernlabels, keine zusätzlichen Aufnahmekanäle. Die gespeicherte Zelltabelle enthält sechzehn Spuren mit jeweils acht Bildern.",
+    "Lesen Sie neben Finished auch die Warnungen. Dieser Build meldet übernommene Flussschwellen, eine nicht verfügbare Beziehungstabelle und einen Einstellungsstatus-Hinweis. Gespeicherte Masken und Spuren wurden separat geprüft; dies ist weder ein fehlerfreier Freigabetest noch ein Ersatz für Measure.",
+    "Öffnen Sie Track preview. Laden Sie für die reproduzierbare Verknüpfungsübung das unten verlinkte synthetische Vorschauarchiv herunter und entpacken Sie es. Es enthält exakt die Zellbild- und Maskenebenen des aufgenommenen Laufs. Diese Masken testen Verknüpfungen ohne erneuten Segmentierungsmodell-Lauf.",
+    "Wählen Sie den Bildsequenzordner für Feld A null eins. Die exportierten Bilder enthalten nur die ursprüngliche Zellintensitätsebene; wählen Sie hier daher Kanal null. Speichern Sie Bild- und Labelsequenzen unter getrennten übergeordneten Ordnern. Setzen Sie Frames previewed auf acht und Fields auf eins.",
+    "Wählen Sie mit Masks den passenden Labelsequenzordner. Das sind berechnete Masken, keine Referenzwahrheit. Lassen Sie Keep only full-length tracks aus und klicken Sie nicht auf Propagate settings. Beim Lesen einer vorhandenen Maskensequenz erzeugen die Modellregler keine neuen Masken.",
+    "Starten Sie die Vorschau mit der Überlappungsschwelle null Komma eins. Sie meldet sechzehn Spuren mit acht Bildern und hier keine kurzen Spuren. Fragmentierung und Sprünge sind ohne Referenzwahrheit berechnete Indikatoren; kleine Werte beweisen allein keine biologisch korrekte Identität.",
+    "Erhöhen Sie die Überlappungsschwelle auf eins. Die Forderung nach exakter Überlappung zerlegt das bewegte Beispiel in hundertachtundzwanzig Einzelbildspuren. Bilder und Masken bleiben gleich; nur die Verknüpfungen ändern sich. Der absichtlich überhöhte Wert demonstriert Fragmentierung und ist keine empfohlene Analyseeinstellung.",
+    "Stellen Sie null Komma eins wieder her, warten Sie auf das Ende der laufenden Vorschau und klicken Sie Re-link. Tippen kann einen Durchlauf mit einem Zwischenwert starten; bestätigen Sie daher den endgültigen Durchlauf ausdrücklich. Die sechzehn vollständigen Spuren kehren zurück. Propagate settings überträgt die Schwelle nicht ins Stapelformular; klicken Sie es nicht.",
+    "Bewegen Sie den Schieber zu Bild acht, um die verknüpften Objekte zu prüfen. Wiedergabegeschwindigkeit verändert nur die Anzeige, nicht die Aufnahmezeit. Fahren Sie in Measure und Motility mit geprüftem Intervall und Maßstab fort. API und spaCR AI erklären Einstellungen, ersetzen aber nicht die Kontrolle von Bildern, Spuren und Warnungen."
+  ]
+}

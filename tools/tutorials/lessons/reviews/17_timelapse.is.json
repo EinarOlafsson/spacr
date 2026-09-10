@@ -1,0 +1,37 @@
+{
+  "lesson": "17_timelapse",
+  "english_sha256": "bbe296162b5f0af73434bc05475bc15afc714c51a8230d989cc0eb53a85ffb7e",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; exact synthetic tracking comparison and limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Rakning í tímaröð",
+  "description": "Keyrðu átta tilbúnar myndir í innbyggðu verkferli Mask og berðu saman raunverulegar grímutengingar í Track preview.",
+  "objectives": [
+    "Finna Timelapse inni í Mask og varðveita tímaás og upprunalegar myndir.",
+    "Bera saman upphaflega, sundraða og endurheimta ferla á sömu grímum.",
+    "Greina á milli rakningarvísa, spilunar, ályktunar líkans og mældrar líffræðilegrar hreyfingar."
+  ],
+  "prerequisite": "Notaðu Help > Demos > Timelapse demo í nýrri möppu: átta tilbúna tímapunkta, 256 × 256 mynddíla, kjarni á rás 0 og fruma á rás 1. Kveiktu á Plot og Keep original images; allar sextán TIFF-skrár varðveitast. ZIP-skráin inniheldur raunverulegu frumu- og grímuplönin úr þessari keyrslu, ekki mæligögn eða sannreyndar viðmiðunargrímur. Veldu image_sequences/field_A01 og label_sequences/field_A01 sitt í hvoru lagi: forskoðunarrás 0, átta myndir, einn myndreitur. Þröskuldur 0.1 gefur sextán heila ferla; 1.0 gefur 128 ferla með einni mynd. Endurstilltu í 0.1, bíddu og smelltu sérstaklega á Re-link; innsláttur getur ræst keyrslu með milligildi. Ekki smella á Propagate settings, sem flytur ekki IoU-þröskuldinn. Viðvaranir um flæðisþröskuld, tengslatöflu og stöðu stillinga eru tilgreindar. Engin líffræðileg sannprófun eða mæling á hraða í eðlisfræðilegum einingum. API: spacr.core.preprocess_generate_masks og spacr.timelapse. Slökkt er á AI.",
+  "scenes": [
+    "Opnaðu Mask og kveiktu á Time. Timelapse er nú inni í Mask, ekki sérstakur reitur á Home. Það bætir stillingum tímaáss og rakningar við myndskiptingarferlið. Hreyfanleikamælingar tilheyra Measure og koma síðar.",
+    "Veldu Help, Demos og síðan Timelapse demo og veldu nýja möppu. Þetta býr til átta tilbúnar myndir með hlutum á hreyfingu og hleður inn stillingunum. Þetta eru kennslumyndir, ekki líffræðileg tilraun eða sönnun fyrir nákvæmni myndskiptingar.",
+    "Athugaðu innfyllta upprunaslóð og rásir. Í dæminu er kjarnastyrkur á rás núll og frumustyrkur á rás eitt, án sýkilsrásar. Skráarnöfn skrá tíma aðskilinn frá myndreit og rás. Ekki nota venjulega kyrrstæða prófunarplötu í stað tímaraðar.",
+    "Frame limits notar sneiðmörk með númerun frá núlli: núll til átta nær yfir allar átta myndirnar en sleppir endamarkinu. Haltu tímapunktum hvers myndreits saman. Spilunarhraði gefur ekki vantað bil milli myndataka; þetta dæmi ákvarðar ekki hraða í eðlisfræðilegum einingum.",
+    "Rektu frumur með skörunaraðferðinni iou. Hún tengir grímur með hlutfalli sniðmengis og sammengis á samliggjandi myndum. Aðrir bakendar hafa aðrar forsendur og valkvæðar hugbúnaðarkröfur. Færsla er ekki skörunarþröskuldur; notaðu stillingar sem valinn bakendi les í raun.",
+    "Kveiktu á Keep original images áður en þú velur Run. Annars getur tiltekt eytt möppum með milliniðurstöðum og upprunalegum myndum. Þessi upptaka varðveitir allar sextán nýju TIFF-skrárnar óbreyttar og snertir aldrei eldri kennslugögn. Geymdu alltaf sérstakt öryggisafrit af myndaðri tilraun.",
+    "Kveiktu á Plot og keyrðu litla dæmið. Núverandi vinnslukeðja vinnur allar átta myndirnar saman, jafnvel þótt óskað lotustærð sé minni. Fylgstu með stjórnborði og auðlindamæli: Fleiri myndir, stærri myndir og fleiri hlutir geta þurft miklu meira vinnsluminni.",
+    "Keyrslan skilar fimm myndritum og átta sameinuðum fylkjum. Í þessari stöðluðu birtingu eru fyrstu tvö plönin styrkir; síðustu tvö eru frumu- og kjarnamerkingar, ekki auka myndatökurásir. Vistaða frumutaflan hefur sextán ferla, hvern yfir átta myndir.",
+    "Lestu viðvaranirnar líka, ekki aðeins Finished. Þessi útgáfa varar við erfðum flæðisþröskuldum, óaðgengilegri tengslatöflu og stöðu stillinga. Vistaðar grímur og ferlar voru sannreynd sérstaklega; þetta er ekki gallalaust útgáfupróf eða staðgengill fyrir Measure.",
+    "Opnaðu Track preview. Til að endurtaka tengiæfinguna skaltu sækja og afþjappa tilbúna forskoðunarsafninu sem er tengt hér fyrir neðan. Það inniheldur nákvæmlega frumu- og grímuplönin úr upptökunni. Þessar grímur prófa tengingar án þess að keyra annað myndskiptingarlíkan.",
+    "Veldu myndaraðarmöppuna fyrir myndreit A núll eitt. Útfluttu myndirnar innihalda aðeins upprunalega frumustyrksplanið, svo veldu rás núll hér. Hafðu mynda- og merkingaraðir undir aðskildum yfirmöppum; stilltu Frames previewed á átta og Fields á einn.",
+    "Veldu samsvarandi merkingaraðarmöppu með Masks. Þetta eru reiknaðar grímur, ekki þekktur sannleikur. Hafðu Keep only full-length tracks óvirkt og smelltu ekki á Propagate settings. Líkansstillingarnar búa ekki til nýjar grímur þegar fyrirliggjandi grímuröð er lesin.",
+    "Keyrðu forskoðun með skörunarþröskuldinn núll komma einn. Hún sýnir sextán ferla yfir átta myndir og enga stutta ferla í þessu dæmi. Sundrun og stökk eru vísar reiknaðir án sannreynds viðmiðs; lág gildi sanna ekki ein og sér líffræðilega rétta auðkenningu.",
+    "Hækkaðu skörunarþröskuldinn í einn. Krafa um nákvæma skörun sundrar hreyfidæminu í hundrað tuttugu og átta ferla með einni mynd. Myndir og grímur eru óbreyttar; aðeins tengingarnar breytast. Viljandi of hátt gildi sýnir sundrun en er ekki ráðlögð greiningarstilling.",
+    "Settu aftur núll komma einn, bíddu þar til forskoðuninni lýkur og smelltu á Re-link. Innsláttur getur ræst keyrslu með milligildi; staðfestu því lokakeyrsluna sérstaklega. Sextán heilu ferlarnir koma aftur. Ekki smella á Propagate settings: Skörunarþröskuldurinn flyst ekki í lotueyðublaðið.",
+    "Færðu sleðann að áttundu mynd til að skoða tengda hluti. Spilunarhraði breytir aðeins áhorfinu, ekki myndatökutíma. Haltu áfram í Measure og Motility með staðfest tímabil og kvarða. API og spaCR AI geta útskýrt stillingar en koma ekki í stað yfirferðar á myndum, ferlum og viðvörunum."
+  ]
+}
