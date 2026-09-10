@@ -18042,6 +18042,160 @@
         "dcd08951ca90816f7dd96d53fe6936290eee8db2725255121fbe1ea75b845894"
       ]
     },
+    "spacr.embeddings": {
+      "source_blocks_sha256": [
+        "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
+        "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
+        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
+        "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
+        "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
+        "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
+      ],
+      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
+      "text": "En etikettfri inbäddning för varje objekt, bredvid de uppmätta funktionerna.\n\nVarför detta existerar. spaCR: s två befintliga sätt att förvandla en bild till siffror kräver båda att du redan vet vad du letar efter. Den uppmätta panelen i :mod:`spacr.measure` beräknar en fast, handdesignad uppsättning -- intensitet, form, textur, avstånd -- så den hittar bara vad någon tyckte att namnge. Den övervakade sökvägen i :mod:`spacr.deep_spacr` finjusterar en ryggrad mot kommentarer, så den finner bara vad nån trodde att kommentera. En screening vars verkliga träff är \"vakuolen är subtilt fellokaliserad på ett sätt vi har ingen kolumn för\" returnerar ingenting, och returnerar den säkert. Kostnaden för den klyftan är osynlig, vilket är exakt varför det är värt en modul.\n\nBeslutet om bilddatakanal, som avgörs här snarare än implicit. Förtränade kodare förväntar sig tre bilddatakanaler. spaCR bilder har rutinmässigt fyra eller fem, med ingen RGB mening alls -- en DAPI bilddata kanal är inte \"red\". Två vägar ut, och instruktion 386 begär att valet ska registreras snarare än ärvs från vad den första ryggraden ville:\n\n  PER-image datakanal, sedan konkatenat (:data:`CHANNEL_PER_CHANNEL`, standard). Varje bild datakanal är kodad på egen hand och vektorerna är sammanfogade. bilddata kanal identitet ÖVERLEVER: dimension 517 tillhör bilddatakanal 2 och ingenting annat, så :mod:`spacr.attribution_columns` kan säga vilken fläck en träff kom från och en läsare kan släppa en bild data kanal utan att återinbädda. Kostnader N framåt passerar.\n\n  Projektera till tre (:data:`CHANNEL_PROJECT`). Man passerar över en fast bilddatakanal- till- RGB kartläggning. Billigare och irreversibel: när bilddatakanalerna är blandade, kan ingen kolumn nedströms tillskrivas en fläck, och en screening kan inte fråga \"var detta den parasitiska bilddatakanalen eller värddatorn?\".\n\nStandarden är datakanal per bild eftersom tillskrivningen är punkten. En inbäddning som hittar en onamngiven fenotyp och inte kan säga vilken fläck som bärs den har flyttat problemet snarare än löst det. Projektion förblir tillgänglig för fallet där framåt passerar faktiskt binda.\n\nVad modulen inte gör. Den extraherar inte bildregion – den tar de extraherade bildregionerna :mod:`spacr.crops` producerar redan. Den skriver inte till databasen. Den returnerar en flöt32- matris som är nyckelad av objekt- id, vilket är exakt den form som nedströms redan förbrukar: UMAP, regressionsfamiljen, tryck på anrop och exporten AnnData bryr sig inte om var en numeriska kolumn kommer ifrån.",
+      "translation_source_blocks_sha256": [
+        "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
+        "2536a1844d718e23674275ad1ec155de826962166d1a8abe5d1ef2ed56e0f11f",
+        "46238bafbf36780d30e7b5a73224abbd1572cbd6586c2fcd675bbdc89767679c",
+        "97d5fca860e212188551dc446c546433067c1142445655ef2b7f3d9460b59ad0",
+        "6872180310dc77e7563785b1beaa1504a76435dddafbe84103d9531217c50412",
+        "d00c1dc075fee112b0000f0f81dd655f2aa1c23bb8e5d661457319ae9272d210",
+        "ad744613652ad1a014654bef386e2459bc987abf3c8b4158f655238d31a46770"
+      ]
+    },
+    "spacr.embeddings.EmbeddingError": {
+      "source_blocks_sha256": [
+        "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30"
+      ],
+      "source_sha256": "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30",
+      "text": "Undantag som används vid inbäddning vägras, med anledning av att en uppringare kan visa.",
+      "translation_source_blocks_sha256": [
+        "d4d752b2998adfafd152231f76f5129d376a20df0c34c02f4c78d20675d59497"
+      ]
+    },
+    "spacr.embeddings.EmbeddingResult": {
+      "source_blocks_sha256": [
+        "b7a9d77f595ad8468f7f689f0424becd1f9d571af63f2bcf71bf4f8391ea61f0",
+        "c115042af15d1f567474ff502877fbc0c9a2f920faab9b955a0b20e033243816",
+        "6c0d104b409be5467200247c7f5b71ae3442fc794067429ea316b57cf1d49824",
+        "3363b70f84abfef1a0fdb1005fbd5ef4edbc8d08dc7b322037891539efe7977d",
+        "7fd8f5229a87626c15c6e81812dbe100d7ba1be8d05bb4e24cdfaf3174474d67",
+        "be7ca861f54c73fc76e5f6647693809332bc074756720021b504fc7b46617d57"
+      ],
+      "source_sha256": "b40ec3bf0ed5bb1a5e66a28375d82dac1f84ecd3fc26c1e157c82350377d3122",
+      "text": "Matrisen, dess kolumnnamn och hur den gjordes.\n\n:param values: ``(n_objects, n_dims)`` flytande32.\n:param columns: Ett namn per kolumn, alla börjar med :data:`EMBEDDING_PREFIX`.\n:param spec: den :class:`EmbeddingSpec` som producerade den.\n:param n_channels: Hur många kanaler som kodades.\n:param per_channel_dims: dimensioner som tillförs av EN kanal.",
+      "translation_source_blocks_sha256": [
+        "b7a9d77f595ad8468f7f689f0424becd1f9d571af63f2bcf71bf4f8391ea61f0",
+        "c115042af15d1f567474ff502877fbc0c9a2f920faab9b955a0b20e033243816",
+        "6c0d104b409be5467200247c7f5b71ae3442fc794067429ea316b57cf1d49824",
+        "3363b70f84abfef1a0fdb1005fbd5ef4edbc8d08dc7b322037891539efe7977d",
+        "7fd8f5229a87626c15c6e81812dbe100d7ba1be8d05bb4e24cdfaf3174474d67",
+        "be7ca861f54c73fc76e5f6647693809332bc074756720021b504fc7b46617d57"
+      ]
+    },
+    "spacr.embeddings.EmbeddingResult.to_frame": {
+      "source_blocks_sha256": [
+        "d03ade633bbf684fe9420bc506822f312505f2f1064de227ee772eea60db0892",
+        "d232df1d0dafdd484b12d797115b49bbf6b30489069e635b7489b013096daf19",
+        "a4243fce2632a2b2f60fde931c764a935f24ad5ccf659b7e3aae0746cc85f6f0"
+      ],
+      "source_sha256": "cd5f661c4475ab6ec25f7e5eda68f69b5ae658634492444c96942409684be9c5",
+      "text": "A DataFrame knappad av objekt-id, redo att ansluta till mätningar.\n\n:param object_ids: En id per rad, i den ordning de extraherade bildområdena gavs.\n:raises EmbeddingError: när räkningen inte matchar matrisen, eftersom en tyst feljustering här korrumperar varje nedströms gå och är oåtervinnbar efteråt.",
+      "translation_source_blocks_sha256": [
+        "d03ade633bbf684fe9420bc506822f312505f2f1064de227ee772eea60db0892",
+        "28e96ea9f1e06fcecb536ab8d87121f3059db624347b539a342e0ce7d4ccbdc8",
+        "a4243fce2632a2b2f60fde931c764a935f24ad5ccf659b7e3aae0746cc85f6f0"
+      ]
+    },
+    "spacr.embeddings.EmbeddingSpec": {
+      "source_blocks_sha256": [
+        "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
+        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
+        "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
+        "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
+        "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
+        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+      ],
+      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
+      "text": "Hur man bäddar in, registreras så att en matris kan säga var den kom ifrån.\n\n:param backbone: kodare namn, löst genom timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: vilket bilddatakanalindex som ska kodas, i ordning. ``None`` betyder att varje bilddatakanaler som arrayen har.\n:param batch_size: extraherade bildområden per framfart.\n:param device: torch enhetssträng, eller ``None`` för att välja en.\n:param normalize: dela varje bild datakanal med sin egen 99: e percentil före kodning. Mikroskopi dynamisk räckvidd varierar efter storleksordningar mellan fläckar, och en kodare tränas på fotografier annars kommer att se en bild data kanal som buller.",
+      "translation_source_blocks_sha256": [
+        "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
+        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
+        "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
+        "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
+        "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
+        "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
+      ]
+    },
+    "spacr.embeddings.EmbeddingSpec.fingerprint": {
+      "source_blocks_sha256": [
+        "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
+        "d2d4b81d0648f3b9aa27909b8699ffaa011710b5dd2743997f2acef9b5f2a33c"
+      ],
+      "source_sha256": "97c654834fb5174e6980c7f519c1a37535b120de2e7f4d69ba6072a90a8a223c",
+      "text": "En kort sammanfattning av allt som förändrar siffrorna.\n\nTvå matriser med samma fingeravtryck producerades på samma sätt. Ett poängkort kan citera det, och en cachematris kan ogiltigförklaras av det snarare än av en tidsstämpel.",
+      "translation_source_blocks_sha256": [
+        "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
+        "d2d4b81d0648f3b9aa27909b8699ffaa011710b5dd2743997f2acef9b5f2a33c"
+      ]
+    },
+    "spacr.embeddings.channel_of_column": {
+      "source_blocks_sha256": [
+        "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
+        "1a36439a4649da480c1c21cc86423ecb57cee3caebf532dde3a28d30b845dc8a",
+        "59987484b75bf17470d612c235d9f24ffa6f8a699c6b918e7679aef61a88e4f6"
+      ],
+      "source_sha256": "f836c7f7e07aafffe14c85758cecf45376ba2b59d82a53ab4913f884db4e8462",
+      "text": "Vilken kanal en kolumn kom från, eller ``None`` om det inte kan sägas.\n\n``None`` för en projicerad kolumn är det ärliga svaret snarare än en gissning: bilddatakanalerna blandades och ingen dimension tillhör en fläck.\n\n:param column: Ett inbäddat kolumnnamn.",
+      "translation_source_blocks_sha256": [
+        "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
+        "52b30c5040f2377aed3de7567a6ae850e357a20b9448db8291f67fa87d22cb4d",
+        "59987484b75bf17470d612c235d9f24ffa6f8a699c6b918e7679aef61a88e4f6"
+      ]
+    },
+    "spacr.embeddings.embed_array": {
+      "source_blocks_sha256": [
+        "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
+      ],
+      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
+      "text": "Lägga in en hög med extraherade bildområden.\n\n:param crops: ``(n, height, width, channels)``, bildas redan formen :mod:`spacr.crops`.\n:param spec: hur man bäddar in; standardvärdet är resnet per kanal18.\n:param encoder: ett inkallbart intag ``(n, height, width, 3)`` float32 i [0, 1] och retur ``(n, dims)``. Injicerat av testerna så att ledningarna kan utövas utan att ladda ner en ryggrad; produktionsväljare lämnar det ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: på en form eller bild datakanal problem, innan någon modell laddas - en nedladdning är ett långsamt sätt att ta reda på arrayen var fel.",
+      "translation_source_blocks_sha256": [
+        "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "d54d0beaa547fd8a2d266327462d03b5e4b7bccc3b06e7845cd13b2f58b9851c"
+      ]
+    },
+    "spacr.embeddings.embedding_column_names": {
+      "source_blocks_sha256": [
+        "0597559bc7dca6be066f787d1dc5d10b43c9c3129bc088cbdd300357c89e5b66",
+        "881cc168e4f9f399d9ca3906d79bc7afd1318df6d0a0378725f95318fd51b6ef",
+        "806e14136d857b7371ff9c0d9420f0aa74f4667bbffd90698028fd3585aaed75",
+        "223ff9707a47a320ee09c365c59afea15e352add02436a0fe56995862105c87e",
+        "5bcca463fa4d82166118b1b046f2b0816586f5ef49374abc0038dade7717f693",
+        "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
+      ],
+      "source_sha256": "0db4568255e5390d3e35eed2ac6a6d2d3abea038288e4f7ee4556eac2c431622",
+      "text": "Namn på kolumner en körning producerar.\n\nKanalen finns i namnet under policyn per kanal -- ``emb_c2_017`` -- vilket gör det möjligt att tillskriva den senare utan att bära en separat karta bredvid matrisen. Under projektionen finns det ingen kanal att namnge, och namnet säger det snarare än att antyda en.\n\n:param per_channel_dims: dimensioner ett framåtpass producerar.\n:param channels: kanalindex, i kodningsordning.\n:param policy: vilken kanalpolicy som gav upphov till dem.\n:returns: Kolumnnamn, i matrisordning.",
+      "translation_source_blocks_sha256": [
+        "0597559bc7dca6be066f787d1dc5d10b43c9c3129bc088cbdd300357c89e5b66",
+        "ef4f2537f02acd686658ed25bb5a5a20436877a49a696fe984bf959a1e009781",
+        "806e14136d857b7371ff9c0d9420f0aa74f4667bbffd90698028fd3585aaed75",
+        "223ff9707a47a320ee09c365c59afea15e352add02436a0fe56995862105c87e",
+        "5bcca463fa4d82166118b1b046f2b0816586f5ef49374abc0038dade7717f693",
+        "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
+      ]
+    },
     "spacr.errors": {
       "source_blocks_sha256": [
         "0a6cfb358bbbf7bf78d602172c2556635f7e8a4f93b0e556166fddbd6f777196",
@@ -31230,6 +31384,24 @@
         "edc2b4aea10fa96e142ffb32a161b4a31084fdd204cd3a58c5537eb7dbaeca76"
       ]
     },
+    "spacr.infection.uninfected_cells_were_measured": {
+      "source_blocks_sha256": [
+        "4f28952c2e2cba09cafd86fb49e96a5bde7f984c6008233ae9e2a4d37060e614",
+        "3e47bf50eeb0728f22edb444d83390e096cd04991abfa3fcfb285ee340ebe411",
+        "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "7fce868e321be6f4dea6b9efbe620aed41ba368cb5eb5d309930da90d46b24f5"
+      ],
+      "source_sha256": "7d807123273cc24f1c1693d2e395a0e3bc8ce0ec553bc7b84f295c58db460d7e",
+      "text": "Om åtgärdskörningen som skrev ``db_path`` höll oinfekterade celler.\n\nSvaret ändrar vad celltabellen är. `include_uninfected=False` -- standardvärdet för en screening som endast extraherade bildregioner infekterade celler, och vad TPG101 laboratoriemikroplattor mättes med -- betyder Mät skrev ingen rad för en cell utan parasit. Celltabellen är då ett urval av infekterade celler snarare än den segmenterade populationen, och `infected / cells` är 1,0 för varje mikroplateprovposition oavsett vad biologin gjorde.\n\nDet är inte ett avrundning problem att notera i en docstring. En läsare gav en kolumn på 1.000 läser 100% infektion som ett RESULT, och ingenting i tabellen säger något annat, så denna modul vägrar hastigheten i stället för att skriva ut det.\n\n:param db_path: sökväg till ``measurements.db``.\n:returns: ``True`` eller ``False`` när bearbetningssessionen spelade in inställningen, ``None`` när den inte gjorde det – en äldre databas, där det ärliga svaret är att vi inte kan berätta.",
+      "translation_source_blocks_sha256": [
+        "4f28952c2e2cba09cafd86fb49e96a5bde7f984c6008233ae9e2a4d37060e614",
+        "43200159fd58e5c2a8cd1a79b227fafb7548a4bc2a31d205e6ee5cc33813bcf4",
+        "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "65c1d875834933dcd14841b526d28362886760f94d3fc32463c6231a57b77331"
+      ]
+    },
     "spacr.install_profile": {
       "source_blocks_sha256": [
         "5a8f874f6cbe2a575f82705f1a68eaa042921d5e1bd3226d108f894b7b44566e",
@@ -39395,8 +39567,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
-      "text": "Träna en klassisk ML-klassificerare (XGBoost / logistic / RF) på egenskaper per objekt och poängsätt varje brunn i en screening.\n\nLäser ``measurements.db`` som skapats av :func:`spacr.measure.measure_crop`, slår samman egenskapstabeller för cell/kärna/patogen/cytoplasma, använder brunnarna märkta ``positive_control`` / ``negative_control`` (eller en annoteringskolumn) som träningsetiketter, delegerar anpassningen till :func:`ml_analysis` och skriver prediktioner per objekt, permutations- och egenskapsviktstabeller samt en värmekarta över plattan till ``results/`` bredvid källans DB.\n\n:param settings: Inställningsmappning, kanoniserad via :func:`spacr.settings.set_default_analyze_screen`. Viktiga poster:\n\n    - ``src`` (str eller lista) – mappar som innehåller ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-baserad kanal för egenskapen rekryteringskvot; styr även tabellvalet.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter.\n    - ``annotation_column`` — ersätter kontrollerna med en annoteringskolumn på PNG-nivå.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — egenskap som visas i plattans värmekarta.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Tvåelementslistan ``[output, plate_heatmap]``, där ``output`` är resultatslistan med 10 element från :func:`ml_analysis` och ``plate_heatmap`` är plattvärmekartans ``matplotlib``-figur. CSV-filerna och figurerna skrivs till ``results/`` som en bieffekt; deras sökvägar returneras inte.\n:raises ValueError: om ``annotation_column`` har angetts men tabellen ``png_list`` saknar ``prcfo`` / den kolumnen, dess objekt-ID:n inte matchar dem i mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte finns bland de tränade egenskaperna.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSe även: :func:`ml_analysis` — den underliggande anpassnings- och utvärderingsrutinen. :func:`perform_regression` — regression med blandade effekter på ML-poäng per brunn.",
+      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
+      "text": "Träna en klassisk ML-klassificerare (XGBoost / logistic / RF) på egenskaper per objekt och poängsätt varje brunn i en screening.\n\nLäser ``measurements.db`` som skapats av :func:`spacr.measure.measure_crop`, slår samman egenskapstabeller för cell/kärna/patogen/cytoplasma, använder brunnarna märkta ``positive_control`` / ``negative_control`` (eller en annoteringskolumn) som träningsetiketter, delegerar anpassningen till :func:`ml_analysis` och skriver prediktioner per objekt, permutations- och egenskapsviktstabeller samt en värmekarta över plattan till ``results/`` bredvid källans DB.\n\n:param settings: Inställningsmappning, kanoniserad via :func:`spacr.settings.set_default_analyze_screen`. Viktiga poster:\n\n    - ``src`` (str eller lista) – mappar som innehåller ``measurements/measurements.db``.\n    - ``channel_of_interest`` — 0-baserad kanal för egenskapen rekryteringskvot; styr även tabellvalet.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` – provpositions-ID för mikroplattor (till exempel ``'c2'`` / ``'c1'``) används som träningsetiketter.\n    - ``annotation_column`` — ersätter kontrollerna med en annoteringskolumn på PNG-nivå.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — egenskap som visas i plattans värmekarta.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Tvåelementslistan ``[output, plate_heatmap]``, där ``output`` är resultatslistan med 10 element från :func:`ml_analysis` och ``plate_heatmap`` är plattvärmekartans ``matplotlib``-figur. CSV-filerna och figurerna skrivs till ``results/`` som en bieffekt; deras sökvägar returneras inte.\n:raises ValueError: om ``annotation_column`` har angetts men tabellen ``png_list`` saknar ``prcfo`` / den kolumnen, dess objekt-ID:n inte matchar dem i mätningarna, den innehåller färre än två observerade klasser, eller om ``heatmap_feature`` inte finns bland de tränade egenskaperna.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSe även: :func:`ml_analysis` — den underliggande anpassnings- och utvärderingsrutinen. :func:`perform_regression` — regression med blandade effekter på ML-poäng per brunn.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -39513,9 +39685,9 @@
     "spacr.ml.minimum_cell_simulation": {
       "source_blocks_sha256": [
         "bf88fa240a6ba75a54b0b42b953433cf4058629eb066d53cb4fc20861a420bf9",
-        "eacc5ff6904d33ff778518de01a26b8a997e50e0dc45e0861eab4b399ed9e010",
+        "0157bcb8b6079058d04bfb384547564585eeaf95c7dc62565ecd5dc522668f56",
         "605dfcb6fc96142312d8bab1567cb86cafc47579bbc12a575e41088c413fc160",
-        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
+        "07e8971343bf0a154007c96282383d5d6a981b750b92f68ba89d8586ec4a554e",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "f8c63794b8a10487eef71a243d078f76c52670a8418f1d0a2762e841484d9a56",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -39525,13 +39697,13 @@
         "b1e5363ac979b55298ed0f9bfc2c16ebdecc3d99666923ca41f13a9352153556",
         "4194d53b16e88772fd34c396f9ee65c87ecac2daeb8c00bd0b447ec9378ac2e8"
       ],
-      "source_sha256": "f9729401957f2e0ffb193c923bd0dac66afaa2423d359461c0b24758008e02bd",
-      "text": "Uppskattning av det minsta antal celler per mikroplatta provposition som behövs för ett stabilt medelvärde av mikroplattans provposition.\n\nFör mikroplattan provpositioner med de flesta objekt, upprepade delprover celler vid ökande provstorlekar och registrerar den genomsnittliga absoluta skillnaden från mikroplatta provpositionens fulla medelvärde. Ritar den jämnade kurvan med en ±1 s.d. band, markerar armbågen punkt (eller ``settings['min_cell_count']`` när den är inställd) och skriver ``cell_min_threshold.pdf`` i ``dst``.\n\nPassera ``dst`` för att behålla figuren i en specifik processsessionskatalog. Funktionen använder programvynivå ``results`` från ``count_data`` för kompatibilitet med direktanrop i bärbara datorer och skript.\n\n:param settings: Kräver ``score_data`` (CSV sökväg eller lista över sökvägar), ``dependent_variable``, ``tolerance`` (i procent eller flytfraktion) och ``min_cell_count``. ``count_data`` behövs endast när ``dst`` är urkopplat och endast för att lokalisera figuren.\n:param num_repeats: Delprov tagna per provstorlek. Förvalt ``10``.\n:param sample_size: Antal mikroplattor provpositioner, tagna med största antal celler, för att simulera. Standard ``100``.\n:param tolerance: Oanvänd; den tolerans som tillämpas är ``settings['tolerance']``.\n:param smoothing: Rullande fönsterbredd som används för att jämna ut kurvan.\n:param increment: Steg mellan de simulerade provstorlekarna.\n:param dst: Katalog för ``cell_min_threshold.pdf``, skapad om den saknas. Förvalt ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: Armbågspunktens provstorlek, dvs. minsta cellantal per mikroplattans provposition, för att passera till :func:`process_scores`.\n:raises ValueError: om ``settings['tolerance']`` varken är en int eller en flottör.",
+      "source_sha256": "c8cdf39e428dadbbafb95e032ba62262b6971a2f1a921a9bd7c4c0810b5c8e03",
+      "text": "Uppskattning av det minsta antal celler per mikroplatta provposition som behövs för ett stabilt medelvärde av mikroplattans provposition.\n\nFör mikroplattan provpositioner med de flesta objekt, upprepade delprover celler vid ökande provstorlekar och registrerar den genomsnittliga absoluta skillnaden från mikroplatta provpositionens fulla medelvärde. Ritar den jämnade kurvan med en ±1 s.d. band, markerar armbågen punkt (eller ``settings['min_cells_per_well']`` när den är inställd) och skriver ``cell_min_threshold.pdf`` i ``dst``.\n\nPassera ``dst`` för att behålla figuren i en specifik processsessionskatalog. Funktionen använder programvynivå ``results`` från ``count_data`` för kompatibilitet med direktanrop i bärbara datorer och skript.\n\n:param settings: Kräver ``score_data`` (CSV sökväg eller lista över sökvägar), ``dependent_variable``, ``tolerance`` (i procent eller flytfraktion) och ``min_cells_per_well``. ``count_data`` behövs endast när ``dst`` är urkopplat och endast för att lokalisera figuren.\n:param num_repeats: Delprov tagna per provstorlek. Förvalt ``10``.\n:param sample_size: Antal mikroplattor provpositioner, tagna med största antal celler, för att simulera. Standard ``100``.\n:param tolerance: Oanvänd; den tolerans som tillämpas är ``settings['tolerance']``.\n:param smoothing: Rullande fönsterbredd som används för att jämna ut kurvan.\n:param increment: Steg mellan de simulerade provstorlekarna.\n:param dst: Katalog för ``cell_min_threshold.pdf``, skapad om den saknas. Förvalt ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: Armbågspunktens provstorlek, dvs. minsta cellantal per mikroplattans provposition, för att passera till :func:`process_scores`.\n:raises ValueError: om ``settings['tolerance']`` varken är en int eller en flottör.",
       "translation_source_blocks_sha256": [
         "a10b1aa3dfee39de671a7ed089f90cb944b9698e09e25b275eda78bb65fb650f",
-        "91136dfdb856c11d56a8330f10e63e60a968d02319210da2f5476e3f91717d3a",
+        "df2426729156f31b4d2cff984d266f8924f17017d1d348e29668c5193667dbe2",
         "7cfe7e8f10f9d39eaf743e977349f5b3ab035b1ea642cdb300667c9262bb7d8c",
-        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
+        "07e8971343bf0a154007c96282383d5d6a981b750b92f68ba89d8586ec4a554e",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "70af0236a4816acd5e92460f1b468513d28cb10d441e005146e65222c356fbc6",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -39799,7 +39971,7 @@
     "spacr.ml.process_scores": {
       "source_blocks_sha256": [
         "35b916ccf9b4406743ffad54921075a077e86a215822486b18fb50b7c58edeee",
-        "15b26e610f96e944d1e6d284b3aecf0ddd17a0af535fcfb508e5b36f3f0fc547",
+        "979e14f51d8fee7316ae43ed686804844a2f7171941b83bf98e1f130ea2d6ddb",
         "b6170e0f90001e24ad9564b33d4a1fefb9c2814b6984af712c7d3d99d10e7725",
         "8dbf4648c3398730f8b682e76897500d70698516972b378b20e7f5a0e8508e33",
         "c53d0606c4978f2313cee25c5f9ddc9b6237a1b00e3a67672b31cc25085773ba",
@@ -39811,11 +39983,11 @@
         "c4442659591710803ca222e05d541137d05fa8f7eedab0f6bbc8b5ea6dfd0871",
         "51a3d36f4c6a1cbde7363a28c824ca69e085af19496d41d85832d91dd7598218"
       ],
-      "source_sha256": "9e1d41677f5c5a283805d147242926e83295a84efb5b87e0961e5f4828f56b66",
-      "text": "Aggregera poäng per objektmodell till sammanfattningar av provpositionen per mikroplatta, redo för regression.\n\nSäkerställer ``plateID/rowID/columnID/prc`` kolumner finns, tillämpar en valfri inversion av rå respons, aggregat med brunn enligt ``agg_type`` (eller med ``sum`` för räkna modellerna ``'poisson'`` och ``'horseshoe'``), upprätthåller ``min_cell_count`` och omvandlar valfritt den aggregerade svar.\n\n:param df: Per-objekt poäng DataFrame.\n:param dependent_variable: Kolumnen är aggregerad.\n:param plate: Plattbeteckning till stämpel när ramen är en platta; ignoreras (med varning) när flera plattor finns.\n:param min_cell_count: Mikroplattans provpositioner med färre objekt tappas. Standard ``25``.\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: Valfri postaggregation omvandla namn (se :func:`apply_transformation`).\n:param regression_type: Om ``'poisson'`` eller ``'horseshoe'`` används aggregering ``sum`` - båda modellerna har ett provläge per mikroplatta, inte ett medelvärde för provläge för varje mikroplatta.\n:param invert_dependent_variable: ``False``/ ``0`` = ingen inversion; ``True``/ ``1`` = ``1 - x``; ``-1`` = ``1 / x``\n:returns: ``(dependent_df, dependent_variable)`` – provets position per mikroplatta DataFrame och (eventuellt omvandlad) responskolonnens namn.\n:raises ValueError: Om saknade identifierare, ej stödda ``agg_type`` eller ej erkända ``invert_dependent_variable``.",
+      "source_sha256": "37545e6672072568adf667960125f99694272a13ff3ca992712aaba8defe46e8",
+      "text": "Aggregera poäng per objektmodell till sammanfattningar av provpositionen per mikroplatta, redo för regression.\n\nSe till att det finns kolumner ``plateID/rowID/columnID/prc``, tillämpar en frivillig inversion av den råa responsen, aggregaten väl enligt ``agg_type`` (eller med ``sum`` för räkna modellerna ``'poisson'`` och ``'horseshoe'``), tillämpar ``min_cells_per_well`` och omvandlar valfritt den aggregerade responsen.\n\n:param df: Per-objekt poäng DataFrame.\n:param dependent_variable: Kolumnen är aggregerad.\n:param plate: Plattbeteckning till stämpel när ramen är en platta; ignoreras (med varning) när flera plattor finns.\n:param min_cells_per_well: Mikroplattans provpositioner med färre objekt tappas. Standard ``25``.\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: Valfri postaggregation omvandla namn (se :func:`apply_transformation`).\n:param regression_type: Om ``'poisson'`` eller ``'horseshoe'`` används aggregering ``sum`` - båda modellerna har ett provläge per mikroplatta, inte ett medelvärde för provläge för varje mikroplatta.\n:param invert_dependent_variable: ``False``/ ``0`` = ingen inversion; ``True``/ ``1`` = ``1 - x``; ``-1`` = ``1 / x``\n:returns: ``(dependent_df, dependent_variable)`` – provets position per mikroplatta DataFrame och (eventuellt omvandlad) responskolonnens namn.\n:raises ValueError: Om saknade identifierare, ej stödda ``agg_type`` eller ej erkända ``invert_dependent_variable``.",
       "translation_source_blocks_sha256": [
         "e12df5e956bb8eb31eeea9b3823f4e25e19b05aef1522830dbf2fe278258c963",
-        "15b26e610f96e944d1e6d284b3aecf0ddd17a0af535fcfb508e5b36f3f0fc547",
+        "979e14f51d8fee7316ae43ed686804844a2f7171941b83bf98e1f130ea2d6ddb",
         "b6170e0f90001e24ad9564b33d4a1fefb9c2814b6984af712c7d3d99d10e7725",
         "8dbf4648c3398730f8b682e76897500d70698516972b378b20e7f5a0e8508e33",
         "c53d0606c4978f2313cee25c5f9ddc9b6237a1b00e3a67672b31cc25085773ba",
@@ -46370,19 +46542,19 @@
       "source_blocks_sha256": [
         "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
         "59eba82e68561e13220794fd3a3318f848654998412cc57c0fbfd0ee0bb6e516",
-        "b5c2a3301612b0237721e7e027c5fcef9356ad279043251c629ffc9785e9294b",
+        "90315e3fd156e29559e43e7d3ee383dc8ceb030c0829dfc288910ecc091380dd",
         "7096248994d74057fe4c683729f92aa3f77532af0f3a151aecc1c3392cb5557a",
         "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
         "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
         "fc0202df87d042b6351dfea6e31dc398fe8ec41de8dbb0fd9f5f2f601680cbbb",
         "346b886d87b02facc49c1c17a06ed7561d4217a5268f15213c7ac6dffb08bc28"
       ],
-      "source_sha256": "1bcc5138b1fbf4b4f51a4a7d1a8e66ee39cbc6568a14ae31851e08214ed08b4c",
-      "text": "Registrera ett fält över sekvenseringscyklerna som avbildade det.\n\nCykelaxeln är inte mikroskopets bildfältsaxel, och skillnaden bestämmer allt i denna modul. :mod:`spacr.ops_register` placerar två OLIKA mikroskopfält som överlappar en bråkdel av ett mikroskops bildfält; här avbildas samma mikroskopfält elva gånger och scenen återgår till det, så förskjutningen är en handfull pixlar snarare än en tonhöjd.\n\nOch den kan inte använda hoechst. Instruktion 372 DEL 10 mätt detta förvärv: cykel 1 har en fem-bild datakanal ``DAPI-CY3-A594-CY5-CY7`` stack per plats och cyklar 2 till 11 innehåller fyra separata bas-bilddata kanalfiler med NO DAPI alls. Så bilddatakanalen varje mikroskop bildfält-axel registrering körs inte finns på denna axel efter den första cykeln, och DEL 7 plan för genomsnittliga Hoechste över cykler inte heller kan köras.\n\nVad som ersätter det är referensgenomförandets eget svar. ``ops/firesnake.py:_align_SBS`` erbjuder ``method='SBS_mean'`` för just detta fall: maximum över baskanalerna, normaliserat av en hög percentil och klippt, som förvandlar fyra glesa spotkanaler till ett tätt mål. Mätt på väl A1 på två platser, cyklar 2 till 11 mot cykel 1:\n\n    plats 100 topp/medelvärde 169 till 236 skift (-6..-27, 0..10) plats 200 topp/genomsnitt 218 till 281 skift (-4..-25, 11..21)\n\n    20 av 20 registrerade cykler.\n\nDet är inte en reserv, det är den bättre bilddatakanalen. Kakelaxeln på DAPI toppar på 23 till 85; detta toppar vid 169 till 281. Spot är punktliga och rikliga och nuclei är släta och få, så att förlora Hoechst kostar ingenting här.\n\nOch offset hör till platsen, inte cykeln. Site 100 sitter på x = 0 till 10 över de elva cyklerna och plats 200 vid x = 11 till 21. En stel transform per cykel för en hel brunn skulle medföra denna skillnad i varje mikroskop synfält, så varje plats är registrerad mot sin egen referens -- vilket också är vad referensimplementationen gör, ett mikroskop fält av sikt cykel stack i taget.",
+      "source_sha256": "8afd13aa2ad6f2f40d67d1353f44032f9ad172b15c491e5aef6a08495e13f604",
+      "text": "Registrera ett fält över sekvenseringscyklerna som avbildade det.\n\nCykelaxeln är inte mikroskopets bildfältsaxel, och skillnaden bestämmer allt i denna modul. :mod:`spacr.ops_register` placerar två OLIKA mikroskopfält som överlappar en bråkdel av ett mikroskops bildfält; här avbildas samma mikroskopfält elva gånger och scenen återgår till det, så förskjutningen är en handfull pixlar snarare än en tonhöjd.\n\nOch det kan inte använda hoechst. Mätt på referensförvärvet: cykel 1 innehåller en fem-bilds datakanal ``DAPI-CY3-A594-CY5-CY7`` stack per plats, och cykler 2 till 11 innehåller fyra separata bas-bilddatakanalfiler med NO DAPI alls. Så bilddatakanalen varje mikroskop bildfält-axel registrering körs inte finns på denna axel efter den första cykeln, och genomsnitt Hoechsle över cykler är inte tillgänglig här heller.\n\nVad som ersätter det är referensgenomförandets eget svar. ``ops/firesnake.py:_align_SBS`` erbjuder ``method='SBS_mean'`` för just detta fall: maximum över baskanalerna, normaliserat av en hög percentil och klippt, som förvandlar fyra glesa spotkanaler till ett tätt mål. Mätt på väl A1 på två platser, cyklar 2 till 11 mot cykel 1:\n\n    plats 100 topp/medelvärde 169 till 236 skift (-6..-27, 0..10) plats 200 topp/genomsnitt 218 till 281 skift (-4..-25, 11..21)\n\n    20 av 20 registrerade cykler.\n\nDet är inte en reserv, det är den bättre bilddatakanalen. Kakelaxeln på DAPI toppar på 23 till 85; detta toppar vid 169 till 281. Spot är punktliga och rikliga och nuclei är släta och få, så att förlora Hoechst kostar ingenting här.\n\nOch offset hör till platsen, inte cykeln. Site 100 sitter på x = 0 till 10 över de elva cyklerna och plats 200 vid x = 11 till 21. En stel transform per cykel för en hel brunn skulle medföra denna skillnad i varje mikroskop synfält, så varje plats är registrerad mot sin egen referens -- vilket också är vad referensimplementationen gör, ett mikroskop fält av sikt cykel stack i taget.",
       "translation_source_blocks_sha256": [
         "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
         "adf1e305ae9dba79b070d83b2f725902c8a06d9df956a8efd987d42d8c981c67",
-        "172c1dd510b62b029e4078701df69973133b62439ab1bd59041689aa10406209",
+        "2db46412854c56e2f0df91b959a9ff7fbd62aa4fb99b6e19327b24f77bb0dccd",
         "36253605dd997bcb78170c81396384029bcbdcbb1091448a58c07a6a0747de18",
         "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
         "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
@@ -46723,7 +46895,7 @@
     "spacr.ops_phenotype": {
       "source_blocks_sha256": [
         "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
-        "234152f444ed13a4ca3b088c4e4e7ab701e99acd84c438adb0c7ba9248bc34e6",
+        "15b6ba8f0b8f4b7dc07dc8d214e10edeaa924f5a0458a3323b632135776f44cf",
         "aba66c01e9fd3ca1e4f3ee03f851444b1e73a9b7277187cc7e89d4d43f1f054c",
         "1e905db470b8f54f7dac6b8d239145f7797eb95d1dc45337bcc4d0c5ddcbf816",
         "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
@@ -46731,11 +46903,11 @@
         "5607acd4c2f46376cf0c7b7ee4acf752e2b1b62a47a212c2da3330ce1393c2ac",
         "bf4cd9bd465d330b3e27b08bfa7134ca5f33b3b171e37f0f5104bba8681abe12"
       ],
-      "source_sha256": "d89e59c264803f17d46f2750cca9a3c9b633042c3fb3c30f75e54d64579d1e1e",
-      "text": "Fas A4: sätta fenotyp förvärv på sekvensering ett.\n\nVad detta steg är. Fenotypen bilder är 2960x2960 vid 20X och sekvensbilderna är 1480x1480 vid 10X, av samma runda brunn. Fas A4 i instruktion 372 ber om en transform per fenotyp mikroskopfält av vy till sekvensering ram, i linje med kärnkraftsfläcken, \"och inte sampla den ena i den andra -- i linje, inte medelvärdet\".\n\nVarför det inte är ett pixel problem. Över en förstoring förändring och två olika förvärv en pixels grannskap betyder ingenting, men en kärna är en kärna på båda skalorna. Så anpassningen körs på kärncentroider, och :func:`spacr.ops_merge.align_by_triangles` föreslår omvandlingen från deras arrangemang ensam.\n\nVarför detta förslag är inte svaret. Mätt på den verkliga plattan, triangeln samförstånd är partisk och fördomar växer som korrespondens tunnar. Syntetiska kontroller byggda från 593 verkliga kärnor, omvandla kända exakt:\n\n    vad som begärdes för skala returnerade inliers identitet 0,9878 56 % skala 0,25 0,2469 100 % skala 0,25, 1 px jitter 0,2065 53 % skala 0.25, hälften av punkterna behöll 0,2916 23 % skala 0.25, en tredjedel behöll 0,3596 15 %\n\nEtt 1,2 % skalfel är 18 px av förskjutning över ett 1480 px mikroskopfält, vilket är anledningen till att en EXACT kopia av en punktuppsättning poäng 56 % snarare än 100. Och de två sista raderna är formen på varje riktigt par som denna modul först prövades på -- två mikroskopbildfält som delvis överlappar, avbildade två gånger, är exakt \"vissa av punkterna, flyttade lite\".\n\nSå samförståndet är ett frö och inte ett resultat. Den här modulen tar det, finner de korrespondenser som det innebär, och återlöser likheten från dessa korrespondenser i sluten form; sedan gör det igen på korrespondenserna den bättre omvandlingen innebär. Det är samma argument som :func:`align_by_triangles` redan gör för dess översättning – \"inte en förfining, det är skillnaden mellan att arbeta och inte\" – tillämpas även på skalan och rotationen.\n\nOch det rapporterar hur många nuclei håller med, vilket triangeln samförstånd inte. `align_by_triangles` returnerade en transform för varje par som den någonsin lämnats, inklusive fenotyp mikroskop bildfält och sekvenserande mikroskop bild fält från motsatta sidor av mikroplate provet position, eftersom tre slumpvis liknande trianglar alltid kan hittas i två uppsättningar av några hundra punkter. En justering utan inler räkna är inte bevis, och DEL 6-A av 372 registrerar samma lektion om placeringar: ett antal saker försök är inte ett mått på något lyckas.",
+      "source_sha256": "abb267fa0f26aa14ac7fe73dd99d993e671396ee1d294579c58cf32f28a63bcf",
+      "text": "Fas A4: sätta fenotyp förvärv på sekvensering ett.\n\nVad detta steg är. Fenotypen bilder är 2960x2960 vid 20X och sekvensbilderna är 1480x1480 vid 10X, av samma runda brunn. Detta steg producerar en transformera per fenotyp mikroskopfält av vy till sekvenserings ramen, i linje med den nukleära fläcken. det inte samplar antingen förvärv i den andra: omvandlingen lagras och pixlarna lämnas där de var, eftersom omampling ett mikroskop fältet av seende för att jämföra det är ett förlust sätt att säga var det är.\n\nVarför det inte är ett pixel problem. Över en förstoring förändring och två olika förvärv en pixels grannskap betyder ingenting, men en kärna är en kärna på båda skalorna. Så anpassningen körs på kärncentroider, och :func:`spacr.ops_merge.align_by_triangles` föreslår omvandlingen från deras arrangemang ensam.\n\nVarför detta förslag är inte svaret. Mätt på den verkliga plattan, triangeln samförstånd är partisk och fördomar växer som korrespondens tunnar. Syntetiska kontroller byggda från 593 verkliga kärnor, omvandla kända exakt:\n\n    vad som begärdes för skala returnerade inliers identitet 0,9878 56 % skala 0,25 0,2469 100 % skala 0,25, 1 px jitter 0,2065 53 % skala 0.25, hälften av punkterna behöll 0,2916 23 % skala 0.25, en tredjedel behöll 0,3596 15 %\n\nEtt 1,2 % skalfel är 18 px av förskjutning över ett 1480 px mikroskopfält, vilket är anledningen till att en EXACT kopia av en punktuppsättning poäng 56 % snarare än 100. Och de två sista raderna är formen på varje riktigt par som denna modul först prövades på -- två mikroskopbildfält som delvis överlappar, avbildade två gånger, är exakt \"vissa av punkterna, flyttade lite\".\n\nSå samförståndet är ett frö och inte ett resultat. Den här modulen tar det, finner de korrespondenser som det innebär, och återlöser likheten från dessa korrespondenser i sluten form; sedan gör det igen på korrespondenserna den bättre omvandlingen innebär. Det är samma argument som :func:`align_by_triangles` redan gör för dess översättning – \"inte en förfining, det är skillnaden mellan att arbeta och inte\" – tillämpas även på skalan och rotationen.\n\nOch det rapporterar hur många nuclei håller med, vilket triangeln samförstånd inte. `align_by_triangles` returnerade en transform för varje par som den någonsin lämnats, inklusive fenotyp mikroskop bildfält och sekvenserande mikroskop bild fält från motsatta sidor av mikroplate provet position, eftersom tre slumpvis liknande trianglar alltid kan hittas i två uppsättningar av några hundra punkter. En justering utan inler räkna är inte bevis, och DEL 6-A av 372 registrerar samma lektion om placeringar: ett antal saker försök är inte ett mått på något lyckas.",
       "translation_source_blocks_sha256": [
         "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
-        "7cd5a5b42e496ee2815fb08a2435cbc801e461e914bb6e331896ad464af218f3",
+        "311080909e99ed33416e5d7a765da1e9d9db40af976fdab48a0250e8de6fd15b",
         "2a5bf43216a2c6f0047419ee44c50da1cfadfee8b5ee404cd4346d442da6e06d",
         "7b5d35684483202edc44ae2b4d5baca74a2815aa0a77f2736664002df39f5545",
         "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
@@ -57020,26 +57192,6 @@
         "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23"
       ]
     },
-    "spacr.qt.app.open_at_the_measured_width": {
-      "source_blocks_sha256": [
-        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
-        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
-        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
-        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
-        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
-        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
-      ],
-      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
-      "text": "Utvidga ett nytt fönster till vad modulerna mättes till behov.\n\n:returns: True när fönstret ändrade storlek.\n\nINSTRUKTION 359: \"varje modul måste först öppnas tillräckligt brett så att den högra sidan av dess inställningar inte är avskurna\". Bredden kommer från `spacr.qt.layout_policy`, som avläser en GENERERAD artefakt – varje tal i den mäts genom att bygga varje modul offscreen och fråga om dess inställningskolumn håller mer än den kan visa.\n\nDet växer bara någonsin, och det är medvetet snarare än försiktigt. Kommentaren ovan `win.show()` registrerar varför detta fönster inte maximerar: över X11 vidarebefordring, VNC eller en virtuell framebuffer \"available geometry\" är vad fjärrsessionen hävdar, och den är ofta en stubb. En policy som tillåts krympa skulle ta det påståendet på allvar och öppna ett fönster mindre än den som användaren har fått under ett år. Att växa på ett dåligt antal begränsas av klämman; krympande på en är inte begränsad av någonting.\n\nUtan artefakten händer ingenting. `layout_policy` faller tillbaka till 1200 px -- bredden som text-fit svepet bygger varje programvy vid -- och detta fönster öppnas redan vid 1200, så ett hjul som inte bär filen beter sig exakt som det gjorde.\n\nEn öppningsstorlek är inte värd att misslyckas med en uppskjutning.",
-      "translation_source_blocks_sha256": [
-        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
-        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
-        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
-        "ab452d9958b7b0be8c607ac3462bb2e5cc3297391ec42616f5f8ec96efd3aca0",
-        "4319b5fa4215fac451983af05a97ff1717786e5c95810ad6313b4924909bb8f4",
-        "827774a19140ce4a6c7efbb88bc64f3012844b82a7021bd835a46728747ade94"
-      ]
-    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -57142,26 +57294,6 @@
         "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
         "4b67ff0258ffafcb4c1932f082e553d500fe768c1dddc6d9d4bf8b4e15b1ec52",
         "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
-      ]
-    },
-    "spacr.qt.app.the_missing_pip_escape": {
-      "source_blocks_sha256": [
-        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
-        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
-        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
-        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
-        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
-        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
-      ],
-      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
-      "text": "Kommandot som WOULD fungerar, när uppgraderingen misslyckades för vill av Pip.\n\n:param output: Allt uppgraderingen skrev, som arbetaren fångade det.\n:returns: en kommandorad för att visa användaren, eller None när felet inte var felet.\n\nDet enda felet som programmet kan svara på, och instruktion 01 frågar det till. Skrivbordsinstallatörerna bygger sin miljö med ``uv venv``, som inte såddpip, så en installation vars uppdatering fortfarande kör ``python -m pip`` misslyckas innan den startar – och det är en bootstrap fälla: fixen kan inte komma fram till den väg den rättar. En dialogruta som namnger det exakta kommandot är den enda flykten som når en användare som redan har slagit till.\n\nVarje annan exit-kod får utdata och inget annat. Att gissa på ett botemedel för ett fel det inte kan känna igen skulle skicka en användare att köra ett kommando som inte är deras problem.\n\nHärledas sättet :func:`spacr.updater.find_uv` härleder det, och det faller tillbaka till sökvägen installationsprogrammet URITE snarare än att returnera ingenting: på den drabbade maskinen `find_uv` är vad den installerade bygget är för gammal för att ha, så ett namn användaren kan kontrollera är värt mer än tystnad.",
-      "translation_source_blocks_sha256": [
-        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
-        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
-        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
-        "fc8dc15f427246d1d9c5b86c338320884cf6c62b25b971894f667b253a7f4fae",
-        "a2ccc11891aaa33a743f0be0e159ab9d6bc63b9a1ca011fb83d12b9906064923",
-        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
       ]
     },
     "spacr.qt.app.tile_sort_key": {
@@ -64648,92 +64780,6 @@
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
         "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
-      ]
-    },
-    "spacr.qt.layout_policy": {
-      "source_blocks_sha256": [
-        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
-        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
-        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
-        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
-        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
-      ],
-      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
-      "text": "Den uppmätta fönsterbredden en modul behöver, och vad man ska öppna på första körningen.\n\nINSTRUKTION 359. Rapporten var att \"varje modul måste först öppnas tillräckligt brett att den högra sidan av dess inställningar inte är avskurna\", och att samma pixelmått kan beskriva tre olika maskiner -- så en statisk ``resolution -> font size`` tabell skulle välja fel på exakt M4 Mac som föranledde det.\n\nVad denna modul är. Läsaren av en GENERERAD artefakt, ``spacr/resources/layout_policy.json``, producerad av ``tools/measure_the_layout_matrix.py``. Varje tal i den mättes genom att bygga varje modul offscreen i en behållare som inte kan växa och läsa vad som klipptes -- samma regel instruktion 350 s svep hävdar, inte en andra åsikt om det.\n\nVad det inte är. Inte telemetri, och 359 säger så explicit: \"capture\" betyder att läsa Qt program visa mätvärden i lokala preferenser, inte skicka hårdvara detaljer någonstans. Ingenting här lämnar maskinen.\n\nDen importerar inget tungt, vilket objektet kräver av artefaktens lastare: ``json`` och ``importlib.resources``, ingen Qt, nej numpy. Mätvärdena Qt anländer som ARGUMENTS, så att policyn kan läsas och testas på en maskin utan visning alls.",
-      "translation_source_blocks_sha256": [
-        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
-        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
-        "74834f62d2528dfa207c2257dde36ad2c9dce65c3e5df80fee0514e3099d5192",
-        "fc9ae75949d8e14f1704c45ba53486ede15b2ac0518f1ef0bdd3b41723c55fbd",
-        "74b221edbcd574f0e809e1c454a658b96bb4d5e5cbda3b29db747d1e4fcd7300"
-      ]
-    },
-    "spacr.qt.layout_policy.minimum_width_for": {
-      "source_blocks_sha256": [
-        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
-        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
-        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
-        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
-      ],
-      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
-      "text": "Det bredaste uppmätta kravet vid ``font_scale``.\n\n:param font_scale: Preferensen, 1,0 % är 100 %.\n:param policy: En artefakt att läsa istället för den medföljande.\n:returns: logiska bildpunkter, eller None när ingenting mättes.\n\nDet värsta fallet över moduler, inte medianen. Ett fönster öppnas en gång och varje modul nås inifrån det, så en bredd som passar de flesta av dem fortfarande skär av den bredaste -- vilket är rapporten.\n\nMellan två uppmätta skalor tar det högre, eftersom artefakten mäter en stege och kravet stiger med skalan. Avrundning mot den mindre skulle öppna ett fönster som passar skalan under användarens.",
-      "translation_source_blocks_sha256": [
-        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
-        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
-        "e04974a8721ab4069fad30368e7788152af93b5f3197d3f02611d365743eede1",
-        "f48501b0657e2c96842bee6afcba9e285160f14fff368864979bb291af293b78"
-      ]
-    },
-    "spacr.qt.layout_policy.read_policy": {
-      "source_blocks_sha256": [
-        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
-        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
-        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
-        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
-      ],
-      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
-      "text": "Den kombinerade policyn, eller ``{}``.\n\n:param refresh: Läs om filen istället för att svara från cache.\n:returns: artefakten som en nyckelvärdeskartläggning, eller en tom på något fel.\n\nDegraderar till tom istället för att kasta, av den anledningen släpper-anteckningar panelen gör: ett program får inte misslyckas med att öppna ett fönster eftersom en resursfil saknas från ett hjul.",
-      "translation_source_blocks_sha256": [
-        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
-        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
-        "ed48adc532056133b17bdd3e9164a1a3cd2fe1fffaef56a18fca37b389704469",
-        "e6a0f107131a9c60dc9597ab3a4275ea8a38a7598748fde3072b6c9baeae9ba0"
-      ]
-    },
-    "spacr.qt.layout_policy.recommended_window_size": {
-      "source_blocks_sha256": [
-        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
-        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
-        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
-        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
-      ],
-      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
-      "text": "Vad du ska öppna huvudfönstret vid, med tanke på vad programvyn har.\n\n:param available: Skärmens TILLGÄNGLIGA geometri som ``(w, h)`` -- tillgänglig, inte total, eftersom en docka eller menyrad äger skillnaden och ett fönster som är storleksmässigt till den totala öppnas delvis under en.\n:param font_scale: Gällande typsnittsskalapreferenser.\n:param policy: En artefakt att läsa istället för den medföljande.\n:returns: ``(width, height)`` i logiska bildpunkter.\n\nFastklämd på skärmen, ALLTID, och att beställning är hela kontraktet: ett uppmätt krav bredare än skärmen är ett uttalande om att modulen inte kan visas hel här, inte behörighet att öppna ett fönster utanför kanten av det. Användaren kan fortfarande rulla; ett fönster som de inte kan nå hörnet för att ändra storlek är ett sämre svar.",
-      "translation_source_blocks_sha256": [
-        "5d5e6cef400bf88105678fc9388750c3c0022c5d74aeed0c5a70eeebacc5a7b3",
-        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
-        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
-        "5b5f175f525959ab4709565910b4fbd05ac6bc2dc7c14d732eb0a2f0e973472b"
-      ]
-    },
-    "spacr.qt.layout_policy.why": {
-      "source_blocks_sha256": [
-        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
-        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
-      ],
-      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
-      "text": "En mening som namnger bevisen, för en loggrad eller en antydan.\n\nEn rekommendation en användare inte kan spåra är en som de inte kan argumentera med, och denna artikels hela historia är ett layoutbeslut ingen kunde kontrollera.",
-      "translation_source_blocks_sha256": [
-        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
-        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -89263,7 +89309,7 @@
     "spacr.qt.synthetic.synthetic_read": {
       "source_blocks_sha256": [
         "72e217d9dfa8f16b7e4f2a130a739814133bbce971bc2ed8b9effad86c26f340",
-        "b3541daab6f36ca042a1c4cbad1506b6d7d97aeb5dfff466b619bf024d4a09d9",
+        "f9b994cac5568e70139b2d1c9a3c51a010b651a168471696d91eb531d8ba5a6e",
         "84e888a703f938e500801697db5312861580bdd5b3d85034682975cb928b51aa",
         "a0d2eb0ccac7b344c687c23b38001f6e6938952a4f56ad5e3bae8645acd1a7ac",
         "93834d567039b8cec829485f787e7b66f997e5d45fff9f0cd6f2c378d1e87eeb",
@@ -89271,11 +89317,11 @@
         "8df11bc512c0660d8683c14b2f5b40e4731b53399f875cf5753fc1890de62b54",
         "403cfb7a8e9fd5e1ea0f76011ce8f4caacbebfd374762fa2c4182aae135c398c"
       ],
-      "source_sha256": "637dc173bf0d4c73d71f9be528f0bd5decfb687d2adeea3c2052aa39c6590384",
-      "text": "Bygg en 150-bass läs med en (kolumn, gRNA, rad) trilling.\n\nLayouten är den som dokumenterats ovan :data:`SEQ_TARGET`; en avläsning byggd här återvinns exakt av de levererade ``regex`` / ``target_sequence`` / ``offset_start`` / ``expected_end`` standardvärden.\n\n:param column_barcode: 8-bas kolumn streckkod.\n:param grna: 21-base gRNA streckkod.\n:param row_barcode: 8-basradsstreckkod.\n:param prefix: stapplar framför ankarfönstret.\n:returns: En 150-bas läsning.\n:raises ValueError: När en streckkod är fel längd – en tyst felstor streckkod skulle skifta varje nedströmsfält genom att många baser och karta till ingenting, vilket är mycket svårare att se än ett stopp.",
+      "source_sha256": "e281fa54535921a76848dea1db2ad21a4ff0f764d0bfb4500c28cdb1ec471c90",
+      "text": "Bygg en 150-bass läs med en (kolumn, gRNA, rad) trilling.\n\nLayouten är den som är dokumenterad över :data:`SEQ_TARGET`; en avläsning byggd här återvinns exakt genom de levererade ``regex`` / ``target_sequence`` / ``offset_start`` / ``window_length`` standardvärden.\n\n:param column_barcode: 8-bas kolumn streckkod.\n:param grna: 21-base gRNA streckkod.\n:param row_barcode: 8-basradsstreckkod.\n:param prefix: stapplar framför ankarfönstret.\n:returns: En 150-bas läsning.\n:raises ValueError: När en streckkod är fel längd – en tyst felstor streckkod skulle skifta varje nedströmsfält genom att många baser och karta till ingenting, vilket är mycket svårare att se än ett stopp.",
       "translation_source_blocks_sha256": [
         "72e217d9dfa8f16b7e4f2a130a739814133bbce971bc2ed8b9effad86c26f340",
-        "b3541daab6f36ca042a1c4cbad1506b6d7d97aeb5dfff466b619bf024d4a09d9",
+        "f9b994cac5568e70139b2d1c9a3c51a010b651a168471696d91eb531d8ba5a6e",
         "84e888a703f938e500801697db5312861580bdd5b3d85034682975cb928b51aa",
         "a0d2eb0ccac7b344c687c23b38001f6e6938952a4f56ad5e3bae8645acd1a7ac",
         "93834d567039b8cec829485f787e7b66f997e5d45fff9f0cd6f2c378d1e87eeb",
@@ -100908,6 +100954,46 @@
         "502e408f926ce8c7a8bf60759f79c56ae4b2c15a2170a33c12fbeef43b69e332"
       ]
     },
+    "spacr.qt.widgets.dose_response.SelectivityIndex": {
+      "source_blocks_sha256": [
+        "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
+        "c295d337c8e80461c16bd4e70f53c1a31f105a387961c92efc435f3b43fedc62",
+        "cc5282c28dbce6c63528d2cba66b30c6002281e5b0b12c82c98ade2bd15bf0d9",
+        "b4e890de78da1c8b3c611e240d94bc7c8249d34ce1da7d0c009f66008b704619",
+        "52a6da885923f4c8729b68bd5d639283dd1b28d563c3ae10740e2943d381ef8b",
+        "2c8045fe4c0ba6e12b532ce475e20ecf0176e7e4535f223dede2af338198bba0",
+        "50718f23642c94afd6607103e1e3566aa417eb6a1097c80f7feb88a5fce8f4e2",
+        "9966001dfd490fcaaae65d0bbba9e4365d15c62047b28f78ef398ecb6549608e",
+        "a71bcd81e1dd053d8e0b09fcb252813e8d37f8d2d0595797863cde0e97c24f82",
+        "6a320402739d9d64be52a1ce72c65e66ed91e12e99730e1718d03868f495aeba",
+        "c8db2ac4637c30e2a49e514deefd3570c19da17698cb60a99d03ffd24f65b9a1"
+      ],
+      "source_sha256": "e86707c06b4def0bc9e47b35ff50b59d38cfe886a3bf8aadea7a898b1133643f",
+      "text": "Värdgift för parasitdödande, med det intervall det förtjänar.\n\nNumret som avgör om någon bryr sig om en antiparasitär förening är inte EC50, det är denna kvot. En förening som dödar parasiten vid 1 uM och värdmonoskiktet vid 1,2 uM är inte en hit, och en EC50 som citeras med ett rent konfidensintervall säger ingenting om det.\n\nCiterat med dess intervall eller inte alls, av samma anledning som denna modul redan vägrar en naken EC50: ett förhållande på två osäkra tal är mer osäkert än någon av dem, och ett selektivitetsindex utan dess intervall inbjuder en läsare att behandla 1.2 och 12 som samma slags anspråk.\n\n:param status: :data:`STATUS_FITTED`, :data:`STATUS_UNBOUNDED` eller :data:`STATUS_REFUSED`, att använda ordförrådet som en kurv passar redan talar snarare än att uppfinna en andra.\n:param index: kvotkvoten, eller ``None`` när den inte är kvotpliktig.\n:param index_low: nedre änden av intervallet, eller ``None`` för en öppen sida.\n:param index_high: övre änden, eller ``None`` för en öppen sida.\n:param log10_index: skillnaden mellan de två log10-mittpunkterna, som alltid förekommer när båda kurvorna monteras. En extrapolering när antingen EC50 är obunden, exakt som :attr:`DoseResponseResult.ec50_unconstrained` är.\n:param host: Värd-viabiliteten passar.\n:param pathogen: Parasiten passar.\n:param note: varför, när indexet avslås eller ensidigt.",
+      "translation_source_blocks_sha256": [
+        "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
+        "eb93d0de00c2ab5861fc7cd7695665e72c275235a567cdfc733a1751289eadd8",
+        "e32e19e660f5bbcd43e9c4aaba7b843e6781e9e1dc96d71c998f5e8d2fdbc327",
+        "b4e890de78da1c8b3c611e240d94bc7c8249d34ce1da7d0c009f66008b704619",
+        "52a6da885923f4c8729b68bd5d639283dd1b28d563c3ae10740e2943d381ef8b",
+        "2c8045fe4c0ba6e12b532ce475e20ecf0176e7e4535f223dede2af338198bba0",
+        "50718f23642c94afd6607103e1e3566aa417eb6a1097c80f7feb88a5fce8f4e2",
+        "9966001dfd490fcaaae65d0bbba9e4365d15c62047b28f78ef398ecb6549608e",
+        "a71bcd81e1dd053d8e0b09fcb252813e8d37f8d2d0595797863cde0e97c24f82",
+        "6a320402739d9d64be52a1ce72c65e66ed91e12e99730e1718d03868f495aeba",
+        "c8db2ac4637c30e2a49e514deefd3570c19da17698cb60a99d03ffd24f65b9a1"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.SelectivityIndex.summary_row": {
+      "source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ],
+      "source_sha256": "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772",
+      "text": "En rad för resultattabellen, vägran inkluderad.",
+      "translation_source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
     "spacr.qt.widgets.dose_response.candidate_concentration_columns": {
       "source_blocks_sha256": [
         "a337a8c503d8f38a86e6bf1c8b9e7632d269b887525346a4fb70f1737d65c671",
@@ -101016,6 +101102,30 @@
         "b13bb11c822ea7bbf03a5659c452a6043025d17dac68e5e2c6b63f95bd34dc1e",
         "701ad55dac01b316e6353702e03136af3e9c1b004efeb1fc00fdcfa97d1d6c16",
         "4d3aab37c61947f0b7b11fb0716734271d5de31b9f17a5a0e2b091aa702c7acf"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.selectivity_index": {
+      "source_blocks_sha256": [
+        "1497211117435b18036f0702999275af2c8ec0b0636ec19115d8de0a8d176c5f",
+        "749ce4f281813b1a673276573c081402ad27edcd6d32c8725182f942abffe797",
+        "73aafe54b717168fee4478bd645251d2aa462ecb3251d670844137ca84e96b76",
+        "f18ada2d68e23869328772dd26637734dac0cc147cb758f9433811d2f459d365",
+        "de0190cdf9b4a72928684de3555d4df4348866f61fd2de4db815bb62f3afcb96",
+        "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
+        "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
+        "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
+      ],
+      "source_sha256": "1251a31cd077db3a8878f1f2b7d896a754c06de3e22eceb0b68690f82283ef88",
+      "text": "Dela en värd EC50 med en parasit EC50 och bär osäkerheten.\n\nDe två passar av en platta, vilket är argumentet för att beräkna detta här snarare än i ett kalkylblad. spaCR segment värdcell och patogen som separata objekttyper från samma bild, så värd viabilitet och parasitbörda mäts vid samma doser i samma bearbetningssession. De flesta selektivitetsindex dividerar två tal från två experiment och hoppas att villkoren matchas; dessa kan inte misslyckas med att matcha.\n\nIntervallet förökas i logrymden, där passformen lever och där förhållandet är en skillnad: ``log10 SI = log10 CC50 - log10 EC50``, och de två varianserna adderas. Backtransforming i slutet ger ett intervall som är asymmetriskt i linjärt utrymme, vilket är den ärliga formen för ett förhållande.\n\nOm någondera kurvan nekades, vägras indexet; om antingen EC50 är obundet är indexet obundet, och vilken sida av intervallet som datan fortfarande stöder rapporteras snarare än släpps – \"at least 8-fold\" är en användbar mening och detta returnerar det.\n\n:param pathogen: Parasitbelastningen passar, eller ``None`` om den nekades.\n:param host: värdviabiliteten, eller ``None`` om den nekades.\n:param confidence: åsidosätter den nivå som passar.\n:returns: a :class:`SelectivityIndex`, aldrig ett undantag, eftersom en vägran är ett resultat som den som ringer måste visa.",
+      "translation_source_blocks_sha256": [
+        "1497211117435b18036f0702999275af2c8ec0b0636ec19115d8de0a8d176c5f",
+        "d93f5cb7f8ec20b28884b734c4799d1709b6314a2d74fa4a97f6a91bce2a3056",
+        "6af2ace189356e71ce0fc659a898b74f18e902f7806ff959165043b3a2cda378",
+        "289810e6174e84df6837ef90e84ca25d98717ded385e7d8a478824a78aad24a6",
+        "de0190cdf9b4a72928684de3555d4df4348866f61fd2de4db815bb62f3afcb96",
+        "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
+        "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
+        "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
       ]
     },
     "spacr.qt.widgets.dot_link": {
@@ -109560,74 +109670,6 @@
       "translation_source_blocks_sha256": [
         "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
         "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot": {
-      "source_blocks_sha256": [
-        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
-        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
-        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
-        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
-        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
-      ],
-      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
-      "text": "Riktar en styrkamera mot de tjugo regionerna, ram för ram.\n\nTuren byggdes och ingenting kallade den. :class:`RegionTour` och :data:`spacr.qt.widgets.fractal_regions.REGIONS` levereras med tester och ingen anropare, så koordinaterna som är värda att titta på var aldrig på programvyn. Det här är tråden, och det är ett vanligt objekt med flit -- samma orsak :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` är en. Duken GPU behöver ett GL sammanhang för att existera, och varje påstående om hur detta drag annars skulle komma från en simulering skriven bredvid koden snarare än från koden som körs.\n\nDet sätter målet och inget annat. Kamerans egen exponentiella följ är vad som flyttar det, så turnéns smidiga steg mellan regioner och kamerans inställning till var än målet för närvarande komponeras till en rörelse utan start och inget stopp -- vilket är hela instruktionen 327 \"närmare och smidiga rör sig mellan punkter\".\n\n:param tour: Flygturnén, eller None för de berörda regionerna.\nFlyga `tour`, eller de regioner som är engagerade när ingen anges.",
-      "translation_source_blocks_sha256": [
-        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
-        "a0c54b8bd2d2d19cdce3e8c52760d0b95d97e24437a06dcd2272e0a775b09b0a",
-        "fd0cfcf4a87c74f7742eb68e4c46a395dc36ad58d247cffa9c2cbc32979e493b",
-        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
-        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
-      "source_blocks_sha256": [
-        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
-      ],
-      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
-      "text": "Användaren tog kameran. Turen argumenterar inte.",
-      "translation_source_blocks_sha256": [
-        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
-      "source_blocks_sha256": [
-        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
-      ],
-      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
-      "text": "Om turen fortfarande styr.",
-      "translation_source_blocks_sha256": [
-        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
-      "source_blocks_sha256": [
-        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
-      ],
-      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
-      "text": "Ctrl + R skickade dyket tillbaka till ytan; flyg igen.",
-      "translation_source_blocks_sha256": [
-        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
-      "source_blocks_sha256": [
-        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
-        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
-        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
-        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
-        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
-        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
-      ],
-      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
-      "text": "Sikta `camera` på var turnén än är på `seconds`.\n\n:param camera: a :class:`SteeringCamera`; endast dess ``target`` är skriven.\n:param seconds: simuleringsklockan.\n:param span: vyporten halvhöjd, i det komplexa bildlagret. Turen är en SURFACE-resplan -- varje region bär den halvbredd den förblir intressant ner till -- så när utsikten är smalare än den region den kom till, styr mot nästa skulle flyga bilden förbi i en skala där ingenting är igenkännligt. Nedanför att kameran håller vad den har.\n:returns: True när ett mål skrevs.\n\nAldrig kastar: detta är på rambanan i en bakgrund, och en tur som inte kan svara måste kosta en ram beslut snarare än bilden.",
-      "translation_source_blocks_sha256": [
-        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
-        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
-        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
-        "c06bcab5ad7b25a60fe7f661daa5fda0c4d6956b733af6ac4c03c57176a27aa7",
-        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
-        "1201fa29f457b5313f97f16c703bd053f41f7adfa134be365981149eed019796"
       ]
     },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
@@ -148673,8 +148715,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "2f24168c22ccf8d4b303286cb8dd014d203b40863c8c33071cbe8c53d9f4f062"
       ],
-      "source_sha256": "e253a79682bf135a6a23d35fa66e9782c1a6e62858544f49ecf6c129e2e318f1",
-      "text": "Invasionstest: poäng varje parasit fäst eller invaderad och rapportera effektivitet per mikroplatta provposition.\n\nDen röda/gröna invasionsanalys fläckar två gånger. Före permeabilisering når en antikropp endast parasiterna fortfarande **utanför** värdcellen, så de är positiva i båda bilddatakanalerna. cellerna sedan permeabilised och en andra antikropp fläckar **all** parasiter, så en parasit positiv endast i post-permeamilisation bilddata kanalen var inne. Därför gäller följande:\n\n* **bifogad/utanför** = finns i den yttre bilddatakanalen;\n* **invaderad / inuti** = *frånförd* från den yttre bilddatakanalen.\n\nLäs att asymmetrin noga, eftersom hela designen följer av den. \"Inside\" definieras av en frånvaro, och frånvaro är den opålitliga riktningen. Dålig antikroppspenetration, ett fokalt bildlager utanför parasitens ekvator, fotobleaching, en låguttryckande parasit – var och en av dem tar bort yttre signal från en parasit som verkligen är utanför, och var och ett av dem därför *inflator* invasionseffektivitet. Inget rimligt driver felet på det andra sättet. Tröskelvärdet på den yttre bilddatakanalen är det enda nummer som analysen vilar på, så det härleds från data, rapporteras per mikroskopfält i ``fields``, korskontrolleras mot ett kontrollframställt snitt när en finns. och avgränsas av en känslighet par som säger hur mycket av svaret är tröskeln.\n\nTre designbeslut värda att säga rakt ut:\n\n* **Tröskelvärdet är per mikroskop synfält.** Belysning och färgning varierar mikroskopiskt synfält till mikroskopisk synfält, och ett laboratorium mikroplatta brett snitt förvandlar en belysning gradient till en invasionsgradient. Se :func:`_invasion_field_thresholds`.\n* **Controls slog någon automatisk metod.** ``control_wells`` namn mikroplate provpositioner vars parasiter är kända för att bära ingen utanför fläck; tröskeln är då en hög quantile av den ärliga negativa fördelningen (``control_quantile``), kontrollen microplate prover positioner är undantagna från resultaten, och ``threshold_source`` säger ``'control'`` så rapporten kan inte misstas för en automatisk körning.\n* **A tröskel utan två populationer är godtyckligt.** Otsu kommer gladeligen att dela en enda utstryk av signal ner i mitten och returnera ett säkert tal. ``bimodality_coefficient`` och ``qc_flag_unimodal`` säga när det har hänt, per mikroskop synfält och per mikroplate provposition, i stället för att låta det passera tyst. Se :func:`_bimodality_coefficient`.\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` och det rapporteras alltid bredvid ``n_total``: 90% från tio parasiter och 90% från fyra tusen är inte samma resultat. En mikroplatta provposition som gjorde ingenting får NaN, inte 0,0.\n\n**Statistik använder mikroplattans provposition som replikationsenhet.** Parasiter i en mikroplattas provposition delar ett täckglas, ett antikroppsbad och ett fokalt bildskikt, så att de inte är oberoende; det rapporterade testet är en Mann-Whitney U på permikroplattans provtagningspositionseffektivitet. En poolad parasite chi-squared rapporteras bredvid den endast så dess inflation är synlig. Se :func:`_invasion_compare_conditions`.\n\n:param settings: Kartläggning av nyckelvärde för invasionsinställningar, se ``set_analyze_invasion_defaults``. Strukturerade dataposter:\n\n    - ``src`` – plate directory (eller lista) holding ``measurements/measurements.db``.\n    - ``parasite_table`` / ``compartment`` – tabell och kolumnprefix med en rad per segmenterad parasit. Standard ``'pathogen'``\n    - ``outside_channel`` / ``total_channel`` – kanalerna för bilddata före och efter permeabilisering.\n    - ``intensity_statistic`` – som per föremålsstatistik för den yttre kanalen till tröskelvärdet; ``'auto'`` föredrar den gränsbegränsade. Se :func:`_resolve_invasion_intensity_column`\n    - ``background_correction`` – valfri lokal bakgrund per objekt.\n    - ``outside_threshold_method`` / ``outside_threshold`` – automatisk metod, eller ett fast snitt som överskrider den.\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` / ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` / ``threshold_sensitivity`` / ``inflation_warn`` / ``min_parasites_per_well`` – tröskelvärdena QC.\n    - ``extracellular_class`` – hur parasiter utan värdcell görs.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` och deras ``*_plate_metadata`` brunnskartor, plus ``group_column`` och ``level``.\n    - ``save`` — skriva CSVs och siffror under ``<src>/results/analyze_invasion``.\n\n:returns: Kartläggning av nyckelvärde med ``parasites`` (per objektklassificering). ``fields`` (per mikroskopfält för sikttrösklar och QC), ``wells`` (per mikropläterad provpositionseffektivitet, nämnare och QC-flaggor), ``summary`` (per tillstånd). ``comparisons`` (statistik över provplatsen per mikroplatta). ``chi_squared`` / ``chi_squared_pairwise`` (de delade proportion-bar omnibus-testerna), ``controls`` (kontroll-mikroplattornas provpositionsobjekt. I förekommande fall. ``control_thresholds``, ``intensity_column``, ``intensity_statistic`` och ``figures``.\n:raises ValueError: när parasittabellen inte innehåller några användbara rader.\n:raises KeyError: När den begärda statistiken eller gruppkolumnen saknas.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'control_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\nSe även: :func:`analyze_replication` – parasit-per-vakuolanalys, vars tabellavläsning, tillståndsanmärkning och utdatalayout detta följer.",
+      "source_sha256": "2ab334769004b282614d42d312f989943c6e9e626bb3ce4ef819c4664dbbda82",
+      "text": "Invasionstest: poäng varje parasit fäst eller invaderad och rapportera effektivitet per mikroplatta provposition.\n\nDen röda/gröna invasionsanalys fläckar två gånger. Före permeabilisering når en antikropp endast parasiterna fortfarande **utanför** värdcellen, så de är positiva i båda bilddatakanalerna. cellerna sedan permeabilised och en andra antikropp fläckar **all** parasiter, så en parasit positiv endast i post-permeamilisation bilddata kanalen var inne. Därför gäller följande:\n\n* **bifogad/utanför** = finns i den yttre bilddatakanalen;\n* **invaderad / inuti** = *frånförd* från den yttre bilddatakanalen.\n\nLäs att asymmetrin noga, eftersom hela designen följer av den. \"Inside\" definieras av en frånvaro, och frånvaro är den opålitliga riktningen. Dålig antikroppspenetration, ett fokalt bildlager utanför parasitens ekvator, fotobleaching, en låguttryckande parasit – var och en av dem tar bort yttre signal från en parasit som verkligen är utanför, och var och ett av dem därför *inflator* invasionseffektivitet. Inget rimligt driver felet på det andra sättet. Tröskelvärdet på den yttre bilddatakanalen är det enda nummer som analysen vilar på, så det härleds från data, rapporteras per mikroskopfält i ``fields``, korskontrolleras mot ett kontrollframställt snitt när en finns. och avgränsas av en känslighet par som säger hur mycket av svaret är tröskeln.\n\nTre designbeslut värda att säga rakt ut:\n\n* **Tröskelvärdet är per mikroskop synfält.** Belysning och färgning varierar mikroskopiskt synfält till mikroskopisk synfält, och ett laboratorium mikroplatta brett snitt förvandlar en belysning gradient till en invasionsgradient. Se :func:`_invasion_field_thresholds`.\n* **Controls slog någon automatisk metod.** ``control_wells`` namn mikroplate provpositioner vars parasiter är kända för att bära ingen utanför fläck; tröskeln är då en hög quantile av den ärliga negativa fördelningen (``control_quantile``), kontrollen microplate prover positioner är undantagna från resultaten, och ``threshold_source`` säger ``'control'`` så rapporten kan inte misstas för en automatisk körning.\n* **A tröskel utan två populationer är godtyckligt.** Otsu kommer gladeligen att dela en enda utstryk av signal ner i mitten och returnera ett säkert tal. ``bimodality_coefficient`` och ``qc_flag_unimodal`` säga när det har hänt, per mikroskop synfält och per mikroplate provposition, i stället för att låta det passera tyst. Se :func:`_bimodality_coefficient`.\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` och det rapporteras alltid bredvid ``n_total``: 90% från tio parasiter och 90% från fyra tusen är inte samma resultat. En mikroplatta provposition som gjorde ingenting får NaN, inte 0,0.\n\n**Statistik använder mikroplattans provposition som replikationsenhet.** Parasiter i en mikroplattas provposition delar ett täckglas, ett antikroppsbad och ett fokalt bildskikt, så att de inte är oberoende; det rapporterade testet är en Mann-Whitney U på permikroplattans provtagningspositionseffektivitet. En poolad parasite chi-squared rapporteras bredvid den endast så dess inflation är synlig. Se :func:`_invasion_compare_conditions`.\n\n:param settings: Kartläggning av nyckelvärde för invasionsinställningar, se ``set_analyze_invasion_defaults``. Strukturerade dataposter:\n\n    - ``src`` – plate directory (eller lista) holding ``measurements/measurements.db``.\n    - ``parasite_table`` / ``compartment`` – tabell och kolumnprefix med en rad per segmenterad parasit. Standard ``'pathogen'``\n    - ``outside_channel`` / ``total_channel`` – kanalerna för bilddata före och efter permeabilisering.\n    - ``intensity_statistic`` – som per föremålsstatistik för den yttre kanalen till tröskelvärdet; ``'auto'`` föredrar den gränsbegränsade. Se :func:`_resolve_invasion_intensity_column`\n    - ``background_correction`` – valfri lokal bakgrund per objekt.\n    - ``outside_threshold_method`` / ``outside_threshold`` – automatisk metod, eller ett fast snitt som överskrider den.\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` / ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` / ``threshold_sensitivity`` / ``inflation_warn`` / ``min_parasites_per_well`` – tröskelvärdena QC.\n    - ``extracellular_class`` – hur parasiter utan värdcell görs.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` och deras ``*_plate_metadata`` brunnskartor, plus ``group_column`` och ``level``.\n    - ``save`` — skriva CSVs och siffror under ``<src>/results/analyze_invasion``.\n\n:returns: Kartläggning av nyckelvärde med ``parasites`` (per objektklassificering). ``fields`` (per mikroskopfält för sikttrösklar och QC), ``wells`` (per mikropläterad provpositionseffektivitet, nämnare och QC-flaggor), ``summary`` (per tillstånd). ``comparisons`` (statistik över provplatsen per mikroplatta). ``chi_squared`` / ``chi_squared_pairwise`` (de delade proportion-bar omnibus-testerna), ``controls`` (kontroll-mikroplattornas provpositionsobjekt. I förekommande fall. ``control_thresholds``, ``intensity_column``, ``intensity_statistic`` och ``figures``.\n:raises ValueError: när parasittabellen inte innehåller några användbara rader.\n:raises KeyError: När den begärda statistiken eller gruppkolumnen saknas.\n\nExempel:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'stain_baseline_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\nSe även: :func:`analyze_replication` – parasit-per-vakuolanalys, vars tabellavläsning, tillståndsanmärkning och utdatalayout detta följer.",
       "translation_source_blocks_sha256": [
         "69c025a38bc0aaa69478f030902fde227087b77e5c872244fc2a2f9ddbcf3318",
         "f4d5b72a9e83054cbd40e15e42063f7f6b4609410dd870cd202788a8d568919f",

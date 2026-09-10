@@ -18042,6 +18042,160 @@
         "dcd08951ca90816f7dd96d53fe6936290eee8db2725255121fbe1ea75b845894"
       ]
     },
+    "spacr.embeddings": {
+      "source_blocks_sha256": [
+        "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
+        "f6a0d1ff19c83f9b6178284e18ced132c6085641279b6e5775d2e877d8eb7124",
+        "fbc298648f6ed0ccddd9d18e2ca373aa3422925b6eff0ce3ace7ce303526ac97",
+        "790db17b58b1a85fca18a912cacd6e751b1734058f48ab8f0f1d48ce67634452",
+        "e23ae31fedfc3f2132115b196d41064d7a52a61234ac92f1cbd5e763681170db",
+        "d8fa2e50bb5a67d188fb1b71c091d9234aa2b3354c53aad2ff04e0397fe70072",
+        "67f83d85affbae7d6873e220cf473f0d7f57ba6cd2d91d2751bad6b26c64bd04"
+      ],
+      "source_sha256": "0c1c5740e725f981946ecb658ad7e6634651de20660183f521668a130a8ac0a8",
+      "text": "Uma incorporação sem etiquetas para cada objeto, ao lado dos recursos medidos.\n\nPor que isso existe. spaCR As duas formas existentes de transformar uma imagem em números exigem que você já saiba o que está procurando. :mod:`spacr.measure` calcula um conjunto fixo, projetado à mão - intensidade, forma, textura, distâncias - então ele encontra apenas o que alguém pensou nomear. :mod:`spacr.deep_spacr` ajusta um backbone contra anotações, então ele encontra apenas o que alguém pensou em anotar. Uma triagem cujo hit real é \"o vacúolo é sutilmente mal localizado de uma forma que não temos coluna para\" não retorna nada, e retorna com confiança. O custo dessa lacuna é invisível, e é exatamente por isso que vale a pena um módulo.\n\nA decisão do canal de dados de imagem, resolvida aqui em vez de implicitamente. Os codificadores pré-treinados esperam três canais de dados da imagem. spaCR as imagens têm rotineiramente quatro ou cinco, sem nenhum significado  RGB -- um canal de dado da imagem DAPI não é  \"red\". Duas maneiras de sair, e a instrução 386 pede que a escolha seja gravada ao invés de herdada de tudo o que a primeira espinha dorsal queria:\n\n  PER-imagem canal de dados, em seguida, concatenar (:data:`CHANNEL_PER_CHANNEL`, o padrão). Cada canal de imagem de dados é codificado por conta própria e os vetores são unidos. identidade do canal de imagens SURVIVES: dimensão 517 pertence ao canal de informação de imagem 2 e para nada mais, então :mod:`spacr.attribution_columns` pode dizer qual mancha um hit veio de e um leitor pode soltar um canal de informações de imagem sem re-enviamento. Custos N passa adiante.\n\n  Projeto para três (:data:`CHANNEL_PROJECT`). Uma passagem sobre um mapeamento de dados de imagem fixa canal-para-RGB. Mais barato e irreversível: uma vez que os canais de dados da imagem são misturados, nenhuma coluna a jusante pode ser atribuída a uma mancha, e uma triagem não pode perguntar \"era este o canal de dados imagem parasita ou o host um?\".\n\nO padrão é o canal de dados por imagem porque a atribuição é o ponto. Uma incorporação que encontra um fenótipo sem nome e não pode dizer qual mancha transportada moveu o problema em vez de resolvê-lo. Projeção permanece disponível para o caso em que a frente passa realmente vincular.\n\nO que este módulo não faz. Ele não extrai a região da imagem -- ele leva as regiões de imagem extraídas :mod:`spacr.crops` já produz. Não escreve para o banco de dados. Ele retorna uma matriz float32 digitada pelo id do objeto, que é exatamente a forma que a jusante já consome:  UMAP, a família de regressão, hit call e a exportação AnnData não se importam de onde veio uma coluna numérica.",
+      "translation_source_blocks_sha256": [
+        "1a8b2965689ae212745e3e7ac1b1563d510a8aa9bab03fedb7b47b8b41868548",
+        "2536a1844d718e23674275ad1ec155de826962166d1a8abe5d1ef2ed56e0f11f",
+        "46238bafbf36780d30e7b5a73224abbd1572cbd6586c2fcd675bbdc89767679c",
+        "97d5fca860e212188551dc446c546433067c1142445655ef2b7f3d9460b59ad0",
+        "6872180310dc77e7563785b1beaa1504a76435dddafbe84103d9531217c50412",
+        "d00c1dc075fee112b0000f0f81dd655f2aa1c23bb8e5d661457319ae9272d210",
+        "ad744613652ad1a014654bef386e2459bc987abf3c8b4158f655238d31a46770"
+      ]
+    },
+    "spacr.embeddings.EmbeddingError": {
+      "source_blocks_sha256": [
+        "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30"
+      ],
+      "source_sha256": "7497ce0623550f2b40099a87f1a7627229ed03eb6f1aa2f8ceb9d08046cb9b30",
+      "text": "Exceção usada quando a incorporação é recusada, com a razão pela qual um chamador pode mostrar.",
+      "translation_source_blocks_sha256": [
+        "d4d752b2998adfafd152231f76f5129d376a20df0c34c02f4c78d20675d59497"
+      ]
+    },
+    "spacr.embeddings.EmbeddingResult": {
+      "source_blocks_sha256": [
+        "b7a9d77f595ad8468f7f689f0424becd1f9d571af63f2bcf71bf4f8391ea61f0",
+        "c115042af15d1f567474ff502877fbc0c9a2f920faab9b955a0b20e033243816",
+        "6c0d104b409be5467200247c7f5b71ae3442fc794067429ea316b57cf1d49824",
+        "3363b70f84abfef1a0fdb1005fbd5ef4edbc8d08dc7b322037891539efe7977d",
+        "7fd8f5229a87626c15c6e81812dbe100d7ba1be8d05bb4e24cdfaf3174474d67",
+        "be7ca861f54c73fc76e5f6647693809332bc074756720021b504fc7b46617d57"
+      ],
+      "source_sha256": "b40ec3bf0ed5bb1a5e66a28375d82dac1f84ecd3fc26c1e157c82350377d3122",
+      "text": "A matriz, seus nomes de colunas e como ela foi feita.\n\n:param values: ``(n_objects, n_dims)`` flood32.\n:param columns: um nome por coluna, tudo começando com :data:`EMBEDDING_PREFIX`.\n:param spec: o :class:`EmbeddingSpec` que o produziu.\n:param n_channels: Quantos canais foram codificados?\n:param per_channel_dims: dimensões contribuídas por um único canal.",
+      "translation_source_blocks_sha256": [
+        "b7a9d77f595ad8468f7f689f0424becd1f9d571af63f2bcf71bf4f8391ea61f0",
+        "c115042af15d1f567474ff502877fbc0c9a2f920faab9b955a0b20e033243816",
+        "6c0d104b409be5467200247c7f5b71ae3442fc794067429ea316b57cf1d49824",
+        "3363b70f84abfef1a0fdb1005fbd5ef4edbc8d08dc7b322037891539efe7977d",
+        "7fd8f5229a87626c15c6e81812dbe100d7ba1be8d05bb4e24cdfaf3174474d67",
+        "be7ca861f54c73fc76e5f6647693809332bc074756720021b504fc7b46617d57"
+      ]
+    },
+    "spacr.embeddings.EmbeddingResult.to_frame": {
+      "source_blocks_sha256": [
+        "d03ade633bbf684fe9420bc506822f312505f2f1064de227ee772eea60db0892",
+        "d232df1d0dafdd484b12d797115b49bbf6b30489069e635b7489b013096daf19",
+        "a4243fce2632a2b2f60fde931c764a935f24ad5ccf659b7e3aae0746cc85f6f0"
+      ],
+      "source_sha256": "cd5f661c4475ab6ec25f7e5eda68f69b5ae658634492444c96942409684be9c5",
+      "text": "Um DataFrame digitado pelo id do objeto, pronto para juntar às medidas.\n\n:param object_ids: um id por linha, na ordem em que foram dadas as regiões de imagem extraídas.\n:raises EmbeddingError: quando a contagem não corresponde à matriz, porque um desalinhamento silencioso aqui corrompe cada junção a jusante e é irrecuperável depois.",
+      "translation_source_blocks_sha256": [
+        "d03ade633bbf684fe9420bc506822f312505f2f1064de227ee772eea60db0892",
+        "28e96ea9f1e06fcecb536ab8d87121f3059db624347b539a342e0ce7d4ccbdc8",
+        "a4243fce2632a2b2f60fde931c764a935f24ad5ccf659b7e3aae0746cc85f6f0"
+      ]
+    },
+    "spacr.embeddings.EmbeddingSpec": {
+      "source_blocks_sha256": [
+        "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
+        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
+        "ce0baf6a226da2e3e0541e2fa5ca51bdd937bcb4050ee2787f2e09ed9c77ab97",
+        "8b054ffb4a5c5e7138f8c0f923f4ab0471f779df69409ed80a25ee905a72ce33",
+        "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
+        "c9bc5ad94d8c3f67656191905edd02e7d37454a6233ddd0da233b3b44896f5b4"
+      ],
+      "source_sha256": "21494b889f3fefbf854713581e7a6f15e34c39f2dcd96e3df6de01b158847924",
+      "text": "Como incorporar, gravado para que uma matriz possa dizer de onde veio.\n\n:param backbone: Nome do codificador, resolvido através de timm.\n:param channel_policy: :data:`CHANNEL_PER_CHANNEL` or :data:`CHANNEL_PROJECT`.\n:param channels: ``None`` significa cada canal de dados de imagem que o array possui.\n:param batch_size: regiões de imagem extraídas por passagem para a frente.\n:param device: torch seqência de caracteres do dispositivo, ou  ``None`` para escolher um.\n:param normalize: Divida cada canal de dados de imagem por seu próprio percentil 99 antes de codificar. O intervalo dinâmico da microscopia varia de acordo com as ordens de magnitude entre as manchas, e um codificador treinado em fotografias verá um canal de dado de imagem como ruído.",
+      "translation_source_blocks_sha256": [
+        "e8ed382ab8d90f2f8fdf4392011016c066cec289457056251a0dc6dea636aa35",
+        "76a63de9de8e3bcaed0c360312dd559636f5790bdc4f7a40a746435be378af05",
+        "76ecb25e1c2dcdbc2fc0fce5276c32a0dfe60ec81781ce5df3e2027195e2f7f8",
+        "bfceff41558220573fedc999b4fbdbf09e3949963ee7cbab02d6bd18bb30812c",
+        "ffa122dd219abf4f2be9e2ec816cef63c6495a3dc89241110d7f4bbfab37465a",
+        "215750bc6b22c853737ea94b11ac89820906a01ccf90c9b0c9bbd1e6991dfe69",
+        "c63929f86e8d344a85d73180d981921751bbbf037fed7b7ef0e32a7d75a5bac2"
+      ]
+    },
+    "spacr.embeddings.EmbeddingSpec.fingerprint": {
+      "source_blocks_sha256": [
+        "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
+        "d2d4b81d0648f3b9aa27909b8699ffaa011710b5dd2743997f2acef9b5f2a33c"
+      ],
+      "source_sha256": "97c654834fb5174e6980c7f519c1a37535b120de2e7f4d69ba6072a90a8a223c",
+      "text": "Um pequeno resumo de tudo o que muda os números.\n\nDuas matrizes com a mesma impressão digital foram produzidas da mesma maneira. Um scorecard pode citá-lo e uma matriz em cache pode ser invalidada por ele, em vez de um carimbo de data e hora.",
+      "translation_source_blocks_sha256": [
+        "b3f73c01375ab9b68a716e0416b39e74d31ec9284a4051de8b35dda19743ced7",
+        "d2d4b81d0648f3b9aa27909b8699ffaa011710b5dd2743997f2acef9b5f2a33c"
+      ]
+    },
+    "spacr.embeddings.channel_of_column": {
+      "source_blocks_sha256": [
+        "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
+        "1a36439a4649da480c1c21cc86423ecb57cee3caebf532dde3a28d30b845dc8a",
+        "59987484b75bf17470d612c235d9f24ffa6f8a699c6b918e7679aef61a88e4f6"
+      ],
+      "source_sha256": "f836c7f7e07aafffe14c85758cecf45376ba2b59d82a53ab4913f884db4e8462",
+      "text": "De qual canal uma coluna veio, ou ``None`` se não puder ser dito.\n\n``None`` para uma coluna projetada é a resposta honesta em vez de um palpite: os canais de dados da imagem foram misturados e nenhuma dimensão pertence a uma mancha.\n\n:param column: um nome de coluna de incorporação.",
+      "translation_source_blocks_sha256": [
+        "2961df030b860edb454e16f87eea9eb3282450fee2318c316cf7b080f663ffd2",
+        "52b30c5040f2377aed3de7567a6ae850e357a20b9448db8291f67fa87d22cb4d",
+        "59987484b75bf17470d612c235d9f24ffa6f8a699c6b918e7679aef61a88e4f6"
+      ]
+    },
+    "spacr.embeddings.embed_array": {
+      "source_blocks_sha256": [
+        "bdea2d4d935fdada62dc3f44c8b2456c622173b79320fd5a7cf4e8a0e178deb1",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "c33304be14f5205cfcab60bf9406330aecc2b72939a1529a874386802b128acf"
+      ],
+      "source_sha256": "9e90f089952fc770b53a0f5290a65d2483079279bee14335b43f7ef8233f4217",
+      "text": "Incorpore uma pilha de regiões de imagem extraídas.\n\n:param crops: ``(n, height, width, channels)``, a forma  :mod:`spacr.crops` já produz.\n:param spec: como incorporar; o padrão é por canal resnet18.\n:param encoder: um callable tomando ``(n, height, width, 3)`` float32 em [0, 1] e retornando  ``(n, dims)``. Injetado pelos testes para que a fiação possa ser exercida sem baixar um backbone; os chamadores de produção deixam ``None``.\n:returns: an :class:`EmbeddingResult`.\n:raises EmbeddingError: em um problema de canal de dados de forma ou imagem, antes que qualquer modelo seja carregado - um download é uma maneira lenta de descobrir que o array estava errado.",
+      "translation_source_blocks_sha256": [
+        "414f2d1719a77b29f99b0afea94418b6d92cb1c87873bc1694abff536ec22aba",
+        "d30f428945bb3c400be1777373d16a3157a12c534cd6e75f2303a2abe9396b1b",
+        "15ff2ca016c1c575259534a0be93452a78d27f1bc16dcfcd4ec13516fda82f66",
+        "11e59d833f158e06ae192b942cb9108f72b064cfb7173fff132dcc691d3518c2",
+        "307f4b379a7a1902b0fa68fcf0a0371c73043fe48c436c4d8d3c830f48212deb",
+        "d54d0beaa547fd8a2d266327462d03b5e4b7bccc3b06e7845cd13b2f58b9851c"
+      ]
+    },
+    "spacr.embeddings.embedding_column_names": {
+      "source_blocks_sha256": [
+        "0597559bc7dca6be066f787d1dc5d10b43c9c3129bc088cbdd300357c89e5b66",
+        "881cc168e4f9f399d9ca3906d79bc7afd1318df6d0a0378725f95318fd51b6ef",
+        "806e14136d857b7371ff9c0d9420f0aa74f4667bbffd90698028fd3585aaed75",
+        "223ff9707a47a320ee09c365c59afea15e352add02436a0fe56995862105c87e",
+        "5bcca463fa4d82166118b1b046f2b0816586f5ef49374abc0038dade7717f693",
+        "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
+      ],
+      "source_sha256": "0db4568255e5390d3e35eed2ac6a6d2d3abea038288e4f7ee4556eac2c431622",
+      "text": "Nomes para as colunas que uma execução produz.\n\nO canal está no nome sob a política por canal -- ``emb_c2_017`` -- que é o que torna a atribuição possível mais tarde sem carregar um mapa separado ao lado da matriz. Sob projeção não há canal para nomear, e o nome diz isso em vez de implicar um.\n\n:param per_channel_dims: dimensões uma passagem para a frente produz.\n:param channels: ndices de canal, em ordem de codificação.\n:param policy: Qual a política de canal que os produziu?\n:returns: nomes de colunas, em ordem matricial.",
+      "translation_source_blocks_sha256": [
+        "0597559bc7dca6be066f787d1dc5d10b43c9c3129bc088cbdd300357c89e5b66",
+        "ef4f2537f02acd686658ed25bb5a5a20436877a49a696fe984bf959a1e009781",
+        "806e14136d857b7371ff9c0d9420f0aa74f4667bbffd90698028fd3585aaed75",
+        "223ff9707a47a320ee09c365c59afea15e352add02436a0fe56995862105c87e",
+        "5bcca463fa4d82166118b1b046f2b0816586f5ef49374abc0038dade7717f693",
+        "928073e539616cd63dd8a9ce9c4d0f256692e183331308537220419973bac15d"
+      ]
+    },
     "spacr.errors": {
       "source_blocks_sha256": [
         "0a6cfb358bbbf7bf78d602172c2556635f7e8a4f93b0e556166fddbd6f777196",
@@ -31230,6 +31384,24 @@
         "edc2b4aea10fa96e142ffb32a161b4a31084fdd204cd3a58c5537eb7dbaeca76"
       ]
     },
+    "spacr.infection.uninfected_cells_were_measured": {
+      "source_blocks_sha256": [
+        "4f28952c2e2cba09cafd86fb49e96a5bde7f984c6008233ae9e2a4d37060e614",
+        "3e47bf50eeb0728f22edb444d83390e096cd04991abfa3fcfb285ee340ebe411",
+        "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "7fce868e321be6f4dea6b9efbe620aed41ba368cb5eb5d309930da90d46b24f5"
+      ],
+      "source_sha256": "7d807123273cc24f1c1693d2e395a0e3bc8ce0ec553bc7b84f295c58db460d7e",
+      "text": "Se a execução Measure que escreveu ``db_path`` manteve células não infectadas.\n\nA resposta muda o que é a tabela de células. `include_uninfected=False` -- o padrão para uma triagem que extraiu apenas as células infectadas das regiões de imagem, e com o que as microplacas de laboratório TSG101 foram medidas -- significa que Measure não escreveu nenhuma linha para uma célula sem parasita. A tabela de célula é então uma seleção de células infectadas em vez da população segmentada, e  `infected / cells` é 1,0 para cada posição da amostra da microplaca, não importando o que a biologia fez.\n\nIsso não é um problema de arredondamento para anotar em um docstring. Um leitor entregou uma coluna de 1.000 lê 100% de infecção como um RESULTADO, e nada na tabela diz o contrário, então este módulo recusa a taxa em vez de imprimi-la.\n\n:param db_path: caminho para um ``measurements.db``.\n:returns: ``True`` ou ``False`` quando a sessão de processamento gravou a configuração,  ``None`` quando não o fez -- um banco de dados mais antigo, onde a resposta honesta é que não podemos dizer.",
+      "translation_source_blocks_sha256": [
+        "4f28952c2e2cba09cafd86fb49e96a5bde7f984c6008233ae9e2a4d37060e614",
+        "43200159fd58e5c2a8cd1a79b227fafb7548a4bc2a31d205e6ee5cc33813bcf4",
+        "327e9988e62d63086f1bf285d1d345f6715a09dc93775fd43135efed0ba7a3f0",
+        "f8c5e1b5ebfc207f2c9f698c727ab09c8140a7d89437ade4fa5e365433e0f64a",
+        "65c1d875834933dcd14841b526d28362886760f94d3fc32463c6231a57b77331"
+      ]
+    },
     "spacr.install_profile": {
       "source_blocks_sha256": [
         "5a8f874f6cbe2a575f82705f1a68eaa042921d5e1bd3226d108f894b7b44566e",
@@ -39395,8 +39567,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
-      "source_sha256": "46073a24662a675d055b08cd58f9f272b3308584d21af5f932a725ed6615b883",
-      "text": "Treine um modelo clássico de classificação por aprendizado de máquina (XGBoost / logistic / RF) com características de cada objeto e atribua uma pontuação a cada posição de amostra da microplaca em uma triagem.\n\nLê o ``measurements.db`` produzido por :func:`spacr.measure.measure_crop`, mescla as tabelas de características de célula/núcleo/patógeno/citoplasma, usa os poços marcados como ``positive_control`` / ``negative_control`` (ou uma coluna de anotação) como rótulos de treinamento, delega o ajuste a :func:`ml_analysis` e grava previsões por objeto, tabelas de permutação e importância de características, além de um mapa de calor da placa, em ``results/`` ao lado do banco de dados de origem.\n\n:param settings: Dicionário de configurações, canonizado por :func:`spacr.settings.set_default_analyze_screen`. Entradas principais:\n\n    - ``src`` (str ou lista) — pasta ou pastas que contêm ``measurements/measurements.db``.\n    - ``channel_of_interest`` — canal indexado a partir de zero para a característica de taxa de recrutamento; também determina a seleção de tabelas.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — identificadores de poços (por exemplo, ``'c2'`` / ``'c1'``) usados como rótulos de treinamento.\n    - ``annotation_column`` — substitui os controles por uma coluna de anotação no nível do PNG.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — característica representada no mapa de calor da placa.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: A lista de dois elementos ``[output, plate_heatmap]``, em que ``output`` é a lista de resultados de 10 elementos de :func:`ml_analysis` e ``plate_heatmap`` é a figura ``matplotlib`` do mapa de calor da placa. Os CSVs e as figuras são gravados em ``results/`` como efeito colateral; seus caminhos não são retornados.\n:raises ValueError: se ``annotation_column`` estiver definida, mas a tabela ``png_list`` não contiver ``prcfo`` / essa coluna, os IDs de objeto da tabela não tiverem correspondência nas medições ou essa coluna contiver menos de duas classes observadas; ou se ``heatmap_feature`` não estiver entre as características usadas no treinamento.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control': 'c2', 'negative_control': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nVeja também: :func:`ml_analysis` — a rotina subjacente de ajuste e avaliação. :func:`perform_regression` — regressão de efeitos mistos nas pontuações de ML por poço.",
+      "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
+      "text": "Treine um modelo clássico de classificação por aprendizado de máquina (XGBoost / logistic / RF) com características de cada objeto e atribua uma pontuação a cada posição de amostra da microplaca em uma triagem.\n\nLê o ``measurements.db`` produzido por :func:`spacr.measure.measure_crop`, mescla as tabelas de características de célula/núcleo/patógeno/citoplasma, usa os poços marcados como ``positive_control`` / ``negative_control`` (ou uma coluna de anotação) como rótulos de treinamento, delega o ajuste a :func:`ml_analysis` e grava previsões por objeto, tabelas de permutação e importância de características, além de um mapa de calor da placa, em ``results/`` ao lado do banco de dados de origem.\n\n:param settings: Dicionário de configurações, canonizado por :func:`spacr.settings.set_default_analyze_screen`. Entradas principais:\n\n    - ``src`` (str ou lista) — pasta ou pastas que contêm ``measurements/measurements.db``.\n    - ``channel_of_interest`` — canal indexado a partir de zero para a característica de taxa de recrutamento; também determina a seleção de tabelas.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — identificadores de poços (por exemplo, ``'c2'`` / ``'c1'``) usados como rótulos de treinamento.\n    - ``annotation_column`` — substitui os controles por uma coluna de anotação no nível do PNG.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — característica representada no mapa de calor da placa.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: A lista de dois elementos ``[output, plate_heatmap]``, em que ``output`` é a lista de resultados de 10 elementos de :func:`ml_analysis` e ``plate_heatmap`` é a figura ``matplotlib`` do mapa de calor da placa. Os CSVs e as figuras são gravados em ``results/`` como efeito colateral; seus caminhos não são retornados.\n:raises ValueError: se ``annotation_column`` estiver definida, mas a tabela ``png_list`` não contiver ``prcfo`` / essa coluna, os IDs de objeto da tabela não tiverem correspondência nas medições ou essa coluna contiver menos de duas classes observadas; ou se ``heatmap_feature`` não estiver entre as características usadas no treinamento.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nVeja também: :func:`ml_analysis` — a rotina subjacente de ajuste e avaliação. :func:`perform_regression` — regressão de efeitos mistos nas pontuações de ML por poço.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",
@@ -39513,9 +39685,9 @@
     "spacr.ml.minimum_cell_simulation": {
       "source_blocks_sha256": [
         "bf88fa240a6ba75a54b0b42b953433cf4058629eb066d53cb4fc20861a420bf9",
-        "eacc5ff6904d33ff778518de01a26b8a997e50e0dc45e0861eab4b399ed9e010",
+        "0157bcb8b6079058d04bfb384547564585eeaf95c7dc62565ecd5dc522668f56",
         "605dfcb6fc96142312d8bab1567cb86cafc47579bbc12a575e41088c413fc160",
-        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
+        "07e8971343bf0a154007c96282383d5d6a981b750b92f68ba89d8586ec4a554e",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "f8c63794b8a10487eef71a243d078f76c52670a8418f1d0a2762e841484d9a56",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -39525,13 +39697,13 @@
         "b1e5363ac979b55298ed0f9bfc2c16ebdecc3d99666923ca41f13a9352153556",
         "4194d53b16e88772fd34c396f9ee65c87ecac2daeb8c00bd0b447ec9378ac2e8"
       ],
-      "source_sha256": "f9729401957f2e0ffb193c923bd0dac66afaa2423d359461c0b24758008e02bd",
-      "text": "Estimar o número mínimo de células por posição da amostra de microplacas necessária para uma média de posição estável da amostra.\n\nPara as posições da amostra de microplacas com a maioria dos objetos, subamostra repetidamente células em tamanhos de amostra crescentes e registra a diferença absoluta média da média total da posição da amostra da microplaca. Traça a curva suavizada com uma banda ±1 s.d., marca o ponto do cotovelo (ou  ``settings['min_cell_count']`` quando é definido) e escreve  ``cell_min_threshold.pdf`` em ``dst``.\n\nPasse ``dst`` para manter a figura em uma pasta de sessão de processamento específica. Quando omitida, a função usa a pasta de nível de exibição do aplicativo  ``results`` derivada de  ``count_data`` para compatibilidade com chamadas diretas de notebook e script.\n\n:param settings: Requer ``score_data`` (caminho ou lista de caminhos CSV), ``dependent_variable``, ``tolerance`` (fração porcentual ou float) e ``min_cell_count``. ``count_data`` só é necessário quando ``dst`` é deixado desmarcado, e apenas para localizar a figura.\n:param num_repeats: Subamostras desenhadas por tamanho da amostra. Padrão ``10``.\n:param sample_size: Número de posições da amostra da microplaca, tomadas a maior-primeira pela contagem da pilha, para simular. Padrão ``100``.\n:param tolerance: Não utilizado; a tolerância aplicada é ``settings['tolerance']``.\n:param smoothing: Largura da janela de rolamento usada para suavizar a curva.\n:param increment: Passo entre os tamanhos de amostra simulados.\n:param dst: Pasta para ``cell_min_threshold.pdf``, criada se faltar. Padrão  ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: O tamanho da amostra do ponto de cotovelo, ou seja, a contagem mínima de células por posição da amostra de microplacas, para passar para :func:`process_scores`.\n:raises ValueError: Se ``settings['tolerance']`` não é nem um int nem um float.",
+      "source_sha256": "c8cdf39e428dadbbafb95e032ba62262b6971a2f1a921a9bd7c4c0810b5c8e03",
+      "text": "Estimar o número mínimo de células por posição da amostra de microplacas necessária para uma média de posição estável da amostra.\n\nPara as posições da amostra de microplacas com a maioria dos objetos, subamostra repetidamente células em tamanhos de amostra crescentes e registra a diferença absoluta média da média total da posição da amostra da microplaca. Traça a curva suavizada com uma banda ±1 s.d., marca o ponto do cotovelo (ou  ``settings['min_cells_per_well']`` quando é definido) e escreve  ``cell_min_threshold.pdf`` em ``dst``.\n\nPasse ``dst`` para manter a figura em uma pasta de sessão de processamento específica. Quando omitida, a função usa a pasta de nível de exibição do aplicativo  ``results`` derivada de  ``count_data`` para compatibilidade com chamadas diretas de notebook e script.\n\n:param settings: Requer ``score_data`` (caminho ou lista de caminhos CSV), ``dependent_variable``, ``tolerance`` (fração porcentual ou float) e ``min_cells_per_well``. ``count_data`` só é necessário quando ``dst`` é deixado desmarcado, e apenas para localizar a figura.\n:param num_repeats: Subamostras desenhadas por tamanho da amostra. Padrão ``10``.\n:param sample_size: Número de posições da amostra da microplaca, tomadas a maior-primeira pela contagem da pilha, para simular. Padrão ``100``.\n:param tolerance: Não utilizado; a tolerância aplicada é ``settings['tolerance']``.\n:param smoothing: Largura da janela de rolamento usada para suavizar a curva.\n:param increment: Passo entre os tamanhos de amostra simulados.\n:param dst: Pasta para ``cell_min_threshold.pdf``, criada se faltar. Padrão  ``None``: ``<folder of settings['count_data'][0]>/results``.\n:returns: O tamanho da amostra do ponto de cotovelo, ou seja, a contagem mínima de células por posição da amostra de microplacas, para passar para :func:`process_scores`.\n:raises ValueError: Se ``settings['tolerance']`` não é nem um int nem um float.",
       "translation_source_blocks_sha256": [
         "a10b1aa3dfee39de671a7ed089f90cb944b9698e09e25b275eda78bb65fb650f",
-        "91136dfdb856c11d56a8330f10e63e60a968d02319210da2f5476e3f91717d3a",
+        "df2426729156f31b4d2cff984d266f8924f17017d1d348e29668c5193667dbe2",
         "7cfe7e8f10f9d39eaf743e977349f5b3ab035b1ea642cdb300667c9262bb7d8c",
-        "1fe991a66ac8c9632fb45aa5fab46569407931cfc1f72e2fc64468cb5878c486",
+        "07e8971343bf0a154007c96282383d5d6a981b750b92f68ba89d8586ec4a554e",
         "1af32583ad5dca4fa2e805f6fdca573560fdabd4214305b6632eaec8ca88223f",
         "70af0236a4816acd5e92460f1b468513d28cb10d441e005146e65222c356fbc6",
         "8f6abc5d0343a6bbf37492f9b9c9aa00abee372059c48085274af727f928aad3",
@@ -39799,7 +39971,7 @@
     "spacr.ml.process_scores": {
       "source_blocks_sha256": [
         "35b916ccf9b4406743ffad54921075a077e86a215822486b18fb50b7c58edeee",
-        "15b26e610f96e944d1e6d284b3aecf0ddd17a0af535fcfb508e5b36f3f0fc547",
+        "979e14f51d8fee7316ae43ed686804844a2f7171941b83bf98e1f130ea2d6ddb",
         "b6170e0f90001e24ad9564b33d4a1fefb9c2814b6984af712c7d3d99d10e7725",
         "8dbf4648c3398730f8b682e76897500d70698516972b378b20e7f5a0e8508e33",
         "c53d0606c4978f2313cee25c5f9ddc9b6237a1b00e3a67672b31cc25085773ba",
@@ -39811,11 +39983,11 @@
         "c4442659591710803ca222e05d541137d05fa8f7eedab0f6bbc8b5ea6dfd0871",
         "51a3d36f4c6a1cbde7363a28c824ca69e085af19496d41d85832d91dd7598218"
       ],
-      "source_sha256": "9e1d41677f5c5a283805d147242926e83295a84efb5b87e0961e5f4828f56b66",
-      "text": "Agregar os escores do modelo por objeto para os resumos de posição da amostra por microplaca, prontos para regressão.\n\nGarante que as colunas ``plateID/rowID/columnID/prc`` existam, aplica uma inversão opcional da resposta bruta, agrega por poço de acordo com ``agg_type`` (ou com ``sum`` para os modelos de contagem ``'poisson'`` e ``'horseshoe'``), reforça ``min_cell_count`` e transforma opcionalmente a resposta agregada.\n\n:param df: Pontuação por objeto DataFrame.\n:param dependent_variable: Coluna sendo agregada.\n:param plate: Identificador de placa para carimbar quando o quadro é de placa única; ignorado (com aviso) quando existem várias placas.\n:param min_cell_count: As posições de amostra de microplacas com menos objetos são descartadas. padrão ``25``.\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: Nome de transformação pós-agregação opcional (veja :func:`apply_transformation`).\n:param regression_type: Se ``'poisson'`` ou ``'horseshoe'``, a agregação usa ``sum`` - ambos modelam uma contagem de posição por microplaca da amostra, não uma média de posição da amostra por micro placa.\n:param invert_dependent_variable: ``False``/``0``  sem inversão; ``True``/``1``  ``1 - x``; ``-1``  ``1 / x``.\n:returns: ``(dependent_df, dependent_variable)`` a posição da amostra por microplaca DataFrame e o nome da coluna de resposta (possivelmente transformado).\n:raises ValueError: em identificadores ausentes, não suportados ``agg_type`` ou não reconhecidos ``invert_dependent_variable``.",
+      "source_sha256": "37545e6672072568adf667960125f99694272a13ff3ca992712aaba8defe46e8",
+      "text": "Agregar os escores do modelo por objeto para os resumos de posição da amostra por microplaca, prontos para regressão.\n\nGarante a existência de colunas ``plateID/rowID/columnID/prc``, aplica uma inversão opcional da resposta bruta, agrega por bem de acordo com ``agg_type`` (ou com ``sum`` para os modelos de contagem ``'poisson'`` e ``'horseshoe'``), impõe ``min_cells_per_well`` e transforma opcionalmente a resposta agregada.\n\n:param df: Pontuação por objeto DataFrame.\n:param dependent_variable: Coluna sendo agregada.\n:param plate: Identificador de placa para carimbar quando o quadro é de placa única; ignorado (com aviso) quando existem várias placas.\n:param min_cells_per_well: As posições de amostra de microplacas com menos objetos são descartadas. padrão ``25``.\n:param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.\n:param transform: Nome de transformação pós-agregação opcional (veja :func:`apply_transformation`).\n:param regression_type: Se ``'poisson'`` ou  ``'horseshoe'``, a agregação usa ``sum`` - ambos modelam uma contagem de posição por microplaca da amostra, não uma média de posição da amostra pela microplacas.\n:param invert_dependent_variable: ``False``/``0``  não há inversão;  ``True`` /``1`` ?``1 - x``; ?``-1`` !``1 / x``.\n:returns: ``(dependent_df, dependent_variable)`` a posição da amostra por microplaca  DataFrame e o nome da coluna de resposta (possivelmente transformado).\n:raises ValueError: em identificadores ausentes, não suportados ``agg_type`` ou não reconhecidos  ``invert_dependent_variable``.",
       "translation_source_blocks_sha256": [
         "e12df5e956bb8eb31eeea9b3823f4e25e19b05aef1522830dbf2fe278258c963",
-        "15b26e610f96e944d1e6d284b3aecf0ddd17a0af535fcfb508e5b36f3f0fc547",
+        "979e14f51d8fee7316ae43ed686804844a2f7171941b83bf98e1f130ea2d6ddb",
         "b6170e0f90001e24ad9564b33d4a1fefb9c2814b6984af712c7d3d99d10e7725",
         "8dbf4648c3398730f8b682e76897500d70698516972b378b20e7f5a0e8508e33",
         "c53d0606c4978f2313cee25c5f9ddc9b6237a1b00e3a67672b31cc25085773ba",
@@ -46370,19 +46542,19 @@
       "source_blocks_sha256": [
         "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
         "59eba82e68561e13220794fd3a3318f848654998412cc57c0fbfd0ee0bb6e516",
-        "b5c2a3301612b0237721e7e027c5fcef9356ad279043251c629ffc9785e9294b",
+        "90315e3fd156e29559e43e7d3ee383dc8ceb030c0829dfc288910ecc091380dd",
         "7096248994d74057fe4c683729f92aa3f77532af0f3a151aecc1c3392cb5557a",
         "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
         "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
         "fc0202df87d042b6351dfea6e31dc398fe8ec41de8dbb0fd9f5f2f601680cbbb",
         "346b886d87b02facc49c1c17a06ed7561d4217a5268f15213c7ac6dffb08bc28"
       ],
-      "source_sha256": "1bcc5138b1fbf4b4f51a4a7d1a8e66ee39cbc6568a14ae31851e08214ed08b4c",
-      "text": "Registrar um campo nos ciclos de sequenciamento que o visualizaram.\n\nO eixo do ciclo não é o eixo do campo de imagem do microscópio, e a diferença decide tudo neste módulo. :mod:`spacr.ops_register` coloca dois campos de visão de microscópio diferentes que se sobrepõem por uma fração de um campo de imagens de microscópio; aqui o mesmo campo de visão do microscópio é fotografado onze vezes e o estágio retorna a ele, de modo que o deslocamento é um punhado de pixels em vez de um tom.\n\nE não pode usar hoechst. A Instrução 372 PARTE 10 mediu essa aquisição: o ciclo 1 contém um canal de dados de cinco imagens ``DAPI-CY3-A594-CY5-CY7`` pilha por site e os ciclos 2 a 11 contêm quatro arquivos de canal de imagem base separados com NO  DAPI. Portanto, o canal de dado de imagem em que cada registro de campo-eixo de imagem de microscópio é executado não existe neste eixo após o primeiro ciclo, e o plano da Parte 7 para média Hoechst através dos ciclos também não pode ser executado.\n\nO que o substitui é a própria resposta da implementação de referência. ``ops/firesnake.py:_align_SBS`` oferece  ``method='SBS_mean'`` para exatamente este caso: o máximo através dos canais de base, normalizado por um percentil alto e recortado, que transforma quatro canais de ponto esparsos em um alvo denso. Medido no poço A1 em dois locais, ciclos 2 a 11 contra o ciclo 1:\n\n    local 100 pico / média 169 para 236 turno (-6..-27, 0.0) local 200 pico / médio 218 para 281 turno (-4...-25, 11...21)\n\n    20 de 20 ciclos registrados.\n\nNão é um fallback, é o melhor canal de dados de imagem. O eixo da tesela em DAPI picos em 23 a 85; este picos em 169 a 281. As manchas são punctadas e abundantes e os núcleos são lisos e poucos, portanto, perder o Hoechst não custa nada aqui.\n\nE o deslocamento pertence ao local, não ao ciclo. O local 100 fica em x  0 a 10 ao longo dos onze ciclos e o local 200 em x - 11 a 21. Uma transformação rígida por ciclo para um poço inteiro carregaria essa diferença em cada campo de visão do microscópio, assim que cada local é registrado contra sua própria referência - que é também o que a implementação da referência faz, um campo de microscopia da pilha do ciclo da vista de cada vez.",
+      "source_sha256": "8afd13aa2ad6f2f40d67d1353f44032f9ad172b15c491e5aef6a08495e13f604",
+      "text": "Registrar um campo nos ciclos de sequenciamento que o visualizaram.\n\nO eixo do ciclo não é o eixo do campo de imagem do microscópio, e a diferença decide tudo neste módulo. :mod:`spacr.ops_register` coloca dois campos de visão de microscópio diferentes que se sobrepõem por uma fração de um campo de imagens de microscópio; aqui o mesmo campo de visão do microscópio é fotografado onze vezes e o estágio retorna a ele, de modo que o deslocamento é um punhado de pixels em vez de um tom.\n\nE não pode usar hoechst. Medido na aquisição de referência: o ciclo 1 contém um canal de dados de cinco imagens ``DAPI-CY3-A594-CY5-CY7`` pilha por site, e os ciclos de 2 a 11 contêm quatro arquivos de canais de dados separados de imagem base com NO  DAPI. Portanto, o canal de dado de imagem em cada registro de campo-eixo de imagem de microscópio não existe neste eixo após o primeiro ciclo, e a média de Hoechst através dos ciclos também não está disponível aqui.\n\nO que o substitui é a própria resposta da implementação de referência. ``ops/firesnake.py:_align_SBS`` oferece  ``method='SBS_mean'`` para exatamente este caso: o máximo através dos canais de base, normalizado por um percentil alto e recortado, que transforma quatro canais de ponto esparsos em um alvo denso. Medido no poço A1 em dois locais, ciclos 2 a 11 contra o ciclo 1:\n\n    local 100 pico / média 169 para 236 turno (-6..-27, 0.0) local 200 pico / médio 218 para 281 turno (-4...-25, 11...21)\n\n    20 de 20 ciclos registrados.\n\nNão é um fallback, é o melhor canal de dados de imagem. O eixo da tesela em DAPI picos em 23 a 85; este picos em 169 a 281. As manchas são punctadas e abundantes e os núcleos são lisos e poucos, portanto, perder o Hoechst não custa nada aqui.\n\nE o deslocamento pertence ao local, não ao ciclo. O local 100 fica em x  0 a 10 ao longo dos onze ciclos e o local 200 em x - 11 a 21. Uma transformação rígida por ciclo para um poço inteiro carregaria essa diferença em cada campo de visão do microscópio, assim que cada local é registrado contra sua própria referência - que é também o que a implementação da referência faz, um campo de microscopia da pilha do ciclo da vista de cada vez.",
       "translation_source_blocks_sha256": [
         "fe31e9bfe3333ee8779a4ec8407f1e89c9ee49f6db75491a7964ae5f7f89ae74",
         "adf1e305ae9dba79b070d83b2f725902c8a06d9df956a8efd987d42d8c981c67",
-        "172c1dd510b62b029e4078701df69973133b62439ab1bd59041689aa10406209",
+        "2db46412854c56e2f0df91b959a9ff7fbd62aa4fb99b6e19327b24f77bb0dccd",
         "36253605dd997bcb78170c81396384029bcbdcbb1091448a58c07a6a0747de18",
         "249061af88ef246039fe588712acd9cfcbb86b67e741dc3b8a73428c7d380608",
         "e307f8e489de0b346aecb63071c668c463ae5ab6261b7e819d07a3457d249492",
@@ -46723,7 +46895,7 @@
     "spacr.ops_phenotype": {
       "source_blocks_sha256": [
         "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
-        "234152f444ed13a4ca3b088c4e4e7ab701e99acd84c438adb0c7ba9248bc34e6",
+        "15b6ba8f0b8f4b7dc07dc8d214e10edeaa924f5a0458a3323b632135776f44cf",
         "aba66c01e9fd3ca1e4f3ee03f851444b1e73a9b7277187cc7e89d4d43f1f054c",
         "1e905db470b8f54f7dac6b8d239145f7797eb95d1dc45337bcc4d0c5ddcbf816",
         "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
@@ -46731,11 +46903,11 @@
         "5607acd4c2f46376cf0c7b7ee4acf752e2b1b62a47a212c2da3330ce1393c2ac",
         "bf4cd9bd465d330b3e27b08bfa7134ca5f33b3b171e37f0f5104bba8681abe12"
       ],
-      "source_sha256": "d89e59c264803f17d46f2750cca9a3c9b633042c3fb3c30f75e54d64579d1e1e",
-      "text": "Fase A4: colocar a aquisição do fenótipo no sequenciamento.\n\nO que esta etapa é. As imagens do fenótipo são 2960x2960 em 20X e as imagens do seqenciamento são 1480x1480 em 10X, do mesmo poço redondo. A fase A4 da instrução 372 pede uma transformação pelo campo do microscópio do fenotipo da vista no quadro de seqência, alinhado na mancha nuclear, \"e não reamostra um no outro -- alinhado, não mediado\".\n\nPor que não é um problema de pixel. Em uma mudança de ampliação e duas aquisições diferentes, uma vizinhança de pixels não significa nada, mas um núcleo é um núcleo em ambas as escalas. Então o alinhamento é executado em centróides nucleares e :func:`spacr.ops_merge.align_by_triangles` propõe a transformação apenas de seu arranjo.\n\nPor que essa proposta não é a resposta. Medido na placa real, o consenso do triângulo é tendencioso e o viés cresce à medida que a correspondência se dilui. Controles sintéticos construídos a partir de 593 núcleos reais, transformar conhecido exatamente:\n\n    o que foi solicitado foi a escala retornada inliers identidade 0,9878 56 % escala 0,25 0,2469 100 % escala 0,25, 1 px de jitter 0,2065 53 % escala 0.25, metade dos pontos mantidos 0,2916 23 % Escala 0,25, um terço mantido 0,3596 15 %\n\nUm erro de escala de 1,2% é 18 px de deslocamento em um campo de visão do microscópio de 1480 px, e é por isso que uma cópia EXATA de um conjunto de pontos pontua 56% em vez de 100. E as duas últimas linhas são a forma de cada par real em que este módulo foi testado pela primeira vez - dois campos de imagem de microscópio que se sobrepõem parcialmente, fotografados duas vezes, são exatamente \"alguns dos pontos, movidos um pouco\".\n\nAssim, o consenso é uma semente e não um resultado. Este módulo leva-lo, encontra as correspondências que ele implica, e RESOLVE a semelhança dessas correspondências em forma fechada; então faz isso novamente nas correspondências a melhor transformação implica. Esse é o mesmo argumento :func:`align_by_triangles` já faz para a sua tradução - \"não um refinamento, é a diferença entre trabalhar e não\" - aplicado à escala e a rotação também.\n\nE relata quantos núcleos concordam, o que o consenso do triângulo não. `align_by_triangles` retornou uma transformação para cada par que já foi entregue, incluindo campos de imagem de microscópio fenotípico e campos de imagens de microscópio de sequenciamento de lados opostos da posição da amostra de microplacas, porque três triângulos coincidentemente semelhantes podem sempre ser encontrados em dois conjuntos de algumas centenas de pontos. Um alinhamento sem contagem inlier não é evidência, e a PARTE 6-A de 372 registra a mesma lição sobre a tentativa de colocação.",
+      "source_sha256": "abb267fa0f26aa14ac7fe73dd99d993e671396ee1d294579c58cf32f28a63bcf",
+      "text": "Fase A4: colocar a aquisição do fenótipo no sequenciamento.\n\nO que esta etapa é. As imagens do fenótipo são 2960x2960 em 20X e as imagens do seqenciamento são 1480x1480 em 10X, do mesmo poço redondo. Esta etapa produz uma transformação pelo campo do microscópio do fenótipo da vista no quadro de seqência, alinhado na mancha nuclear. não reamostra nenhuma aquisição na outra: a transformação é armazenada e os pixéis são deixados onde estavam, porque resampling um campo do microscópico da maneira da vista dizem.\n\nPor que não é um problema de pixel. Em uma mudança de ampliação e duas aquisições diferentes, uma vizinhança de pixels não significa nada, mas um núcleo é um núcleo em ambas as escalas. Então o alinhamento é executado em centróides nucleares e :func:`spacr.ops_merge.align_by_triangles` propõe a transformação apenas de seu arranjo.\n\nPor que essa proposta não é a resposta. Medido na placa real, o consenso do triângulo é tendencioso e o viés cresce à medida que a correspondência se dilui. Controles sintéticos construídos a partir de 593 núcleos reais, transformar conhecido exatamente:\n\n    o que foi solicitado foi a escala retornada inliers identidade 0,9878 56 % escala 0,25 0,2469 100 % escala 0,25, 1 px de jitter 0,2065 53 % escala 0.25, metade dos pontos mantidos 0,2916 23 % Escala 0,25, um terço mantido 0,3596 15 %\n\nUm erro de escala de 1,2% é 18 px de deslocamento em um campo de visão do microscópio de 1480 px, e é por isso que uma cópia EXATA de um conjunto de pontos pontua 56% em vez de 100. E as duas últimas linhas são a forma de cada par real em que este módulo foi testado pela primeira vez - dois campos de imagem de microscópio que se sobrepõem parcialmente, fotografados duas vezes, são exatamente \"alguns dos pontos, movidos um pouco\".\n\nAssim, o consenso é uma semente e não um resultado. Este módulo leva-lo, encontra as correspondências que ele implica, e RESOLVE a semelhança dessas correspondências em forma fechada; então faz isso novamente nas correspondências a melhor transformação implica. Esse é o mesmo argumento :func:`align_by_triangles` já faz para a sua tradução - \"não um refinamento, é a diferença entre trabalhar e não\" - aplicado à escala e a rotação também.\n\nE relata quantos núcleos concordam, o que o consenso do triângulo não. `align_by_triangles` retornou uma transformação para cada par que já foi entregue, incluindo campos de imagem de microscópio fenotípico e campos de imagens de microscópio de sequenciamento de lados opostos da posição da amostra de microplacas, porque três triângulos coincidentemente semelhantes podem sempre ser encontrados em dois conjuntos de algumas centenas de pontos. Um alinhamento sem contagem inlier não é evidência, e a PARTE 6-A de 372 registra a mesma lição sobre a tentativa de colocação.",
       "translation_source_blocks_sha256": [
         "de198eeeda9310f7d14e7b526c7b2ebe778d17a6e78c6ad7bd31eb90105d460f",
-        "7cd5a5b42e496ee2815fb08a2435cbc801e461e914bb6e331896ad464af218f3",
+        "311080909e99ed33416e5d7a765da1e9d9db40af976fdab48a0250e8de6fd15b",
         "2a5bf43216a2c6f0047419ee44c50da1cfadfee8b5ee404cd4346d442da6e06d",
         "7b5d35684483202edc44ae2b4d5baca74a2815aa0a77f2736664002df39f5545",
         "40c611e4715926fb05dd18ff797a6e94eba87558f101cbec42bdfecd9129dc9f",
@@ -57020,26 +57192,6 @@
         "74e322d56a3471f873222108388f97f88dc115412194b4438d8dfd239c50ce23"
       ]
     },
-    "spacr.qt.app.open_at_the_measured_width": {
-      "source_blocks_sha256": [
-        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
-        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
-        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
-        "dd6d8d5c179974bfa18f2585de6fa8dfc8726f8cadf4a646303c07a12aaa7b3a",
-        "c50fd5fc2f6e8cdaa9676759561050f59964a77a513216fe890fb5d59ec3e458",
-        "ba32767c53bd1731c30104e54a07b8e8a6bca71ea5f5cc028c641fc5f617cc84"
-      ],
-      "source_sha256": "1f9f1b85f54d8840bd44e00847fb6bd8a947710b4e995a475ae3f3803d79af1a",
-      "text": "Amplie uma nova janela para o que os módulos foram medidos para precisar.\n\n:returns: True quando a janela foi redimensionada.\n\nA largura vem de `spacr.qt.layout_policy`, que lê um artefato GERADO - cada número nele medido pela construção de cada módulo offscreen e perguntando se sua coluna de configurações está segurando mais do que pode mostrar.\n\nEle só cresce, e isso é deliberado em vez de cauteloso. O comentário acima `win.show()` registra por que essa janela não maximiza: sobre o encaminhamento X11, VNC ou um framebuffer virtual o  \"available geometry\" é o que a sessão remota alega, e é frequentemente um esboço. Uma política autorizada a encolher levaria essa reivindicação a sério e abriria uma janela menor do que a que o usuário tem recebido por um ano. Crescer em um número ruim não está vinculado.\n\nSem o artefato nada acontece. `layout_policy` cai de volta para 1200 px - a largura da varredura de ajuste de texto constrói cada visualização de aplicativo em - e essa janela já abre em 1200, então uma roda que não carrega o arquivo se comporta exatamente como ele fez.\n\nNunca joga. Um tamanho de abertura não vale a pena falhar um lançamento.",
-      "translation_source_blocks_sha256": [
-        "67199f4ce53c86a92bffc2735004d108cbabae6a43b87d48d1bf9da4ef4e7c5b",
-        "2aa8dc8f6785d1b02cc989587ccea17671032c78ba9c53f210257e2485ae02e1",
-        "b4b74303da44c17a29b50fa76008f011b3c4f0a9b8c84738e22064d70ccdba70",
-        "ab452d9958b7b0be8c607ac3462bb2e5cc3297391ec42616f5f8ec96efd3aca0",
-        "4319b5fa4215fac451983af05a97ff1717786e5c95810ad6313b4924909bb8f4",
-        "827774a19140ce4a6c7efbb88bc64f3012844b82a7021bd835a46728747ade94"
-      ]
-    },
     "spacr.qt.app.register_app": {
       "source_blocks_sha256": [
         "9bc38753de7dbb6d67fb69b992412a81f71a211fb305e9574f305fc809208793",
@@ -57142,26 +57294,6 @@
         "f203165d59e1739be8c70a66fc5d3ecc99dbea678cc034b4c9fed01486860426",
         "4b67ff0258ffafcb4c1932f082e553d500fe768c1dddc6d9d4bf8b4e15b1ec52",
         "99761f9f1dc0fc63ff45dc583f97058276b00ec569a92d72d1388b589dc4d53a"
-      ]
-    },
-    "spacr.qt.app.the_missing_pip_escape": {
-      "source_blocks_sha256": [
-        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
-        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
-        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
-        "47a7f8f7b1ad99bb60930a938eb3654570d00ef5ed087c84f5f0c19f0e0a0bcb",
-        "c803138323dab9e1deb1bba8797f0fe29d5dd9fc36c14e9367f4191aac354a48",
-        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
-      ],
-      "source_sha256": "d313befba800c8ae28b095049b751f7806434f91fc1839b2475818a65b1e4d78",
-      "text": "O comando que iria funcionar, quando a atualização falhou por falta de pip.\n\n:param output: tudo o que a atualização escreveu, como o trabalhador capturou.\n:returns: uma linha de comando para mostrar o usuário, ou None quando esta falha não foi a faltante-pip um.\n\nA única falha que o aplicativo pode responder, e instrução 01 pede. Os instaladores de desktop constroem seu ambiente com ``uv venv``, que não semeia pip, então uma instalação cujo atualizador ainda executa  ``python -m pip`` falha antes de começar - e é uma armadilha de inicialização: a correção não pode chegar pela rota que corrige. Uma caixa de diálogo que nomeia o comando exato é a única fuga que atinge um usuário que já a atingiu.\n\nTodos os outros códigos de saída recebem a saída e nada mais. Adivinhar um remédio para uma falha que não pode reconhecer enviaria um usuário para executar um comando que não é problema deles.\n\nDerivado do mesmo modo que :func:`spacr.updater.find_uv` o deriva, e recorre ao caminho que os instaladores ESCREVEM em vez de não devolver nada: na máquina afetada, `find_uv` é justamente o que a versão instalada é demasiado antiga para ter, por isso um nome que o utilizador possa verificar vale mais do que o silêncio.",
-      "translation_source_blocks_sha256": [
-        "db619cc5a38fa071e420652a37f06aa6aa704a04fcbfcddbac67d9a6b42017e9",
-        "dd7c42546d008821689e997391c8b2900ed4491fe7ea0629200c42d86bc58919",
-        "3d5be3b9ef4cd56c4cea8e759130534a5964eb0d5b02c88c032787c39254df52",
-        "fc8dc15f427246d1d9c5b86c338320884cf6c62b25b971894f667b253a7f4fae",
-        "a2ccc11891aaa33a743f0be0e159ab9d6bc63b9a1ca011fb83d12b9906064923",
-        "708e8219aa09a2c219d76c17153376400237955b9df712ba74bac72dfaae50fd"
       ]
     },
     "spacr.qt.app.tile_sort_key": {
@@ -64648,92 +64780,6 @@
         "d40ff48d92e06cfe7afc9e307654b77ebf81d3c12ba934292b8ba195f5bb66c5",
         "a742fa3eb9f4e983a4f72e4d7b3accd3a5a0b45f2d6610ba6437abfdc1ff57c0",
         "cb37d1db9d0733ddc9ab9985f2e93f503c1db9948f1e9f5d872db91e6ac10597"
-      ]
-    },
-    "spacr.qt.layout_policy": {
-      "source_blocks_sha256": [
-        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
-        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
-        "778fe8aa440f16608cb7d28e6c5549613b3dcc411afedeb21c36adbc1e43a1a3",
-        "5b5ac30ad8a6d61adf597096f9860ebd7581c16cc1cecaddf587be4e262f1f0b",
-        "80c210c88962926c6f8eec8053855f6e41e29863dcae267419d0deec90418ed4"
-      ],
-      "source_sha256": "d2c795823f32cb0e2cf0ebb7c792fa739ab478aed31feea53b9409d2d243309e",
-      "text": "A largura da janela medida que um módulo precisa e o que abrir na primeira execução.\n\nO relatório era que \"cada módulo deve inicialmente abrir o suficiente para que o lado direito de suas configurações não seja cortado\", e que as mesmas dimensões de pixel podem descrever três máquinas diferentes - então uma tabela estática ``resolution -> font size`` escolheria erradamente exatamente no M4 Mac que o motivou.\n\nO que é este módulo. O leitor de um artefato GENERADO, ``spacr/resources/layout_policy.json``, produzido por  ``tools/measure_the_layout_matrix.py``. Cada número nele foi medido construindo cada módulo fora da tela em um recipiente que não pode crescer e lendo o que foi cortado - a mesma instrução de regra 350 de varredura afirma, não uma segunda opinião sobre isso.\n\nO que não é. Não é telemetria, e 359 diz isso explicitamente: \"capture\" significa ler métricas de visualização de aplicativo  Qt em preferências locais, não enviando detalhes de hardware em qualquer lugar. Nada aqui deixa a máquina.\n\nEle não importa nada pesado, o que o item requer do carregador do artefato: ``json`` e  ``importlib.resources``, sem Qt, não  numpy. As métricas -Qt chegam como ARGUMENTOS, então a política pode ser lida e testada em uma máquina sem exibição.",
-      "translation_source_blocks_sha256": [
-        "1b2e5e091350917c8d00665b527e1ab8188df93ee2e4140925af3ee243262929",
-        "05d007dbe100ae0b65f74f9afaaa47fedf03638064c67e2ace7a90d60efcab30",
-        "74834f62d2528dfa207c2257dde36ad2c9dce65c3e5df80fee0514e3099d5192",
-        "fc9ae75949d8e14f1704c45ba53486ede15b2ac0518f1ef0bdd3b41723c55fbd",
-        "74b221edbcd574f0e809e1c454a658b96bb4d5e5cbda3b29db747d1e4fcd7300"
-      ]
-    },
-    "spacr.qt.layout_policy.minimum_width_for": {
-      "source_blocks_sha256": [
-        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
-        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
-        "361aea896d05923f7d1b8c504faec19374c38bb865e00c9183ec3de62c203592",
-        "5d96633cf9f2b4b82249ced9a457a5ddebaa3206a80211d34fc8ea673d99e868"
-      ],
-      "source_sha256": "fc6bf6f7351db0578d86c5885402087d2a8c7ebde50776514d7c17a1efefb598",
-      "text": "O requisito mais amplo medido em ``font_scale``.\n\n:param font_scale: a preferência, 1,0 sendo 100%.\n:param policy: um artefato para ler em vez do empacotado.\n:returns: pixels lógicos, ou None quando nada foi medido.\n\nO pior caso entre os módulos, não a mediana. Uma janela se abre uma vez e todos os módulos são alcançados de dentro dela, então uma largura que se adapte à maioria deles ainda corta o mais amplo - que é o relatório.\n\nEntre duas escalas medidas, leva a mais alta, porque o artefato mede uma escada e a exigência aumenta com a escala. Arredondar em direção à menor abriria uma janela que se encaixa na escala abaixo da do usuário.",
-      "translation_source_blocks_sha256": [
-        "2b957977c952b5f414004fa37d9d6a0383a307d38cc1aad53f20eb2457f1f50e",
-        "2783cb07ccc8d3d3b7ee7c877639e743f03ac6baf7accc3264e75472388a6ea9",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "dccfb161b7d052900443f308936604721dd5c49f22d8a6f5c954f7d5e15b404d",
-        "e04974a8721ab4069fad30368e7788152af93b5f3197d3f02611d365743eede1",
-        "f48501b0657e2c96842bee6afcba9e285160f14fff368864979bb291af293b78"
-      ]
-    },
-    "spacr.qt.layout_policy.read_policy": {
-      "source_blocks_sha256": [
-        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
-        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
-        "ec42036af7a1e345780978cedd24ce714264e793111254d13445663aa6398163",
-        "61573f865052f0f56164e7ec15517d756cd8215fce1b7cbdea006b0f9ec5b6f4"
-      ],
-      "source_sha256": "4a4d9eb173efac57897940d15e6db0629016705c05be890eaf36b223fe9d57a9",
-      "text": "A política empacotada, ou ``{}``.\n\n:param refresh: Leia novamente o arquivo em vez de responder a partir do cache.\n:returns: o artefato como um mapeamento chave-valor, ou um vazio em QUALQUER falha.\n\nDegrades para esvaziar em vez de lançar, pela razão que o painel de notas de lançamento faz: um aplicativo não deve deixar de abrir uma janela porque um arquivo de recurso está ausente de uma roda.",
-      "translation_source_blocks_sha256": [
-        "c8cd6ccc363497a98e220b7333fe722f585809d52a1f927bf30d45c9bb0d57b2",
-        "4336de6c9972a8a21174ca03ee42f159bb1489fdad9d121163a86bf7f389a4ea",
-        "ed48adc532056133b17bdd3e9164a1a3cd2fe1fffaef56a18fca37b389704469",
-        "e6a0f107131a9c60dc9597ab3a4275ea8a38a7598748fde3072b6c9baeae9ba0"
-      ]
-    },
-    "spacr.qt.layout_policy.recommended_window_size": {
-      "source_blocks_sha256": [
-        "c76cab9648d2bd616507770dbafb29afe05b9c61e431d77120c3b4dfbc3c1931",
-        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
-        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
-        "0e880777f4a661f7d67b0cffb7229ed9882ce8ec03d0eb2ca922f4ce88832c30"
-      ],
-      "source_sha256": "790ea4853507e5a491134de5c65c32092eb07a5001b7fd138e3816a1651f3bed",
-      "text": "O que abrir a janela principal, dado o que a visualização do aplicativo tem.\n\n:param available: a geometria DISPONVEL da triagem como ``(w, h)`` -- disponível, não total, porque uma doca ou uma barra de menu possui a diferença e uma janela dimensionada para o total abre parcialmente abaixo de uma.\n:param font_scale: a preferência de escala de fonte em vigor.\n:param policy: um artefato para ler em vez do empacotado.\n:returns: ``(width, height)`` em pixels lógicos.\n\nApertado na triagem, SEMPRE, e esse pedido é todo o contrato: uma exigência medida mais ampla do que a exibição é uma declaração de que este módulo não pode ser mostrado inteiro aqui, não permissão para abrir uma janela fora da borda dele. O usuário ainda pode rolar; uma janela que não pode chegar ao canto de redimensionar é uma resposta pior.",
-      "translation_source_blocks_sha256": [
-        "5d5e6cef400bf88105678fc9388750c3c0022c5d74aeed0c5a70eeebacc5a7b3",
-        "e9db4a7c77297d27804d966244d13d5c70b9575aa8f13c497959b6c03b70bc12",
-        "5d39b8107cbcb0368b3e00532dd54e3a07c2c6f7361f0d82d0aece0200e4dcf5",
-        "7d3c8b2dc94646688e45ec9a68c7dddd56ad9ab6fd725b4ae47d9659c2fb55eb",
-        "52c3eb0ee1c7ff8cdb077ce7cd2dee847960fbe4b69fc44b37b0be6f205f2c81",
-        "5b5f175f525959ab4709565910b4fbd05ac6bc2dc7c14d732eb0a2f0e973472b"
-      ]
-    },
-    "spacr.qt.layout_policy.why": {
-      "source_blocks_sha256": [
-        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
-        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
-      ],
-      "source_sha256": "3e0a31a2a24df4d96fff2f23fc00c375ca290885d222c864e4bb0c8ee132a5a9",
-      "text": "Uma frase nomeando a evidência, para uma linha de registro ou uma dica.\n\nUma recomendação que um usuário não pode rastrear é uma que não pode discutir, e todo o histórico deste item é uma decisão de layout que ninguém poderia verificar.",
-      "translation_source_blocks_sha256": [
-        "07c951d2ce15a90733c142d46956d3c5142c7d7eca40eb10654b2455f63c6d0f",
-        "8ae3e7445c7e88bae313bd6a1e3efe0fed788ef3073b0a90ed67bc6a46c4b9d0"
       ]
     },
     "spacr.qt.linked_selection": {
@@ -89263,7 +89309,7 @@
     "spacr.qt.synthetic.synthetic_read": {
       "source_blocks_sha256": [
         "72e217d9dfa8f16b7e4f2a130a739814133bbce971bc2ed8b9effad86c26f340",
-        "b3541daab6f36ca042a1c4cbad1506b6d7d97aeb5dfff466b619bf024d4a09d9",
+        "f9b994cac5568e70139b2d1c9a3c51a010b651a168471696d91eb531d8ba5a6e",
         "84e888a703f938e500801697db5312861580bdd5b3d85034682975cb928b51aa",
         "a0d2eb0ccac7b344c687c23b38001f6e6938952a4f56ad5e3bae8645acd1a7ac",
         "93834d567039b8cec829485f787e7b66f997e5d45fff9f0cd6f2c378d1e87eeb",
@@ -89271,11 +89317,11 @@
         "8df11bc512c0660d8683c14b2f5b40e4731b53399f875cf5753fc1890de62b54",
         "403cfb7a8e9fd5e1ea0f76011ce8f4caacbebfd374762fa2c4182aae135c398c"
       ],
-      "source_sha256": "637dc173bf0d4c73d71f9be528f0bd5decfb687d2adeea3c2052aa39c6590384",
-      "text": "Crie uma leitura de 150 bases carregando um tripleto (coluna, gRNA, linha).\n\nO layout é o documentado acima :data:`SEQ_TARGET`; uma leitura construída aqui é recuperada exatamente pelos padrões ``regex`` / ``target_sequence`` / ``offset_start`` / ``expected_end`` enviados.\n\n:param column_barcode: Código de barras de coluna de 8 bases.\n:param grna: 21-base gRNA código de barras.\n:param row_barcode: 8-base linha de código de barras.\n:param prefix: stagger colocado antes da janela de âncora.\n:returns: 150 bases de leitura.\n:raises ValueError: quando um código de barras é o comprimento errado – um código de barras silenciosamente de tamanho errado mudaria cada campo a jusante por muitas bases e mapearia para nada, o que é muito mais difícil de ver do que uma parada.",
+      "source_sha256": "e281fa54535921a76848dea1db2ad21a4ff0f764d0bfb4500c28cdb1ec471c90",
+      "text": "Construa uma leitura de 150 bases carregando um tripleto (coluna, gRNA, linha).\n\nO layout é o documentado acima :data:`SEQ_TARGET`; uma leitura construída aqui é recuperada exatamente pelos padrões  ``regex`` / ``target_sequence`` /``offset_start`` / -``window_length`` enviados.\n\n:param column_barcode: Código de barras da coluna 8-base.\n:param grna: 21-base gRNA código de barras.\n:param row_barcode: 8-base linha de código de barras.\n:param prefix: stagger colocado antes da janela de âncora.\n:returns: uma leitura de 150 bases.\n:raises ValueError: quando um código de barras é o comprimento errado – um código de barras silenciosamente de tamanho errado mudaria cada campo a jusante por muitas bases e mapearia para nada, o que é muito mais difícil de ver do que uma parada.",
       "translation_source_blocks_sha256": [
         "72e217d9dfa8f16b7e4f2a130a739814133bbce971bc2ed8b9effad86c26f340",
-        "b3541daab6f36ca042a1c4cbad1506b6d7d97aeb5dfff466b619bf024d4a09d9",
+        "f9b994cac5568e70139b2d1c9a3c51a010b651a168471696d91eb531d8ba5a6e",
         "84e888a703f938e500801697db5312861580bdd5b3d85034682975cb928b51aa",
         "a0d2eb0ccac7b344c687c23b38001f6e6938952a4f56ad5e3bae8645acd1a7ac",
         "93834d567039b8cec829485f787e7b66f997e5d45fff9f0cd6f2c378d1e87eeb",
@@ -100908,6 +100954,46 @@
         "502e408f926ce8c7a8bf60759f79c56ae4b2c15a2170a33c12fbeef43b69e332"
       ]
     },
+    "spacr.qt.widgets.dose_response.SelectivityIndex": {
+      "source_blocks_sha256": [
+        "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
+        "c295d337c8e80461c16bd4e70f53c1a31f105a387961c92efc435f3b43fedc62",
+        "cc5282c28dbce6c63528d2cba66b30c6002281e5b0b12c82c98ade2bd15bf0d9",
+        "b4e890de78da1c8b3c611e240d94bc7c8249d34ce1da7d0c009f66008b704619",
+        "52a6da885923f4c8729b68bd5d639283dd1b28d563c3ae10740e2943d381ef8b",
+        "2c8045fe4c0ba6e12b532ce475e20ecf0176e7e4535f223dede2af338198bba0",
+        "50718f23642c94afd6607103e1e3566aa417eb6a1097c80f7feb88a5fce8f4e2",
+        "9966001dfd490fcaaae65d0bbba9e4365d15c62047b28f78ef398ecb6549608e",
+        "a71bcd81e1dd053d8e0b09fcb252813e8d37f8d2d0595797863cde0e97c24f82",
+        "6a320402739d9d64be52a1ce72c65e66ed91e12e99730e1718d03868f495aeba",
+        "c8db2ac4637c30e2a49e514deefd3570c19da17698cb60a99d03ffd24f65b9a1"
+      ],
+      "source_sha256": "e86707c06b4def0bc9e47b35ff50b59d38cfe886a3bf8aadea7a898b1133643f",
+      "text": "Anfitrião toxicidade sobre a matança de parasitas, com o intervalo que merece.\n\nO número que decide se alguém se preocupa com um composto antiparasitário não é o EC50, é essa proporção. Um composto que mata o parasita a 1 uM e a monocamada hospedeira a 1,2 uM não é um sucesso, e um  EC50 citado com um intervalo de confiança limpo não diz nada sobre isso.\n\nCitado com seu intervalo ou não, pela mesma razão este módulo já recusa um nu EC50: uma proporção de dois números incertos é mais incerta do que qualquer um deles, e um índice de seletividade sem seu intervalo convida um leitor a tratar 1,2 e 12 como o mesmo tipo de reivindicação.\n\n:param status: :data:`STATUS_FITTED`,  :data:`STATUS_UNBOUNDED` ou :data:`STATUS_REFUSED`, reutilizando o vocabulário que a curva única já se encaixa, em vez de inventar uma segunda.\n:param index: a razão contingível, ou ``None`` quando não é contável.\n:param index_low: extremidade inferior do intervalo, ou ``None`` para um lado aberto.\n:param index_high: extremidade superior, ou ``None`` para um lado aberto.\n:param log10_index: a diferença dos dois pontos médios log10, sempre presentes quando ambas as curvas se encaixam. Uma extrapolação quando EC50 é ilimitada, exatamente como  :attr:`DoseResponseResult.ec50_unconstrained` é.\n:param host: o ajuste host-viabilidade.\n:param pathogen: O parasita se encaixa.\n:param note: Por que, quando o índice é recusado ou unilateral.",
+      "translation_source_blocks_sha256": [
+        "0cd154a814626f83465aa310d3501bc41b02f081ccdfc87d035be2681e44ac18",
+        "eb93d0de00c2ab5861fc7cd7695665e72c275235a567cdfc733a1751289eadd8",
+        "e32e19e660f5bbcd43e9c4aaba7b843e6781e9e1dc96d71c998f5e8d2fdbc327",
+        "b4e890de78da1c8b3c611e240d94bc7c8249d34ce1da7d0c009f66008b704619",
+        "52a6da885923f4c8729b68bd5d639283dd1b28d563c3ae10740e2943d381ef8b",
+        "2c8045fe4c0ba6e12b532ce475e20ecf0176e7e4535f223dede2af338198bba0",
+        "50718f23642c94afd6607103e1e3566aa417eb6a1097c80f7feb88a5fce8f4e2",
+        "9966001dfd490fcaaae65d0bbba9e4365d15c62047b28f78ef398ecb6549608e",
+        "a71bcd81e1dd053d8e0b09fcb252813e8d37f8d2d0595797863cde0e97c24f82",
+        "6a320402739d9d64be52a1ce72c65e66ed91e12e99730e1718d03868f495aeba",
+        "c8db2ac4637c30e2a49e514deefd3570c19da17698cb60a99d03ffd24f65b9a1"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.SelectivityIndex.summary_row": {
+      "source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ],
+      "source_sha256": "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772",
+      "text": "Uma linha para a tabela de resultados, recusa incluída.",
+      "translation_source_blocks_sha256": [
+        "e31d9fee961b8fc38b759242c6a0de4a3efbcb0bf427d81fd0a86c17eabf3772"
+      ]
+    },
     "spacr.qt.widgets.dose_response.candidate_concentration_columns": {
       "source_blocks_sha256": [
         "a337a8c503d8f38a86e6bf1c8b9e7632d269b887525346a4fb70f1737d65c671",
@@ -101016,6 +101102,30 @@
         "b13bb11c822ea7bbf03a5659c452a6043025d17dac68e5e2c6b63f95bd34dc1e",
         "701ad55dac01b316e6353702e03136af3e9c1b004efeb1fc00fdcfa97d1d6c16",
         "4d3aab37c61947f0b7b11fb0716734271d5de31b9f17a5a0e2b091aa702c7acf"
+      ]
+    },
+    "spacr.qt.widgets.dose_response.selectivity_index": {
+      "source_blocks_sha256": [
+        "1497211117435b18036f0702999275af2c8ec0b0636ec19115d8de0a8d176c5f",
+        "749ce4f281813b1a673276573c081402ad27edcd6d32c8725182f942abffe797",
+        "73aafe54b717168fee4478bd645251d2aa462ecb3251d670844137ca84e96b76",
+        "f18ada2d68e23869328772dd26637734dac0cc147cb758f9433811d2f459d365",
+        "de0190cdf9b4a72928684de3555d4df4348866f61fd2de4db815bb62f3afcb96",
+        "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
+        "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
+        "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
+      ],
+      "source_sha256": "1251a31cd077db3a8878f1f2b7d896a754c06de3e22eceb0b68690f82283ef88",
+      "text": "Divida um hospedeiro EC50 por um parasita  EC50 e carregue a incerteza.\n\nOs dois ajustes saem de uma placa, que é o argumento para computar isso aqui e não em uma planilha. spaCR segmentos de células hospedeiras e patógenos como tipos de objetos separados da mesma imagem, então a viabilidade do hospedeiro e a carga do parasita são medidas nas mesmas doses na mesma sessão de processamento. A maioria dos índices de seletividade divide dois números de dois experimentos e espera que as condições correspondam; estes não podem deixar de corresponder.\n\nO intervalo é propagado no espaço do log, onde o ajuste vive e onde uma relação é uma diferença: ``log10 SI = log10 CC50 - log10 EC50``, e as duas variâncias adicionam. Back-transformando no final dá um intervalo que é assimétrico no espaço linear, que é o formato honesto para uma relação.\n\nRecusa propaga também. Se qualquer uma das curvas foi recusada, o índice é recusado; se EC50 é ilimitado, o index é ilimitado e qualquer lado do intervalo que os dados ainda suportem é relatado em vez de descartado -  \"at least 8-fold\" é uma frase útil e isso retorna.\n\n:param pathogen: o ajuste parasita-carga, ou ``None`` se foi recusado.\n:param host: o ajuste host-viabilidade, ou ``None`` se foi recusado.\n:param confidence: sobrepõe o nível transportado pelos encaixes.\n:returns: a :class:`SelectivityIndex`, nunca uma exceção, porque uma recusa é um resultado que o chamador tem que mostrar.",
+      "translation_source_blocks_sha256": [
+        "1497211117435b18036f0702999275af2c8ec0b0636ec19115d8de0a8d176c5f",
+        "d93f5cb7f8ec20b28884b734c4799d1709b6314a2d74fa4a97f6a91bce2a3056",
+        "6af2ace189356e71ce0fc659a898b74f18e902f7806ff959165043b3a2cda378",
+        "289810e6174e84df6837ef90e84ca25d98717ded385e7d8a478824a78aad24a6",
+        "de0190cdf9b4a72928684de3555d4df4348866f61fd2de4db815bb62f3afcb96",
+        "73a6acd5db1ffb90c0ba0824452315b3ea284fef5de7716e3b692e4726cca94f",
+        "a1f99e676171c2732f3ddfab848b55c68cb7a96b430729b7d5f7907cd936619f",
+        "4b684930a8515146495ee5ed75ef2dd2fb9b191a93376e71b3531753c8e9e4cc"
       ]
     },
     "spacr.qt.widgets.dot_link": {
@@ -109560,74 +109670,6 @@
       "translation_source_blocks_sha256": [
         "fb0f31a4e8750b11ff6a66125a3987d2e52f3cda4f194a78b2e211ca6bd52cd4",
         "11d27d460559208cfc880ccc009182821f25334aaf8a9a4c8e52dd340a0aed80"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot": {
-      "source_blocks_sha256": [
-        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
-        "01e13cf524d636f02bbb9e980d914410ae32dea593e13dd8ddd2a723b103616c",
-        "0e437a99d6f73b24755fc3e761e99ee5794f97674abdc8e5fca9a24a714740fb",
-        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
-        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
-      ],
-      "source_sha256": "ca861097dbced01493f12704ef0bd3a4f669312bbbef032bed5dee541cb29063",
-      "text": "Aponta uma câmera de direção para as vinte regiões, quadro a quadro.\n\nO tour foi construído e nada o chamou. :class:`RegionTour` e  :data:`spacr.qt.widgets.fractal_regions.REGIONS` enviados com testes e sem chamador, então as coordenadas que vale a pena olhar nunca foram na visualização do aplicativo. Este é o fio, e é um objeto simples de propósito - a mesma razão  :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` é um. A tela GPU precisa de um contexto GL para existir, e todas as alegações sobre como esses movimentos viriam de uma simulação escrita ao lado do código.\n\nEle define o alvo e nada mais. O próprio seguimento exponencial da câmera é o que a move, então o passo suave do passeio entre as regiões e a abordagem da câmera para onde quer que o alvo esteja atualmente compondo em um movimento sem início e sem parada - que é todo o \"movimento suave e suave entre os pontos\" da instrução 327.\n\n:param tour: o passeio para voar, ou None para as regiões comprometidas.\nFly `tour`, ou as regiões comprometidas quando nenhuma é dada.",
-      "translation_source_blocks_sha256": [
-        "8106ff898f09418cc0edc4d31e28333a072163a38f5a9cd5874356432d9e977f",
-        "a0c54b8bd2d2d19cdce3e8c52760d0b95d97e24437a06dcd2272e0a775b09b0a",
-        "fd0cfcf4a87c74f7742eb68e4c46a395dc36ad58d247cffa9c2cbc32979e493b",
-        "0f421605fc5863eaa2f0db3860e343e74e67637de4368ffa363177322e0b21c5",
-        "938036cb69268790b24f19ab6483bf26db1b7966eb3b46fddf4545920eb4de50"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.dragged": {
-      "source_blocks_sha256": [
-        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
-      ],
-      "source_sha256": "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1",
-      "text": "O usuário pegou a câmera. O passeio não discute.",
-      "translation_source_blocks_sha256": [
-        "62bc058cf6725a2a364b23a2275834dd3a421d7d89a7e0844be698c2fbbb82f1"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.flying": {
-      "source_blocks_sha256": [
-        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
-      ],
-      "source_sha256": "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343",
-      "text": "Se o passeio ainda está dirigindo.",
-      "translation_source_blocks_sha256": [
-        "f5c783c2cdcce9a785d7ccaa16894988083cf7ab21542afc6843d151f2339343"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.restarted": {
-      "source_blocks_sha256": [
-        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
-      ],
-      "source_sha256": "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633",
-      "text": "Ctrl+R enviou o mergulho de volta à superfície; voe novamente.",
-      "translation_source_blocks_sha256": [
-        "89139238d9694140a0179c336ad024ea228b87bbcee32ae117f78105614f7633"
-      ]
-    },
-    "spacr.qt.widgets.fractal_travel.TourPilot.steer": {
-      "source_blocks_sha256": [
-        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
-        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
-        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
-        "8b22048a819450e4bfcc509cbf9ffac89d5b0504aaec5fd3f2836f6c90e67b88",
-        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
-        "c29ebc93e06f44fb3235eac9ca3c582a2a45fdfd4aee69e0610721fe3feaa029"
-      ],
-      "source_sha256": "cae97c1dc739b592e6d17360a2914faedb9f2dc9bc12d4c98743fd9bf11552e9",
-      "text": "Aponte para `camera` onde quer que o passeio esteja em  `seconds`.\n\n:param camera: a :class:`SteeringCamera`; apenas o  ``target`` é escrito.\n:param seconds: O relógio de simulação.\n:param span: a meia altura da porta de visão, na camada de imagem complexa. O passeio é um itinerário SURFACE - cada região carrega a meia largura que permanece interessante - então, uma vez que a visão é mais estreita do que a região em que chegou, dirigindo-se para a próxima iria voar a imagem passado em uma escala onde nada é reconhecível. Abaixo que a câmera mantém o que tem.\n:returns: True quando um alvo foi escrito.\n\nNunca joga: este é o caminho do quadro de um pano de fundo, e uma turnê que não pode responder deve custar a decisão de um quadro em vez da imagem.",
-      "translation_source_blocks_sha256": [
-        "0fba1d51f929b421c565bc35fd5c482c8d5cb575aec2586bedc8d118fa44409b",
-        "6b3c88baf3e5e834b31f16a274b55ec3b62a027549ed684f274f921415a32dd4",
-        "ed183753746d6402094fa2e387f6b8b9198ce9690c2e30c075283a4dd59aebc1",
-        "c06bcab5ad7b25a60fe7f661daa5fda0c4d6956b733af6ac4c03c57176a27aa7",
-        "2b869d097568c89064b187fb64b323b26c692214117702a2f0691c429d37fd4b",
-        "1201fa29f457b5313f97f16c703bd053f41f7adfa134be365981149eed019796"
       ]
     },
     "spacr.qt.widgets.fractal_travel.apply_saved_controls": {
@@ -148673,8 +148715,8 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "2f24168c22ccf8d4b303286cb8dd014d203b40863c8c33071cbe8c53d9f4f062"
       ],
-      "source_sha256": "e253a79682bf135a6a23d35fa66e9782c1a6e62858544f49ecf6c129e2e318f1",
-      "text": "Ensaio de invasão: marque todos os parasitas anexados ou invadidos e relate a eficiência por posição da amostra de microplacas.\n\nO ensaio de invasão vermelho/verde mancha duas vezes. Antes da permeabilização, um anticorpo atinge apenas os parasitas ainda **fora** a célula hospedeira, de modo que esses são positivos em ambos os canais de dados de imagem; as células são então permeabilizadas e um segundo anticorpo mancha **todos** parasitos, de modo que um parasita positivo apenas no canal de dados de imagem pós-permeabilização estava dentro.\n\n* **anexado / fora** presente no canal de dados de imagem externa;\n* **Invadida / por dentro** = *ausente* a partir do canal de dados de imagem de mancha externa.\n\nLeia essa assimetria com cuidado, porque todo o design segue a partir dele. \"Inside\" é definido por uma ausência, e ausência é a direção não confiável. Pobre penetração de anticorpos, uma camada de imagem focal fora do equador do parasita, fotobleaching, um parasita de baixa expressão - cada um deles remove o sinal externo de um parasita que está genuinamente fora, e cada um, portanto, *inflates* eficiência de invasão. Nada plausível empurra o erro para o outro lado. O limite no canal de dados da imagem externa é o único número em que o ensaio se baseia, por isso é derivado dos dados, relatados por campo de visão do microscópio em ``fields``, cruzados contra um corte derivado de controle quando existe, e apoiado por um par de sensibilidade que diz quanto da resposta é o limiar.\n\nTrês decisões de design que valem a pena ser declaradas:\n\n* **O limiar é por campo de visão do microscópio.** A iluminação e a coloração variam de campo de visão do microscópio para campo de visualização do microscópio, e um corte laboratorial em toda a microplaca transforma um gradiente de iluminação em um gradiente da invasão. :func:`_invasion_field_thresholds`.\n* **Controles batem qualquer método automático.** ``control_wells`` nomeia posições de amostra de microplacas cujos parasitas são conhecidos por não transportar nenhuma mancha externa; o limiar é então um quantile alto dessa distribuição negativa honesta (``control_quantile``), as posições da amostra da microplaca do controle são excluídas dos resultados, e ``threshold_source`` diz ``'control'`` assim que o relatório não pode ser confundido para uma execução automática.\n* **Um limiar sem duas populações é arbitrário.** Otsu alegremente dividirá um único sinal no meio e retornará um número confiante. ``bimodality_coefficient`` e ``qc_flag_unimodal`` Diga quando isso aconteceu, por campo de visão do microscópio e por posição da amostra da microplaca, em vez de deixá-la passar silenciosamente. :func:`_bimodality_coefficient`.\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` e é sempre relatado ao lado de ``n_total``: 90% de dez parasitas e 90% de quatro mil não são o mesmo resultado. Uma posição de amostra de microplacas que não marcou nada recebe NaN, não 0,0.\n\n**Estatísticas usam a posição da amostra de microplacas como a unidade de replicação.** Parasitas dentro de uma posição de amostra de Microplacas compartilham um coverslip, um banho de anticorpos e uma camada de imagem focal, para que eles não sejam independentes; o teste relatado é um Mann-Whitney U na eficiência da posição por microplaca da amostra. Um qui-quadrado agrupado é relatado ao lado dele puramente para que sua inflação seja visível. Veja :func:`_invasion_compare_conditions`.\n\n:param settings: mapeamento chave-valor de configurações de invasão; ver ``set_analyze_invasion_defaults``. Entradas de dados estruturados:\n\n    - ``src`` diretório de placas (ou lista) segurando ``measurements/measurements.db``.\n    - Prefixo de tabela e coluna ``parasite_table`` / ``compartment`` com uma linha por parasita segmentado. padrão ``'pathogen'``.\n    - ``outside_channel`` / ``total_channel`` os canais de dados de imagem mancha pré e pós-permeabilização.\n    - ``intensity_statistic`` qual estatística por objeto do canal externo ao limiar; ``'auto'`` prefere o limite restrito. Ver :func:`_resolve_invasion_intensity_column`.\n    - ``background_correction`` fundo local opcional por objeto.\n    - ``outside_threshold_method`` / ``outside_threshold`` método automático, ou um corte fixo que substitui.\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` / ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` / ``threshold_sensitivity`` / ``inflation_warn`` / ``min_parasites_per_well`` os limiares QC.\n    - ``extracellular_class`` como parasitas sem célula hospedeira são marcados.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` e seus mapas de poço ``*_plate_metadata``, além de ``group_column`` e ``level``.\n    - ``save`` escreva os CSVs e figuras em ``<src>/results/analyze_invasion``.\n\n:returns: mapeamento chave-valor com ``parasites`` (classificação por objeto), ``fields`` (por microscópio de campo de visão limiares e QC), ``wells`` (eficiência da posição da amostra por microplaca, denominadores e QC bandeiras), ``summary`` (por condição), ``comparisons`` (estatísticas de posição da amostra por microplaca), ``chi_squared`` / ``chi_squared_pairwise`` (testes de omnibus de barras de proporção compartilhados), ``controls`` (os objetos de posição da amostra de microplacas de controle, se houver), ``control_thresholds``, ``intensity_column``, ``intensity_statistic`` e ``figures``.\n:raises ValueError: quando a tabela de parasitas não contém linhas utilizáveis.\n:raises KeyError: quando a estatística ou coluna de grupo solicitada estiver ausente.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'control_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\nVeja também: :func:`analyze_replication` o ensaio parasitos-por-vácuole, cuja leitura de tabela, anotação de condição e layout de saída segue.",
+      "source_sha256": "2ab334769004b282614d42d312f989943c6e9e626bb3ce4ef819c4664dbbda82",
+      "text": "Ensaio de invasão: marque todos os parasitas anexados ou invadidos e relate a eficiência por posição da amostra de microplacas.\n\nO ensaio de invasão vermelho/verde mancha duas vezes. Antes da permeabilização, um anticorpo atinge apenas os parasitas ainda **fora** da célula hospedeira, de modo que esses são positivos em ambos os canais de dados de imagem; as células são então permeabilizadas e um segundo anticorpo mancha  **todos** parasitas, portanto, um parasita positivo apenas no canal de dados da imagem pós-permeabiliação estava dentro: Assim:\n\n* **anexado/exterior**  presente no canal de dados de imagem externo;\n* **invadido / dentro**   *ausente* do canal de dados de imagem externo.\n\nLeia essa assimetria com cuidado, porque todo o design segue a partir dele. \"Inside\" é definido por uma ausência, e ausência é a direção não confiável. Pobre penetração de anticorpos, uma camada de imagem focal fora do equador do parasita, fotobleaching, um parasita de baixa expressão - cada um deles remove o sinal externo de um parasita que está genuinamente fora, e cada um, portanto, *inflates* eficiência de invasão. Nada plausível empurra o erro para o outro lado. O limite no canal de dados da imagem externa é o único número em que o ensaio se baseia, por isso é derivado dos dados, relatados por campo de visão do microscópio em ``fields``, cruzados contra um corte derivado de controle quando existe, e apoiado por um par de sensibilidade que diz quanto da resposta é o limiar.\n\nTrês decisões de design que valem a pena ser declaradas:\n\n* **O limiar é por campo de visão do microscópio.** A iluminação e a coloração variam de campo de visualização do microscópio para campo de vista do microscópio, e um corte laboratorial em toda a microplaca transforma um gradiente de iluminação em um gradiente da invasão. Veja  :func:`_invasion_field_thresholds`.\n* **Controles batem qualquer método automático.**  ``control_wells`` nomeia posições de amostra de microplacas cujos parasitas são conhecidos por não conterem manchas externas; o limiar é então um quantilo alto dessa distribuição negativa honesta (``control_quantile``), as posições de amostras de micro placas de controle são excluídas dos resultados e ``threshold_source`` diz  ``'control'`` para que o relatório não possa ser confundido com uma execução automática.\n* **Um limiar sem duas populações é arbitrário.** Otsu alegremente dividirá um único esfregaço de sinal no meio e retornará um número confiante.  ``bimodality_coefficient`` e  ``qc_flag_unimodal`` dizem quando isso aconteceu, por campo de visão de microscópio e por posição de amostra de microplacas, em vez de deixá-lo passar silenciosamente. Veja :func:`_bimodality_coefficient`.\n\n``invasion_efficiency = n_invaded / (n_invaded + n_attached)`` e é sempre relatado ao lado de  ``n_total``: 90% de dez parasitas e 90% de quatro mil não são o mesmo resultado. Uma posição de amostra de microplacas que não marcou nada fica  NaN, não 0,0.\n\n**Estatísticas usam a posição da amostra de microplacas como a unidade de replicação.** Parasitas dentro de uma posição de amostra de Microplacas compartilham um coverslip, um banho de anticorpos e uma camada de imagem focal, para que eles não sejam independentes; o teste relatado é um Mann-Whitney U na eficiência da posição por microplaca da amostra. Um qui-quadrado agrupado é relatado ao lado dele puramente para que sua inflação seja visível. Veja :func:`_invasion_compare_conditions`.\n\n:param settings: mapeamento chave-valor das configurações de invasão; veja ``set_analyze_invasion_defaults``.\n\n    - ``src`` diretório de placas (ou lista) segurando  ``measurements/measurements.db``.\n    - Prefixo de tabela e coluna ``parasite_table`` / ``compartment`` com uma linha por parasita segmentado. padrão ``'pathogen'``.\n    - ``outside_channel`` /  ``total_channel`` os canais de dados de imagem mancha pré e pós-permeabilização.\n    - ``intensity_statistic`` qual estatística por objeto do canal externo ao limiar; ``'auto'`` prefere o limite restrito. Ver :func:`_resolve_invasion_intensity_column`.\n    - ``background_correction`` fundo local opcional por objeto.\n    - ``outside_threshold_method`` /  ``outside_threshold`` método automático, ou um corte fixo que o substitui.\n    - ``control_wells`` / ``control_quantile`` / ``min_control_objects``.\n    - ``min_objects_for_threshold`` / ``min_objects_for_bimodality`` / ``bimodality_cutoff`` / ``threshold_agreement_tolerance`` / ``threshold_sensitivity`` / ``inflation_warn`` / ``min_parasites_per_well`` os limiares QC.\n    - ``extracellular_class`` como parasitas sem célula hospedeira são marcados.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` e seus mapas de poço ``*_plate_metadata``, além de ``group_column`` e ``level``.\n    - ``save`` escreva o  CSVs e figuras em  ``<src>/results/analyze_invasion``.\n\n:returns: mapeamento chave-valor com ``parasites`` (classificação por objeto), ``fields`` (limites de campo de visão por microscópio e QC), ``wells`` (eficiência da posição da amostra por microplaca, denominadores e bandeiras QC), ``summary`` (por condição), ``comparisons`` (estatísticas de posição da amostra por microplaca), ``chi_squared`` / ``chi_squared_pairwise`` (os testes omnibus de barra de proporção compartilhada), ``controls`` (os objetos da posição da amostra da microplaca de controle, se houver), ``control_thresholds``, ``intensity_column``, ``intensity_statistic`` e ``figures``.\n:raises ValueError: quando a tabela de parasitas não contém linhas utilizáveis.\n:raises KeyError: quando a estatística ou coluna de grupo solicitada estiver ausente.\n\nExemplo:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_invasion\n        out = analyze_invasion({\n            'src': '/data/plate1',\n            'outside_channel': 1,\n            'total_channel': 0,\n            'stain_baseline_wells': ['c12'],\n            'pathogen_types': ['dmso', 'inhibitor'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['wells'][['prc', 'n_total', 'invasion_efficiency',\n                            'qc_flags']])\n\nVeja também: :func:`analyze_replication` o ensaio parasita-por-vácuo, cuja leitura da tabela, anotação da condição e layout de saída segue.",
       "translation_source_blocks_sha256": [
         "69c025a38bc0aaa69478f030902fde227087b77e5c872244fc2a2f9ddbcf3318",
         "f4d5b72a9e83054cbd40e15e42063f7f6b4609410dd870cd202788a8d568919f",
