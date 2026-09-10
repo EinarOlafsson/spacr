@@ -1,0 +1,31 @@
+{
+  "language": "sv",
+  "title": "Parametersvep",
+  "description": "Kör två försök i Regression och skilj en slutförd beräkning från giltig inferens.",
+  "objectives": [
+    "Välj fyra ordnade par med poäng- och räkningsfiler.",
+    "Begränsa rutnätet till två försök och en arbetsprocess och läs sparade resultat.",
+    "Håll isär koefficientfamiljer och redovisa underkända inferenskontroller."
+  ],
+  "prerequisite": "Använd de fyra nedladdade plattparen från Regression-lektionen och en ny utdatamapp. Båda ridge-försöken underkänns i inferenskontrollen; detta är ingen validerad träffanalys. Endast alpha varierar: 0.01 och 0.1. Parametrisk inferens, medelvärden per brunn och ingen transformering väljs uttryckligen. Övriga överordnade inställningar ärvs inte automatiskt. n_rows_fitted räknar 1174 koefficienter, inte 620 brunnar eller 2955 förberedda rader. Kontrollera sweep_results.csv och faktiska inställningar: tabellen utelämnar alpha och QC-bedömningarna. API: spacr.parameter_sweep.SweepSpace och run_sweep_parallel. Inget GPU-prestandatest, externt AI-anrop, modersmålsgodkännande eller publicering.",
+  "scenes": [
+    "Öppna Regression och sedan Parameter sweep längst ned till höger. Arbetsflödet ligger i Regression, inte på en egen Home-panel. Regression-lektionen visar hur du laddar ned de fyra paren med poäng- och räkningsfiler som återanvänds här.",
+    "Kontrollera svepets egna indatalistor. De är först tomma även när det överordnade formuläret innehåller parade data. Lägg till fyra poängfiler och fyra räkningsfiler i samma plattordning. Välj en ny utdatamapp så att demonstrationen inte skriver över en tidigare analys.",
+    "Markera bara alpha, med noll komma noll ett och noll komma ett. Omarkerade rader anger fortfarande fasta inställningar. Här väljer vi uttryckligen ridge, parametrisk inferens, medelvärden per brunn och ingen transformering. Det begränsade receptet visar funktionen; det är ingen rekommendation för ditt experiment.",
+    "Välj grid, högst två försök och en arbetsprocess, och klicka på Estimate. Två giltiga kombinationer betyder tillåtna inställningar, inte giltiga statistiska slutsatser. Tidsuppskattningen antar en minut per försök; det är inget prestandatest. Läs tillgängliga resursgränser innan du startar.",
+    "Klicka på Start sweep, inte på Regression-formulärets Run. Varje försök skriver i en egen mapp. De två riktiga försöken körs i följd; fler arbetsprocesser ökar resursbehovet. Exemplet visar CPU-regression, inte GPU-acceleration, och behöver inget anrop till spaCR AI.",
+    "Båda raderna visar ok eftersom beräkningen avslutats. Men båda sparade inferenskontrollerna visar fail. Tabellen utelämnar bedömningarna och det varierade alpha: granska hela resultatfilen och varje försöks inställningar. Välj inte modell bara för att den ger fler små justerade P-värden.",
+    "Välj första raden och klicka på Show figures for selected row. Sparade resultat läses utan ny modellanpassning. Guidevyn har 792 koefficientrader, inklusive ett intercept; diagrammet utelämnar den störtermen och visar 791 guider. Höjden är den negativa tiologaritmen av det råa P-värdet.",
+    "Byt Level till Gene. Tabellen har nu 382 rader, inklusive sitt intercept, och diagrammet visar 381 gener. Guider och gener är separata koefficientfamiljer. Att byta vy gör inte den underkända inferensen giltig och skapar ingen oberoende evidens.",
+    "Byt tillbaka till guider: ursprungliga rader och punkter återkommer och filerna är oförändrade. Sammanfattningens rows fitted är missvisande här: det räknar koefficientrader, inte brunnar. Skilj på antal indataprover, utdatakoefficienter och visad familj när du rapporterar analysen.",
+    "Läs sparade inställningar, sammanfattning och kvalitetskontrollfiler tillsammans. Ett diagram eller en AI-förklaring kan inte intyga en studiedesign. Regression Diagnostics visar fler kontroller, och API-referensen beskriver svepkörningen. Exemplet lär ut ett reproducerbart arbetsflöde och dess begränsningar, inte validerade biologiska träffar."
+  ],
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "review": {
+    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}

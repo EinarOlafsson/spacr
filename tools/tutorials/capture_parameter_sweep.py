@@ -190,6 +190,12 @@ def record_sweep(app,window,stage,captures,capture,settle,write_json,timeout,*,e
         QTest.keyClick(box.view(),Qt.Key_Return);settle(.6)
         if panel.results.level()!='grna':raise ValueError('Actual selector did not restore guides')
         result_snapshot('12_saved_guide_family_restored')
+        tabs=panel.results.tabs;bar=tabs.tabBar()
+        index=tabs.indexOf(panel.results._summary)
+        if index<0:raise ValueError('Actual model Summary tab unavailable')
+        QTest.mouseClick(bar,Qt.LeftButton,pos=bar.tabRect(index).center());settle(.4)
+        proof['model_summary_text']=panel.results._summary.toPlainText()
+        capture('13_actual_saved_model_summary')
         if 'Nothing was re-fitted' not in panel.trial_status.text():
             raise ValueError('The selected saved trial did not use its existing results')
         if any(sha(p)!=h for p,h in trial_files.items()):raise ValueError('Opening saved results rewrote a trial')

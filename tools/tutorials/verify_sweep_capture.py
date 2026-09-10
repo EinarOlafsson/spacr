@@ -13,15 +13,15 @@ def verify(capture):
     proof=json.loads((capture/'scientific_acceptance.json').read_text())
     provenance=json.loads((capture/'provenance.json').read_text())
     work=Path(proof['private_folder'])
-    if not provenance['completed_capture'] or proof['new_sweep_requested']:
-        raise ValueError('Expected a completed read-only saved-sweep replay')
+    if not provenance['completed_capture']:
+        raise ValueError('Expected a completed sweep capture')
     for name,digest in proof['original_inputs'].items():
         if sha(name)!=digest or sha(work/'inputs'/Path(name).name)!=digest:
             raise ValueError('Original or private example input changed')
     rows=list(csv.DictReader((work/'trials/sweep_results.csv').open()))
     report=dict(lesson='73_parameter_sweep',source_commit=provenance['commit'],
         capture=str(capture),accepted=False,scope='saved execution and display consistency only',
-        inference_validated=False,published=False,new_fits_requested=False,
+        inference_validated=False,published=False,new_fits_requested=proof['new_sweep_requested'],
         display=check_display(proof['displayed_headers'],proof['displayed_rows'],rows),trials=[])
     for row in rows:
         folder=Path(row['folder']);path=folder/'results/ridge/results.csv'

@@ -1,0 +1,31 @@
+{
+  "language": "pt-BR",
+  "title": "Varredura de parâmetros",
+  "description": "Execute duas tentativas em Regression e diferencie a conclusão do cálculo de uma inferência válida.",
+  "objectives": [
+    "Selecionar quatro pares ordenados de arquivos de escores e contagens.",
+    "Limitar a grade a duas tentativas e um processo, depois consultar resultados salvos.",
+    "Separar as famílias de coeficientes e destacar verificações de inferência reprovadas."
+  ],
+  "prerequisite": "Use os quatro pares de placas baixados na aula Regression e uma nova pasta de saída. As duas tentativas ridge reprovam nas verificações de inferência: não são descobertas biológicas validadas. Só alpha varia, 0.01 e 0.1; inferência paramétrica, médias por poço e nenhuma transformação ficam explícitas. Nem todas as configurações do formulário principal são herdadas. n_rows_fitted conta 1174 coeficientes, não 620 poços nem 2955 linhas preparadas. Confira sweep_results.csv e as configurações reais: a tabela omite alpha e os pareceres de qualidade. API: spacr.parameter_sweep.SweepSpace e run_sweep_parallel. Sem benchmark de GPU, chamada externa à IA, aprovação de falante nativo ou publicação.",
+  "scenes": [
+    "Abra Regression e depois Parameter sweep, no canto inferior direito. Esse fluxo fica dentro de Regression, não em um bloco separado da Home. A aula Regression explica como baixar os quatro pares de arquivos de escores e contagens reutilizados aqui.",
+    "Confira as listas de entrada da própria varredura. Elas começam vazias mesmo quando o formulário principal contém dados pareados. Adicione os quatro arquivos de escores e os quatro de contagens na mesma ordem de placas. Escolha uma nova pasta de saída para não sobrescrever uma análise anterior.",
+    "Marque apenas alpha, com zero vírgula zero um e zero vírgula um. As linhas desmarcadas ainda fornecem configurações fixas. Aqui escolhemos explicitamente ridge, inferência paramétrica, médias por poço e nenhuma transformação. Essa receita limitada demonstra o funcionamento; não é uma recomendação para seu experimento.",
+    "Selecione grid, no máximo duas tentativas e um processo de trabalho; clique em Estimate. Duas combinações válidas significa que as configurações são permitidas, não que as conclusões estatísticas sejam válidas. A estimativa pressupõe um minuto por tentativa; não é um benchmark. Leia os limites de recursos antes de iniciar.",
+    "Clique em Start sweep, não no botão Run do formulário principal. Cada tentativa grava em sua própria pasta. Essas duas tentativas reais rodam em sequência; mais processos exigem mais recursos. O exemplo usa regressão em CPU, não aceleração por GPU, e não precisa de nenhuma solicitação à spaCR AI.",
+    "As duas linhas mostram ok porque o cálculo terminou. Porém, as duas verificações de inferência salvas mostram fail. A tabela omite esses pareceres e o alpha variável: confira o arquivo completo de resultados e as configurações de cada tentativa. Não escolha um modelo só porque ele produz mais valores P ajustados pequenos.",
+    "Selecione a primeira linha e clique em Show figures for selected row. Isso lê resultados salvos sem ajustar novamente o modelo. A vista de guias contém setecentas e noventa e duas linhas de coeficientes, incluindo um intercepto; o gráfico exclui esse termo e mostra setecentas e noventa e uma guias. A altura representa o logaritmo decimal negativo do valor P bruto.",
+    "Mude Level para Gene. A tabela passa a ter trezentas e oitenta e duas linhas, incluindo seu intercepto, e o gráfico mostra trezentos e oitenta e um genes. Guias e genes são famílias de coeficientes separadas. Mudar a vista não valida a inferência reprovada nem cria evidência independente.",
+    "Volte às guias: as linhas e os pontos originais reaparecem, e os arquivos salvos permanecem iguais. O campo rows fitted do resumo é enganoso aqui: conta linhas de coeficientes, não poços. Diferencie o número de amostras de entrada, os coeficientes de saída e a família mostrada ao relatar uma análise.",
+    "Consulte juntos as configurações, o resumo e os arquivos de controle de qualidade salvos. Um gráfico ou uma explicação de IA não certifica um desenho de estudo. Regression Diagnostics apresenta outras verificações; a referência API documenta a execução da varredura. Este exemplo ensina um fluxo reproduzível e seus limites, não descobertas biológicas validadas."
+  ],
+  "lesson": "73_parameter_sweep",
+  "english_sha256": "2b6898d74bd7929cc6bf8b5c6e405457ee2e14e57608d9fd649a32b88106f307",
+  "review": {
+    "kind": "Editorial translation of frozen English; actual failed inference and recorded numerical limits preserved",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  }
+}
