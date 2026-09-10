@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Control Charts: skoðið tilraunaröð með skýrum viðmiðum og mörkum",
+  "description": "Opnið verkfærið í QC, hlaðið tilbúnu dæmi með þrjátíu plötum, staðfestið valið viðmiðunarsýni og grunnlínu og flytjið út punkta sem hafa verið sannreyndir óháð forritinu.",
+  "objectives": [
+    "Finnið Control Charts í QC og hlaðið meðfylgjandi tilbúinni CSV-skrá.",
+    "Greinið á milli raða fyrir brunna og meðaltala fyrir plötur og veljið aðeins eina gerð viðmiðunarsýnis.",
+    "Berið saman reglur, breytið viðmiðunarsýni og grunnlínu, endurheimtið fyrri gildi og lesið viðvaranir.",
+    "Flytjið út raunverulega punktatöflu án þess að fullyrða að mynd hafi verið flutt út eða líffræðileg staðfesting farið fram."
+  ],
+  "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv er að öllu leyti tilbúin og byggð á prófun forritsins með föstu slembifræi: þrjátíu ímyndaðar plötur, þrír brunnar af hverri gerð viðmiðunarsýnis á hverri plötu og forrituð hækkun eftir tuttugustu plötu. Dagsetningarnar sýna dæmigerða röð, ekki raunverulega myndatöku. Þetta sérhæfða viðmót hefur nú engan Load test data-hnapp; engin smásjármæligögn eru sótt og engin líkön, GPU-greining eða AI-fyrirspurnir notuð. Eldri upptöku með tveimur plötum var hafnað því forritið neitaði að meta mörk. Mjór stillingadálkur styttir löng heiti þegar valmyndir eru lokaðar; opnar valmyndir sýna þau í heild. Z-prime og endurmat eru ekki prófuð hér.",
+  "scenes": [
+    "Opnið QC og síðan Control Charts-hnappinn. Þetta sérhæfða verkfæri sýnir endurtekin viðmiðunarsýni í tilraunaröð. Meðfylgjandi CSV-skrá er skýrt merkt sem tilbúin, þar með talin hækkunin. Hún sýnir virkni hugbúnaðarins, ekki raunverulega mælda tilraun eða staðfesta rannsóknaraðferð.",
+    "Veljið Load table og opnið CSV-dæmið. Það inniheldur tvö hundruð og sjötíu raðir fyrir brunna: þrjátíu plötur, hver með þremur neikvæðum viðmiðunarbrunnum, þremur jákvæðum og þremur sýnisbrunnum. Grafið sýnir eitt meðaltal valda viðmiðunarsýnisins á hverri plötu, ekki einn punkt fyrir hverja frumu.",
+    "Berið Plate, Run order, Measurement og Control column saman við heitin á skjánum. Veljið aðeins neg í Control is. Listinn leyfir fleiri en eitt val; ef ekkert er valið eru allar raðir notaðar. Gerið aldrei ráð fyrir að innlestur skrár hafi þegar valið viðmiðunarsýnið sem þið ætlið að nota.",
+    "Opnið Sigma from til að lesa alla valkostina. Auto velur hér mat út frá undirhópum því hver plata hefur þrjá valda brunna. Mörkin nota breytileika innan grunnlínuplata, leiðréttan fyrir úrtaksstærð meðaltalsins, en ekki staðalfrávik allrar raðarinnar með hækkuninni.",
+    "Rules býður venjulegu fjórar reglurnar, allar átta eða Limits only. Fleiri reglur skapa einnig fleiri tækifæri til falskra viðvarana. Við veljum Limits only til að skoða þriggja sigma regluna eina. Breytt val endurreiknar grafið án sérstaks Run-hnapps.",
+    "Baseline plates er tuttugu: P núll einn til P tuttugu ákvarða mörkin sem síðan gilda fyrir plöturnar sem eftir eru. Níu punktar, P tuttugu og tveir til P þrjátíu, fara yfir efri mörkin. Skýrslan og reglutaflan auðkenna þá; þetta eru forrituð merki, ekki líffræðilegar uppgötvanir.",
+    "Aftakið neg og veljið aðeins pos. Grafið sýnir nú meðaltöl hins viðmiðunarsýnisins og eigin grunnlínumörk þess, án brota á reglu eitt í þessu dæmi. Graf án viðvarana sannar ekki eitt og sér að rannsóknaraðferð sé gild. Veljið neg aftur áður en haldið er áfram.",
+    "Breytið Baseline plates í tólf, fylgist með miðlínu og mörkum breytast og stillið síðan aftur á tuttugu. Forritið krefst að minnsta kosti átta grunnlínuplata, en þetta lágmark er ekki ráðlegging. Skipuleggið grunnlínuna og rökstyðjið hana; breytið henni ekki eingöngu til að losna við óæskilegar viðvaranir.",
+    "Þegar upphaflega viðmiðunarsýnið og tuttugu platna grunnlínan hafa verið endurheimt, veljið Export points og vistið sérstaka CSV-skrá. Þrjátíu raðir innihalda plötuauðkenni, röð, meðaltal, stærð og dreifingu undirhóps, mörk, staðlaða fjarlægð, hvort platan tilheyri grunnlínu og reglur sem virkjuðust. Þetta er hvorki grafmynd né útflutningur allra stillinga.",
+    "Öll útflutt auðkenni og talnasvið voru borin saman við upprunalegu CSV-skrána, þar með taldar merkingar reglu eitt. Upprunalega inntakið er óbreytt. Fyrir skriftur býður einingin fyrir stjórnkortsviðmótið upp á ControlChartSpec og control_chart; niðurstaðan veitir points_frame. Geymið inntak, stillingar og skráningar um gagnaöflun saman þegar raunverulegar viðvaranir eru rannsakaðar."
+  ]
+}

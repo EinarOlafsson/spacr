@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "nb",
+  "title": "Control Charts: undersøk en forsøksserie med tydelige kontroller og grenser",
+  "description": "Åpne verktøyet i QC, last inn en tydelig syntetisk serie med tretti plater, kontroller valgt kontroll og referanseperiode, og eksporter uavhengig etterprøvde punkter.",
+  "objectives": [
+    "Finn Control Charts i QC og last inn den medfølgende syntetiske CSV-filen.",
+    "Skill mellom inputrader for brønner og plategjennomsnitt, og velg nøyaktig én kontroll.",
+    "Sammenlign regler, endre og gjenopprett kontroll og referanseperiode, og les advarslene.",
+    "Eksporter den faktiske punkttabellen uten å hevde bildeeksport eller biologisk validering."
+  ],
+  "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv er helt syntetisk og tilpasset fra en apptest med fast seed: tretti fiktive plater, tre brønner per kontrolltype per plate og programmert oppadgående drift etter plate tjue. Datoene viser en illustrativ rekkefølge, ikke opptaksregistreringer. Dette spesialpanelet har foreløpig ingen Load test data-knapp; det brukes ingen mikroskopinedlasting, modell, GPU-analyse eller AI-forespørsel. Det gamle opptaket med to plater ble forkastet fordi appen nektet å estimere grenser. Den smale innstillingskolonnen avkorter lange lukkede valg; de åpne menyene viser hele navnene. Z-prime og reestimering prøves ikke her.",
+  "scenes": [
+    "Åpne QC og deretter knappen Control Charts. Dette spesialverktøyet viser gjentatte kontroller gjennom en forsøksserie. CSV-filen som følger med er uttrykkelig syntetisk, også driften. Den demonstrerer programvaren, ikke et faktisk målt eksperiment eller et validert assay.",
+    "Velg Load table og åpne eksempel-CSV-filen. Den inneholder to hundre og sytti rader på brønnivå: tretti plater, hver med tre negative kontrollbrønner, tre positive kontrollbrønner og tre prøvebrønner. Grafen viser ett gjennomsnitt av den valgte kontrollen per plate, ikke ett punkt per celle.",
+    "Kontroller Plate, Run order, Measurement og Control column mot navnene som vises. Velg bare neg i Control is. Listen tillater flere valg; hvis ingen nivåer er valgt, brukes alle rader. Anta aldri at innlasting av filen allerede har valgt kontrollen du ønsker.",
+    "Åpne Sigma from for å lese alle alternativene. Auto velger undergruppeestimatoren her fordi hver plate har tre valgte brønner. Grensene bruker variasjonen innenfor referanseperiodens plater, justert for gjennomsnittets utvalgsstørrelse, ikke standardavviket til hele serien med drift.",
+    "Rules tilbyr de vanlige fire reglene, alle åtte eller Limits only. Flere regler gir også flere muligheter for falske alarmer. Vi velger Limits only for å isolere tre-sigma-regelen. Et nytt menyvalg beregner grafen på nytt uten en egen Run-knapp.",
+    "Baseline plates er tjue: P null én til P tjue bestemmer grensene som brukes på de resterende platene. Ni punkter, P tjueto til P tretti, ligger over øvre grense. Rapporten og regeltabellen identifiserer dem; disse programmerte signalene er ikke biologiske funn.",
+    "Fjern valget neg og velg bare pos. Grafen viser nå den andre kontrollens gjennomsnitt og egne referansegrenser, uten brudd på regel én i dette eksempelet. En rolig graf alene beviser ikke at et assay er gyldig. Gjenopprett neg før du fortsetter.",
+    "Endre Baseline plates til tolv, se hvordan sentrum og grensene endres, og gjenopprett deretter tjue. Appen krever minst åtte referanseplater, men minimumskravet er ikke en anbefaling. Planlegg og begrunn referanseperioden; ikke juster den bare for å fjerne uønskede varsler.",
+    "Med den opprinnelige kontrollen og tjue referanseplater gjenopprettet velger du Export points og lagrer en separat CSV. De tretti radene inneholder plateidentitet, rekkefølge, gjennomsnitt, undergruppestørrelse og spredning, grenser, standardisert avstand, tilhørighet til referanseperioden og utløste regler. Dette er ikke et grafbilde eller en full konfigurasjonseksport.",
+    "Hver eksporterte identitet og hvert tallfelt er kontrollert mot kilde-CSV-filen, også markeringene for regel én. Opprinnelig input er uendret. For skriptbruk tilbyr kontrollkortets widgetmodul ControlChartSpec og control_chart; resultatet har points_frame. Oppbevar input, innstillinger og opptaksnotater samlet når du undersøker virkelige varsler."
+  ]
+}
