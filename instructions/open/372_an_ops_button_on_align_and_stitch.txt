@@ -2770,3 +2770,72 @@ ALSO SHIPPED: `tools/run_ops_a2.py`, so the run that checks these modules
 against PART 11-D's numbers is one command rather than a script somebody
 writes again in a temporary directory. Every number in PARTS 6 to 11 came
 from such a script and those scripts are gone.
+
+
+--------------------------------------------------------------------------------
+PART 13-E -- THE 150 REJECTIONS WERE THE PAIR-ORDER BUG, AND 624/624 WAS NOT
+EVIDENCE. 2026-09-09.
+--------------------------------------------------------------------------------
+
+PART 13-C found that `WellLayout.pairs()` returned (lower site, higher
+site) where `register_edge` needs (upper, lower) -- geometric order, not
+index order, because the raster snakes and in a bottom-to-top column the
+tile ABOVE carries the higher index. It was found on a 21-tile toy well.
+
+THE OTHER SESSION REPRODUCED IT ON THE REAL PLATE WITHOUT KNOWING THAT IS
+WHAT THEY WERE MEASURING, which is the strongest form this evidence could
+have taken. They were asking what the strip's 150 rejections had in common:
+
+    ACCEPTED  n=474   vertical 162   horizontal 312   edge-tile 17%
+    REJECTED  n=150   vertical 150   horizontal   0   edge-tile 16%
+
+    rejected peak ratio quartiles: 6.2 / 7.3 / 7.9 / 9.3 / 19.0
+
+EVERY REJECTION IS VERTICAL AND NOT ONE IS HORIZONTAL. 150 of 312 vertical
+pairs -- 48%, half of them -- in a 21-column snake where half the columns
+run bottom to top. The edge-tile share is identical between the groups
+(16% against 17%) and so is the dimmer tile's intensity (2061 against
+2055), so it is neither the well's rim nor a dark band: both hypotheses
+were tested and both are flat.
+
+AND THE RATIOS SAY IT TOO. The rejected pairs run 6.2 to 19.0 with a
+median of 7.9, which IS the no-overlap distribution -- the deliberate
+controls are 5.9 to 18.9 with a median of 8.1. Those pairs were not weakly
+registered. They were correlating two strips that share nothing, because
+the bottom of one tile was being matched against the bottom of the other.
+
+--------------------------------------------------------------------------------
+SO PART 11-D's "624 OF 624" IS NOT EVIDENCE THAT THE STRIP WORKS
+--------------------------------------------------------------------------------
+
+That run used WHOLE-TILE correlation with a DC mask, and whole-tile is
+SYMMETRIC: it cannot tell a bottom-vs-top crop from a top-vs-bottom one,
+because it uses all of both tiles either way. So it accepted all 624
+INCLUDING the 150 that were being read from the wrong ends, and the number
+looked like a clean result.
+
+  THE STRIP IS THE FIRST THING SENSITIVE ENOUGH TO NOTICE, and its 150
+  "rejections" were it telling the truth about a defect upstream of it.
+  They were recorded as a COST of the strip -- "it rejects 150 pairs
+  whole-tile accepted" -- and treated as something to explain before
+  tuning anything. That instinct is what stopped a threshold being fitted
+  to them.
+
+TWO LESSONS, AND THE SECOND IS THE ONE TO KEEP.
+
+  1. A MORE SENSITIVE INSTRUMENT REPORTS MORE FAILURES, AND THAT IS NOT A
+     REGRESSION. The whole-tile number was higher and less true. This file
+     has now met the same shape three times -- a placement count, a
+     residual, and now an acceptance rate -- where the measure that looks
+     better is the one that cannot see the error.
+  2. NOTHING WAS TUNED WHILE IT WAS UNEXPLAINED. The 150 sat in the record
+     for an hour with "I have not yet found what those have in common;
+     that is the next thing I look at, and I would not tune anything until
+     it is answered" beside them. A threshold fitted to that population
+     would have encoded the pair-order bug as a property of the plate, the
+     same way a distribution measured through a broken tolerance nearly
+     encoded a parameter error as one.
+
+WHAT IS STILL UNPROVEN: nobody has yet run the STRIP over the real well
+with the corrected pair order. 624 of 624 with whole-tile is not the same
+claim, and the number to beat is 624 of 624 with the strip.
