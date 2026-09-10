@@ -1,0 +1,36 @@
+{
+  "lesson": "18_motility",
+  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; units, exact exclusions and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Motilitätsanalyse",
+  "description": "Live-Filter und Einheiten mit reproduzierbaren synthetischen Spuren in Measure > Motility vergleichen.",
+  "objectives": [
+    "Motility in Measure finden und die exakten Beispielarrays laden.",
+    "Filter ohne erneutes Bildlesen oder Modellberechnung vergleichen.",
+    "Unbekannte Einheiten, hypothetische Umrechnung und Ergebnisgrenzen unterscheiden."
+  ],
+  "prerequisite": "SYNTHETIC_motility_tracks.zip in einen neuen Ordner entpacken. Acht synthetische Arrays: Kernintensität 0, Zellintensität 1, verfolgte Zellmaske 2, Kernmaske 3. Keine Erregerebene und keine gemessene Kalibrierung. Den Ordner mit merged wählen. Live: 2 Intensitätskanäle, verfolgte Ebene 2, Erreger -1, 8 Bilder, Mindestlänge 3, Kalibrierung 0/0. 2 Pixel/µm und 60 s/Bild sind ausschließlich hypothetisch. Propagate settings ausgeschaltet lassen. PDF-Markierungen sind kontrastarm; Screen behebt das nicht. Keine biologische oder Infektionsvalidierung. API: spacr.timelapse.automated_motility_assay. AI bleibt aus.",
+  "scenes": [
+    "Measure öffnen und über Time zum Tab Motility Assay wechseln. Das Modul ist verschachtelt, keine eigene Home-Kachel. Timelapse in Mask erzeugt Spuren; Motility vermisst sie. Wenn die Bilder noch nicht verfolgt sind, zuerst die Timelapse-Lektion ansehen.",
+    "Das unten verlinkte synthetische Beispiel mit verfolgten Arrays herunterladen und in einen neuen Ordner entpacken. Source auf den Ordner mit merged setzen. Acht Bilder enthalten sechzehn Zellspuren. cell wählen, Kernkanal null und Zellkanal eins; kein Erregerkanal.",
+    "Für aufgenommene Experimente echte Pixelskala und Bildintervalle verwenden. Zwei Pixel pro Mikrometer und sechzig Sekunden pro Bild sind hier bewusst hypothetisch und dienen nur der Rechnung. Das Batch-Formular verlangt Zahlen; seine Vorgaben belegen keine Mikroskopkalibrierung.",
+    "Reuse existing measurements für die neue Kopie ausgeschaltet lassen und die Qualitätskontrollgrafiken einschalten. Ohne Erregerkanal ist die Infektionskontrolle in diesem Lauf deaktiviert. Optionale Klassifikatoren werden nicht geprüft; diese Lehrspuren belegen keinen Infektionseffekt.",
+    "Das kleine Beispiel starten und die Konsole lesen. Gespeichert werden 128 Bildbeobachtungen, eine Well-Zusammenfassung mit sechzehn Spuren und PDFs. Diese erscheinen nicht in der Abbildungswarteschlange. Die Version warnt vor blassen Exportfarben; Dateien vor Verwendung in Berichten prüfen.",
+    "Live öffnet Motility preview. Console und System bei Platzmangel einklappen und denselben entpackten Ordner wählen. Vorschaukennzahlen und Batch-Einstellungen sind getrennt. Propagate settings beim Experimentieren ausgeschaltet lassen, damit ein vorübergehender Filter nicht den nächsten vollständigen Lauf verändert.",
+    "Zwei Intensitätskanäle, verfolgte Maskenebene zwei und Erregermaskenebene minus eins, also keine, einstellen. Alle acht Bilder anzeigen. Eine Kernmaske ist keine Erregermaske. Beide Kalibrierungsfelder auf null setzen, für unbekannte Einheiten, dann Run preview anklicken.",
+    "Die Vorschau liest 128 Objektbeobachtungen und meldet bei Mindestlänge drei sechzehn nutzbare Spuren. Die mittlere Geschwindigkeit beträgt etwa 1,4 Pixel pro Bild. Ohne beide Kalibrierungswerte darf sie nicht als Mikrometer pro Minute bezeichnet werden.",
+    "Min track length auf neun erhöhen. Jede Spur hat nur acht Bilder; alle sechzehn werden aus der nutzbaren Zusammenfassung ausgeschlossen und die mittlere Geschwindigkeit ist nicht verfügbar. Spuren und Bilder werden nicht gelöscht. Eine leere Zusammenfassung bedeutet nicht Geschwindigkeit null.",
+    "Das Minimum auf drei zurücksetzen. Sechzehn nutzbare Spuren, Längenverteilung und Geschwindigkeitspunkte kehren zurück. Die Kennzahlen werden aus zwischengespeicherten Beobachtungen berechnet. Eine Änderung startet keine Segmentierung neu und beweist keine korrekten ursprünglichen Tracking-Identitäten.",
+    "Drop over-straight tracks bei Schwelle 0,95 aktivieren. Geradlinigkeit ist Nettoverschiebung geteilt durch Weglänge. Fünfzehn fast gerade Lehrspuren entfallen, eine bleibt. Geradlinige Bewegung kann echt sein; dieser Filter beweist keine Drift und ist keine Analyseempfehlung.",
+    "Den Filter ausschalten und prüfen, dass alle sechzehn Spuren zurückkehren. Vor Annahme einer Filterregel Diagramme und verbleibende Anzahl vergleichen. uninfected bedeutet hier lediglich, dass die Erregerebene fehlt; es ist keine validierte biologische Negativgruppe.",
+    "Zwei Pixel pro Mikrometer eingeben, das Bildintervall jedoch unbekannt lassen. Die Anzeige bleibt bei Pixeln pro Bild. Eine räumliche Skala ergänzt keine fehlende Zeit; die Wiedergabegeschwindigkeit ist nicht das Aufnahmeintervall.",
+    "Nun sechzig Sekunden pro Bild eingeben. Mit beiden hypothetischen Werten sinkt der Zahlenwert von etwa 1,4 Pixeln pro Bild auf 0,7 Mikrometer pro Minute. Die Identitäten ändern sich nicht. Das Trajektoriendiagramm zeigt Verschiebungen weiter in Pixeln; nur die Geschwindigkeitseinheit ändert sich.",
+    "Beide Kalibrierungsfelder der Vorschau auf null zurücksetzen. Die ursprüngliche Pixel-Zusammenfassung kehrt exakt zurück. Die Rechenübung von echten Aufnahmemetadaten trennen; die Batch-Funktion steht in der API-Referenz. spaCR AI erklärt Einstellungen, zertifiziert aber weder Kalibrierung, Infektionsstatus noch wissenschaftliche Gültigkeit."
+  ]
+}

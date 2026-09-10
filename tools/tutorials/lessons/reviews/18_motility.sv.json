@@ -1,0 +1,36 @@
+{
+  "lesson": "18_motility",
+  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; units, exact exclusions and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Motilitetsanalys",
+  "description": "Utforska livefilter och enheter med reproducerbara syntetiska spår i Measure > Motility.",
+  "objectives": [
+    "Hitta Motility i Measure och läs in exakt samma exempelarrayer.",
+    "Jämför filter utan att läsa om bilder eller köra modeller igen.",
+    "Skilj okända enheter, hypotetisk omräkning och resultatbegränsningar åt."
+  ],
+  "prerequisite": "Packa upp SYNTHETIC_motility_tracks.zip i en ny mapp. Åtta syntetiska arrayer: kärnintensitet 0, cellintensitet 1, spårad cellmask 2, kärnmask 3. Inget patogenplan eller uppmätt kalibrering. Välj roten med merged. Live: två intensitetskanaler, spårplan 2, patogen -1, åtta bilder, minsta längd 3, kalibrering 0/0. 2 pixlar/µm och 60 sekunder/bild är endast hypotetiska räknevärden. Propagate settings av. PDF-markeringar har låg kontrast; Screen löste inte problemet. Ingen biologisk eller infektionsvalidering. API: spacr.timelapse.automated_motility_assay. AI av.",
+  "scenes": [
+    "Öppna Measure och använd genvägen Time till fliken Motility Assay. Detta är en undermodul, inte en egen Home-ruta. Timelapse i Mask skapar spår; Motility mäter dem. Se först Timelapse-lektionen om bilderna ännu inte har spårats.",
+    "Hämta det syntetiska exemplet med spårade arrayer nedan och packa upp i en ny mapp. Ange mappen med merged som Source. Åtta bilder innehåller sexton cellspår. Välj cell, kärnkanal noll och cellkanal ett, utan patogenkanal.",
+    "Använd verklig pixelskala och bildintervall för ett insamlat experiment. Här är två pixlar per mikrometer och sextio sekunder per bild avsiktligt hypotetiska och visar bara beräkningen. Batchformuläret kräver tal; standardvärden bevisar inte mikroskopets kalibrering.",
+    "Låt Reuse existing measurements vara av för den nya kopian och aktivera kvalitetskontrollgrafer. Utan patogenkanal är infektionskontrollen av i denna körning. Valfria klassificerare testas inte och undervisningsspåren kan inte visa någon infektionseffekt.",
+    "Kör det lilla exemplet och läs konsolen. Batchen sparar 128 observationer, en brunnssammanfattning för sexton spår och PDF-filer. Filerna visas inte i figurkön. Versionen varnar för bleka exportfärger; granska filerna före användning i rapporter.",
+    "Aktivera Live för att öppna Motility preview. Fäll ihop Console och System om de tar plats från graferna och välj samma uppackade mapp. Förhandsvisningens mått och batchinställningar är separata. Låt Propagate settings vara av under försök så att tillfälliga filter inte ändrar nästa fullständiga körning.",
+    "Ange två intensitetskanaler, spårat maskplan två och patogenmaskplan minus ett, alltså inget. Visa alla åtta bilder. En kärnmask är inte en patogenmask. Sätt båda kalibreringsfälten till noll för okända enheter och klicka på Run preview.",
+    "Förhandsvisningen läser 128 objektobservationer och visar sexton användbara spår vid minsta längd tre. Medelhastigheten är ungefär 1,4 pixlar per bild. Utan båda kalibreringsvärdena får den inte beskrivas som mikrometer per minut.",
+    "Höj Min track length till nio. Varje spår har bara åtta bilder; alla sexton utesluts ur den användbara sammanfattningen och medelhastigheten blir otillgänglig. Ursprungliga spår och bilder raderas inte. En tom sammanfattning innebär inte hastighet noll.",
+    "Återställ minimum till tre. Sexton användbara spår, längdfördelningen och hastighetspunkterna återkommer. Måtten räknas om från cachade observationer. En ändring kör inte segmenteringen igen och bevisar inte att den ursprungliga spårningens identiteter var rätt.",
+    "Aktivera Drop over-straight tracks med tröskel 0,95. Rakhet är nettoförflyttningen delad med banlängden. Femton nästan raka undervisningsspår utesluts, ett återstår. Rak rörelse kan vara verklig; filtret bevisar inte automatiskt drift och är ingen analysrekommendation.",
+    "Stäng av filtret och kontrollera att alla sexton spår återkommer. Jämför grafer och antalet kvarvarande spår innan en filterregel godtas. uninfected avspeglar här bara avsaknaden av patogenplan, inte en validerad biologisk negativgrupp.",
+    "Ange två pixlar per mikrometer men lämna bildintervallet okänt. Förhandsvisningen visar fortfarande pixlar per bild. En rumslig skala tillför inte saknad tid och videons uppspelningshastighet är inte bildtagningsintervallet.",
+    "Ange nu sextio sekunder per bild. Med båda hypotetiska värdena ändras medelhastigheten från ungefär 1,4 pixlar per bild till 0,7 mikrometer per minut. Identiteterna ändras inte. Spårgrafen anger fortfarande förflyttning i pixlar; här ändras endast hastighetsenheten.",
+    "Återställ båda kalibreringsfälten i förhandsvisningen till noll. Den ursprungliga pixelsammanfattningen återkommer exakt. Skilj räkneövningen från verkliga insamlingsmetadata och läs om batchfunktionen i API-referensen. spaCR AI kan förklara inställningar men inte certifiera kalibrering, infektionsstatus eller vetenskaplig giltighet."
+  ]
+}

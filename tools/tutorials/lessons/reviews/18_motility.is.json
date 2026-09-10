@@ -1,0 +1,36 @@
+{
+  "lesson": "18_motility",
+  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; units, exact exclusions and export limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Hreyfanleikagreining",
+  "description": "Skoðaðu gagnvirkar síur og einingar með endurgeranlegum tilbúnum ferlum í Measure > Motility.",
+  "objectives": [
+    "Finna Motility innan Measure og hlaða inn nákvæmlega sömu sýnigögnunum.",
+    "Bera saman síur án þess að lesa myndir aftur eða keyra líkan á ný.",
+    "Greina á milli óþekktra eininga, ímyndaðrar umbreytingar og takmarkana niðurstaðna."
+  ],
+  "prerequisite": "Afþjappaðu SYNTHETIC_motility_tracks.zip í nýja möppu. Átta tilbúnar fylkjaskrár: kjarnastyrkur 0, frumustyrkur 1, rakin frumugríma 2 og kjarnagríma 3. Enginn sýkilsflötur eða mæld kvörðun. Veldu rótina sem inniheldur merged. Live: tvær styrkrásir, rakinn flötur 2, sýkill -1, átta myndir, lágmarkslengd 3, kvörðun 0/0. 2 pixlar/µm og 60 sekúndur/mynd eru eingöngu ímynduð reiknigildi. Hafðu Propagate settings óvirkt. Merki í PDF hafa litla birtuskil; Screen lagaði þau ekki. Engin líffræðileg eða sýkingarstaðfesting. API: spacr.timelapse.automated_motility_assay. AI óvirkt.",
+  "scenes": [
+    "Opnaðu Measure og notaðu Time-flýtileiðina að Motility Assay-flipanum. Þetta er undireining, ekki sjálfstæður Home-reitur. Timelapse innan Mask býr til ferla; Motility mælir þá. Skoðaðu fyrst Timelapse-kennsluna ef myndirnar hafa ekki verið raktar.",
+    "Sæktu tilbúna dæmið með röktum fylkjum hér að neðan og afþjappaðu í nýja möppu. Settu Source á möppuna sem inniheldur merged. Átta myndir innihalda sextán frumuferla. Veldu cell, kjarnarás núll og frumurás einn, án sýkilsrásar.",
+    "Notaðu raunverulegan pixlakvarða og myndatökubil fyrir tekna tilraun. Hér eru tveir pixlar á míkrómetra og sextíu sekúndur á mynd vísvitandi ímynduð gildi sem sýna aðeins reikninginn. Lotuformið krefst talna; sjálfgefin gildi sanna ekki kvörðun smásjárinnar.",
+    "Hafðu Reuse existing measurements óvirkt fyrir nýja afritið og virkjaðu gæðaprófunarrit. Engin sýkilsrás er til staðar, svo sýkingargæðaprófun er óvirk í þessari keyrslu. Valfrjáls flokkunarlíkön eru ekki prófuð og kennsluferlarnir sýna ekki fram á áhrif sýkingar.",
+    "Keyrðu litla dæmið og lestu stjórnborðið. Lotan vistar 128 athuganir, samantekt sextán ferla í brunni og PDF-skrár. Skrárnar birtast ekki í myndaröðinni. Útgáfan varar við daufum útflutningslitum; skoðaðu skrárnar áður en þær fara í skýrslu.",
+    "Virkjaðu Live til að opna Motility preview. Felldu Console og System saman ef þau þrengja að ritunum og veldu sömu afþjöppuðu möppuna. Forskoðunarmælikvarðar og lotustillingar eru aðskildar. Hafðu Propagate settings óvirkt svo tímabundin sía breyti ekki næstu heildarkeyrslu.",
+    "Stilltu tvær styrkrásir, rakinn grímuflöt tvo og sýkilsgrímuflöt mínus einn, sem merkir engan. Skoðaðu allar átta myndirnar. Kjarnagríma er ekki sýkilsgríma. Settu bæði kvörðunarsvið á núll fyrir óþekktar einingar og smelltu á Run preview.",
+    "Forskoðunin les 128 athuganir og sýnir sextán nýtanlega ferla við lágmarkslengd þrjá. Meðalhraði er um 1,4 pixlar á mynd. Án beggja kvörðunargilda má ekki lýsa honum sem míkrómetrum á mínútu.",
+    "Hækkaðu Min track length í níu. Hver ferill hefur aðeins átta myndir; allir sextán eru útilokaðir úr nýtanlegri samantekt og meðalhraði verður ekki tiltækur. Upprunalegum ferlum eða myndum er ekki eytt. Tóm samantekt merkir ekki hraða núll.",
+    "Settu lágmarkið aftur á þrjá. Sextán nýtanlegir ferlar, lengdardreifingin og hraðapunktarnir koma aftur. Mælikvarðarnir eru endurreiknaðir úr skyndiminni athugana. Breyting endurkeyrir ekki myndskiptingu og sannar ekki rétta auðkenningu upprunalegu rakningarinnar.",
+    "Virkjaðu Drop over-straight tracks við þröskuld 0,95. Beinnleiki er nettófærsla deilt með vegalengd ferilsins. Fimmtán nær beinir kennsluferlar falla út, einn verður eftir. Bein hreyfing getur verið raunveruleg; sían sannar ekki sjálfkrafa rek og er ekki greiningarráðlegging.",
+    "Slökktu á síunni og staðfestu að allir sextán ferlar komi aftur. Berðu saman rit og fjölda varðveittra ferla áður en síuregla er samþykkt. uninfected endurspeglar hér aðeins að sýkilsflöt vantar, ekki staðfestan líffræðilegan neikvæðan hóp.",
+    "Sláðu inn tvo pixla á míkrómetra en hafðu myndatökubilið óþekkt. Forskoðunin sýnir enn pixla á mynd. Rúmkvarði veitir ekki tímann sem vantar og afspilunarhraði myndbands er ekki myndatökubil.",
+    "Sláðu nú inn sextíu sekúndur á mynd. Með báðum ímynduðu gildunum breytist meðalhraðinn úr um 1,4 pixlum á mynd í 0,7 míkrómetra á mínútu. Auðkenni ferlanna breytast ekki. Ferlaritið merkir færslu áfram í pixlum; aðeins hraðaeiningin breytist hér.",
+    "Settu bæði kvörðunarsvið forskoðunar aftur á núll. Upprunalega pixlasamantektin kemur nákvæmlega aftur. Haltu reikniæfingunni aðskildri frá raunverulegum myndatökugögnum og skoðaðu lotufallið í API-tilvísuninni. spaCR AI útskýrir stillingar en staðfestir ekki kvörðun, sýkingarstöðu eða vísindalegt réttmæti."
+  ]
+}
