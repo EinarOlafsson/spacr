@@ -1,0 +1,32 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "da",
+  "title": "Pipeline Graph: undersøg faktisk oprindelse og manglende artefakter",
+  "description": "Læs faktiske artefaktposter, skeln mellem manglende filer og udokumenteret oprindelse, filtrer grafen og kopiér hele Graphviz-repræsentationen uden at gentage analysen.",
+  "objectives": [
+    "Åbn Pipeline graph under Help, og vælg et eksisterende projekt.",
+    "Sammenlign registreret oprindelse med de tilstedeværende filer, og forstå ikke-registrerede afhængigheder.",
+    "Brug Current, Stale og Missing uden at forveksle skjulte knuder med manglende poster.",
+    "Genindlæs med Redraw, kopiér hele grafen, og undersøg videre i den relevante arbejdsgang."
+  ],
+  "prerequisite": "Brug det faktiske External Masks-projekt og den afsluttede oprydningsdemonstration i Data Manager. Optagelsen læser en bytekontrolleret kopi af det arkiverede øjebliksbillede efter oprydning på projektets historiske sti i et isoleret miljø; originaldata og registerposter omskrives ikke. En separat, faktisk Batch Runner-konvertering viser manglende dokumentation af oprindelse, ikke et ubehandlet eksperiment. Alle 131 originalfiler, 26 arkivfiler og syv konverteringsfiler er uændrede. Tre historiske poster har ingen registrerede indgående kanter; den fjerde hører til en anden projektsti. Her udføres ingen sletning, analyse, særskilt download, direkte billedvisning, Plot-betjening, AI-forespørgsel eller gendannelseskørsel.",
+  "scenes": [
+    "Åbn Help og derefter Pipeline graph. Dette skærmbillede undersøger registrerede resultater og deres afhængigheder; det kører ikke pipelinen. Vi bruger private kopier af resultater fra indsamlede data i External Masks og det faktiske oprydningseksempel i Data Manager. Følg de lektioner for at producere og håndtere data sikkert.",
+    "Vælg først mappen med konverterede billeder via Browse. Dens Batch Runner-konvertering blev afsluttet, men ingen outputartefakt blev registreret her, så grafen er tom. Det er manglende dokumentation, ikke bevis for, at ingen behandling fandt sted. Declared order beskriver mulige modulafhængigheder, ikke historikken over afsluttede kørsler.",
+    "Vælg måleprojektets øjebliksbillede efter oprydning. Tre historiske poster vises: måledatabase, billedudsnit og ressourcelog. To stier findes stadig, mens mappen med billedudsnit faktisk blev fjernet under den tidligere private oprydning. Denne optagelse fjerner intet, og det oprindelige forsøgsprojekt er intakt.",
+    "Klik på måledatabasens boks, og udvid detaljerne med skillelinjen. Læs sti, rolle, kørselsidentifikator, produktionstidspunkt, spaCR-version og indstillingsdigest. En digest er et fingeraftryk, ikke de fulde indstillinger eller en gendannelsesknap. Current dokumenterer hverken videnskabelig gyldighed eller fuldstændig oprindelse.",
+    "Vælg den røde boks med billedudsnit. Missing betyder, at den registrerede sti mangler. Den registrerede størrelse er stadig cirka tre komma fire megabyte fordelt på hundrede og fire filer: hundrede og tre billedudsnit og deres formatpost. Det er historisk størrelse, ikke dagens diskforbrug og heller ikke hundrede og fire celler.",
+    "Ressourceloggen er en separat artefakt uden for projektmappen. Dens sti findes stadig, men den blev ikke flyttet til arkivet. Denne graf har ingen registrerede indgående kanter. Nothing was derived from this betyder, at ingen efterfølgende afhængighed blev registreret her, ikke at de videnskabelige resultater var uafhængige.",
+    "Slå Current fra for at isolere den manglende artefakt med billedudsnit. Current, Stale og Missing er visningsfiltre, ikke filhandlinger. Stale er en advarsel om registreret oprindelse; dette eksempel indeholder ingen forældet artefakt. Skærmbilledet har ingen særskilte filtre for modul, artefakttype eller arbejdsgangsgren.",
+    "Slå også Missing fra. Ingen bokse er tilbage, men banneret melder stadig, at én af tre artefakter mangler. I denne version siger det tomme lærred fejlagtigt, at intet er registreret, og de tidligere detaljer kan blive stående. Kontrollér filtrene, før du fortolker beskederne: skjult betyder ikke slettet.",
+    "Copy Graphviz lægger hele grafen i udklipsholderen, også skjulte knuder. Vi kontrollerede, at alle tre faktiske artefaktidentifikatorer er med, og at ingen afhængighedspile er opdigtede. Det er Graphviz DOT-tekst til brug andre steder, ikke et gemt billede eller en eksport af kun det synlige udvalg.",
+    "Slå Current og derefter Missing til igen: først vender to bokse tilbage, så alle tre. Vælg en boks igen, så detaljerne passer til den synlige graf. Visningsfiltre reparerer ikke manglende filer, ændrer ikke oprindelse og vælger ikke et modul til genkørsel. Undersøg den registrerede sti og den forudgående arbejdsgang, før du handler.",
+    "Redraw læser registeret igen og kontrollerer artefakterne på ny. Vores poster og filernes byteindhold forbliver uændret. Brug Run History til gemte indstillinger og kørselslogger eller Data Manager til udtrykkelig oprydning. I Python tilbyder spacr.pipeline_graph build_graph og to_dot. Denne gennemgang udfører hverken gendannelse af resultater eller videnskabelig validering."
+  ]
+}
