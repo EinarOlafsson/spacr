@@ -5459,3 +5459,21 @@ Translations and playback verification follow; total remains 45 technically
 checked lessons until that matrix passes. No native/listening approval or
 publication claim. Evidence: tools/tutorials/evidence/
 2026-09-10_timelapse_native_tracking_and_preview_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, TIMELAPSE TECHNICAL MATRIX COMPLETE.
+
+c98e8ea33 pushed: all fifty final voice tracks decode and match their source
+fingerprints; all fourteen language/caption browser cases pass. The shared
+4K/30 master fully decodes, all sixteen scene samples exist, and samples
+1, 9, 13, 14, 15 and 16 were visually checked. Fourteen catalogs agree on
+75 lessons / 842 scenes, with thirty unselected lessons unchanged. Total:
+46 technically checked lessons, 2,300 tracks (100 retained), 644 browser
+cases. Native-speaker/listening approval and publication remain separate.
+Receipt: tools/tutorials/evidence/
+2026-09-10_timelapse_multilingual_technical_checks.json.
+
+NEXT CLAIM: Motility 18, tutorial recorder, fixture validation and lesson only.
+I will check the actual Measure fold and its preview using a private copy of
+tracked synthetic outputs, without overwriting old tutorial inputs. Unit
+calibration must remain explicit; no invented acquisition interval or
+biological infection/velocity claim. No application or Qt changes claimed.
