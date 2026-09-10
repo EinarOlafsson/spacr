@@ -1,0 +1,32 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "zh-CN",
+  "title": "Image Scatter：真实测量值与每个点对应的图像",
+  "description": "在 Image UMAP 内使用 Image Scatter，查看下载的真实细胞测量值、经过核对的悬停图像，以及向 Annotate 精确传递单个细胞的过程。",
+  "objectives": [
+    "在 Image UMAP 中找到 Image Scatter，加载正确的 cell 表。",
+    "查看原始测量值对，理解缺失坐标和常数坐标。",
+    "核对点与细胞图像的对应关系，不修改标签或原始数据。"
+  ],
+  "prerequisite": "复用 Annotate 可下载的真实示例，包括测量数据库、细胞裁剪图和图像格式标记。使用逐字节一致的独立副本，包含 2,341 个细胞及全部 2,341 个 PNG。独立 SQLite 检查核对每个原始值、完整视野级细胞标识及图像路径，并核对屏幕坐标和缩略图 RGB 像素。仅验证细胞图像，不验证细胞核或病原体图像映射。异常外观不证明表型、感染、处理效应或分割准确性。未进行 UMAP 拟合、模型训练、GPU 计算、文件导出或标签修改。本页没有专用下载、图像列选择、颜色或分组、坐标变换、导出或 AI 控制台。Plot 加载表，改变坐标轴则重绘。加载上限为 200,000 行，不是随机抽样，也不保证大型表不会丢失信息。本教程未验证共享筛选。API：spacr.qt.screens.image_scatter.load_scatter_frame、ImageScatterScreen.set_frame、ScatterCanvas.point_position。",
+  "scenes": [
+    "从 Home 打开 Image UMAP，然后选择 Image Scatter。这个嵌套视图绘制两个已有测量值，并不拟合 UMAP 嵌入。我们复用 Annotate 可下载的真实示例，把测量数据库和细胞裁剪图保留在一起。获取方法见 Annotate 教程。",
+    "选择 Browse，打开复制的测量数据库。移动项目时，请保留 data 文件夹和裁剪图格式标记，因为数据表本身不包含图像。当前示例使用独立副本，原始测量值和图像像素保持不变。",
+    "在表选择框中选 cell，再点击 Plot。Plot 读取该表，不是分割或训练任务。示例有两千三百四十一个细胞及其对应裁剪图。选择其他表后，需要再次点击 Plot；只改变选择框不会加载其中的行。",
+    "把 x 设为 cell_area，y 设为 cell_channel_1_mean_intensity。改变坐标轴会立即重绘已加载的行。这些是原始测量值，不是经过变换的嵌入坐标。点代表单个细胞，而非独立的实验重复；图形中的模式不是统计检验。",
+    "把指针停在最右侧的细胞点上。旁边会显示其裁剪图和完整的板、行、列、视野及细胞标识。这是保存的裁剪图，不是完整显微视野，也不是新的分割结果。仅凭外观特殊，不能确认一种表型。",
+    "将指针移出绘图区，临时预览便会消失。返回同一点，缓存的图像会再次出现，无需重新解码。悬停只是临时查看图像，不是标注或持久选择。原始标签不会改变。",
+    "交换 x 和 y 上的两个测量值。即使屏幕位置改变，同一细胞仍保留原来的标识和图像。请选择有意义的坐标轴，不要自动接受最前面的数值列；这些选择框也会提供数值标识符和采集元数据。",
+    "把 x 恢复为 cell_area，y 选择 cell_channel_0_homogeneity_distance_32。七个细胞缺少这项测量，因此只能绘制两千三百三十四对坐标。已加载行数仍显示两千三百四十一。缺失值不是零；坐标没有画出来，也不会重新编号对象标识。",
+    "在 y 中选择 measurement_ndim。每一行的值都是二，所以所有点落在一条水平线上。这是常数元数据列，不是生物学上的一致性。查看其他细胞前，请恢复 cell_channel_1_mean_intensity。",
+    "要在 Annotate 中查看点击的细胞图像，先打开 Annotate，加载同一个复制项目。然后经 Home、Image UMAP 和现有的 Image Scatter 标签页返回。标注页必须知道正确项目；图表与无关的已打开数据集不能构成有效的传递。",
+    "点击点本身，然后切换到 Annotate。仅悬停只会预览图像。点击会把准确的细胞键和两个坐标轴名称发送到标注视图。它不会自动切换页面、赋予标签，也不证明该对象是异常值。",
+    "现在 Annotate 仅显示所点击的那个细胞，使用同一张已保存裁剪图。决定是否标注前，请先查看图像；本演示保持所有标签不变。Image Scatter 没有专用的图表或选择导出功能。导出数据表请用 Database Browser，主成分分析及其已说明的 CSV 输出请看 PCA 教程。"
+  ]
+}

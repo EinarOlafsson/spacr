@@ -1,0 +1,32 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "da",
+  "title": "Image Scatter: rigtige målinger og billedet bag hvert punkt",
+  "description": "Udforsk Image Scatter i Image UMAP med downloadede cellemålinger, kontrollerede forhåndsvisninger og præcis overførsel af én celle til Annotate.",
+  "objectives": [
+    "Find Image Scatter i Image UMAP og indlæs den rigtige cell-tabel.",
+    "Undersøg rå målepar og forstå manglende eller konstante koordinater.",
+    "Knyt et punkt til dets cellebillede uden at ændre etiketter eller kildedata."
+  ],
+  "prerequisite": "Brug Annotates eksempel med måledatabase, celleudsnit og billedformatmarkører. Den private, byteidentiske kopi indeholder 2.341 celler og alle 2.341 PNG-filer. Uafhængig SQLite-kontrol omfatter hver kildeværdi, fuld celleidentitet med billedfelt og hver billedsti; skærmkoordinater og miniaturebilledernes RGB-pixel kontrolleres også. Kun celleudsnit er valideret, ikke kerne- eller patogenbilleder. Et usædvanligt punkt beviser hverken fænotype, infektion, behandling eller segmenteringsnøjagtighed. Ingen UMAP-tilpasning, træning, GPU-beregning, eksport eller etiketændring. Skærmen har ingen egen download, billedkolonnevælger, farve- eller gruppeindstillinger, aksetransformation, eksport eller AI-konsol. Plot indlæser tabellen; aksevalg tegner den igen. Grænsen på 200.000 rækker er ikke tilfældig stikprøvetagning eller garanti mod informationstab. Fælles filtre er ikke valideret her. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame og ScatterCanvas.point_position.",
+  "scenes": [
+    "Åbn Image UMAP fra Home, og vælg Image Scatter. Denne underordnede visning tegner to eksisterende målinger; den tilpasser ikke en UMAP-indlejring. Vi genbruger Annotates rigtige eksempel og holder måledatabasen og celleudsnittene samlet. Annotate-vejledningen viser, hvor du henter det.",
+    "Vælg Browse, og åbn den kopierede måledatabase. Bevar mappen data og billedformatmarkørerne, når du flytter et projekt, for en tabel indeholder ikke selve billederne. Eksemplet bruger private kopier; oprindelige målinger og billedpixel er uændrede.",
+    "Vælg cell i tabellisten og derefter Plot. Plot læser tabellen; det er ikke segmentering eller træning. Eksemplet har 2.341 celler med tilhørende udsnit. En anden tabel kræver Plot igen; det er ikke nok blot at ændre tabelvælgeren.",
+    "Sæt x til cell_area og y til cell_channel_1_mean_intensity. Akseændringer gentegner straks de indlæste rækker. Dette er rå målinger, ikke transformerede indlejringskoordinater. Punkterne er enkelte celler, ikke uafhængige forsøgsreplikater, og et visuelt mønster er ikke en statistisk test.",
+    "Lad markøren hvile på cellen yderst til højre. Dens udsnit vises ved siden af grafen med fuld identitet for plade, række, kolonne, billedfelt og celle. Det er et gemt udsnit, ikke hele mikroskopfeltet eller en ny segmentering. Et usædvanligt udseende fastslår ikke i sig selv en fænotype.",
+    "Flyt markøren væk fra grafen: den midlertidige visning forsvinder. Vend tilbage til samme punkt, og det cachelagrede billede vises uden ny afkodning. Hover er midlertidig billedinspektion, ikke annotering eller vedvarende udvælgelse. Ingen kildeetiketter ændres.",
+    "Byt de to målinger mellem x og y. Cellen beholder identitet og billede, selv om dens placering ændres. Vælg meningsfulde akser i stedet for automatisk at acceptere de første numeriske kolonner; vælgerne tilbyder også numeriske identifikatorer og optagelsesmetadata.",
+    "Gendan cell_area på x, og vælg cell_channel_0_homogeneity_distance_32 på y. Syv celler mangler denne måling, så kun 2.334 koordinatpar kan tegnes. Antallet af indlæste rækker er stadig 2.341. Manglende værdier er ikke nuller, og skjulte koordinater ændrer ikke objekternes identiteter.",
+    "Vælg measurement_ndim på y. Alle rækker har værdien to, så punkterne ligger på en vandret linje. Det er en konstant metadatakolonne, ikke biologisk overensstemmelse. Gendan cell_channel_1_mean_intensity, før du undersøger en anden celle.",
+    "For at undersøge et klikket udsnit i Annotate skal du først åbne Annotate og indlæse det samme kopierede projekt. Vend tilbage via Home, Image UMAP og den eksisterende Image Scatter-fane. Annoteringssiden skal kende det rigtige projekt; en graf og et uvedkommende datasæt giver ikke en gyldig overførsel.",
+    "Klik på selve punktet, og skift derefter til Annotate. Hover alene viser kun billedet. Klikket sender den præcise cellenøgle og begge aksenavne til annoteringsvisningen. Det skifter ikke side automatisk, tildeler ikke en etiket og beviser ikke, at objektet er en afviger.",
+    "Annotate viser nu præcis den klikkede celle med det samme gemte udsnit. Undersøg billedet, før du beslutter at annotere; her er alle etiketter uændrede. Image Scatter har ingen særskilt eksport af graf eller udvalg. Brug Database Browser til tabeludtræk eller PCA-vejledningen til komponentanalyse og de dokumenterede CSV-filer."
+  ]
+}

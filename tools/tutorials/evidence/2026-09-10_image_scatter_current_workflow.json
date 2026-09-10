@@ -1,0 +1,320 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "scenes": 12,
+  "narrated_words": 544,
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/image_scatter_verified_click_identity",
+  "capture_provenance": {
+    "commit": "abf23c575eeeda7c6427bec5d2fd2f7517e3804f",
+    "version": "1.5.0.4",
+    "module": "image_scatter",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/image_scatter_runs/real-containment-s2c6mf1o/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "frames": 22,
+  "workflow": {
+    "lesson": "55_image_scatter",
+    "accepted": true,
+    "source": {
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/image_scatter_runs/real-containment-s2c6mf1o/example_data/plate1/measurements/measurements.db",
+      "source_bundle": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+          "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "signature": [
+            66306,
+            33957043,
+            30629888,
+            1788972666110587305,
+            1788972666110587305
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": [
+            66306,
+            33962636,
+            0,
+            1788973501772441799,
+            1788973501772441799
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "signature": [
+            66306,
+            33962707,
+            32768,
+            1788982325621416451,
+            1788982325621416451
+          ]
+        }
+      },
+      "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "copy_is_byte_identical": true,
+      "source_opened_in_gui": false
+    },
+    "private_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/image_scatter_runs/real-containment-s2c6mf1o/example_data",
+    "synthetic_measurements": false,
+    "published": false,
+    "checks": {
+      "05_real_measurement_scatter": {
+        "rows": 2341,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "finite_points": 2341,
+        "missing_coordinate_pairs": 0,
+        "every_source_cell_checked": 646116,
+        "all_crop_paths_checked": 2341,
+        "maximum_pixel_coordinate_error": 4.547473508864641e-13,
+        "status": "2341 row(s) from cell · 2341 with a crop"
+      },
+      "09_swapped_raw_axes": {
+        "rows": 2341,
+        "x": "cell_channel_1_mean_intensity",
+        "y": "cell_area",
+        "finite_points": 2341,
+        "missing_coordinate_pairs": 0,
+        "every_source_cell_checked": 646116,
+        "all_crop_paths_checked": 2341,
+        "maximum_pixel_coordinate_error": 4.547473508864641e-13,
+        "status": "2341 row(s) from cell · 2341 with a crop"
+      },
+      "11_missing_texture_not_plotted": {
+        "rows": 2341,
+        "x": "cell_area",
+        "y": "cell_channel_0_homogeneity_distance_32",
+        "finite_points": 2334,
+        "missing_coordinate_pairs": 7,
+        "every_source_cell_checked": 646116,
+        "all_crop_paths_checked": 2341,
+        "maximum_pixel_coordinate_error": 4.547473508864641e-13,
+        "status": "2341 row(s) from cell · 2341 with a crop"
+      },
+      "12_constant_axis_is_centred": {
+        "rows": 2341,
+        "x": "cell_area",
+        "y": "measurement_ndim",
+        "finite_points": 2341,
+        "missing_coordinate_pairs": 0,
+        "every_source_cell_checked": 646116,
+        "all_crop_paths_checked": 2341,
+        "maximum_pixel_coordinate_error": 4.547473508864641e-13,
+        "status": "2341 row(s) from cell · 2341 with a crop"
+      },
+      "13_original_axes_restored": {
+        "rows": 2341,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "finite_points": 2341,
+        "missing_coordinate_pairs": 0,
+        "every_source_cell_checked": 646116,
+        "all_crop_paths_checked": 2341,
+        "maximum_pixel_coordinate_error": 4.547473508864641e-13,
+        "status": "2341 row(s) from cell · 2341 with a crop"
+      },
+      "19_returned_measurement_scatter": {
+        "rows": 2341,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "finite_points": 2341,
+        "missing_coordinate_pairs": 0,
+        "every_source_cell_checked": 646116,
+        "all_crop_paths_checked": 2341,
+        "maximum_pixel_coordinate_error": 4.547473508864641e-13,
+        "status": "2341 row(s) from cell · 2341 with a crop"
+      }
+    },
+    "hover_checks": [
+      {
+        "key": "plate1_r12_c1_f9_cell12",
+        "path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_9_1_12.png",
+        "shape": [
+          192,
+          192,
+          3
+        ],
+        "maximum_rgb_error": 0,
+        "pixels_checked": 36864,
+        "source_sha256": "53361a789ef8acfb6f77d7ab68761f495b21b819b28910f3139dad86e16735fa",
+        "index": 769,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "decodes": 1,
+        "cache_hits": 0,
+        "open_button_enabled": false
+      },
+      {
+        "key": "plate1_r12_c1_f9_cell12",
+        "path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_9_1_12.png",
+        "shape": [
+          192,
+          192,
+          3
+        ],
+        "maximum_rgb_error": 0,
+        "pixels_checked": 36864,
+        "source_sha256": "53361a789ef8acfb6f77d7ab68761f495b21b819b28910f3139dad86e16735fa",
+        "index": 769,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "decodes": 1,
+        "cache_hits": 1,
+        "open_button_enabled": false
+      },
+      {
+        "key": "plate1_r12_c1_f9_cell12",
+        "path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_9_1_12.png",
+        "shape": [
+          192,
+          192,
+          3
+        ],
+        "maximum_rgb_error": 0,
+        "pixels_checked": 36864,
+        "source_sha256": "53361a789ef8acfb6f77d7ab68761f495b21b819b28910f3139dad86e16735fa",
+        "index": 769,
+        "x": "cell_channel_1_mean_intensity",
+        "y": "cell_area",
+        "decodes": 1,
+        "cache_hits": 2,
+        "open_button_enabled": false
+      },
+      {
+        "key": "plate1_r12_c1_f9_cell12",
+        "path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_9_1_12.png",
+        "shape": [
+          192,
+          192,
+          3
+        ],
+        "maximum_rgb_error": 0,
+        "pixels_checked": 36864,
+        "source_sha256": "53361a789ef8acfb6f77d7ab68761f495b21b819b28910f3139dad86e16735fa",
+        "index": 769,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "decodes": 1,
+        "cache_hits": 3,
+        "open_button_enabled": true
+      },
+      {
+        "key": "plate1_r12_c1_f9_cell12",
+        "path": "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_9_1_12.png",
+        "shape": [
+          192,
+          192,
+          3
+        ],
+        "maximum_rgb_error": 0,
+        "pixels_checked": 36864,
+        "source_sha256": "53361a789ef8acfb6f77d7ab68761f495b21b819b28910f3139dad86e16735fa",
+        "index": 769,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "decodes": 1,
+        "cache_hits": 4,
+        "open_button_enabled": true
+      }
+    ],
+    "selection_events": [
+      {
+        "source": "image_scatter",
+        "keys": [
+          "plate1_r12_c1_f9_cell12"
+        ]
+      }
+    ],
+    "job_errors": [],
+    "open_button_pointer_exit": {
+      "enabled_before": true,
+      "enabled_after": false,
+      "hover_after": -1,
+      "caption_after": ""
+    },
+    "selection_after_click": {
+      "keys": [
+        "plate1_r12_c1_f9_cell12"
+      ],
+      "selected_rings": 0,
+      "annotate_visible": false
+    },
+    "handoff": {
+      "key": "plate1_r12_c1_f9_cell12",
+      "paths": [
+        [
+          "/home/olafsson/.cache/spacr/example_data/plate1/data/multiple_nucleus/multiple_pathogens/plate1_L01/cell_png/plate1_L01_9_1_12.png",
+          null
+        ]
+      ],
+      "note": "1 object · clicked in the scatter of cell_channel_1_mean_intensity against cell_area (from image_scatter)",
+      "sha256": "53361a789ef8acfb6f77d7ab68761f495b21b819b28910f3139dad86e16735fa",
+      "shown": 1,
+      "labels_edited": false
+    },
+    "pipeline_requested": false,
+    "own_export_control": false,
+    "no_nucleus_or_pathogen_crop_mapping_claim": true,
+    "preservation": {
+      "original_database_and_sidecars_unchanged": true,
+      "all_original_and_private_crops_unchanged": true,
+      "crop_count": 2341,
+      "crop_bytes": 259627196,
+      "private_database_bytes_unchanged": true
+    },
+    "remaining_workers": 0
+  },
+  "scope": "Genuine cell-only scatter coordinates, RGB crops and exact Annotate handoff; not biological conclusions, other object types or general filter/export functionality",
+  "verification": {
+    "tests_passed": 14,
+    "initial_guards_bypassed": 10,
+    "initial_negative_failures": 12,
+    "initial_did_not_raise": 11,
+    "initial_null_pixmap_attributeerror": 1,
+    "isolated_null_guard_failed_after_copying_shared_numpy_storage": true,
+    "isolated_result": "1 DID NOT RAISE failure,13 deselected",
+    "restored_tests_passed": 14,
+    "named_raise_lines_executed": [
+      16,
+      36,
+      37,
+      42,
+      43,
+      49,
+      57,
+      58,
+      61,
+      68
+    ],
+    "coverage_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/image_scatter_guard_coverage.json"
+  },
+  "attempts": [
+    {
+      "capture": "image_scatter_real_cell_crops",
+      "result": "recorder assumed hidden UMAP sidebar button was visible",
+      "exit_code": 1
+    },
+    {
+      "capture": "image_scatter_native_home_return",
+      "result": "recorder used ambiguous boolean on pandas Index after correct click",
+      "exit_code": 1
+    },
+    {
+      "capture": "image_scatter_verified_click_identity",
+      "result": "complete native workflow and preservation accepted",
+      "exit_code": 0
+    }
+  ],
+  "observed_app_limitations": [
+    "Moving pointer from canvas to Open this crop clears hover and disables that button; actual point click is the recorded successful path.",
+    "Click publishes correct cell but leaves selected_rings=0 in originating canvas and does not switch to Annotate automatically.",
+    "No dedicated image-column, colour, grouping, axis transform or export controls; no filtering promise made.",
+    "Actual thumbnail previews are192px; no full-field or newly segmented image is implied."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false
+}

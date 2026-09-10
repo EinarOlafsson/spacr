@@ -80,12 +80,13 @@ def main() -> int:
         runs_destination = Path.home() / '.spacr/runs'
         queue_binds = []
         manager_binds = []
-        if args.module == 'lineage':
+        if args.module in ('lineage', 'image_scatter'):
             from lineage_data import prepare
-            state = stage / 'lineage_state' / f'{args.capture_name or args.module}.json'
+            state = stage / (args.module + '_state') / f'{args.capture_name or args.module}.json'
             if state.exists():
                 raise RuntimeError('Use a new capture name for a fresh private Lineage example')
-            prepared = prepare(stage)
+            prepared = prepare(stage, run_directory=args.module + '_runs',
+                               copy_format_markers=args.module == 'image_scatter')
             write_json(state, prepared)
             private_cache = Path(prepared['cache'])
         if args.module == 'pipeline_graph':
@@ -141,7 +142,7 @@ def main() -> int:
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
-            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage') else args.module)),
+            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter') else args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
@@ -318,6 +319,14 @@ def main() -> int:
     elif args.module == 'volcano_explorer':
         from capture_volcano import record_volcano
         record_volcano(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
+    elif args.module == 'hit_list':
+        from capture_hit_list import record_hits
+        record_hits(app, window, stage, captures, capture,
+                    settle, write_json, args.timeout)
+    elif args.module == 'image_scatter':
+        from capture_image_scatter import record_scatter
+        record_scatter(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
     elif args.module == 'anndata_export':
         from capture_anndata import record_anndata
@@ -1034,8 +1043,8 @@ def main() -> int:
     write_json(captures / 'provenance.json', {'commit': inventory['commit'],
                'version': inventory['version'], 'module': args.module,
                'download_requested': args.download, 'dataset_cache': (
-                   json.loads((stage / 'lineage_state' / f'{args.capture_name or args.module}.json').read_text())['cache']
-                   if args.module == 'lineage' else str(stage / 'example_data')),
+                   json.loads((stage / (args.module + '_state') / f'{args.capture_name or args.module}.json').read_text())['cache']
+                   if args.module in ('lineage', 'image_scatter') else str(stage / 'example_data')),
                'app_source_modified': False, 'cache_isolated_with_bind_mount': True,
                'completed_capture': True})
     window.close()

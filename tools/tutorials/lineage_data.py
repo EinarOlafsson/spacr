@@ -6,10 +6,12 @@ import tempfile
 from capture_database import _digest, _readonly, prepare_database_copy, require_unchanged_source
 
 
-def prepare(stage):
+def prepare(stage, *, run_directory='lineage_runs', copy_format_markers=False):
     stage=Path(stage);base=stage/'annotate_fresh/example_data'
     source=base/'plate1/measurements/measurements.db'
-    parent=stage/'lineage_runs';parent.mkdir(exist_ok=True)
+    if run_directory not in ('lineage_runs','image_scatter_runs'):
+        raise ValueError('Unrecognised private crop tutorial directory')
+    parent=stage/run_directory;parent.mkdir(exist_ok=True)
     work=Path(tempfile.mkdtemp(prefix='real-containment-',dir=parent))
     cache=work/'example_data';database=cache/'plate1/measurements/measurements.db'
     database.parent.mkdir(parents=True)
@@ -31,9 +33,19 @@ def prepare(stage):
         shutil.copy2(path,destination)
         if _digest(destination)!=digest or _digest(path)!=digest:raise ValueError('Real crop changed during private copy')
         crops.append(dict(relative=str(relative),source=str(path),sha256=digest,bytes=path.stat().st_size))
+    markers=[]
+    if copy_format_markers:
+        for directory in sorted({Path(r['source']).parent for r in crops}):
+            marker=directory/'.spacr_crop_format.json'
+            if marker.is_file():
+                relative=marker.relative_to(base);target=cache/relative
+                digest=_digest(marker);shutil.copy2(marker,target)
+                if _digest(marker)!=digest or _digest(target)!=digest:
+                    raise ValueError('Original or private crop format marker changed')
+                markers.append(dict(source=str(marker),relative=str(relative),sha256=digest))
     require_unchanged_source(source,original['source_bundle'])
     return dict(source=original,cache=str(cache),project=str(cache/'plate1'),work=str(work),
-                crops=crops,source_images_generated=False,published=False)
+                crops=crops,format_markers=markers,source_images_generated=False,published=False)
 
 
 def verify_preserved(prepared):
@@ -41,6 +53,9 @@ def verify_preserved(prepared):
     for record in prepared['crops']:
         if _digest(record['source'])!=record['sha256'] or _digest(Path(prepared['cache'])/record['relative'])!=record['sha256']:
             raise ValueError('Original or private crop changed during Lineage demonstration')
+    for record in prepared.get('format_markers',[]):
+        if _digest(record['source'])!=record['sha256'] or _digest(Path(prepared['cache'])/record['relative'])!=record['sha256']:
+            raise ValueError('Original or private crop format marker changed')
     return dict(original_database_and_sidecars_unchanged=True,all_original_and_private_crops_unchanged=True,
                 crop_count=len(prepared['crops']),crop_bytes=sum(r['bytes'] for r in prepared['crops']),
                 private_database_bytes_unchanged=_digest(original['database'])==original['database_sha256'])

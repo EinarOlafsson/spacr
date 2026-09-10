@@ -112,15 +112,23 @@ class TestItIsARealSetting:
         assert get_train_test_model_settings({}).get("mixed_precision") is False
 
     def test_the_panel_offers_it_beside_the_other_memory_knob(self):
-        """`gradient_accumulation` is the other way to fit a bigger
+        """`gradient_accumulation_steps` is the other way to fit a bigger
         effective batch in the same VRAM; a user choosing between them
-        should see both at once."""
+        should see both at once.
+
+        THE NAME HERE WAS THE OLD ONE and this test failed on it rather
+        than on the adjacency it is about. `gradient_accumulation` was a
+        boolean beside a step count saying the same thing twice, and
+        `_fold_gradient_accumulation` merged the pair -- but nothing
+        brought this assertion with it, so the failure read as "the panel
+        does not offer it" when the panel offers both, adjacent.
+        """
         from spacr.settings import categories
 
         training = categories["Computer Vision Training"]
         assert "mixed_precision" in training
         assert abs(training.index("mixed_precision")
-                   - training.index("gradient_accumulation")) <= 2
+                   - training.index("gradient_accumulation_steps")) <= 2
 
     def test_its_help_says_what_it_costs(self):
         from spacr.settings import tooltips

@@ -1,0 +1,118 @@
+{
+  "lesson": "48_hit_list",
+  "status": "HOLD: native Regression Hit List shortcut selects a page inside a hidden Figures container",
+  "production_narration_changed": false,
+  "media_generated": false,
+  "published": false,
+  "app_source_modified": false,
+  "capture_commit": "bd482b895",
+  "capture_name": "hit_list_hidden_results_container",
+  "workflow": {
+    "lesson": "48_hit_list",
+    "accepted": false,
+    "source_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation",
+    "source_files": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_significant.csv": "e31b6eb7c0fb9132bcf73cd703d30aa92d8d3e84e82ec350ab71d17fcf6dcb36",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/model_summary.txt": "3d5a0bcb7b85d6e655aecb6950c8b04dcecc094a5463dd51d7c228d06b27abcc",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results.csv": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_results_long.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_grna.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/plate_heatmap_unique_counts.png": "38cac46a12f57b93e61477c0fb650fc88c3e65e15ed84a0c6b4e779bf85bedff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/fraction_threshold.png": "a81ebca32662a7f6c8838cc5d2e751fb54eae2e2f1842bbf57a40d2441859971",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results_gene.csv": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.png": "53253d808ba5822edfeee1f2879a810272315bd5f5ebb56a19b6634bc2d1b599",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/guide_permutation_min_2_wells.pdf": "c3f6d6b65d179703329f365f4f0066015d7ea520631e0896c5942d67de8de48a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/regression_data.csv": "3cee24356bfa81a33882dc76a6a107e35345421feecf9c7866a8169c0516ea76",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/fit_resources.txt": "c482cf09cd93bf57644fbec5c6bd8c00937fe7f3dbed690ad41da3711c60d930",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/well_grna.csv": "bf6d4269329e2f037cccbc2f7584dde5523286b57bf288b83401b15f0132f7b1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/grna_well.csv": "a88ddabb9898281b2cd2cff51a7b0d2a4e4e2942adcae551424669cc9b276869",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_diagnostics.png": "31be0239a48d506fcb5b44a923577dc3f7347a1e6bbbdd8c9e5c10e4f8c1b03e",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/collinear_guide_pairs.csv": "87cf6127c5016c0eba8df5ccf1c33944d2b3632aeb3d8e672ba75f8e8d9bbe67",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/design_identifiability.png": "3c9a06c1e7a1a61c90dfd1e046bb5f98b328bfca111e459dea0398aa57cc6d39",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/inference_diagnostics.png": "fdb6bf5c8b685b2f0b189593b90479ec053e1a7791e54e8b0c4804a577180951",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/diagnostics/diagnostic_summary.csv": "4c34eb2370eb5680013f99c85705bfbaebea2c40858bd1f52420d2a1eed33b9a",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar.png": "2325261405749cdb24092696d6d30dc966702e77583b1e2e3d6a098a246460e1",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_stats.csv": "96b49414728c97c813cde0373fb1185d1a546ea1685dd96c79f933cabbb672f8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_data.csv": "dfaab4139ded2a85a7969a8f5ef62c89e7e5848b27b7a4ee5bf7eeaa5ed10d4f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/gene_per_well/gene_per_well_gene_count_plateID_jitter_bar_summary.csv": "2c246824b1c6489890575b3b08277e41bb5749588e2f230f9bdfae7563ed8802",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_summary.csv": "b765d07311621c879145ead984940e7dd437930ddde35f20a5e2152115a63336",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_stats.csv": "2923e0da92efb16b3e391e5b0771e0f4b5db6a3c2f9a7cf0eb4b2ff99dd8f8f3",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar_data.csv": "a88ddabb9898281b2cd2cff51a7b0d2a4e4e2942adcae551424669cc9b276869",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/wells_per_gene/wells_per_gene_grna_well_count_plateID_jitter_bar.png": "bb19f9a527e7d7b05668597a0537bb05747a5cfc31238f659519d99ac18335c8",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_stats.csv": "48863668aff61fa35de68680b870774efad82c4cf96ede8690100e81a282b49f",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_summary.csv": "109729b506bb9b367c9dab497cd3b58536c26598702727e7d572b8f4bcf5d804",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar_data.csv": "176e12e25ddbe781993341a80143f21f722ee8c723d9d0e5a563592189c28995",
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results/cell_count/cell_count_cell_count_plateID_jitter_bar.png": "a02c1f12fb1d802bd6d556829f34b3cfd2bac49889b00b710e28edbe19744b63"
+    },
+    "private_folder": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/hit_list_runs/real-gene-family-dbapy3z0",
+    "private_input_hashes": {
+      "results_gene.csv": "e2296313e6666092336fcedd968db6dd35632460dd6fa014d643af7782593132",
+      "results_grna.csv": "5a72ae6789482fe3f44a8916486abb1ba5d6d0633c24e25d94f1f670feef22ff",
+      "results.csv": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+      "results_significant.csv": "e31b6eb7c0fb9132bcf73cd703d30aa92d8d3e84e82ec350ab71d17fcf6dcb36",
+      "model_summary.txt": "3d5a0bcb7b85d6e655aecb6950c8b04dcecc094a5463dd51d7c228d06b27abcc"
+    },
+    "synthetic_results": false,
+    "app_source_modified": false,
+    "regression_recomputed": false,
+    "published": false,
+    "native_fold_state": {
+      "results_panel_exists": true,
+      "figures_card_visible": false,
+      "hits_exists": true,
+      "hits_visible": false,
+      "hits_selected": true,
+      "results_page_selected": true
+    },
+    "all_originals_unchanged": true,
+    "all_private_inputs_unchanged": true,
+    "active_jobs_after_close": 0
+  },
+  "independent_api_check": {
+    "rows": 325,
+    "values_checked": 6175,
+    "minimum_gene_q": 0.2708333333333333,
+    "significant_at_q_point05": 0,
+    "evidence_scope": "Actual API construction independently checked; subsequent native filtering and exports were not reached and are not accepted"
+  },
+  "tests": {
+    "focused_passed": 29,
+    "mutation": "13 oracle ValueError guards bypassed: 17 failing tests, 12 passing; restored 29 passing. Fifteen DID NOT RAISE failures, one TypeError and one AttributeError.",
+    "measured_raise_lines": [
+      20,
+      22,
+      26,
+      40,
+      48,
+      88,
+      92,
+      101,
+      108,
+      111,
+      114,
+      117,
+      127
+    ],
+    "all_named_raises_executed": true,
+    "coverage_sha256": "c73c15caaee9ba28a113cd0377982cf87bca69e33cdc15ccc1e69a8e106beba3"
+  },
+  "attempt_history": [
+    {
+      "capture": "hit_list_real_gene_family",
+      "exit": 1,
+      "reason": "No visible Hit List descendant"
+    },
+    {
+      "capture": "hit_list_native_fold_window",
+      "exit": 1,
+      "reason": "No visible Hit List in any application top-level window"
+    },
+    {
+      "capture": "hit_list_hidden_results_container",
+      "exit": 1,
+      "reason": "Confirmed both selected pages but ancestor Figures container hidden"
+    }
+  ],
+  "owner_action": "Make the real Hits shortcut reveal its ancestor container. No direct .show(), substitute window or fake completed regression was inserted by the recorder."
+}

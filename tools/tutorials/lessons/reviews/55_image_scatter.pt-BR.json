@@ -1,0 +1,32 @@
+{
+  "lesson": "55_image_scatter",
+  "english_sha256": "798823e2d35d57282c656576ef4db433b8b8688539b72fe7c1230c5c14d01b40",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real cell identities, native axis choices, exact RGB crop previews and single-cell Annotate handoff; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "pt-BR",
+  "title": "Image Scatter: medidas reais e a imagem de cada ponto",
+  "description": "Explore Image Scatter dentro de Image UMAP com medidas celulares baixadas, prévias verificadas e o envio exato de uma célula para Annotate.",
+  "objectives": [
+    "Encontrar Image Scatter dentro de Image UMAP e carregar a tabela cell correta.",
+    "Examinar pares de medidas brutas e entender coordenadas ausentes ou constantes.",
+    "Relacionar uma célula do gráfico à sua imagem sem mudar rótulos nem dados."
+  ],
+  "prerequisite": "Reutilize o exemplo baixável de Annotate com banco de medidas, recortes celulares e marcadores de formato. A cópia privada idêntica contém 2.341 células e todos os 2.341 PNGs. As verificações independentes por SQLite abrangem cada valor original, identidade celular completa e caminho; coordenadas exibidas e pixels RGB das miniaturas também são verificados. Apenas recortes celulares são validados, não os de núcleos ou patógenos. Um ponto incomum não demonstra fenótipo, infecção, tratamento nem precisão da segmentação. Não há ajuste UMAP, treinamento, cálculo GPU, exportação nem alteração de rótulos. A tela não tem download próprio, seletor de coluna de imagem, controles de cor ou agrupamento, transformação dos eixos, exportação ou console de IA. Plot carrega a tabela; os eixos a redesenham. O limite de 200.000 linhas não é amostragem aleatória nem garantia de preservar toda a informação. Filtros compartilhados não são validados aqui. API: spacr.qt.screens.image_scatter.load_scatter_frame, ImageScatterScreen.set_frame e ScatterCanvas.point_position.",
+  "scenes": [
+    "Abra Image UMAP pela Home e escolha Image Scatter. Essa visualização aninhada plota duas medidas existentes; ela não ajusta uma projeção UMAP. Reutilizamos o exemplo real baixável de Annotate, mantendo juntos o banco de medidas e os recortes celulares. O tutorial de Annotate mostra onde obtê-lo.",
+    "Escolha Browse e abra a cópia do banco de medidas. Ao mover um projeto, mantenha a pasta data e os marcadores de formato dos recortes, porque a tabela sozinha não contém as imagens. Este exemplo usa cópias privadas; medidas e pixels originais permanecem intactos.",
+    "Escolha cell no seletor de tabelas e depois Plot. Plot lê essa tabela; não é uma tarefa de segmentação ou treinamento. O exemplo tem duas mil trezentas e quarenta e uma células com recortes correspondentes. Outra tabela exige clicar em Plot novamente; mudar apenas o seletor não carrega suas linhas.",
+    "Defina x como cell_area e y como cell_channel_1_mean_intensity. Mudar os eixos redesenha imediatamente as linhas carregadas. São medidas brutas, não coordenadas transformadas de uma projeção. Os pontos descrevem células individuais, não réplicas experimentais independentes, e um padrão visual não é um teste estatístico.",
+    "Deixe o ponteiro sobre a célula mais à direita. Seu recorte aparece ao lado do gráfico com a identidade completa de placa, linha, coluna, campo e célula. É um recorte salvo, não o campo microscópico inteiro nem uma segmentação nova. Uma aparência incomum não estabelece, por si só, um fenótipo.",
+    "Mova o ponteiro para fora do gráfico: a prévia temporária desaparece. Volte ao mesmo ponto e o recorte em cache reaparece sem nova decodificação. Passar o ponteiro permite uma inspeção temporária, não uma anotação ou seleção persistente. Nenhum rótulo original muda.",
+    "Troque as duas medidas entre x e y. A célula conserva sua identidade e seu recorte, mesmo mudando de posição. Escolha eixos relevantes em vez de aceitar automaticamente as primeiras colunas numéricas; os seletores também oferecem identificadores numéricos e metadados de aquisição.",
+    "Restaure cell_area em x e escolha cell_channel_0_homogeneity_distance_32 em y. Sete células não têm essa medida, então só podem ser desenhados dois mil trezentos e trinta e quatro pares de coordenadas. O contador de linhas carregadas continua em duas mil trezentas e quarenta e uma. Valores ausentes não são zeros, e coordenadas ocultas não renumeram identidades.",
+    "Escolha measurement_ndim em y. Todas as linhas têm valor dois, formando uma linha horizontal de pontos. É uma coluna constante de metadados, não concordância biológica. Restaure cell_channel_1_mean_intensity antes de examinar outra célula.",
+    "Para inspecionar em Annotate a imagem de um ponto clicado, abra primeiro Annotate e carregue este mesmo projeto copiado. Volte pela Home, Image UMAP e a aba Image Scatter já aberta. A página de anotação precisa conhecer o projeto certo; um gráfico e outro dataset sem relação não formam um envio válido.",
+    "Clique no próprio ponto e depois mude para Annotate. Passar o ponteiro apenas mostra a prévia. O clique envia a chave exata da célula e os nomes dos dois eixos à visualização de anotação. Ele não muda de página automaticamente, não atribui rótulo nem prova que o objeto seja atípico.",
+    "Annotate agora mostra exatamente a célula clicada, com o mesmo recorte salvo. Examine a imagem antes de decidir anotá-la; esta demonstração mantém todos os rótulos. Image Scatter não tem exportação própria do gráfico ou da seleção. Use Database Browser para exportar tabelas, ou o tutorial de PCA para analisar componentes e seus CSVs documentados."
+  ]
+}

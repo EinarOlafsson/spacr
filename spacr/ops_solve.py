@@ -59,6 +59,17 @@ def solve_placements(edges: Dict[Tuple[int, int], Tuple[float, float]],
     parent = list(range(count))
 
     def find(node: int) -> int:
+        """The representative of ``node``'s component, path-compressed.
+
+        :param node: a tile index.
+        :returns: the index that stands for its connected component.
+
+        Halving as it walks -- ``parent[node] = parent[parent[node]]`` --
+        so a long chain costs its length once rather than on every later
+        lookup. The components are what decide where the pins go, and a
+        component that is found twice under two names puts two pins in
+        one place and leaves another with none.
+        """
         while parent[node] != node:
             parent[node] = parent[parent[node]]
             node = parent[node]
