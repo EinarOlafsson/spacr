@@ -35,7 +35,7 @@ Typical use::
 
     from spacr.ops_stitch import stitch_well
 
-    well = stitch_well(read_tile, overlap=213, tolerance=8)
+    well = stitch_well(read_tile, overlap=213, tolerance=4)
     print(well.summary())
     positions = well.placements          # site -> (y, x), in well pixels
 """
