@@ -569,3 +569,48 @@ maintainer's behalf.
         The decision only becomes urgent if a screen ever needs ten or more
         classes, at which point the offset has to become a separate column
         rather than a bigger number.
+
+
+357-Q4  EIGHT SETTINGS THE PACKAGE READS NOWHERE: RETIRE, OR WIRE?
+        Found 2026-09-09 by 383's link audit and filed in 364.
+
+            denoise            load_path_regex     mask_array
+            normalization      normalization_scope normalize_plots
+            save_to_db         visualize
+
+        Each has exactly ONE consumer in the generated map and in every
+        case it is the setting's own `set_default_*` function in
+        `spacr.settings`. Nothing reads the value back. The dynamic reads
+        that would make that claim wrong were checked by hand -- the
+        greying tables in `classify` and `stream_dataset` are not reads,
+        two same-named function parameters are not called with the
+        setting, and `align`'s `normalization` is a local loop variable.
+
+        THE QUESTION IS NOT THE SAME FOR ALL EIGHT, which is why it is
+        here rather than decided. `save_to_db`, `normalize_plots` and
+        `visualize` look like controls that lost their consumer. But
+        `denoise` and `normalization` name capabilities spaCR HAS -- so
+        the control may be a promise the pipeline never kept, which is
+        worse than a dead setting rather than better, and retiring it
+        would remove the evidence that it was meant to work.
+
+        WHAT IS NEEDED: for each, retire or wire. A yes/no per name is
+        enough; the retirement machinery (`RETIRED_SETTINGS` plus a
+        message) already exists and was used for `gradient_accumulation`
+        the same day.
+
+357-Q5  OPS: WIRE THE DECODE CHAIN, OR FIT THE DEFAULTS FIRST?
+        Asked and answered in part on 2026-09-09 -- the maintainer chose
+        to scrap the old stitch engine, and Phase A is being built. What
+        was NOT answered is the order of the two remaining halves:
+
+        (a) wire `ops_sbs` and `ops_merge` behind the button now, so the
+            decode chain stops being code with no caller; or
+        (b) fit the preprocessing defaults against the real plate first,
+            so the first end-to-end run is on measured numbers.
+
+        The instruction argues for (b) -- "item 1 is the gate before
+        anyone trusts a result" -- and the maintainer's own answer leaned
+        toward wiring. Both are defensible and the cost of the wrong order
+        is a run whose output looks right, which is this file's recurring
+        failure mode. One line settles it.
