@@ -1,0 +1,157 @@
+{
+  "id": "27_replication",
+  "number": 27,
+  "slug": "replication",
+  "title": "Replication Assay",
+  "series": 3,
+  "app_key": "replication",
+  "section": "Toxoplasma assays",
+  "description": "Count parasites by explicit vacuole identity, inspect the resulting distributions, and adjust figure legends without changing the analysis. The complete worked example is synthetic and does not demonstrate a treatment effect.",
+  "objectives": [
+    "Choose the vacuole, rather than the host cell, as the counting unit.",
+    "Keep non-power-of-two counts visible and inspect both well and condition summaries.",
+    "Use the actual figure controls and review export warnings without changing the underlying data."
+  ],
+  "prerequisite": "This lesson uses a new copy of the preserved synthetic replication tutorial database, not acquired assay images or the core modules' downloadable plate. Its 1,992 invented parasite rows form 480 explicit vacuoles in 240 host-cell groups across twelve artificial wells. Vehicle and inhibitor are teaching names, not observed treatments; the six wells in each group deliberately repeat the same distribution. The module currently has no dedicated live-data download button. For biological work, supply genuinely measured parasites with validated vacuole relationships and independent experimental replicates. The original database remains unchanged. Independent counts verify 6,588 output CSV fields; actual plotted heights and stacked bases are checked separately. The example does not validate image segmentation, inferential p-values or efficacy. Its new explanation replaces the older script's unsupported implication that synthetic data include reviewable vacuole images.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "Open Replication Assay in the Assays section of Home. It counts measured parasites per vacuole; it does not segment images here. This worked example is explicitly synthetic, so its charts teach the controls and counting rules, not a biological treatment effect.",
+      "focus": [
+        346,
+        50,
+        1140,
+        155
+      ],
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "03_setting_src",
+      "narration": "Choose the prepared experiment folder containing measurements slash measurements dot db. Our new private copy contains one thousand nine hundred ninety-two invented parasite rows. We preserve the original database and start without old result files, so every output shown belongs to this run.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_setting_vacuole_key",
+      "narration": "Set Vacuole key to the explicit vacuole ID column. The example contains four hundred eighty vacuoles but only two hundred forty host-cell groups: two vacuoles share each host. Counting by host cell would merge them and answer a different question. Validate this relationship in real images before analysing your own data.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_setting_require_host_cell",
+      "narration": "Require host cell excludes objects without a valid host link. That prevents unassigned objects entering this readout, but it can also remove real parasites if the host segmentation failed. All teaching rows have valid links; this example does not validate your segmentation.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_setting_max_parasites_per_vacuole",
+      "narration": "The largest named power-of-two bucket is sixteen, not a limit that clips every larger count. Larger powers have an overflow bucket, and off-ladder counts remain separate. Each artificial well includes two three-parasite vacuoles; do not round a count of three up to four.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_setting_pathogen_plate_metadata",
+      "narration": "Check the condition-to-well mapping. Here column one is called vehicle and column two inhibitor, with six artificial wells in each group. Those names are part of the invented teaching design. They are not evidence that a drug was applied, and a convincing-looking difference is not proof of efficacy.",
+      "focus": [
+        346,
+        170,
+        1150,
+        560
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_actual_run",
+      "narration": "Run only after checking the source, assignment key, filters and output settings. This is table analysis, not a new Cellpose segmentation or a GPU benchmark. The actual worker produces both the per-well and by-condition figures.",
+      "focus": [
+        1510,
+        170,
+        2310,
+        1840
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_readable_legend_00",
+      "narration": "Read each stacked bar as the distribution of vacuole counts in one well. The vehicle example has two hundred twenty-eight parasites in forty vacuoles; the inhibitor example has one hundred four in forty. Both retain five percent off-ladder vacuoles. We checked the displayed bar heights against independent counts, not merely the saved filenames.",
+      "focus": [
+        1510,
+        170,
+        2310,
+        1020
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_legend_settings_00",
+      "narration": "If the legend is clipped, open Figure settings and the axes tab, then change Legend position. We choose an inside position through these real controls. This is a presentation change: all bar values and the output data files remain unchanged.",
+      "hold_after": 0.7,
+      "focus": [
+        1420,
+        330,
+        1000,
+        1500
+      ]
+    },
+    {
+      "visual": "15_readable_legend_01",
+      "narration": "The condition view pools the example's vacuoles into two distributions. All six wells in each group repeat the same invented pattern. Do not cite the resulting significance tests as a treatment finding; real inference needs genuine replication and a defensible independent experimental unit.",
+      "focus": [
+        1510,
+        170,
+        2310,
+        1020
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_actual_completion",
+      "narration": "Read the console as well as the chart. This run warns that some selected colours have poor contrast on a light exported page. Check your exported figures and choose an accessible palette; a readable dark on-screen view does not automatically guarantee a readable saved figure.",
+      "focus": [
+        1510,
+        1190,
+        2310,
+        440
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_setting_save",
+      "narration": "With Save enabled, results go under results slash analyze replication: vacuole counts, well distributions, condition summaries, statistical tables and figures. Keep the settings and source identifiers with them. For your own assay, review real images and biological controls before interpreting these summaries.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "34_database"
+      ]
+    }
+  ]
+}

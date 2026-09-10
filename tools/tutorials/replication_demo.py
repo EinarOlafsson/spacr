@@ -131,3 +131,32 @@ def verify_files(directory, expectations):
             records = list(csv.DictReader(stream))
         checks[filename] = dict(rows=len(records), fields_checked=verify_records(records, key, reference))
     return checks
+
+
+def verify_bars(groups, series, expected_records):
+    """Check the actual Matplotlib bar heights and stacked bases, not a thumbnail."""
+    if len(groups) != len(set(groups)) or set(groups) != set(expected_records):
+        raise ValueError('Figure group identities differ')
+    names = [row['bucket'] for row in series]
+    required = {name[5:] for row in expected_records.values() for name, value in row.items()
+                if name.startswith('frac_') and value > 0}
+    if len(names) != len(set(names)) or not required.issubset(names):
+        raise ValueError('Figure buckets are missing or duplicated')
+    bases = dict.fromkeys(groups, 0.0)
+    checked = 0
+    for row in series:
+        if len(row['rectangles']) != len(groups):
+            raise ValueError('Figure has the wrong number of bars')
+        for group, rectangle in zip(groups, row['rectangles']):
+            wanted = expected_records[group]['frac_' + row['bucket']]
+            if not math.isclose(rectangle['height'], wanted, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError('Figure bar height differs from independent input counts')
+            # pandas places its zero-height placeholders at zero, not at the
+            # accumulated stack. Observed in the real c2 / class-16 bars;
+            # their height is still checked and they contribute no mass.
+            wanted_base = bases[group] if wanted else 0.0
+            if not math.isclose(rectangle['bottom'], wanted_base, rel_tol=1e-12, abs_tol=1e-12):
+                raise ValueError('Figure stacked base differs from independent input counts')
+            bases[group] += wanted
+            checked += 2
+    return checked

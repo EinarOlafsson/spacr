@@ -6,7 +6,7 @@ import sys
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from replication_demo import expected, summarize, verify_records
+from replication_demo import expected, summarize, verify_records, verify_bars
 
 
 def test_distribution_keeps_off_ladder_and_overflow_counts_separate():
@@ -69,3 +69,45 @@ def test_missing_extra_and_duplicate_identities_are_rejected(reference, mode):
         changed.append(copy.deepcopy(changed[0]))
     with pytest.raises(ValueError, match='identities'):
         verify_records(changed, 'prc', reference)
+
+
+@pytest.mark.parametrize('defect', ['height', 'bottom', 'missing bucket', 'duplicate bucket', 'missing bar', 'group'])
+def test_actual_bar_geometry_is_checked(defect):
+    reference = {'a': {'frac_1': .25, 'frac_2': .75}, 'b': {'frac_1': .5, 'frac_2': .5}}
+    bars = [dict(bucket='1', rectangles=[dict(height=.25, bottom=0), dict(height=.5, bottom=0)]),
+            dict(bucket='2', rectangles=[dict(height=.75, bottom=.25), dict(height=.5, bottom=.5)])]
+    assert verify_bars(['a', 'b'], bars, reference) == 8
+    changed = copy.deepcopy(bars)
+    groups = ['a', 'b']
+    if defect in ('height', 'bottom'):
+        changed[1]['rectangles'][0][defect] += .1
+    elif defect == 'missing bucket':
+        changed.pop()
+    elif defect == 'duplicate bucket':
+        changed.append(copy.deepcopy(changed[0]))
+    elif defect == 'missing bar':
+        changed[0]['rectangles'].pop()
+    else:
+        # Make downstream numeric checks agree for the duplicate group;
+        # otherwise a different guard could hide the missing identity check.
+        reference['b'] = copy.deepcopy(reference['a'])
+        for row in changed:
+            row['rectangles'][1] = copy.deepcopy(row['rectangles'][0])
+        assert verify_bars(['a', 'b'], changed, reference) == 8
+        groups = ['a', 'a']
+    guard = {'height': 'Figure bar height', 'bottom': 'Figure stacked base',
+             'missing bucket': 'Figure buckets', 'duplicate bucket': 'Figure buckets',
+             'missing bar': 'Figure has the wrong number', 'group': 'Figure group identities'}[defect]
+    with pytest.raises(ValueError, match=guard):
+        verify_bars(groups, changed, reference)
+
+
+def test_zero_height_placeholder_does_not_start_on_the_nonzero_stack():
+    reference = {'a': {'frac_1': .75, 'frac_16': 0, 'frac_non_power_of_two': .25}}
+    bars = [dict(bucket='1', rectangles=[dict(height=.75, bottom=0)]),
+            dict(bucket='16', rectangles=[dict(height=0, bottom=0)]),
+            dict(bucket='non_power_of_two', rectangles=[dict(height=.25, bottom=.75)])]
+    assert verify_bars(['a'], bars, reference) == 6
+    bars[2]['rectangles'][0]['bottom'] = 0
+    with pytest.raises(ValueError, match='Figure stacked base'):
+        verify_bars(['a'], bars, reference)
