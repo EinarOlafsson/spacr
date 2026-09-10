@@ -1330,6 +1330,17 @@ GROUP 2 -- THE TUTORIAL LIBRARY, WHICH IS THE TUTORIALS LANE'S.
   moved it. The first is a size filter that is passing more than a third
   of the library through.
 
+    tests/test_the_name_is_spaCR.py
+      test_no_file_mis_cases_the_name
+        tools/tutorials/authoring/tools/capture_install_web.py:331  SpaCR
+        tools/tutorials/authoring/tools/translate_pre_app.py:264    SPACR
+        tools/tutorials/authoring/tools/translate_pre_app.py:265    SPACR
+
+  Three characters, in tutorial tooling. Left alone for the same reason as
+  the two above and no other: the maintainer's instruction on 2026-09-09
+  was that a Codex session owns the tutorials, and a three-character fix
+  in a file somebody else has open is still a conflict.
+
   RECORDED HERE RATHER THAN FIXED, for the reason this file already gives:
   the tutorials belong to another session, and a failure that lives only
   in one session's scrollback is a failure nobody owns. They are named so
