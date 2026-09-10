@@ -2,7 +2,13 @@
 CLAUDE SHOWS AS A CONTRIBUTOR ON THE spaCR GITHUB PAGE
 ================================================================================
 
-Status:    APPROVED, AND SCHEDULED LAST -- BUT NOW AFTER THE 1.5.0.5 TAG.
+Status:    THE STATED GOAL IS MET -- Claude is not in the contributors
+           list, measured 2026-09-10; see MEASURED below. No history
+           rewrite remains. What is left is one going-forward push check
+           and some unpublished local backup branches.
+
+           (Previously: APPROVED, AND SCHEDULED LAST -- BUT NOW AFTER THE
+           1.5.0.5 TAG.
            The maintainer has said to do the history rewrite -- Option A
            below -- as the FINAL task in this folder. Do not start it while
            anything else is open.
@@ -14,6 +20,8 @@ Status:    APPROVED, AND SCHEDULED LAST -- BUT NOW AFTER THE 1.5.0.5 TAG.
            TSG101 Cell submission cites, and the paper is the deadline. See
            82's ordering section for the reasoning and for why a Zenodo DOI
            survives a later rewrite. So: tag 1.5.0.5 first, then this.
+           That reschedule turned out to be moot -- there is no rewrite
+           left to run.)
 Requested: 2026-08-08 — "remove claude as a contributoa on the spacr github page"
            2026-08-08 — approving the rewrite, on being told it "changes
            every commit hash after the earliest rewritten one": "i want you
@@ -75,6 +83,57 @@ caught before the push and stripped, and the branch is back to zero.
     `HEAD..origin/nightly` was 0. Stated here because the next person will
     otherwise refuse to run the command, or will reach for a narrower range
     and miss commits.
+
+MEASURED 2026-09-10, AND THE HISTORICAL HALF IS DONE. The goal of this
+instruction -- "remove claude as a contributor on the spacr github page" --
+is already met, and it was met by the strip that has already happened
+rather than by anything still outstanding:
+
+    gh api "repos/EinarOlafsson/spacr/contributors?per_page=100&anon=1"
+        EinarOlafsson  2964
+        jak18015         18
+
+    No Claude. No bot. Every branch published on GitHub, anchored count:
+        364-renames 0   api-catalog-drift-check 0   main 0
+        nightly 0       rewrite-staging 0
+
+    Count them after `git fetch --prune`. Before pruning, this checkout
+    still had refs/remotes/origin/tutorial-deploy-20260814 and
+    origin/codex/pages-manual-nightly showing 38 each, and both branches
+    had already been DELETED from GitHub. A stale remote-tracking ref reads
+    exactly like a published one and will send you chasing work that does
+    not exist.
+
+WHAT IS ACTUALLY LEFT, and neither part is a history rewrite:
+
+  1. TWO PUBLISHED TAGS still reach commits carrying the trailer:
+     v1.5.0.4 (38) and v1.5.0.1 (14). These do NOT feed the contributors
+     graph, which GitHub computes from the default branch, and that is why
+     the listing above is clean. They cannot be cleaned without re-tagging
+     published releases, which would break the release assets and the
+     Zenodo records attached to them. RECOMMEND LEAVING THEM: the cost is
+     that a visitor opening one of those specific old commits sees a
+     co-author, and the cure is worse.
+
+  2. LOCAL BACKUP BRANCHES in individual checkouts carry them --
+     backup/pre-claude-trailer-strip (70), safety-nightly-20260908 (115),
+     backup-nightly-local (38), home-session-2026-09-03-backup (70),
+     wip/live-zoom-completeness (19), and a stale local `main` (38). None
+     is under refs/remotes; GitHub has never seen any of them. They are
+     backups of the strip that worked, they cost nothing to keep, and
+     deleting another checkout's safety net is the owner's call, not a
+     task. Whoever owns each checkout can drop theirs when they are
+     satisfied.
+
+SO THE ORDERING PROBLEM IN 82 IS MOOT. 82 held the release behind this
+instruction because a rewrite would discard the tagged SHA. There is no
+rewrite left to run, so the 1.5.0.5 tag is not sitting in front of one and
+will not be invalidated later. The reschedule recorded above stands, but it
+turns out to have cost nothing either way.
+
+The "38" in this file's opening section was measured unanchored and is not
+the historical figure; the real number of commits that ever carried one is
+70, all of them now only on unpublished local branches.
 
 THE REAL FIX IS A PRE-PUSH CHECK. A commit hook catches only the sessions
 that run it, and the instruction to add the trailer reaches the agent from
