@@ -5426,3 +5426,36 @@ actual Demos -> Timelapse action in a new private folder and inspect tracking
 and live preview before narrating. The old synthetic tutorial tree is retained
 unchanged; it has merged stacks/masks but no original raw TIFFs. No application,
 Qt, global translation or instruction-ledger changes are claimed.
+
+CODEX TUTORIAL LANE — 2026-09-10, TIMELAPSE NATIVE CHECKPOINT VERIFIED.
+
+a9741c875 pushed: sixteen scenes on the real Mask > Time fold, Help > Demos
+> Timelapse demo in a fresh folder, Plot on, eight frames / sixteen tracks.
+All sixteen raw TIFFs are preserved with Keep original images on. Independent
+checks cover 128 objects, 256 centroid coordinates and 1,048,576 loaded preview
+image/mask pixels. IoU 0.1 gives 16 eight-frame tracks; 1 gives 128 single-frame
+tracks; explicit Re-link at 0.1 restores the exact initial result. Four native
+MP4s fully decode. The downloadable synthetic ZIP is 1,050,432 bytes and
+contains only the actual exported planes, manifest and teaching instructions.
+33 checker tests plus 3 archive tests pass; 14 isolated mutations go red.
+The checker alone measures 85 statements / 54 branches at 100%, not spaCR.
+
+Qt handoff, no application files edited: typing 0.1 after 1 can launch an
+intermediate 0-valued preview; the final 0.1 request is refused while busy.
+The tutorial waits idle and explicitly clicks Re-link. Observed worker signal
+thresholds: 0.1, 1, 0, 0, 0.1 (signal observations, not five unique jobs).
+All observations had segmented=False. The first loaded-mask preview still
+says 'Masks built + linked', although no inference happened. Propagate
+settings omits IoU threshold, so the lesson says not to click that button.
+At font scale 1.5 the preview spinboxes clip their text; using the real 1.0
+preference is readable and guarded, without changing app widget geometry.
+Clear figures empties the queue but leaves the old canvas visible. The batch
+also emits inherited flow-threshold=100, missing relationships-table and
+settings-status warnings; these remain disclosed rather than hidden. Figure
+intensities use display normalization; no raw figure-pixel equivalence claim.
+
+English audio and the shared master are rendering under the 110 GiB guard.
+Translations and playback verification follow; total remains 45 technically
+checked lessons until that matrix passes. No native/listening approval or
+publication claim. Evidence: tools/tutorials/evidence/
+2026-09-10_timelapse_native_tracking_and_preview_checks.json.
