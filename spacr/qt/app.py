@@ -143,11 +143,11 @@ def open_at_the_measured_width(window) -> bool:
 
     :returns: True when the window was resized.
 
-    INSTRUCTION 359: "every module must initially open wide enough that
-    the right side of its settings is not cut off". The width comes from
-    `spacr.qt.layout_policy`, which reads a GENERATED artifact -- every
-    number in it measured by building each module offscreen and asking
-    whether its settings column is holding more than it can show.
+    A window that opens too narrow cuts off the right-hand side of a
+    module's settings. The width comes from `spacr.qt.layout_policy`,
+    which reads a generated artifact -- every number in it measured by
+    building each module offscreen and asking whether its settings column
+    is holding more than it can show.
 
     IT ONLY EVER GROWS, and that is deliberate rather than cautious. The
     comment above `win.show()` records why this window does not maximise:
@@ -2293,13 +2293,12 @@ def the_missing_pip_escape(output: str) -> Optional[str]:
     :returns: a command line to show the user, or None when this failure
         was not the missing-pip one.
 
-    THE ONE FAILURE THE APPLICATION CAN ANSWER, and instruction 01 asks it
-    to. The desktop installers build their environment with ``uv venv``,
-    which does not seed pip, so an install whose updater still runs
-    ``python -m pip`` fails before it starts -- and it is a BOOTSTRAP TRAP:
-    the fix cannot arrive by the route it fixes. A dialog that names the
-    exact command is the only escape that reaches a user who has already
-    hit it.
+    THE ONE FAILURE THE APPLICATION CAN ANSWER. The desktop installers
+    build their environment with ``uv venv``, which does not seed pip, so
+    an install whose updater still runs ``python -m pip`` fails before it
+    starts -- and it is a BOOTSTRAP TRAP: the fix cannot arrive by the
+    route it fixes. A dialog that names the exact command is the only
+    escape that reaches a user who has already hit it.
 
     Every other exit code gets the output and nothing else. Guessing at a
     remedy for a failure this cannot recognise would send a user to run a

@@ -367,3 +367,74 @@ source and compared to the table, so a silent edit to either fails.
 WHAT THIS DOES NOT FIX. 139 ms is still eight times the warm build. The
 remainder is `matplotlib.colors` and `widgets.toggle`, neither of which is
 worth a third name in the prewarm list until something else wants them.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- DEFECT 2 MEASURED PROPERLY, AND THE OBVIOUS FIX IS RULED OUT
+--------------------------------------------------------------------------------
+
+The baseline's second finding -- "THE THEME CHANGE IS STILL A THIRD OF A
+SECOND" -- is now decomposed. This is a NEGATIVE result and it is worth
+more than a guess: it closes the optimisation everybody reaches for first.
+
+WHERE THE TIME IS. One theme change on a Mask screen, 1,049 live widgets,
+offscreen:
+
+    stylesheet() composition          0.7 ms
+    app.setStyleSheet(sheet)        262 ms
+    the whole apply                 307 ms
+
+Composing the sheet is FREE. All of it is the one Qt call. And there is
+exactly ONE such call per preference change -- traced, not assumed; an
+earlier count of two was this measurement's own clearing call being
+counted with it. So there is no redundant apply to remove.
+
+WHAT THE COST IS NOT: THE SHEET. The sheet is 71,472 characters, 389
+blocks, ~655 selectors. Measured on the same 1,049 widgets:
+
+    empty sheet                       0.8 ms
+    ONE rule (`QWidget { color }`)   89.2 ms
+    half the sheet, by characters   182.6 ms
+    base only, 196 blocks, 382 sel  199.2 ms
+    the whole sheet                 204.6 ms
+
+Dropping the 42 registered widget-QSS blocks -- 25,195 characters and 273
+selectors, 42 % of the sheet by size -- saves FIVE MILLISECONDS of 205.
+Going from 655 selectors to ONE saves 56 %. So the curve is a step, not a
+slope: there is a large fixed cost for having any sheet at all, and after
+that the sheet's size barely matters. TRIMMING OR SPLITTING THE SHEET IS
+NOT THE LEVER, and an afternoon spent shrinking it would buy single-digit
+milliseconds.
+
+WHAT THE COST IS: THE WIDGET COUNT. Same sheet, a window filled with plain
+labels:
+
+        1 widget       1.0 ms
+      250 widgets      9.6 ms      38 us/widget
+      500 widgets     19.9 ms      40 us/widget
+    1,000 widgets     46.8 ms      46 us/widget
+    2,000 widgets    132.0 ms      66 us/widget
+
+Linear at first and worse than linear by 2,000. A real module screen costs
+more per widget than a QLabel does -- 1,049 of them come to 205 ms, not the
+50 the label curve predicts -- because they are nested, named and styled.
+
+SO THE ONLY LEVER IS NOT REPOLISHING EVERYTHING, which is what 378 already
+measured from the other side: 107 ms for the visible screen against 587 for
+the application. The change that would do it is to stop setting the sheet on
+the QApplication and set it per top-level window, marking hidden module
+screens dirty so their `showEvent` applies it.
+
+NOT ATTEMPTED HERE, and the reason is this item's own constraint rather than
+timidity. `app.setStyleSheet` covers every widget that exists AND every one
+created later -- dialogs, popups, menus, a screen built after the change.
+Per-window application has to reproduce that, and the failure mode is a
+dialog opening in the previous theme, which is exactly "compromising
+functionality". It needs a display to verify and a session that can watch
+it happen.
+
+WHAT IS WORTH KNOWING BEFORE THAT IS TRIED: `apply_preferences_to_app`
+already has a signature guard that skips the whole rebuild when nothing
+visual changed, and it already clears and reinstalls screen-local QSS
+overlays around the global call. Whoever does the per-window version
+inherits both, and the overlay mechanism is the half that already knows how
+to give one screen its own sheet.

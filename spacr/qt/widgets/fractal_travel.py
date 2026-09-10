@@ -1643,20 +1643,18 @@ def default_region_tour(**kwargs) -> RegionTour:
 class TourPilot:
     """Points a steering camera at the twenty regions, frame by frame.
 
-    THE TOUR WAS BUILT AND NOTHING CALLED IT. :class:`RegionTour` and
-    :data:`spacr.qt.widgets.fractal_regions.REGIONS` shipped with tests and
-    no caller, so the coordinates worth looking at were never on screen.
-    This is the wire, and it is a PLAIN OBJECT ON PURPOSE -- the same
-    reason :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` is
-    one. The GPU canvas needs a GL context to exist, and every claim about
-    how this moves would otherwise come from a simulation written beside
-    the code rather than from the code that runs.
+    It joins :class:`RegionTour` to the camera, and it is a PLAIN OBJECT
+    ON PURPOSE -- the same reason
+    :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` is one.
+    The GPU canvas needs a GL context to exist, so logic left inside it
+    can only be argued about; here the motion can be driven frame by
+    frame and measured.
 
     IT SETS THE TARGET AND NOTHING ELSE. The camera's own exponential
     follow is what moves it, so the tour's smoothstep between regions and
-    the camera's approach to wherever the target currently is compose into
-    one motion with no start and no stop -- which is the whole of
-    instruction 327's "gently and smoothely mooving between points".
+    the camera's approach to wherever the target currently is compose
+    into one motion with no start and no stop -- which is what keeps the
+    camera floating between the regions rather than cutting to them.
 
     :param tour: the tour to fly, or None for the committed regions.
     """

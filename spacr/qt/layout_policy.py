@@ -1,21 +1,20 @@
 """The measured window width a module needs, and what to open on first run.
 
-INSTRUCTION 359. The report was that "every module must initially open wide
-enough that the right side of its settings is not cut off", and that the
-same pixel dimensions can describe three different machines -- so a static
-``resolution -> font size`` table would choose wrongly on exactly the M4 Mac
-that prompted it.
+A window that opens too narrow cuts off the right-hand side of a module's
+settings, and the width that avoids it is not something a resolution can
+answer on its own: the same pixel dimensions describe a low-DPI monitor, a
+Retina panel at 2x, and an accessibility-scaled desktop.
 
 WHAT THIS MODULE IS. The reader of a GENERATED artifact,
 ``spacr/resources/layout_policy.json``, produced by
 ``tools/measure_the_layout_matrix.py``. Every number in it was measured by
 building each module offscreen in a container that cannot grow and reading
-what was clipped -- the same rule instruction 350's sweep asserts, not a
-second opinion about it.
+what was clipped -- the same rule the package's text-fit sweep asserts,
+not a second opinion about it.
 
-WHAT IT IS NOT. Not telemetry, and 359 says so explicitly: "capture" means
-reading Qt screen metrics into local preferences, not sending hardware
-details anywhere. Nothing here leaves the machine.
+WHAT IT IS NOT. Not telemetry. "Capture" here means reading Qt screen
+metrics into local preferences, not sending hardware details anywhere.
+Nothing this module reads or writes leaves the machine.
 
 IT IMPORTS NOTHING HEAVY, which the item requires of the artifact's
 loader: ``json`` and ``importlib.resources``, no Qt, no numpy. The Qt
