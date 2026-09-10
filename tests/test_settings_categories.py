@@ -315,6 +315,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # control sits in the same category with the same tooltip, under a
     # name that says what it holds.
     "nontargeting_control_grnas",
+    # ---- the bystander split, instruction 388 ---------------------------
+    # NEW SETTINGS RATHER THAN A REGROUPING, and they arrive together
+    # because neither is usable alone: the flag decides whether the column
+    # family is written and the reach decides what it says. Both sit in
+    # Measurements beside `spatial_measurements`, which answers the same
+    # kind of question about the same objects.
+    "bystander_measurements",
+    "bystander_reach_in_diameters",
     # ---- optical pooled screening, folded onto Align & Stitch ----------
     # All 57 arrive together from `spacr.ops_settings.OPS_CATEGORIES` and
     # are declared as one block rather than reasoned about one at a time:

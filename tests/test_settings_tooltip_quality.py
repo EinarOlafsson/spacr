@@ -680,7 +680,14 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # `visualize`, retired under 357-Q4 because the package read none of
     # them. A retired setting is resolved by no app, so its tooltip claim
     # is compared against nothing.
-    assert comparisons == 671
+    # 671 -> 675 on 2026-09-10, +4/-0, and the four are TWO settings seen
+    # by TWO apps. Instruction 388's `bystander_measurements` (Default
+    # False) and `bystander_reach_in_diameters` (Default 1.0) are declared
+    # once, in `get_measure_crop_settings`, and that factory is resolved by
+    # both `measure` AND `external_masks` -- so a new measure setting moves
+    # this census by two per app, not by one per setting. Anyone adding the
+    # next one and expecting +1 will look for a bug that is not there.
+    assert comparisons == 675
     # 44 since 2026-09-02. Instruction 364 unified organelle's duplicated
     # size/area settings, and the surviving tooltip now NAMES its per-app
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")

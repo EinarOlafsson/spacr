@@ -1301,6 +1301,21 @@ def get_measure_crop_settings(settings=None):
     # EVERY DISTANCE WORTH MEASURING. On by default for the same reason as
     # spatial_measurements above; it is real time on a 3-D field and that
     # is the cheaper half of the trade.
+    # WHICH UNINFECTED CELLS ARE NEXT TO AN INFECTED ONE (instruction 388).
+    # OFF BY DEFAULT, unlike the two families above, and the difference is
+    # deliberate: those were turned on by the maintainer AFTER plates had
+    # been measured with them, and this one adds a column family nobody has
+    # seen on a real plate yet. The cost is one distance transform and one
+    # KD-tree over the cell mask, which is cheaper than either of them --
+    # so the reason to leave it off is unfamiliarity, not time, and it is
+    # a one-line decision to flip once a plate has been measured with it.
+    settings.setdefault('bystander_measurements', False)
+    # THE REACH IS IN CELL DIAMETERS, NOT MICRONS, so it means the same
+    # thing at 20x and 63x and on a plate whose cells are simply larger.
+    # The diameter is measured from the cell mask of the field being
+    # measured; a hard-coded distance would be right for one dataset and
+    # silently wrong for the next.
+    settings.setdefault('bystander_reach_in_diameters', 1.0)
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -3530,6 +3545,8 @@ expected_types = {
     "resnet_features": bool,
     "test_nr": int,
     "radial_dist": bool,
+    "bystander_measurements": bool,
+    "bystander_reach_in_diameters": float,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -4725,6 +4742,8 @@ tooltips = {
     "png_size": "(list of int) - Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
     "positive_control_id": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
+    "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
+    "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
     "spatial_neighbor_radius": "(int) - Radius used by spatial_measurements when counting neighbouring objects. The value is expressed in the units recorded for the measurement table: pixels for two-dimensional data and micrometres for calibrated three-dimensional data. The radius is included in the output column name, so use one value consistently across plates that will be combined. Ignored unless spatial_measurements is enabled. Default 50.",
     "radial_dist": "(bool) - Measure how each channel's intensity varies with distance from the nucleus, pathogen and organelle boundaries inside each cell, binned into 6 shells and saved as <object>_rad_dist_channel_<c>_bin_0-5. Keep it on to quantify recruitment or intensity gradients toward an object; turn it off to shrink the feature table and speed up measurement. Default True.",
@@ -5350,7 +5369,7 @@ categories = {
     #   * parasite_table / compartment, from "Invasion Assay", which name the
     #     table and compartment the objects are read from. Leaving them there
     #     made the Replication module render a heading called "Invasion Assay".
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     # The flat-field correction Measure applies before it measures anything.
     # One heading, not the four the Illumination screen splits them across:

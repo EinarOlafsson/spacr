@@ -1277,6 +1277,17 @@ def _morphological_measurements(
     # reason `spatial_measurements` is: it is real time on a 3-D field.
     distances_on = bool(settings.get('object_distances', False))
 
+    # WHICH UNINFECTED CELLS ARE NEXT TO AN INFECTED ONE (instruction 388).
+    bystanders_on = bool(settings.get('bystander_measurements', False))
+    try:
+        bystander_reach = float(settings.get('bystander_reach_in_diameters', 1.0))
+    except (TypeError, ValueError):
+        # A REACH THAT CANNOT BE READ MAKES EVERY UNINFECTED CELL DISTAL
+        # rather than guessing a distance: `classify` treats a non-positive
+        # reach that way already, and inventing bystanders from a mis-typed
+        # setting is the one failure that would look like a finding.
+        bystander_reach = 0.0
+
     def _all_masks():
         """Object type -> label image, for the masks this run actually has."""
         found = {}
@@ -1342,6 +1353,83 @@ def _morphological_measurements(
             [count_col, touch_col]].fillna(0).astype(np.int64)
         return merged
 
+
+    def _with_bystanders(frame, mask, pathogen_links):
+        """Merge the bystander block onto the CELL props frame.
+
+        A cell is infected if it holds a pathogen, a bystander if it holds
+        none but sits within the reach of one that does, and distal
+        otherwise. Without the split the last two are the same row, and the
+        uninfected control is a mixture whose variance hides the effect
+        every infection comparison is looking for.
+
+        THE REACH IS DERIVED FROM THIS FIELD'S OWN CELLS, as a multiple of
+        their median diameter, so it means the same thing at 20x and 63x.
+
+        Props on the LEFT, for the reason `_with_spatial` gives.
+        """
+        if not bystanders_on or len(frame) == 0:
+            return frame
+        try:
+            from .bystanders import (_median_cell_diameter, classify,
+                                     reach_from_diameter)
+
+            diameter = _median_cell_diameter(mask, spacing=spacing)
+            if diameter <= 0:
+                # NO COLUMNS RATHER THAN WRONG ONES. A zero diameter means
+                # nothing measurable was found -- every cell clipped by the
+                # field edge, or a 3-D mask this planar measure does not
+                # cover. Emitting the block anyway would give a reach of
+                # zero, which marks every uninfected cell DISTAL: a
+                # confident wrong answer instead of a visible gap.
+                print("[measure] bystanders were not measured: no median "
+                      "cell diameter could be taken from this field")
+                return frame
+            # `get_components` returns an EXPLODED FRAME, not a dict:
+            # one row per cell/pathogen pair, with cells holding no
+            # pathogen already dropped. So every cell_id present in it is
+            # infected, and no emptiness test is needed -- an earlier draft
+            # treated it as a mapping and asked `if found`, which is the
+            # ambiguous-truth-value error on a DataFrame.
+            if pathogen_links is None or not len(pathogen_links):
+                infected = []
+            else:
+                infected = (pd.to_numeric(pathogen_links['cell_id'],
+                                          errors='coerce')
+                            .dropna().astype(np.int64).unique().tolist())
+            block = classify(mask, infected,
+                             reach=reach_from_diameter(diameter,
+                                                       bystander_reach),
+                             spacing=spacing)
+        except Exception as error:                           # noqa: BLE001
+            # A MEASUREMENT FAMILY THAT FAILS IS NOT A FAILED RUN.
+            print(f"[measure] bystanders were not measured: "
+                  f"{type(error).__name__}: {error}")
+            return frame
+        if 'neighbourhood' not in block.columns:
+            return frame
+        where = block['neighbourhood']
+        # NUMERIC ONLY, because the object namespace refuses a non-numeric
+        # column -- the category itself cannot be stored, so it is carried
+        # as two flags. `is_infected` is not emitted: it is neither of
+        # these two, and a third column would be a third chance to
+        # disagree with the pathogen table about the same fact.
+        out = pd.DataFrame({
+            'label': block['label'].to_numpy(),
+            'is_bystander': (where == 'bystander').to_numpy().astype(np.int64),
+            'is_distal': (where == 'distal').to_numpy().astype(np.int64),
+        })
+        # -1.0 FOR "NOTHING INFECTED IN THIS FIELD", the same sentinel and
+        # for the same reason as `_SPATIAL_NO_NEIGHBOUR`: `classify` reports
+        # infinity there, and one non-finite value deletes the column from
+        # every model matrix. It is a sentinel, not a distance, and must
+        # not be averaged.
+        distance = pd.to_numeric(block['distance_to_infected'],
+                                 errors='coerce').to_numpy(dtype=float)
+        distance[~np.isfinite(distance)] = _SPATIAL_NO_NEIGHBOUR
+        out['distance_to_infected'] = distance
+        return frame.merge(out, on='label', how='left', validate='one_to_one')
+
     prop_ls = []
     ls = []
 
@@ -1350,6 +1438,7 @@ def _morphological_measurements(
         cell_props = _props(cell_mask)
         cell_props = _with_spatial(cell_props, cell_mask)
         cell_props = _with_distances(cell_props, cell_mask, 'cell')
+        cell_props = _with_bystanders(cell_props, cell_mask, cell_to_pathogen)
         if zernike:
             cell_props = _calculate_zernike(
                 cell_mask, cell_props, degree=degree)

@@ -1348,6 +1348,14 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             # the switch that turns it on: it is baked into the column name,
             # so a screen has to pick one value and keep it.
             "spatial_neighbor_radius",
+            # Instruction 388's bystander split, and the note above applies
+            # to it word for word -- it was added to the measure defaults
+            # and to the shared "Measurements" category and landed in
+            # "Additional Settings" until it was listed HERE too. Beside
+            # the spatial pair because it answers the same kind of question
+            # about the same neighbourhood: that pair counts the neighbours,
+            # this one asks whether any of them is infected.
+            "bystander_measurements", "bystander_reach_in_diameters",
             "manders_thresholds", "homogeneity", "homogeneity_distances",
             "radial_dist", "distance_gaussian_sigma",
             # The spatial-distance block: how far every object is from
