@@ -321,3 +321,50 @@ tree for filename shapes, EXCLUDE the folders a previous run wrote. A
 derived mask carries a name the pipeline invented, and measuring the
 parser against it measures the wrong thing in the direction that looks
 like a finding.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- CLOSED. THE MAINTAINER'S ANSWER IS: DO NOT RETIRE THEM.
+--------------------------------------------------------------------------------
+
+ASKED AND ANSWERED TODAY, with the corrected measurement above in front of
+him: `metadata_type` and `consolidate` STAY. Not "not yet" -- kept.
+
+WHAT HE WAS ASKED, so the answer is not read wider than it was given. The
+question named the four conventions `metadata_type` selects among
+(`cellvoyager`, `cq1`, `custom` via `custom_regex`, `auto`), stated that
+all five of his acquisitions are cellvoyager and that Import now parses
+every one of them 150/150, and stated that `cq1` and `custom` are attested
+only by `tests/import_corpus.py`. The three options offered were: retire
+on the cellvoyager evidence; point me at real cq1 data first; or do not
+retire at all. He chose the third.
+
+WHY THAT IS A REASONABLE ANSWER AND NOT A DEFERRAL. The evidence this item
+demanded was never obtainable for two of the four arms: nobody in this lab
+has cq1 or custom-regex data, so no amount of measurement will ever prove
+Import answers what `metadata_type` answers for a user who does. The
+setting costs one row in Mask's panel; removing it would take the only
+working path away from any user whose microscope names files differently,
+in exchange for a shorter settings list. A SETTING THAT COVERS A CASE YOU
+CANNOT TEST IS NOT DEAD WEIGHT, IT IS THE CASE YOU CANNOT TEST.
+
+WHAT SURVIVES THIS ITEM AND IS WORTH KEEPING:
+
+  * IMPORT IS PROVEN ON EVERY ACQUISITION THIS LAB HAS -- 150/150 across
+    five acquisitions and six mitoscreen runs, plate, well, field and
+    channel all derived. That was the point of 363 and it stands whether
+    or not the old settings are retired. A user with cellvoyager data can
+    ignore `metadata_type` entirely and Import will get it right.
+
+  * THE 2026-09-04 MEASUREMENT WAS WRONG and the correction is recorded
+    above. If this is ever reopened, start from "all five parse", not from
+    "mitoscreen fails".
+
+  * THE SAMPLING LESSON: exclude the folders a previous run wrote. A
+    derived mask carries a name the pipeline invented, and measuring a
+    parser against it measures the wrong thing in the direction that looks
+    like a finding.
+
+STEPS 2 AND 3 ARE NOT DONE AND WILL NOT BE. `RETIRED_SETTINGS` gains
+nothing; `spacr.settings` keeps both keys; Mask's panel keeps both rows.
+Nothing in the package changes as a result of this item, which is the
+correct outcome of asking rather than assuming.
