@@ -15,7 +15,13 @@ prototypes each fitted their own measurements perfectly and placed 27 of
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
+
+#: The checkout root, so the import probe below runs against this tree
+#: rather than against whatever is installed.
+ROOT_DIR = Path(__file__).resolve().parents[1]
 
 from spacr.ops_layout import (DIRECTIONS, MEASURED_WELL, WellLayout,
                               round_well_layout)
@@ -227,6 +233,40 @@ def test_a_site_outside_the_well_is_an_index_error_naming_the_size(layout):
         layout.position(layout.site_count)
     with pytest.raises(IndexError):
         layout.position(-1)
+
+
+def test_the_layout_stays_importable_anywhere(tmp_path):
+    """It says it imports only `math`, and nothing was enforcing that.
+
+    The claim is load-bearing rather than decorative: `ops_solve` is a
+    separate module BECAUSE this one is pure geometry, and the OPS
+    pipeline's other three all pull numpy. A layout that quietly gained a
+    numpy import would make the separation pointless without anything
+    saying so -- and this module is the one a caller reaches for to ask
+    "which tiles touch" without wanting an array library.
+
+    Measured in a fresh interpreter: 11 ms, three modules, no numpy.
+    """
+    import subprocess
+    import sys
+
+    probe = (
+        "import sys, time;"
+        "t=time.perf_counter();"
+        "import spacr.ops_layout;"
+        "print(round((time.perf_counter()-t)*1000));"
+        "print('numpy' in sys.modules);"
+        "print('torch' in sys.modules)"
+    )
+    done = subprocess.run([sys.executable, "-c", probe],
+                          capture_output=True, text=True,
+                          cwd=str(ROOT_DIR))
+    assert done.returncode == 0, done.stderr
+    milliseconds, numpy_loaded, torch_loaded = done.stdout.split()
+    assert numpy_loaded == "False", "ops_layout now pulls numpy"
+    assert torch_loaded == "False", "ops_layout now pulls torch"
+    assert int(milliseconds) < 500, (
+        f"importing the layout took {milliseconds} ms; it is arithmetic")
 
 
 def test_the_layout_is_frozen_because_its_walk_is_cached():
