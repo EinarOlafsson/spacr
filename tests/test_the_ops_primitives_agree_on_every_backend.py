@@ -34,6 +34,14 @@ def _skip_unless(name):
 
 
 @pytest.fixture(scope="module")
+def harness_accel():
+    """The module under test, imported once."""
+    import spacr.ops_accel as accel
+
+    return accel
+
+
+@pytest.fixture(scope="module")
 def field():
     rng = np.random.default_rng(4)
     return rng.random((97, 61)).astype(np.float32)
@@ -147,6 +155,72 @@ def test_a_backend_that_raises_falls_through_but_a_named_one_does_not(field,
                           maximum_filter(field, 5, backend="numpy"))
     with pytest.raises(RuntimeError, match="went away"):
         accel.maximum_filter(field, 5, backend="torch")
+
+
+# -- the dispatch itself ---------------------------------------------------
+
+def test_gpu_false_takes_the_cpu_device_rather_than_no_device(harness_accel):
+    """`torch.fft` on the CPU is the same code with a different device.
+
+    Returning None for "no card" would have made the accelerated path
+    untestable exactly where it most needs testing, so `_torch(False)`
+    hands back the CPU device instead -- and `_cupy(False)` returns None,
+    because CuPy is CUDA or nothing.
+    """
+    pytest.importorskip("torch")
+    found = harness_accel._torch(gpu=False)
+    assert found is not None
+    assert found[1].type == "cpu"
+    assert harness_accel._cupy(gpu=False) is None
+
+
+def test_a_missing_accelerator_module_is_not_an_error(harness_accel,
+                                                      monkeypatch):
+    """A resolver that raises leaves the CPU path, not a traceback."""
+    pytest.importorskip("torch")
+    import builtins
+
+    real_import = builtins.__import__
+
+    def refuse(name, *args, **kwargs):
+        if name.endswith("accelerator") or ".accelerator" in str(name):
+            raise ImportError("no accelerator here")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", refuse)
+    found = harness_accel._torch(gpu=True)
+    assert found is not None and found[1].type == "cpu"
+
+
+def test_no_usable_backend_at_all_says_so(harness_accel, monkeypatch):
+    """The last line of `_try`, which only a broken machine reaches."""
+    monkeypatch.setattr(harness_accel, "accelerated_backends",
+                        lambda gpu=True: ())
+    with pytest.raises(RuntimeError, match="no usable backend"):
+        harness_accel.maximum_filter(np.zeros((4, 4)), 3)
+
+
+def test_the_matmul_and_the_search_fall_through_too(harness_accel,
+                                                    monkeypatch, clouds):
+    """The fallback is per call, not per process.
+
+    Asserted on all three primitives rather than on the one that happened
+    to be written first: a card that goes away goes away for everything,
+    and a primitive that raised instead would fail the plate at whichever
+    step reached it next.
+    """
+    def explode(*_args, **_kwargs):
+        raise RuntimeError("the card went away")
+
+    monkeypatch.setattr(harness_accel, "accelerated_backends",
+                        lambda gpu=True: ("torch", "numpy"))
+    monkeypatch.setattr(harness_accel, "_torch", explode)
+
+    left = np.eye(3, dtype=np.float32)
+    assert np.allclose(harness_accel.matmul(left, left), left)
+    source, target = clouds
+    index, gap = harness_accel.nearest_neighbours(source, target)
+    assert index.shape == (len(source),) and gap.shape == (len(source),)
 
 
 # -- and the callers -------------------------------------------------------

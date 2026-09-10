@@ -201,6 +201,34 @@ def test_a_different_field_count_is_fitted_and_an_impossible_one_refused():
         round_well_layout(0)
 
 
+def test_a_column_outside_the_well_has_no_span_and_no_site(layout):
+    """Asked for a column the circle does not reach, it says so.
+
+    Two ways that happens and both must answer None rather than raise: an
+    index past the last column, and -- for an ellipse-shaped acquisition
+    somebody fits later -- a column inside the count whose chord is
+    empty. A raise here would take a whole well's adjacency with it.
+    """
+    assert layout.span(-1) is None
+    assert layout.span(layout.columns) is None
+    assert layout.site(layout.columns, 0) is None
+    assert layout.site(0, 999) is None
+
+    empty = WellLayout(columns=9, radius=1.0, centre=(0, 0))
+    assert empty.span(5) is None
+    assert empty.heights[5] == 0
+    # And the walk skips it rather than emitting a column of no tiles.
+    assert all(column <= 1 for column, _row in empty.positions())
+
+
+def test_a_site_outside_the_well_is_an_index_error_naming_the_size(layout):
+    """`position` is asked for a site the well does not hold."""
+    with pytest.raises(IndexError, match=str(layout.site_count)):
+        layout.position(layout.site_count)
+    with pytest.raises(IndexError):
+        layout.position(-1)
+
+
 def test_the_layout_is_frozen_because_its_walk_is_cached():
     """A layout that could be edited would answer for the well it was."""
     layout = WellLayout()
