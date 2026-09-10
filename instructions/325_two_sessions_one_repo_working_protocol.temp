@@ -5594,3 +5594,34 @@ Receipt: tools/tutorials/evidence/
 NEXT CLAIM: Curate 42, tutorial-only native interaction, exact edit/undo/save
 checks on private copies and a decision about retaining the old narration.
 No change to the protected application, Qt or global-translation lanes.
+
+CODEX TUTORIAL LANE — 2026-09-10, CURATE 42 NATIVE HISTORY HOLD.
+
+bf7f408d7 pushed. Twenty real GUI frames exercise private copies of the
+synthetic Timelapse output: all 65,536 mask pixels checked after paint, undo,
+save and reopen; 195 first-stroke pixels and 47 second-session pixels change.
+Track split/join/save/reload matches every cell (128 rows / 16 tracks); an
+overlapping-track join refuses without changes, and an unsaved deletion drops
+exactly eight rows before the saved CSV restores them. Original files retain
+their hashes. Fourteen helper tests pass, seven isolated mutations turn red;
+35 statements / 18 branches at 100%, numerical tutorial helper ONLY.
+
+PROTECTED-APP HANDOFF, empirically reproduced, no application edits:
+1. Curate's file picker advertises NPY, but stack_from_paths routes its mask
+   to load_preview_image -> PIL.Image.open and raises UnidentifiedImageError.
+   An exact uint16 TIFF copy loads; the native layer becomes int64 as designed.
+2. Save mask writes paint/undo/paint (3 ledger entries). Reopen it: Curate
+   says curated, but the Brush panel says no corrections and has 0 entries.
+   Paint once more and Save mask: disk ledger now contains ONLY that new
+   paint, losing all three original entries. Pixel contents remain correct.
+   Track reopening, in contrast, preserves its split/join ledger correctly.
+   Relevant consumer: CurateScreen.attach_brush -> BrushPanel -> MaskCuration
+   starts a new log rather than reading the existing sidecar.
+3. Track controls/ledger text are narrow and clip in this native 4K capture.
+
+42 remains held; no false complete-provenance narration, translations or
+production media were generated. Receipt (including exact private paths):
+tools/tutorials/evidence/2026-09-10_curate_mask_history_hold.json.
+NEXT CLAIM: Cellpose Masks 20, current Make Masks fold and real private
+example inference. Reusing the already-scoped channel/grayscale findings.
+No edits to Qt, spacr_cellpose, the translation lane or instruction ledger.
