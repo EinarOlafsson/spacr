@@ -5535,3 +5535,29 @@ saved-bundle inspector, not the old narrated evaluation-configuration form.
 Existing Classify demo splits have documented actual-well overlap; I will not
 present their metrics or their own leakage badge as independent validation.
 No application, Qt, global translation or other-session instruction work.
+
+CODEX TUTORIAL LANE — 2026-09-10, EVALUATION INSPECTOR NATIVE CHECKPOINT.
+
+2f4c941c4 pushed: actual Classify > Classifier Evaluation tab, native folder
+picker and all six inspector tabs recorded. The existing one-epoch run has
+234 test predictions and 2,102 training crops. A new private bundle was made
+through the standard evaluation APIs, with byte-identical crop copies named
+from the database's prcfo, not guessed from legacy filenames. The actual well
+overlap is three, so the new bundle truthfully says review required; this does
+not repair the old split, alter probabilities or validate its accuracy.
+Independent checks match eleven summary fields, ten calibration rows and
+all four confusion cells in each of eleven GUI snapshots. Sixteen tests pass;
+seven isolated source mutations turn red. Predicted-table rows and confidence
+lists are recorded, with their complete cell-by-cell checks still to follow.
+No English lesson, translation or media matrix has been accepted yet.
+
+App-text handoff, no protected edits: the same confusion cell says its spread
+over three wells proves it is the model's problem, then says its concentration
+on one plate proves it is NOT a model problem and should be fixed upstream.
+There is only one plate in the entire example, so that causal conclusion does
+not follow. High-confidence disagreement also does not prove a wrong label.
+The lesson will distinguish counts from those suggestions. Crop-open buttons
+were disabled because Annotate's opener was not initialized; no fake crop
+handoff was shown. Source inputs and the loaded bundle remain byte-identical.
+Receipt: tools/tutorials/evidence/
+2026-09-10_evaluation_native_inspector_checkpoint.json.
