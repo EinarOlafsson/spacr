@@ -1,0 +1,37 @@
+{
+  "lesson": "60_pca",
+  "english_sha256": "f295718c295b040c75a11a245ef79b086bb19375b109fcd741ddbbc33b19d402",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked real PCA populations, covariance eigenvalue comparison, live native controls and all CSV cells; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "PCA: raunverulegar mælingar, lifandi endurreikningur og vantar gildi",
+  "description": "Skoðaðu PCA innan Image UMAP með raunverulegum niðurhöluðum frumugögnum, staðfestum skorum, afturkræfum síum, skýrum reglum um gildi sem vantar og þremur CSV-útflutningum.",
+  "objectives": [
+    "Finna PCA innan Image UMAP og velja mælibreytur sérstaklega.",
+    "Lesa skýrða dreifni og fylgniörvar án þess að fullyrða um líffræðilegan aðskilnað.",
+    "Bera saman stöðlun, endurreikning eftir síun og fjórar reglur um gildi sem vantar.",
+    "Flytja út skor hluta, hleðslur breyta og dreifni höfuðþátta án þess að breyta upprunagögnum."
+  ],
+  "prerequisite": "Notaðu einkaeintak sem er bæti fyrir bæti eins og niðurhalanlega Annotate-dæmið: 2.341 frumuröð, 276 upprunalegir dálkar og fjórir brunnar. Fyrst eru cell_area, cell_channel_1_mean_intensity og cell_perimeter notuð, síðan bætist cell_channel_0_homogeneity_distance_32 við, þar sem sjö raunveruleg gildi vantar. Orsök gagnaskortsins og auðkenni meðferða hafa ekki verið staðfest. Óháð eigingildagreining samdreifnifylkisins sannreynir SVD appsins, staðsetningar varðveittra raða, skor, hleðslur, fylgni og dreifni; einnig eru teiknuð hnit og hver upprunalegur gagnareitur í útflutningi athuguð. Staðfestingin takmarkast við þessar óúrkynjuðu greiningar með fulla röð og þrjár eða fjórar breytur, ekki allar sjálfvaldar breytur, pixlarúmfræði örva, inntak með skerta röð, myndtengt val eða líffræðilegar ályktanir. NumPy-PCA á CPU er aðskilið frá UMAP og GPU-valkostum þess. Enginn sérstakur niðurhalshnappur, myndforskoðun, AI-stjórnborð eða almennur Plot-rofi er hér. CSV-skrárnar þrjár eru hvorki pakki með aðlöguðu líkani, vistaðar stillingar né útflutt mynd. API: spacr.qt.widgets.pca_model.pca og PCASpec; PCAResult.scores_frame, loadings_frame og variance_frame.",
+  "scenes": [
+    "Opnaðu Image UMAP frá Home og veldu innfellda PCA-hnappinn. PCA er línuleg samantekt mælinga, ekki önnur UMAP-innfelling. Við endurnýtum raunverulega niðurhalanlega Annotate-dæmið í einkaeintaki. Annotate-leiðbeiningarnar sýna hvar gögnin fást.",
+    "Notaðu Load table við PCA-fyrirsögnina, veldu afritaða mæligagnagrunninn og síðan cell. Þar eru 2.341 hlutur úr fjórum brunnum. Skjárinn getur líka lesið CSV-mælitöflu. Slóð sem áður var hlaðið í aðaleiningunni sannar ekki að rétta taflan sé opin.",
+    "Hreinsaðu breytuleitina áður en þú velur None: hnappurinn afvelur aðeins breyturnar sem sjást þá. Leitaðu að og merktu cell_area, cell_channel_1_mean_intensity og cell_perimeter. Hreinsaðu leitina aftur, stilltu Components á 3 og veldu Run PCA. Leitin þrengir breytulistann, ekki frumuhópinn.",
+    "Haltu Standardise og lestu skriðugrafið. Fyrsti höfuðþátturinn skýrir um 65,7 % af staðlaðri dreifni þessara þriggja breyta, annar þátturinn 31,7 %. Punktarnir eru einstakar mældar frumur, ekki óháðar endurtekningar tilraunar. Skýrð dreifni er ekki flokkunarnákvæmni.",
+    "Veldu rowID í Colour, síðan PC3 á X og PC1 á Y. Þessar stillingar teikna fyrirliggjandi greiningu aftur án nýrrar aðlögunar. Litirnir tákna staðsetningarraðir, ekki staðfestar meðferðir. Aðskilið útlit punktskýs er tilefni til að kanna mælingar og ruglandi þætti, ekki sönnun um líffræðileg áhrif.",
+    "Farðu aftur í PC1 og PC2. Slökktu og kveiktu aftur á Loadings biplot. Örvarnar sýna fylgni breytanna við þessa tvo þætti; heildarlengd þeirra er kvörðuð fyrir skjáinn og strikaði hringurinn er viðmið. Svipaðar örvastefnur staðfesta ekki orsakasamband.",
+    "Breyttu Scale í Centre only. Fyrsti þátturinn skýrir nú um 90,1 %, því hráir mælikvarðar breyta greiningunni. Hærra hlutfall gerir líkanið ekki betra. Endurstilltu á Standardise áður en haldið er áfram: hver breyta er miðjuð og deilt með staðalfráviki úrtaksins.",
+    "Bættu cell_area við síuna hægra megin og settu lágmarkið á 21.925. Greiningin notar nú 1.171 frumu. Þetta er lifandi endurreikningur: meðaltöl hópsins, kvarðar og stefnur höfuðþátta breytast. Það er ekki aðeins verið að fela punkta á gömlu ásunum.",
+    "Veldu Clear all í síunni. Allar 2.341 frumurnar og upprunalega greiningin koma aftur. Síun eyðir aldrei gagnagrunnsröðum. Athugaðu hóp og skýrslu eftir hverja breytingu: skor hópa sem eru greindir sitt í hvoru lagi hafa ekki sjálfkrafa sameiginlegt hnitakerfi.",
+    "Leitaðu nú að cell_channel_0_homogeneity_distance_32 og merktu hana. Fyrirliggjandi niðurstaða inniheldur enn þrjár breytur þar til þú velur Run PCA. Sjö raunveruleg gildi vantar í þessa áferðarbreytu. Ástæðan er óþekkt; því má hvorki kalla þessar frumur ósýktar né setja núll í stað mælinganna sem vantar.",
+    "Keyrðu með Auto. Allar fjórar breyturnar haldast en sjö frumur eru fjarlægðar og 2.334 verða eftir. Auto fjarlægir breytur sem vantar í meira en 2 % raða og síðan þær raðir sem eru enn ófullgerðar. Þrír umbeðnir þættir ná um 98,6 %; fjórða stefna er enn til.",
+    "Veldu Drop features í NaN. Allar 2.341 frumurnar haldast, en áferðarbreytan er ekki notuð í greiningunni. Fjórir reitir geta verið merktir þótt aðeins þrjár breytur séu í raun greindar. Lestu niðurstöðuna og tilkynninguna um útilokun, ekki aðeins umbeðið val.",
+    "Veldu Mean-impute. Allar frumur og fjórar breytur haldast; sjö gildum er skipt út fyrir meðaltal breytunnar í útreikningnum. Þetta eru tilbúin gildi, ekki endurheimtar mælingar. Skýrslan sýnir fjölda útskipta. Greindu frá þessari ísetningu þegar niðurstaðan er kynnt; upprunagagnagrunnurinn hefur ekki verið endurskrifaður.",
+    "Veldu Complete cases. Fjórar valdar breytur haldast og sömu sjö ófullgerðu frumurnar eru fjarlægðar í þessu dæmi. Samræmið við Auto á sérstaklega við þessi gögn. Farðu aftur í Auto, afveldu áferðarbreytuna, hreinsaðu leitina, veldu Run PCA og stilltu Colour aftur á none.",
+    "Veldu Export og vistaðu grunnheiti eins og pca_example. Þrjár CSV-skrár verða til: skor hvers greinds hlutar, hleðslur og fylgni hverrar breytu og dreifni hvers höfuðþáttar. Skoraskráin varðveitir líka upprunalegu mælidálkana; hún er ekki aðeins þrír hnitadálkar.",
+    "Þessi útflutningur varðveitir 2.341 hlutaröð og skilur báða gagnagrunna eftir óbreytta. Skráðu breytur, síur, kvörðun og reglur um gildi sem vantar sérstaklega: hnappurinn vistar hvorki stillingar né pakka með aðlöguðu líkani. Í kóða eru pca og PCASpec notuð úr Qt-einingunni pca_model í spaCR. Þessi CPU-töflusýn er aðskilin frá myndforskoðun, GPU-greiningu og spaCR AI."
+  ]
+}
