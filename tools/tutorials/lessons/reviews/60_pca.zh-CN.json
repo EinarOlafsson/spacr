@@ -1,0 +1,37 @@
+{
+  "lesson": "60_pca",
+  "english_sha256": "f295718c295b040c75a11a245ef79b086bb19375b109fcd741ddbbc33b19d402",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked real PCA populations, covariance eigenvalue comparison, live native controls and all CSV cells; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "zh-CN",
+  "title": "PCA：真实测量、实时重拟合与缺失值",
+  "description": "在 Image UMAP 中使用 PCA，通过下载的真实细胞数据查看经过核验的得分、可逆筛选、明确的缺失值策略和三份真实 CSV 导出。",
+  "objectives": [
+    "在 Image UMAP 中找到 PCA，明确选择测量特征。",
+    "解读解释方差和相关箭头，不把它们当作生物学分离的证据。",
+    "比较标准化、筛选后的重拟合以及四种缺失值策略。",
+    "导出对象得分、特征载荷和主成分方差，同时保留原始数据。"
+  ],
+  "prerequisite": "使用 Annotate 可下载示例的逐字节一致的私有副本：2,341 行细胞、276 个原始列、四个孔。首先拟合 cell_area、cell_channel_1_mean_intensity 和 cell_perimeter，再加入确有七个缺失值的 cell_channel_0_homogeneity_distance_32。缺失原因和处理条件均未确认。独立的协方差特征值分解核验应用的小数据表 SVD、保留行位置、得分、载荷、相关和方差；同时检查实际绘制坐标及导出的每个原始单元格。证据仅适用于这些满秩、非退化的三特征和四特征拟合，并不验证全部自动特征、箭头像素几何、秩亏输入、图像联动选择或生物学结论。CPU 上的 NumPy PCA 与 UMAP 拟合及其 GPU 选项不同。PCA 没有专用示例下载、图像预览、AI 控制台或运行级 Plot 开关。三份 CSV 不是已拟合模型包、保存的设置或导出图。API：spacr.qt.widgets.pca_model.pca、PCASpec，以及 PCAResult.scores_frame、loadings_frame、variance_frame。",
+  "scenes": [
+    "从 Home 打开 Image UMAP，然后选择其中的 PCA 按钮。PCA 是对测量值的线性概括，不是另一种 UMAP 嵌入。这里使用 Annotate 可下载真实示例的私有副本。如何获取该数据，请参看 Annotate 教程。",
+    "点击 PCA 标题旁的 Load table，选择复制的测量数据库，再选择 cell。四个孔中共有两千三百四十一个对象。这个界面也能读取测量 CSV。主模块先前载入的路径，并不能证明当前打开的就是目标表。",
+    "选择 None 前先清空特征搜索，因为该按钮只取消当前显示特征的勾选。搜索并勾选 cell_area、cell_channel_1_mean_intensity 和 cell_perimeter。再次清空搜索，将 Components 设为三，再选择 Run PCA。搜索缩小的是特征列表，不是细胞群体。",
+    "保留 Standardise 并阅读碎石图。第一主成分解释这三个特征标准化方差的约百分之六十五点七，第二主成分解释百分之三十一点七。每个点是一个已测量细胞，不是独立实验重复。解释方差不是分类准确率。",
+    "在 Colour 中选择 rowID，再把 X 设为 PC 三、Y 设为 PC 一。这些控件只重绘已有分解，不重新拟合。颜色代表空间行位置，不是已确认的处理条件。看似分离的点云提示我们检查测量和混杂因素，而不是证明生物学效应。",
+    "返回 PC 一和 PC 二。关闭再打开 Loadings biplot。箭头表示各特征与这两个主成分的相关性；绝对长度经过显示缩放，虚线圆是标尺。箭头方向相近，并不确立因果关系。",
+    "把 Scale 改为 Centre only。第一主成分现在解释约百分之九十点一，因为原始测量尺度改变了分析。比例更高并不意味着模型更好。继续前恢复 Standardise，它对每个特征进行中心化，再除以样本标准差。",
+    "在右侧筛选器中添加 cell_area，把最小值设为两万一千九百二十五。拟合现在使用一千一百七十一个细胞。这是实时重拟合：群体均值、尺度和主成分方向都会改变，并非仅在原坐标轴上隐藏一些点。",
+    "在筛选器中选择 Clear all。两千三百四十一个细胞全部恢复，原来的分解也恢复。筛选从不删除数据库行。每次修改后都应检查群体和报告；分别拟合的群体，其得分并不会自动使用共同坐标系。",
+    "现在搜索并勾选 cell_channel_0_homogeneity_distance_32。选择 Run PCA 之前，已有结果仍只包含三个特征。这个纹理特征确有七个缺失值。我们不知道缺失原因，因此不能把这些细胞称为未感染，也不能用零代替缺失测量。",
+    "使用 Auto 运行。四个特征都保留，但七个细胞被移除，剩下两千三百三十四个。Auto 先移除在超过百分之二的行中缺失的特征，再移除剩余不完整行。请求的三个主成分解释约百分之九十八点六，第四个方向仍然存在。",
+    "在 NaN 中选择 Drop features。两千三百四十一个细胞全部保留，但纹理特征不参与拟合。界面可以仍勾选四个框，而实际只分析三个特征。要阅读结果和特征排除提示，不能只看请求的选择。",
+    "选择 Mean-impute。所有细胞和四个特征均保留，计算时将七个值替换成该特征的均值。这些是人为填入的值，不是找回的测量值。报告会写明替换数量。展示这个结果时必须说明插补；原数据库并没有被重写。",
+    "选择 Complete cases。本例保留四个已选特征，并移除同样七个不完整细胞。它与 Auto 一致只是本数据的具体情况。返回 Auto，取消纹理特征，清空搜索，选择 Run PCA，再将 Colour 恢复为 none。",
+    "选择 Export，用 pca_example 等基本名称保存。界面写出三份 CSV：每个分析对象的得分、每个特征的载荷与相关，以及每个主成分的方差。得分文件也保留原测量列，并非只有三个坐标列。",
+    "这些导出保留两千三百四十一行对象，两个数据库均保持不变。请另行记录特征列表、筛选、缩放和缺失值策略；这个按钮不保存设置或已拟合模型包。编程可使用 spaCR 的 Qt pca_model 模块中的 pca 和 PCASpec。这个 CPU 表格视图与图像预览、GPU 分析和 spaCR AI 是不同功能。"
+  ]
+}

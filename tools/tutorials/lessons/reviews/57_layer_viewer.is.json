@@ -1,0 +1,41 @@
+{
+  "lesson": "57_layer_viewer",
+  "english_sha256": "baa9efcdba48d277e8a0e1d5083527989563b55348b0eb88246a8eb655c6f978",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked real image-mask overlays, actual controls and display limitations; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Layer Viewer: raunverulegar myndir og grímur, birtingarstýringar og óbreytt frumgögn",
+  "description": "Opnaðu Layer Viewer innan QC, leggðu styrkleikamynd og samsvarandi frumugrímu saman, prófaðu sýnileika, ógagnsæi, blöndun og röð laga og aðgreindu skoðun frá breytingum og kvörðun.",
+  "objectives": [
+    "Finna undireininguna í QC og hlaða inn raunverulegu mynd–grímupari.",
+    "Stilla valið lag án þess að breyta upprunalegum mælingum.",
+    "Þekkja aflögun með Fit og sannreyna aðdrátt, hliðrun og lestur merkja.",
+    "Greina tóm hjálparlög og skort á auðkennum frá aðgerðum sem API býður."
+  ],
+  "prerequisite": "Notaðu sannreyndu fov01-TIFF-skrárnar úr External Masks: 1994×1994 uint16-styrkleikaplan og 44 samstillt frumumerki. Þau samsvara nákvæmlega plani 1 og 4 í tekna fylkinu plate1_E01_1_1, alls 3.976.036 mynddílar án eðlisfræðilegrar kvörðunar. Hlutlaus skráarnöfn eru ekki lýsigögn myndatöku. Frumskrár og einkaeintök haldast eins. 19 litlar prófanir, ásamt vísvitandi kóðabreytingum sem sáust valda prófunarbilun, fylgja óháðri skoðun á 5.041 skjámynddíl í hverri af 26 stöðum, án RGB-bætafráviks. Heil frumfylki, 2/98-hundraðsmörk reiknuð með tíðniriti, eiginleikar laga og hreyfifræði voru einnig sannreynd. Þetta sannreynir ekki hvern skjámynddíl, handahófskennd lög, fjölrása-/3D-gögn, mjúka þekju, líffræðilega gæði grímugerðar eða kvörðun. Fit getur teygt myndina. Engin vinnslukeðja, AI-beiðni, myndbreyting, beinn útflutningur, tengt hlutaval milli glugga eða Points/Shapes-teikning var framkvæmd. Stýringar eru aðrar en í öðrum forskoðunum.",
+  "scenes": [
+    "Opnaðu QC frá Home og veldu innfellda Layer Viewer-hnappinn. Verkefnaval tilheyrir QC-yfirlitinu; þessi skoðari hefur eigin mynd- og grímuhnappa. Við notum einkaeintök af raunverulega, sannreynda parinu úr External Masks. Layer Viewer hefur ekki sérstakt niðurhal prófunargagna.",
+    "Veldu plús Image og opnaðu TIFF-skrána með einni rás. Sviðið er 1994 mynddílar á hvorn veg með 16-bita styrkleikum. Birtingin teygir frá 2. að 98. hundraðsmarki, hér 118 til 23223. Bjartir skjámynddílar þýða ekki að frumgildi hafi verið yfirskrifuð eða mælingar færðar í 8 bita.",
+    "Í þessari útgáfu fyllir Fit myndflötinn og getur teygt ferningslaga svið í breiðum reit. Dragðu skilrúmið þar til myndreiturinn er nokkurn veginn ferningslaga og veldu Fit aftur. Ekki álykta um raunverulega lögun út frá aflagaðri sýn. Hér jafngildir ein heimshnitaeining einum mynddíl, ekki kvarðaðri míkrómetrafjarlægð.",
+    "Veldu plús Mask og hlaðaðu inn samsvarandi TIFF með frumumerkjum, ekki annarri styrkleikamynd. Hún hefur 44 merki önnur en núll, samstillt við sama svið. Núll er gagnsær bakgrunnur. Litir aðgreina merki, ekki meðferðir, frumugerðir eða sannreynd gæði grímugerðar.",
+    "Veldu mask í lagalistanum áður en þú breytir stillingum. Valin röð ræður hvaða lag breytist; nýtt lag er ekki endilega valið sjálfkrafa. Feldu og sýndu grímuna með gátreitnum til að skoða myndina undir. Merki og styrkleikamælingar breytast ekki.",
+    "Stilltu Opacity valinnar grímu á 0. Litir hverfa en lagið er áfram á listanum og öll 44 merkin í minni. Þetta er birtingarval, ekki eyðing, síun eða leiðrétting grímugerðar. Athugaðu hvaða lagi sleðinn stjórnar.",
+    "Stilltu Opacity grímunnar á 100 %. Litir hylja myndina þar sem merki er ekki núll; bakgrunnurinn helst gagnsær. Þetta auðveldar lögunarskoðun en felur styrkleikaáferðina undir. Engar nýjar mælingar verða til á merktum svæðum.",
+    "Farðu aftur í 50 % með blönduninni translucent. Bæði mynd og merkjalitur leggja til sýnilegu yfirlagningarinnar. Óháðu athuganirnar bera skjásýni saman við frumgögn; þær sanna ekki líffræðilega rétta grímugerð. Notaðu hrámyndina við mat á mörkum.",
+    "Opnaðu blöndunarvalmyndina og veldu additive. Merkjalit er bætt við myndina og sýnileg samsetning getur mettast. Frumstyrkleikar breytast ekki. Þetta eru birtingaraðgerðir, ekki styrkleikastöðlun fyrir greiningu. Veldu rétt lag áður en þú prófar aðrar blöndur.",
+    "multiply og minimum dekkja með ólíkum hætti. multiply deyfir myndina með yfirlagningarlitnum; minimum blandar inn dekkra gildinu í hverri litarás. Hér sést minimum. Berðu saman sama svið án þess að túlka dekkri samsetningu sem minni mælda flúrljómun.",
+    "Veldu opaque en haltu Opacity í 50 %. Með þessari tvígildisþekjugrímu líkist það translucent við sama ógagnsæi: opaque þvingar ekki sleðann í 100. Heiltölumerki sýna ekki muninn á meðhöndlun mjúkrar þekju. Endurstilltu á translucent áður en þú heldur áfram.",
+    "Veldu image og síðan cyan í litakortsvalinu. Einrásarmyndin skiptir um lit en gríman heldur hlutalitunum. Mælingar og líffræðileg auðkenning rásar breytast ekki. Hér er hvorki rásaval né breytanlegt birtuskilasvið; ekki lofa stýringum úr annarri forskoðun. Settu síðan gray aftur.",
+    "Veldu mask og notaðu niðurörina til að færa hana undir myndina. Efst í listanum er teiknað fremst. Ógagnsæja myndin felur nú grímuna þótt sýnileiki hennar sé virkur og gögnin varðveitt. Færðu hana aftur upp áður en þú skoðar eða smellir á hluti.",
+    "Smelltu á sýnilegt merkt svæði. Staðan sýnir heimshnit og hér merki 9. Gríma sem er hlaðin með þessum skráarvalglugga hefur engan sviðslykil. Smellurinn auðkennir því ekki hlut í allri tilrauninni og opnar ekki útskurð hans annars staðar. Ekki álykta um plötu eða brunn út frá hlutlausa dæmisnafninu.",
+    "Snúðu músarhjólinu yfir hlutnum til að súmma. Þrjú skref upp margfalda aðdrátt með 1,2³ og halda heimshnitinu undir bendlinum. Skoðarinn endurteiknar frumlögin í nýjum kvarða. Aðdráttur breytir sýninni, ekki grímu, mynddílagildum eða kvörðun.",
+    "Haltu Shift og dragðu með vinstri músarhnappi til að hliðra sýninni; miðhnappurinn virkar líka. Sýnda sviðið færist án breytinga á frumhnitum. Prófaða hreyfingin heldur aðdrættinum. Að skoða annað svæði með hliðrun er ekki tilfærsla eða samstilling myndgagnanna.",
+    "Veldu Fit til að sjá allt sviðið í núverandi reit. Hér kemur sýnin fyrir aðdrátt aftur. Mundu takmörkun vegna lögunar reitsins: Fit tryggir ekki eitt og sér sama lárétta og lóðrétta kvarða. Frumbil og rúmfræði myndflatar eru aðskilin; ekki giska á þau út frá skjámynd.",
+    "Plús Points og plús Shapes búa til tóm hjálparlög; hér sést tóma shapes-lagið. Þau virkja ekki teikniverkfæri á þessum skjá og venjulegir smellir bættu hvorki við punktum né svæðum í prófununum. Fjarlægðu tóma lagið á eftir. Sjáðu Make Masks fyrir raunveruleg grímubreytingarverkfæri.",
+    "Veldu mask og fjarlægingarhnappinn. Aðeins lagið fer úr þessari sýn; myndin helst og frumskrá grímunnar er óbreytt. Að fjarlægja lag vistar ekki breytingu og eyðir ekki skrá. Bæði einka-TIFF-eintökin og upprunalegu myndgögnin héldust óbreytt.",
+    "Í kóða hleður stack_from_paths í Qt-einingunni layer_viewer í spaCR lögunum inn; LayerStack.render_uint8 skilar samsettu myndfylki fyrir útflutningskóðann þinn. Spacing og FieldKey þurfa þekkt kvörðunar- og auðkennisgögn. Skjárinn hefur hvorki sérstakan útflutning, greiningarkeyrslu, GPU-vinnslukeðju né spaCR AI-stjórnborð. Aðskildu skoðun, mælingar og vistaðar grímubreytingar."
+  ]
+}

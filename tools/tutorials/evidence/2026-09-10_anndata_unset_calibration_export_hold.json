@@ -1,0 +1,270 @@
+{
+  "date": "2026-09-10",
+  "lesson": "59_anndata_export",
+  "status": "held_real_gui_hdf5_export_failure",
+  "accepted": false,
+  "published": false,
+  "english_frozen": false,
+  "voice_production_started": false,
+  "app_commit": "315b190bf62ef5f040523e6b32ca2a8f7340b98a",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/anndata_recorded_export_refusal",
+  "frames": 12,
+  "source": {
+    "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+    "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata_runs/native-export-fpqf84bn/plate1/measurements/measurements.db",
+    "source_bundle": {
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+        "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+        "signature": [
+          66306,
+          33957043,
+          30629888,
+          1788972666110587400,
+          1788972666110587400
+        ]
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "signature": [
+          66306,
+          33962636,
+          0,
+          1788973501772441900,
+          1788973501772441900
+        ]
+      },
+      "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "signature": [
+          66306,
+          33962707,
+          32768,
+          1788982325621416400,
+          1788982325621416400
+        ]
+      }
+    },
+    "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+    "copy_is_byte_identical": true,
+    "source_opened_in_gui": false
+  },
+  "project": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata_runs/native-export-fpqf84bn/plate1",
+  "original_unchanged": true,
+  "private_measurements_unchanged": true,
+  "remaining_workers": false,
+  "versions": {
+    "anndata": "0.13.2",
+    "h5py": "3.16.0",
+    "numpy": "2.5.2",
+    "pandas": "2.3.3",
+    "PySide6": "6.11.2"
+  },
+  "observed_failure": {
+    "outcome": {
+      "finished": true,
+      "ok": false,
+      "errors": [
+        "Traceback (most recent call last):\n  File \"/mnt/firecuda2/codex/repo/spacr/spacr/qt/bridge.py\", line 1401, in run\n    payload = self._fn(self._settings)\n              ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/firecuda2/codex/repo/spacr/spacr/qt/bridge.py\", line 1570, in run\n    return fn(settings, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/firecuda2/codex/repo/spacr/spacr/qt/verbose_logger.py\", line 539, in wrapper\n    result = fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"/mnt/firecuda2/codex/repo/spacr/spacr/anndata_export/__init__.py\", line 1839, in run_anndata_export\n    return export_anndata(\n           ^^^^^^^^^^^^^^^\n  File \"/mnt/firecuda2/codex/repo/spacr/spacr/anndata_export/__init__.py\", line 1582, in export_anndata\n    adata.write_h5ad(out_path, compression=compression)\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/legacy_api_wrap/__init__.py\", line 88, in fn_compatible\n    return fn(*args_all, **kw)\n           ^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_core/anndata.py\", line 1732, in write_h5ad\n    write_h5ad(\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/utils.py\", line 362, in raise_error_if_dataset_2d_present\n    return write(store, adata, *args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/h5ad.py\", line 111, in write_h5ad\n    write_elem(\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/registry.py\", line 545, in write_elem\n    Writer(_REGISTRY).write_elem(store, k, elem, dataset_kwargs=dataset_kwargs)\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/utils.py\", line 273, in func_wrapper\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/registry.py\", line 412, in write_elem\n    return write_func(store, k, elem, dataset_kwargs=dataset_kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/registry.py\", line 95, in wrapper\n    result = func(g, k, *args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/methods.py\", line 195, in wrapper\n    return func(f, k, val, _writer=_writer, dataset_kwargs=dataset_kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/methods.py\", line 1076, in write_dataframe\n    _writer.write_elem(\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/utils.py\", line 273, in func_wrapper\n    return func(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/registry.py\", line 412, in write_elem\n    return write_func(store, k, elem, dataset_kwargs=dataset_kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/registry.py\", line 95, in wrapper\n    result = func(g, k, *args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/utils.py\", line 345, in func_wrapper\n    func(f, k, elem, _writer=_writer, dataset_kwargs=dataset_kwargs)\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/anndata/_io/specs/methods.py\", line 654, in write_vlen_string_array\n    f.create_dataset(k, data=elem.astype(str_dtype), dtype=str_dtype, **dataset_kwargs)\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/h5py/_hl/group.py\", line 240, in create_dataset\n    dsid = dataset.make_new_dset(group, shape, dtype, data, name, **kwds)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/olafsson/anaconda3/envs/spacr/lib/python3.12/site-packages/h5py/_hl/dataset.py\", line 192, in make_new_dset\n    dset_id.write(h5s.ALL, h5s.ALL, data)\n  File \"h5py/_objects.pyx\", line 54, in h5py._objects.with_phil.wrapper\n  File \"h5py/_objects.pyx\", line 55, in h5py._objects.with_phil.wrapper\n  File \"h5py/h5d.pyx\", line 305, in h5py.h5d.DatasetID.write\n  File \"h5py/_proxy.pyx\", line 156, in h5py._proxy.dset_rw\n  File \"h5py/_conv.pyx\", line 441, in h5py._conv.str2vlen\n  File \"h5py/_conv.pyx\", line 94, in h5py._conv.generic_converter\n  File \"h5py/_conv.pyx\", line 245, in h5py._conv.conv_str2vlen\nTypeError: Can't implicitly convert non-string objects to strings\nError raised while writing key 'voxel_size_z_um' of <class 'h5py._hl.group.Group'> to /obs\n"
+      ]
+    },
+    "settings": {
+      "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata_runs/native-export-fpqf84bn/plate1",
+      "anndata_out": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata_runs/native-export-fpqf84bn/plate1/results/05_joined_keep.h5ad",
+      "anndata_tables": [
+        "cell",
+        "cytoplasm",
+        "nucleus",
+        "pathogen",
+        "png_list"
+      ],
+      "anndata_single_table": null,
+      "anndata_nan_policy": "keep",
+      "anndata_dtype": "float32",
+      "anndata_row_limit": 0,
+      "anndata_compute_umap": false,
+      "anndata_compression": "gzip",
+      "anndata_register_artifact": true
+    },
+    "partial_file": {
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata_runs/native-export-fpqf84bn/plate1/results/05_joined_keep.h5ad",
+      "bytes": 202155,
+      "sha256": "c6fac4b493852f39b88e6b3e04bb0077808b6c9e94b954c50833fbc19bc3577a",
+      "read_error": null,
+      "loaded_partial_shape": [2341, 0],
+      "loaded_partial_var_columns": [],
+      "loaded_partial_uns_keys": [],
+      "loaded_partial_voxel_z_values": [""],
+      "warning": "read_h5ad succeeds on the partial file, but it contains zero features and no provenance. File existence and successful reading are not export acceptance."
+    }
+  },
+  "independent_in_memory_checks": {
+    "checks": [
+      {
+        "accepted": true,
+        "shape": [
+          2341,
+          1136
+        ],
+        "matrix_cells_checked": 2659376,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 400320,
+        "missing_written": 400320,
+        "source_objects": 2341,
+        "policy": "keep",
+        "anchor": "cell",
+        "joined": true,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false
+      },
+      {
+        "accepted": true,
+        "shape": [
+          2341,
+          261
+        ],
+        "matrix_cells_checked": 611001,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 28,
+        "source_objects": 2341,
+        "policy": "keep",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false
+      },
+      {
+        "accepted": true,
+        "shape": [
+          2341,
+          261
+        ],
+        "matrix_cells_checked": 611001,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 0,
+        "source_objects": 2341,
+        "policy": "mean",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false
+      },
+      {
+        "accepted": true,
+        "shape": [
+          2341,
+          257
+        ],
+        "matrix_cells_checked": 601637,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 0,
+        "source_objects": 2341,
+        "policy": "drop_features",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23410,
+        "no_embedding_requested": true,
+        "image_bytes_included": false
+      },
+      {
+        "accepted": true,
+        "shape": [
+          2334,
+          261
+        ],
+        "matrix_cells_checked": 609174,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 28,
+        "missing_written": 0,
+        "source_objects": 2341,
+        "policy": "drop_objects",
+        "anchor": "cell",
+        "joined": false,
+        "annotation_values_checked": 23340,
+        "no_embedding_requested": true,
+        "image_bytes_included": false
+      },
+      {
+        "accepted": true,
+        "shape": [
+          2682,
+          341
+        ],
+        "matrix_cells_checked": 914562,
+        "maximum_float32_discrepancy": 0,
+        "missing_before": 1912,
+        "missing_written": 1912,
+        "source_objects": 2682,
+        "policy": "keep",
+        "anchor": "nucleus",
+        "joined": false,
+        "annotation_values_checked": 0,
+        "no_embedding_requested": true,
+        "image_bytes_included": false
+      }
+    ],
+    "database_unchanged": true,
+    "scope": "API matrices only; HDF5 export failed separately",
+    "file_roundtrip_validated": false
+  },
+  "verification_tests": {
+    "passed": 32,
+    "temporary_guards_bypassed": 14,
+    "observed_red_failures": 19,
+    "did_not_raise_failures": 18,
+    "missing_mask_keyerror_failure": 1,
+    "restored_passed": 32,
+    "executed_guard_lines": [
+      93,
+      101,
+      102,
+      106,
+      109,
+      115,
+      124,
+      127,
+      130,
+      132,
+      134,
+      141,
+      142,
+      167
+    ],
+    "coverage": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata_guard_coverage.json"
+  },
+  "recording_attempts": [
+    {
+      "capture": "anndata_genuine_exports",
+      "outcome": "recorder rejected None versus empty optional field; no job started",
+      "exit_code": 1
+    },
+    {
+      "capture": "anndata_current_optional_fields",
+      "outcome": "actual HDF5 export failed; recorder exception cleanup omitted shell background workers",
+      "exit_code": 134
+    },
+    {
+      "capture": "anndata_failure_safe_shutdown",
+      "outcome": "same HDF5 failure; closing forms alone did not drain shell",
+      "exit_code": 134
+    },
+    {
+      "capture": "anndata_recorded_export_refusal",
+      "outcome": "same HDF5 failure; normal form and shell close completed without QThread abort",
+      "exit_code": 1
+    }
+  ],
+  "scope_limits": [
+    "In-memory matrices are not written-file acceptance.",
+    "No successful GUI export, artifact registration or tutorial video is claimed.",
+    "No source data, application, Qt or global translation files edited.",
+    "Unset physical calibration is not a licence to invent voxel sizes.",
+    "Joined means and cell-only labels independently checked on the actual acquired source only; no biological or predictive validity claimed.",
+    "Late capture harness edits integrated the verified-file gate for the future app fix; the failed capture loaded the pre-integration recorder."
+  ]
+}

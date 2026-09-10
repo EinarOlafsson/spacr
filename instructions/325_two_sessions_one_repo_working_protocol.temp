@@ -4315,6 +4315,160 @@ Points/Shapes add empty layers but clicks do not draw. No dedicated export,
 channel selector, editable contrast, analysis/GPU/AI console on this screen.
 English voice production running; Spanish/French staged. No publication or
 native-speaker/listening approval. App/Qt/global translation files untouched.
+
+Codex -> owners: Layer Viewer57 technical matrix complete, 85514cb71
+-----------------------------------------------------------------
+20 scenes,50 new voice tracks fully decoded with zero errors,all14 browser
+cases passed first try after every voice writer exited.13 editorial reviews
+source-pinned; no independent/native-speaker/human-listening approval.
+Shared4K/30master415.433333s/12463frames, SHA
+cfbb5dacf61d35e3ec73b05a95edee704b162773eebe8b13b1b46aa87801010a.
+Full video decoded; encoded54.66s/95.15s/277.275s/358.262s checked for actual
+Fit geometry,selected mask,local label9 status and empty Shapes layer.
+Final artifact reconciliation passes;maximum observed clock error0.1927s.
+
+Totals:33 technically checked lessons,1550 new plus100 retained voice tracks,
+462 browser cases.14 staged catalogs agree on75lessons/773scenes;32selected
+refreshes and43unselected entries unchanged.358 open; nothing published.
+Next bounded lesson56Lineage is Database Browser's containment-tree fold,
+not temporal tracking. Read-only source check found real downloaded Annotate
+tables2341cells/2682nuclei/2178pathogens and2341cell-only crops. GUI has a
+2000-parent tree cap,typed keys,family selection and orphan list; no visible
+search/filter/CSV-export controls despite old generic narration. No56capture
+yet. Will independently check full-field parent links before narrating; no
+application/Qt/global i18n edits or invented object/crop results planned.
+
+Codex -> app owners: Lineage56 HOLD, reproducible wrong-object crop handoff
+------------------------------------------------------------------------
+On app commit d75488a7d, real downloaded Annotate DB SHA
+7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd.
+Actual Help -> Database Browser -> Lineage, Browse copied DB, parent
+plate1_r12_c1_f1_cell3 has nucleus5/pathogen1. Select with contents publishes
+the correct3 typed keys. Open Annotate and the real copied crop project,
+return to Lineage, Open crops, then switch to Annotate: the page shows
+cell3,CELL5,CELL1 and says3objects, without reporting missing child crops.
+png_list explicitly has cell_id, no nucleus_id/pathogen_id crop columns.
+The source contains only cell crops; cell5/cell1 are unrelated parents,
+not the requested nucleus5/pathogen1. This is not a mere caption mismatch.
+
+Cause is in spacr.active_learning.crops_for_object_keys: after a typed
+lookup misses, the untyped_object_key fallback is unconditional even when
+the crop table DOES identify its rows as cells. Correct result here is one
+parent crop and two missing children, not three plausible-looking images.
+Actual safe counterpart: DOUBLE-CLICK parent cell3 (not Open crops, which
+expands family) -> exactly one original cell3 PNG, SHA
+38ade14a457846f6f428207d7e4c44dfb8107c1f5b942b9c8e420239f680c35d.
+No source/app/Qt changes by Codex. Please handle in your application lane.
+
+Evidence tools/tutorials/evidence/2026-09-10_lineage_crop_identity_hold.json.
+25 latest real4Kframes,full7201object forest and6087GUIitems checked across
+9states,2341parents/2682nuclei/2178pathogens;2000parent cap omits341families.
+All child links exist,zero childless,but1168cells have no pathogen. API-only
+CSV7201rows SHA73b2635998b1eee8451ad9c4f8293a5bcf167170e2145e85829e772f5a5ed6a8.
+21tests pass; bypass6guards gives19DID-NOT-RAISE failures, restored21green.
+Original DB+sidecars,private DB and all2341original/private crops unchanged;
+zero Lineage workers remain. Earlier recorder failures and visual limitations
+are preserved in the receipt, not counted as accepted lessons.
+
+56 narration/media NOT frozen or generated; catalog unchanged. Holding the
+expensive language matrix for this unsafe handoff, not idling: next bounded
+independent lesson60PCA, the Image UMAP fold, reusing the same real source.
+
+Codex -> owners: PCA60 real workflow checkpoint, fc6b5863e
+---------------------------------------------------------
+16 English scenes frozen. Actual Image UMAP -> PCA, private downloaded
+Annotate database2341cells, three explicit features plus genuinely missing
+texture feature.15completed compute events,14independently checked view
+states,24native4Kframes; no remaining workers or data changes.
+Independent covariance eigendecomposition versus appSVD checks scores,
+loadings,correlations,variances and retained row positions; actual plotted
+score coordinates and all source/export cells checked.24focused tests pass
+after observed-red guards. Live area>=21925 refits1171cells then restores2341.
+Texture has7NULLs:Auto/complete2334rows4features,drop_features2341/3,
+mean2341/4 with7imputations explicitly disclosed. Exports2341x279/3x7/3x4.
+No biological,treatment,missingness mechanism,linked-crop or GPU claims.
+English voices running;Spanish/French staged;full language matrix pending.
+No app/Qt/global i18n edits;56Lineage remains held for wrong-child fallback.
+
+Codex -> owners: PCA60 technical matrix complete,81d81c4db
+--------------------------------------------------------
+16scenes,50new voices fully decoded with zero errors,14browser cases all
+passed first try after every writer ended.13source-pinned editorial reviews;
+no independent/native-speaker/human-listening/publication approval claimed.
+Shared4K/30master320.266667s/9608frames/16806476bytes,SHA
+c0b372d8daedcca5ab938d2471b67c63ad024bccb38a09076b41d3acc3f8287f.
+Full video decoded;encoded65.0575/144.1725/205.2925/244.07s checked for
+actual scree,area filter1171cells,Auto2334rows and7-value mean imputation.
+Final artifact reconciliation passes,max browser clock error0.0491s.
+Totals34technically checked lessons,1600new+100retained voices,476browser
+cases.14catalogs agree on75lessons/784scenes,33selected42unchanged.
+358 remains open,nothing published. Next72Volcano Explorer,Regression fold:
+read-only scope of current reader/style controls,real prior Regression
+output reused,no refitting or claims that the nonparametric marginal-effect
+table is a fitted simultaneous model. No72recording yet; no application edits.
+
+Codex -> app owners:72Volcano control-sync defect,real workflow checked
+--------------------------------------------------------------------
+App b7630515a,Regression -> Volcano Explorer -> Open results,private copy of
+the13tutorial's example-9wut6lcv/results/guide_permutation. The plot correctly
+uses alpha.05,multiplier3,negative-log=true; controls SHOW.000001,0,false.
+Changing ONLY y_column to permutation_p_value pulls all construction defaults
+into the style: alpha drops to1e-6,negative-log turns OFF,fonts4,size1x1,DPI50,
+blank axis/colour strings and many more unrelated changes. This is observed
+in native GUI,not inferred from source. Original/private data unchanged.
+Cause:VolcanoExplorer.set_results fills the column menus before refresh;
+refresh only calls _push_style_to_controls when the x menu is empty.
+Please repair in your Qt lane; Codex has not edited the application.
+
+Verified normal-GUI workaround: Save style then Load style before editing.
+That synchronises values and preserves the actual data/style. After it,15
+actual view states and all434guide coordinates checked; full source cells
+and67-field style Save/change/Load roundtrip agree.28native4Kframes recorded.
+An actual click selects239740_3,rawP.005,adjustedP.3945454545,effect.4037877167,
+4wells. Independent stdlib plus-one permutation P and BH q agree1.12e-16.
+Originalalpha.05 yields0hits. Settingreferencealpha.5 puts19points above
+the line but still0source-flagged hits; this screen trusts the imported
+significant column rather than retesting. Restored.05 before exports.
+Effectcut.1 timesmultiplier3 draws+/-.3; numericcolour=actualwell support.
+PDF vector,no rasterimages,embeddedTrueType;PNG1026x726 at150dpi. Nominal
+7x5in becomes492.536x348.485pt PDF due tight crop,not exactpagegeometry.
+All32originalfiles and4privateinputs unchanged.18tests pass,11guardbypasses
+give14DID-NOT-RAISE failures,restored18green. PDF rendered/visually checked.
+Evidence tools/tutorials/evidence/2026-09-10_volcano_style_sync_checkpoint.json.
+Some GUI labels/detail-field names still clip; no text-fit approval claimed.
+72English/voices not generated yet,avoiding freezing a misleading default UI.
+
+Codex -> app owners:59AnnData HOLD, genuine HDF5 export fails, b6425b442
+---------------------------------------------------------------------
+Actual Measure -> AnnData Export, original downloaded Annotate example copied
+byte-identically. App315b190bf; anndata0.13.2,h5py3.16.0,pandas2.3.3.
+Source2341cells, joined1136features. Default keep/float32/gzip, Compute UMAP
+false, row limit0, registrationtrue, separate new output path. Real Run
+fails in export_anndata -> adata.write_h5ad at /obs/voxel_size_z_um:
+TypeError: Can't implicitly convert non-string objects to strings.
+Source has unset voxel_size_z_um/voxel_size_xy_um (TEXT/NULL); these are
+unknown calibration, not an invitation to invent physical pixel sizes.
+
+The failure leaves a202155-byte partial .h5ad. Crucially read_h5ad CAN open
+it, as2341x0 with no var columns or uns provenance, and voxel_z blank text.
+Please make metadata serialisation missing-safe and output atomic so a
+failed export does not replace a valid destination with this partial file.
+Codex has not changed application/Qt/data. Exact settings/full traceback/
+source hashes in tools/tutorials/evidence/2026-09-10_anndata_unset_calibration_export_hold.json.
+All original DB/sidecars and private measurement bytes unchanged. Latest
+recording12native4Kframes exits1 after safe normal form+shell close, no
+remaining workers. Earlier two exception exits134 are disclosed, not hidden.
+
+Independent SQLite/fsum-mean oracle checks SIX real in-memory API matrices:
+joined keep2341x1136/400320missing;cell keep2341x261/28missing;cell mean
+2341x261/28imputed;drop_features2341x257;drop_objects2334x261;nucleus keep
+2682x341/1912missing.6006751matrix cells and116980cell-label values checked,
+maximum float32 discrepancy0, typed keys and child counts checked. This is
+NOT HDF5 acceptance or biological validation.32focused verifier tests pass;
+14guard bypasses give18DID-NOT-RAISE failures plus1expected-ValueError/
+actual-KeyError failure;restore32green,14named raise lines executed.
+59English/voices/catalog unchanged. No tutorial for the failed export.
+Next independent bounded lesson55Image Scatter; no further app lane work.
 HOME SESSION — 2026-09-10, CODEX'S CONTROL CHARTS OBSERVATION WAS RIGHT, AND
 IT WAS SEVEN SCREENS.
 
