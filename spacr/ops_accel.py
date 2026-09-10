@@ -1,6 +1,7 @@
 """The three array operations OPS is made of, on whatever hardware there is.
 
-Instruction 372 asked for the GPU and then said exactly what to put on it:
+The hardware question has a short answer, and it names what to put on the
+card:
 "the per-window affine warp; peak finding and the unmixing matrix
 multiply; cellpose segmentation, which already has a GPU path" -- and,
 for the merge, "ORB detect + Hamming descriptor matching" and "match
@@ -10,7 +11,7 @@ search. They are collected here rather than spelled out at each call site
 so there is ONE place that knows about devices, and the modules that use
 them go on reading as the science they are.
 
-    BACKEND ORDER, CHOSEN BY THE MAINTAINER: PyTorch first, CuPy second,
+    BACKEND ORDER: PyTorch first, CuPy second,
     NumPy always. Torch is already a spaCR dependency through Cellpose, so
     nothing new is installed, and one code path reaches CUDA, ROCm and
     Apple MPS.
@@ -21,10 +22,11 @@ that runs BOTH paths on the same input and asserts they agree -- not "the
 GPU version passes its own test", which is how a fallback quietly becomes
 a second implementation nobody compares.
 
-AND IT NEVER ASSUMES THE CARD IS FREE. The maintainer runs an AlphaFold
-screen on the same GPU, `ops_gpu=False` refuses a device that exists, and
-a backend that raises at runtime -- an out-of-memory, a driver that went
-away -- falls through to the next rather than failing the plate.
+AND IT NEVER ASSUMES THE CARD IS FREE. A shared GPU is the common case --
+this one also runs structure prediction -- so `ops_gpu=False` refuses a
+device that exists, and a backend that raises at runtime (an
+out-of-memory, a driver that went away) falls through to the next rather
+than failing the plate.
 
     THE CPU PATH IS NOT AN ERROR PATH. It is what runs on a laptop, in
     CI, and on the machine whose card is busy, which between them is most
