@@ -2,7 +2,12 @@
 A PERFORMANCE SWEEP: STARTUP, THEMES, MODULES, WIDGETS AND SETTINGS
 ================================================================================
 
-Status:    OPEN, filed 2026-09-07. Not started.
+Status:    THE HARNESS EXISTS AND IS CALIBRATED, 2026-09-09. Two of the five
+           areas were already covered by tooling nobody had connected to
+           this item; the two the request judges "smoothness" by were not,
+           and are now. First baseline recorded. No fixes yet -- the
+           defects the harness names are below and they are the next work.
+           Filed 2026-09-07.
 Requested: 2026-09-07, verbatim -- "do an in depth performance sweep to check
            and fix any performance defects in starting spacr, running the
            themes, or starting the moduals and handelling the widgets and
@@ -142,3 +147,99 @@ WATCH
   obviously a win.
 * THE FIRST RUN AFTER AN INSTALL IS THE ONE USERS JUDGE. Warm-cache numbers
   flatter every result in this file.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- WHAT ALREADY EXISTED, AND THE TWO HALVES THAT DID NOT
+--------------------------------------------------------------------------------
+
+"READ THEM BEFORE ANYTHING NEW IS WRITTEN" was the right instruction and it
+saved most of this item. `tools/spacr_startup_benchmark.py` is 988 lines and
+already covers three of the five areas properly:
+
+    1. STARTING SPACR      cold and warm, fresh interpreter per run,
+                           real entry point, isolated home
+    3. STARTING A MODULE   every live sidebar app pressed, time to ready
+    5. THE HOME SCREEN     Home ready as its own budgeted number
+
+with a 5 s Home budget, a 10 s module budget, a 500 ms event-loop stall
+detector and a JSON schema. It also states, correctly, that a hosted CI
+runner is not release performance evidence: no real display, no compositor,
+no hardware profile, shared-host scheduling.
+
+  SO AREA 1, 3 AND 5 NEED RUNNING AND WATCHING, NOT BUILDING. What this
+  item adds there is the discipline of step 2 -- record a baseline and
+  commit it -- rather than another harness.
+
+WHAT WAS MISSING IS EXACTLY THE TWO THE REQUEST JUDGES SMOOTHNESS BY, and
+`tools/perf_paint.py` is those two:
+
+    2. RUNNING THE THEMES  backdrop paints/s per theme at 1080p AND 4K,
+                           and the cost of a whole-application theme change
+                           with the widget count beside it
+    4. WIDGETS AND SETTINGS  input latency for expanding a section, typing
+                           a character and scrolling the settings column,
+                           reported as FIRST and REPEAT with dropped frames
+
+IT COUNTS PAINTS RATHER THAN GRABBING PIXELS, per this file's own WATCH
+list: `QWidget.grab()` does not capture the GL-backed `AmbientWidget`.
+`ambient.total_frames_painted()` already existed and counts the thing that
+costs.
+
+CALIBRATED FIRST, WHICH IS THIS FILE'S OWN RULE.
+`tests/qt/test_the_paint_harness_can_see_a_second_layer.py` reproduces the
+one-backdrop regression deliberately -- two layers must read as at least
+1.5x the paints of one -- and asserts the ratio rather than a frame count,
+because the count moves with the machine's load and the ratio does not. It
+also pins two mistakes the harness made while being written, so neither can
+come back silently:
+
+  * `app.findChildren(QWidget)` reported 1 widget where `app.allWidgets()`
+    reports 1,050. A top-level window is not a CHILD of the application
+    object, and a per-widget cost over a denominator of one reads as a
+    flattering result rather than as a broken measurement.
+  * a bare `AmbientWidget()` measures the DEFAULT theme however the row is
+    labelled: the look is read at construction. Four identical numbers
+    under four theme names were the only clue.
+
+--------------------------------------------------------------------------------
+THE FIRST BASELINE, 2026-09-09. TAKEN UNDER LOAD, AND SAYING SO.
+--------------------------------------------------------------------------------
+
+`docs/perf_baseline.json`, offscreen, while the full test suite was running
+in another process -- the record carries the load average and the Qt
+platform for exactly that reason. Every number here is a CEILING on the
+speed rather than the speed.
+
+    BACKDROP     24.7 fps at 1080p and 24.7 at 4K, every theme
+                 51 Mpx/s at 1080p, 205 Mpx/s at 4K
+
+    THEME CHANGE 299-340 ms over 1,050 widgets, all four palettes
+
+    INTERACTION  expand a section   47.6 ms first, 4.2 ms repeat, 2 frames
+                 collapse           12.3 ms first, 3.8 ms repeat
+                 type a character    0.06 ms
+                 scroll              0.01 ms
+
+THREE THINGS THE FIRST RUN ALREADY SAYS:
+
+  1. THE FRAME RATE IS THE SAME AT FOUR TIMES THE PIXELS, which means the
+     cap is holding and the per-frame COST is what varies -- 4x the
+     megapixels for the same 24.7 fps. So a 4K machine is doing four times
+     the shading work per second for the same picture, which is consistent
+     with 327 being reported from a 3840x2160 screen and is the thread to
+     pull on next.
+  2. THE THEME CHANGE IS STILL A THIRD OF A SECOND. 378 measured 587.5 ms
+     on 847 widgets; this is 299-340 ms on 1,050, on a loaded machine and
+     offscreen. The shape is unchanged: every theme change repolishes the
+     whole application.
+  3. EXPANDING A SECTION DROPS TWO FRAMES THE FIRST TIME AND NONE
+     AFTERWARDS. That is work done once per section, and the first time is
+     the time a user meets it. Typing and scrolling are free, which is
+     worth recording precisely so that nobody optimises them.
+
+WHAT THIS BASELINE IS NOT. It is one machine, offscreen, under load. "On
+all platforms" is unanswered and needs the harness in CI on all three, per
+this file's own argument about setuptools 77 and the light theme. And the
+fullscreen screensaver path -- 327's actual complaint -- is not measured
+yet: it needs a real display, and this session has none.

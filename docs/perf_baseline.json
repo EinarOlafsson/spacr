@@ -1,0 +1,155 @@
+{
+ "environment": {
+  "cpu_count": 32,
+  "load_15m": 4.19091796875,
+  "load_1m": 2.85400390625,
+  "load_5m": 3.6181640625,
+  "platform": "Linux-6.8.0-138-generic-x86_64-with-glibc2.35",
+  "processor": "x86_64",
+  "python": "3.13.14",
+  "qt_platform": "offscreen"
+ },
+ "measurements": [
+  {
+   "fps": 24.7,
+   "frames": 47,
+   "measurement": "backdrop",
+   "megapixels_per_second": 51.3,
+   "pixels": 2073600,
+   "seconds": 1.9,
+   "size": "1080p",
+   "theme": "dark"
+  },
+  {
+   "fps": 24.7,
+   "frames": 49,
+   "measurement": "backdrop",
+   "megapixels_per_second": 204.8,
+   "pixels": 8294400,
+   "seconds": 1.984,
+   "size": "4k",
+   "theme": "dark"
+  },
+  {
+   "fps": 24.7,
+   "frames": 49,
+   "measurement": "backdrop",
+   "megapixels_per_second": 51.2,
+   "pixels": 2073600,
+   "seconds": 1.986,
+   "size": "1080p",
+   "theme": "light"
+  },
+  {
+   "fps": 24.7,
+   "frames": 49,
+   "measurement": "backdrop",
+   "megapixels_per_second": 204.9,
+   "pixels": 8294400,
+   "seconds": 1.983,
+   "size": "4k",
+   "theme": "light"
+  },
+  {
+   "fps": 24.7,
+   "frames": 49,
+   "measurement": "backdrop",
+   "megapixels_per_second": 51.2,
+   "pixels": 2073600,
+   "seconds": 1.985,
+   "size": "1080p",
+   "theme": "cell"
+  },
+  {
+   "fps": 24.6,
+   "frames": 49,
+   "measurement": "backdrop",
+   "megapixels_per_second": 204.0,
+   "pixels": 8294400,
+   "seconds": 1.992,
+   "size": "4k",
+   "theme": "cell"
+  },
+  {
+   "fps": 24.7,
+   "frames": 49,
+   "measurement": "backdrop",
+   "megapixels_per_second": 51.2,
+   "pixels": 2073600,
+   "seconds": 1.986,
+   "size": "1080p",
+   "theme": "glass"
+  },
+  {
+   "fps": 24.6,
+   "frames": 49,
+   "measurement": "backdrop",
+   "megapixels_per_second": 204.0,
+   "pixels": 8294400,
+   "seconds": 1.992,
+   "size": "4k",
+   "theme": "glass"
+  },
+  {
+   "measurement": "theme",
+   "ms": 340.0,
+   "screen": "mask",
+   "theme": "dark",
+   "widgets": 1050
+  },
+  {
+   "measurement": "theme",
+   "ms": 309.9,
+   "screen": "mask",
+   "theme": "light",
+   "widgets": 1050
+  },
+  {
+   "measurement": "theme",
+   "ms": 303.8,
+   "screen": "mask",
+   "theme": "cell",
+   "widgets": 1050
+  },
+  {
+   "measurement": "theme",
+   "ms": 299.0,
+   "screen": "mask",
+   "theme": "glass",
+   "widgets": 1050
+  },
+  {
+   "action": "expand a section",
+   "first_ms": 47.59,
+   "frames_dropped": 2,
+   "measurement": "interaction",
+   "repeat_ms": 4.16,
+   "screen": "mask"
+  },
+  {
+   "action": "collapse a section",
+   "first_ms": 12.26,
+   "frames_dropped": 0,
+   "measurement": "interaction",
+   "repeat_ms": 3.76,
+   "screen": "mask"
+  },
+  {
+   "action": "type one character",
+   "first_ms": 0.06,
+   "frames_dropped": 0,
+   "measurement": "interaction",
+   "repeat_ms": 0.02,
+   "screen": "mask"
+  },
+  {
+   "action": "scroll the settings column",
+   "first_ms": 0.01,
+   "frames_dropped": 0,
+   "measurement": "interaction",
+   "repeat_ms": 0.0,
+   "screen": "mask"
+  }
+ ],
+ "schema": 1
+}
