@@ -3577,3 +3577,53 @@ registrations, rather than to keep deriving it from a circle that has
 already been shown not to match. 36 columns are observed and 15 are wrong;
 the remaining five have no observation, which is itself the evidence that
 they are the worst.
+
+--------------------------------------------------------------------------------
+PART 14-H -- THE PREDICTION HELD. THE FIVE "MISSING" COLUMNS ARE ALL EXACTLY
+TWO ROWS OUT. 2026-09-10.
+--------------------------------------------------------------------------------
+
+PART 14-G said columns 13, 16, 24, 27 and 39 produced no alignment because
+"the search window is +/- 1,600 px and a row is 633, so an error of two rows
+is still inside it and an error of three is not", and called that a
+prediction. Tested by widening the window to 3,200 px:
+
+    29 of 41 fields aligned, and EVERY ONE at an offset of exactly +/-2
+
+    column 16   +2.00   at every field that aligned
+    column 24   -2.00   at every field
+    column 27   +2.00   at every field
+    column 39   -2.00   at every field
+
+Uniform per column to two decimal places, scale 0.2503 to 0.2514, rotation
+inside 0.08 degrees, 74 to 153 agreeing nuclei against a floor of 40.
+
+SO THE PREDICTION WAS HALF RIGHT AND THE CORRECTION MATTERS. The offsets are
+exactly two, not three -- which means the window was not quite the whole
+reason. A tile two rows out sits 1,267 px from the predicted centre and a
++/-1,600 px window does contain that centre; what it does not contain is
+enough of the tile's own nuclei for the count to beat the chance floor.
+The window has to hold the tile, not merely reach it.
+
+THAT COMPLETES THE TABLE. Every one of the 41 columns now has a measured row
+offset and every one is an exact integer in -2..+2:
+
+    zero        the middle band (18-22, the widest columns), both
+                shoulders (3-10 and 30-37)
+    non-zero    two rings either side of the middle, plus the extreme
+                edges -- and the five that needed the wider window are
+                inside those rings, at the far end of them
+
+    the largest offset anywhere is TWO ROWS. Nothing is three.
+
+WHICH SETTLES WHAT THE FIX HAS TO DO. It is not a search-radius problem and
+it is not a per-field problem: it is 41 integers. Solve the row origin per
+column from the alignments -- there are now measurements in every column --
+and A4 stops needing a wide window at all, which is also what makes it fast
+enough to run on 1,281 fields instead of 321.
+
+    AND IT IS A BOUND ON THE SEARCH. Knowing the offset is never more than
+    two rows means a +/- 1,900 px window is always enough AFTER the
+    correction and a 3,200 px one is never needed, which is worth having
+    because the window sets the chance floor: a wider window holds more
+    nuclei, so more agreement is needed to beat coincidence.
