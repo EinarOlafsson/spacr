@@ -167,6 +167,13 @@ def maximum_filter(field: np.ndarray, size: int, *, gpu: bool = True,
         window += 1
 
     def run(name):
+        """The windowed maximum on one named backend.
+
+        :param name: "torch", "cupy" or "numpy".
+        :returns: the filtered field as a 2-D array.
+        :raises RuntimeError: when that backend is not installed, which
+            is what `_try` reads to fall through to the next one.
+        """
         if name == "torch":
             found = _torch(gpu)
             if found is None:
@@ -218,6 +225,12 @@ def matmul(first: np.ndarray, second: np.ndarray, *, gpu: bool = True,
     right = np.asarray(second, dtype=np.float32)
 
     def run(name):
+        """The matrix product on one named backend.
+
+        :param name: "torch", "cupy" or "numpy".
+        :returns: the product as float32 NumPy, wherever it was computed.
+        :raises RuntimeError: when that backend is not installed.
+        """
         if name == "torch":
             found = _torch(gpu)
             if found is None:
@@ -275,6 +288,15 @@ def nearest_neighbours(source: np.ndarray, target: np.ndarray, *,
                 np.empty(src.shape[0], dtype=np.float32))
 
     def run(name):
+        """Nearest neighbours on one named backend.
+
+        :param name: "torch", "cupy" or "numpy".
+        :returns: ``(indices, distances)``, one row per source point.
+        :raises RuntimeError: when that backend is not installed.
+
+        Chunked at :data:`CHUNK` on every backend, because the pairwise
+        distance matrix is the memory cost here and it is quadratic.
+        """
         indices = np.empty(src.shape[0], dtype=np.int64)
         distances = np.empty(src.shape[0], dtype=np.float32)
         if name == "torch":
