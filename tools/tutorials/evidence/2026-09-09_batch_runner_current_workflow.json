@@ -3,16 +3,16 @@
   "accepted": true,
   "published": false,
   "inputs": {
-    "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm",
+    "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui",
     "jobs": [
       {
         "number": 1,
-        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_01",
-        "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/converted_01",
-        "settings_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/convert_job_01.json",
+        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_01",
+        "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/converted_01",
+        "settings_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/convert_job_01.json",
         "settings": {
-          "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_01",
-          "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/converted_01",
+          "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_01",
+          "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/converted_01",
           "layout": "auto",
           "z_handling": "keep",
           "plate_naming": "index",
@@ -24,7 +24,7 @@
         "records": [
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0127F0004T0001Z000C1.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_01/fov01_C1.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_01/fov01_C1.tif",
             "sha256": "e36c8a2b491377314a364b40dd8bdf0cdb75eb3345ca63fe38c4b8d612e13c1e",
             "channel": 1,
             "shape": [
@@ -34,7 +34,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0127F0004T0001Z000C2.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_01/fov01_C2.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_01/fov01_C2.tif",
             "sha256": "8781e00609227930c79d0af29a34fd4ec5f8869872446dd7201286ae53ca54e6",
             "channel": 2,
             "shape": [
@@ -44,7 +44,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0127F0004T0001Z000C3.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_01/fov01_C3.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_01/fov01_C3.tif",
             "sha256": "2ee6d6019490f8a3086152aa5762f529c01a7ed4d71c99f489e53aead5c4010b",
             "channel": 3,
             "shape": [
@@ -54,7 +54,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0127F0004T0001Z000C4.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_01/fov01_C4.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_01/fov01_C4.tif",
             "sha256": "066de0cafa7b08c6edb7ae0657475c8f15f6d401e5457c035fd3b2b6a757dff9",
             "channel": 4,
             "shape": [
@@ -67,12 +67,12 @@
       },
       {
         "number": 2,
-        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_02",
-        "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/converted_02",
-        "settings_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/convert_job_02.json",
+        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_02",
+        "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/converted_02",
+        "settings_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/convert_job_02.json",
         "settings": {
-          "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_02",
-          "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/converted_02",
+          "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_02",
+          "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/converted_02",
           "layout": "auto",
           "z_handling": "keep",
           "plate_naming": "index",
@@ -84,7 +84,7 @@
         "records": [
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0315F0003T0001Z000C1.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_02/fov01_C1.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_02/fov01_C1.tif",
             "sha256": "cc44a34552a793ab9901c08722f1385a86b7dc75d65af034294e840de7289b7d",
             "channel": 1,
             "shape": [
@@ -94,7 +94,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0315F0003T0001Z000C2.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_02/fov01_C2.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_02/fov01_C2.tif",
             "sha256": "5dee5444b5ef79cda23a7fd741032a80f60973fa9998eba2c3f71a5f09c42457",
             "channel": 2,
             "shape": [
@@ -104,7 +104,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0315F0003T0001Z000C3.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_02/fov01_C3.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_02/fov01_C3.tif",
             "sha256": "0f466603c63cef9cb409413aa9b6a6efbc19092b5545382aa5cbfe2755f8f2ce",
             "channel": 3,
             "shape": [
@@ -114,7 +114,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0315F0003T0001Z000C4.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_02/fov01_C4.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_02/fov01_C4.tif",
             "sha256": "6981ecf41255370801a9318903fcbf737c7d26ec8b726d95d1658fad5c70babf",
             "channel": 4,
             "shape": [
@@ -127,12 +127,12 @@
       },
       {
         "number": 3,
-        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_03",
-        "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/converted_03",
-        "settings_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/convert_job_03.json",
+        "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_03",
+        "destination": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/converted_03",
+        "settings_file": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/convert_job_03.json",
         "settings": {
-          "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_03",
-          "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/converted_03",
+          "src": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_03",
+          "dst": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/converted_03",
           "layout": "auto",
           "z_handling": "keep",
           "plate_naming": "index",
@@ -144,7 +144,7 @@
         "records": [
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0025F0001T0001Z000C1.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_03/fov01_C1.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_03/fov01_C1.tif",
             "sha256": "4f64328be50c95a1e4158aa37d9e57ad9ffdcd3e47f9e1ede3df5751eb4f508f",
             "channel": 1,
             "shape": [
@@ -154,7 +154,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0025F0001T0001Z000C2.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_03/fov01_C2.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_03/fov01_C2.tif",
             "sha256": "bad167c2e7b0431cd168fcf3512f0e8e4d495c359f16167cee28fc27b4fd0ca6",
             "channel": 2,
             "shape": [
@@ -164,7 +164,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0025F0001T0001Z000C3.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_03/fov01_C3.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_03/fov01_C3.tif",
             "sha256": "ccc187624bab87775620eff8a0a2f88ca5a07362432377acd93e19473d45a5f5",
             "channel": 3,
             "shape": [
@@ -174,7 +174,7 @@
           },
           {
             "original": "/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/orig/W0025F0001T0001Z000C4.tif",
-            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/source_03/fov01_C4.tif",
+            "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/source_03/fov01_C4.tif",
             "sha256": "421b2a0547d4edf5d9699e6325e02653d79aaf51989faa919edbc4a36543df5b",
             "channel": 4,
             "shape": [
@@ -590,7 +590,7 @@
       ],
       "busy": false,
       "run_enabled": true,
-      "status_text": "Loaded 3 job(s) from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue.json.",
+      "status_text": "Loaded 3 job(s) from /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue.json.",
       "problems": ""
     },
     "13_real_subprocess_running": {
@@ -605,8 +605,8 @@
           "status": "running",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/01_convert-1.log",
-          "started": "2026-09-10T03:55:34.207223+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/01_convert-1.log",
+          "started": "2026-09-10T03:57:01.842701+00:00",
           "finished": "",
           "run_status": null
         },
@@ -652,9 +652,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/01_convert-1.log",
-          "started": "2026-09-10T03:55:34.207223+00:00",
-          "finished": "2026-09-10T03:55:35.978129+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/01_convert-1.log",
+          "started": "2026-09-10T03:57:01.842701+00:00",
+          "finished": "2026-09-10T03:57:03.498849+00:00",
           "run_status": null
         },
         {
@@ -685,7 +685,7 @@
       "busy": false,
       "run_enabled": true,
       "status_text": "Queue finished — 1 ok, 0 failed, 0 skipped. stopped by request after job convert-1.",
-      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 1 ok, 0 failed, 0 skipped, 2 not run\n==============================================================================\n started   2026-09-10T03:55:34.199808+00:00\n finished  2026-09-10T03:55:35.984974+00:00   (1.8s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue.json\n\n   1. convert-1  success                1.8s  field 1: four real channels\n   2. convert-3  not_run                   —  field 3: four real channels\n   3. convert-2  not_run                   —  field 2: four real channels\n\n Not run — the queue halted before reaching 2 job(s): convert-3, convert-2\n\n STOPPED: stopped by request after job convert-1.\n\n=============================================================================="
+      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 1 ok, 0 failed, 0 skipped, 2 not run\n==============================================================================\n started   2026-09-10T03:57:01.835834+00:00\n finished  2026-09-10T03:57:03.505485+00:00   (1.7s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue.json\n\n   1. convert-1  success                1.7s  field 1: four real channels\n   2. convert-3  not_run                   —  field 3: four real channels\n   3. convert-2  not_run                   —  field 2: four real channels\n\n Not run — the queue halted before reaching 2 job(s): convert-3, convert-2\n\n STOPPED: stopped by request after job convert-1.\n\n=============================================================================="
     },
     "15_completed_real_queue": {
       "order": [
@@ -699,9 +699,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/01_convert-1.log",
-          "started": "2026-09-10T03:55:34.207223+00:00",
-          "finished": "2026-09-10T03:55:35.978129+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/01_convert-1.log",
+          "started": "2026-09-10T03:57:01.842701+00:00",
+          "finished": "2026-09-10T03:57:03.498849+00:00",
           "run_status": null
         },
         {
@@ -709,9 +709,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/02_convert-3.log",
-          "started": "2026-09-10T03:55:36.590431+00:00",
-          "finished": "2026-09-10T03:55:38.361252+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/02_convert-3.log",
+          "started": "2026-09-10T03:57:04.129916+00:00",
+          "finished": "2026-09-10T03:57:05.838417+00:00",
           "run_status": null
         },
         {
@@ -723,16 +723,16 @@
           "overrides": [
             "plate_naming=name"
           ],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/03_convert-2.log",
-          "started": "2026-09-10T03:55:38.371513+00:00",
-          "finished": "2026-09-10T03:55:40.193598+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/03_convert-2.log",
+          "started": "2026-09-10T03:57:05.848225+00:00",
+          "finished": "2026-09-10T03:57:07.552220+00:00",
           "run_status": null
         }
       ],
       "busy": false,
       "run_enabled": true,
       "status_text": "Queue finished — 3 ok, 0 failed, 0 skipped.",
-      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:55:36.583253+00:00\n finished  2026-09-10T03:55:40.200408+00:00   (3.6s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue.json\n\n   1. convert-1  success                1.8s  field 1: four real channels\n   2. convert-3  success                1.8s  field 3: four real channels\n   3. convert-2  success                1.8s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
+      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:57:04.123402+00:00\n finished  2026-09-10T03:57:07.559479+00:00   (3.4s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue.json\n\n   1. convert-1  success                1.7s  field 1: four real channels\n   2. convert-3  success                1.7s  field 3: four real channels\n   3. convert-2  success                1.7s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
     },
     "16_log_convert-1": {
       "order": [
@@ -746,9 +746,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/01_convert-1.log",
-          "started": "2026-09-10T03:55:34.207223+00:00",
-          "finished": "2026-09-10T03:55:35.978129+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/01_convert-1.log",
+          "started": "2026-09-10T03:57:01.842701+00:00",
+          "finished": "2026-09-10T03:57:03.498849+00:00",
           "run_status": null
         },
         {
@@ -756,9 +756,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/02_convert-3.log",
-          "started": "2026-09-10T03:55:36.590431+00:00",
-          "finished": "2026-09-10T03:55:38.361252+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/02_convert-3.log",
+          "started": "2026-09-10T03:57:04.129916+00:00",
+          "finished": "2026-09-10T03:57:05.838417+00:00",
           "run_status": null
         },
         {
@@ -770,16 +770,16 @@
           "overrides": [
             "plate_naming=name"
           ],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/03_convert-2.log",
-          "started": "2026-09-10T03:55:38.371513+00:00",
-          "finished": "2026-09-10T03:55:40.193598+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/03_convert-2.log",
+          "started": "2026-09-10T03:57:05.848225+00:00",
+          "finished": "2026-09-10T03:57:07.552220+00:00",
           "run_status": null
         }
       ],
       "busy": false,
       "run_enabled": true,
       "status_text": "Queue finished — 3 ok, 0 failed, 0 skipped.",
-      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:55:36.583253+00:00\n finished  2026-09-10T03:55:40.200408+00:00   (3.6s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue.json\n\n   1. convert-1  success                1.8s  field 1: four real channels\n   2. convert-3  success                1.8s  field 3: four real channels\n   3. convert-2  success                1.8s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
+      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:57:04.123402+00:00\n finished  2026-09-10T03:57:07.559479+00:00   (3.4s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue.json\n\n   1. convert-1  success                1.7s  field 1: four real channels\n   2. convert-3  success                1.7s  field 3: four real channels\n   3. convert-2  success                1.7s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
     },
     "16_log_convert-3": {
       "order": [
@@ -793,9 +793,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/01_convert-1.log",
-          "started": "2026-09-10T03:55:34.207223+00:00",
-          "finished": "2026-09-10T03:55:35.978129+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/01_convert-1.log",
+          "started": "2026-09-10T03:57:01.842701+00:00",
+          "finished": "2026-09-10T03:57:03.498849+00:00",
           "run_status": null
         },
         {
@@ -803,9 +803,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/02_convert-3.log",
-          "started": "2026-09-10T03:55:36.590431+00:00",
-          "finished": "2026-09-10T03:55:38.361252+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/02_convert-3.log",
+          "started": "2026-09-10T03:57:04.129916+00:00",
+          "finished": "2026-09-10T03:57:05.838417+00:00",
           "run_status": null
         },
         {
@@ -817,16 +817,16 @@
           "overrides": [
             "plate_naming=name"
           ],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/03_convert-2.log",
-          "started": "2026-09-10T03:55:38.371513+00:00",
-          "finished": "2026-09-10T03:55:40.193598+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/03_convert-2.log",
+          "started": "2026-09-10T03:57:05.848225+00:00",
+          "finished": "2026-09-10T03:57:07.552220+00:00",
           "run_status": null
         }
       ],
       "busy": false,
       "run_enabled": true,
       "status_text": "Queue finished — 3 ok, 0 failed, 0 skipped.",
-      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:55:36.583253+00:00\n finished  2026-09-10T03:55:40.200408+00:00   (3.6s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue.json\n\n   1. convert-1  success                1.8s  field 1: four real channels\n   2. convert-3  success                1.8s  field 3: four real channels\n   3. convert-2  success                1.8s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
+      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:57:04.123402+00:00\n finished  2026-09-10T03:57:07.559479+00:00   (3.4s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue.json\n\n   1. convert-1  success                1.7s  field 1: four real channels\n   2. convert-3  success                1.7s  field 3: four real channels\n   3. convert-2  success                1.7s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
     },
     "16_log_convert-2": {
       "order": [
@@ -840,9 +840,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/01_convert-1.log",
-          "started": "2026-09-10T03:55:34.207223+00:00",
-          "finished": "2026-09-10T03:55:35.978129+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/01_convert-1.log",
+          "started": "2026-09-10T03:57:01.842701+00:00",
+          "finished": "2026-09-10T03:57:03.498849+00:00",
           "run_status": null
         },
         {
@@ -850,9 +850,9 @@
           "status": "success",
           "depends_on": [],
           "overrides": [],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/02_convert-3.log",
-          "started": "2026-09-10T03:55:36.590431+00:00",
-          "finished": "2026-09-10T03:55:38.361252+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/02_convert-3.log",
+          "started": "2026-09-10T03:57:04.129916+00:00",
+          "finished": "2026-09-10T03:57:05.838417+00:00",
           "run_status": null
         },
         {
@@ -864,20 +864,25 @@
           "overrides": [
             "plate_naming=name"
           ],
-          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs/03_convert-2.log",
-          "started": "2026-09-10T03:55:38.371513+00:00",
-          "finished": "2026-09-10T03:55:40.193598+00:00",
+          "log": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs/03_convert-2.log",
+          "started": "2026-09-10T03:57:05.848225+00:00",
+          "finished": "2026-09-10T03:57:07.552220+00:00",
           "run_status": null
         }
       ],
       "busy": false,
       "run_enabled": true,
       "status_text": "Queue finished — 3 ok, 0 failed, 0 skipped.",
-      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:55:36.583253+00:00\n finished  2026-09-10T03:55:40.200408+00:00   (3.6s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue.json\n\n   1. convert-1  success                1.8s  field 1: four real channels\n   2. convert-3  success                1.8s  field 3: four real channels\n   3. convert-2  success                1.8s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
+      "problems": "==============================================================================\n spaCR batch queue — queue: 3 job(s), 3 ok, 0 failed, 0 skipped, 0 not run\n==============================================================================\n started   2026-09-10T03:57:04.123402+00:00\n finished  2026-09-10T03:57:07.559479+00:00   (3.4s)\n logs      /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue_logs\n queue     /mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue.json\n\n   1. convert-1  success                1.7s  field 1: four real channels\n   2. convert-3  success                1.7s  field 3: four real channels\n   3. convert-2  success                1.7s  field 2: four real channels\n\n Every job completed and every artifact is stamped complete.\n=============================================================================="
     }
   },
-  "saved_queue": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-s489fhbm/real_conversion_queue.json",
-  "saved_plan_sha256": "85fa307f4ed841795f4b1a4cf2cafedbae35fcb83b7bf5b464dbd0d34ede1435",
+  "error_scrollbar": {
+    "before": 0,
+    "after": 2,
+    "maximum": 2
+  },
+  "saved_queue": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/batch_runs/real-channels-u0zjboui/real_conversion_queue.json",
+  "saved_plan_sha256": "994f51b15c9f0d496a1fe8ccea0086f01dbc88f771effedd01dec1df64a13c7f",
   "outputs": [
     {
       "accepted": true,
@@ -929,16 +934,16 @@
           "map_fields_checked": 23
         }
       ],
-      "map_sha256": "b7e619f6358796fc986ecaacb71494e70b5ff3aa103ea550dbdeb726917b1120",
+      "map_sha256": "2a02598a970601b6644c8b320b36375b7530e1a967aef637c3594f924fcac9c9",
       "original_unchanged": true,
       "ledger_check": {
         "operation": "convert",
-        "run_id": "ba9e8de98d35",
+        "run_id": "356b40ddd6ec",
         "ledger_status": "complete",
         "ledger_entries": 1,
         "independently_verified_outputs": 4
       },
-      "run_status_sha256": "0699f33954a1f09ed4e3c94723440e18bd7e52acfb2a104eb68d773d873d871b"
+      "run_status_sha256": "ede783ae0f7d90b8737d58fdcac3652d31faad52b4a42834e8b4b514d0e70229"
     },
     {
       "accepted": true,
@@ -990,16 +995,16 @@
           "map_fields_checked": 23
         }
       ],
-      "map_sha256": "99e82bbea1bddd1129ae89d3589a15b1df28b20205d3826318cbaad5976242fa",
+      "map_sha256": "088f581daba3a109f7ce832af470dfb08b7129cd0f4aae43407c61e42ea7b019",
       "original_unchanged": true,
       "ledger_check": {
         "operation": "convert",
-        "run_id": "c7c3e7cab6dd",
+        "run_id": "801013d34c5d",
         "ledger_status": "complete",
         "ledger_entries": 1,
         "independently_verified_outputs": 4
       },
-      "run_status_sha256": "b116a9de198d4b58459a3b25ae8d849842549b1979104caab0bdeda806f50281"
+      "run_status_sha256": "02fd91156971d90f5256a0350a758b422dbef9e2c2af0da02de37f847daa55db"
     },
     {
       "accepted": true,
@@ -1051,25 +1056,25 @@
           "map_fields_checked": 23
         }
       ],
-      "map_sha256": "fc43185e0205f3f5a04d7a771bf976f4bd42ed3be9f4c1eecb73f4b4c84404c0",
+      "map_sha256": "3c1733ef7870fd993781f99fcf6f3d4af7ccc1d8393afdf520748eaacca7965a",
       "original_unchanged": true,
       "ledger_check": {
         "operation": "convert",
-        "run_id": "bf9a02532193",
+        "run_id": "39196798395c",
         "ledger_status": "complete",
         "ledger_entries": 1,
         "independently_verified_outputs": 4
       },
-      "run_status_sha256": "0d9c5dd934ff22388f21b11a5b92033382b5c52e57cd782d3714bcb28ea5c77e"
+      "run_status_sha256": "8ab59a679a95cc70267830965b7b51da57bb87ac56d28f612bae96b501d1ecef"
     }
   ],
   "first_job_not_repeated": true,
   "original_unchanged": true,
   "worker_running": false,
-  "status": "Verified current real execution checkpoint; narration and multilingual media pending",
-  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/batch_runner_verified_ledger",
+  "status": "Verified current English workflow; multilingual media pending",
+  "capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/batch_runner_native_scrollbar",
   "capture_provenance": {
-    "commit": "ea11529e6864d671427cdeb9406ef5556c71eb8d",
+    "commit": "29afc4d35913c93ec3f3d08b16ea444feabc2287",
     "version": "1.5.0.4",
     "module": "batch",
     "download_requested": false,
@@ -1078,8 +1083,10 @@
     "cache_isolated_with_bind_mount": true,
     "completed_capture": true
   },
-  "acceptance_sha256": "aeb588b26a2fd365648a06be5191601cc5983aa209d50340c3b295858ad4e282",
-  "scene_capture_count": 26,
+  "acceptance_sha256": "cb38a43c518cc2222dc1bdfebff809eed00ec0b7b43137af514a0ee853a50bd0",
+  "scene_count": 13,
+  "word_count": 579,
+  "canonical_english_sha256": "cfaf542e696d5f0d5b7916cd7cb3ecbd6c160471f01a0eac387828fe2411c7d6",
   "tests": {
     "file": "tools/tutorials/tests/test_batch_data.py",
     "passed": 16,
@@ -1094,7 +1101,7 @@
     "Controlled Stop/resume and Save/remove/Load were exercised; hard-crash recovery or global GPU-driver isolation were not.",
     "On-failure choices were changed and restored, but no intentionally failing analysis was run. A consecutive-failure count does not diagnose the same root cause.",
     "Batch job.run_status is None in this current converter workflow; the destination conversion_map.run_status.json was independently checked for each job instead.",
-    "The native Ctrl+End attempt did not expose the final clipped problem lines. Execution is verified, but an error-visual correction is still required; no application widget policies were changed.",
+    "The actual problem-pane scrollbar received End and reached its measured maximum; final dependency text visually inspected. Earlier text-widget Ctrl+End attempt is superseded.",
     "No model, AI request, acquired biological effect or multi-module pipeline validation claimed."
   ]
 }

@@ -168,9 +168,14 @@ def record_batch(app, window, stage, captures, capture, settle, write_json, time
         record('06_invalid_dependency_order')
         # The stock problem pane is height-limited. Use its real scrollbar
         # rather than changing application minimums or hiding the error text.
-        click(screen._problems_view)
-        QTest.keyClick(screen._problems_view, Qt.Key_End, Qt.ControlModifier)
+        bar = screen._problems_view.verticalScrollBar()
+        before_scroll = bar.value()
+        QTest.keyClick(bar, Qt.Key_End)
         settle(.2)
+        if bar.maximum() <= 0 or bar.value() != bar.maximum():
+            raise ValueError('The actual error scrollbar did not reach its last line')
+        proof['error_scrollbar'] = {'before': before_scroll, 'after': bar.value(),
+                                    'maximum': bar.maximum()}
         record('06b_dependency_error_scrolled')
         click(screen._btn_down)
         if screen.has_errors() or screen.queue().ids != ['convert-1', 'convert-2', 'convert-3']:
