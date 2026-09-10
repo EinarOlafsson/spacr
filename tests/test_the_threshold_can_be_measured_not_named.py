@@ -45,7 +45,7 @@ def test_the_control_says_what_it_needs():
                for keys in categories.values())
 
 
-def test_a_screen_with_no_named_control_wells_cannot_calibrate():
+def test_a_screen_with_no_named_analysis_excluded_wells_cannot_calibrate():
     """The plate design has to say which wells are pure control.
 
     This asserted `positive_control` / `negative_control`, which in a

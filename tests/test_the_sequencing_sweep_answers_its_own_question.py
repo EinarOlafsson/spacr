@@ -45,7 +45,7 @@ def _settings(csv, **extra):
         "count_data": str(csv),
         "target_unique_count": 5,
         "filter_column": "columnID",
-        "control_wells": ["c1"],
+        "analysis_excluded_wells": ["c1"],
     }
     base.update(extra)
     return base

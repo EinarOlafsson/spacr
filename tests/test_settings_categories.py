@@ -319,8 +319,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
     "min_observations_per_hit",
-    # and `min_cells_per_well`, the new name for `min_cells_per_well`.
+    # and `min_cells_per_well`, the new name for `min_cell_count`.
     "min_cells_per_well",
+    # and the two halves of `control_wells` (357-Q6): the invasion assay's
+    # stain baseline, and the wells Regression and sequencing drop before
+    # fitting. One key meant both, with different defaults and no way to
+    # set one without setting the other.
+    "stain_baseline_wells", "analysis_excluded_wells",
     "opencv_threads", "out_png", "out_tif", "outline_alpha",
     "outline_source", "pair_batch_size", "phenotype_source",
     "preview_downsample", "ransac_thresh_px", "recursive",

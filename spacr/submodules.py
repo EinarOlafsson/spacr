@@ -3781,7 +3781,7 @@ def _set_analyze_invasion_defaults(settings):
     settings.setdefault('background_correction', 'none')
     settings.setdefault('outside_threshold_method', 'otsu')
     settings.setdefault('outside_threshold', None)
-    settings.setdefault('control_wells', None)
+    settings.setdefault('stain_baseline_wells', None)
     settings.setdefault('control_quantile', 0.99)
     settings.setdefault('min_control_objects', 10)
     settings.setdefault('min_objects_for_threshold', 10)
@@ -5007,7 +5007,7 @@ def analyze_invasion(settings):
                 'src': '/data/plate1',
                 'outside_channel': 1,
                 'total_channel': 0,
-                'control_wells': ['c12'],
+                'stain_baseline_wells': ['c12'],
                 'pathogen_types': ['dmso', 'inhibitor'],
                 'pathogen_plate_metadata': [['c1'], ['c2']],
             })
@@ -5138,12 +5138,13 @@ def analyze_invasion(settings):
     # no-permeabilisation control is a staining control, not an experimental
     # condition, so it has no entry in the well maps and must not appear in
     # any efficiency.
-    control_mask = _invasion_control_mask(df, settings['control_wells'])
+    control_mask = _invasion_control_mask(df, settings['stain_baseline_wells'])
     controls = df[control_mask].copy()
     df = df[~control_mask].copy()
     if len(df) == 0:
         raise ValueError(
-            "Every parasite row fell inside 'control_wells'; there is nothing "
+            "Every parasite row fell inside 'stain_baseline_wells'; there is "
+            "nothing "
             "left to score."
         )
 
@@ -5257,7 +5258,7 @@ def analyze_invasion(settings):
         cells['prc'] = (cells['plateID'].astype(str) + '_'
                         + cells['rowID'].astype(str) + '_'
                         + cells['columnID'].astype(str))
-        cells = cells[~_invasion_control_mask(cells, settings['control_wells'])]
+        cells = cells[~_invasion_control_mask(cells, settings['stain_baseline_wells'])]
         cells = annotate_conditions(
             df=cells,
             cells=settings['cell_types'],

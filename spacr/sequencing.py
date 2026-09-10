@@ -1475,7 +1475,7 @@ def graph_sequencing_stats(settings):
     # Instruction 145's rule is one vocabulary; applying it to the data and not
     # to the setting that indexes the data is half a rule.
     filter_column = _resolve_column(df, settings.get('filter_column'))
-    for c in settings['control_wells']:
+    for c in settings['analysis_excluded_wells']:
         df = df[df[filter_column] != c]
 
     dst = os.path.dirname(settings['count_data'][0])

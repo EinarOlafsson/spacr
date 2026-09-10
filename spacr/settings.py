@@ -1612,6 +1612,12 @@ RENAMED_SETTINGS = {
     # per well -- which the tooltip has to say ("Wells with fewer than
     # this many cells are dropped") because the name does not.
     "min_cell_count": "min_cells_per_well",
+    # A SPLIT, NOT A RENAME (357-Q6). One key meant the invasion assay's
+    # stain baseline AND the wells Regression and sequencing drop before
+    # fitting, with different defaults and no way for a user to set one
+    # without setting the other. The old value goes to BOTH new names, so a
+    # settings file written before the split behaves exactly as it did.
+    "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
 }
 
 
@@ -1632,7 +1638,14 @@ def _fold_renamed_settings(settings):
         if old not in settings:
             continue
         value = settings.pop(old)
-        settings.setdefault(new, value)
+        # A TUPLE IS A SPLIT, NOT A RENAME, and the old value goes to BOTH.
+        # `control_wells` meant two different things to two modules; a
+        # settings file that set it was setting both of them at once, so
+        # sending the value to only one half would change what the other
+        # does. Copying it to both preserves exactly what that file did
+        # before the split, and the user can then set whichever they meant.
+        for name in ((new,) if isinstance(new, str) else tuple(new)):
+            settings.setdefault(name, value)
     return settings
 
 
@@ -2859,13 +2872,20 @@ def get_perform_regression_default_settings(settings):
     settings.setdefault('independent_variable_layout', 'auto')
     settings.setdefault('wide_predictor_columns', [])
     settings.setdefault('model_data_layout', 'long')
-    # sequencing.graph_sequencing_stats iterates settings['control_wells'] and
-    # drops those wells from the count table before it sweeps for the fraction
-    # threshold, exactly as ml.clean_controls drops filter_value from the score
-    # table. The two must name the same wells or the threshold is fitted on
-    # wells the regression never sees, so this follows filter_value. It is
-    # indexed, not .get(), and it is iterated, so None -- which is what the
-    # invasion assay defaults the same key name to -- is not a legal value here.
+    # sequencing.graph_sequencing_stats iterates
+    # settings['analysis_excluded_wells'] and drops those wells from the
+    # count table before it sweeps for the fraction threshold, exactly as
+    # ml.clean_controls drops filter_value from the score table. The two must
+    # name the same wells or the threshold is fitted on wells the regression
+    # never sees, so this follows filter_value. It is indexed, not .get(),
+    # and it is iterated, so None is not a legal value here.
+    #
+    # IT WAS `control_wells` UNTIL 2026-09-09 AND THAT KEY MEANT TWO THINGS.
+    # The invasion assay used the same name for its STAIN BASELINE wells and
+    # defaulted it to None, so one settings file set both at once and a user
+    # changing one silently changed the other. Split into
+    # `analysis_excluded_wells` here and `stain_baseline_wells` there
+    # (364, 357-Q6); an old value migrates to both.
     # AND THE THREE CONTROL BLOCKS ARE PART OF IT (221). `filter_value`
     # gains them in `_perform_regression`, which runs after this, so
     # deriving from `filter_value` alone left the sequencing sweep fitting
@@ -2881,7 +2901,7 @@ def get_perform_regression_default_settings(settings):
                  if isinstance(settings['filter_value'], (list, tuple))
                  else [])
     settings.setdefault(
-        'control_wells',
+        'analysis_excluded_wells',
         _filtered + [w for w in _blocks if w not in _filtered])
     settings.setdefault('batch_correction', 'none')
     settings.setdefault('batch_column', 'plateID')
@@ -3757,7 +3777,8 @@ expected_types = {
     "background_correction": str,
     "outside_threshold_method": str,
     "outside_threshold": (float, type(None)),
-    "control_wells": (list, type(None)),
+    "stain_baseline_wells": (list, type(None)),
+    "analysis_excluded_wells": (list, type(None)),
     "control_quantile": float,
     "min_control_objects": int,
     "min_objects_for_threshold": int,
@@ -4989,7 +5010,8 @@ tooltips = {
     'change_plate': "(bool) - Relabel each source directory as plate1, plate2, ... instead of trusting the plate ID stored in its database. Use it when several plates were written under the same name, which would otherwise let two plates' fields pool into one threshold and one well. Default False.",
     'compartment': "(str) - Prefix used by per-object measurement columns, so 'pathogen' selects pathogen_area and pathogen_channel_1_percentile_95. It must match the object type contained in the table; otherwise the run stops and reports the unresolved area and intensity columns. Default 'pathogen'.",
     'control_quantile': "(float) - Quantile of the control wells' outside-stain distribution used as the threshold. A value of 0.99 classifies approximately one percent of genuinely unstained parasites as attached. Lowering it toward 0.95 reduces false invaded classifications while increasing false attached classifications; raising it has the opposite effect. Default 0.99.",
-    'control_wells': "(list or None) - These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Screen Regression reuses this key for a list matching filter_value. Regression initializes it from filter_value plus any declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Default None.",
+    'stain_baseline_wells': "(list or None) - These wells set the empirical negative distribution for the pre-permeabilisation stain and are excluded from efficiency calculations. Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key whose parasites received no stain; None uses the automatic per-field method. Default None.",
+    'analysis_excluded_wells': "(list or None) - Wells dropped before anything is fitted: the sequencing sweep removes them from the count table before it looks for the fraction threshold, and the regression never sees them. It must name the same wells as filter_value or the threshold is fitted on wells the fit has already dropped. Regression initializes it from filter_value plus any declared control blocks (the shipped default is ['c1', 'c2', 'c3']). Set a column ('c12'), row ('r1'), well ('r1_c12'), or complete plate key.",
     'extracellular_class': "(str) - Classification policy for parasites that overlap no host cell. 'attached' assigns them to the attached class independent of stain intensity because they cannot be intracellular; 'classify' uses the stain signal when host-cell segmentation is uncertain; 'exclude' removes them before summary calculations. n_no_host_cell reports their count under every policy. Default 'attached'.",
     'group_column': "(str) - Column whose values become the experimental conditions compared against each other; 'condition' is the combined host-cell / pathogen / treatment label built from the plate-metadata maps. Point it at 'pathogen' or 'treatment' to compare on one factor alone. Rows with no value here are dropped before anything is counted. Default 'condition'.",
     'inflation_warn': '(float) - Additional invasion efficiency, in proportion units, that increasing the threshold by threshold_sensitivity may add to a well before the well is flagged. Only the upward change is monitored because decreasing the threshold can only reclassify invaded parasites as attached and cannot create a positive invasion result. A value of 0.05 flags a well whose efficiency would increase by more than five percentage points. Default 0.05.',
@@ -5602,7 +5624,7 @@ categories = {
     "Invasion Assay": [
         "outside_channel", "total_channel",
         "intensity_statistic", "background_correction",
-        "outside_threshold_method", "outside_threshold", "control_wells",
+        "outside_threshold_method", "outside_threshold", "stain_baseline_wells",
         "control_quantile", "min_control_objects", "min_objects_for_threshold",
         "min_objects_for_bimodality", "bimodality_cutoff",
         "threshold_agreement_tolerance", "threshold_sensitivity",
@@ -6674,7 +6696,7 @@ def check_settings(vars_dict, expected_types, q=None):
                                 f"Expected True, False or an integer for '{key}', but got '{value}'.")
 
             elif expected_type == (list, type(None)):
-                # y_lims / x_lim / control_wells / filter_min_max. The generic
+                # y_lims / x_lim / stain_baseline_wells / filter_min_max. The
                 # tuple branch would reach list('[0, 5]') first and hand the
                 # pipeline ['[', '0', ',', ' ', '5', ']']. literal_eval also
                 # keeps the nested form y_lims uses for a broken axis, which
@@ -7036,7 +7058,10 @@ def set_analyze_invasion_defaults(settings):
     settings.setdefault('background_correction','none')
     settings.setdefault('outside_threshold_method','otsu')
     settings.setdefault('outside_threshold',None)
-    settings.setdefault('control_wells',None)
+    # THE STAINING CONTROLS, and this key used to be `control_wells` --
+    # which Regression and sequencing also used, for the unrelated list of
+    # wells to DROP before fitting. Split on 2026-09-09 (364, 357-Q6).
+    settings.setdefault('stain_baseline_wells', None)
     settings.setdefault('control_quantile',0.99)
     settings.setdefault('min_control_objects',10)
     settings.setdefault('min_objects_for_threshold',10)

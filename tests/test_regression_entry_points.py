@@ -13,7 +13,7 @@ that file's source is gone with it.
 and every one of them called ``get_perform_regression_default_settings``, which
 returned 37 keys while ``perform_regression`` indexed six it did not supply --
 ``verbose``, ``tolerance``, ``score_column``, ``invert_dependent_variable``,
-``control_wells`` and ``y_lims``. The run therefore died on
+``analysis_excluded_wells`` and ``y_lims``. The run therefore died on
 ``KeyError: 'verbose'`` (ml.py:1409) *after* both input CSVs had been read and
 ``settings/regression.csv`` had been written, so it looked like a run that had
 started cleanly and then broke on the data.
@@ -109,7 +109,7 @@ MISSING_BEFORE = {
     # third key going missing is caught whether or not anybody remembers to
     # add it here.
     "invert_dependent_variable": "ml.py:1424 -- passed to process_scores",
-    "control_wells": "sequencing.py:988 -- iterated by graph_sequencing_stats",
+    "analysis_excluded_wells": "sequencing.py:988 -- iterated by graph_sequencing_stats",
 }
 
 
@@ -392,10 +392,10 @@ def test_the_missing_six_have_values_their_readers_accept():
     # process_scores accepts False/0, True/1 or -1 and raises on anything else.
     assert defaults["invert_dependent_variable"] in (False, 0, True, 1, -1)
 
-    # graph_sequencing_stats does `for c in settings['control_wells']`, so None
+    # graph_sequencing_stats does `for c in settings['analysis_excluded_wells']`, so None
     # -- what the invasion assay defaults the same key name to -- would raise.
-    assert isinstance(defaults["control_wells"], list)
-    iter(defaults["control_wells"])
+    assert isinstance(defaults["analysis_excluded_wells"], list)
+    iter(defaults["analysis_excluded_wells"])
 
     # `y_lims` is retired, and its reader takes None -- which is
     # custom_volcano_plot's own "scale to the data", i.e. exactly the
@@ -404,26 +404,26 @@ def test_the_missing_six_have_values_their_readers_accept():
     assert _normalize_y_lims(None, pd.Series([1.0, 2.0]))
 
 
-def test_control_wells_names_the_same_wells_as_filter_value():
+def test_analysis_excluded_wells_names_the_same_wells_as_filter_value():
     """The threshold sweep and the score filter must drop the same wells.
 
-    ``graph_sequencing_stats`` drops ``control_wells`` from the count table
+    ``graph_sequencing_stats`` drops ``analysis_excluded_wells`` from the count table
     before it picks ``fraction_threshold``; ``ml.clean_controls`` drops
     ``filter_value`` from the score table. If they disagree, the threshold is
     fitted on wells the regression never sees.
     """
     defaults = _defaults()
-    assert defaults["control_wells"] == defaults["filter_value"]
+    assert defaults["analysis_excluded_wells"] == defaults["filter_value"]
 
     chosen = _defaults()
     chosen["filter_value"] = ["c11", "c12"]
     from spacr.settings import get_perform_regression_default_settings
     assert get_perform_regression_default_settings(
-        {"filter_value": ["c11", "c12"]})["control_wells"] == ["c11", "c12"]
+        {"filter_value": ["c11", "c12"]})["analysis_excluded_wells"] == ["c11", "c12"]
     # A non-list filter_value (the str form clean_controls also accepts) must
     # still leave something iterable behind.
     assert get_perform_regression_default_settings(
-        {"filter_value": "c1"})["control_wells"] == []
+        {"filter_value": "c1"})["analysis_excluded_wells"] == []
 
 
 def test_the_cell_count_simulation_resamples_the_response_itself():
@@ -484,7 +484,7 @@ def test_the_resolved_dict_passes_its_own_pre_flight():
     """Stock defaults must not be reported as a problem by the CLI's own check.
 
     Two of the six new keys are typed for the first time, and one of them --
-    ``control_wells`` -- is shared with the invasion assay, where it is
+    ``analysis_excluded_wells`` -- is shared with the invasion assay, where it is
     ``(list, None)``. A type entry that disagreed with the default would make
     every regression run fail pre-flight.
     """
@@ -508,7 +508,7 @@ def test_the_resolved_dict_passes_its_own_pre_flight():
 # "try each type in the tuple" fallback at the bottom of that function reaches
 # ``bool('False')`` -- True -- for ``(bool, int)``, and ``list('[0, 5]')`` --
 # ['[', '0', ',', ' ', '5', ']'] -- for ``(list, None)``. Both now have their
-# own branch. The second one also repairs ``x_lim``, ``control_wells`` and
+# own branch. The second one also repairs ``x_lim``, ``analysis_excluded_wells`` and
 # ``filter_min_max``, which carried the same declared type all along.
 #
 # WHERE THE RAW STRINGS COME FROM HAS MOVED. This function was written for a
@@ -586,7 +586,7 @@ def test_the_new_branches_do_not_swallow_their_neighbours():
     ("y_lims", "[[0, 5], [40, 60]]", [[0, 5], [40, 60]]),
     ("y_lims", "(0, 5)", [0, 5]),
     ("x_lim", "[-0.5, 0.5]", [-0.5, 0.5]),
-    ("control_wells", "['c1', 'c2']", ["c1", "c2"]),
+    ("analysis_excluded_wells", "['c1', 'c2']", ["c1", "c2"]),
 ])
 def test_list_or_none_settings_parse_instead_of_being_split_into_characters(
         key, text, expected):
@@ -672,7 +672,7 @@ def test_regression_runs_end_to_end_from_the_cli_settings_path(tmp_path):
 
     Nothing is stubbed. ``minimum_cell_simulation`` (which reads ``tolerance``
     and ``score_column``) and ``graph_sequencing_stats`` (which iterates
-    ``control_wells``) both run for real.
+    ``analysis_excluded_wells``) both run for real.
 
     ``min_cells_per_well`` USED TO BE None by default, which is what made the
     simulation run here without being asked for. It is 100 now -- a deliberate

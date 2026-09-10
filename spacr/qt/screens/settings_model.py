@@ -424,9 +424,11 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "on_error_attempts", "on_error_backoff", "random_seed", "verbose",
         # Regression derives this aggregate from the positive, negative, and
         # mixed control-well settings, so it is not an independent GUI choice.
-        # The invasion assay retains its separate control because there it
-        # identifies wells without pre-permeabilisation stain.
-        "control_wells",
+        # The invasion assay keeps its own control under a name of its own
+        # since the 2026-09-09 split: `stain_baseline_wells` identifies wells
+        # without pre-permeabilisation stain, and this one is the list the
+        # analysis drops.
+        "analysis_excluded_wells",
         # SUPERSEDED BY `annotation_source`, and hidden here rather than in
         # a second "regression" entry further up this dict -- which is where
         # it was, and which a later key of the same name silently replaced.
@@ -1761,7 +1763,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "bimodality_cutoff", "extracellular_class",
         )),
         ("Controls & Minimum Counts", (
-            "control_wells", "control_quantile", "min_control_objects",
+            "stain_baseline_wells", "control_quantile", "min_control_objects",
             "min_objects_for_threshold", "min_objects_for_bimodality",
             "min_parasites_per_well", "inflation_warn",
         )),

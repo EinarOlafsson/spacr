@@ -466,7 +466,7 @@ def test_graph_sequencing_stats_survives_a_mixed_row_id_column(tmp_path):
         "count_data": str(csv),
         "target_unique_count": 5,
         "filter_column": "columnID",
-        "control_wells": ["c1"],
+        "analysis_excluded_wells": ["c1"],
         "log_x": False, "log_y": False,
     })
 
@@ -505,7 +505,7 @@ def test_graph_sequencing_stats_keeps_the_row_of_an_underscored_plate(
     )
     graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 5,
-        "filter_column": "columnID", "control_wells": ["c1"],
+        "filter_column": "columnID", "analysis_excluded_wells": ["c1"],
         "log_x": False, "log_y": False,
     })
 
@@ -649,7 +649,7 @@ def test_graph_sequencing_stats_unique_count_merge_is_many_to_one(
     )
     SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 4,
-        "filter_column": "columnID", "control_wells": ["c1"],
+        "filter_column": "columnID", "analysis_excluded_wells": ["c1"],
         "log_x": False, "log_y": False,
     })
 

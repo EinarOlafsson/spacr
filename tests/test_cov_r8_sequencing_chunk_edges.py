@@ -229,7 +229,7 @@ class TestWhereTheThresholdFigureGoes:
         pd.DataFrame(rows).to_csv(counts, index=False)
         return {"count_data": [str(counts)], "dst": dst,
                 "min_count": 0, "target_unique_count": 3,
-                "filter_column": "columnID", "control_wells": ["c1"],
+                "filter_column": "columnID", "analysis_excluded_wells": ["c1"],
                 "log_x": False, "log_y": False}
 
     def test_the_figure_lands_beside_the_count_data(self, tmp_path):

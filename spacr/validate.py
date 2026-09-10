@@ -1076,9 +1076,21 @@ RETIRED_SETTINGS: Dict[str, str] = {
     # "min_cell_count" counts cells and drops WELLS. The count is per well
     # and the name does not say so, which is why the tooltip had to.
     "min_cell_count": "min_cells_per_well",
+    # SPLIT, not renamed (357-Q6). It meant the invasion assay's stain
+    # baseline AND the wells Regression and sequencing drop before fitting,
+    # with different defaults and no way to set one without setting the
+    # other. `settings._fold_renamed_settings` sends an old value to BOTH,
+    # so a file written before the split behaves exactly as it did.
+    "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
-    "minimum_cell_count": "min_cell_count",
+    # POINTS AT THE LIVE NAME, NOT AT THE ONE IT WAS MERGED INTO. This was
+    # `min_cell_count` until 2026-09-09, when that key was itself renamed to
+    # `min_cells_per_well` -- so the entry named a setting that no longer
+    # exists and sent its reader to a second dead end. A chain of renames is
+    # worse than no message: the user follows it, finds nothing, and has no
+    # reason to think the trail continues.
+    "minimum_cell_count": "min_cells_per_well",
     "redunction_method": "reduction_method",
     "barcode_coordinates": "",
     "barcode_mapping": "",
@@ -1131,6 +1143,18 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
         if not isinstance(key, str) or key not in RETIRED_SETTINGS:
             continue
         replacement = RETIRED_SETTINGS[key]
+        if isinstance(replacement, (tuple, list)):
+            # A SPLIT. One key that meant two things is now two keys, and
+            # both need naming: a message that offered only one of them
+            # would send half the readers to the wrong control.
+            names = ", ".join(f"'{one}'" for one in replacement)
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' was split into {names}.",
+                f"Set whichever of {names} you meant — spaCR applies the "
+                f"old value to both, so a file that has not been updated "
+                f"still behaves as it did."))
+            continue
         if replacement:
             problems.append(Problem(
                 WARNING, key,

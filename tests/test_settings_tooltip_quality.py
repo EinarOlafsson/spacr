@@ -237,10 +237,13 @@ DEFAULT_VARIANT_EXPECTATIONS = {
         "'regression'", "'guide_permutation'", REPAIRED_TOOLTIP,
         "Nonparametric inference resolves the initial mode to permutation.",
     ),
-    ("regression", "control_wells"): DefaultVariant(
-        "None", "['c1', 'c2', 'c3']", REPAIRED_TOOLTIP,
-        "Regression derives the controls from filter_value and control blocks.",
-    ),
+    # ("regression", "control_wells") WAS HERE AND THE SPLIT REMOVED IT.
+    # The old key served the invasion assay AND Regression, so its tooltip
+    # ended "Default None." -- true for the assay, false for Regression,
+    # which derives the list from filter_value and the control blocks. That
+    # is the drift this entry recorded. `analysis_excluded_wells` states
+    # Regression's own default and claims no other, so there is nothing left
+    # to record: the variant is gone because the confusion behind it is.
     ("regression", "fraction_threshold"): DefaultVariant(
         "None", "0.02", REPAIRED_TOOLTIP,
         "Regression uses a reproducible fixed fraction cutoff initially.",
@@ -352,10 +355,12 @@ REPAIRED_TOOLTIP_FACTS = {
         "starts with inference='nonparametric'",
         "resolved initial mode is 'guide_permutation'",
     ),
-    ("regression", "control_wells"): (
-        "Regression initializes it from filter_value plus any declared control blocks",
-        "['c1', 'c2', 'c3']",
-    ),
+    # ("regression", "control_wells") was here. Its repaired tooltip existed
+    # to explain a default that DISAGREED with the printed one, and the
+    # split (357-Q6) removed the disagreement rather than the explanation:
+    # `analysis_excluded_wells` still carries the same sentence about
+    # deriving from filter_value, it simply no longer has a "Default None."
+    # from the other meaning to contradict.
     ("regression", "fraction_threshold"): (
         "Regression starts at the reproducible fixed cutoff 0.02",
     ),
@@ -674,7 +679,13 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # defaults ("Default 10 in Mask; Measure and External Masks start at 0")
     # instead of leaving the difference to be recorded here as drift. A
     # variant that the tooltip itself explains is not drift.
-    assert len(variants) == 47
+    # 47 -> 46 on 2026-09-09. `control_wells` was split (357-Q6) into
+    # `stain_baseline_wells` and `analysis_excluded_wells`, and the variant
+    # it carried went with it: one key documented "Default None." while
+    # Regression derived a list from filter_value, so the drift was two
+    # meanings sharing a tooltip rather than a wrong default. Each half now
+    # states its own, and neither disagrees with itself.
+    assert len(variants) == 46
     assert variants == expected
     assert {
         classification: sum(
@@ -684,7 +695,11 @@ def test_real_default_claims_have_no_unrecorded_drift():
         for classification in (ACCURATE_SHARED, REPAIRED_TOOLTIP, CONFIG_DEFECT)
     } == {
         ACCURATE_SHARED: 24,
-        REPAIRED_TOOLTIP: 23,
+        # 23 -> 22 on 2026-09-09, and it is the same one variant: the
+        # `control_wells` split (357-Q6) took its repaired-tooltip entry
+        # with it, because the tooltip it repaired documented two meanings
+        # at once and there is now one tooltip per meaning.
+        REPAIRED_TOOLTIP: 22,
         CONFIG_DEFECT: 0,
     }
     assert all(
@@ -714,7 +729,12 @@ def test_repaired_tooltips_state_each_module_value_and_behavior():
     }
     # 25 since 2026-09-02: the six organelleb/c/d min_size entries went with
     # the fixed slot floor removed by instruction 326.
-    assert len(REPAIRED_TOOLTIP_FACTS) == 23
+    # 23 -> 22 on 2026-09-09, the `control_wells` split again (357-Q6).
+    # Three counts move together for one cause, which is the point of
+    # keeping all three: a repaired tooltip, the variant it explained, and
+    # the fact it carried are one entry seen from three sides, and a change
+    # that moved only one of them would be a change nobody had understood.
+    assert len(REPAIRED_TOOLTIP_FACTS) == 22
     assert set(REPAIRED_TOOLTIP_FACTS) == repaired
 
     defaults_by_app = {}

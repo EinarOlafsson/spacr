@@ -128,7 +128,7 @@ def settings_for(score, count, **over):
         "controls": None,
         "outlier_detection": False,
         "filter_value": [],
-        "control_wells": [],
+        "analysis_excluded_wells": [],
     }
     settings.update(over)
     return get_perform_regression_default_settings(settings)

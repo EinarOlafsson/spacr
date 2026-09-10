@@ -39,7 +39,7 @@ def test_graph_sequencing_stats(tmp_path):
         "count_data": str(csv),
         "target_unique_count": 5,
         "filter_column": "columnID",
-        "control_wells": ["c1"],
+        "analysis_excluded_wells": ["c1"],
         "log_x": False, "log_y": False,
     })
     assert 0.0 <= float(thr) <= 1.0
@@ -55,7 +55,7 @@ def test_graph_sequencing_stats_multi_and_log(tmp_path):
         "count_data": [str(c1), str(c2)],   # list branch + concat
         "target_unique_count": 4,
         "filter_column": "columnID",
-        "control_wells": ["c1"],
+        "analysis_excluded_wells": ["c1"],
         "log_x": True, "log_y": True,       # log-axis branches
     })
     assert thr is not None

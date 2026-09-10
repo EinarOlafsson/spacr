@@ -16,7 +16,8 @@ from typing import Iterable, Optional, Sequence, Set, Tuple
 #: which ensures generic fields such as ``filter_value`` are included.
 WELL_SETTINGS = (
     "cell_loc", "cell_plate_metadata", "class_metadata", "classes",
-    "control_wells", "filter_value", "metadata_item_1_value", "mix", "neg",
+    "stain_baseline_wells", "analysis_excluded_wells",
+    "filter_value", "metadata_item_1_value", "mix", "neg",
     "negative_control", "pathogen_loc", "pathogen_plate_metadata", "pos",
     "positive_control", "treatment_loc", "treatment_plate_metadata",
     # The three control blocks (221). They were added to WELL_ONLY_SETTINGS
@@ -32,7 +33,8 @@ WELL_SETTINGS = (
 #: replaced safely by the plate-map picker. Mixed-vocabulary fields remain
 #: outside this subset so non-well values are preserved.
 WELL_ONLY_SETTINGS = (
-    "cell_loc", "control_wells", "filter_value", "pathogen_loc",
+    "cell_loc", "stain_baseline_wells", "analysis_excluded_wells",
+    "filter_value", "pathogen_loc",
     "treatment_loc",
     # Control-block settings contain only wells, so the plate-map picker can
     # replace their complete value without discarding mixed metadata.
