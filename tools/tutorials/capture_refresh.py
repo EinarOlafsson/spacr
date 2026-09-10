@@ -315,6 +315,10 @@ def main() -> int:
         from capture_lineage import record_lineage
         record_lineage(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'pca':
+        from capture_pca import record_pca
+        record_pca(app, window, stage, captures, capture,
+                   settle, write_json, args.timeout)
     elif args.module == 'trellis':
         from capture_trellis import record_trellis
         record_trellis(app, window, stage, captures, capture,
