@@ -755,3 +755,19 @@ Q-CI-A -- HOW SHOULD CI STOP CANCELLING ITSELF?
     having it false. And `paths-ignore` on the tutorial data is worse than
     useless -- two tests read those files, so CI would go quiet on exactly
     the change that happened.
+
+Q-DOCS-A -- MAY `docs.yml` BE DISPATCHED ON nightly, WHICH PUBLISHES THE
+    DOCUMENTATION SITE?
+    Its Pages steps are gated on `main`, OR a `workflow_dispatch` on
+    `nightly`. So a dispatch is not a dry run: it deploys. The gate's own
+    wording is "an explicit audited nightly", which reads as a deliberate
+    act rather than something to do on your behalf overnight.
+      (a) DISPATCH IT. The build is green locally at every step -- both
+          catalog audits, `sphinx-build -W` with zero warnings, and the
+          eight tooltip link tests -- and the site is currently serving a
+          build from before the OPS modules existed.
+      (b) WAIT FOR A NORMAL RUN. Needs the push rate to drop first (Q-CI-A),
+          because a push-triggered docs run is cancelled within ninety
+          seconds at the moment.
+    RECOMMEND (a), and it is your call rather than mine because it is the
+    one action in this list that is visible outside the repository.

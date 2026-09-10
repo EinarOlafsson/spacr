@@ -1870,3 +1870,49 @@ Q-CI-A in 357. The way to get a verdict in the meantime is
 
 AND `tests.yml` IS A SEPARATE QUESTION, still open: the Qt thread leak above,
 and whatever the quarters turn up once they have all completed.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- PUSHED, AND `tests.yml` DISPATCHED. `docs.yml` DELIBERATELY NOT.
+--------------------------------------------------------------------------------
+
+Thirty-nine commits are on nightly at 3c2e691fb, verified by counting
+`origin/nightly..HEAD` rather than by reading a pushed pipeline's exit code
+-- `git push -q | tail -1; echo $?` reports TAIL's status and has silently
+swallowed a rejected push in this repository before.
+
+`tests.yml` IS DISPATCHED on that SHA. `workflow_dispatch` is exempt from
+the `cancel-in-progress` rule, which is the only way to get a verdict while
+the push rate stays where it is: my push's own three runs went to `pending`
+and the tutorial lane pushed again ninety seconds later.
+
+`docs.yml` IS NOT DISPATCHED, AND THAT IS A DECISION RATHER THAN AN
+OVERSIGHT. Its Pages steps are gated on
+
+    github.ref == 'refs/heads/main' ||
+    (github.event_name == 'workflow_dispatch' &&
+     github.ref == 'refs/heads/nightly')
+
+so dispatching it on nightly does not merely check the build -- it
+PUBLISHES the documentation site. The gate's own wording is "an explicit
+audited nightly", which reads as a deliberate human act, and publishing is
+not something to do on a maintainer's behalf while he is asleep.
+
+    SO IT IS A QUESTION, and it is Q-DOCS-A in 357.
+
+WHAT IS KNOWN WITHOUT IT, run locally on the pushed tree, every step the
+workflow runs and in its order:
+
+    Audit localization catalogs
+        verified API catalogs: languages=9 symbols=10306          EXIT=0
+        verified external runtime catalogs: languages=9
+          settings=1073 categories=201 ui=2841 modules=67          EXIT=0
+    Build docs
+        sphinx-build -W -E -b html --keep-going                    EXIT=0
+        warnings and errors: 0
+    Verify generated tooltip API links
+        8 passed
+
+That is not the same as CI green and this file should not pretend it is.
+What it IS: every failure mode `docs.yml` has exhibited in the last hundred
+runs is now accounted for, and the only untested step left is the artifact
+upload.
