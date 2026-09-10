@@ -319,6 +319,10 @@ def main() -> int:
         from capture_volcano import record_volcano
         record_volcano(app, window, stage, captures, capture,
                        settle, write_json, args.timeout)
+    elif args.module == 'anndata_export':
+        from capture_anndata import record_anndata
+        record_anndata(app, window, stage, captures, capture,
+                      settle, write_json, args.timeout)
     elif args.module == 'pca':
         from capture_pca import record_pca
         record_pca(app, window, stage, captures, capture,
