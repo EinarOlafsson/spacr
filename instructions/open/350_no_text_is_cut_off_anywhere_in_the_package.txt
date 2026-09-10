@@ -1300,3 +1300,11 @@ test keyed on one locale would go green the day that string changed.
 
   THE SWEEP IS NOW GREEN IN EVERY COMBINATION IT RUNS: 4 locales x 2 font
   scales x 26 screens, and `KNOWN_OFFENDERS` is still empty.
+
+AND THE FIX COSTS NOTHING ON THE HOT PATH, measured rather than assumed --
+`invalidate` runs on every layout change, so adding work there could have
+bought a readable caption with a choppy resize. 2,000 calls on the
+Regression screen: 5.3 microseconds per refit and 5.5 per invalidate, which
+is 0.03 % of a 60 Hz frame. Instruction 380's rule cuts both ways: a change
+that makes something better by making something else slower has to say so,
+and this one does not.
