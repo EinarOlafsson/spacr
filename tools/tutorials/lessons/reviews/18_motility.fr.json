@@ -1,0 +1,36 @@
+{
+  "lesson": "18_motility",
+  "english_sha256": "b9d9584f4c2fc12340cace0683186766ab1ebc58461cf0bb8433df796e4d59ed",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; exact counts, unknown and hypothetical calibration, infection and PDF limitations retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Analyse de motilité",
+  "description": "Explorez les filtres interactifs et les unités à partir de trajectoires synthétiques reproductibles dans Measure > Motility.",
+  "objectives": [
+    "Trouver Motility dans Measure et charger les matrices exactes.",
+    "Comparer les filtres sans relire les images ni relancer un modèle.",
+    "Distinguer unités inconnues, conversion hypothétique et limites des résultats."
+  ],
+  "prerequisite": "Extrayez SYNTHETIC_motility_tracks.zip dans un nouveau dossier. Huit matrices synthétiques : intensité nucléaire 0, cellulaire 1, masque cellulaire suivi 2, nucléaire 3. Aucun pathogène ni étalonnage acquis. Choisissez la racine contenant merged. Live : deux canaux, plan suivi 2, pathogène -1, huit images, longueur minimale 3, étalonnage 0/0. Les valeurs 2 pixels/µm et 60 secondes/image sont purement hypothétiques. Laissez Propagate settings désactivé. Les PDF ont des marques peu contrastées ; Screen ne les corrige pas. Aucune validation biologique ou d'infection. API : spacr.timelapse.automated_motility_assay. AI reste désactivé.",
+  "scenes": [
+    "Ouvrez Measure, puis son raccourci Time pour accéder à l'onglet Motility Assay. C'est un module imbriqué, pas une tuile Home indépendante. Timelapse, dans Mask, crée les trajectoires ; Motility les mesure. Si vos images ne sont pas encore suivies, consultez d'abord la leçon Timelapse.",
+    "Téléchargez l'exemple synthétique de matrices suivies ci-dessous et extrayez-le dans un nouveau dossier. Pour Source, choisissez le dossier contenant merged. Ses huit images contiennent seize trajectoires cellulaires. Sélectionnez cell, le canal nucléaire zéro et cellulaire un, sans canal de pathogène.",
+    "Pour une expérience acquise, utilisez l'échelle et l'intervalle réels. Ici, deux pixels par micromètre et soixante secondes par image sont volontairement hypothétiques, uniquement pour illustrer le calcul. Le formulaire du lot exige des nombres ; ses valeurs par défaut ne prouvent pas l'étalonnage de votre microscope.",
+    "Laissez Reuse existing measurements désactivé pour cette nouvelle copie et activez les graphiques de contrôle qualité. Aucun canal de pathogène n'est fourni, donc le contrôle d'infection est désactivé pour cette exécution. Les classifieurs optionnels ne sont pas testés ; ces trajectoires pédagogiques n'établissent aucun effet d'infection.",
+    "Exécutez le petit exemple et lisez la console. Le lot enregistre cent vingt-huit observations, un résumé par puits de seize trajectoires et des fichiers PDF. Ces fichiers n'apparaissent pas dans la file de figures. Cette version signale des couleurs trop pâles à l'export ; inspectez les fichiers avant de les utiliser dans un rapport.",
+    "Activez Live pour ouvrir Motility preview. Repliez Console et System si les graphiques manquent de place, puis choisissez le même dossier extrait. Métriques d'aperçu et paramètres du lot sont séparés. Laissez Propagate settings désactivé pour qu'un filtre temporaire ne modifie pas la prochaine exécution complète.",
+    "Indiquez deux canaux d'intensité, le plan de masque suivi deux et le plan pathogène moins un, soit aucun. Prévisualisez les huit images. Un masque nucléaire n'est pas un masque de pathogène. Mettez les deux champs d'étalonnage à zéro pour des unités inconnues, puis cliquez sur Run preview.",
+    "L'aperçu lit cent vingt-huit observations et annonce seize trajectoires utilisables avec une longueur minimale de trois. La vitesse moyenne est d'environ un virgule quatre pixels par image. Sans les deux valeurs d'étalonnage, il ne faut pas la décrire en micromètres par minute.",
+    "Passez Min track length à neuf. Chaque trajectoire ne comprend que huit images : les seize sont exclues du résumé utilisable et la vitesse moyenne est indisponible. Cela ne supprime ni les trajectoires ni les images sources. Un résumé vide n'est pas une vitesse nulle.",
+    "Rétablissez le minimum à trois. Les seize trajectoires utilisables reviennent, avec la distribution des longueurs et les points de vitesse. Ces métriques sont recalculées à partir des observations en cache. Modifier une métrique ne relance pas la segmentation et ne prouve pas la justesse des identités du suivi initial.",
+    "Activez Drop over-straight tracks au seuil de zéro virgule quatre-vingt-quinze. La rectitude est le déplacement net divisé par la longueur parcourue. Quinze trajectoires pédagogiques presque droites sont exclues ; une reste. Un mouvement rectiligne peut être réel : ce filtre ne prouve pas automatiquement une dérive et n'est pas une recommandation d'analyse.",
+    "Désactivez ce filtre et vérifiez le retour des seize trajectoires. Comparez les graphiques et l'effectif conservé avant d'adopter une règle de filtrage. Ici, uninfected reflète seulement l'absence du plan pathogène ; ce n'est pas un groupe biologique négatif validé.",
+    "Saisissez deux pixels par micromètre, mais laissez l'intervalle inconnu. L'aperçu indique toujours des pixels par image. L'échelle spatiale ne fournit pas le temps manquant, et la vitesse de lecture vidéo n'est pas l'intervalle d'acquisition.",
+    "Saisissez maintenant soixante secondes par image. Avec ces deux valeurs hypothétiques, la vitesse moyenne passe d'environ un virgule quatre pixels par image à zéro virgule sept micromètre par minute. Les identités ne changent pas. Les axes des trajectoires restent en pixels ; seule l'unité de vitesse change ici.",
+    "Remettez les deux champs d'étalonnage de l'aperçu à zéro. Le résumé initial en pixels revient exactement. Séparez cet exercice des métadonnées réelles et consultez la fonction du lot dans la référence API. spaCR AI explique les réglages, mais ne certifie ni étalonnage, ni infection, ni validité scientifique."
+  ]
+}
