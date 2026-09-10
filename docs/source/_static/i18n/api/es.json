@@ -6378,6 +6378,156 @@
         "95acc186608059dca558b06739fdbc92817a54826a7a5b032e81bc4e3cf283ac"
       ]
     },
+    "spacr.bystanders": {
+      "source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "64eec22513bbf4bec521ca20fc1d35850587d33f7eda9eec0e9f706b7f1baf2e",
+        "f0b303b5608ab71ade5ea230861ae71d3cee95bb49fa9a852775f1b3fc2ef4f2",
+        "94d7e78f7165592ff2235af9d9f4f946cfaf966d5484f5119a623dbd4e4e41b0",
+        "9273d06cdc254a763c8d9a3fb4097232aa117811cffaad44ec5f573cca3c1dcf"
+      ],
+      "source_sha256": "fae99684314471b5bb7a79e26fb26cbb01d9294586b66e3c66ac5063fd453f0a",
+      "text": "Que las células no infectadas están al lado de una infectada, y que no lo están.\n\nLa columna que aún no existe. spaCR mide cada célula por sí sola, y la biología de un patógeno intracelular no se limita a la célula en la que está: una célula infectada cambia lo que hacen sus vecinos. En este momento una célula no infectada tocando a una infectada y una célula sin infectar en el lado lejano de la posición de la muestra de microplaca son la misma fila.\n\nDos consecuencias, y la segunda es la que cuesta resultados. No se puede encontrar un fenotipo de espectador genuino, porque ninguna columna separa a un espectador de una célula distante no infectada. Y cada control no infectado se diluye silenciosamente: si los transeúntes se desplazan fenotípicamente y se agrupan en \"uninfected\", la población de control es una mezcla, su varianza se infla, y el tamaño del efecto de cada comparación de infección se encoge hacia nada. Eso es una confusión en los resultados que el paquete ya produce, no una característica faltante.\n\nLa distancia ya está resuelta y nada aquí lo vuelve a implementar. :mod:`spacr.object_distances` calcula una transformación de distancia euclidiana por tipo de objeto una vez, en O(píxeles de imagen) en lugar de O(pares), y este módulo lee el campo de visión del microscopio. El trabajo aquí es un umbral y una etiqueta.\n\nEl umbral es una longitud, no un conteo de píxeles. Se expresa como un múltiplo del diámetro de la célula medida, por lo que significa lo mismo en un 20x y una adquisición de 63x y en una placa cuyas células son simplemente más grandes. Un recuento de micrones codificados duramente sería correcto para un conjunto de datos y silenciosamente incorrecto para el siguiente.",
+      "translation_source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "5236c1c8114f4fc380bca1f4b42924ec25011a86d00b303174de0ba3ca6ed387",
+        "f92bc40dd1c944d22b65799e447a45f4d3f7806bca09345c3110a85d7b29e93d",
+        "d558462d24bfba095002aaf51ae4e989e848a49ef88e064fdbd40e9dba218064",
+        "ac141e8ca96b18a24d79f5067ddb78e8af37181df84a68cd202c02c9b3f00e0c"
+      ]
+    },
+    "spacr.bystanders.classify": {
+      "source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "7c026167cab09bd2f77c36c6e21081f24b6d64dddb763927711f4c67d2423013",
+        "805b9d4e7b5a4af97465b112d1de623fbfa17045b66ed8379affe68105622a50"
+      ],
+      "source_sha256": "d7b35198ca1aa985f81e8cdc222542914511923812d7abf75e3ed26504d070a6",
+      "text": "Etiquete cada célula infectada, transeúnte o distal.\n\n:param cell_mask: la imagen de la etiqueta de la celda.\n:param infected_labels: etiquetas de las células que llevan un patógeno.\n:param reach: qué tan cerca debe estar una célula no infectada para contar como un espectador, en las mismas unidades que ``spacing``. Ver :func:`reach_from_diameter`.\n:param spacing: Tamaño del voxel.\n:returns: ``label``, ``distance_to_infected`` y ``neighbourhood``.\n\nUn alcance no positivo hace que cada célula distal no infectada, que es el comportamiento que permite a un usuario apagar la separación sin un segundo ajuste -- y el comportamiento de un ajuste mal analizado vuelve a caer, ya que no puede inventar transeúntes.\n\nLa prueba de aceptación que esto tiene que pasar es que una posición de muestra microplaca sin parásitos reporta ningún espectador. Se sigue de `distance_to_infected` siendo infinito allí en lugar de de un caso especial, por lo que esa función devuelve infinito.",
+      "translation_source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "3354b8db37095a449b00474ec3dc32f31cef09e40f541050dae1103e1c559889",
+        "a55e8e9e4981949c48ec281214b1e16420d2d24667a7ad71eaf91a2e996df86d"
+      ]
+    },
+    "spacr.bystanders.compare": {
+      "source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
+        "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
+        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+      ],
+      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
+      "text": "Una fila por barrio, para una característica medida.\n\n:param frame: mediciones que llevan una columna ``neighbourhood``, ya que :func:`classify` la produce, unidas a la tabla de características.\n:param feature: la columna a resumir.\n:param statuses: qué barrios informar, en orden.\n:returns: ``neighbourhood``, ``n``, ``mean``, ``std`` y ``median``.\n\nLa comparación de todo el elemento es para, y la razón por la que vale la pena tener es restar en lugar de añadir: el paquete ya puede comparar infectados contra no infectados. Lo que no puede hacer es notar que \"uninfected\" fue dos poblaciones, por lo que un efecto transeúnte se muestra como nada más que un control más amplio.\n\nCada estado solicitado es una fila, en ``n = 0`` donde la posición de la muestra de microplaca no tiene ninguna. Un llamante que compara microplacas de laboratorio necesita las mismas tres filas cada vez; una fila faltante cambia silenciosamente lo que significa una unión hacia abajo.\n\nNo hay estadística de prueba aquí, deliberadamente. Resumir es seguro en cualquier columna; elegir una prueba es una decisión sobre el diseño -- emparejado o no, cómo la microplaca muestra posiciones nido, lo que es el null -- y pertenece a donde se conocen. Esto da a la capa de regresión tres grupos nombrados a ser entregados, que es lo que la instrucción 388 pide.",
+      "translation_source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
+        "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
+        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+      ]
+    },
+    "spacr.bystanders.counts": {
+      "source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "1c78383afde58ac6082970041f6e01d674f2fe6c3199017880ddca4cd302e972"
+      ],
+      "source_sha256": "208fc59be9975d4515892fb68bbd13dc74f72fd7bcf473f032f75937bfab0cd4",
+      "text": "¿Cuántas células cayeron en cada estado, incluyendo las vacías.\n\n:param frame: la salida de :func:`classify`.\n:returns: cada nombre en :data:`STATUSES`, cero donde ausente.\n\nCada tecla siempre está presente. Un llamante que compara las posiciones de muestra de microplaca necesita un cero en lugar de una clave faltante, porque \"ningún espectador en esta posición de muestra microplata\" es un resultado y un KeyError no lo es.",
+      "translation_source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "95e7d924f4ce69ddfb9d04756959774ae5960a226937c063df3645d6b89b7d94"
+      ]
+    },
+    "spacr.bystanders.distance_to_infected": {
+      "source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "a3204c3e72fbf553148b54c9aa30f51ec5aea0db7a9ea834c3bcb7dbe1817c0a",
+        "5447e660d19afe866ed6f7513df6339e54c3bf79ff90255f7307bb73d8957ae8",
+        "41e6b6c3af27f08038ead1d36872fba9f12542c732718ffb419e2bba8fc46c06"
+      ],
+      "source_sha256": "28b64218ec1c932e0689c53129bd85fe6ff2740781f1e3a0f6a27af826e06ed7",
+      "text": "Cuán lejos está la superficie de cada célula de la célula INFECIDA más cercana.\n\n:param cell_mask: la imagen de la etiqueta de la celda.\n:param infected_labels: etiquetas de las células que llevan un patógeno.\n:param spacing: tamaño voxel, por lo que las distancias llevan unidades físicas.\n:returns: ``label`` y ``distance_to_infected``, una fila por celda.\n\nCero para una célula infectada, un píxel para su vecino inmediato, y la distinción vale la pena decir porque la lectura obvia es incorrecta. El campo es cero en cualquier píxEL INFECTADO y crece hacia fuera, por lo que una célula que comparte un borde con uno infectado tiene su propio píxelo más cercano a un paso: el mínimo sobre esa celda es 1, no 0. Sólo una célula cuyos propios píxeles están infectados lee 0.\n\nEl docstring de `surface_distance_transform` dice \"dos objetos que tocan salen a 0\", y eso es cierto del caso que describe -- leer el campo de visión del microscopio en un punto DENTRO del otro objeto, que es lo que da un objeto superpuesto o contenido. Dos etiquetas disjuntas que simplemente no se superponen, por lo que no lo hacen. Un umbral expresado en diámetros celulares es mucho mayor que un píxel de cualquier manera; la nota está aquí así que nadie lee un 1 como un bug.\n\n``inf`` Cuando no hay nada que estar cerca. Una posición de muestra microplaca sin célula infectada no tiene distancias, y el valor honesto es infinito en lugar de 0 o NaN: cada célula está arbitrariamente lejos de una población que no está allí, y la infinidad es el único valor que mantiene `distance <= reach` False para cada alcance finito.",
+      "translation_source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "c6554255c5500858d2f0f33cbee7b08f6e126ea15488f74415c1141af3d6cbbd",
+        "5d8d3c3fcb5d11be435469eb2a6b136040ffdbe81b0d0fdfc42d83bb6d6cffa4",
+        "4d2417c22a92008343be46284ce848126b63db6f34c700dbf25da3394fe611e7"
+      ]
+    },
+    "spacr.bystanders.neighbourhood": {
+      "source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "733fc84845e6aeb3979848c89aa3f8f2ab82320ba047a32451f4207d4647df03",
+        "15e7e1d0659ec5f35c3bf7b28c9db8fb8518654a19b9a38d989b542ef34f363c",
+        "f32e480fd432e8e394cba24bb150a161d2be4971464f9b48e516d9608025c423"
+      ],
+      "source_sha256": "40993069ffe0dc66dbbcc99cf195a2cd4fe499afe4658234f7da883bffb5beaa",
+      "text": "¿Qué fracción de los vecinos más cercanos de cada célula están infectados.\n\n:param cell_mask: la imagen de la etiqueta de la celda.\n:param infected_labels: etiquetas de las células que llevan un patógeno.\n:param k: cuántos vecinos contar, EXCLUYE la célula misma.\n:param spacing: tamaño voxel, por lo que \"nearest\" significa más cercano en el espacio real que en píxeles en una pila anisotrópica.\n:returns: ``label``, ``neighbours_counted``, ``neighbours_infected`` y ``local_infected_fraction``.\n\nLa segunda mitad de la pregunta de los transeúntes. :func:`classify` responde \"hay una célula infectada cerca de ésta\", que es un umbral a una distancia. Esto responde \"cuán infectado está el vecindario de esta célula\", la cual es la cantidad que separa una célula en el borde de un foco de uno en el centro de ella -- ambos son transespectadores y no están en el mismo lugar.\n\nLa célula en sí nunca es su propia vecina, y una célula INFECIDA todavía recibe una fracción: \"esta célula infectada se encuentra entre las no infectadas\" es una observación diferente de \"esta se sienta en un cluster\", y la caída de las filas infectadas tiraría la segunda.\n\n`neighbours_counted` Se informa en lugar de suponer que es ``k``. Un campo con menos de células ``k + 1`` no puede suministrar k vecinos, y una fracción calculada contra un denominador supuesto sería errónea exactamente en los campos escasos donde más importa un análisis de transeúntes. La columna dice lo que la fracción fue realmente dividida por.",
+      "translation_source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "3bdcb2d570c79798c0446e509a11e64d0d0b6f3d32dd5caeb59f056f08c50696",
+        "353e2b0b1604a5e805399da0ced359f389e0c00feb3b56d756b96ce07c862ced",
+        "d05465030f8b6ec0df76cf02c052783f2b208ef74763a63c426f794174fb681e"
+      ]
+    },
+    "spacr.bystanders.reach_from_diameter": {
+      "source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ],
+      "source_sha256": "5b793945ae5f535284fab8928c0a4045033ecfdb7a3540b6c68f076a0f0d287f",
+      "text": "El alcance del transeúnte en las unidades ``cell_diameter`` se mide en.\n\n:param cell_diameter: diámetro celular medido de la placa, a partir de :mod:`spacr.diameter`.\n:param diameters: cuántos diámetros cuentan como vecinos.\n:returns: una distancia en las mismas unidades, nunca negativa.\n\nMantenido como su propia función por lo que la conversión es visible en un lugar y un llamante puede ver que el alcance se deriva en lugar de elegir.",
+      "translation_source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ]
+    },
     "spacr.cancellation": {
       "source_blocks_sha256": [
         "3f84354a540370637d573e4799537b53d19d83e1bcb3c7200c3c4aecba4faabe",
@@ -52104,6 +52254,128 @@
         "ced3e30b9140ee9864498bd210106936e600174abddf4dc5191e2cc4624f8f5d",
         "1e6d5d257b6452481df697b499e0dbaa6909637cfdda492f685d1e360d0e63e2",
         "8c03003db283db3762624391d4608b341bf7df06efea695d16289affadac0db2"
+      ]
+    },
+    "spacr.point_patterns": {
+      "source_blocks_sha256": [
+        "5e6d40b8da1045db5738e70bf648b08ad15aa3ec8e515bbdfc7abe2ab5aa75a0",
+        "1cccded9482cef56b40d46a1b1929f08fb2208f40ffbd5c305feeca7e5333cf0",
+        "e88794e50fe16f12388be9a54aac50ce37aa29faac35c72584d4d8fa204c11e9",
+        "54ff3b1ba900429ec02fddf04631a956ef3df389bbfda5186c28a26a9de31dc7",
+        "c03cc5582cb00ef98dd144d0b7bd246bcafd7e3f1db320c2fb5b5591b501c18f"
+      ],
+      "source_sha256": "f6d369d32b71671fb501459da9f5e6ab7d64b61d554dcb54b4b1237b7928b5a2",
+      "text": "Es esta posición de muestra microplaca agrupada, dispersada, o ninguna -- contra la derecha nula.\n\nLo que el paquete no podría preguntar. :mod:`spacr.object_distances` dice lo lejos que está un objeto de otro, y :mod:`spacr.bystanders` dice si una célula tiene un vecino infectado. Tampoco responde a la pregunta que un foco de infección realmente plantea: ¿están las células infectadas en esta posición de muestra de microplaca dispuestas más firmemente de lo que el azar las pondría? Esa es la K de Ripley, y es la estadística que convierte \"estas dos células están cerca\" en \"this well is clustered\".\n\nEl null es toda la estadística. K no tiene sentido sin nada contra lo que comparar, y la comparación tiene que respetar la forma que las células fueron permitidas a ocupar. Una posición de muestra de microplaca no es un rectángulo, un campo de visión del microscopio con una monocapa rota no es ningún rectángulo, y un null que dispersa puntos sobre la caja delimitadora llamará a cada máscara con un borde cóncavo \"clustered\" - los puntos están atestados en el tejido porque no hay ningún otro lugar para estar. Todo aquí toma una máscara y tanto el estimador y la estancia nula simulada dentro de él.\n\nLa corrección del borde no es opcional y es la parte que obtiene SKIPPED. Un punto cerca del límite tiene parte de su barrio fuera de la ventana, por lo que encuentra menos vecinos que él; sin corregir, ese déficit se lee como dispersión, y es peor exactamente en los radios que a alguien le importa. :func:`ripley_k` aplica la corrección de muestra reducida (frontera) por defecto: en radio r, sólo los puntos al menos r dentro del límite contribuyen. Cuesta precisión en grande r -- honestamente, informando cuántos puntos quedaron -- y es exacto para cualquier forma de ventana, que las correcciones isotrópicas analíticas no son.\n\nEl borde del marco también es un límite. El campo de visión del microscopio de distancia a frontera se calcula sobre una máscara acolchada con una fila de fondo en todo el contorno, por lo que una máscara que corre hasta el borde de la imagen se trata como cortada allí, porque lo es. Sin la almohadilla, las células en la parte superior de la foto se marcarían como si la monocapa continuase pasando por encima de ella.",
+      "translation_source_blocks_sha256": [
+        "b3ab9e20b2684aaf7b4e0a81b26904ccb19d6c9151d13a98ab0f7387a1013dde",
+        "019d13cc2dd4383a7c971afc4aa87f74d893d4214171670580e7ce575ce2d40a",
+        "f9a19c412579ac24bd94ab5a72df3d8971e6402b72dba0a03f6ca62ce90c62dd",
+        "ec9c24b5f1edb98008505dfdc8dfc497973961ccbf1a6fd6a442eda36058ad7f",
+        "b63398c934a85785025f317fef0f7e82afb452ac0a7de4159c8604b33a236b4a"
+      ]
+    },
+    "spacr.point_patterns.csr_envelope": {
+      "source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "21dc32574b16c0ec8a0791ccb2e35aabc5624638beff72e5f37ac21ad0a445bc",
+        "88e2bd06b1f67fd1c68cedfea279f26c6d7e91b756b7f680ed0a749873979df5"
+      ],
+      "source_sha256": "e7846b22e2547ed9b8eae5d571f68e3c30706b5fcf48ab54d88c68fd16292b44",
+      "text": "La propagación de L - r para ``n_points`` dispersos al azar en ``mask``.\n\n:param mask: la misma ventana en la que se midió el patrón observado.\n:param n_points: cuántos puntos para dispersar -- el conteo observado.\n:param radii: los mismos radios.\n:param spacing: el mismo tamaño de píxel.\n:param simulations: cuántos patrones aleatorios.\n:param seed: fija, por lo que un sobre es reproducible.\n:param correction: la misma corrección que la observación utilizada.\n:returns: ``r``, ``lo``, ``hi`` y ``mean`` de ``l_minus_r``.\n\nLos puntos están dispersos en la máscara, no en su caja de acotación. Esa es la razón por la que esta función existe en lugar de una búsqueda de la varianza analítica de la RSC: el resultado analítico asume un rectángulo, y una posición de muestra de microplaca es un disco con agujeros en él.\n\nLa misma corrección en ambos lados. Una observación corregida contra un sobre que no fue -- o lo contrario -- compara dos estimadores diferentes y la diferencia entre ellos se verá como biología.",
+      "translation_source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "8a4024c0410fcc38162b2ce8a5817be02baa7eea0fa88f88ba01f1edc6421b86",
+        "906bc5e85acb9a19af89652c9ee902ffd44aad5c27d27e594ffa8b505f034896"
+      ]
+    },
+    "spacr.point_patterns.ripley_k": {
+      "source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "5d91064f893b652c8c8dba10435bf459391842b9dd74f9cf38a4181269e61cb8",
+        "4e78fd9e2255bad7aaa84912b30bd1d9691312ecc593ccf30ff2c0f981cb4cd2"
+      ],
+      "source_sha256": "6bcd283db0dee0c3cccf4e115c39f9e90617463ea81ec469806776fc4298478a",
+      "text": "Ripley's K y L por un patrón de punto en una ventana.\n\n:param points: ``(n, 2)`` centroides en orden de array (fila, columna), ya que :func:`spacr.object_distances._centroids` los devuelve.\n:param mask: Array booleano, cierto donde un punto podría haber sido.\n:param radii: los radios a evaluar, en las mismas unidades que ``spacing``.\n:param spacing: tamaño de píxel; ``None`` significa que los radios están en píxeles.\n:param correction: ``\"border\"`` para la corrección de muestra reducida, o ``\"none\"`` para ver lo que vale la corrección.\n:returns: ``r``, ``k``, ``l``, ``l_minus_r`` y ``n_contributing``.\n\n``l_minus_r`` Es la columna a leer. K crece como r cuadrado, por lo que dos curvas son imposibles de comparar por ojo; L es su raiz cuadrada estabilizada por varianza, y bajo aleatoriedad espacial completa L(r) = r exactamente, así que L(R) - r es una línea plana en cero cualquiera que sea la densidad. Por encima de cero se agrupa, abajo es dispersión, y el tamaño de la salida está en las unidades de la imagen.\n\n``n_contributing`` No es decoración. Es el número de puntos que la corrección de frontera mantiene en ese radio, y cuando cae en cifras únicas la fila es aritmética, no evidencia.",
+      "translation_source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "3656d2c174312852a20c3003e09028b103c2db0a7e3099edbfb33e239ad3272c",
+        "315c963c75c332c99a1f59359be6db00dd8deb93a7a5e9ad73949b4468bae852"
+      ]
+    },
+    "spacr.point_patterns.ripley_test": {
+      "source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "2f352cbe7ea9bbc4f55e3f37350296e88b868974e1e708847bb35df7a19fc383"
+      ],
+      "source_sha256": "e8350fe2b38c6cafe6f7bbceedc64aa7b86893be99b86b2cb99dad0eda89f8df",
+      "text": "Observado K contra un nulo que respeta la máscara.\n\n:param points: los centroides observados.\n:param mask: la ventana.\n:param radii: ``None`` pregunta :func:`suggest_radii`.\n:param spacing: tamaño de píxel.\n:param simulations: cuántos patrones aleatorios detrás del sobre.\n:param seed: fijo, por lo que la respuesta es reproducible.\n:param correction: se aplica tanto a la observación como a la nula.\n:returns: las columnas de :func:`ripley_k`, más ``lo``, ``hi``, (``clustered``) y (``dispersed``).\n\n``clustered`` Y ``dispersed`` son por radio y eso no es una prueba. Veinte radios dan veinte posibilidades de dejar un sobre del 2%, así que una sola excursión está cerca de carecer de sentido; una carrera de ellos en radios adyacentes es lo que hay que creer. Las columnas se nombran deliberadamente por lo que son -- una excursión en este r -- en lugar de \"significant\".",
+      "translation_source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "852c2c0b81bd925217d7dc713b4d4281d8b58d22f53f37606bab58548d55c0f4"
+      ]
+    },
+    "spacr.point_patterns.suggest_radii": {
+      "source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "83d08d62437c6b9946e317ec569b83d28ee06c4071b80e75536977506c1835b7"
+      ],
+      "source_sha256": "120c2a81e9cfc6d500b2e4d025da6e95120a3c23718127caeb249993f401fe8d",
+      "text": "Los radios valen la pena calcular K en, para esta ventana.\n\n:param mask: una serie booleana de donde se permitía un punto.\n:param spacing: tamaño de píxel, por lo que los radios vuelven como longitudes reales.\n:param count: cuántos radios.\n:returns: ``count`` radio, uniformemente espaciado, terminando en :data:`MAX_RADIUS_FRACTION` del lado más corto de la ventana.\n\nNo empezar en cero. K(0) es 0 por construcción y no lleva ninguna información; incluyendo sólo pone un punto donde cada curva está de acuerdo.",
+      "translation_source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "b0237ca97524fd4b858b983345113d2c568231eda1bd48e562721a745fcc6515"
       ]
     },
     "spacr.portable_paths": {

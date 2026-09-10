@@ -6379,6 +6379,156 @@
         "95acc186608059dca558b06739fdbc92817a54826a7a5b032e81bc4e3cf283ac"
       ]
     },
+    "spacr.bystanders": {
+      "source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "64eec22513bbf4bec521ca20fc1d35850587d33f7eda9eec0e9f706b7f1baf2e",
+        "f0b303b5608ab71ade5ea230861ae71d3cee95bb49fa9a852775f1b3fc2ef4f2",
+        "94d7e78f7165592ff2235af9d9f4f946cfaf966d5484f5119a623dbd4e4e41b0",
+        "9273d06cdc254a763c8d9a3fb4097232aa117811cffaad44ec5f573cca3c1dcf"
+      ],
+      "source_sha256": "fae99684314471b5bb7a79e26fb26cbb01d9294586b66e3c66ac5063fd453f0a",
+      "text": "哪些不感染的细胞在感染的旁边,而哪些不。\n\n目前尚未存在的列 spaCR 测量每个细胞本身,而细胞内病原体的生物学并不局限于它所处的细胞:感染的细胞改变其邻居所做的事情。\n\n两个结果,第二个是费用的结果. 一个真实的基因类型无法找到,因为没有列分离一个基因与一个遥远的未感染的细胞。 \"uninfected\",控制人口是混合物,它的变量是膨胀的,每个感染的效果大小对比缩短到什么。\n\n距离已经解决了,没有什么在这里重新实施它。 :mod:`spacr.object_distances` 计算一个 Euclidean 距离转换为对象类型一次,在 O(图像像像素) 而不是 O(对),这个模块读到这个显微镜的视野。\n\n边界是长度,而不是像素数,它被表达为测量细胞直径的多倍,所以它意味着在20x和63x收购和一个板上,其细胞只是更大。",
+      "translation_source_blocks_sha256": [
+        "0104d4cfda5052959441e1e18b4672a1161751acec8f112a2cd6bf39180c3e8e",
+        "5236c1c8114f4fc380bca1f4b42924ec25011a86d00b303174de0ba3ca6ed387",
+        "f92bc40dd1c944d22b65799e447a45f4d3f7806bca09345c3110a85d7b29e93d",
+        "d558462d24bfba095002aaf51ae4e989e848a49ef88e064fdbd40e9dba218064",
+        "ac141e8ca96b18a24d79f5067ddb78e8af37181df84a68cd202c02c9b3f00e0c"
+      ]
+    },
+    "spacr.bystanders.classify": {
+      "source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "7c026167cab09bd2f77c36c6e21081f24b6d64dddb763927711f4c67d2423013",
+        "805b9d4e7b5a4af97465b112d1de623fbfa17045b66ed8379affe68105622a50"
+      ],
+      "source_sha256": "d7b35198ca1aa985f81e8cdc222542914511923812d7abf75e3ed26504d070a6",
+      "text": "标记感染的每一个细胞,分裂或分裂。\n\n:param cell_mask: 细胞标签图像。\n:param infected_labels: 带有病原体的细胞的标签。\n:param reach: 一个未感染的细胞应该是多么接近,以便在同一单位与``spacing``相同的分数计算。 看:func:`reach_from_diameter`。\n:param spacing: voxel 尺寸\n:returns: ``label``、 ``distance_to_infected`` 和 ``neighbourhood``。\n\n一个不积极的触摸会使每个未感染的细胞分散,这就是允许用户在没有第二个设置的情况下转动分裂的行为 - 并且错误的设置的行为会落后,因为它无法发明分裂。\n\n这必须通过的接受测试是,没有寄生虫的微板样本位置报告没有异常。 它源于`distance_to_infected`在那里是无限的,而不是一个特殊的案例,这就是为什么这个功能返回无限。",
+      "translation_source_blocks_sha256": [
+        "03418798489bef5b0e120eb885d7ed19131ac453698b5cc23aa17c94b759b2c1",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "225c109f9116ccd1ce7022244dd429872872b1a64d05984e23b07657f98964f9",
+        "029d0f46a932fd08830dfdb6959a8670fcf64a1d9137935c0baa9037fe813f4d",
+        "d7c42abf53f993d196d9cb0ee65c5b1d27c2f4ebac421326a95ceff65bfdfcc3",
+        "3354b8db37095a449b00474ec3dc32f31cef09e40f541050dae1103e1c559889",
+        "a55e8e9e4981949c48ec281214b1e16420d2d24667a7ad71eaf91a2e996df86d"
+      ]
+    },
+    "spacr.bystanders.compare": {
+      "source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "07a26349bbb3b787b623fe63e13ee541cf585eff23a25427213be9aea57ef173",
+        "1f4f4e540c9f7372a3abee7334c5202c260733258a2fed82b8cb2f13815d5b82",
+        "dfdf3364dc675516fe537d24466ecd2063ddd41d1402746db1821aaef4dbc514"
+      ],
+      "source_sha256": "f6fdd7ba7fcebabe48cd956d3fd925a31bf76c542277312b65cad527cad8cd12",
+      "text": "每个邻居一行,为一个测量特点。\n\n:param frame: 具有 ``neighbourhood`` 列的测量,因为 :func:`classify` 产生它,加入了函数表。\n:param feature: 列要总结。\n:param statuses: 哪个区域要报告,顺序。\n:returns: ``neighbourhood``,``n``,``mean``,``std``和``median``。\n\n相比之下,整个项目是为了, 它值得拥有的原因是补充而不是补充。: 该包已经可以比较感染者与未感染者. 它不能做的是注意到 \"uninfected\" 是两个人口, 因此,一个不稳定的效果似乎没有什么比更广泛的控制。\n\n每个要求的状态都是顺序,在 ``n = 0`` 中,微板样本位置没有。 比较实验室微板的呼叫器每次都需要相同的三行; 缺失的顺序沉默地改变下流结合的意义。\n\n没有测试统计在这里,故意. 总结是安全的任何列; 选择一个测试是关于设计的决定 - 包装或不,如何微板样本位置,什么是零 - 并属于他们知道的地方。",
+      "translation_source_blocks_sha256": [
+        "8608ce54ac27ec20eaf9e88352a4e269a84adc3a1104d453fc9b7b37908860b5",
+        "769502834c63337f7769a1a4928db0d2f92d8c6869f21356d75bde9a9f1102d6",
+        "58a42b7a4ff0342b7bccd6e0da61e49e941ae0078ea8a63bd998d032ae34259a",
+        "7c3070058d100636e17b322bebd1e717debcf620c0a406b6969208ff7d1dc7ce",
+        "4d73b9c651b005b5a9f0959a2b303674a579903bad3aa9caf0c02dd694b2b15c",
+        "76e48a9b7b0f86f522c73aab1303dbceaa984363a9314e62c723537130b53bf2",
+        "cff150bbb6cc0e91c555067db206901e20bffce8b1eae527fe3dd03396f54419",
+        "cbf49479f9fbbb3d3318fc10d91e2f24557152dfde87bf55e53b88977e367d7a"
+      ]
+    },
+    "spacr.bystanders.counts": {
+      "source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "1c78383afde58ac6082970041f6e01d674f2fe6c3199017880ddca4cd302e972"
+      ],
+      "source_sha256": "208fc59be9975d4515892fb68bbd13dc74f72fd7bcf473f032f75937bfab0cd4",
+      "text": "每个州有多少细胞着陆,包括空细胞。\n\n:param frame: 输出为 :func:`classify`。\n:returns: 每个名称在 :data:`STATUSES`,零在缺席。\n\n比较微板样本位置的呼叫器需要一个零而不是一个缺失的密钥,因为“这个微板模型位置的没有分数”是结果,而一个KeyError是不存在的。",
+      "translation_source_blocks_sha256": [
+        "49d43bbc587b8cae8eb9d2dec6146df4dd8d2190260626c65f349ea886240004",
+        "37e6f98b6f3d62f56089b571827301d1a8eab8bc77ca449cdb5240eb4690a8e5",
+        "75337e6f3e52f4226f0a29a479a1d7063ded22d828aba9aade5dfe600a7a0997",
+        "95e7d924f4ce69ddfb9d04756959774ae5960a226937c063df3645d6b89b7d94"
+      ]
+    },
+    "spacr.bystanders.distance_to_infected": {
+      "source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "a3204c3e72fbf553148b54c9aa30f51ec5aea0db7a9ea834c3bcb7dbe1817c0a",
+        "5447e660d19afe866ed6f7513df6339e54c3bf79ff90255f7307bb73d8957ae8",
+        "41e6b6c3af27f08038ead1d36872fba9f12542c732718ffb419e2bba8fc46c06"
+      ],
+      "source_sha256": "28b64218ec1c932e0689c53129bd85fe6ff2740781f1e3a0f6a27af826e06ed7",
+      "text": "每个细胞的表面距离最接近的感染细胞有多远?\n\n:param cell_mask: 细胞标签图像。\n:param infected_labels: 带有病原体的细胞的标签。\n:param spacing: voxel 尺寸,所以距离携带物理单位。\n:returns: ``label`` 和 ``distance_to_infected``,每个细胞一行。\n\n对感染细胞的零,对其即时邻居的一个像素,而区别是值得指出的,因为显而易见的阅读是错误的。\n\n`surface_distance_transform`的 docstring 说“两个触摸的对象在 0 出发”,这是事实,它描述的情况 - 阅读显微镜的视野在一个点 INSIDE 另一个对象,这是一个超越或包含对象给什么。\n\n``inf`` 一个没有感染细胞的微板样本位置没有距离,而诚实的值是无限,而不是0或0。 NaN 每个细胞都自愿远离一个不存在的人口,无限是唯一持续的价值。 `distance <= reach` False 到达每一个终点。",
+      "translation_source_blocks_sha256": [
+        "a5f8b3e5595972370cc58767f013faa63f76c210ab3a6c9c9abf07c009f8245b",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "8df49611f792d2e15d9add6a865a2b7785b02a36f5b77b1bd7faa7765e7c946b",
+        "fa779394d767337ee84b9e53cd4aba59104d63a6150b11c019baee66099bdbf9",
+        "c6554255c5500858d2f0f33cbee7b08f6e126ea15488f74415c1141af3d6cbbd",
+        "5d8d3c3fcb5d11be435469eb2a6b136040ffdbe81b0d0fdfc42d83bb6d6cffa4",
+        "4d2417c22a92008343be46284ce848126b63db6f34c700dbf25da3394fe611e7"
+      ]
+    },
+    "spacr.bystanders.neighbourhood": {
+      "source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "733fc84845e6aeb3979848c89aa3f8f2ab82320ba047a32451f4207d4647df03",
+        "15e7e1d0659ec5f35c3bf7b28c9db8fb8518654a19b9a38d989b542ef34f363c",
+        "f32e480fd432e8e394cba24bb150a161d2be4971464f9b48e516d9608025c423"
+      ],
+      "source_sha256": "40993069ffe0dc66dbbcc99cf195a2cd4fe499afe4658234f7da883bffb5beaa",
+      "text": "每个细胞最接近的邻居的哪个部分被感染。\n\n:param cell_mask: 细胞标签图像。\n:param infected_labels: 带有病原体的细胞的标签。\n:param k: 数多少邻居,排除细胞本身。\n:param spacing: voxel 尺寸,所以 \"nearest\" 是指在现实空间中最接近的,而不是在 anisotropic 板上的像素。\n:returns: ``label``、``neighbours_counted``、 ``neighbours_infected`` 和 ``local_infected_fraction``。\n\n第2半章 无情的问答 :func:`classify`回答“附近有一个感染的细胞”,这是一个距离的边界。 这些答案是“如何感染这个细胞的邻居”,这就是在焦点边缘的细胞与中间的一个细胞分开的数量 - 两者都是附属物,而它们并不在同一个地方。\n\n细胞本身从来不是自己的邻居,而一个感染的细胞仍然得到了一个分裂:“这个感染细胞在未感染的中间坐着”是与“这个一个坐在一个集群”的不同观察,并将感染的行落将把第二个扔掉。\n\n`neighbours_counted` 是肯定而不是假设是 ``k``. 一个较少的 ``k + 1`` 细胞的字段不能提供 k 邻居,而对一个假设的名称计算的分数将是错误的,正是在分数分析最重要的地方。",
+      "translation_source_blocks_sha256": [
+        "c722c2f89ba482fb1c18679b999ac29f11c33c2b8f72758d0626bfc8050d4a0e",
+        "2a27e764926c066783ff6ed74c92493a8e5433504fd8df145a3e1a8445025ec1",
+        "42b8ce60d014ab56ae012d986ff60acf1169c118e0f07ed06415aee9b315e77b",
+        "7de8eceae966a59e98fd82a282eb56f690fb35e85ed4135460ca651c9da008e0",
+        "b5449833a3d4e08891192965000737f815dda29aa0c363b36375c7f6d45831d6",
+        "8a585770752e6ca2a967e09e63871699737bc4258a64f19cd723c9d007a698a6",
+        "3bdcb2d570c79798c0446e509a11e64d0d0b6f3d32dd5caeb59f056f08c50696",
+        "353e2b0b1604a5e805399da0ced359f389e0c00feb3b56d756b96ce07c862ced",
+        "d05465030f8b6ec0df76cf02c052783f2b208ef74763a63c426f794174fb681e"
+      ]
+    },
+    "spacr.bystanders.reach_from_diameter": {
+      "source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ],
+      "source_sha256": "5b793945ae5f535284fab8928c0a4045033ecfdb7a3540b6c68f076a0f0d287f",
+      "text": "在 ``cell_diameter`` 单元中测量的分数范围。\n\n:param cell_diameter: 板的测量细胞直径,从 :mod:`spacr.diameter`。\n:param diameters: 多少个直径计算为邻居。\n:returns: 相同单位的距离,从来没有负面。\n\n它作为自己的功能,所以转换在一个地方是可见的,一个呼叫者可以看到,接口是衍生的,而不是选择的。",
+      "translation_source_blocks_sha256": [
+        "06459f8dddc13a96b5e7061862cca300742bf7591710859ae7228f37599a64ee",
+        "1236082db544e25134afacca8ba2fb5438cedcfcacc6b59c48d6377270599923",
+        "a25103bf9e47236d5327b123822e28751d706c7b84363808790f540930e7e412",
+        "f401147dbcf7725dbefe05ccc68b4168ef108236ddd4bbd068a1832e5c9592dc",
+        "8c7f992cc8ece98cb4051688a66c94f204adcf3fd8466cca1112a88eacd2a549"
+      ]
+    },
     "spacr.cancellation": {
       "source_blocks_sha256": [
         "3f84354a540370637d573e4799537b53d19d83e1bcb3c7200c3c4aecba4faabe",
@@ -52105,6 +52255,128 @@
         "ced3e30b9140ee9864498bd210106936e600174abddf4dc5191e2cc4624f8f5d",
         "1e6d5d257b6452481df697b499e0dbaa6909637cfdda492f685d1e360d0e63e2",
         "8c03003db283db3762624391d4608b341bf7df06efea695d16289affadac0db2"
+      ]
+    },
+    "spacr.point_patterns": {
+      "source_blocks_sha256": [
+        "5e6d40b8da1045db5738e70bf648b08ad15aa3ec8e515bbdfc7abe2ab5aa75a0",
+        "1cccded9482cef56b40d46a1b1929f08fb2208f40ffbd5c305feeca7e5333cf0",
+        "e88794e50fe16f12388be9a54aac50ce37aa29faac35c72584d4d8fa204c11e9",
+        "54ff3b1ba900429ec02fddf04631a956ef3df389bbfda5186c28a26a9de31dc7",
+        "c03cc5582cb00ef98dd144d0b7bd246bcafd7e3f1db320c2fb5b5591b501c18f"
+      ],
+      "source_sha256": "f6d369d32b71671fb501459da9f5e6ab7d64b61d554dcb54b4b1237b7928b5a2",
+      "text": "这个微板样本的位置是否分裂,分散,或者没有 - 反对右零。\n\n什么包不能问. :mod:`spacr.object_distances` 说一个对象是从另一个,和 :mod:`spacr.bystanders`说一个细胞是否有感染的邻居. 也不回答一个问题一个焦点的感染实际上立场: 这个微板样本位置的感染细胞安排更紧密,比机会会把它们? 这是里普利的K,这是统计数据,转变“这两个细胞是接近”到 \"this well is clustered\"。\n\n一个微板样本位置不是直角,一个微镜的视野与一个旋转单曲器不是直径,一个零,将点在边缘框上将呼叫每个掩膜与一个阴道边缘 \"clustered\" - 点在组织中积累,因为没有别的地方。\n\n边缘纠正不是可选的,它是得到的部分 SKIPPED. 边界附近的一个点在窗外有它的邻居的一部分,所以它发现的邻居比它有少; 不纠正,这个缺陷被称为分散,而且最糟糕的是,谁都关心的射线。 :func:`ripley_k` 适用于减少样品(边界)纠正默认:在射线r,只有点至少在边界内部的贡献。\n\n框边缘也是边缘的. 距离到边缘显微镜的视野是计算在一个掩膜包装一个序列的背景整环,所以走到图像边缘的一个掩膜被视为切断在那里,因为它是。",
+      "translation_source_blocks_sha256": [
+        "b3ab9e20b2684aaf7b4e0a81b26904ccb19d6c9151d13a98ab0f7387a1013dde",
+        "019d13cc2dd4383a7c971afc4aa87f74d893d4214171670580e7ce575ce2d40a",
+        "f9a19c412579ac24bd94ab5a72df3d8971e6402b72dba0a03f6ca62ce90c62dd",
+        "ec9c24b5f1edb98008505dfdc8dfc497973961ccbf1a6fd6a442eda36058ad7f",
+        "b63398c934a85785025f317fef0f7e82afb452ac0a7de4159c8604b33a236b4a"
+      ]
+    },
+    "spacr.point_patterns.csr_envelope": {
+      "source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "21dc32574b16c0ec8a0791ccb2e35aabc5624638beff72e5f37ac21ad0a445bc",
+        "88e2bd06b1f67fd1c68cedfea279f26c6d7e91b756b7f680ed0a749873979df5"
+      ],
+      "source_sha256": "e7846b22e2547ed9b8eae5d571f68e3c30706b5fcf48ab54d88c68fd16292b44",
+      "text": "L - r 为 ``n_points`` 分散随机为 ``mask``。\n\n:param mask: 在相同的窗口中,观察到的模式被测量。\n:param n_points: 要分散多少点 - 观察的计算。\n:param radii: 相同的无线电\n:param spacing: 相同的像素尺寸。\n:param simulations: 有多少偶然的模型\n:param seed: 固定,所以一个包装是可重复的。\n:param correction: 与使用的观察相同的纠正。\n:returns: ``r``、``lo``、 ``hi`` 和 ``mean`` 的 ``l_minus_r``。\n\n点分散在掩膜中,而不是在边缘盒子里,这就是为什么这个功能存在而不是分析 CSR 变量的观点:分析结果占据了一个直角,而一个微板样本位置则是一个磁盘,里面有洞。\n\n对一个没有 - 或相反的 - 包容的观察将两个不同的估计,它们之间的差异将看起来像生物学。",
+      "translation_source_blocks_sha256": [
+        "29267a55cb1deef4d1e809795f588b9149163163bd54132f7ec1a06b2a17ce66",
+        "06b5820b5719e3d05af6732d816556e187d0a789c445f97c49e20aa7963a5dea",
+        "b064ddcb01991f9fe465136407bb75ced605ac807b29712bd595317de10dcb68",
+        "1ff22b8a6e7bfff76d47790b1d1e562fa53f83ef0cc77b377f316c2fed2a2f8f",
+        "c5849ece58ef1b9fc72dbd130d4e1515f5f1411197c214ba422381937bd278ab",
+        "18e8616620a92eef60303c1b216b7f388a86187606999e1e208c536eb6fdc08a",
+        "27c87cd4610abfadc0280892a86667baf0044aa391e0ac65a44784c11d1243e8",
+        "2f7714219d876a8717d56475202b43b81bbee7287661969a12befebd72d51d80",
+        "ec1858dd53ea3338064d46aadd8ae5972c136cb59ac3e037fee99e77d440ec76",
+        "8a4024c0410fcc38162b2ce8a5817be02baa7eea0fa88f88ba01f1edc6421b86",
+        "906bc5e85acb9a19af89652c9ee902ffd44aad5c27d27e594ffa8b505f034896"
+      ]
+    },
+    "spacr.point_patterns.ripley_k": {
+      "source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "5d91064f893b652c8c8dba10435bf459391842b9dd74f9cf38a4181269e61cb8",
+        "4e78fd9e2255bad7aaa84912b30bd1d9691312ecc593ccf30ff2c0f981cb4cd2"
+      ],
+      "source_sha256": "6bcd283db0dee0c3cccf4e115c39f9e90617463ea81ec469806776fc4298478a",
+      "text": "里普利的K和L为一个点模式在一个窗口。\n\n:param points: ``(n, 2)`` 以序列为序列(岩,列)的序列,因为 :func:`spacr.object_distances._centroids` 将其返回。\n:param mask: 数组, 真值在一个点可能是.\n:param radii: 以 ``spacing`` 的相同单位进行评估。\n:param spacing: 像素大小; ``None`` 意味着光线在像素中。\n:param correction: ``\"border\"`` 为减少样品修复,或 ``\"none\"`` 查看修复的价值。\n:returns: ``r``,``k``,``l``,``l_minus_r``和``n_contributing``。\n\n``l_minus_r`` 是要阅读的列. K 成长为 r 方形,所以两个曲线是不可能通过眼睛比较的; L 是其变异稳定的方形根,在完整的空间随机性下 L(r) = r 准确,所以 L (r) - r 是平线在零 无论密度。\n\n``n_contributing`` 不是装饰,它是边界纠正保持在那个射线的点数,当它落入单个数字时,序列是算法,而不是证据。",
+      "translation_source_blocks_sha256": [
+        "90257b05e0ad694bc72388ba4faa4b3362f2e642f3476864050d13a86f318119",
+        "0c7ff1f0acd906eab5f3382b470e9c37bac3a2d762e1af1cee803a8d5418f52b",
+        "487d49c4e04bee008b1b630511c0b94e66bcde08fb52b79f225fff99ba1bfb7c",
+        "1f90e4330cfa61e0b3c9e20ebc9a2a2bab57cdf86b37475f8ccd39f150779640",
+        "d4a69a29160046b7b88634bdaad5bf8d147c00174d3063fe80fbe88712464ba4",
+        "cf1474cd52f60d7e7ddfa9e31e132a8d87f3e07028d5cad8180c943166579872",
+        "9793425f3a3dd9d8db93b02b6b16d79d2502d601303a1d2fe8553af3bba32620",
+        "3656d2c174312852a20c3003e09028b103c2db0a7e3099edbfb33e239ad3272c",
+        "315c963c75c332c99a1f59359be6db00dd8deb93a7a5e9ad73949b4468bae852"
+      ]
+    },
+    "spacr.point_patterns.ripley_test": {
+      "source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "2f352cbe7ea9bbc4f55e3f37350296e88b868974e1e708847bb35df7a19fc383"
+      ],
+      "source_sha256": "e8350fe2b38c6cafe6f7bbceedc64aa7b86893be99b86b2cb99dad0eda89f8df",
+      "text": "观察K对一个尊重掩膜的零。\n\n:param points: 观察的中心。\n:param mask: 窗口。\n:param radii: ``None`` 要求 :func:`suggest_radii`。\n:param spacing: 像素大小\n:param simulations: 封面背后有多少偶然的模型。\n:param seed: 固定,所以答案是可重复的。\n:param correction: 它适用于观察和零。\n:returns: 列为 :func:`ripley_k` , 加上 ``lo`` , ``hi``, ``clustered`` 和 ``dispersed``。\n\n``clustered`` 和 ``dispersed`` 是每个射线,这不是一个测试. 二十个射线给了二十个机会离开一个2%的包围,所以一个单一的游览是接近无意义的;在附近的射线上进行它们是值得相信的事情. 列是故意命名为它们是什么 - 一个游览这个r - 而不是 \"significant\"。",
+      "translation_source_blocks_sha256": [
+        "bf0749879abc9c73c58808a237c9bc3768770792896fddfd1dc3a2dfc477db13",
+        "9e1511bdfae77575a990934e224a8191fb02696e0328ac31b450d4d37b03339e",
+        "c59789adca4517cc91848b7ac307dfe7042d24ae35f011380a3d2cbeb0e192fa",
+        "5ebeb6e9c0c36b4d30c13247cfd5950ee4eef69b4426e7fff70849c287e5064c",
+        "9a06215fbf7df071551676da612420248a70da832769a1c167549ace236b88ab",
+        "9af72fcdd2ece7a834c8b2a157cf5f0869ad268ad89e96edea243e2fd8ff651e",
+        "b6fb730a253f866acab796a3f83e23806791a67142ec7068f870a5761097b9bb",
+        "06682b9f7d3b4adfa8d1719994b4349a0f0b744cbe40737a64baa07a9129e778",
+        "63be92f0c819714bf810c191d189ea29754b7a22a22bb15f7ee87b6bfc050b86",
+        "852c2c0b81bd925217d7dc713b4d4281d8b58d22f53f37606bab58548d55c0f4"
+      ]
+    },
+    "spacr.point_patterns.suggest_radii": {
+      "source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "83d08d62437c6b9946e317ec569b83d28ee06c4071b80e75536977506c1835b7"
+      ],
+      "source_sha256": "120c2a81e9cfc6d500b2e4d025da6e95120a3c23718127caeb249993f401fe8d",
+      "text": "Radii 值得计算 K 在,为此窗口。\n\n:param mask: 布莱恩的序列,一个点被允许在哪里。\n:param spacing: 像素尺寸,所以放射回来作为真正的长度。\n:param count: 放射能多少\n:returns: ``count`` radii,平等的空间,结束在窗口更短的侧面 :data:`MAX_RADIUS_FRACTION`。\n\nK(0) 是 0 根据构建,并且不提供任何信息;包括它只设置一个点,每个曲线同意。",
+      "translation_source_blocks_sha256": [
+        "2b483c72d469e0b49bd391d4f7ce50b539c6f1e329f261f8c7a20c4b4b20157f",
+        "c92fda213f284d2d89fca90262e540efb6f0cef614921dd8b636d82a4cca909d",
+        "b24fb5313c0b5b7d7aa0697d909bfe7ac391fb97a0727299b1feb4a1ad75d4c9",
+        "c5d4d83593a1ac3bab87de551c580e86733b96f50f03350bd2e8f733136e24b5",
+        "91413c7923c98b081f3b83fd21aef61e939bd8ab133d66aab78106a778071d65",
+        "b0237ca97524fd4b858b983345113d2c568231eda1bd48e562721a745fcc6515"
       ]
     },
     "spacr.portable_paths": {
