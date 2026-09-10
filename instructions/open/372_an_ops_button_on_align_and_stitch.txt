@@ -3450,3 +3450,50 @@ AND `PAIR_TRIALS` IS STILL TOO LOW. 77 of 161 at 4,000 single-shot trials
 against 11 of 12 when the count was escalated to 12,000. Some of the 84
 refusals are the wrong window and some are the search; the row fix separates
 them, and until it lands neither number means much on its own.
+
+--------------------------------------------------------------------------------
+PART 15 -- PHASE B1 IS WORTH DOING, AND IT IS WORTH 1.15x, NOT 3.3x.
+2026-09-10.
+--------------------------------------------------------------------------------
+
+PART 10 removed the cross-cycle average from B1 -- there is only one DAPI --
+and left it as "the Hoechst composite averages across OVERLAPPING TILES
+within c1. That is still worth doing." Worth doing is a claim. Here is the
+number it rests on, counted from the 333 solved placements of well A1 on a
+16x grid, which is finer than any overlap boundary it is measuring:
+
+    well frame          26,854 x 26,865 px
+    imaged area            546 Mpx
+
+    1 sample                72.4 %
+    2 samples               25.0 %      SNR x 1.41 there
+    3 samples                0.5 %      SNR x 1.73
+    4 samples                2.1 %      SNR x 2.00
+
+    mean samples per imaged pixel   1.322
+    mean SNR gain                   1.150x
+
+SO IT IS A SEAM FIX, NOT A SIGNAL-TO-NOISE FIX, and calling it either
+without the number would mislead. Three quarters of the well is imaged once
+and gains nothing; a quarter gains the square root of two; the 2.1 % that is
+four-sampled is the corners where four tiles meet.
+
+WHY IT IS STILL WORTH DOING, and the reason is not the 1.15x:
+
+  * A SEAM IS A SEGMENTATION ARTEFACT. A nucleus that straddles a tile
+    boundary is currently two half-nuclei at slightly different exposures.
+    Averaging the overlap removes the discontinuity, and B3 -- "sew the
+    labels across window seams" -- exists because of exactly that problem.
+    Making the pixels continuous first is cheaper than matching labels
+    afterwards.
+  * AND THE 27 % IS WHERE THE SEAMS ARE, by construction. The gain is
+    concentrated precisely on the pixels that need it.
+
+WHAT THIS RETIRES: any remaining expectation of a 3.3x. PART 7 computed that
+from eleven cycles and PART 10 removed the premise; this is what is actually
+left, and it is 1.15x averaged over the well.
+
+    THE PATTERN, AGAIN. PART 7's reasoning was sound and its premise was
+    wrong. The correction was not to argue about the reasoning but to go and
+    count what the acquisition contains -- which took one pass over a
+    placement table that already existed.
