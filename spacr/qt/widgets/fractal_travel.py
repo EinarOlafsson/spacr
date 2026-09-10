@@ -2228,7 +2228,7 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # sharp to eleven, against one or two without.
             self._refine_the_reference(camera, orbit, budget, depth, span)
 
-            path = str(_mandel_setting("path", "fixed"))
+            path = str(_mandel_setting("path", "tour"))
             if path == "tour":
                 # THE TWENTY PLACES WORTH LOOKING AT, ON SCREEN AT LAST.
                 # `RegionTour` and `fractal_regions.REGIONS` were built,

@@ -162,7 +162,16 @@ def test_the_fixed_path_never_moves_the_camera():
     """
     from spacr.qt import preferences as P
 
-    assert P.get_fractal_settings()["path"] == "fixed"
+    # THE CLAIM IS ABOUT THE PATH, NOT ABOUT WHICH ONE IS DEFAULT. This read
+    # `== "fixed"` until 2026-09-10 and so quietly depended on fixed being
+    # the default; when the default became "tour" it failed while every word
+    # of its docstring was still true. What has to hold is that choosing
+    # fixed still gets you a camera that does not move.
+    P.set_fractal_settings(path="fixed")
+    try:
+        assert P.get_fractal_settings()["path"] == "fixed"
+    finally:
+        P.set_fractal_settings(path="tour")
 
     camera = SteeringCamera(strength=0.09)
     # The canvas returns the centre without advancing on the fixed path.
@@ -187,7 +196,10 @@ def test_the_defaults_are_the_command_line_that_was_given():
     assert DEFAULTS["initial_scale"] == 1.25
     assert DEFAULTS["tile_rows"] == 32
     assert DEFAULTS["gpu_fp64"] is False
-    assert DEFAULTS["path"] == "fixed"
+    # "tour" since 2026-09-10; see test_the_mandelbrot_theme for the
+    # reasoning. Guided is still not the default and still reachable,
+    # which the next test asserts.
+    assert DEFAULTS["path"] == "tour"
 
 
 def test_the_guided_path_is_still_reachable():

@@ -6,12 +6,12 @@ overlap by a fraction of a tile; here the same field is imaged eleven times
 and the stage returns to it, so the displacement is a handful of pixels
 rather than a pitch.
 
-AND IT CANNOT USE HOECHST. Instruction 372 PART 10 measured this
-acquisition: cycle 1 holds one five-channel ``DAPI-CY3-A594-CY5-CY7`` stack
-per site and cycles 2 to 11 hold four separate base-channel files with NO
-DAPI at all. So the channel every tile-axis registration runs on does not
-exist on this axis after the first cycle, and PART 7's plan to average
-Hoechst across cycles cannot run either.
+AND IT CANNOT USE HOECHST. Measured on the reference acquisition: cycle 1
+holds one five-channel ``DAPI-CY3-A594-CY5-CY7`` stack per site, and
+cycles 2 to 11 hold four separate base-channel files with NO DAPI at all.
+So the channel every tile-axis registration runs on does not exist on this
+axis after the first cycle, and averaging Hoechst across cycles is not
+available here either.
 
 WHAT REPLACES IT IS THE REFERENCE IMPLEMENTATION'S OWN ANSWER.
 ``ops/firesnake.py:_align_SBS`` offers ``method='SBS_mean'`` for exactly

@@ -110,15 +110,14 @@ def _api_builder():
 #:
 #: So the class is closed for NEW code today, the existing six are named,
 #: and whoever writes the last of the six runs the one pass.
-DOCSTRINGS_STILL_NAMING_AN_INSTRUCTION = {
-    # home session
-    "spacr.ops_cycles": "instruction 372",
-    "spacr.ops_phenotype": "instruction 372",
-    # work session -- 359, 01 and 327, all landed 2026-09-09/10
-    "spacr.qt.app.open_at_the_measured_width": "INSTRUCTION 359",
-    "spacr.qt.app.the_missing_pip_escape": "instruction 01",
-    "spacr.qt.layout_policy": "INSTRUCTION 359",
-    "spacr.qt.widgets.fractal_travel.TourPilot": "instruction 327",
+DOCSTRINGS_STILL_NAMING_AN_INSTRUCTION: dict = {
+    # EMPTY, AND EMPTIED THE SAME DAY IT WAS WRITTEN. All six were cleared
+    # within hours: the other session reworded its four the moment this
+    # test went red on nightly, and the two home-session ones went with the
+    # next batch. The dict stays rather than being deleted, because the day
+    # a seventh appears this is where it is named and dated -- and because
+    # the shrink-only test below is what turned four cleared entries from
+    # invisible into a failure.
 }
 
 

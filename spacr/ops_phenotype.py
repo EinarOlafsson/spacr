@@ -1,10 +1,11 @@
 """Phase A4: putting the phenotype acquisition on the sequencing one.
 
 WHAT THIS STEP IS. The phenotype images are 2960x2960 at 20X and the
-sequencing images are 1480x1480 at 10X, of the same round well. Phase A4 of
-instruction 372 asks for one transform per phenotype field into the
-sequencing frame, aligned on the nuclear stain, "and do not resample one
-into the other -- aligned, not averaged".
+sequencing images are 1480x1480 at 10X, of the same round well. This step
+produces one transform per phenotype field into the sequencing frame,
+aligned on the nuclear stain. IT DOES NOT RESAMPLE either acquisition into
+the other: the transform is stored and the pixels are left where they were,
+because resampling a field to compare it is a lossy way to say where it is.
 
 WHY IT IS NOT A PIXEL PROBLEM. Across a magnification change and two
 different acquisitions a pixel neighbourhood means nothing, but a nucleus is

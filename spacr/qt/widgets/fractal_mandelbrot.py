@@ -89,7 +89,18 @@ DEFAULTS: Final[dict] = {
     # worth: perturbation is what buys the depth, not the shader's float
     # width.
     "gpu_fp64": False,
-    "path": "fixed",
+    # THE TOUR, ON BY DEFAULT since 2026-09-10 at the maintainer's decision.
+    # 327(3) asked for "say 20 regions on the image that the camera will
+    # automatically smoothely float towards", and an opt-in nobody opens is
+    # not that.
+    #
+    # IT IS NOT "guided" AND CANNOT SHAKE THE WAY THAT DID. Guided SEARCHES
+    # while it draws, and moving the camera on a survey is what was reported
+    # as jumping. The tour visits coordinates found once and written down,
+    # eases out of one and into the next with zero velocity at both ends,
+    # and stops steering entirely once the view is narrower than the region's
+    # own measured half-width. "fixed" remains one dropdown away.
+    "path": "tour",
     # Kept so a guided path can still be asked for, at the values the
     # original uses for it.
     "steering_strength": 0.09,

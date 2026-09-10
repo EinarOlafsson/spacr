@@ -835,6 +835,16 @@ def test_a_mandelbrot_with_no_working_gpu_is_drawn_as_the_orbit_fold(
 #: three ways `_mandel_setting` can answer are all exercised by the ordinary
 #: build rather than by a special case.
 _MANDEL_SAVED = {
+    # THE PATH, STATED RATHER THAN INHERITED. These tests exercise the FIXED
+    # path -- the guided ones below say so out loud, "built on the fixed
+    # path and switched afterwards" -- and until 2026-09-10 none of them set
+    # it: they inherited whatever `DEFAULTS["path"]` happened to be. When
+    # the published default became "tour" they started testing the tour
+    # under names about the reference centre, and three of them failed for
+    # a reason none of their docstrings mention.
+    #
+    # A test that names a mode in its title has to select that mode.
+    "path": "fixed",
     "seconds_per_decade": 2.0,
     "base_iterations": 100,
     "iterations_per_decade": 10.0,

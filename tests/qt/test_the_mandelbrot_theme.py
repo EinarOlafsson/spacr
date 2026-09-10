@@ -96,9 +96,15 @@ def test_the_defaults_are_the_ones_asked_for():
     assert d["initial_scale"] == 1.25
     assert d["tile_rows"] == 32
     assert d["gpu_fp64"] is False
-    # FIXED, since 2026-08-28: the guided search moves the camera, and the
-    # movement itself was the shake. Guided remains reachable.
-    assert d["path"] == "fixed"
+    # "fixed" from 2026-08-28 to 2026-09-10, then "tour" at the
+    # maintainer's decision. The 08-28 reason still holds and is why
+    # the new default is NOT guided: the guided search moves the camera
+    # while it draws, and the movement itself was the shake. The tour
+    # visits coordinates found once and written down, eases with zero
+    # velocity at both ends, and searches for nothing -- so it is as
+    # steady as fixed and does not stay in one place, which is what
+    # 327(3) asked for. Both other paths remain reachable.
+    assert d["path"] == "tour"
     assert d["steering_strength"] == 0.09
     assert d["steering_interval_decades"] == 0.40
     assert d["steering_duration"] == 3.8

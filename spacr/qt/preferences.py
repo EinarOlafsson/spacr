@@ -2544,7 +2544,7 @@ def get_fractal_settings() -> dict:
                           _MANDEL_DEFAULTS["candidate_count"],
                           FRACTAL_LIMITS['candidate_count'][0], None)),
         "path": _text(_KEY_FRACTAL_PATH,
-                      _MANDEL_DEFAULTS.get("path", "fixed"),
+                      _MANDEL_DEFAULTS.get("path", "tour"),
                       ("fixed", "guided", "tour")),
         "steering": _number(_KEY_FRACTAL_STEERING,
                             _MANDEL_DEFAULTS.get("steering", 0.35),
