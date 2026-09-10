@@ -1640,6 +1640,93 @@ def default_region_tour(**kwargs) -> RegionTour:
     return RegionTour(REGIONS, **kwargs)
 
 
+class TourPilot:
+    """Points a steering camera at the twenty regions, frame by frame.
+
+    THE TOUR WAS BUILT AND NOTHING CALLED IT. :class:`RegionTour` and
+    :data:`spacr.qt.widgets.fractal_regions.REGIONS` shipped with tests and
+    no caller, so the coordinates worth looking at were never on screen.
+    This is the wire, and it is a PLAIN OBJECT ON PURPOSE -- the same
+    reason :class:`~spacr.qt.widgets.fractal_mandelbrot.SteeringCamera` is
+    one. The GPU canvas needs a GL context to exist, and every claim about
+    how this moves would otherwise come from a simulation written beside
+    the code rather than from the code that runs.
+
+    IT SETS THE TARGET AND NOTHING ELSE. The camera's own exponential
+    follow is what moves it, so the tour's smoothstep between regions and
+    the camera's approach to wherever the target currently is compose into
+    one motion with no start and no stop -- which is the whole of
+    instruction 327's "gently and smoothely mooving between points".
+
+    :param tour: the tour to fly, or None for the committed regions.
+    """
+
+    __slots__ = ("tour",)
+
+    def __init__(self, tour: Optional[RegionTour] = None) -> None:
+        """Fly `tour`, or the committed regions when none is given."""
+        self.tour = default_region_tour() if tour is None else tour
+
+    @property
+    def flying(self) -> bool:
+        """Whether the tour is still steering."""
+        return bool(self.tour.active)
+
+    def dragged(self) -> None:
+        """The user took the camera. The tour does not argue."""
+        self.tour.take_over()
+
+    def restarted(self) -> None:
+        """Ctrl+R sent the dive back to the surface; fly again."""
+        self.tour.restart()
+
+    def steer(self, camera, seconds: float, span: float) -> bool:
+        """Aim `camera` at wherever the tour is at `seconds`.
+
+        :param camera: a :class:`SteeringCamera`; only its ``target`` is
+            written.
+        :param seconds: the simulation clock.
+        :param span: the viewport half-height, in the complex plane. The
+            tour is a SURFACE itinerary -- every region carries the
+            half-width it stays interesting down to -- so once the view is
+            narrower than the region it arrived at, steering off toward
+            the next one would fly the picture past at a scale where
+            nothing is recognisable. Below that the camera keeps what it
+            has.
+        :returns: True when a target was written.
+
+        Never raises: this is on the frame path of a backdrop, and a tour
+        that cannot answer must cost a frame's decision rather than the
+        picture.
+        """
+        try:
+            if not self.tour.active:
+                return False
+            here = self.tour.target_at(seconds)
+            if here is None:
+                return False
+            if float(span) < self._floor():
+                return False
+            camera.target = (float(here[0]), float(here[1]))
+            return True
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not steer by the region tour", exc_info=True)
+            return False
+
+    def _floor(self) -> float:
+        """The narrowest view the itinerary is still about.
+
+        The widest of the regions' own ``deepest_useful_half_width``
+        column, so the tour stops steering when the view has passed the
+        point where its coordinates were measured to hold up -- rather
+        than at a constant somebody would have to keep in step with the
+        generated data.
+        """
+        widths = [float(row[3]) for row in self.tour.regions
+                  if len(row) > 3]
+        return max(widths) if widths else 0.0
+
+
 def state_at_seconds(t: float, speed: float, dream: float,
                      depth_phase: Optional[float] = None) -> CameraState:
     """The camera at ``t``. Pure, so a test can assert it moves.
@@ -2018,6 +2105,12 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 camera = getattr(self, "_camera", None)
                 if camera is not None:
                     camera.restart()
+                # CTRL+R HANDS THE CAMERA BACK TO THE TOUR, which is what
+                # instruction 327 asked for in the same sentence that asked
+                # a drag to stop it.
+                pilot = getattr(self, "_pilot", None)
+                if pilot is not None:
+                    pilot.restarted()
                 self._refine_due = None
                 self._refined = None
 
@@ -2042,7 +2135,8 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # the pattern drew nothing at all, silently, which is a far
             # worse failure than a dive that goes straight down.
             try:
-                centre = self._steer(depth, budget, orbit)
+                centre = self._steer(depth, budget, orbit,
+                                     float(elapsed))
             except Exception:                                # noqa: BLE001
                 LOG.exception("could not steer the dive")
                 camera = getattr(self, "_camera", None)
@@ -2057,9 +2151,13 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                 "u_max_iter": np.int32(max(1, int(budget))),
             }
 
-        def _steer(self, depth: float, budget: int, orbit):
+        def _steer(self, depth: float, budget: int, orbit,
+                   seconds: float = 0.0):
             """Where the dive is heading, in the reference orbit's frame.
 
+            :param seconds: the simulation clock, which is what the region
+                tour is an itinerary over. Defaulted so a caller that does
+                not tour need not carry one.
             :returns: ``(offset_re, offset_im)`` for ``u_center_offset``.
 
             THE DECIDING IS IN `SteeringCamera`, which has no Qt in it and
@@ -2111,6 +2209,12 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
                                    depth)
                 pointer.drag_x = 0.0
                 pointer.drag_y = 0.0
+                # AND THE TOUR STOPS ARGUING. A drag is a statement about
+                # where the user wants to be; a tour that steered over it
+                # would be the application disagreeing every frame.
+                pilot = getattr(self, "_pilot", None)
+                if pilot is not None:
+                    pilot.dragged()
                 # THE REFERENCE FOLLOWS THE CAMERA. Perturbation measures
                 # every pixel as a small offset from ONE orbit, so a camera
                 # that walks away from it takes the picture with it:
@@ -2126,7 +2230,22 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
             # sharp to eleven, against one or two without.
             self._refine_the_reference(camera, orbit, budget, depth, span)
 
-            if str(_mandel_setting("path", "fixed")) != "guided":
+            path = str(_mandel_setting("path", "fixed"))
+            if path == "tour":
+                # THE TWENTY PLACES WORTH LOOKING AT, ON SCREEN AT LAST.
+                # `RegionTour` and `fractal_regions.REGIONS` were built,
+                # tested and never called; this is the caller. The pilot
+                # only writes the camera's TARGET -- the camera's own
+                # exponential follow is what moves it, so the tour's
+                # smoothstep between regions and the follow compose into
+                # one motion rather than a slide that starts and stops.
+                pilot = getattr(self, "_pilot", None)
+                if pilot is None:
+                    pilot = TourPilot()
+                    self._pilot = pilot
+                pilot.steer(camera, float(seconds), span)
+                return camera.advance(time.perf_counter())
+            if path != "guided":
                 # NO AUTOMATIC AIMING. Choosing a "more interesting" point
                 # by surveying the surface was tried and made it worse: a
                 # point on a busy edge at the starting scale was measured

@@ -291,3 +291,56 @@ STILL OPEN AFTER THIS SESSION
     in `spacr/` imports it or `fractal_regions.REGIONS`, so the twenty
     places worth looking at are not on screen and the camera never floats
     between them. The pieces are there; the wire is not.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE TOUR IS WIRED. (3) IS ON SCREEN FOR THE FIRST TIME.
+--------------------------------------------------------------------------------
+
+The 2026-09-05 audit's second open item, verbatim: "(3)'s `RegionTour` is
+built and tested and NOTHING CALLS IT. Nothing in `spacr/` imports it or
+`fractal_regions.REGIONS`, so the twenty places worth looking at are not on
+screen and the camera never floats between them. The pieces are there; the
+wire is not."
+
+The wire is `TourPilot`, in `fractal_travel.py` beside `RegionTour`, and
+the door is a third Path mode in Preferences: "Tour the interesting
+places", alongside "Straight down" and "Search as it goes".
+
+IT IS A PLAIN OBJECT, for the reason `SteeringCamera` is one and this file
+already records: logic that lives inside the GPU canvas can only be argued
+about, because the canvas needs a GL context to exist, and three "fixed"
+reports in a row were wrong that way. `TourPilot` is driven frame by frame
+in `tests/qt/test_the_camera_tours_the_twenty_regions.py`.
+
+IT WRITES THE TARGET AND NOTHING ELSE. The camera's own exponential follow
+is what moves it, so two smooth things compose rather than fight: the
+tour's smoothstep out of one region and into the next, and the camera's
+constant-rate approach to wherever the target currently is. Neither starts
+nor stops, which is this file's own account of what stops motion reading
+as jerking.
+
+Asserted rather than described: over a 1,200-frame circuit at 50 fps the
+largest single step is inside 25x the median one, which is the numeric form
+of "gently and smoothely mooving between points". A tour that cut between
+regions fails it.
+
+THE USER WINS, BOTH WAYS ROUND, which is the other half of what (3) asked:
+a drag calls `take_over()` and the tour never argues again; Ctrl+R -- which
+already sends the dive back to the surface -- calls `restart()` and hands
+the camera back. Both are tested, and both are wired at the two places in
+the canvas that already handle a drag and a restart token.
+
+AND IT KNOWS WHERE ITS ITINERARY ENDS. Each region carries the half-width
+it was measured to stay interesting down to; the pilot stops steering once
+the view is narrower than the widest of those, because steering toward the
+next region at a magnification where the current one has already dissolved
+would fly the picture past at a scale where nothing is recognisable. The
+floor is READ FROM THE DATA, so nobody has to keep a constant in step with
+a generated file.
+
+STILL OPEN, unchanged: the GPU path cannot shed work. `target_render_size`
+and the user's `scale` are read only by the CPU widget, and for `orbit_gpu`
+and `space` `base_detail == detail_floor`, so the adaptive loop has nothing
+to turn down. On the reporting machine there is a 12x margin at 1440p and
+it does not matter; on a weak integrated GPU fullscreen there is nothing to
+shed. That one needs a GPU to measure honestly and is not touched here.

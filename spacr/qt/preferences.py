@@ -2544,7 +2544,7 @@ def get_fractal_settings() -> dict:
                           FRACTAL_LIMITS['candidate_count'][0], None)),
         "path": _text(_KEY_FRACTAL_PATH,
                       _MANDEL_DEFAULTS.get("path", "fixed"),
-                      ("fixed", "guided")),
+                      ("fixed", "guided", "tour")),
         "steering": _number(_KEY_FRACTAL_STEERING,
                             _MANDEL_DEFAULTS.get("steering", 0.35),
                             0.0, 1.0),
@@ -6123,7 +6123,12 @@ class PreferencesDialog:
             fractal_path = QComboBox()
             fractal_path.setObjectName("FractalPath")
             for _key, _label in (("fixed", "Straight down"),
-                                 ("guided", "Search as it goes")):
+                                 ("guided", "Search as it goes"),
+                                 # THE TWENTY REGIONS, REACHABLE (327).
+                                 # `RegionTour` and `fractal_regions` were
+                                 # built and tested with no caller and no
+                                 # door; this is the door.
+                                 ("tour", "Tour the interesting places")):
                 fractal_path.addItem(tr(_label), _key)
             fractal_path.setCurrentIndex(
                 max(0, fractal_path.findData(_fractal_values["path"])))
@@ -6134,7 +6139,12 @@ class PreferencesDialog:
                 "Search as it goes looks for somewhere more interesting "
                 "every so often and moves the camera onto it. It finds more "
                 "variety, and moving the camera is visible: the Steering "
-                "control below sets how much."))
+                "control below sets how much.\n\n"
+                "Tour the interesting places floats between twenty "
+                "coordinates chosen in advance for keeping their detail "
+                "over four decades of zoom, easing out of one and into "
+                "the next. Dragging the view stops the tour; Ctrl+R hands "
+                "the camera back to it."))
             fractal.addRow(tr("Path"), fractal_path)
 
             fractal_steering = _tenths(
