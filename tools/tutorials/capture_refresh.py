@@ -370,6 +370,7 @@ def main() -> int:
                         settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
+                    'agreement': 'annotate',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
                     'train_compare': 'classify_merged',
                     'plate_view': 'graph_builder',
@@ -405,6 +406,10 @@ def main() -> int:
         settle(2)
         screen = window._screens[host_key]
         capture('01_module')
+        if args.module == 'agreement':
+            from capture_agreement import record_agreement
+            record_agreement(app, window, screen, stage, captures, capture,
+                             settle, write_json, args.timeout)
         if args.mask_editor_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,
