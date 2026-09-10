@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from plaque_demo import label_areas, area_summary, verify_tables, require_preserved
+from plaque_demo import label_areas, area_summary, verify_tables, require_preserved, verify_filtered
 from replication_demo import digest
 
 
@@ -17,6 +17,26 @@ def test_label_counts_use_area_and_separate_objects():
     mask[1, 3] = 1
     with pytest.raises(ValueError, match='disconnected'):
         label_areas(mask)
+
+
+def test_live_minimum_keeps_the_equality_boundary_and_exact_object_pixels():
+    raw = np.array([[1, 1, 0, 2], [1, 0, 0, 2]], dtype=np.uint16)
+    actual = np.array([[9, 9, 0, 0], [9, 0, 0, 0]], dtype=np.uint16)
+    assert verify_filtered(raw, raw, 0)['objects'] == 2
+    assert verify_filtered(raw, actual, 3)['objects'] == 1
+    assert verify_filtered(raw, np.zeros_like(raw), 4)['objects'] == 0
+    bad = actual.copy(); bad[1, 0] = 0; bad[1, 3] = 9
+    with pytest.raises(ValueError, match='wrong pixels'):
+        verify_filtered(raw, bad, 3)
+    with pytest.raises(ValueError, match='wrong pixels'):
+        verify_filtered(raw, raw[:, :3], 3)
+
+
+def test_filter_rejects_merging_touching_labels_even_when_foreground_matches():
+    raw = np.array([[1, 1, 2, 2]], dtype=np.uint16)
+    assert verify_filtered(raw, raw, 0)['objects'] == 2
+    with pytest.raises(ValueError, match='membership'):
+        verify_filtered(raw, np.ones_like(raw), 0)
 
 
 @pytest.mark.parametrize('mask', [np.ones((2, 2, 2), dtype=int), np.ones((2, 2)), np.array([[-1]])])

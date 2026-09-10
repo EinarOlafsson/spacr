@@ -50,6 +50,21 @@ def require_preserved(files):
             raise ValueError('An original or copied plaque input changed')
 
 
+def verify_filtered(raw, actual, minimum):
+    """Check retained object pixels and counts, not only a status-label number."""
+    label_areas(raw)
+    labels, areas = np.unique(raw, return_counts=True)
+    kept = labels[(labels > 0) & (areas >= minimum)]
+    expected = np.isin(raw, kept)
+    if actual.shape != raw.shape or not np.array_equal(actual > 0, expected):
+        raise ValueError('The preview filter retained the wrong pixels')
+    actual_areas = label_areas(actual)
+    if sorted(actual_areas) != sorted(areas[(labels > 0) & (areas >= minimum)].tolist()):
+        raise ValueError('The preview filter changed object membership')
+    return dict(minimum_area=minimum, objects=len(kept), foreground_pixels=int(expected.sum()),
+                all_pixels_checked=int(raw.size), retained_areas=actual_areas)
+
+
 def prepare(stage):
     stage = Path(stage)
     source = stage.parent/'synthetic/plaque'

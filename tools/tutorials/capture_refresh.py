@@ -46,6 +46,7 @@ def main() -> int:
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
+    parser.add_argument('--plaque-zoo-model', action='store_true', help='Try the actual plaque Model Zoo download and preview in private staging')
     parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
@@ -209,6 +210,8 @@ def main() -> int:
         painter = QPainter(pixmap)
         dialogs = [] if desktop else [w for w in app.topLevelWidgets()
                    if isinstance(w, (QDialog, QMenu)) and w.isVisible()]
+        from capture_geometry import foreground_dialogs
+        dialogs = foreground_dialogs(dialogs, app.activeModalWidget(), app.activePopupWidget())
         for dialog in dialogs:
             origin = dialog.mapToGlobal(QPoint(0, 0)) - window.mapToGlobal(QPoint(0, 0))
             painter.drawPixmap(origin, dialog.grab())
@@ -425,7 +428,7 @@ def main() -> int:
         if args.module == 'analyze_plaques':
             from capture_plaque import record_plaque
             record_plaque(app, window, screen, stage, captures, capture,
-                          settle, write_json, args.timeout)
+                          settle, write_json, args.timeout, use_zoo_model=args.plaque_zoo_model)
         if args.mask_editor_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,

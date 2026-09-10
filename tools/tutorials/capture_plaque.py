@@ -4,10 +4,12 @@ import time
 
 from capture_acceptance import assess_pipeline
 from plaque_demo import prepare, require_preserved, verify_database
+from replication_demo import digest
 from stage_lesson import read
 
 
-def record_plaque(app, window, screen, stage, captures, capture, settle, write_json, timeout):
+def record_plaque(app, window, screen, stage, captures, capture, settle, write_json, timeout,
+                  *, use_zoo_model=False):
     from PySide6.QtCore import Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QLineEdit, QDialogButtonBox
@@ -115,16 +117,35 @@ def record_plaque(app, window, screen, stage, captures, capture, settle, write_j
         settle(.3)
         capture('11_preview_settings_unmatched')
         errors, selected = [], []
+        target_key = 'toxoplasma_plaque_v1'
+        target_sha = 'eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d'
+        selected_paths = []
 
         def pick_model():
             picker = app.activeModalWidget()
             try:
                 if not isinstance(picker, ModelZooPicker):
                     raise ValueError('The real Model zoo picker did not open')
+                picker.resize(1800, 1050)
+                picker.move(window.geometry().center()-picker.rect().center())
+                settle(.3)
                 watchdog = QTimer(picker); watchdog.setSingleShot(True)
-                watchdog.timeout.connect(picker.reject); watchdog.start(15000)
-                matches = [r for r in range(picker.table.rowCount())
-                           if picker.table.item(r, 3).toolTip() == str(model)]
+                watchdog.timeout.connect(picker.reject); watchdog.start(420000 if use_zoo_model else 15000)
+                if use_zoo_model:
+                    # The genuine Save to field, not a substituted downloader or
+                    # a file in the user's model cache. Never bypass a checksum.
+                    picker.folder_edit.setFocus()
+                    QTest.keyClick(picker.folder_edit, Qt.Key_A, Qt.ControlModifier)
+                    QTest.keyClicks(picker.folder_edit, str(stage/'plaque_models'))
+                    settle(.3)
+                if use_zoo_model:
+                    candidate = stage/'plaque_models/cpsam_plaque_r3'
+                    if candidate.is_file():
+                        if digest(candidate) != target_sha:
+                            raise ValueError('The private cached model checksum differs')
+                matches = [r for r in range(picker.table.rowCount()) if
+                    (picker.table.item(r, 0).text() == target_key if use_zoo_model else
+                     picker.table.item(r, 3).toolTip() == str(model))]
                 write_json(captures/'model_zoo_choices.json', [[picker.table.item(r, c).text()
                     for c in range(picker.table.columnCount())] for r in range(picker.table.rowCount())])
                 if len(matches) != 1:
@@ -134,9 +155,50 @@ def record_plaque(app, window, screen, stage, captures, capture, settle, write_j
                 QTest.mouseClick(picker.table.viewport(), Qt.LeftButton,
                                  pos=picker.table.visualItemRect(item).center())
                 settle(.3)
-                capture('12_actual_matching_model_choice')
+                capture('12_actual_model_choice')
+                if use_zoo_model:
+                    entry = picker.selected_entry()
+                    if entry.key != target_key or entry.sha256 != target_sha:
+                        raise ValueError('The actual selected plaque model or published checksum differs')
+                    target = stage/'plaque_models'/entry.name
+                    if not target.is_file():
+                        if not picker.download_button.isEnabled():
+                            raise ValueError('The actual model Download button is disabled')
+                        QTest.mouseClick(picker.download_button, Qt.LeftButton)
+                        downloaded, failures = [], []
+                        if picker._worker is None:
+                            raise ValueError('The actual model download did not start')
+                        picker._worker.finished.connect(lambda path: downloaded.append(path))
+                        picker._worker.failed.connect(lambda error: failures.append(error))
+                        deadline = time.monotonic()+360
+                        progress_captured = False
+                        while picker._thread is not None and time.monotonic()<deadline:
+                            settle(.1)
+                            if not progress_captured and picker.progress.maximum() == 100 and picker.progress.value()>0:
+                                capture('12b_actual_download_progress'); progress_captured=True
+                            if failures:
+                                raise ValueError('The native download failed: '+str(failures))
+                        if picker._thread is not None or not downloaded:
+                            raise TimeoutError('The native model download did not complete in six minutes')
+                    if not target.is_file() or digest(target) != target_sha:
+                        raise ValueError('The downloaded plaque checkpoint bytes fail the published checksum')
+                    matches = [r for r in range(picker.table.rowCount())
+                               if picker.table.item(r, 0).text() == target_key]
+                    if len(matches) != 1:
+                        raise ValueError('The downloaded model does not have exactly one picker row')
+                    item = picker.table.item(matches[0], 0)
+                    QTest.mouseClick(picker.table.viewport(), Qt.LeftButton,
+                                     pos=picker.table.visualItemRect(item).center())
+                    settle(.2)
+                    if picker.selected_entry().key != target_key:
+                        raise ValueError('The displayed and selected downloaded model differ')
+                    proof['downloaded_model'] = dict(key=target_key, path=str(target),
+                        sha256=target_sha, bytes=target.stat().st_size, checksum_verified=True)
+                    write_json(captures/'scientific_acceptance.json', proof)
+                    capture('12c_actual_download_verified')
                 if not picker.use_button.isEnabled():
                     raise ValueError('The existing checkpoint cannot be selected without downloading')
+                picker.model_chosen.connect(lambda path: selected_paths.append(path))
                 picker.accepted.connect(lambda: selected.append(True))
                 QTest.mouseClick(picker.use_button, Qt.LeftButton)
             except Exception as exc:
@@ -148,8 +210,18 @@ def record_plaque(app, window, screen, stage, captures, capture, settle, write_j
         QTest.mouseClick(panel._model_zoo_btn, Qt.LeftButton)
         settle(.5)
         proof['manual_model_selection'] = dict(errors=errors,
-            accepted=bool(selected), actual_model=panel.current_params()['model'])
+            accepted=bool(selected), actual_model=panel.current_params()['model'], selected_paths=selected_paths)
         write_json(captures/'scientific_acceptance.json', proof)
+        if use_zoo_model and not errors and selected_paths:
+            model = Path(selected_paths[-1])
+            if str(model) != proof['downloaded_model']['path']:
+                raise ValueError('The preview did not receive the verified download path')
+            if not screen._settings_model.set_value_for_key('plaque_model', str(model)):
+                raise ValueError('The main Plaque form did not accept the same downloaded model')
+            settle(.2)
+            proof['manually_matched_assay_checkpoint'] = screen._settings_model.collect()['plaque_model']
+            if proof['manually_matched_assay_checkpoint'] != str(model):
+                raise ValueError('The actual Plaque model field differs from the preview')
         if errors or not selected or panel.current_params()['model'] != str(model):
             raise ValueError('No verified manual route to the matching preview model: '+str(errors))
         capture('13_preview_checkpoint_matched')
@@ -199,5 +271,11 @@ def record_plaque(app, window, screen, stage, captures, capture, settle, write_j
         write_json(captures/'scientific_acceptance.json', proof)
         if preview_errors or not completed:
             raise ValueError('The actual matched-model preview failed: '+str(preview_errors))
-    proof['reason'] = 'Mask reuse and manual preview model route inspected; final preview and output-table verification still pending.'
+        from plaque_native_views import finish_views
+        proof['native_views'] = finish_views(app, window, screen, panel, database,
+            manifest, stage, captures, capture, settle, write_json, timeout)
+        require_preserved(manifest['files'])
+        proof['accepted'] = True
+    proof['reason'] = ('Mask reuse, explicitly selected Model Zoo preview, reversible filters and actual '
+                       'read-only saved tables verified; synthetic geometry is not biological validation.')
     write_json(captures/'scientific_acceptance.json', proof)
