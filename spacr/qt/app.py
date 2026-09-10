@@ -2229,6 +2229,63 @@ def _current_font_scale() -> float:
         return 1.0
 
 
+
+#: What a venv built by ``uv venv`` says when anything reaches for pip.
+#: Lower-cased because the wording differs between interpreters -- "No
+#: module named pip" and "No module named `pip`" both appear -- and the
+#: three words that matter are the same in every one.
+_NO_PIP_IN_THE_OUTPUT = "no module named pip"
+
+
+def the_missing_pip_escape(output: str) -> Optional[str]:
+    """The command that WOULD work, when the upgrade failed for want of pip.
+
+    :param output: everything the upgrade wrote, as the worker captured it.
+    :returns: a command line to show the user, or None when this failure
+        was not the missing-pip one.
+
+    THE ONE FAILURE THE APPLICATION CAN ANSWER, and instruction 01 asks it
+    to. The desktop installers build their environment with ``uv venv``,
+    which does not seed pip, so an install whose updater still runs
+    ``python -m pip`` fails before it starts -- and it is a BOOTSTRAP TRAP:
+    the fix cannot arrive by the route it fixes. A dialog that names the
+    exact command is the only escape that reaches a user who has already
+    hit it.
+
+    Every other exit code gets the output and nothing else. Guessing at a
+    remedy for a failure this cannot recognise would send a user to run a
+    command that is not their problem.
+
+    Derived the way :func:`spacr.updater.find_uv` derives it, and it falls
+    back to the path the installers WRITE rather than returning nothing:
+    on the affected machine `find_uv` is what the installed build is too
+    old to have, so a name the user can check is worth more than silence.
+    """
+    if _NO_PIP_IN_THE_OUTPUT not in (output or "").lower():
+        return None
+    uv = None
+    try:
+        from spacr.updater import find_uv
+
+        uv = find_uv()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not look for the bootstrapped uv", exc_info=True)
+    if not uv:
+        from pathlib import Path
+
+        uv = str(Path(sys.prefix).parent / "bootstrap"
+                 / ("uv.exe" if os.name == "nt" else "uv"))
+    parts = [uv, "pip", "install", "--upgrade", "--python", sys.executable,
+             "spacr"]
+    if os.name == "nt":
+        import subprocess
+
+        return subprocess.list2cmdline(parts)
+    import shlex
+
+    return shlex.join(parts)
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -4078,6 +4135,18 @@ class MainWindow(QMainWindow):
         # Put the tail of it in the dialog instead.
         lines = [line for line in (output or "").splitlines() if line.strip()]
         detail = "\n".join(lines[-6:]) if lines else "No output was captured."
+        # AND THE ONE FAILURE THIS CAN ANSWER, IT ANSWERS. A venv built by
+        # `uv venv` has no pip, so an updater that reaches for pip fails
+        # before it starts -- and the fix for that cannot arrive through
+        # the updater. Here the application knows the exact command that
+        # would work, so it says it rather than leaving the user with an
+        # exit code.
+        escape = the_missing_pip_escape(output)
+        if escape:
+            detail += (
+                "\n\nThis environment has no pip -- it was built with "
+                "uv, which does not install one. Run this once, in a "
+                "terminal, to upgrade:\n\n" + escape)
         QMessageBox.warning(
             self, "Updates",
             f"pip returned exit code {return_code}.\n\n{detail}")
