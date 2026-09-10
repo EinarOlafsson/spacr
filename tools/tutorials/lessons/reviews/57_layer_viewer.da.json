@@ -35,7 +35,7 @@
     "Hold Shift nede, og træk med venstre museknap for at panorere; midterknappen kan også bruges. Det viste felt flyttes uden ændrede kildekoordinater. Den testede bevægelse bevarer zoom. Panorering til et andet område er ikke flytning eller registrering af billeddata.",
     "Vælg Fit for at se hele feltet i det aktuelle panel. Her gendannes visningen før zoom. Husk begrænsningen ved panelets form: Fit garanterer ikke i sig selv samme vandrette og lodrette skala. Kildeafstand og lærredets geometri er forskellige begreber; gæt dem ikke ud fra et skærmbillede.",
     "Plus Points og plus Shapes opretter tomme hjælpelag; her ses det tomme shapes-lag. De aktiverer ikke et tegneværktøj på denne skærm, og almindelige klik tilføjede hverken punkter eller områder i kontrollen. Fjern det tomme lag bagefter. Se Make Masks for de faktiske maskeredigeringsværktøjer.",
-    "Vælg mask, og brug fjernkontrollen. Kun laget forlader visningen; billedet bliver, og maskens kildefil er uændret. At fjerne et lag er hverken at gemme en redigering eller slette en fil. Begge private TIFF'er og de optagne originaldata forblev uændrede.",
+    "Vælg mask, og brug knappen til at fjerne laget. Kun laget forlader visningen; billedet bliver, og maskens kildefil er uændret. At fjerne et lag er hverken at gemme en redigering eller slette en fil. Begge private TIFF'er og de optagne originaldata forblev uændrede.",
     "I kode indlæser stack_from_paths i spaCR's Qt-modul layer_viewer lagene; LayerStack.render_uint8 returnerer et kompositarray til din eksportkode. Spacing og FieldKey kræver kendt kalibrering og identitet. Skærmen har ingen særlig eksportknap, analysekørsel, GPU-pipeline eller spaCR AI-konsol. Hold visning, målinger og gemt maskeredigering adskilt."
   ]
 }
