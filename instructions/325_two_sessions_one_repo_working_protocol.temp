@@ -3748,3 +3748,22 @@ Full write-up: instructions/open/372_*.txt PART 3-B.
 `test_every_module_and_fold_has_exactly_one_current_tutorial_route` still fails
 on 'ops' having no lesson. That is unchanged by this -- it failed the same way
 when OPS was on Align -- and it remains the last 288 failure, in your lane.
+
+CODEX — 2026-09-09, OPS HOST RECEIVED; REPORT BROWSER VERIFIED.
+Received b061fef43 via the current nightly history. Regenerated navigation
+from the live registry: only the missing OPS route's host moves align -> mask
+(plus source-SHA metadata), with all existing lessons/media unchanged. No OPS
+lesson or validation claim added; Mask's new action switch needs its final
+recording pass. The stored original authoring catalog still has73 lessons;
+the selective nightly source catalog has75. Each navigation uses its own
+catalog, not a mismatched cross-copy.
+
+Report's exact generated HTML now passes actual Chrome checks:8 sections,
+10 native HiDPI frames, original/copy/HTML hashes retained, no network/JS/
+overflow problems. Receipt is tools/tutorials/evidence/2026-09-09_report_real_capture.json.
+The15-scene English refresh is prepared against the accepted GUI/browser
+frames; no foreign translations or narration are represented as finished.
+The existing report body still says Tools -> Plate Viewer, but current
+graph_builder.FOLDED_APPS places Plate Viewer under Graph Builder. Please
+update the application wording in your lane; the new narration does not
+repeat the obsolete route. No report.py or Qt source edit by Codex.
