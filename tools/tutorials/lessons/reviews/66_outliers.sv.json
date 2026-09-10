@@ -1,0 +1,38 @@
+{
+  "lesson": "66_outliers",
+  "english_sha256": "383105db52f8c3c60eb7e6f36308b747810c66e32b082d2c43edf96bfc9ed644",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "sv",
+  "title": "Outliers: granska verkliga flaggor utan att radera observationer",
+  "description": "Öppna Outliers i QC, jämför robusta regler på verkliga cellmätningar, skilj ej bedömda från problemfria brunnar, undersök en verkligt avvisad logtransformering och exportera alla rader med flaggor.",
+  "objectives": [
+    "Hitta QC:s undermodul och välj mätta variabler medvetet före Scan.",
+    "Jämför MAD, IQR och uttryckliga logtransformeringar utan att behandla flaggor som bekräftade fel.",
+    "Skilj objektantal, visade rader och ej bedömda brunnsjämförelser åt.",
+    "Exportera originalmätningar med flaggor och återställ en giltig regel efter en ogiltig transformering."
+  ],
+  "prerequisite": "Använd det nedladdningsbara Annotate-exemplet på en byteidentisk privat databaskopia. Dess 2 341 celler ligger i fyra registrerade brunnar; de är inte oberoende experiment eller objekt med kända fel. Originalmätningar ändras eller raderas aldrig. Lektionen kontrollerar oberoende MAD/IQR för en ändlig, icke-degenererad variabel, varje flaggad position, brunnsmedianer och antal samt avvisningen av jämförelser med färre än fem brunnar. Den validerar inte den automatiska skanningen av alla variabler, alternativ vid nollskala, multivariat MCD-inferens eller biologisk kvalitet. En befintlig mättabell skannas, utan ny segmentering, GPU-analys eller klassificerarträning. Skärmen har ingen bildförhandsvisning, Plot-knapp, egen exempelnedladdning eller AI-konsol; Objects, Wells och Report är de faktiska utdata.",
+  "scenes": [
+    "Öppna QC från Home och välj dess Outliers-knapp. QC:s översikt läser sparade kontroller, medan det här inbäddade verktyget beräknar flaggor från en mättabell. Vi använder det verkliga nedladdningsbara Annotate-exemplet på en privat databaskopia. Följ den lektionen för att hämta det och låt försökskällan vara oförändrad.",
+    "Välj Load table och databasens cell-tabell. Inläsningen skannar automatiskt alla valda kontinuerliga variabler: här 255 över 2 341 celler. Den breda standardinställningen flaggar 2 338 objekt. Det bevisar inte att nästan alla celler är dåliga. Att läsa in den breda resultattabellen kan ta tid.",
+    "Med tom variabelsökning väljer du None för att avmarkera allt. Sök cell_area, kryssa endast i exakt den variabeln och tryck Scan. Sökningen begränsar variabelnamn, inte cellrader. Ändrat urval skannar inte automatiskt igen; det gamla resultatet kan ligga kvar tills den nya regeln körs.",
+    "För MAD behåller du transformeringen none och k på 3,5. Regeln delar det absoluta avståndet från medianen med ungefär 1,4826 gånger medianabsolutavvikelsen. Den flaggar 26 celler. De är kandidater för granskning, inte bekräftade segmenteringsfel, och ingen rad har tagits bort.",
+    "Öppna Wells. Alla fyra brunnar innehåller över 500 objekt, men ingen bedöms: jämförelsen behöver minst fem kvalificerade brunnar. Läs well_scored och den specifika orsaken, inte bara Wells noll. Flagged share sammanfattar objektflaggor; det är ingen brunnspoäng eller bevis för en problemfri brunn.",
+    "Report visar regeln, uppmätt centrum, skala och förbehåll. Ett förbehåll i denna version säger felaktigt att de fyra brunnarna hade färre än 20 objekt. Deras verkliga antal är 501–700; orsaken är för få brunnar. Använd den specifika orsaken i brunnstabellen och upprepa inte den felaktiga antalsförklaringen.",
+    "Ett större avståndskrav flaggar färre objekt. k på 2 gav 142 flaggor; vid 0,5 blir det 1 479. Det sista är avsiktligt brett för demonstrationen, inte en rekommenderad kvalitetsgräns. Objekttabellen visar bara 500 rader, så radantalet är inte antalet flaggade objekt.",
+    "Välj Export och ett nytt filnamn. objects-CSV behåller alla 2 341 rader och lägger till flaggor; flagged innehåller de 1 479 flaggade raderna. Wells har fyra sammanfattningar och report är en textfil. Varje exporterad mätning och flagga kontrollerades. Export är inte radering och begränsas inte till de 500 synliga raderna.",
+    "Återställ originalregeln och välj IQR. Tröskeln betyder nu c gånger kvartilavståndet, inte robusta standardavvikelser. Med c på 1,5 ger rå cellyta 55 flaggor. Båda kvartilgränserna och varje flaggad position kontrollerades oberoende. Svansen i en skev fördelning kan flaggas även när mätningarna är giltiga.",
+    "Det finns ännu ett textfel. Den här IQR-rapporten kallar 22 663 medianen, men talet är mittpunkten mellan första och tredje kvartilen. Den faktiska medianen är 21 925. De kontrollerade gränserna är korrekta; citera inte det visade centrumet som medianen.",
+    "Välj log10 uttryckligen och skanna igen. På dessa positiva ytor ger IQR 79 flaggor, medan MAD på 3,5 ger 36. Logtransformeringen ändrar avstånd och frågeställning; den garanterar varken färre flaggor eller biologisk riktighet. Rapportens centra och skalor är nu i log10-enheter.",
+    "För ett verkligt avvisningsexempel återgår du till ingen transformering och väljer bara cell_channel_0_min_intensity. Scan lyckas och flaggar 68 objekt. Ett mätvärde är faktiskt noll. Det positiva motexemplet är viktigt: tabell och variabel fungerar innan vi begär en transformering vars definitionsmängd utesluter värdet.",
+    "Välj nu log10 och tryck Scan. Det verkliga felet namnger det enda noll- eller negativa värdet och dess variabel. Ingen pseudoräkning hittas på och inget objekt tas bort; Export inaktiveras. Gamla tabellrader och antal kan vara kvar efter felet, men är inget nytt lyckat resultat. Läs felet och återställ en giltig regel.",
+    "Återgå till rå cell_area och MAD 3,5 och skanna för att få tillbaka 26 flaggor. Min objects per well på 700 ändrar kvalificeringen: bara en brunn når antalet, medan tre behåller specifika skäl om för få objekt. Att sänka minimum skapar inte den saknade femte brunnen. Ej bedömd betyder aldrig friskförklarad.",
+    "Återställ minimum till 20, stäng av Score wells too och skanna. Objektflaggorna är fortfarande 26 och ingen brunnsjämförelse begärs. Slå på igen och skanna för att återställa de fyra ej bedömda brunnssammanfattningarna. Inställningen ändrar analysnivå; den filtrerar eller raderar inte celler eller brunnar ur databasen.",
+    "Exportera den återställda regeln med ett annat filnamn. Slutfilerna har 2 341 objektrader, 26 flaggade rader, fyra brunnssammanfattningar och rapporten. Originaldatabasen och den privata mätdatabasen är oförändrade. Behåll regeln och rapporten med flaggorna, så att en annan tröskel inte förväxlas med samma analys.",
+    "Menyn erbjuder också robust multivariat Mahalanobis, som vi inte körde här. Dess alfa beror på fördelningsantaganden och är ingen garanterad felfrekvens. Python-beräkningen är detect_outliers med OutlierSpec i spacr.qt.widgets.outlier_model. Fortsätt med Feature Explorer eller Annotate för fördelningar eller bilder; här fanns ingen bildförhandsvisning eller AI-förfrågan."
+  ]
+}
