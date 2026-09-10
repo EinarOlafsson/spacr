@@ -298,3 +298,34 @@ Q2. IS THERE A CONFIDENCE FLOOR? Suggest everything, or only above a
 Q3. DOES THIS EXTEND PAST TWO CLASSES? The request says "the other class",
     which reads as binary. If the annotation column ever holds three, the
     suggestion offsets must not collide with real class values.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- 379-C IS A DECISION, NOT CODE. THE SAFETY HALF IS ALREADY BUILT.
+--------------------------------------------------------------------------------
+
+Re-read before picking this up, because the status line reads as though
+there is work here and there is not.
+
+WHAT 379-C ASKS is whether the offset scheme should extend past two classes.
+That is the maintainer's call and it is still open.
+
+WHAT IT DOES NOT ASK -- and what somebody might build a second time -- is the
+collision guard. `spacr/suggest.py` already refuses BOTH directions, by name,
+with the reasoning beside each:
+
+  * A class at or above `SUGGESTION_OFFSET` cannot be SUGGESTED. With a
+    class 11, a suggested 1 and an answered 11 are the same integer, and a
+    bulk KEEP would rewrite somebody's 11 to a 1 with nothing said.
+  * And suggestions cannot be written into a column that ALREADY HOLDS one.
+    That is the case that loses a person's work rather than merely confusing
+    a number, and it is the only route by which PART 2's first rule -- a
+    suggestion must never overwrite a human annotation -- could still be
+    broken.
+
+Both raise with a sentence naming 379-C and what to do. So the feature is
+SAFE at three classes; it is simply refused, loudly, until the decision is
+made.
+
+THEREFORE: nothing to implement here without an answer, and implementing
+past the guard without one is how the overwrite this file spent PART 2
+forbidding gets built back in. ASK, DO NOT BUILD.
