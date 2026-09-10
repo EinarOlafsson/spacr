@@ -1,0 +1,36 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "bcfb47d8a1476df804e6b294bf1ae3c784f337f8f8cee6c1b17b7bedcba89e2e",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "nb",
+  "title": "Plakkanalyse",
+  "description": "Gjenbruk syntetiske masker, velg modellen for forhåndsvisning eksplisitt, og kontroller reversible filtre og lagrede tabeller.",
+  "objectives": [
+    "Skille lagrede masker fra nye modellprediksjoner.",
+    "Prøve et reversibelt filter uten ny segmentering.",
+    "Lese antall og pikselarealer uten oppdiktet kalibrering eller biologiske effekter."
+  ],
+  "prerequisite": "Last ned det SYNTETISKE eksemplet og pakk det ut i en ny mappe. Fire TIFF-bilder og fire masker bevarer originalenes byte; gamle resultater, innstillinger og modeller følger ikke med. Sett Source til SYNTHETIC_plaque og slå av Masks. Objektene er konstruert: 4, 3, 2 og 1, ti totalt, uten innsamlede bilder eller fysisk kalibrering. Forhåndsvisningens modell lastes ned separat og kontrolleres mot publisert sjekksum, ikke som en nøyaktighetstest. Grensen 26211 beholder to prediksjoner; null gjenoppretter fire. Forhåndsvisningen arver ikke automatisk plaque_model. Oppgi en eksisterende modell også når Masks er av. API: spacr.submodules.analyze_plaques. Ingen batch med nye masker eller biologisk validering hevdes.",
+  "scenes": [
+    "Åpne Plaque Analysis i Assays-delen av Home. Denne leksjonen bruker fire syntetiske bilder med konstruerte masker, ikke innsamlede infeksjonsbilder. Vi teller lagrede masker, prøver en separat modellforhåndsvisning og undersøker den faktiske databasen uten å kalle undervisningsformene biologiske resultater.",
+    "Last ned det syntetiske eksemplet nedenfor og pakk det ut i en ny mappe. Sett Source til mappen med de fire TIFF-bildene og undermappen masks. Bevar originalene; bruk en annen kopi før du prøver segmentering som kan erstatte maskene.",
+    "La Masks være av for å gjenbruke maskene som følger med. Antallene er fire, tre, to og én. Hvis du slår på Masks, utføres segmentering: diameter, normalisering og modell påvirker da en annen beregning. Gjenbruk av masker tester ikke modellen.",
+    "Well detection er av fordi hvert undervisningsbilde allerede representerer ett felt. Fysisk areal krever reell brønngeometri og en kjent størrelse; eksemplet har ingen av delene. La kalibreringen stå tom. Et brønnnavn, en gjettet diameter eller en vellykket kjøring fastsetter ikke en millimeterskala.",
+    "Plaque model må vise til en tilgjengelig modell, også ved gjenbruk av masker. Opptaket starter med en medfølgende modell som allerede finnes. På en ny installasjon laster du ned plakkmodellen via Model zoo og skriver den lokale banen her. Forhåndsvisningen har en egen modellvelger som vi sjekker etterpå.",
+    "Åpne Live preview og deretter Live settings. Kontroller Model: denne versjonen viser først den generelle modellen, selv om Plaque model angir en annen fil. Ikke anta at forhåndsvisning og analyseskjema er synkronisert. Velg eksplisitt samme modell begge steder før nye masker lages.",
+    "Velg Model zoo og plakkmodellen. Filen er omtrent 1,2 gigabyte; velg en egnet Save to-mappe og last den ned én gang. Opptakets byte er kontrollert mot den publiserte sjekksummen. On this machine betyr at filen finnes, ikke at forsøket er validert.",
+    "Velg det første syntetiske bildet og Run preview. Modellen finner fire objekter. View bytter mellom konturer og fargede masker; ingen av visningene måler modellens nøyaktighet. Dette er en ny segmentering, separat fra de medfølgende maskene som ble brukt i den fullførte analysen.",
+    "I Live settings øker du Min area til 26211 piksler. De to minste predikerte objektene fjernes. Filteret gjenbruker masker i minnet uten å kjøre modellen igjen. Endre én innstilling om gangen, så ser du hvilke objekter den fjerner.",
+    "Sett Min area tilbake til null: alle fire objektene kommer tilbake med nøyaktig de opprinnelige pikslene. Null deaktiverer denne nedre arealgrensen. Forhåndsvisningen overskriver ikke inputmasker eller resultatdatabasen; en pen forhåndsvisning er ikke en fullført batchanalyse.",
+    "Maskegjenbruket skriver en database i masks-mappen. Denne veien gir tabeller, ikke en innebygd graf, så et tomt Figures-område er ikke bevis på feil her. Les konsollen. AI forblir av; et assistantsvar erstatter ikke kontroll av lagrede resultater.",
+    "Åpne Database browser fra Help og velg plakkanalysens database i masks. La Edit mode være av. Nettleseren for databasen viser faktisk lagrede tabeller, ikke et bilde av oppdiktede resultater, og denne inspeksjonen endrer ikke databasens byte.",
+    "Velg summary og identifiser hver rad etter filnavnet, ikke plasseringen. Object count kommer fra de medfølgende maskene: fire, tre, to og én. Average size er gjennomsnittlig merket areal i piksler. Control og treatment er vilkårlige undervisningsnavn, ikke dokumentasjon på en behandlingseffekt.",
+    "Velg stats for antall plakk, gjennomsnittlig areal og spredning per bilde. Standardavviket beskriver de enkelte plakkarealene i bildet, ikke et usikkerhetsintervall for et biologisk forsøk. Tolk tellinger først etter at skala og segmentering er validert på reelle data.",
+    "Velg details for å se hvert enkelt areal. Kolonnene for fysisk areal er tomme fordi kalibrering mangler. Behold bilder, masker, innstillinger og resultater samlet, og bruk uavhengige forsøksreplikater til biologiske sammenligninger. Leksjonen sjekker programvare på syntetiske former, ikke infeksjon eller legemiddeleffekt."
+  ]
+}

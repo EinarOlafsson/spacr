@@ -1,0 +1,36 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "bcfb47d8a1476df804e6b294bf1ae3c784f337f8f8cee6c1b17b7bedcba89e2e",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Greining á skellum",
+  "description": "Endurnýttu tilbúnar grímur, veldu forskoðunarlíkanið sérstaklega og sannreyndu afturkræfar síur og vistaðar töflur.",
+  "objectives": [
+    "Greina á milli vistaðra gríma og nýrra spáa líkans.",
+    "Prófa afturkræfa síu án nýrrar myndskiptingar.",
+    "Lesa fjölda og flatarmál í mynddílum án tilbúinnar kvörðunar eða líffræðilegra ályktana."
+  ],
+  "prerequisite": "Sæktu TILBÚNA dæmið og afþjappaðu í nýja möppu. Fjórar TIFF-myndir og fjórar grímur varðveita upprunaleg bæti; eldri niðurstöður, stillingar og líkön fylgja ekki. Veldu SYNTHETIC_plaque í Source og hafðu Masks óvirkt. Tilbúnir hlutir eru 4, 3, 2 og 1, alls tíu; engar mældar myndir eða kvörðun í eðlisfræðilegar einingar. Forskoðunarlíkanið er sótt sérstaklega og athugað með birtri gátsummu, ekki sem próf á nákvæmni. Mörkin 26211 halda tveimur spám; núll endurheimtir fjórar. Forskoðunin erfir ekki plaque_model sjálfkrafa. Tilgreindu líkan sem er til, jafnvel með Masks óvirkt. API: spacr.submodules.analyze_plaques. Hvorki lotuvinnsla með nýjum grímum né líffræðileg sannprófun er staðhæfð.",
+  "scenes": [
+    "Opnaðu Plaque Analysis í Assays-hluta Home. Kennslustundin notar fjórar tilbúnar myndir með tilbúnum grímum, ekki myndir úr sýkingartilraun. Við teljum vistaðar grímur, prófum sérstaka forskoðun og skoðum raunverulegan gagnagrunn án þess að kalla kennsluformin líffræðilegar niðurstöður.",
+    "Sæktu tilbúna dæmið hér fyrir neðan og afþjappaðu í nýja möppu. Source á að vísa á möppuna með fjórum TIFF-myndum og undirmöppunni masks. Varðveittu frumritin; notaðu annað afrit áður en þú prófar myndskiptingu sem gæti skrifað yfir grímurnar.",
+    "Hafðu Masks óvirkt til að endurnýta meðfylgjandi grímur. Fjöldinn er fjórir, þrír, tveir og einn. Virkt Masks biður um myndskiptingu: þvermál, stöðlun og líkan hafa þá áhrif á aðra útreikninga. Endurnýting gríma prófar ekki líkanið.",
+    "Well detection er óvirkt því hver kennslumynd sýnir þegar eitt myndsvið. Flatarmál í eðlisfræðilegum einingum krefst raunverulegrar lögunar brunns og þekktrar stærðar; hvort tveggja vantar. Skildu kvörðun eftir auða. Brunnheiti, ágiskað þvermál eða vel heppnuð keyrsla ákvarða ekki millimetrakvarða.",
+    "Plaque model þarf tiltækt líkan þótt grímur séu endurnýttar. Upptakan byrjar með meðfylgjandi líkani sem er þegar til staðar. Í nýrri uppsetningu skaltu sækja skellulíkanið í Model zoo og setja staðbundna slóð þess hér. Forskoðunin hefur eigin líkanaval sem við athugum næst.",
+    "Opnaðu Live preview og síðan Live settings. Athugaðu Model sérstaklega: þessi útgáfa sýnir fyrst almenna líkanið þótt Plaque model vísi á aðra skrá. Ekki gera ráð fyrir samstillingu. Veldu sama líkan á báðum stöðum meðvitað áður en nýjar grímur eru gerðar.",
+    "Veldu Model zoo og skellulíkanið. Skráin er um 1,2 gígabæti; veldu því viðeigandi Save to-möppu og sæktu hana einu sinni. Bæti skrárinnar voru sannreynd með birtri gátsummu. On this machine merkir að skráin sé tiltæk, ekki að tilraunin sé sannreynd.",
+    "Veldu fyrstu tilbúnu myndina og Run preview. Valið líkan finnur fjóra hluti. View skiptir á milli útlína og litaðra gríma; hvorug sýnin mælir nákvæmni líkans. Þetta er ný myndskipting, óháð meðfylgjandi grímum sem fullgerða greiningin notaði.",
+    "Hækkaðu Min area í 26211 mynddíla í Live settings. Tveir minni spáðir hlutir hverfa. Sían endurnýtir grímur í minni án þess að keyra líkanið aftur. Breyttu einni stillingu í einu svo sjáist hvaða hluti hún fjarlægir.",
+    "Settu Min area aftur á núll: allir fjórir hlutirnir birtast með nákvæmlega upprunalegum mynddílum. Núll slekkur á þessum neðri flatarmálsmörkum. Forskoðunin endurskrifar hvorki inntaksgrímur né niðurstöðugagnagrunn; falleg forskoðun jafngildir ekki fullgerðri lotugreiningu.",
+    "Endurnýting gríma skrifar gagnagrunn í möppuna masks. Þessi leið býr til töflur en ekki innfelldan grafflöt; tómur Figures-hluti sannar því ekki bilun hér. Lestu stjórnborðsúttakið. AI er óvirkt; svar aðstoðarmanns kæmi ekki í stað athugunar á vistuðum niðurstöðum.",
+    "Opnaðu Database browser úr Help og síðan skellugagnagrunninn í masks. Hafðu Edit mode óvirkt. Skoðarinn sýnir raunverulega vistaðar töflur en ekki mynd af uppspunnum niðurstöðum, og þessi skoðun breytir ekki bætum gagnagrunnsins.",
+    "Veldu summary og auðkenndu hverja röð með skráarheitinu, ekki staðsetningu hennar. Object count kemur úr meðfylgjandi grímum: fjórir, þrír, tveir og einn. Average size er meðalflatarmál merktra svæða í mynddílum. Control og treatment eru handahófskennd kennsluheiti, ekki sönnun meðferðaráhrifa.",
+    "Veldu stats fyrir fjölda skella, meðalflatarmál og dreifingu í hverri mynd. Staðalfrávikið lýsir flatarmáli einstakra skella, ekki óvissubili líffræðilegrar tilraunar. Túlkaðu talningar aðeins eftir að kvarði og myndskipting hafa verið sannreynd á raunverulegum gögnum.",
+    "Veldu details til að skoða hvert flatarmál. Dálkar fyrir flatarmál í eðlisfræðilegum einingum eru auðir því kvörðun vantar. Geymdu myndir, grímur, stillingar og niðurstöður saman og notaðu óháðar tilraunaendurtekningar í líffræðilegum samanburði. Kennslan prófar hugbúnað á tilbúnum formum, ekki sýkingu eða virkni lyfja."
+  ]
+}
