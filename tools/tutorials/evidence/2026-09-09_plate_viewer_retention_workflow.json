@@ -1,0 +1,75 @@
+{
+  "lesson": "33_plate_viewer",
+  "decision": "Retain original video, poster, eight scene scripts and all voices; current tutorial navigation places it under Graph Builder",
+  "scope": "Existing aggregation, spatial QC, minimum-count, well-inspection and export walkthrough; not a new biological or native-language validation",
+  "capture": "refresh_2026-09-09/captures/plate_retention_view_keys",
+  "application_commit": "4fc827fbc9fdb1606cab4f41abdc45e3158cf402",
+  "application_version": "1.5.0.4",
+  "native_4k_check_frames": 12,
+  "actual_host_app_key": "graph_builder",
+  "actual_fold_app_key": "plate_view",
+  "application_source_modified": false,
+  "source": {
+    "database_sha256": "9028eabff2bab4d7ef5447e1870f7e0aa3879fa641497ae150ad31b8d2f97d5d",
+    "objects": 81969,
+    "wells": 196,
+    "table": "cell",
+    "feature": "cell_channel_1_mean_intensity",
+    "original_database_and_existing_sidecars_unchanged": true,
+    "private_copy_main_database_bytes_unchanged": true,
+    "source_opened_in_gui": false
+  },
+  "current_results": {
+    "independent_sql_checks": "All returned well identities, counts and values, not just totals",
+    "mean_min100": {"wells": 196, "dropped": 0, "edge_detected": false, "pct_difference": -1.0739342412719532},
+    "count_min100": {"wells": 196, "dropped": 0, "edge_detected": true, "pct_difference": 14.319809069212411},
+    "count_min350": {"wells": 168, "dropped": 28, "edge_detected": true, "pct_difference": 10.495963091118801},
+    "restored_count_min100": {"wells": 196, "dropped": 0},
+    "all_recorded_spatial_statistics_exact": true,
+    "measured_well": "G07: 400 objects, value 400, ring 6",
+    "blank_well": "C14: blank, not a measurement of zero",
+    "actual_threaded_workers": true,
+    "active_jobs_at_exit": 0,
+    "busy_at_exit": false,
+    "workers_forcibly_stopped": false
+  },
+  "export": {
+    "actual_current_file_picker": true,
+    "old_file_picker_was_injected": true,
+    "current_and_original_csv_sha256": "3e17fd2f42dd5dac4410b6a0b2172306505c09f8f78ef804e88e8b207f576f11",
+    "rows": 168,
+    "columns": 10,
+    "every_value_identity_and_row_order_exact": true
+  },
+  "retained_media": {
+    "scene_count": 8,
+    "catalogs_identical_to_original_and_published_source": 14,
+    "tracks_fully_decoded_without_errors": 50,
+    "newly_synthesized_tracks": 0,
+    "video_regenerated": false,
+    "video_sha256": "408590ceaa1af8bd140b8979a35f4a2f6a766a4ad632c300f637d17c14a32e41",
+    "video_size": [3840, 2160],
+    "video_fps": 30,
+    "video_seconds": 50.2,
+    "video_frames": 1506,
+    "video_fully_decoded": true,
+    "decoded_filter_scene_visually_inspected": true,
+    "poster_sha256": "8193d935d8d249a3a60d73a227a0f215edb0fb5003dc859de4c17987ee49bbb5",
+    "new_runtime_freshness_claimed": false,
+    "new_native_language_or_listening_signoff": false
+  },
+  "rejected_automation_attempts": [
+    {"capture": "plate_retention_current", "reason": "Arrow-stepping the combo itself triggered intermediate table reads; rejected before result acceptance"},
+    {"capture": "plate_retention_popup", "reason": "Direct popup-row click did not select the requested feature; rejected before result acceptance"}
+  ],
+  "successful_selection": "Keyboard events sent to the open native popup view, checked against the actual selected text",
+  "new_feature_not_claimed_by_retained_lesson": "Cross-module Local Data Filter; separate Graph Builder workflow remains assigned its own current tutorial",
+  "verification": {
+    "focused_tests": 37,
+    "deliberate_guard_bypass_result": "13 failed, 5 passed",
+    "restored_source_result": "37 passed",
+    "first_english_browser_check": "Passed on original bytes, current Graph Builder parent, chapter seek and 390px mobile layout",
+    "full_browser_matrix": "Recorded separately after all 14 cases finish"
+  },
+  "published": false
+}

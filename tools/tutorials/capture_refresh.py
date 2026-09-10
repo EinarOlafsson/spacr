@@ -229,6 +229,7 @@ def main() -> int:
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
                     'train_compare': 'classify_merged',
+                    'plate_view': 'graph_builder',
                     'regression_diagnostics': 'regression'}.get(args.module, args.module)
         if args.module == 'report':
             # Report no longer has a Home tile. Record the actual Help menu
@@ -320,6 +321,10 @@ def main() -> int:
             from capture_report import record_report
             record_report(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout)
+        if args.module == 'plate_view':
+            from capture_plate_retention import record_plate_retention
+            record_plate_retention(app, window, screen, stage, captures, capture,
+                                   settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)

@@ -57,6 +57,18 @@ visual-only highlights without changing an accurate narration catalog. Playback
 requires exactly the authored cross-links in chapters and transcripts, including
 an empty set when the retained lesson defines none.
 
+### Whole-media retention for a moved, unchanged specialist lesson
+
+`verify_retained_media.py --lesson 33_plate_viewer` verifies all original
+catalogs/audio/timings, fully decodes the 4K master and 50 tracks, and refuses
+any staged production override. It writes evidence only, not new media.
+`verify_staged_lesson.py --retained-media` then checks the real player against
+those original bytes and the current generated parent route. Current-GUI
+behavior still needs a separate real-data check: `capture_refresh.py --module
+plate_view` uses Graph Builder's actual fold, threaded queries, minimum-count
+restoration, well clicks and a genuine export picker. It is a retention audit,
+not a replacement recording or a new human-language/listening sign-off.
+
 ## Navigation clarification — 9 September
 
 The user requests two module sections: **Main modules** (the Home tiles) and
