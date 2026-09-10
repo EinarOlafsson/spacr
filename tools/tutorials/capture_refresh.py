@@ -80,6 +80,15 @@ def main() -> int:
         runs_destination = Path.home() / '.spacr/runs'
         queue_binds = []
         manager_binds = []
+        if args.module == 'project_browser':
+            from project_browser_data import prepare
+            state = stage / 'project_browser_state' / f'{args.capture_name or args.module}.json'
+            if state.exists():
+                raise RuntimeError('Use a new capture name for a fresh private Project Browser example')
+            prepared = prepare(stage)
+            write_json(state, prepared)
+            manager_binds = ['--ro-bind', prepared['source'], prepared['original_readonly'],
+                             '--bind', prepared['clone'], prepared['source']]
         if args.module == 'data_manager':
             from manager_data import prepare
             state = stage / 'data_manager_state' / f'{args.capture_name or args.module}.json'
@@ -114,7 +123,8 @@ def main() -> int:
     for key, value in {
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
-        'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' / args.module),
+        'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
+            ((args.capture_name or args.module) if args.module == 'project_browser' else args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
@@ -272,6 +282,10 @@ def main() -> int:
         from capture_data_manager import record_manager
         record_manager(app, window, stage, captures, capture,
                        settle, write_json, args.timeout, execute=args.manager_execute)
+    elif args.module == 'project_browser':
+        from capture_project_browser import record_browser
+        record_browser(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
