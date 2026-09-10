@@ -311,6 +311,15 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     model.eval().to(device)
 
     def run(stack: np.ndarray) -> np.ndarray:
+        """Encode one three-channel stack, in batches, under no_grad.
+
+        Batched here rather than by the caller because the batch size belongs
+        to the DEVICE, not to the channel policy: the per-channel policy calls
+        this once per channel and each call must fit the same GPU.
+
+        :param stack: ``(n, height, width, 3)`` float32 in [0, 1].
+        :returns: ``(n, dims)`` float32 features.
+        """
         out: List[np.ndarray] = []
         with torch.no_grad():
             for start in range(0, stack.shape[0], spec.batch_size):
