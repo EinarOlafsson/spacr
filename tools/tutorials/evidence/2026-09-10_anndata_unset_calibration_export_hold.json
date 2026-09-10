@@ -89,7 +89,12 @@
       "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/anndata_runs/native-export-fpqf84bn/plate1/results/05_joined_keep.h5ad",
       "bytes": 202155,
       "sha256": "c6fac4b493852f39b88e6b3e04bb0077808b6c9e94b954c50833fbc19bc3577a",
-      "read_error": null
+      "read_error": null,
+      "loaded_partial_shape": [2341, 0],
+      "loaded_partial_var_columns": [],
+      "loaded_partial_uns_keys": [],
+      "loaded_partial_voxel_z_values": [""],
+      "warning": "read_h5ad succeeds on the partial file, but it contains zero features and no provenance. File existence and successful reading are not export acceptance."
     }
   },
   "independent_in_memory_checks": {
