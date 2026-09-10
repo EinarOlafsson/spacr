@@ -25,8 +25,8 @@ authors:
     given-names: "Vern B."
   - family-names: "O'Meara"
     given-names: "Matthew J."
-version: "1.5.0.4"
-date-released: "2026-08-10"
+version: "1.5.0.5"
+date-released: "2026-09-10"
 license: BSD-3-Clause
 repository-code: "https://github.com/EinarOlafsson/spacr"
 url: "https://einarolafsson.github.io/spacr/"
