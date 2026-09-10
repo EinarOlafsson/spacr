@@ -5338,3 +5338,27 @@ Receipt: tools/tutorials/evidence/
 NEXT: Invasion 26, tutorial paths only. The old teaching database is explicitly
 synthetic and will be preserved; a fresh private copy will exercise the current
 stain_baseline_wells setting, real figures and console. No app/science edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, INVASION NATIVE CHECKPOINT PUSHED.
+
+11d5eccc1: current Invasion UI on a fresh byte-identical copy of the existing
+synthetic database. 360 baseline objects excluded; 1,440 scored across twelve
+wells. Independent quantile 22.795955296875167 and 22,208 checked CSV values
+match the native outputs. All three real figures are visible: 56 stacked-bar
+geometry values, 14 denominator labels, 480 histogram bins and 12 threshold
+lines checked. Actual Figure settings dialog keeps legends on the canvas;
+plotted values and CSV bytes stay unchanged. Original inputs also unchanged.
+
+24 focused tests pass, with measured executed lines. Eighteen isolated verifier
+mutations turn tests red across the successive 15/23/24-test checkpoints.
+Two histogram artists reconstruct their left edges one ULP above the observed
+minimum; the independent count permits at most four endpoint ULPs, rejects
+eight and never fuzzes interior boundaries. The old cutoff is unrepresentable
+at the real GUI precision; the recording explicitly requests 0.555556, with
+exact readback rather than relaxed comparison. No application code edited.
+
+13 scenes / 611 English words frozen. English voices and shared master are
+rendering under the memory guard; 13 translations and the playback matrix
+follow. Total remains 43 complete technical matrices. No biological efficacy,
+native/listening signoff or publication claim. Receipt:
+tools/tutorials/evidence/2026-09-10_invasion_native_threshold_and_figure_checks.json.
