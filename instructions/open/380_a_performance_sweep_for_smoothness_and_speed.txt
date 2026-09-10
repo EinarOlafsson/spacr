@@ -438,3 +438,60 @@ visual changed, and it already clears and reinstalls screen-local QSS
 overlays around the global call. Whoever does the per-window version
 inherits both, and the overlay mechanism is the half that already knows how
 to give one screen its own sheet.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- FINDING 3 WAS THE HARNESS, NOT THE APPLICATION. WITHDRAWN.
+--------------------------------------------------------------------------------
+
+"EXPANDING A SECTION DROPS TWO FRAMES THE FIRST TIME AND NONE AFTERWARDS"
+is not true, and this item's own rule -- write the harness first and prove
+it catches a defect that is already there -- is what caught it, one step
+late.
+
+WHAT THE 47.6 ms WAS. `AppScreen` translates arriving subtrees from an
+event filter that defers the work A TURN LATER; `_on_arrivals_in` says so
+in its own docstring. `tools/perf_paint.py` built the screen, called
+`app.processEvents()` ONCE, and started timing. That single call does not
+drain a queue whose entries are posted for the next turn, so the build's
+own deferred passes ran inside the first interaction measured and were
+billed to it.
+
+MEASURED BOTH WAYS, on the same panel, same machine, minutes apart:
+
+    one processEvents() after the build   146.3 ms   "2 frames dropped"
+    drained until quiet                     0.5 ms first, 0.1 ms after
+
+    and through the corrected harness, which alternates collapse/expand:
+
+    action                        first_ms  repeat_ms  frames
+    expand a section                  4.23       3.80       0
+    collapse a section                3.62       2.75       0
+    type one character                0.07       0.01       0
+    scroll the settings column        0.01       0.00       0
+
+THE 146 ms IS REAL WORK AND IT IS NOT THE INTERACTION'S. Profiled, it is
+four `retranslate_widget_tree` passes over 18,307 widgets making 88,388
+`QObject.property()` calls -- the cost of BUILDING the panel, collected by
+whatever ran next. Reporting it as the cost of expanding a section sends
+someone to optimise a toggle that already takes a fifth of a millisecond,
+which is exactly the "fix by symptom" this file forbids.
+
+THE HARNESS IS FIXED, not worked around: `_drain_until_quiet` runs before
+the first timed interaction, and its docstring carries both numbers so the
+next reader can see why it exists. The `timed()` docstring's own example --
+"typing the first character measured 39 ms, two dropped frames" -- was the
+same artefact and is corrected in place; the same keystroke measures 0.07 ms
+cold once the queue is drained.
+
+  THE PRINCIPLE SURVIVES THE EXAMPLE. A cold number and a warm one are
+  different questions and work done once per widget is real. But a "first"
+  measured before the build has settled is not that work, it is the build.
+
+WHAT THIS CHANGES ABOUT THE ITEM. Interaction latency is NOT a defect on
+this screen -- nothing a user does to a settings panel costs a frame. The
+two findings that survive the first run are the ones already recorded: the
+theme change repolishing the whole application (a third of a second), and
+the backdrop shading four times the pixels at 4K for the same frame rate.
+BUILDING the panel is now a third candidate, with a number attached: 146 ms
+of deferred translation, four full-tree walks, on a panel whose widgets were
+already translated once as they were constructed.
