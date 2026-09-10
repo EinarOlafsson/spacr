@@ -190,6 +190,9 @@ __all__ = [
     "GroupFit", "DoseResponseSet",
     "fit_dose_response", "fit_frame",
     "SelectivityIndex", "selectivity_index",
+    "SYNERGY_BLISS", "SYNERGY_LOEWE", "SYNERGY_MODELS",
+    "InteractionSurface", "bliss_surface", "loewe_surface",
+    "checkerboard_from_frame",
     "candidate_concentration_columns", "candidate_response_columns",
 ]
 
@@ -2049,3 +2052,265 @@ def selectivity_index(pathogen: Optional[DoseResponseResult],
         index_high=10.0 ** (log10_index + half),
         log10_index=log10_index, host=host, pathogen=pathogen,
         confidence=level, note="")
+
+
+# ---------------------------------------------------------------------------
+# Two-compound checkerboards: Bliss and Loewe
+# ---------------------------------------------------------------------------
+
+#: Bliss independence. Expects the two agents to act on independent targets,
+#: so their surviving fractions multiply.
+SYNERGY_BLISS = "bliss"
+
+#: Loewe additivity. Expects the two agents to behave as dilutions of the
+#: same agent, so a fixed effect costs a constant total dose.
+SYNERGY_LOEWE = "loewe"
+
+#: Every model :func:`interaction_surface` accepts.
+SYNERGY_MODELS: Tuple[str, ...] = (SYNERGY_BLISS, SYNERGY_LOEWE)
+
+
+@dataclass(frozen=True)
+class InteractionSurface:
+    """A checkerboard's interaction, per cell, with its own axes.
+
+    THE SURFACE IS THE RESULT AND A SINGLE INDEX IS NOT, which is what
+    instruction 387 asks for in as many words: "one number for a whole
+    checkerboard hides exactly the concentration-dependent structure that
+    makes synergy interesting". Real combinations are frequently synergistic
+    in one corner of the grid and additive or antagonistic in another, and a
+    mean over the grid reports neither.
+
+    SIGN CONVENTION, stated because every paper states a different one:
+    POSITIVE MEANS MORE EFFECT THAN EXPECTED -- synergy for an inhibition
+    assay. The expected surface is what the model predicts from the two
+    single-agent curves; ``excess`` is observed minus expected.
+
+    :param model: :data:`SYNERGY_BLISS` or :data:`SYNERGY_LOEWE`.
+    :param dose_a: the unique concentrations of agent A, ascending.
+    :param dose_b: the unique concentrations of agent B, ascending.
+    :param observed: ``(len(dose_a), len(dose_b))`` effect, 0 to 1.
+    :param expected: what ``model`` predicts for each cell.
+    :param excess: ``observed - expected``. NaN where a cell was not tested.
+    :param n_cells: cells with an observation.
+    :param note: what could not be computed, and why.
+    """
+
+    model: str
+    dose_a: np.ndarray
+    dose_b: np.ndarray
+    observed: np.ndarray
+    expected: np.ndarray
+    excess: np.ndarray
+    n_cells: int
+    note: str = ""
+
+    def summary(self) -> Dict[str, Any]:
+        """Headline numbers, each said to be over the grid rather than of it.
+
+        Deliberately NOT a synergy index. The strongest cell and where it sits
+        are reportable; a mean over the whole grid is the number this class
+        exists to avoid, so it is absent rather than provided-with-a-warning.
+        """
+        finite = np.isfinite(self.excess)
+        if not finite.any():
+            return {"model": self.model, "n_cells": 0, "note": self.note}
+        values = self.excess[finite]
+        flat = np.argmax(np.where(finite, self.excess, -np.inf))
+        row, col = np.unravel_index(flat, self.excess.shape)
+        return {
+            "model": self.model,
+            "n_cells": int(finite.sum()),
+            "max_excess": float(values.max()),
+            "max_at_dose_a": float(self.dose_a[row]),
+            "max_at_dose_b": float(self.dose_b[col]),
+            "min_excess": float(values.min()),
+            "synergistic_cells": int((values > 0).sum()),
+            "antagonistic_cells": int((values < 0).sum()),
+            "note": self.note,
+        }
+
+
+def _effect_curve(result: DoseResponseResult) -> Callable[[np.ndarray], np.ndarray]:
+    """A fitted curve as EFFECT in [0, 1], whichever way the response runs.
+
+    A 4PL is fitted in response units and may rise or fall. Both synergy
+    models are defined on the fraction affected, so the curve is rescaled
+    against its own plateaus rather than against the data's extremes -- the
+    plateaus are what the fit actually estimated.
+    """
+    bottom, top = float(result.bottom), float(result.top)
+    span = top - bottom
+    log10_ec50, hill = float(result.log10_ec50), float(result.hill)
+
+    def effect(dose: np.ndarray) -> np.ndarray:
+        """The affected fraction at each dose, in [0, 1].
+
+        Zero and negative doses are clamped to a tiny positive number rather
+        than refused: a checkerboard's first row IS zero, and a 4PL has no
+        value there because log10(0) is undefined. The clamp puts them at the
+        curve's own baseline, which is what an untreated well measures.
+
+        :param dose: concentrations, any shape.
+        :returns: affected fraction, same shape.
+        """
+        safe = np.where(np.asarray(dose, dtype=float) <= 0, 1e-12, dose)
+        value = four_parameter_logistic(safe, bottom, top, log10_ec50, hill)
+        if not np.isfinite(span) or span == 0:
+            return np.zeros_like(safe, dtype=float)
+        fraction = (value - bottom) / span
+        # THE HILL SIGN CARRIES THE DIRECTION, and the two cases are not
+        # symmetric. A negative Hill is inhibition: the response FALLS with
+        # dose, so at a high dose `fraction` approaches 0 while the affected
+        # fraction approaches 1, and the affected fraction is its complement.
+        # A positive Hill is activation, where `fraction` already IS the
+        # affected fraction and inverting it would report every activator as
+        # its own antagonist.
+        affected = (1.0 - fraction) if hill < 0 else fraction
+        return np.clip(affected, 0.0, 1.0)
+
+    return effect
+
+
+def _grid(dose_a, dose_b, response) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Fold three parallel columns into a matrix, averaging repeats.
+
+    :returns: ``(unique a, unique b, observed)``; unobserved cells are NaN,
+        which is the honest value for a checkerboard corner nobody plated.
+    """
+    a = np.asarray(dose_a, dtype=float)
+    b = np.asarray(dose_b, dtype=float)
+    y = np.asarray(response, dtype=float)
+    keep = np.isfinite(a) & np.isfinite(b) & np.isfinite(y)
+    a, b, y = a[keep], b[keep], y[keep]
+    ua, ub = np.unique(a), np.unique(b)
+    total = np.zeros((ua.size, ub.size))
+    count = np.zeros((ua.size, ub.size))
+    ia = np.searchsorted(ua, a)
+    ib = np.searchsorted(ub, b)
+    np.add.at(total, (ia, ib), y)
+    np.add.at(count, (ia, ib), 1.0)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        observed = np.where(count > 0, total / count, np.nan)
+    return ua, ub, observed
+
+
+def bliss_surface(dose_a, dose_b, response, *,
+                  fit_a: DoseResponseResult,
+                  fit_b: DoseResponseResult) -> InteractionSurface:
+    """Bliss independence over a checkerboard.
+
+    THE MODEL IN ONE LINE: if two agents act independently, the fraction
+    surviving both is the product of the fractions surviving each, so the
+    expected effect is ``Ea + Eb - Ea*Eb``. Excess over that is synergy.
+
+    BLISS NEEDS NOTHING FROM THE COMBINATION FITS, which is why it is the
+    cheaper of the two and the one to reach for first: both single-agent
+    curves already give an effect at every concentration on the grid.
+
+    :param dose_a: agent A concentration per well.
+    :param dose_b: agent B concentration per well.
+    :param response: measured response per well, same length.
+    :param fit_a: the single-agent fit for A (B held at zero).
+    :param fit_b: the single-agent fit for B.
+    :returns: an :class:`InteractionSurface`.
+    """
+    ua, ub, observed = _grid(dose_a, dose_b, response)
+    ea = _effect_curve(fit_a)(ua)[:, None]
+    eb = _effect_curve(fit_b)(ub)[None, :]
+    expected = ea + eb - ea * eb
+    obs_effect = _observed_effect(observed, fit_a, fit_b)
+    return InteractionSurface(
+        model=SYNERGY_BLISS, dose_a=ua, dose_b=ub, observed=obs_effect,
+        expected=expected, excess=obs_effect - expected,
+        n_cells=int(np.isfinite(obs_effect).sum()))
+
+
+def _observed_effect(observed: np.ndarray, fit_a: DoseResponseResult,
+                     fit_b: DoseResponseResult) -> np.ndarray:
+    """Measured response rescaled to effect, using the fits' own plateaus.
+
+    Rescaled against the FITTED plateaus rather than the grid's own min and
+    max, because a checkerboard's extremes are themselves measurements with
+    noise in them -- normalising to them makes the strongest observed cell
+    exactly 1.0 by construction and quietly caps the synergy it can report.
+    """
+    bottom = float(min(fit_a.bottom, fit_b.bottom))
+    top = float(max(fit_a.top, fit_b.top))
+    span = top - bottom
+    if not np.isfinite(span) or span == 0:
+        return np.full_like(observed, np.nan)
+    fraction = (observed - bottom) / span
+    inhibiting = float(fit_a.hill) < 0
+    affected = (1.0 - fraction) if inhibiting else fraction
+    return np.clip(affected, 0.0, 1.0)
+
+
+def loewe_surface(dose_a, dose_b, response, *,
+                  fit_a: DoseResponseResult,
+                  fit_b: DoseResponseResult) -> InteractionSurface:
+    """Loewe additivity over a checkerboard, as a combination index.
+
+    THE MODEL IN ONE LINE: if two agents are dilutions of one another, then
+    reaching an effect costs a constant total dose, so
+    ``a/Da + b/Db = 1`` where ``Da`` and ``Db`` are the single-agent doses
+    giving that same effect. Below 1 is synergy.
+
+    REPORTED AS EXCESS RATHER THAN AS THE INDEX ITSELF, so that the sign
+    convention matches Bliss and a reader comparing the two surfaces is not
+    also flipping a comparison in their head: ``excess = 1 - CI``, positive
+    for synergy.
+
+    WHY IT CAN BE NaN WHERE BLISS IS NOT: Loewe needs the INVERSE curve --
+    the dose achieving an observed effect -- and that dose does not exist
+    when the observed effect lies outside a single agent's own plateaus. A
+    combination that kills more than either agent can alone has no Loewe
+    answer, and NaN is the honest one.
+
+    :param dose_a: agent A concentration per well.
+    :param dose_b: agent B concentration per well.
+    :param response: measured response per well.
+    :param fit_a: the single-agent fit for A.
+    :param fit_b: the single-agent fit for B.
+    """
+    ua, ub, observed = _grid(dose_a, dose_b, response)
+    effect = _observed_effect(observed, fit_a, fit_b)
+    da = _dose_for_effect(fit_a, effect)
+    db = _dose_for_effect(fit_b, effect)
+    grid_a = ua[:, None] * np.ones_like(effect)
+    grid_b = ub[None, :] * np.ones_like(effect)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        index = np.where(da > 0, grid_a / da, np.nan) + \
+                np.where(db > 0, grid_b / db, np.nan)
+    # THE UNTREATED WELL IS NOT INFINITELY SYNERGISTIC. With both doses at
+    # zero the index is 0 and the excess reads +1.0, the strongest possible
+    # synergy, from the one well where nothing was combined. Measured on a
+    # simulated board it was the maximum of the whole surface. Loewe is
+    # undefined without a combination, so that cell is NaN.
+    index = np.where((grid_a > 0) | (grid_b > 0), index, np.nan)
+    excess = 1.0 - index
+    note = ("cells where the observed effect lies outside a single agent's "
+            "plateaus have no Loewe answer and are NaN")
+    return InteractionSurface(
+        model=SYNERGY_LOEWE, dose_a=ua, dose_b=ub, observed=effect,
+        expected=np.ones_like(index), excess=excess,
+        n_cells=int(np.isfinite(excess).sum()), note=note)
+
+
+def _dose_for_effect(result: DoseResponseResult,
+                     effect: np.ndarray) -> np.ndarray:
+    """Invert a 4PL: the dose giving each effect, or NaN outside its range.
+
+    NaN RATHER THAN AN EXTRAPOLATION. The inverse of a logistic runs to
+    infinity at its plateaus, so an effect at or past one of them has no
+    finite dose. Returning a very large number instead would make a
+    combination index look enormous and finite when the truth is that the
+    question has no answer for that cell.
+    """
+    e = np.clip(np.asarray(effect, dtype=float), 0.0, 1.0)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        ratio = e / (1.0 - e)
+        log10_dose = float(result.log10_ec50) + \
+            np.log10(ratio) / abs(float(result.hill))
+    dose = np.where(np.isfinite(log10_dose), 10.0 ** log10_dose, np.nan)
+    return np.where((e > 0) & (e < 1), dose, np.nan)
