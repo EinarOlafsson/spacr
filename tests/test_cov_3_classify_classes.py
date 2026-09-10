@@ -88,8 +88,8 @@ def test_a_metadata_run_skips_the_control_that_is_not_set():
     negative control must not become a rule matching the empty string."""
     out = cc.normalize_settings({"dataset_mode": "metadata",
                                  "location_column": "column_name",
-                                 "negative_control": "",
-                                 "positive_control": "c3"})
+                                 "negative_control_id": "",
+                                 "positive_control_id": "c3"})
     rules = cc.class_rules(out)
 
     assert len(rules) == 1, [(r.name, r.value) for r in rules]

@@ -108,7 +108,7 @@ def test_a_table_of_nothing_but_the_intercept_ranks_nobody():
     results = pd.DataFrame({"feature": ["Intercept"], "coefficient": [0.3],
                             "p_value": [1e-9]})
 
-    assert control_recovery(results, {"positive_control": "239740"}) == {}
+    assert control_recovery(results, {"positive_control_id": "239740"}) == {}
 
 
 def test_a_q_value_that_is_not_a_number_costs_only_the_q_value():
@@ -124,7 +124,7 @@ def test_a_q_value_that_is_not_a_number_costs_only_the_q_value():
         "q_value": [[1.0, 2.0], [1.0, 2.0], [1.0, 2.0]],
     })
 
-    out = control_recovery(results, {"positive_control": "239740"})
+    out = control_recovery(results, {"positive_control_id": "239740"})
 
     assert out["positive_control_found"] is True
     assert out["positive_control_rank"] == 1

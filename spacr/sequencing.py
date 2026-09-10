@@ -1189,7 +1189,16 @@ def generate_barecode_mapping(settings=None):
                                  regex=regex,
                                  target_sequence=settings['target_sequence'],
                                  offset_start=settings['offset_start'],
-                                 expected_end=settings['expected_end'],
+                                 # THE SETTING IS `window_length` NOW (364);
+                                 # the PARAMETER keeps its name because these
+                                 # two chunked-processing functions are public
+                                 # and renaming a keyword argument breaks
+                                 # every external caller for a word. The
+                                 # parameter's own docstring already says
+                                 # "window *length*, not an end coordinate",
+                                 # which is what the setting rename fixes for
+                                 # the person reading the panel.
+                                 expected_end=settings['window_length'],
                                  column_csv=settings['column_csv'],
                                  grna_csv=settings['grna_csv'],
                                  row_csv=settings['row_csv'],
@@ -1466,7 +1475,7 @@ def graph_sequencing_stats(settings):
     # Instruction 145's rule is one vocabulary; applying it to the data and not
     # to the setting that indexes the data is half a rule.
     filter_column = _resolve_column(df, settings.get('filter_column'))
-    for c in settings['control_wells']:
+    for c in settings['analysis_excluded_wells']:
         df = df[df[filter_column] != c]
 
     dst = os.path.dirname(settings['count_data'][0])

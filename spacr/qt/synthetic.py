@@ -1125,7 +1125,10 @@ def demo_settings(app_key: str, src: str,
             "single_direction": "R1",
             "target_sequence": SEQ_TARGET,
             "offset_start": SEQ_OFFSET_START,
-            "expected_end": SEQ_WINDOW_LENGTH,
+            # `window_length` since 364's rename; the constant beside it
+            # already had the right word, which is the argument for the
+            # setting having it too.
+            "window_length": SEQ_WINDOW_LENGTH,
             "chunk_size": 1000,
             "n_jobs": 2,
             "save_h5": False,
@@ -1169,7 +1172,7 @@ BARCODE_DIRNAME = "barcodes"
 # --- the read frame the shipped barcode-mapping defaults expect ------------
 #
 # spacr.settings.set_default_generate_barecode_mapping anchors on
-# `target_sequence`, slices `expected_end` bases starting `offset_start` from
+# `target_sequence`, slices `window_length` bases starting `offset_start` from
 # the anchor, and splits that window with DEFAULT_BARCODE_REGEX:
 #
 #   ^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*
@@ -1305,7 +1308,7 @@ def synthetic_read(column_barcode: str, grna: str, row_barcode: str,
 
     The layout is the one documented above :data:`SEQ_TARGET`; a read built
     here is recovered exactly by the shipped ``regex`` / ``target_sequence``
-    / ``offset_start`` / ``expected_end`` defaults.
+    / ``offset_start`` / ``window_length`` defaults.
 
     :param column_barcode: 8-base column barcode.
     :param grna: 21-base gRNA barcode.

@@ -80,7 +80,7 @@ def test_only_the_missing_control_is_named():
     # diagnosis blaming a control that matched.
     diagnosis = str(excinfo.value).split("\n")[0]
     assert "positive_control='c2'" in diagnosis
-    assert "negative_control" not in diagnosis, (
+    assert "negative_control_id" not in diagnosis, (
         "the negative control matched, so naming it in the diagnosis sends "
         "the user to the wrong setting")
 
@@ -124,7 +124,7 @@ def test_a_duplicated_location_column_gets_its_own_diagnosis():
 
     message = str(excinfo.value)
     assert "2 columns named 'columnID'" in message
-    assert "positive_control" not in message, (
+    assert "positive_control_id" not in message, (
         "this sends the user to a setting that cannot fix it")
 
 
@@ -137,7 +137,7 @@ def test_an_empty_measurement_table_is_named_before_feature_filtering():
     message = str(excinfo.value)
     assert "measurement table contains 0 object rows" in message
     assert "selected source" in message
-    assert "positive_control" not in message
+    assert "positive_control_id" not in message
     assert "n_samples=0" not in message
 
 
@@ -150,5 +150,5 @@ def test_a_control_column_with_no_labels_is_not_called_a_control_typo():
     message = str(excinfo.value)
     assert "location_column='columnID' has 0 non-empty values" in message
     assert "two real class labels" in message
-    assert "positive_control" not in message
+    assert "positive_control_id" not in message
     assert "n_samples=0" not in message

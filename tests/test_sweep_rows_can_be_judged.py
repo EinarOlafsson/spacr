@@ -4,7 +4,7 @@ The defect these guard, in the user's words: "a sweep row today carries the
 settings, a hit count, and seconds. That is not enough to choose between two
 runs: it cannot say whether a fit with more hits had a worse-behaved residual,
 a rank-deficient design, or simply threw data away." The nightly run over the
-TSG101 screen was the concrete case -- ``min_cell_count=50`` reported MORE hits
+TSG101 screen was the concrete case -- ``min_cells_per_well=50`` reported MORE hits
 than 100 while quietly losing GRA14, and no column in the table said so.
 
 The acceptance test the instruction names is "sorting the sweep table by the
@@ -59,7 +59,7 @@ def _fitted(n_rows=120, n_guides=12, seed=0, pc="239740", full_rank=True):
             "significant": results[results["q_value"] < 0.05]}
 
 
-SETTINGS = {"positive_control": "239740", "negative_control": "233460",
+SETTINGS = {"positive_control_id": "239740", "negative_control_id": "233460",
             "fdr_alpha": 0.05}
 
 
@@ -211,16 +211,16 @@ class TestSortingTheTableByControlRankPutsTheBestConfigurationFirst:
     def _table(self):
         return pd.DataFrame([
             # more hits, but it LOSES the positive control -- the nightly case
-            {"trial_id": 1, "status": "ok", "min_cell_count": 50, "seconds": 61.0,
+            {"trial_id": 1, "status": "ok", "min_cells_per_well": 50, "seconds": 61.0,
              "n_below_alpha": 31, "positive_control_rank": np.nan,
              "positive_control_percentile": np.nan, "n_ranked": 900},
-            {"trial_id": 2, "status": "ok", "min_cell_count": 100, "seconds": 58.0,
+            {"trial_id": 2, "status": "ok", "min_cells_per_well": 100, "seconds": 58.0,
              "n_below_alpha": 12, "positive_control_rank": 2,
              "positive_control_percentile": 2 / 900, "n_ranked": 900},
-            {"trial_id": 3, "status": "ok", "min_cell_count": 200, "seconds": 55.0,
+            {"trial_id": 3, "status": "ok", "min_cells_per_well": 200, "seconds": 55.0,
              "n_below_alpha": 18, "positive_control_rank": 40,
              "positive_control_percentile": 40 / 900, "n_ranked": 900},
-            {"trial_id": 4, "status": "failed", "min_cell_count": 10, "seconds": 2.0,
+            {"trial_id": 4, "status": "failed", "min_cells_per_well": 10, "seconds": 2.0,
              "n_below_alpha": np.nan, "positive_control_rank": 1,
              "positive_control_percentile": 0.0, "n_ranked": 900},
         ])

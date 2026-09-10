@@ -41,7 +41,7 @@ def test_both_automatic_settings_are_recorded_where_they_are_derived():
     from spacr.ml import _perform_regression
 
     source = inspect.getsource(_perform_regression)
-    assert "_AUTOMATIC_SETTINGS['min_cell_count']" in source
+    assert "_AUTOMATIC_SETTINGS['min_cells_per_well']" in source
     assert "_AUTOMATIC_SETTINGS['fraction_threshold']" in source
 
 
@@ -71,7 +71,7 @@ def test_the_record_is_cleared_per_run():
 
     source = inspect.getsource(_perform_regression)
     clear_at = source.index("_AUTOMATIC_SETTINGS.clear()")
-    first_write = source.index("_AUTOMATIC_SETTINGS['min_cell_count']")
+    first_write = source.index("_AUTOMATIC_SETTINGS['min_cells_per_well']")
     assert clear_at < first_write, (
         "the record is written before it is cleared, so a second run in one "
         "process inherits the first one's values")

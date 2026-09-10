@@ -46,7 +46,6 @@ FAMILY_APP_KEY: Dict[str, str] = {"cv": "classify", "ml": "ml_analyze"}
 FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     "cv": (
         "crop_shape", "extract_channels", "object_array", "coordinate_columns",
-        "normalization", "normalization_scope",
         "model_type", "custom_model_path", "image_size",
         "train_channels", "epochs", "optimizer_type", "schedule", "loss_type",
         "dropout_rate", "init_weights", "amsgrad", "weight_decay",
@@ -64,9 +63,9 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
     ),
     "ml": (
         "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",
-        "prune_features", "top_features", "n_repeats", "min_cell_count",
+        "prune_features", "top_features", "n_repeats", "min_cells_per_well",
         "remove_low_variance_features", "remove_highly_correlated_features",
-        "heatmap_feature", "grouping", "min_max", "cmap", "save_to_db",
+        "heatmap_feature", "grouping", "min_max", "cmap",
         "batch_correction", "batch_column", "batch_control_column",
         "batch_control_values", "batch_covariate_column",
         "batch_combat_mean_only", "batch_min_samples", "batch_missing_control",

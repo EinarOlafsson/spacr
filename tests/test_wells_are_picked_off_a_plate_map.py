@@ -257,8 +257,8 @@ class TestTheAuditIsWrittenDown:
         does not understand."""
         from spacr.well_spec import WELL_ONLY_SETTINGS
 
-        for key in ("classes", "class_metadata", "negative_control",
-                    "positive_control"):
+        for key in ("classes", "class_metadata", "negative_control_id",
+                    "positive_control_id"):
             assert key not in WELL_ONLY_SETTINGS
 
 

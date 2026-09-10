@@ -310,7 +310,7 @@ def test_process_scores_stamps_plate_on_single_plate_frame():
     from spacr.ml import process_scores
 
     out, dv = process_scores(_wells_df(), "pred", plate="p9",
-                             min_cell_count=4, agg_type="mean")
+                             min_cells_per_well=4, agg_type="mean")
 
     assert dv == "pred"
     assert out["prc"].str.startswith("p9_").all()
@@ -323,7 +323,7 @@ def test_process_scores_multi_plate_frame_ignores_plate_argument(capsys):
     from spacr.ml import process_scores
 
     df = _wells_df(n_rows=3, per_well=8, plate=["p1", "p2"])
-    out, _ = process_scores(df, "pred", plate="pZ", min_cell_count=4,
+    out, _ = process_scores(df, "pred", plate="pZ", min_cells_per_well=4,
                             agg_type="median")
 
     printed = capsys.readouterr().out
@@ -342,7 +342,7 @@ def test_process_scores_without_plate_id_or_plate_raises():
 
     df = _wells_df().drop(columns=["plateID"])
     with pytest.raises(ValueError, match="no usable 'plateID' column"):
-        process_scores(df, "pred", plate=None, min_cell_count=1)
+        process_scores(df, "pred", plate=None, min_cells_per_well=1)
 
 
 def test_process_scores_all_nan_plate_id_and_no_plate_raises():
@@ -352,7 +352,7 @@ def test_process_scores_all_nan_plate_id_and_no_plate_raises():
     df = _wells_df()
     df["plateID"] = pd.Series([None] * len(df), dtype=object)
     with pytest.raises(ValueError, match="no usable 'plateID' column"):
-        process_scores(df, "pred", plate=None, min_cell_count=1)
+        process_scores(df, "pred", plate=None, min_cells_per_well=1)
 
 
 def test_process_scores_missing_column_id_raises():
@@ -362,7 +362,7 @@ def test_process_scores_missing_column_id_raises():
     df = _wells_df().drop(columns=["columnID"])
     with pytest.raises(ValueError,
                        match="must contain 'plateID', 'rowID', and 'columnID'"):
-        process_scores(df, "pred", plate=None, min_cell_count=1)
+        process_scores(df, "pred", plate=None, min_cells_per_well=1)
 
 
 def test_process_scores_reciprocal_inversion_warns_and_drops_zeros(capsys):
@@ -373,7 +373,7 @@ def test_process_scores_reciprocal_inversion_warns_and_drops_zeros(capsys):
     zero_idx = df.index[df["rowID"] == "r1"][:3]
     df.loc[zero_idx, "pred"] = 0.0
 
-    out, dv = process_scores(df, "pred", plate="p1", min_cell_count=5,
+    out, dv = process_scores(df, "pred", plate="p1", min_cells_per_well=5,
                              agg_type="mean", invert_dependent_variable=-1)
 
     printed = capsys.readouterr().out
@@ -392,7 +392,7 @@ def test_process_scores_complement_inversion_matches_manual_mean(capsys):
     from spacr.ml import process_scores
 
     df = _wells_df(n_rows=4, per_well=6, seed=5)
-    out, _ = process_scores(df, "pred", plate="p1", min_cell_count=2,
+    out, _ = process_scores(df, "pred", plate="p1", min_cells_per_well=2,
                             agg_type="mean", invert_dependent_variable=True)
 
     assert "Inverted 'pred' as 1 - x on raw values." in capsys.readouterr().out
@@ -419,7 +419,7 @@ def test_process_scores_reports_non_normal_response(capsys):
             })
     df = pd.DataFrame(recs)
 
-    out, dv = process_scores(df, "pred", plate="p1", min_cell_count=3,
+    out, dv = process_scores(df, "pred", plate="p1", min_cells_per_well=3,
                              agg_type="mean")
 
     printed = capsys.readouterr().out
@@ -445,7 +445,7 @@ def test_process_scores_transform_renames_response_and_rechecks_normality(capsys
             })
     df = pd.DataFrame(recs)
 
-    out, dv = process_scores(df, "pred", plate="p1", min_cell_count=3,
+    out, dv = process_scores(df, "pred", plate="p1", min_cells_per_well=3,
                              agg_type="mean", transform="sqrt")
 
     assert dv == "sqrt_pred"
@@ -455,8 +455,8 @@ def test_process_scores_transform_renames_response_and_rechecks_normality(capsys
     assert "sqrt_pred is not normally distributed" in capsys.readouterr().out
 
 
-def test_process_scores_min_cell_count_drops_small_wells():
-    """Wells below min_cell_count never reach the response frame."""
+def test_process_scores_min_cells_per_well_drops_small_wells():
+    """Wells below min_cells_per_well never reach the response frame."""
     from spacr.ml import process_scores
 
     df = _wells_df(n_rows=5, per_well=10, seed=31)
@@ -464,7 +464,7 @@ def test_process_scores_min_cell_count_drops_small_wells():
     small = df.index[df["rowID"] == "r5"][2:]
     df = df.drop(index=small).reset_index(drop=True)
 
-    out, _ = process_scores(df, "pred", plate="p1", min_cell_count=5,
+    out, _ = process_scores(df, "pred", plate="p1", min_cells_per_well=5,
                             agg_type="quantile")
 
     assert "p1_r5_c1" not in set(out["prc"])

@@ -468,8 +468,16 @@ def to_settings_fragment(design: PlateDesign,
 
     out["settings"][plural] = names
     out["settings"][meta_key] = locations
-    for role, setting in ((ROLE_POSITIVE, "positive_control"),
-                          (ROLE_NEGATIVE, "negative_control")):
+    # THE ROLE AND THE SETTING ARE TWO DIFFERENT STRINGS NOW, which is
+    # what this line was always saying and could not show while they were
+    # spelled the same. `ROLE_POSITIVE` is a Qt WIDGET ROLE -- the token
+    # `experiment_design`'s stylesheet selects a well by -- and the second
+    # element is the SETTING the design writes. Renaming the setting to
+    # `positive_control_id` (364) left the role alone; a blanket replace
+    # would have taken both, and the wells would have lost their colour
+    # with no error anywhere.
+    for role, setting in ((ROLE_POSITIVE, "positive_control_id"),
+                          (ROLE_NEGATIVE, "negative_control_id")):
         matching = [c.name for c in design.conditions if c.role == role]
         if matching:
             out["settings"][setting] = matching[0]

@@ -8,7 +8,7 @@ reasons, both asserted here:
   ``parts[1]`` as the read direction — so it returned ``{'synthetic': {}}``
   and generate_barecode_mapping died on ``KeyError: 'R1'``;
 * the reads did not carry the adapter frame the shipped ``regex`` /
-  ``target_sequence`` / ``offset_start`` / ``expected_end`` defaults parse,
+  ``target_sequence`` / ``offset_start`` / ``window_length`` defaults parse,
   so even a correctly-named file would have mapped nothing.
 
 So the assertions here are made against spaCR's own defaults and its own
@@ -120,8 +120,8 @@ def test_synthetic_read_is_parsed_by_the_shipped_barcode_defaults():
     pos = read.find(d["target_sequence"])
     assert pos != -1, "the anchor sequence is not in the read"
     start = max(pos + d["offset_start"], 0)
-    window = read[start:start + d["expected_end"]]
-    assert len(window) == d["expected_end"]
+    window = read[start:start + d["window_length"]]
+    assert len(window) == d["window_length"]
 
     match = re.match(d["regex"], window)
     assert match is not None, f"shipped regex did not match {window!r}"
@@ -339,7 +339,7 @@ def test_every_read_of_the_demo_maps_back_to_a_planted_barcode(tmp_path: Path):
             pos = read.find(d["target_sequence"])
             assert pos != -1
             start = max(pos + d["offset_start"], 0)
-            match = re.match(d["regex"], read[start:start + d["expected_end"]])
+            match = re.match(d["regex"], read[start:start + d["window_length"]])
             assert match is not None, read
             columns.append(match.group("columnID"))
             grnas.append(match.group("grna"))

@@ -126,7 +126,6 @@ def _mask_settings_for(src: Path) -> dict:
         "nucleus_intensity_range": None,
         "pathogen_intensity_range": None,
         "cytoplasm_intensity_range": None,
-        "denoise": False,
         "remove_background_intensity": False,
         "skip_extraction": False,
         "channels": [0, 1, 2],

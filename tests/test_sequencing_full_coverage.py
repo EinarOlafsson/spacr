@@ -987,7 +987,7 @@ def test_graph_sequencing_stats_invents_a_plate_id_when_absent(tmp_path):
     _counts_frame(plate=False).to_csv(csv, index=False)
     thr = SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 3,
-        "filter_column": "columnID", "control_wells": [],
+        "filter_column": "columnID", "analysis_excluded_wells": [],
         "log_x": False, "log_y": False})
     assert 0.0 < float(thr) < 1.0
 
@@ -998,7 +998,7 @@ def test_graph_sequencing_stats_numbers_multiple_plates_in_order(tmp_path):
     _counts_frame(plate=False).to_csv(b, index=False)
     SEQ.graph_sequencing_stats({
         "count_data": [str(a), str(b)], "target_unique_count": 3,
-        "filter_column": "columnID", "control_wells": [],
+        "filter_column": "columnID", "analysis_excluded_wells": [],
         "log_x": False, "log_y": False})
     # dst is derived from the FIRST count CSV, so both plates' output lands
     # in one folder rather than beside whichever file happened to be last.
@@ -1013,12 +1013,12 @@ def test_graph_sequencing_stats_demands_the_well_key_columns(tmp_path):
     with pytest.raises(ValueError) as exc:
         SEQ.graph_sequencing_stats({
             "count_data": str(csv), "target_unique_count": 3,
-            "filter_column": "rowID", "control_wells": [],
+            "filter_column": "rowID", "analysis_excluded_wells": [],
             "log_x": False, "log_y": False})
     assert "'plateID', 'rowID', and 'columnID'" in str(exc.value)
 
 
-def test_graph_sequencing_stats_drops_control_wells_before_choosing(tmp_path):
+def test_graph_sequencing_stats_drops_analysis_excluded_wells_before_choosing(tmp_path):
     csv = tmp_path / "counts.csv"
     df = _counts_frame()
     # Give c2 a single dominant gRNA so including it would drag the mean down.
@@ -1027,11 +1027,11 @@ def test_graph_sequencing_stats_drops_control_wells_before_choosing(tmp_path):
     df.to_csv(csv, index=False)
     kept = SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 4,
-        "filter_column": "columnID", "control_wells": ["c2"],
+        "filter_column": "columnID", "analysis_excluded_wells": ["c2"],
         "log_x": False, "log_y": False})
     dropped = SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 4,
-        "filter_column": "columnID", "control_wells": [],
+        "filter_column": "columnID", "analysis_excluded_wells": [],
         "log_x": False, "log_y": False})
     assert kept != dropped
 
@@ -1049,7 +1049,7 @@ def test_graph_sequencing_stats_takes_the_row_after_the_last_separator(
     # the caller lost the threshold it had already computed.
     thr = SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 3,
-        "filter_column": "columnID", "control_wells": [],
+        "filter_column": "columnID", "analysis_excluded_wells": [],
         "log_x": False, "log_y": False})
     assert thr is not None
 
@@ -1059,7 +1059,7 @@ def test_graph_sequencing_stats_log_axes(tmp_path):
     _counts_frame().to_csv(csv, index=False)
     thr = SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 3,
-        "filter_column": "columnID", "control_wells": [],
+        "filter_column": "columnID", "analysis_excluded_wells": [],
         "log_x": True, "log_y": True})
     assert thr is not None
 
@@ -1071,7 +1071,7 @@ def test_graph_sequencing_stats_threshold_really_filters(tmp_path):
     df.to_csv(csv, index=False)
     thr = SEQ.graph_sequencing_stats({
         "count_data": str(csv), "target_unique_count": 2,
-        "filter_column": "columnID", "control_wells": [],
+        "filter_column": "columnID", "analysis_excluded_wells": [],
         "log_x": False, "log_y": False})
     # Recompute what the threshold means and check it hits the target.
     d = pd.read_csv(csv)

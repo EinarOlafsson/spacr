@@ -60,7 +60,7 @@ def test_a_table_with_no_feature_column_recovers_no_controls():
                             "coefficient": [1.4, 0.05],
                             "p_value": [6.4e-08, 0.28]})
 
-    assert control_recovery(results, {"positive_control": "239740"}) == {}
+    assert control_recovery(results, {"positive_control_id": "239740"}) == {}
 
 
 # ---------------------------------------------------------------------------
@@ -485,7 +485,7 @@ def test_a_model_that_raises_on_every_question_costs_only_the_model_metrics():
     })
 
     row = summarise_trial({"results": results, "model": _Hostile()},
-                          {"positive_control": "239740"})
+                          {"positive_control_id": "239740"})
 
     assert row["n_results"] == 3
     assert row["positive_control_rank"] == 1
@@ -499,7 +499,7 @@ def test_a_verdict_that_cannot_be_scored_leaves_every_measurement_standing(
     the measurements the judgement was about.
     """
     output = _trial_output()
-    settings = {"positive_control": "239740"}
+    settings = {"positive_control_id": "239740"}
 
     scored = summarise_trial(output, settings)
     assert scored["qc_design"]

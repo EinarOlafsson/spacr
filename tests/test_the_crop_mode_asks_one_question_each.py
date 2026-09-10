@@ -69,10 +69,21 @@ def test_only_the_database_route_is_forced_to_a_box():
 
 
 def test_the_array_route_cuts_by_the_plane_it_was_given():
+    """AND THE PLANE GOES TO `object_array`, WHATEVER SHAPE IT IS IN.
+
+    This asserted `cut["mask_array"] == 2` for an index and
+    `cut["object_array"] == "nucleus"` for a name -- the panel wrote a
+    numbered plane to one key and a named plane to another. The numbered
+    one went nowhere: `stream_dataset` takes the plane from
+    `object_array` for BOTH stream methods, so a user who named a plane
+    by index was answered by silence. `mask_array` was retired on
+    2026-09-09 (357-Q4) and the index is written where the reader looks.
+    """
     cut = ps.to_crop_settings({"crop_source": STREAM_IMAGES,
                                "object_array": "2", "crop_shape": "object"})
     assert cut["stream_method"] == "array"
-    assert cut["mask_array"] == 2
+    assert cut["object_array"] == "2"
+    assert "mask_array" not in cut
     assert cut["use_bounding_box"] is False
 
 

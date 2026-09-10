@@ -269,7 +269,7 @@ def test_map_barcodes_demo_reads_carry_the_planted_triplets(tmp_path):
             n_reads += 1
             assert len(read) == syn.FASTQ_READ_LENGTH, read
             start = read.index(anchor) + settings["offset_start"]
-            window = read[start:start + settings["expected_end"]]
+            window = read[start:start + settings["window_length"]]
             match = pattern.match(window)
             assert match, f"read {n_reads} does not parse: {window}"
             assert match.group("columnID") in columns

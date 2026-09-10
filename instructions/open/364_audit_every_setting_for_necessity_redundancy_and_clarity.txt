@@ -1367,6 +1367,61 @@ reads as though the control is still there.
 
 
 --------------------------------------------------------------------------------
+2026-09-09 -- THREE OF THE SEVEN RENAMES ARE BUILT, ON A BRANCH. WHAT EACH COST.
+--------------------------------------------------------------------------------
+
+    expected_end     -> window_length              DONE
+    min_n            -> min_observations_per_hit   DONE
+    min_cell_count   -> min_cells_per_well         DONE
+    control_wells    -> stain_baseline_wells       HELD, see 357-Q6
+    positive_control -> positive_control_id        not started
+    negative_control -> negative_control_id        not started
+    controls         -> nontargeting_control_grnas not started
+
+ON A BRANCH (`364-renames`) AND NOT ON NIGHTLY. A setting rename adds a
+`SETTING_LABELS` and a `SETTING_TOOLTIPS` key in nine RUNTIME catalogs and
+orphans the old pair. Those are built by `tools/build_i18n_catalogs.py` --
+a DIFFERENT pipeline from the API catalogs under `docs/`, which the other
+session is close to making green after five days red. `docs.yml` runs both
+audits, so landing these on nightly now trades one green audit for two red
+ones. They land together when that dispatch is away, and one runtime
+rebuild covers all of them.
+
+WHAT THE FIRST THREE TAUGHT, and it is not what the survey predicted.
+
+  1. THE WRITERS MATTER AS MUCH AS THE READERS. `spacr/qt/synthetic.py`
+     BUILDS demo settings, and it went on naming `expected_end` after the
+     key was renamed -- so the Map Barcodes demo produced a settings dict
+     its own pre-flight refused. Three test files parse the demo's window
+     with that key too. A survey that greps for reads is half a survey;
+     this one was found by the tests.
+  2. THE CATEGORY MAP IS IN TWO PLACES. `settings.categories` and
+     `settings_model`'s per-module ordered lists are separate, and
+     updating only the first put the renamed key under "Additional
+     Settings" -- a heading nobody chose, which is exactly what that
+     ordered list exists to prevent.
+  3. THE NOTEBOOKS CARRY THE KEYS AS LITERALS.
+     `tools/build_notebook_settings.py` regenerates them and a test
+     compares the committed copies against what it writes, so a rename
+     that skips them is caught -- but only by that one test.
+  4. A COMMON WORD IS A TRAP AND THE TRAP IS REAL.
+     `regression_summary.py` uses `min_cell_count` as an internal FIELD
+     NAME as well as reading the setting, and `regression_qc.py` uses it
+     as a report key that has nothing to do with the setting. A blanket
+     replace renamed the field and broke the mapping that names it. The
+     label a user reads follows the rename; the internal wiring does not.
+  5. AND A BLANKET REPLACE OVER `tests/` HIT A NON-UTF8 FILE and stopped
+     part way, leaving the suite half-renamed and 28 tests red for a
+     reason that had nothing to do with the rename. Skip what cannot be
+     decoded rather than letting one `.pyc` truncate the pass.
+
+WHAT IS STILL RED ON THE BRANCH, ON PURPOSE:
+`tests/qt/test_the_chrome_captions_have_catalog_rows.py` reads
+`sv.SETTING_LABELS['min_observations_per_hit']`, which does not exist until
+the runtime catalogs are rebuilt. That is the branch saying what it is
+waiting for.
+
+--------------------------------------------------------------------------------
 2026-09-09 -- WHY THE LAST THREE RENAMES ARE NOT STARTED, WITH THE SURVEY DONE
 --------------------------------------------------------------------------------
 
@@ -1411,3 +1466,349 @@ plot labels and as the setting.
 THE SURVEY IS DONE AND IS WRITTEN ABOVE so the next pass starts from the
 classification rather than from the grep. The mechanism is proven, the two
 traps are recorded as steps, and the branch is one `git checkout` away.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE EIGHT UNREAD SETTINGS ARE RETIRED, AND TWO OF THEM LIED
+--------------------------------------------------------------------------------
+
+357-Q4, answered: RETIRE ALL EIGHT. Broader than the entry recommended --
+it proposed keeping `denoise` and `normalization` pending a decision about
+whether they were features never wired -- and the maintainer took the whole
+set.
+
+    denoise            load_path_regex     mask_array
+    normalization      normalization_scope normalize_plots
+    save_to_db         visualize
+
+Each had exactly one consumer in the generated map and in every case it was
+the setting's own `set_default_*` function. Nothing read the value back.
+
+TWO OF THEM DOCUMENTED A JOB THEY DID NOT DO, which is worse than a dead
+control, and finding it is the argument for having asked rather than
+retiring quietly:
+
+  * `mask_array` said it named the labelled plane for the 'array' stream
+    method. `stream_dataset` takes that plane from `object_array` -- for
+    BOTH methods -- so the route's own documented input was never read.
+    `picture_settings` even WROTE it: a panel naming a plane by index sent
+    `mask_array` an integer that nothing consulted, and the value was
+    silently the object type's default instead.
+  * `load_path_regex` said it selected already-exported crops, and carried
+    a dependency RULE explaining when it did not apply. Both described a
+    control nothing read in either branch.
+
+WHAT CAME OUT WITH THEM, because a retirement is not just four table rows:
+
+    the eight setdefaults, expected_types rows, tooltips and categories
+    the "Output & Database" SECTION, whose only member was `save_to_db`
+    its SECTION_HINTS paragraph, which described a choice the run did
+      not offer
+    `load_path_regex`'s dependency rule
+    two entries in `classify.FAMILY_SETTINGS` and one in
+      `stream_dataset.METHOD_SETTINGS` -- greying tables naming settings
+      that no longer exist grey nothing
+    two VERIFIED_TOOLTIP_FACTS waivers whose own text said "Legacy
+      compatibility" and "do not read", which is the audit recording that
+      a control did nothing rather than the control being fixed
+
+AND FIVE PINNED COUNTS MOVED, each named rather than nudged: the tooltip
+census 679 -> 671, the witnessed inapplicable defaults 49 -> 48 and their
+distinct keys 35 -> 34, and -- from the `control_wells` split in the same
+batch -- the default variants 47 -> 46 with its repaired-tooltip reason and
+repaired fact, 23 -> 22 apiece. Three of those five are one cause seen from
+three sides, which is why all three are kept: a change that moved only one
+would be a change nobody had understood.
+
+AND THE PROSE THAT STILL NAMED THEM. `stream_method`'s tooltip told the
+user the 'array' route required `mask_array`; it now says what the route
+actually reads. Four comment passages in `settings.py` explained category
+membership by naming `save_to_db` and `load_path_regex` as live settings.
+A comment that describes a key nothing defines is the same defect as the
+key itself, one indirection later.
+
+`tests/qt/test_cov_app_screen.py` used `denoise` nine times as its
+stand-in for "a boolean on the mask screen" -- in the widget-construction
+census, in three CSV round trips, and in the crash-report test. It now
+uses `plot`, which is a live boolean whose default is False, so the
+import assertions still observe a value CHANGING rather than agreeing
+with a default.
+
+STILL OUTSTANDING: the runtime i18n catalogs (`spacr/qt/i18n_catalogs/*.py`)
+carry a label and a tooltip for each of the eight in all languages. They
+are GENERATED -- `tools/build_i18n_catalogs.py` -- and the rebuild is held
+until the other session's catalog audit is green, so the stale entries go
+when it runs, not by hand.
+
+A STEP THE SURVEY WAS MISSING, AND THE THIRD TIME IN ONE NIGHT A RULE WAS
+RIGHT ABOUT THE FAMILY AND BLIND TO THE INSTANCE. A blanket replace of a
+setting's name also hits every identifier that merely SPELLS it the same.
+`control_wells` caught two: a FUNCTION in `gene_measurement_compare` that
+derives the control wells from the count table, and
+`app_screen._migrate_control_wells`, which is the migration for the very
+trio being renamed -- so the rename broke the code whose job was to carry
+old files across it. `min_cell_count` caught a third, an internal field
+name in `regression_summary`.
+
+So the survey has a step before the replace: list every occurrence and
+mark each as THE SETTING, A FUNCTION OR FIELD OF THE SAME NAME, or THE
+MIGRATION FOR THIS SETTING. Only the first is renamed. The other two are
+not exceptions to the rule -- they are what the rule cannot see, and the
+migration is the one that stings, because it is the code that exists to
+protect the user from the rename.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- THE CLASSIFICATION FOR THE TWO CONTROL IDENTIFIERS, SITE BY SITE
+--------------------------------------------------------------------------------
+
+The section above says each of the last three names wants its occurrences
+classified one at a time rather than by regex, and calls that an hour of
+judgement. Here is that hour spent for two of the three. The pass that runs
+the rename starts from this table; it does not start from a grep.
+
+    positive_control -> positive_control_id
+    negative_control -> negative_control_id
+
+WHAT WAS COUNTED. 130 and 141 occurrences in `spacr/` including the
+generated i18n catalogs, which are not edited by hand. Excluding those, and
+excluding the DIFFERENT settings that merely begin with the same word --
+`positive_control_wells`, `negative_control_wells`, and the `_rank` and
+`_df` locals -- what is left is the list below. Plus 149 occurrences across
+46 files in `tests/`, which follow whatever the source does.
+
+  THE SETTING. These are renamed.
+
+    settings.py            two setdefault pairs (1547/1548, 2505/2506),
+                           the expected_types rows (3519/3520), the two
+                           tooltips (4666, 4688), and the "Plate Layout &
+                           Controls" category membership
+    settings.py:1504       the merged module POPS the trio; the popped
+                           names are the setting
+    settings_model.py      three category lists (1192, 1568, 2495)
+    settings_flow_index.py two entries (583, 831)
+    setting_api_targets.py four entries (405, 661, 1231, 1334)
+    training_basis.py:81   the trio, as the basis's own list
+    classify_classes.py    53 and 373, the trio and the class translation
+    well_spec.py           WELL_SETTINGS, the "may contain wells" list
+    hyperparam.py:3450-1   settings.get with the 'c2'/'c1' defaults
+    trial_metrics.py:216-7 settings.get, keyed by role
+    regression_summary.py  _setting(run.settings, ...)
+    ml.py                  every settings.get / settings[...] read:
+                           435, 2051-2, 6808-9, 7016-7, 9172, 9641-2,
+                           10435, 10578-81, 10611, 10627-8
+    parameter_sweep.py     the Qt screen's base.get at 491
+    app_screen.py:10656    the trio inside the migration
+
+  NOT THE SETTING, AND EACH ONE BREAKS SOMETHING DIFFERENT IF RENAMED.
+
+    batch_correction.py:635   THE WORST OF THEM. `"negative_control"` here
+                              is an ALIAS FOR A BATCH-CORRECTION METHOD --
+                              `batch_correction=negative_control` resolves
+                              to `control_center`. It is a user-facing
+                              VALUE, not a key, so renaming it silently
+                              removes a documented spelling from a settings
+                              file and the run raises "Unknown
+                              batch_correction=" on a file that used to
+                              work.
+    plate_layout.py:49-50     ROLE_POSITIVE / ROLE_NEGATIVE, a Qt WIDGET
+                              ROLE token that spells the setting. Line 471
+                              maps role to setting on ONE LINE, so a
+                              regex sees the same string twice on that line
+                              meaning two different things.
+    experiment_design.py      299 and 304, a stylesheet selector
+                              `QLabel[spacrWellRole="negative_control"]`.
+                              Renaming it detaches the rule from the widget
+                              and the wells lose their colour, with no
+                              error anywhere.
+    ml.py:10744-11510         THE PUBLIC PARAMETER NAMES. `_resolve_controls`
+                              and `generate_ml_scores` take
+                              `positive_control='c2'` and
+                              `negative_control='c1'` as ARGUMENTS, and the
+                              whole body -- roughly 60 sites, including a
+                              commented-out block -- is those locals. The
+                              call sites already pass them as `pc=`/`nc=`
+                              in four places, so the setting name and the
+                              kwarg are ALREADY allowed to differ.
+    prose                     docstrings, error text and comments in
+                              classifier_evaluation, settings_advisor,
+                              control_names, cell_montage, ml and
+                              app_screen. These say the setting's name to a
+                              user, so they follow the rename -- but they
+                              follow it as PROSE, one read at a time, not as
+                              a token.
+
+THE PARAMETER QUESTION IS THE ONE REAL DECISION and it is not mechanical.
+`generate_ml_scores` is public API. Renaming the setting without renaming
+the parameter leaves a user reading `positive_control_id` in the panel and
+`positive_control=` in the signature; renaming both is a breaking change to
+a public function, in a module that is not this session's lane. The four
+`pc=`/`nc=` call sites are the evidence that the two names are already
+decoupled, which argues for renaming the SETTING ONLY and saying so in the
+tooltip.
+
+WHAT THIS LEAVES. `controls -> nontargeting_control_grnas` is still
+unclassified, and it is the hardest of the three: the word does four jobs
+and appears 1,593 times across the package, the overwhelming majority of
+them the ordinary English word in comments and in widget names. Its
+classification is a separate sitting.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- AND THE CLASSIFICATION FOR `controls`, THE HARDEST OF THE THREE
+--------------------------------------------------------------------------------
+
+    controls -> nontargeting_control_grnas
+
+The section above said this one's classification was a separate sitting.
+It is done, and the count that made it look impossible was the wrong count.
+1,593 occurrences of the word `controls` in `spacr/` is the ORDINARY
+ENGLISH WORD in comments, docstrings and widget names. The occurrences that
+a rename could touch are the ones where it is written as a STRING or read
+as a key, and there are 41 of those outside the generated catalogs. That is
+a table, not a wall.
+
+  THE SETTING. These are renamed.
+
+    settings.py:2528       setdefault('controls', ['000000'])
+    settings.py:3801       the expected_types row
+    settings.py:4965       the tooltip -- which already says the true
+                           meaning, "Non-targeting control gRNA
+                           identifiers", and is the argument for the name
+    settings.py:5344       "Plate Layout & Controls" membership
+    settings_model.py:1570 the category list
+    settings_flow_index.py:181
+    setting_api_targets.py 133 and 974
+    object_roles.py:105    EXACT_LABELS["controls"] = "Control gRNA/Gene",
+                           a label override KEYED BY THE SETTING. Its own
+                           comment already explains the confusion the
+                           rename removes: "`controls` names guide or gene
+                           identifiers, whereas the neighbouring control
+                           settings name wells."
+    core.py:1650           settings['controls']
+    regression_summary.py:1922
+    ml.py                  6810, 7018, 7411, 7413, 9173, and the prose at
+                           7286 and 7403
+    settings_advisor.py    477, 841, 844, 851 -- the advisor's question key
+                           IS the setting name
+
+  NOT THE SETTING. Four families, and the first is bigger than the setting.
+
+    THE PANEL KEY. "controls" names the control-separation figure, and it
+    travels through six files as a key:
+        figures/panels.py      577, 593, 621, 738, and SHEET_ORDER at 746
+        figures/fast_render.py 35 and 263
+        regression_results.py  _PANEL_TABS at 1392, and 3024
+        app_screen.py          the live-tile entry at 8667 and
+                               _LIVE_TILE_WIDGETS at 8685
+    Eleven sites, more than the setting has in any single file. Renaming
+    them detaches a figure from its tab and its live tile, and the failure
+    is a blank panel rather than an exception.
+
+    THE SWEEP PAYLOAD. parameter_sweep.py:834 writes `"controls":
+    dict(controls or {})` and sweep_child.py:103 reads it back. The two
+    halves are in different processes, so a rename applied to one and not
+    the other is a sweep that silently runs with no controls.
+
+    THE DEPENDENCY TOKEN. regression_annotation.py declares
+    `needs=("controls", "features")` at 192, tests it at 395, and
+    documents it at 127. This is the token a step declares, not a setting
+    read.
+
+    THE COLUMN CONSTANT. baseline.py:32, `CONTROLS = "controls"`, and
+    submodules.py:5313, `'controls': controls` in a results payload.
+
+SO ALL THREE ARE NOW CLASSIFIED and the rename is a mechanical pass over a
+list rather than a judgement call per line. What it still needs is a
+sitting with the tests: 46 files and 149 occurrences follow the two control
+identifiers, and `controls` has its own test surface on top of that. That
+is the work, and it is the kind that should start at the beginning of a
+session rather than the end of one.
+
+
+--------------------------------------------------------------------------------
+2026-09-10 -- RENAMES 5 AND 6, AND A BUG IN THE FIRST FOUR THAT THE SIXTH FOUND
+--------------------------------------------------------------------------------
+
+    positive_control -> positive_control_id
+    negative_control -> negative_control_id
+
+Done from the classification written above rather than from a grep, and it
+was worth the hour: the four false friends it named are all still there and
+none of them was renamed.
+
+THE SETTING ONLY. `generate_ml_scores` and `_resolve_controls` keep their
+PUBLIC parameter names. The evidence for that decision is in the code
+already -- four call sites pass them as `pc=`/`nc=`, so the setting name and
+the kwarg have been decoupled for a long time -- and renaming a public
+signature is a break this rename does not need to make. The tooltips say
+which is which.
+
+WHAT WAS LEFT ALONE, each for its own reason:
+  * `batch_correction.py`'s `"negative_control"` alias, which resolves to
+    `control_center`. A user-facing VALUE, not a key.
+  * `plate_layout.ROLE_POSITIVE` / `ROLE_NEGATIVE`, Qt widget-role tokens.
+    Line 471 maps role to setting and now shows the two apart, with a
+    comment saying why they were ever the same string.
+  * `experiment_design`'s `QLabel[spacrWellRole="negative_control"]`
+    stylesheet selectors.
+  * every bare identifier in `ml.py` -- about sixty sites, including a
+    commented-out block. The rename touched only QUOTED occurrences, which
+    is what made "the setting but not the parameter" a mechanical rule
+    rather than a judgement per line.
+
+AND THE RENAME ATE ITS OWN TABLE ONCE. The quoted-occurrence pass ran over
+`settings.py` after `RENAMED_SETTINGS` had gained
+`"positive_control": "positive_control_id"`, and rewrote the KEY as well --
+leaving `"positive_control_id": "positive_control_id"`, a rename from a
+name to itself, which folds nothing and reads as correct. Caught by asking
+the fold to move a value and watching it not. The trap this file already
+describes, sprung on the file that describes it.
+
+--------------------------------------------------------------------------------
+THE BUG: THE FOLD HAD ONE CALL SITE, SO THREE RENAMES DROPPED THE USER'S VALUE
+--------------------------------------------------------------------------------
+
+`_fold_renamed_settings` is what makes a rename safe: it moves an old key's
+VALUE onto the new name before any `setdefault` runs. Measured while wiring
+the two above:
+
+    grep -n "_fold_renamed_settings" spacr/settings.py
+      1638: def _fold_renamed_settings(settings):
+      6824:     _fold_renamed_settings(settings)      <- one caller
+
+One. `set_default_generate_barecode_mapping`, which owns `window_length`.
+So `min_observations_per_hit`, `min_cells_per_well`, `stain_baseline_wells`
+and `analysis_excluded_wells` were never folded at all: their factories
+filled the default first, and a settings file naming the old key kept
+running and lost its number in silence. That is the one failure a rename
+exists to prevent, and it was in the tree for a day.
+
+WHY THE TEST DID NOT CATCH IT, and this is the transferable part.
+`test_the_fold_runs_before_the_defaults_are_filled_in` is the right test and
+it was written the first day. It walks a TABLE -- `FACTORIES` -- naming the
+factory each renamed setting belongs to, and that table had ONE ENTRY. A
+rename missing from the table was never asked the question. The test passed,
+every time, on one of four renames.
+
+    A TABLE-DRIVEN TEST IS ONLY AS COMPLETE AS ITS TABLE, and nothing was
+    checking the table against the thing it describes.
+
+FIXED IN THREE PARTS:
+  * the fold is called at the top of `get_perform_regression_default_settings`,
+    `set_default_analyze_screen` and `set_analyze_invasion_defaults` as well
+    (`set_default_classify` inherits it by calling the second);
+  * `FACTORIES` is complete, seven entries;
+  * `test_every_rename_names_the_factory_that_declares_it` fails when a
+    rename is added with no entry, so the table cannot go stale in the
+    direction that hides the bug.
+
+TWO SMALLER CORRECTIONS TO THE SAME TEST, both found by running it:
+  * the factory lookup asked "which old name maps EXACTLY to this string",
+    which raises StopIteration on both halves of a SPLIT, since
+    `control_wells` maps to a tuple. It asks "which old name leads here".
+  * it compared the folded value against the default and required them to
+    differ, which cannot be asked of a setting whose default is None --
+    `stain_baseline_wells` is one, and the assertion could only say "no
+    default to compare against" about the very case it existed to check. It
+    now sends a probe the default cannot be and asserts the probe arrives.

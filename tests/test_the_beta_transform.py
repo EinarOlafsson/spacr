@@ -144,7 +144,7 @@ def test_a_response_outside_zero_to_one_is_refused():
 
     frame = _scores([120.0, 4300.0, 900.0] * 30)
     with pytest.raises(ValueError) as excinfo:
-        process_scores(frame, "pred", plate="plate1", min_cell_count=1,
+        process_scores(frame, "pred", plate="plate1", min_cells_per_well=1,
                        transform="beta")
     message = str(excinfo.value)
     assert "proportion" in message
@@ -159,7 +159,7 @@ def test_a_proportion_response_is_accepted():
     rng = np.random.default_rng(0)
     frame = _scores(rng.uniform(0.0, 1.0, 90))
     out, name = process_scores(frame, "pred", plate="plate1",
-                               min_cell_count=1, transform="beta")
+                               min_cells_per_well=1, transform="beta")
     assert name == "beta_pred"
     assert np.all(np.isfinite(out[name]))
 
@@ -170,7 +170,7 @@ def test_the_endpoints_survive_the_whole_call():
 
     frame = _scores([1.0] * 45 + [0.0] * 45)
     out, name = process_scores(frame, "pred", plate="plate1",
-                               min_cell_count=1, transform="beta")
+                               min_cells_per_well=1, transform="beta")
     assert np.all(np.isfinite(out[name])), "an all-positive well became -inf"
 
 

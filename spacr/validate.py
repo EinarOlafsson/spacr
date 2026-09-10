@@ -37,7 +37,7 @@ import re
 import shutil
 import sys
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 from .object_roles import ALL_ROLES, SEGMENTED_ROLES
 
 __all__ = [
@@ -1049,7 +1049,9 @@ _APP_EXTRA_KEYS: Dict[str, frozenset] = {
 #: renamed. Only renames that were verified against the live settings are
 #: recorded as such; a guess here would send a user to a name that is also
 #: not read.
-RETIRED_SETTINGS: Dict[str, str] = {
+#: A value is the replacement's name, a TUPLE of names when the setting
+#: was split in two, or an empty string when there is no replacement.
+RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     # ONE FILTER FOR THE PREVIEW AND THE RUN. organelle carried both a
     # `_size` pair and an `_area` pair meaning the same thing, and they were
     # read by DIFFERENT code: `_size` by the batch mask writer, `_area` by
@@ -1063,9 +1065,66 @@ RETIRED_SETTINGS: Dict[str, str] = {
     # collapsing the step count to 1, so a settings file in the wild keeps
     # meaning what it meant instead of quietly starting to accumulate.
     "gradient_accumulation": "gradient_accumulation_steps",
+    # RENAMED, NOT REMOVED (364). "Expected end" reads as a coordinate and
+    # the value is a LENGTH -- the parameter's own docstring had to say
+    # "window *length*, not an end coordinate", which is a name explaining
+    # itself away. `settings._fold_renamed_settings` moves an old key onto
+    # the new one before any default is filled in, so a settings file in
+    # the wild keeps working and this entry tells its owner what happened.
+    "expected_end": "window_length",
+    # "min_n" is the minimum of an unnamed n. The n is OBSERVATIONS behind
+    # a hit -- wells -- which the tooltip had to spell out twice over.
+    "min_n": "min_observations_per_hit",
+    # "min_cell_count" counts cells and drops WELLS. The count is per well
+    # and the name does not say so, which is why the tooltip had to.
+    "min_cell_count": "min_cells_per_well",
+    # RENAMED, NOT WITHDRAWN. The setting is an IDENTIFIER looked up in
+    # `location_column`, and it sat beside three settings naming WELLS
+    # (`positive_control_wells` and friends) with nothing in the name to
+    # tell them apart. `settings._fold_renamed_settings` copies an old
+    # file's value to the new name before any default is filled in, so a
+    # settings CSV written before this keeps behaving exactly as it did.
+    #
+    # The `generate_ml_scores` PARAMETERS of the same name are unchanged
+    # -- a public signature, already decoupled from the setting at four
+    # call sites that pass `pc=`/`nc=`.
+    "positive_control": "positive_control_id",
+    "negative_control": "negative_control_id",
+    # SPLIT, not renamed (357-Q6). It meant the invasion assay's stain
+    # baseline AND the wells Regression and sequencing drop before fitting,
+    # with different defaults and no way to set one without setting the
+    # other. `settings._fold_renamed_settings` sends an old value to BOTH,
+    # so a file written before the split behaves exactly as it did.
+    "control_wells": ("stain_baseline_wells", "analysis_excluded_wells"),
+    # THE EIGHT THE PACKAGE READ NOWHERE (357-Q4, answered 2026-09-09:
+    # retire all eight). Each had exactly one consumer in the generated
+    # map and in every case it was the setting's own defaults setter --
+    # nothing read the value back. No replacement, so the message says the
+    # value has no effect rather than sending the reader somewhere.
+    #
+    # TWO OF THEM DOCUMENTED A JOB THEY DID NOT DO, which is worse than a
+    # dead control and is the reason this list is worth reading:
+    # `mask_array` said it chose the labelled plane for the 'array' stream
+    # method, and `stream_dataset` takes that plane from `object_array` for
+    # both methods; `load_path_regex` said it selected already-exported
+    # crops, and nothing consults it. A user setting either got silence.
+    "denoise": "",
+    "load_path_regex": "",
+    "mask_array": "",
+    "normalization": "",
+    "normalization_scope": "",
+    "normalize_plots": "",
+    "save_to_db": "",
+    "visualize": "",
     "organelle_min_size": "organelle_min_area",
     "organelle_max_size": "organelle_max_area",
-    "minimum_cell_count": "min_cell_count",
+    # POINTS AT THE LIVE NAME, NOT AT THE ONE IT WAS MERGED INTO. This was
+    # `min_cell_count` until 2026-09-09, when that key was itself renamed to
+    # `min_cells_per_well` -- so the entry named a setting that no longer
+    # exists and sent its reader to a second dead end. A chain of renames is
+    # worse than no message: the user follows it, finds nothing, and has no
+    # reason to think the trail continues.
+    "minimum_cell_count": "min_cells_per_well",
     "redunction_method": "reduction_method",
     "barcode_coordinates": "",
     "barcode_mapping": "",
@@ -1118,6 +1177,18 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
         if not isinstance(key, str) or key not in RETIRED_SETTINGS:
             continue
         replacement = RETIRED_SETTINGS[key]
+        if isinstance(replacement, (tuple, list)):
+            # A SPLIT. One key that meant two things is now two keys, and
+            # both need naming: a message that offered only one of them
+            # would send half the readers to the wrong control.
+            names = ", ".join(f"'{one}'" for one in replacement)
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' was split into {names}.",
+                f"Set whichever of {names} you meant — spaCR applies the "
+                f"old value to both, so a file that has not been updated "
+                f"still behaves as it did."))
+            continue
         if replacement:
             problems.append(Problem(
                 WARNING, key,

@@ -78,15 +78,19 @@ def test_the_coordinate_route_can_only_cut_a_box():
 def test_the_labelled_plane_route_can_cut_either():
     """A labelled plane carries the outline, so both cuts are available.
 
-    The plane is named by `object_array`; this test set `mask_array`,
-    which was the duplicate field.
+    The plane is named by `object_array`, and it is the only key that
+    ever named it. `mask_array` was the duplicate field, and it was a
+    duplicate that nothing read: `stream_dataset` took the plane from
+    `object_array` for both methods while the panel wrote an index to
+    `mask_array`. Retired 2026-09-09 (357-Q4).
     """
     shaped = _streaming(object_array=2, crop_shape="object")
 
     assert not bounding_box_only(shaped)
     cut = to_crop_settings(shaped)
     assert cut["stream_method"] == "array"
-    assert cut["mask_array"] == 2
+    assert cut["object_array"] == "2"
+    assert "mask_array" not in cut
     assert cut["use_bounding_box"] is False
 
     boxed = _streaming(object_array=2, crop_shape="bbox")

@@ -685,12 +685,12 @@ def test_regression_defaults_track_the_dependent_variable():
         {"dependent_variable": "pathogen_area", "score_column": "pred"})
 
 
-def test_regression_control_wells_default_from_filter_value():
+def test_regression_analysis_excluded_wells_default_from_filter_value():
     assert S.get_perform_regression_default_settings(
-        {"filter_value": ["c1", "c2"]})["control_wells"] == ["c1", "c2"]
+        {"filter_value": ["c1", "c2"]})["analysis_excluded_wells"] == ["c1", "c2"]
     # filter_value is indexed and iterated, so None is not a legal value here.
     assert S.get_perform_regression_default_settings(
-        {"filter_value": None})["control_wells"] == []
+        {"filter_value": None})["analysis_excluded_wells"] == []
 
 
 # ---------------------------------------------------------------------------
@@ -1075,7 +1075,7 @@ def test_barecode_mapping_defaults_are_what_the_pipeline_indexes():
     """generate_barecode_mapping indexes, not .get()s, every one of these."""
     got = S.set_default_generate_barecode_mapping({})
     for key in ("src", "regex", "target_sequence", "offset_start",
-                "expected_end", "column_csv", "grna_csv", "row_csv",
+                "window_length", "column_csv", "grna_csv", "row_csv",
                 "save_h5", "comp_type", "comp_level", "chunk_size", "n_jobs",
                 "mode", "single_direction", "test", "fill_na"):
         assert key in got, key

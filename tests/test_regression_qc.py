@@ -875,6 +875,12 @@ def test_cell_count_panel_sees_low_n_wells_driving_the_tails():
     assert stats["spearman_rho"] < -0.3
     assert stats["spearman_p"] < 1e-6
     assert stats["n_points"] == n
+    # `min_cell_count` HERE IS A MEASUREMENT, NOT THE SETTING. It is the
+    # smallest cell count the panel actually saw, computed by
+    # `regression_qc` as `float(x.min())`. The setting of that name became
+    # `min_cells_per_well` on 2026-09-09, and the blanket rename reached
+    # this line -- the fourth identifier that merely spells a setting the
+    # same way. See 364's classification step.
     assert stats["min_cell_count"] == pytest.approx(meta["cell_count"].min())
     assert stats["n_extreme"] > 0
     # Most of the |z| > 2 wells live in the smallest decile of cell counts.

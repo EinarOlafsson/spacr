@@ -74,10 +74,10 @@ def test_a_legacy_penalty_under_another_family_is_converted_silently(capsys):
     assert 'group_lasso_lambda' not in capsys.readouterr().out
 
 
-def test_control_wells_fall_back_to_filter_value_when_the_block_spec_fails(monkeypatch):
+def test_analysis_excluded_wells_fall_back_to_filter_value_when_the_block_spec_fails(monkeypatch):
     """An unreadable control-block spec must not take the defaults factory down.
 
-    ``control_wells`` is only ever an addition to ``filter_value``; if the
+    ``analysis_excluded_wells`` is only ever an addition to ``filter_value``; if the
     block spec cannot be computed the run still has to start with the wells
     the user typed, rather than raising inside a settings factory that has
     produced no analysis yet.
@@ -91,7 +91,7 @@ def test_control_wells_fall_back_to_filter_value_when_the_block_spec_fails(monke
     result = settings_mod.get_perform_regression_default_settings({
         'filter_value': ['c1', 'c2'],
     })
-    assert result['control_wells'] == ['c1', 'c2']
+    assert result['analysis_excluded_wells'] == ['c1', 'c2']
 
 
 # ---------------------------------------------------------------------------

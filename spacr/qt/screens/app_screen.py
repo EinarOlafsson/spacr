@@ -10653,7 +10653,7 @@ class AppScreen(QWidget):
         :param settings: settings about to be applied, not modified.
         :returns: the same dict, or a copy carrying an equivalent ``classes``.
         """
-        trio = ("location_column", "positive_control", "negative_control")
+        trio = ("location_column", "positive_control_id", "negative_control_id")
         if not any(key in settings for key in trio):
             return settings
         model = getattr(self, "_settings_model", None)

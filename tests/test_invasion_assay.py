@@ -513,7 +513,7 @@ def test_a_weak_outside_stain_is_scored_invaded_and_inflates_efficiency(tmp_path
     src = _weak_stain_src(tmp_path)
     base = dict(pathogen_types=["dmso"], pathogen_plate_metadata=[["c1"]])
 
-    truth = analyze_invasion(settings_for(src, control_wells=["c12"], **base))
+    truth = analyze_invasion(settings_for(src, stain_baseline_wells=["c12"], **base))
     truthful = well(truth, "plate1_r1_c1")
     assert truthful["n_attached"] == 30 and truthful["n_invaded"] == 30
     assert truthful["invasion_efficiency"] == pytest.approx(0.5)
@@ -527,7 +527,7 @@ def test_a_weak_outside_stain_is_scored_invaded_and_inflates_efficiency(tmp_path
 
     # Without controls the automatic cut shaves the weak parasite off the
     # bright cluster, and the error runs upward — never downward.
-    automatic = analyze_invasion(settings_for(src, control_wells=None, **base))
+    automatic = analyze_invasion(settings_for(src, stain_baseline_wells=None, **base))
     auto_row = well(automatic, "plate1_r1_c1")
     assert auto_row["invasion_efficiency"] > truthful["invasion_efficiency"]
     assert auto_row["invasion_efficiency"] == pytest.approx(31 / 60)
@@ -538,7 +538,7 @@ def test_a_weak_outside_stain_is_scored_invaded_and_inflates_efficiency(tmp_path
     # A threshold set too high does the same, and now the QC has a reference
     # to measure it against and flags the disagreement.
     too_high = analyze_invasion(settings_for(
-        src, control_wells=["c12"], outside_threshold=60.0, **base))
+        src, stain_baseline_wells=["c12"], outside_threshold=60.0, **base))
     high_row = well(too_high, "plate1_r1_c1")
     assert high_row["invasion_efficiency"] > truthful["invasion_efficiency"]
     assert high_row["threshold_source"] == "fixed"
@@ -558,7 +558,7 @@ def test_efficiency_is_monotone_in_the_threshold(tmp_path):
     for threshold in (20.0, 60.0, 150.0):
         out = analyze_invasion(settings_for(
             src, outside_threshold=threshold, pathogen_types=["dmso"],
-            pathogen_plate_metadata=[["c1"]], control_wells=["c12"]))
+            pathogen_plate_metadata=[["c1"]], stain_baseline_wells=["c12"]))
         efficiencies.append(well(out, "plate1_r1_c1")["invasion_efficiency"])
     assert efficiencies == sorted(efficiencies)
     assert efficiencies[0] == pytest.approx(0.5)
@@ -736,7 +736,7 @@ def test_a_plate_with_no_variation_anywhere_leaves_the_objects_unclassified(tmp_
 # Control wells
 # ---------------------------------------------------------------------------
 
-def test_control_wells_override_the_automatic_threshold_and_say_so(tmp_path, capsys):
+def test_stain_baseline_wells_override_the_automatic_threshold_and_say_so(tmp_path, capsys):
     """Wells whose parasites carry no outside stain give the honest negative
     distribution, which beats any automatic method. The report names the
     source so a control run cannot be mistaken for an automatic one."""
@@ -748,7 +748,7 @@ def test_control_wells_override_the_automatic_threshold_and_say_so(tmp_path, cap
     ])
     base = dict(pathogen_types=["dmso"], pathogen_plate_metadata=[["c1"]])
 
-    controlled = analyze_invasion(settings_for(src, control_wells=["c12"], **base))
+    controlled = analyze_invasion(settings_for(src, stain_baseline_wells=["c12"], **base))
     printed = capsys.readouterr().out
     assert "threshold taken from the control wells" in printed
 
@@ -763,7 +763,7 @@ def test_control_wells_override_the_automatic_threshold_and_say_so(tmp_path, cap
     assert "plate1_r1_c12" not in set(controlled["wells"]["prc"])
     assert len(controlled["controls"]) == 60
 
-    automatic = analyze_invasion(settings_for(src, control_wells=None, **base))
+    automatic = analyze_invasion(settings_for(src, stain_baseline_wells=None, **base))
     auto_row = well(automatic, "plate1_r1_c1")
     assert auto_row["threshold_source"] == "field"
     assert auto_row["threshold_median"] == pytest.approx(55.0)
@@ -771,7 +771,7 @@ def test_control_wells_override_the_automatic_threshold_and_say_so(tmp_path, cap
 
 
 @pytest.mark.parametrize("spec", ["c12", "r1_c12", "plate1_r1_c12"])
-def test_control_wells_accept_the_house_well_vocabulary(tmp_path, spec):
+def test_stain_baseline_wells_accept_the_house_well_vocabulary(tmp_path, spec):
     from spacr.submodules import analyze_invasion
 
     src = write_db(tmp_path / "p", [
@@ -779,7 +779,7 @@ def test_control_wells_accept_the_house_well_vocabulary(tmp_path, spec):
         {"row": "r1", "column": "c12", "outside": [5.0] * 30},
     ])
     out = analyze_invasion(settings_for(
-        src, control_wells=[spec], pathogen_types=["dmso"],
+        src, stain_baseline_wells=[spec], pathogen_types=["dmso"],
         pathogen_plate_metadata=[["c1"]]))
     assert len(out["controls"]) == 30
     assert well(out, "plate1_r1_c1")["threshold_source"] == "control"
@@ -793,7 +793,7 @@ def test_too_few_control_objects_falls_back_and_warns(tmp_path, capsys):
         {"row": "r1", "column": "c12", "outside": [5.0, 5.0, 6.0]},
     ])
     out = analyze_invasion(settings_for(
-        src, control_wells=["c12"], pathogen_types=["dmso"],
+        src, stain_baseline_wells=["c12"], pathogen_types=["dmso"],
         pathogen_plate_metadata=[["c1"]]))
 
     assert "min_control_objects" in capsys.readouterr().out
@@ -810,7 +810,7 @@ def test_a_fixed_threshold_beats_the_controls_but_they_become_its_reference(
         {"row": "r1", "column": "c12", "outside": [5.0] * 30},
     ])
     out = analyze_invasion(settings_for(
-        src, control_wells=["c12"], outside_threshold=55.0,
+        src, stain_baseline_wells=["c12"], outside_threshold=55.0,
         pathogen_types=["dmso"], pathogen_plate_metadata=[["c1"]]))
 
     assert "'outside_threshold' is set" in capsys.readouterr().out
@@ -820,13 +820,13 @@ def test_a_fixed_threshold_beats_the_controls_but_they_become_its_reference(
     assert row["reference_threshold_median"] == pytest.approx(5.0)
 
 
-def test_control_wells_swallowing_the_whole_plate_is_an_error(tmp_path):
+def test_stain_baseline_wells_swallowing_the_whole_plate_is_an_error(tmp_path):
     from spacr.submodules import analyze_invasion
 
     src = write_db(tmp_path / "p", [
         {"row": "r1", "column": "c1", "outside": split(5, 5)}])
-    with pytest.raises(ValueError, match="control_wells"):
-        analyze_invasion(settings_for(src, control_wells=["c1"]))
+    with pytest.raises(ValueError, match="stain_baseline_wells"):
+        analyze_invasion(settings_for(src, stain_baseline_wells=["c1"]))
 
 
 # ---------------------------------------------------------------------------
@@ -1441,7 +1441,7 @@ def test_the_local_fallback_fills_every_key_the_assay_reads():
     for key in ("parasite_table", "compartment", "outside_channel",
                 "total_channel", "intensity_statistic",
                 "outside_threshold_method", "background_correction",
-                "outside_threshold", "control_wells", "control_quantile",
+                "outside_threshold", "stain_baseline_wells", "control_quantile",
                 "min_control_objects", "min_parasite_area",
                 "max_parasite_area", "min_total_intensity",
                 "seed_wells_from_cells", "qc_plot_max_panels", "cmap",

@@ -37,7 +37,16 @@ def test_registry_has_complete_unique_exact_key_mapping():
     # nucleus and pathogen still declare theirs -- and the two organelle
     # animations were mapping help to keys no run can carry. Both still
     # carry `organelle_min_area` / `organelle_max_area`.
-    assert len(by_setting) == 135
+    #
+    # 135 until 2026-09-09, and this one for a different reason: the six
+    # above were RENAMED, and their animations kept the live key. This one
+    # was RETIRED with no replacement. `normalize_plots` was read by
+    # nothing but its own defaults setter (357-Q4), so the animation was
+    # offering help for a control the run does not have -- and unlike a
+    # rename there is no live key to move the mapping to. The animation
+    # itself stays; it illustrates `normalization_percentiles` and
+    # `normalize`, which both act.
+    assert len(by_setting) == 134
     assert len({animation.slug for animation in animations}) == 94
     assert animation_for_setting("merge_edge_pathogen_cells").slug == (
         "merge_edge_pathogen_cells"
@@ -50,7 +59,11 @@ def test_registry_has_complete_unique_exact_key_mapping():
 def test_every_asset_is_square_animated_and_matches_manifest_hash():
     summary = validate_setting_animation_assets(check_hashes=True)
     assert summary["animations"] == 94
-    assert summary["setting_keys"] == 135
+    # 135 -> 134 on 2026-09-09: `normalize_plots` left the
+    # `normalization_percentiles` spec when it was retired (357-Q4).
+    # Nothing read it, so an animation offered under its name illustrated
+    # a control the run does not have.
+    assert summary["setting_keys"] == 134
     assert summary["bytes"] > 0
 
     for animation in setting_animations():

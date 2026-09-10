@@ -407,7 +407,7 @@ def _calibration_inputs(settings):
     wrong side of any cut-off.
 
     THE WELLS AND THE GUIDE ARE TWO SETTINGS, and reading one for the other is
-    what stopped this running at all. `positive_control` is a gene or gRNA ID
+    what stopped this running at all. `positive_control_id` is a gene or gRNA ID
     SUBSTRING in a regression -- it defaults to '239740' -- and was being
     matched against well labels, which no well label has ever contained. So
     every screen that ticked the box was refused with "no well matched", and
@@ -432,10 +432,10 @@ def _calibration_inputs(settings):
             "the plate design names no positive_control_wells and "
             "negative_control_wells, and a control-well calibration has "
             "nothing to calibrate against")
-    positive_guide = str(settings.get('positive_control') or '').strip()
+    positive_guide = str(settings.get('positive_control_id') or '').strip()
     if not positive_guide:
         raise ValueError(
-            "positive_control names no gRNA, so there is no guide whose "
+            "positive_control_id names no gRNA, so there is no guide whose "
             "sequenced share can be compared with the imaging")
 
     counts = _concat_named_csvs(settings.get('count_data'))
@@ -1664,7 +1664,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     For the wells with the most objects, repeatedly subsamples cells at
     increasing sample sizes and records the mean absolute difference from
     the well's full mean. Plots the smoothed curve with a ±1 s.d. band,
-    marks the elbow point (or ``settings['min_cell_count']`` when it is
+    marks the elbow point (or ``settings['min_cells_per_well']`` when it is
     set) and writes ``cell_min_threshold.pdf`` into ``dst``.
 
     Pass ``dst`` to keep the figure in a specific run folder. When omitted,
@@ -1674,7 +1674,7 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     :param settings: Requires ``score_data`` (CSV path or list of paths),
         ``dependent_variable``, ``tolerance`` (int percent or float
         fraction) and
-        ``min_cell_count``. ``count_data`` is needed only when ``dst`` is
+        ``min_cells_per_well``. ``count_data`` is needed only when ``dst`` is
         left unset, and only to locate the figure.
     :param num_repeats: Subsamples drawn per sample size. Default ``10``.
     :param sample_size: Number of wells, taken largest-first by cell
@@ -1810,8 +1810,8 @@ def minimum_cell_simulation(settings, num_repeats=10, sample_size=100, tolerance
     dst = os.path.abspath(os.path.expanduser(os.fspath(dst)))
     os.makedirs(dst, exist_ok=True)
 
-    mark = (elbow_point['sample_size'] if settings['min_cell_count'] is None
-            else settings['min_cell_count'])
+    mark = (elbow_point['sample_size'] if settings['min_cells_per_well'] is None
+            else settings['min_cells_per_well'])
     fig_file_path = _draw_the_cell_count_sweep(
         summary_df, mark, os.path.join(dst, 'cell_min_threshold.pdf'))
     if fig_file_path:
@@ -2048,8 +2048,8 @@ def _say_when_a_control_matched_nothing(coef_df, nc, pc, controls) -> None:
     measured on nothing.
     """
     counts = coef_df['condition'].value_counts()
-    for value, tag, what in ((nc, 'nc', 'negative_control'),
-                             (pc, 'pc', 'positive_control')):
+    for value, tag, what in ((nc, 'nc', 'negative_control_id'),
+                             (pc, 'pc', 'positive_control_id')):
         if value in (None, '') or int(counts.get(tag, 0)):
             continue
         print(f"  WARNING: {what}={value!r} matches no coefficient in this "
@@ -3848,7 +3848,7 @@ def regression_model(X, y, regression_type='ols', groups=None, alpha=1.0,
                 f"finite and strictly positive; got "
                 f"{np.nanmin(n_total)}-{np.nanmax(n_total)}. A well with no "
                 f"cells has no rate to estimate and must be filtered out "
-                f"(min_cell_count) rather than offset by log(0).")
+                f"(min_cells_per_well) rather than offset by log(0).")
         return np.log(n_total)
 
     def _glm_auto():
@@ -6805,8 +6805,8 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     # one, so a permutation run drew no cut and reported no cut either.
     results['condition'] = label_control_condition(
         results['feature'], results['grna'],
-        nc=settings.get('negative_control'),
-        pc=settings.get('positive_control'),
+        nc=settings.get('negative_control_id'),
+        pc=settings.get('positive_control_id'),
         controls=settings.get('controls'))
 
     from .thresholds import coefficient_threshold
@@ -7013,8 +7013,8 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
             gene_results['q_value'] = gene_results['adjusted_p_value']
             gene_results['condition'] = label_control_condition(
                 gene_results['feature'], gene_results['gene'],
-                nc=settings.get('negative_control'),
-                pc=settings.get('positive_control'),
+                nc=settings.get('negative_control_id'),
+                pc=settings.get('positive_control_id'),
                 controls=settings.get('controls'))
             gene_primary = gene_results.loc[
                 gene_results['minimum_wells_threshold'] == primary].copy()
@@ -8082,7 +8082,8 @@ def _perform_regression(settings):
         - ``batch_correction`` — optional ``combat``, ``center``, ``zscore``,
           ``robust_zscore`` or reference-control ``control_center``
           normalization of the dependent variable before well aggregation.
-        - ``fraction_threshold``, ``min_n``, ``metadata_files``,
+        - ``fraction_threshold``, ``min_observations_per_hit``,
+          ``metadata_files``,
           ``volcano``, ``heatmap_feature``.
 
     :returns: Path to the merged, metadata-annotated results DataFrame
@@ -8236,7 +8237,8 @@ def _perform_regression(settings):
     # TWO guides and n_gene = 15. A reader comparing n_gene across genes is
     # comparing a product, not a count of anything.
     #
-    # Left as the product rather than quietly redefined: `min_n` filters on
+    # Left as the product rather than quietly redefined:
+    # `min_observations_per_hit` filters on
     # it and the results CSVs of every past run carry it, so changing what
     # the number MEANS is a separate decision from fixing WHICH ROWS it is
     # taken over. The guide-support table beside it already reports guides
@@ -8709,7 +8711,7 @@ def _perform_regression(settings):
     # own `src`, so the RUN folders are already separate -- but the default
     # destination here comes from `count_data`, which every trial shares, and
     # this figure is drawn on EVERY trial (the call is unconditional; only
-    # whether its ANSWER is used depends on min_cell_count). So n_jobs
+    # whether its ANSWER is used depends on min_cells_per_well). So n_jobs
     # workers wrote one path at once, and "every figure whose stamp changed
     # since I started" cannot tell one worker's curve from another's: a trial
     # could file the neighbouring trial's picture as its own, or copy one
@@ -8721,12 +8723,12 @@ def _perform_regression(settings):
     sim_min_count = minimum_cell_simulation(
         settings, tolerance=settings['tolerance'], dst=res_folder)
 
-    if settings['min_cell_count'] is None:
-        settings['min_cell_count'] = sim_min_count
-        _AUTOMATIC_SETTINGS['min_cell_count'] = sim_min_count
+    if settings['min_cells_per_well'] is None:
+        settings['min_cells_per_well'] = sim_min_count
+        _AUTOMATIC_SETTINGS['min_cells_per_well'] = sim_min_count
         
     if settings['verbose']:
-        print(f"Minimum cell count: {settings['min_cell_count']}")
+        print(f"Minimum cell count: {settings['min_cells_per_well']}")
         print(f"Dependent variable after minimum cell count filter: {len(score_data_df)}")
         display(score_data_df)
 
@@ -8741,7 +8743,7 @@ def _perform_regression(settings):
     try:
         _before_transform, _ = process_scores(
             score_data_df, settings['dependent_variable'], None,
-            settings['min_cell_count'], settings['agg_type'],
+            settings['min_cells_per_well'], settings['agg_type'],
             None, settings['regression_type'],
             settings['invert_dependent_variable'])
     except Exception:                                            # noqa: BLE001
@@ -8751,7 +8753,7 @@ def _perform_regression(settings):
 
     dependent_df, dependent_variable = process_scores(
         score_data_df, settings['dependent_variable'], None,
-        settings['min_cell_count'], settings['agg_type'],
+        settings['min_cells_per_well'], settings['agg_type'],
         settings['transform'], settings['regression_type'],
         settings['invert_dependent_variable'])
 
@@ -8912,8 +8914,9 @@ def _perform_regression(settings):
     # take no part in the regression." Measured on a synthetic case with half
     # the wells unpaired, every count came out EXACTLY 2x too high.
     #
-    # It matters beyond the display. `min_n` filters the hit list on these
-    #     significant[significant['n_grna'] > settings['min_n']]
+    # It matters beyond the display. `min_observations_per_hit` filters the
+    # hit list on these
+    #     significant[significant['n_grna'] > settings['min_observations_per_hit']]
     # so an inflated count lets a guide through a filter it should fail --
     # which is a hit reported on evidence that is not there.
     _merged_for_counts, n_grna, n_gene = _count_variable_instances(
@@ -9166,7 +9169,7 @@ def _perform_regression(settings):
         # explicitly as well as rowID and columnID.
         model_plate_position=settings.get('model_plate_position', True),
         model_data_layout=settings.get('model_data_layout', 'long'),
-        nc=settings['negative_control'], pc=settings['positive_control'],
+        nc=settings['negative_control_id'], pc=settings['positive_control_id'],
         controls=settings['controls'], dst=res_folder,
         # 183: a quiet run gets the summary HEADER and a pointer at the file;
         # verbose gets every coefficient, which is what verbose is for.
@@ -9402,8 +9405,9 @@ def _perform_regression(settings):
                   f"{type(error).__name__}: {error}")
 
     significant.to_csv(hits_path, index=False)
-    significant_grna_filtered = significant[significant['n_grna'] > settings['min_n']]
-    significant_gene_filtered = significant[significant['n_gene'] > settings['min_n']]
+    threshold = settings['min_observations_per_hit']
+    significant_grna_filtered = significant[significant['n_grna'] > threshold]
+    significant_gene_filtered = significant[significant['n_gene'] > threshold]
     significant_filtered = pd.concat([significant_grna_filtered, significant_gene_filtered])
     filtered_hit_path = os.path.join(os.path.dirname(hits_path), 'results_significant_filtered.csv')
     significant_filtered.to_csv(filtered_hit_path, index=False)
@@ -9634,8 +9638,8 @@ def _perform_regression(settings):
     try:
         from .guide_concordance import concordance_report
         controls = {}
-        for _key, _role in (('positive_control', 'positive'),
-                            ('negative_control', 'negative')):
+        for _key, _role in (('positive_control_id', 'positive'),
+                            ('negative_control_id', 'negative')):
             _value = settings.get(_key)
             if _value not in (None, ''):
                 controls[str(_value)] = _role
@@ -10137,20 +10141,20 @@ def clean_controls(df,values, column):
                     print(f'Removed data from {value}')
     return df
 
-def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='mean', transform=None, regression_type='ols', invert_dependent_variable=False):
+def process_scores(df, dependent_variable, plate, min_cells_per_well=25, agg_type='mean', transform=None, regression_type='ols', invert_dependent_variable=False):
     """Aggregate per-object model scores to per-well summaries, ready for regression.
 
     Ensures ``plateID/rowID/columnID/prc`` columns exist, applies an
     optional inversion of the raw response, aggregates by well according
     to ``agg_type`` (or with ``sum`` for the count models
     ``'poisson'`` and ``'horseshoe'``), enforces
-    ``min_cell_count`` and optionally transforms the aggregated response.
+    ``min_cells_per_well`` and optionally transforms the aggregated response.
 
     :param df: Per-object score DataFrame.
     :param dependent_variable: Column being aggregated.
     :param plate: Plate identifier to stamp when the frame is
         single-plate; ignored (with warning) when multiple plates exist.
-    :param min_cell_count: Wells with fewer objects are dropped.
+    :param min_cells_per_well: Wells with fewer objects are dropped.
         Default ``25``.
     :param agg_type: ``'mean'``, ``'median'``, ``'quantile'`` or None.
     :param transform: Optional post-aggregation transform name
@@ -10319,7 +10323,7 @@ def process_scores(df, dependent_variable, plate, min_cell_count=25, agg_type='m
     print("1 test")
     display(dependent_df)
 
-    dependent_df = dependent_df[dependent_df['cell_count'] >= min_cell_count]
+    dependent_df = dependent_df[dependent_df['cell_count'] >= min_cells_per_well]
 
     print("2 test")
     display(dependent_df)
@@ -10428,7 +10432,7 @@ def generate_ml_scores(settings):
             settings = {
                 'src': '/data/plate01',
                 'channel_of_interest': 3,
-                'positive_control': 'c2', 'negative_control': 'c1',
+                'positive_control_id': 'c2', 'negative_control_id': 'c1',
                 'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',
             }
             generate_ml_scores(settings)
@@ -10571,10 +10575,10 @@ def generate_ml_scores(settings):
                 f"Unannotated objects will be scored after training; spaCR "
                 f"will not assign them a training label.")
             
-        if settings['positive_control'] is None and settings['negative_control'] is None:
-            settings['positive_control'] = str(unique_values[0])
-            settings['negative_control'] = str(unique_values[1])
-            print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
+        if settings['positive_control_id'] is None and settings['negative_control_id'] is None:
+            settings['positive_control_id'] = str(unique_values[0])
+            settings['negative_control_id'] = str(unique_values[1])
+            print(f"Automatically set positive control to {settings['positive_control_id']} and negative control to {settings['negative_control_id']} based on unique values in annotation column.")
     
     _flowview_advance("dataset")
 
@@ -10604,7 +10608,7 @@ def generate_ml_scores(settings):
         settings,
         default_control_column=(_label_column
                                 or settings.get('location_column')),
-        default_control_values=settings.get('negative_control'),
+        default_control_values=settings.get('negative_control_id'),
     )
     # Added here rather than in `correction_kwargs` — see the note at its
     # other call site. `ml_analysis` grew both parameters; the helper's
@@ -10620,8 +10624,8 @@ def generate_ml_scores(settings):
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
                                _training_column,
-                               settings['positive_control'],
-                               settings['negative_control'],
+                               settings['positive_control_id'],
+                               settings['negative_control_id'],
                                settings['exclude'],
                                settings['n_repeats'],
                                settings['top_features'],
@@ -10654,7 +10658,7 @@ def generate_ml_scores(settings):
                                 grouping=settings['grouping'],
                                 min_max=settings['min_max'],
                                 cmap=settings['cmap'],
-                                min_count=settings['min_cell_count'],
+                                min_count=settings['min_cells_per_well'],
                                 verbose=settings['verbose'])
 
     data_path, permutation_path, feature_importance_path, model_metricks_path, permutation_fig_path, feature_importance_fig_path, shap_fig_path, plate_heatmap_path, settings_csv, ml_features = get_ml_results_paths(src1, settings['model_type_ml'], settings['channel_of_interest'])

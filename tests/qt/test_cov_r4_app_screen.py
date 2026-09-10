@@ -1060,12 +1060,12 @@ class TestPickingWellsFromTheMap:
         monkeypatch.setattr(plate_map_picker, "PlateMapPicker", Picker)
 
         field = QLineEdit()
-        assert screen.pick_wells_for(field, "control_wells") == "A1,B2"
+        assert screen.pick_wells_for(field, "analysis_excluded_wells") == "A1,B2"
         assert field.text() == "A1,B2"
 
         readonly = types.SimpleNamespace(text=lambda: "")
 
-        assert screen.pick_wells_for(readonly, "control_wells") == "A1,B2"
+        assert screen.pick_wells_for(readonly, "analysis_excluded_wells") == "A1,B2"
         assert "A1,B2 chosen from the 96-well map" in _console_text(
             screen._console)
 
@@ -1905,7 +1905,7 @@ class TestMigratingTheControlWells:
                                                                  screen):
         """The trio is the OLD spelling; a file carrying both means the new."""
         self._classify_shaped(screen)
-        already = {"location_column": "col", "positive_control": "A1",
+        already = {"location_column": "col", "positive_control_id": "A1",
                    "classes": [["A1"], ["B2"]]}
 
         assert screen._migrate_control_wells(already) is already
@@ -1916,8 +1916,8 @@ class TestMigratingTheControlWells:
         from spacr import classify_classes
 
         self._classify_shaped(screen)
-        old = {"location_column": "col", "positive_control": "A1",
-               "negative_control": "B2"}
+        old = {"location_column": "col", "positive_control_id": "A1",
+               "negative_control_id": "B2"}
 
         monkeypatch.setattr(
             classify_classes, "normalize_settings",
@@ -1939,8 +1939,8 @@ class TestMigratingTheControlWells:
         from spacr import classify_classes
 
         self._classify_shaped(screen)
-        old = {"location_column": "col", "positive_control": "",
-               "negative_control": ""}
+        old = {"location_column": "col", "positive_control_id": "",
+               "negative_control_id": ""}
         monkeypatch.setattr(classify_classes, "normalize_settings",
                             lambda settings: {"classes": []})
 

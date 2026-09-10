@@ -37,7 +37,7 @@ REMEDIES = (
         "level where the guides of one gene collapse into one column.")),
     ("exog contains inf", (
         "A predictor holds inf or NaN. A fraction computed from a well with no "
-        "reads is the usual source; raise min_cell_count, or filter the wells "
+        "reads is the usual source; raise min_cells_per_well, or filter the wells "
         "with no counts before fitting.")),
     ("0-size array", (
         "The design came out empty, so the join produced no rows. The scores "
@@ -97,7 +97,7 @@ def _design_lines(frame, settings: Optional[Mapping[str, Any]]) -> list:
     if settings:
         for key in ("regression_type", "inference", "analysis_mode",
                     "regression_backend", "level", "fdr_alpha",
-                    "min_cell_count", "fraction_threshold"):
+                    "min_cells_per_well", "fraction_threshold"):
             if key in settings:
                 lines.append(f"  {key:<23} {settings[key]!r}")
     return lines

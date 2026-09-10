@@ -18,7 +18,7 @@ class TestARowReproducesItsTrial:
     def test_settings_round_trip_through_the_csv(self, tmp_path):
         """Values come back as strings from disk and must be parsed back.
 
-        A trial run with min_cell_count=100 must not be reproduced with the
+        A trial run with min_cells_per_well=100 must not be reproduced with the
         STRING "100": spaCR compares it numerically and would filter nothing.
         """
         from spacr.parameter_sweep import settings_for_trial
@@ -26,14 +26,14 @@ class TestARowReproducesItsTrial:
         row = {
             "trial_id": 3, "status": "ok", "seconds": 12.0,
             "folder": str(tmp_path), "regression_type": "ols",
-            "multiple_testing_method": "fdr_bh", "min_cell_count": "100",
+            "multiple_testing_method": "fdr_bh", "min_cells_per_well": "100",
             "transform": "None", "random_row_column_effects": "False",
             "fdr_alpha": "0.05", "fraction_threshold": "0.02",
         }
         settings = settings_for_trial(
             {"score_data": ["a.csv"], "dependent_variable": "pred"}, row)
 
-        assert settings["min_cell_count"] == 100
+        assert settings["min_cells_per_well"] == 100
         assert settings["fdr_alpha"] == 0.05
         assert settings["transform"] is None
         assert settings["random_row_column_effects"] is False
@@ -189,7 +189,7 @@ class TestTheScreenWiresItUp:
     def _results(self):
         return pd.DataFrame([
             {"trial_id": 1, "status": "ok", "regression_type": "ols",
-             "multiple_testing_method": "fdr_bh", "min_cell_count": 100,
+             "multiple_testing_method": "fdr_bh", "min_cells_per_well": 100,
              "n_wells": 606, "n_guides": 789, "n_below_alpha": 10},
             {"trial_id": 2, "status": "failed", "regression_type": "beta",
              "error_type": "LinAlgError", "error": "singular design"},
@@ -204,7 +204,7 @@ class TestTheScreenWiresItUp:
         headers = [screen.table.horizontalHeaderItem(i).text()
                    for i in range(screen.table.columnCount())]
         for expected in ("regression_type", "multiple_testing_method",
-                         "min_cell_count", "n_wells", "n_guides",
+                         "min_cells_per_well", "n_wells", "n_guides",
                          "n_below_alpha"):
             assert expected in headers, f"{expected} is not shown"
 

@@ -306,7 +306,8 @@ def grouped_split(groups: Sequence[Any], labels: Sequence[Any], holdout: float,
             "there are no labelled objects to split, so a classifier cannot "
             "be trained or scored. This usually means the control values "
             "matched no rows, or that filtering removed every row before the "
-            "split. Check that positive_control and negative_control name "
+            "split. Check that positive_control_id and negative_control_id "
+            "name "
             "values present in the control column, and that any measurement "
             "filters still leave objects behind.")
     if len(group_values) != len(y):

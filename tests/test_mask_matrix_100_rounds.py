@@ -197,7 +197,6 @@ def _v1_settings(plate: Path, rnd: Round) -> dict:
         "nucleus_intensity_range": None,
         "pathogen_intensity_range": None,
         "cytoplasm_intensity_range": None,
-        "denoise": False,
         "remove_background_intensity": False,
         "skip_extraction": False,
         "batch_size": rnd.batch_size,

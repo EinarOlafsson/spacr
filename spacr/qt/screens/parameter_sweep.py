@@ -134,8 +134,8 @@ def _make_screen(app_key=None, host=None):
                 # Default on for the axes the comparison is actually about;
                 # the filtration cutoffs are usually pinned by the user.
                 include.setChecked(key not in (
-                    "fraction_threshold", "min_cell_count", "fdr_alpha",
-                    "min_n", "outlier_detection", "threshold_method"))
+                    "fraction_threshold", "min_cells_per_well", "fdr_alpha",
+                    "min_observations_per_hit", "outlier_detection", "threshold_method"))
                 editor = QLineEdit(
                     ", ".join("None" if v is None else str(v) for v in values),
                     row)
@@ -488,7 +488,7 @@ def _make_screen(app_key=None, host=None):
                 return run_sweep_parallel(
                     base, destination, space, mode=mode,
                     max_trials=max_trials, seed=seed, n_jobs=workers,
-                    controls={"positive": str(base.get("positive_control",
+                    controls={"positive": str(base.get("positive_control_id",
                                                        "239740"))})
 
             # Bound method, so the handler runs on the GUI thread.
@@ -614,7 +614,7 @@ def _make_screen(app_key=None, host=None):
             described = ", ".join(
                 f"{key}={settings.get(key)!r}" for key in (
                     "regression_type", "inference", "analysis_unit",
-                    "multiple_testing_method", "min_cell_count",
+                    "multiple_testing_method", "min_cells_per_well",
                     "fraction_threshold") if key in settings)
             self.trial_status.setText(
                 f"{len(figures)} figure(s) from {described or 'that trial'}. "
@@ -640,7 +640,7 @@ def _make_screen(app_key=None, host=None):
                 "trial_id", "status", "regression_type", "inference",
                 "analysis_unit", "agg_type", "transform",
                 "multiple_testing_method", "fdr_alpha",
-                "fraction_threshold", "min_cell_count",
+                "fraction_threshold", "min_cells_per_well",
                 "n_wells", "n_guides", "n_cells", "n_rows_fitted",
                 "n_results", "n_below_alpha", "positive_rank",
                 "seconds", "error_type") if c in frame.columns]
