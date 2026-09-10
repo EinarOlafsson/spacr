@@ -1,0 +1,120 @@
+================================================================================
+MERGING nightly INTO main, AND THE add/add RECOVERY THAT MADE IT POSSIBLE
+================================================================================
+
+Status:    THE MERGE IS DONE AND UNPUSHED, 2026-09-10, in the other session's
+           throwaway worktree (branch merge/nightly-into-main-20260910). This
+           file exists for the METHOD, which is the part that must outlive
+           that worktree, and for the two release-blocking findings the merge
+           turned up.
+Requested: 2026-09-10 -- the maintainer needs a tagged release and a DOI to
+           cite in a Cell paper, which puts the release on the critical path
+           and the merge in front of it.
+Owner:     the other session holds the merge. This file is on nightly so the
+           method survives.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The branches diverged on 2026-07-29 and both moved: 1,657 commits on main,
+5,313 on nightly, and 904 conflicting paths.
+
+    599 of the 904 were add/add
+    221 were ordinary text conflicts
+     84 the rest
+
+--------------------------------------------------------------------------------
+WHY add/add HAPPENED AT ALL, WHICH IS THE THING WORTH UNDERSTANDING
+--------------------------------------------------------------------------------
+
+Git reports add/add when a path is ABSENT AT THE MERGE BASE. It then refuses
+to merge the two sides at all -- there is no base to be three-way about, so
+it hands you both files whole.
+
+BUT THE ANCESTRY EXISTED. The branches had copied files between themselves
+after the divergence, so for most of those 599 paths there IS a blob that
+both histories contain. It simply is not reachable from the merge base,
+which is the only place git looks.
+
+--------------------------------------------------------------------------------
+THE RECOVERY, AND IT IS SHORT ENOUGH TO REBUILD FROM THIS PARAGRAPH
+--------------------------------------------------------------------------------
+
+For each conflicting path:
+
+  1. `git log --raw --no-abbrev <branch> -- <path>` on BOTH branches, and
+     collect the blob SHAs in order.
+  2. Take the most recent SHA present in both lists. That is the newest
+     state the two branches are known to have shared for that file.
+  3. Feed it to `git merge-file` as the base.
+
+    904 -> 32 BY HAND. Step 3 resolved 498 of the 599 add/add paths by
+    ordinary three-way merge.
+
+AND IT HELPS THE ORDINARY CONFLICTS TOO, which is the half that is easy to
+miss. For the 221 text conflicts git DID have a base -- the merge-base blob,
+from 2026-07-29 -- and used it, even though a far more recent shared state
+existed. Applying the same search to those resolved every one of them.
+
+  SO THE RULE IS NOT "add/add NEEDS A BASE". It is: GIT'S BASE IS THE
+  MERGE BASE'S BLOB, AND ON LONG-DIVERGED BRANCHES THAT IS OFTEN NOT THE
+  NEWEST SHARED STATE. Finding the newest shared blob per path is worth
+  doing for every conflict, not only the ones git refuses outright.
+
+The other session wrote `findbase.py` and `merge3.py` for this. They live in
+a scratchpad that will not survive, and they are not committed here because
+they were written on the other machine; the method above is what they do,
+and rebuilding them from it is an hour at most. IF THIS COMES UP AGAIN AND
+THE SCRIPTS ARE GONE, do not resolve 599 files by hand -- write the search
+first.
+
+--------------------------------------------------------------------------------
+TWO FINDINGS THAT WOULD HAVE KILLED A TAG CUT FROM main
+--------------------------------------------------------------------------------
+
+1. `pyproject.toml` on main still declares
+
+       license = { file = "LICENSE" }
+
+   setuptools >= 77 REJECTS that table while reading the file, so the build
+   dies before it starts. A release cut from main as it stands would have
+   failed on every interpreter. nightly's SPDX string is the fix, and this
+   alone justified merging rather than releasing from main.
+
+2. main's README DOI badge points at `10.5281/zenodo.21343317`, which is
+   v1.3.6's VERSION DOI, not the concept DOI. nightly is correct at
+   `10.5281/zenodo.21343316`, and `packaging/README.md` already states the
+   rule: "never substitute an older release's version DOI for the concept
+   DOI in the README". The merge took nightly's side.
+
+   SEPARATELY, AND NOT A REPO CHANGE: the concept DOI currently resolves to
+   the `example-data` release rather than to software, because Zenodo points
+   a concept DOI at whatever version it saw last and that GitHub release
+   (2026-08-20) is the most recent one. Cutting the next SOFTWARE release
+   fixes it with no edit from anybody. Do not try to fix it in the README --
+   the badge URL is right.
+
+--------------------------------------------------------------------------------
+WHERE A TAG IS STILL MOST LIKELY TO DIE
+--------------------------------------------------------------------------------
+
+THE INSTALLER LANE HAS NOT RUN SINCE 2026-08-14, and 5,313 commits have
+landed since. `github-release` depends on it. Its first two steps were run
+on the merged tree on 2026-09-10 and both pass -- `build_linux_online.sh`
+builds (10 languages, 57 strings) and all ten language dry-runs pass. THE
+THIRD STEP, the real install-and-import, needs network and has not been run.
+That is the one to run before tagging.
+
+`release.py verify` and the 172 packaging tests pass on nightly as well as on
+the merged tree, so they are not where the risk is.
+
+--------------------------------------------------------------------------------
+ONE THING TO DO AFTER THE RELEASE, NOT BEFORE
+--------------------------------------------------------------------------------
+
+`CITATION.cff` carries no `doi:` field, which is correct today: the rule in
+`packaging/README.md` is that a release's newly minted VERSION DOI goes there
+once Zenodo has archived it. For a paper citation that step is the point, so
+it must not be skipped -- `version` and `date-released` move to the release
+as part of the bump, and the version DOI is added when Zenodo mints it.
