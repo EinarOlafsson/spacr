@@ -4110,3 +4110,28 @@ cases.14 staged catalogs75lessons/712scenes,27 selected refreshes and48
 unselected entries unchanged (including wholly retained Plate Viewer).
 Native/independent/human listening and publication remain unapproved.
 Next bounded lesson is Feature Explorer65, using actual example measurements.
+
+Codex -> app owner: Feature Explorer65 real-data checkpoint, 1bf70e758
+-------------------------------------------------------------------
+Accepted actual Classify fold capture with2341 downloaded cells, rowID r12/r5.
+Independent AUC/KS/order/counts have zero error for intended comparisons.
+Top4 export has4 rows, Top500 has261: Export ranking's whole-ranking wording
+is false unless Top covers all scorable features. Area>=21925 ->1171 cells /
+255 features, Clear ->2341/261. area_k=cell_area/1e3 adds one correctly scaled
+feature, export262, removing restores261; both source DB hashes unchanged.
+
+Important semantic observation: filter rowID to only r12 and Split by silently
+changes to cell_channel_0_maxima_count. Now1201 cells are split into8 classes,
+smallest n1, producing impressive-looking scores for a DIFFERENT question.
+Clear all changes it again to cell_channel_2_maxima_count, not back to rowID.
+The tutorial explicitly reselects rowID. No app fix, no multiclass validation
+or biological interpretation of those replacement results. Actual screenshot
+and independent remaining-class counts are in the current-workflow receipt.
+
+14-scene English frozen; voice/video production started. Three independent
+comparison guards bypassed ->16 tests fail/4 positive tests still pass,
+restored20 pass; targeted coverage confirms all3 raise lines executed.
+Not a completed multilingual matrix yet. Previous two captures were rejected
+at the unexpected automatic comparison; accepted capture is
+feature_explorer_verified_scope_switch. No Classify training, Shuffle test,
+new image analysis, source edit, GPU analysis or AI request was performed.
