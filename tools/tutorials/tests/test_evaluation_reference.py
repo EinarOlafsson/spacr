@@ -130,3 +130,52 @@ def test_wrong_confidence_list_does_not_pass(change):
     elif change=='count':s['high'].pop()
     else:s['low']=['0.630  unknown.png']
     with pytest.raises(ValueError):verify_error_lists(s,rows)
+
+
+@pytest.mark.parametrize('rows,bins', [([],5),(example(),1),(example(),2.5)])
+def test_reference_input_boundary_after_positive_counterpart(rows,bins):
+    assert binary_reference(example())['summary']['n']==4
+    with pytest.raises(ValueError,match='Nonempty predictions'):
+        binary_reference(rows,bins)
+
+
+def test_reference_requires_both_recorded_classes():
+    assert binary_reference(example())['summary']['n']==4
+    with pytest.raises(ValueError,match='both recorded classes'):
+        binary_reference(example()[:2])
+
+
+@pytest.mark.parametrize('change',['rows','columns'])
+def test_matrix_identity_guards_after_valid_matrix(change):
+    r=binary_reference(example())
+    table=dict(columns=['true_class','infected_1','infected_2'],
+               rows=[['infected_1','1','1'],['infected_2','0','2']])
+    assert verify_gui_matrix(table,r)['cells']==4
+    if change=='rows':table['rows'][1][0]='unknown'
+    else:table['columns'][2]='unknown'
+    with pytest.raises(ValueError,match='Actual confusion '+change+' differ'):
+        verify_gui_matrix(table,r)
+
+
+@pytest.mark.parametrize('rows',[[],saved_predictions()*667])
+def test_prediction_reference_must_fit_complete_gui_table(rows):
+    assert verify_gui_predictions(gui_table(saved_predictions()),saved_predictions())['rows']==3
+    with pytest.raises(ValueError,match='complete bounded prediction table'):
+        verify_gui_predictions(gui_table(saved_predictions()),rows)
+
+
+def test_duplicate_saved_identity_is_not_silently_collapsed():
+    rows=saved_predictions();table=gui_table(rows)
+    assert verify_gui_predictions(table,rows)['rows']==3
+    rows.append(rows[0].copy())
+    with pytest.raises(ValueError,match='saved prediction identities are duplicated'):
+        verify_gui_predictions(table,rows)
+
+
+@pytest.mark.parametrize('threshold',[-.1,1.1,float('nan')])
+def test_confidence_threshold_must_be_finite_and_bounded(threshold):
+    s=dict(threshold=.75,high=['0.954  object_0.png','0.866  object_2.png'],low=['0.630  object_1.png'])
+    assert verify_error_lists(s,saved_predictions())['high']==2
+    s['threshold']=threshold
+    with pytest.raises(ValueError,match='Invalid inspection confidence threshold'):
+        verify_error_lists(s,saved_predictions())
