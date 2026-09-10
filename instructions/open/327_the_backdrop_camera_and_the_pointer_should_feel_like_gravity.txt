@@ -414,3 +414,69 @@ is the one that stops a third.
 
 STILL OPEN, unchanged: the GPU path cannot shed work. `target_render_size`
 and the user's `scale` are read only by the CPU widget.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- (1) MEASURED. THE GPU HAS NO RESOLUTION LEVER, AND TWO
+              PATTERNS HAVE NO LEVER AT ALL.
+--------------------------------------------------------------------------------
+
+The remaining line said "the GPU path cannot shed work. `target_render_size`
+and the user's `scale` are read only by the CPU widget." That is nearly
+right and it is not precise enough to act on. Measured today, headlessly,
+by reading the path rather than by running it -- this box has no GL:
+
+WHAT THE GPU CANVAS ACTUALLY DOES. `self.physical_size` is used at exactly
+three places -- `_update_uniforms`, `on_resize` and `stats_text` -- and it
+is the full physical size every time. `target_render_size` is never called
+from anywhere above line 1900. Every occurrence of the word `scale` in the
+GPU canvas is the CAMERA ZOOM (`scale_at`, `initial_scale`, `u_scale`),
+not a render resolution.
+
+  SO A GPU FRAME ALWAYS SHADES EVERY PHYSICAL PIXEL. At 4K fullscreen that
+  is the 11.53x the CPU note already measured, with nothing to trade.
+
+AND `_render_scale()` WAS MOVED TO MODULE LEVEL FOR BOTH BUILDERS. Its own
+docstring says so: "MODULE LEVEL, because both builders need it: it was
+defined inside the GPU one and read from the CPU one, which is a NameError
+at the moment a frame is sized." It was moved so the GPU could use it. The
+GPU still does not.
+
+  THE USER-FACING CONSEQUENCE, and it is the one worth fixing: `render_scale`
+  is described in the CPU path as "the direct answer to 'how do I get the
+  image sharper'". Turned DOWN, it is also the answer to "how do I make it
+  smoother". On a GPU it does nothing whatever -- the setting moves, the
+  preference saves, and the frame is identical.
+
+THE ONE LEVER THE GPU HAS IS `_detail`, AND FOR HALF THE PATTERNS IT IS
+BOLTED SHUT. `base_detail` and `detail_floor`, per pattern:
+
+    mandelbrot   6 -> 5    one step of iteration budget
+    cascade      5 or 6 -> 4   one or two steps
+    space        4 -> 4    NOTHING. "The scene has no iteration count."
+    orbit_gpu    4 -> 4    NOTHING. Iteration count fixed in the shader.
+
+`space` and `orbit_gpu` therefore have NO adaptive response of any kind on
+the GPU: not resolution, because the path ignores it, and not detail,
+because the floor equals the base. A long frame stays long.
+
+    AND `orbit_gpu` IS GPU-ONLY (`GPU_ONLY_PATTERNS`), so there is no CPU
+    fallback carrying the resolution lever for it either.
+
+ONE FIX LANDED TODAY, the only part that can be settled without a GPU:
+`orbit_gpu`'s branch comment said "Resolution is what gives way instead,
+through the adaptive render scale", describing a mechanism this path does
+not have. Corrected in place, because a comment naming a lever that does
+not exist sends the next reader looking for code rather than writing it --
+which is exactly how the CPU side's disconnected adaptive scale survived
+until 327 measured it.
+
+WHAT IS LEFT, AND IT NEEDS A GPU. Resolution scaling on the GPU path means
+render-to-texture: allocate an FBO at `target_render_size`, draw the
+fragment shader into it, then blit a full-screen textured quad. There is no
+`FrameBuffer` or `RenderBuffer` anywhere in the canvas today -- it draws
+straight to the default framebuffer -- so this is a new pass, a second
+shader program and a resize-time allocation. NOT ATTEMPTED BLIND: it cannot
+be compiled, run or looked at on this machine, and a GL change whose
+correctness is visual is the wrong thing to write untested. The arithmetic
+it should call is already extracted and tested (`target_render_size`), so
+the missing part is the plumbing and the eye.

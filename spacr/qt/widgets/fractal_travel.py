@@ -1869,8 +1869,16 @@ def _make_gpu_widget(settings: Settings, controls: RuntimeControls,
 
         # THE ITERATION COUNT IS FIXED IN THE SHADER, so the adaptive
         # detail loop has nothing to turn down here -- equal numbers mean
-        # a frame that runs long cannot change the picture. Resolution is
-        # what gives way instead, through the adaptive render scale.
+        # a frame that runs long cannot change the picture.
+        #
+        # THIS COMMENT USED TO SAY "resolution is what gives way instead,
+        # through the adaptive render scale". IT DOES NOT, ON THIS PATH.
+        # The GPU canvas shades `self.physical_size` at every one of its
+        # three uses and never calls `target_render_size`; every `scale` in
+        # it is the camera zoom. So for `orbit_gpu` -- and for `space`,
+        # which has equal numbers for the same reason -- a long frame has
+        # NO lever at all on the GPU. See instruction 327 (1); the fix is
+        # render-to-texture and it needs a GPU to verify.
         base_detail = 4
         detail_floor = 4
     else:
