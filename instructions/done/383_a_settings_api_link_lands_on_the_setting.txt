@@ -2,9 +2,17 @@
 A SETTING'S API LINK LANDS ON THAT SETTING, IN THE MODULE THE USER IS IN
 ================================================================================
 
-Status:    ITEMS 1, 2 AND 4 DONE 2026-09-08. Item 3 closed earlier the same
-           day. What is left is the 43 links that still land on a bare
-           module page, unaudited -- see the closing note.
+Status:    CLOSED 2026-09-09. All four items done, and the residue that was
+           left "unaudited" has been audited to the last setting.
+
+           WHERE IT ENDED: 622 of 800 links land on a function anchor, 155
+           on the settings-flow page, and 23 on a module page. Those 23 are
+           two causes and neither is a gap in this instruction -- 15 are a
+           curated target with no symbol to point at, which is a decision a
+           person made, and 8 are settings the package reads NOWHERE, which
+           is instruction 364's question and is filed there.
+
+           IT WAS 245 OF 796 WHEN THIS WAS FILED.
 Requested: 2026-09-08 — "The API links for settings are not good enough. i
            just tried sourse in mask and got a 404 error, then i tested the
            API link for Magnefication and got a page with no mention of
