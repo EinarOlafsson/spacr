@@ -1,0 +1,260 @@
+{
+  "lesson": "24_plaque",
+  "final_capture": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/captures/plaque_final_visible_console",
+  "provenance": {
+    "commit": "c35e2a2583c4369ae777411b365066771a4f7d0c",
+    "version": "1.5.0.5",
+    "module": "analyze_plaques",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "native_acceptance": {
+    "accepted": true,
+    "synthetic": true,
+    "manifest": {
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque",
+      "root": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz",
+      "files": [
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/plate1_A01_control_1.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/plate1_A01_control_1.tif",
+          "sha256": "66463a244c0273dc8a60a128ffa0a7ca416e3f6287ffb4cdb7d1c47c4a10a4d8"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/masks/plate1_A01_control_1.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/masks/plate1_A01_control_1.tif",
+          "sha256": "f2d45fa345c43eac267ca9aaaa2d6fc6a0dab7ecf2deb05ea8eb289db156fb9b"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/plate1_A02_control_2.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/plate1_A02_control_2.tif",
+          "sha256": "39f6f1752fe218e29fe2bfd96b67ad385255e9c1da94404fe50795490defd04c"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/masks/plate1_A02_control_2.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/masks/plate1_A02_control_2.tif",
+          "sha256": "ac33f31f635733d6fbfaaa5bab1ae589b65590069b9faa85435ce38e20ed8981"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/plate1_B01_treatment_1.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/plate1_B01_treatment_1.tif",
+          "sha256": "8f204d21ab8edb8c8ed776b334ddd0eb21be81bb7ff37133b5cd0e38aadbff82"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/masks/plate1_B01_treatment_1.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/masks/plate1_B01_treatment_1.tif",
+          "sha256": "229868a4d7bc082e804952b2dd812afbfedcef017370e7f2a601f2447f1c060f"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/plate1_B02_treatment_2.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/plate1_B02_treatment_2.tif",
+          "sha256": "cb618e96822dd00d834b3a097b270280044a44dee76d42785bbb3994b55d4338"
+        },
+        {
+          "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/synthetic/plaque/masks/plate1_B02_treatment_2.tif",
+          "copy": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/masks/plate1_B02_treatment_2.tif",
+          "sha256": "340ab38df0947379e0cad128b3b73cd905d8306daf454bafff2161c8583a0afb"
+        }
+      ],
+      "references": {
+        "plate1_A01_control_1.tif": {
+          "areas": [
+            18475,
+            30631,
+            36765,
+            14225
+          ],
+          "summary": {
+            "plaque_count": 4,
+            "average_size": 25024,
+            "std_dev_size": 9066.384781157261,
+            "px_per_mm": null,
+            "average_size_mm2": null,
+            "std_dev_size_mm2": null
+          }
+        },
+        "plate1_A02_control_2.tif": {
+          "areas": [
+            31385,
+            23373,
+            44789
+          ],
+          "summary": {
+            "plaque_count": 3,
+            "average_size": 33182.333333333336,
+            "std_dev_size": 8834.933289064622,
+            "px_per_mm": null,
+            "average_size_mm2": null,
+            "std_dev_size_mm2": null
+          }
+        },
+        "plate1_B01_treatment_1.tif": {
+          "areas": [
+            14609,
+            11579
+          ],
+          "summary": {
+            "plaque_count": 2,
+            "average_size": 13094,
+            "std_dev_size": 1515,
+            "px_per_mm": null,
+            "average_size_mm2": null,
+            "std_dev_size_mm2": null
+          }
+        },
+        "plate1_B02_treatment_2.tif": {
+          "areas": [
+            19681
+          ],
+          "summary": {
+            "plaque_count": 1,
+            "average_size": 19681,
+            "std_dev_size": 0,
+            "px_per_mm": null,
+            "average_size_mm2": null,
+            "std_dev_size_mm2": null
+          }
+        }
+      },
+      "synthetic": true,
+      "acquired_images": false,
+      "masks_precomputed": true,
+      "old_database_copied": false,
+      "calibration_available": false,
+      "biological_effect_claim": false
+    },
+    "actual_gui_run": true,
+    "app_source_modified": false,
+    "published": false,
+    "pipeline": {
+      "accepted": true,
+      "reasons": [],
+      "figure_count": 0,
+      "worker_finished": true,
+      "worker_ok": true
+    },
+    "output_checks": {
+      "images": 4,
+      "plaques": 10,
+      "numeric_or_null_fields_checked": 68
+    },
+    "output_database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_runs/SYNTHETIC-existing-masks-t3t1k4qz/masks/plaques_analysis.db",
+    "all_inputs_preserved": true,
+    "preview_routing": {
+      "assay_checkpoint": "/mnt/firecuda2/codex/repo/spacr/spacr/resources/models/toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
+      "form_model_name": "cpsam",
+      "actual_preview": {
+        "model": "cpsam",
+        "diameter": 180,
+        "flow_threshold": 0.4,
+        "cellprob": 0,
+        "object_types": [
+          "cell"
+        ],
+        "cell_channel": 0,
+        "nucleus_channel": 1,
+        "normalise": true,
+        "lo_pct": 2,
+        "hi_pct": 98,
+        "outline_thickness": 1,
+        "outline_colour": "color (random)",
+        "display_channel": null,
+        "fov": ""
+      },
+      "declared_propagation": {
+        "cell_diameter": "diameter",
+        "cell_flow_threshold": "flow_threshold",
+        "cell_cellprob_threshold": "CP_prob"
+      },
+      "primed": true
+    },
+    "preview_not_automatically_matched": true,
+    "downloaded_model": {
+      "key": "toxoplasma_plaque_v1",
+      "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_models/cpsam_plaque_r3",
+      "sha256": "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+      "bytes": 1218643107,
+      "checksum_verified": true
+    },
+    "manual_model_selection": {
+      "errors": [],
+      "accepted": true,
+      "actual_model": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_models/cpsam_plaque_r3",
+      "selected_paths": [
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_models/cpsam_plaque_r3"
+      ]
+    },
+    "manually_matched_assay_checkpoint": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_models/cpsam_plaque_r3",
+    "matched_model_preview": {
+      "errors": [],
+      "completed": true,
+      "status": "Found cell=4.",
+      "selected_model": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/plaque_models/cpsam_plaque_r3"
+    },
+    "native_views": {
+      "input_pixels_checked": 589824,
+      "synthetic": true,
+      "model_accuracy_claim": false,
+      "batch_filters_claimed": false,
+      "initial": {
+        "minimum_area": 0,
+        "objects": 4,
+        "foreground_pixels": 106147,
+        "all_pixels_checked": 589824,
+        "retained_areas": [
+          19787,
+          32633,
+          38342,
+          15385
+        ]
+      },
+      "filtered": {
+        "minimum_area": 26211,
+        "objects": 2,
+        "foreground_pixels": 70975,
+        "all_pixels_checked": 589824,
+        "retained_areas": [
+          32633,
+          38342
+        ]
+      },
+      "restored": {
+        "minimum_area": 0,
+        "objects": 4,
+        "foreground_pixels": 106147,
+        "all_pixels_checked": 589824,
+        "retained_areas": [
+          19787,
+          32633,
+          38342,
+          15385
+        ]
+      },
+      "raw_mask_sha256": "ac9e013604eb328681d0e7d47336f0f6ccdfcd29b24150e04de7dfc286c17cc3",
+      "segmentation_rerun": false,
+      "exact_restoration": true,
+      "actual_status": "Found cell=4.",
+      "actual_visible_table_checks": {
+        "images": 4,
+        "plaques": 10,
+        "numeric_or_null_fields_checked": 68
+      },
+      "output_database_unchanged": true
+    },
+    "reason": "Mask reuse, explicitly selected Model Zoo preview, reversible filters and actual read-only saved tables verified; synthetic geometry is not biological validation."
+  },
+  "canonical_english_sha256": "eb59bf95ab937290708c8202a22ef1b8105d466f6622e97b7b2a96b3e557ba3d",
+  "only_english_change": "Console focus height 730 -> 1450; narration, metadata, scene order and holds unchanged",
+  "all_thirteen_translations_text_unchanged": true,
+  "audio_regenerated": false,
+  "visible_console_inspected": true,
+  "player_fix": "Serve the current repository player and example assets rather than a stale authoring web copy; ZIP extension explicitly allowed",
+  "before_browser_result": "Failed: expected example ZIP link absent from stale player",
+  "focused_player_route_tests": 9,
+  "isolated_player_route_mutation": "Disabling repository routing fails the existing-stale-versus-current-byte test: 1 failed, 8 passed",
+  "final_browser_matrix_pending": true,
+  "published": false
+}

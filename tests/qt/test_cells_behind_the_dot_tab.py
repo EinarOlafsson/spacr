@@ -1615,3 +1615,97 @@ def test_the_tab_still_fits_the_splitter_it_lives_in(qtbot):
     assert "more than one classifier output" in hover
     assert "source fields accessed" in hover
     assert "applied to every coefficient" in hover
+
+
+# --------------------------------------------------------------------------- #
+#  The last four things the coverage of this widget did not reach
+#
+#  Measured 2026-09-10 under instruction 352: 99.74 %, and what was left was
+#  ONE behaviour and THREE guards over invariants asserted elsewhere. The
+#  behaviour gets a test; each invariant gets a test that says why its guard
+#  can never fire, which is the shape 352 asks for -- reaching a guard by
+#  weakening the invariant that makes it unnecessary is the wrong way round.
+# --------------------------------------------------------------------------- #
+
+def test_clearing_the_view_empties_the_open_well_tabs(qtbot, tmp_path):
+    """`clear()` on a view WITH tabs open, which is the case that matters.
+
+    The regression screen calls this when the loaded run changes, because a
+    montage answering the previous run's coefficient means nothing under the
+    new one -- issue 116, where a user's Cells tab kept showing the run
+    before the one he had just loaded. That bug was an AttributeError, and
+    the test for it calls `clear()` on a view with NO tabs, so it proves the
+    method exists and nothing about what it does.
+
+    THE TABS STAY AND THE GRIDS EMPTY. A tab is closed only when its own x
+    is clicked; clearing is not closing, and a `clear()` that took the tabs
+    away would break comparing one gene's cells against another's.
+    """
+    view, _root, _db, _csv = _view(qtbot, tmp_path, with_png=True)
+    view.set_coefficient(GENE_KEY)
+    view.build()
+    tabs = view.well_tabs()
+    assert tabs, "the fixture built no well tabs, so this proves nothing"
+    assert any(tab._grid.count() for tab in tabs)
+
+    view.clear()
+
+    assert view.well_tabs() == tabs, "clearing closed a tab"
+    assert not any(tab._grid.count() for tab in tabs)
+
+
+def test_the_status_line_has_one_path_to_nothing_selected_and_not_two(qtbot):
+    """`_announce`'s "nothing selected" branch cannot be reached, and here is why.
+
+    `_announce` asks `reason()` first and prints it when it is non-empty.
+    Only when it is EMPTY does it fall through to a branch that checks
+    `not self._name` and prints `NOTHING_SELECTED` -- but `reason()` returns
+    a sentence for both of the ways `_name` can be falsy, and returns ``''``
+    only after passing its own `if not self._name` guard. So by the time the
+    second check runs, `_name` is always truthy.
+
+    THE SENTENCE IS NOT LOST, which is the point of asserting this rather
+    than deleting the branch: a user who has selected nothing still sees
+    `NOTHING_SELECTED`, from `reason()`, through the FIRST branch. The dead
+    code is the duplicate, not the message.
+    """
+    view = CellMontageView(threaded=False)
+    qtbot.addWidget(view)
+
+    # Nothing selected at all: the reason IS the sentence.
+    assert not view._name
+    assert view.reason() == view.NOTHING_SELECTED
+    view._announce()
+    assert view.status_text() == view.NOTHING_SELECTED
+
+    # And a key that names no gene or guide -- the other way `_name` is
+    # falsy -- gets its own sentence rather than an empty reason.
+    view.set_coefficient("Intercept")
+    assert not view._name
+    assert view.reason(), "a falsy _name must never leave reason() empty"
+
+
+@pytest.mark.parametrize("key,name", sorted(
+    CellMontageView._MIRRORED.items()))
+def test_every_mirrored_setting_is_a_widget_the_mirror_can_read(
+        qtbot, key, name):
+    """The `_write_back` / `_read_back` fall-through is over an invariant.
+
+    Both loops end in `elif isinstance(widget, QLineEdit)` with no else, so
+    a mirrored widget of any other type would be silently skipped -- written
+    back as nothing and read back as absent, which is a setting that appears
+    to save and does not. Neither fall-through is reachable while every one
+    of the eight mirrored attributes is one of the three handled kinds, and
+    THAT is the thing worth holding: the guard is cheap, the invariant is
+    what keeps the settings window honest.
+    """
+    from PySide6.QtWidgets import (QComboBox, QDoubleSpinBox, QLineEdit,
+                                   QSpinBox)
+
+    view = CellMontageView(threaded=False)
+    qtbot.addWidget(view)
+    widget = getattr(view, name, None)
+    assert widget is not None, f"{key} mirrors {name}, which does not exist"
+    assert isinstance(widget, (QComboBox, QSpinBox, QDoubleSpinBox, QLineEdit)), (
+        f"{key} mirrors a {type(widget).__name__}, which neither _write_back "
+        f"nor _read_back handles; it would save silently and restore nothing")

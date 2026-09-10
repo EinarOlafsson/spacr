@@ -1,0 +1,183 @@
+{
+  "id": "24_plaque",
+  "number": 24,
+  "slug": "plaque-assay",
+  "title": "Plaque Analysis",
+  "series": 3,
+  "app_key": "analyze_plaques",
+  "section": "Toxoplasma assays",
+  "description": "Reuse constructed masks, explicitly select a plaque checkpoint for live preview, test reversible area filters and inspect the real saved tables.",
+  "objectives": [
+    "Distinguish saved-mask analysis from fresh model predictions.",
+    "Select the current plaque checkpoint and verify live filtering without rerunning segmentation.",
+    "Inspect counts and pixel areas without inventing physical calibration or biological effects."
+  ],
+  "example_files": [
+    "SYNTHETIC_plaque_example.zip"
+  ],
+  "prerequisite": "Download and extract the accompanying explicitly SYNTHETIC example into a new folder. Its four grayscale TIFFs and four precomputed label TIFFs are byte-identical to the preserved teaching inputs; no old database, settings or model weights are included. Set Source to SYNTHETIC_plaque and Masks off. The example has ten constructed objects (four, three, two and one), no acquired images and no physical calibration. Control/treatment filenames are not experimental evidence. The current GUI run creates masks/plaques_analysis.db. Its three saved tables are checked independently, including all 68 numeric or null fields. A separately downloaded Model Zoo checkpoint, toxoplasma_plaque_v1 / cpsam_plaque_r3, is checksum-verified and predicts four objects in the first synthetic image. Its masks differ from the supplied masks; this is not an accuracy benchmark. A minimum-area threshold of 26211 retains two, and zero restores all four without a model rerun. The preview does not initially inherit plaque_model, and model/filter changes must not be assumed to propagate to batch settings. Well detection and physical calibration are not demonstrated. The actual Help > Database browser opens the output read-only. Original and private inputs and the inspected output remain unchanged. No native-language listening approval, biological validation or publication is claimed. The form resolves plaque_model even with Masks off: choose an existing checkpoint path before Run. API entry point: spacr.submodules.analyze_plaques. No batch run with newly generated masks is claimed.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "Open Plaque Analysis in the Assays section of Home. This lesson uses four synthetic images with constructed masks, not acquired infection data. We will count the saved masks, try a separate model preview, and inspect the actual database without presenting these teaching shapes as biological results.",
+      "focus": [
+        346,
+        50,
+        1200,
+        155
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_setting_src",
+      "narration": "Download the synthetic example linked below and extract it into a new folder. Set Source to the folder containing the four TIFF images and the masks subfolder. Keep the originals intact; use another copy before trying segmentation that could replace those masks.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "04_setting_masks",
+      "narration": "Leave Masks switched off to reuse the supplied masks. The saved counts are four, three, two and one for the four images. Switching Masks on requests segmentation instead, so diameter, normalization and the selected model then affect a different computation. Reusing masks does not test that model.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_setting_well_diameter_mm",
+      "narration": "Well detection is off because each teaching image already represents one field. Physical area needs genuine well geometry and a known well size; this example supplies neither. Leave calibration unset. A well name, a guessed diameter or a successful run cannot establish a scale in millimetres.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_setting_plaque_model",
+      "narration": "Plaque model needs an available checkpoint even when masks are reused. This recording starts with an existing bundled checkpoint. On a new installation, download the plaque checkpoint through Model zoo and enter its local path here. The preview has its own model selector, which we check next.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_preview_settings_unmatched",
+      "narration": "Open Live preview and then Live settings. Check the Model field explicitly: this build initially shows the general model, even when Plaque model names a different checkpoint. Do not assume that preview settings and the analysis form are synchronized. Match their model choices deliberately before creating new masks.",
+      "focus": [
+        1020,
+        456,
+        1800,
+        380
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12c_actual_download_verified",
+      "narration": "Choose Model zoo and select the plaque model. Its checkpoint is about one point two gigabytes, so choose a suitable Save to folder and download it once. This recording uses bytes verified against the published checksum. On this machine means the file is available; it does not validate your experiment.",
+      "focus": [
+        1025,
+        568,
+        1790,
+        1035
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_readable_preview",
+      "narration": "Choose the first synthetic image and Run preview. The selected plaque checkpoint finds four objects here. View can switch between outlines and coloured masks; neither display is a measurement of model accuracy. The preview is a fresh segmentation, separate from the supplied masks used by the completed analysis.",
+      "focus": [
+        1510,
+        1248,
+        2300,
+        598
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "18_actual_filter_changed",
+      "narration": "In Live settings, raise Min area to twenty-six thousand two hundred eleven pixels. This removes the two smaller predicted objects. The filtering reuses cached masks rather than running the model again. Change one setting at a time so you can see which objects it removes.",
+      "focus": [
+        1980,
+        286,
+        432,
+        660
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "19_actual_filter_restored",
+      "narration": "Return Min area to zero and all four predicted objects return with exactly the original pixels. Zero disables this lower area filter. These preview adjustments do not rewrite the saved input masks or the existing results database; do not mistake an attractive preview for a completed batch analysis.",
+      "focus": [
+        3040,
+        1570,
+        760,
+        230
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_actual_completion",
+      "narration": "The mask-reuse run writes a database in the masks folder. This path produces result tables, not an embedded plot, so an empty Figures area is not evidence of failure here. Read the console. The AI switch stays off in this demonstration; an assistant response would not replace checking the saved outputs.",
+      "focus": [
+        1510,
+        170,
+        2300,
+        1450
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "20_actual_database_help_route",
+      "narration": "Open Database browser from Help, then open the plaques analysis database in the masks folder. Leave Edit mode off. The browser shows the actual saved tables rather than a screenshot of invented results, and inspecting this example leaves the database bytes unchanged.",
+      "related_lessons": [
+        "34_database"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "21_actual_summary_table",
+      "narration": "Select summary and match every row by its filename rather than its display position. Object count comes from the supplied masks: four, three, two and one. Average size is the mean labelled area in pixels. The control and treatment names are arbitrary teaching labels, not evidence of a treatment effect.",
+      "focus": [
+        345,
+        278,
+        1420,
+        225
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "22_actual_stats_table",
+      "narration": "Select stats for the plaque count, mean size and size spread for each image. The standard deviation describes the individual plaque areas in that image; it is not an uncertainty interval for a biological experiment. Interpret technical counts only after validating the image scale and the segmentation on real data.",
+      "focus": [
+        345,
+        278,
+        1930,
+        225
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "23_actual_details_table",
+      "narration": "Select details to inspect each individual plaque area. Physical-area columns remain empty because no calibration was supplied. Keep the images, masks, settings and result database together, and use independent experimental replicates for biological comparisons. This tutorial verifies software behaviour on synthetic shapes, not infection or drug efficacy.",
+      "focus": [
+        345,
+        278,
+        1420,
+        410
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

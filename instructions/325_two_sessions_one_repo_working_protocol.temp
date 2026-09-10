@@ -5322,3 +5322,107 @@ the RAM guard. Remaining translations and the full playback matrix follow.
 Technical total remains 42; no native/listening approval or publication claim.
 Receipt: tools/tutorials/evidence/
 2026-09-10_illumination_native_model_and_qc_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, ILLUMINATION TECHNICAL MATRIX COMPLETE.
+
+55ed55cf9 pushed: 13 scenes, all 50 decoded/fingerprinted voice tracks,
+14 final language/caption browser cases and a full-decode 4K/30 shared master.
+Final scene samples 1, 6, 7, 9, 11 and 12 inspected, including native controls,
+console and the genuinely external QC image viewer. Fourteen catalogs agree
+on 75 lessons / 826 scenes; 33 unselected lessons remain unchanged. Total:
+43 technically staged lessons, 2,150 tracks (100 retained), 602 browser cases.
+Independent native/listening approval and publication remain false.
+Receipt: tools/tutorials/evidence/
+2026-09-10_illumination_multilingual_technical_checks.json.
+
+NEXT: Invasion 26, tutorial paths only. The old teaching database is explicitly
+synthetic and will be preserved; a fresh private copy will exercise the current
+stain_baseline_wells setting, real figures and console. No app/science edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, INVASION NATIVE CHECKPOINT PUSHED.
+
+11d5eccc1: current Invasion UI on a fresh byte-identical copy of the existing
+synthetic database. 360 baseline objects excluded; 1,440 scored across twelve
+wells. Independent quantile 22.795955296875167 and 22,208 checked CSV values
+match the native outputs. All three real figures are visible: 56 stacked-bar
+geometry values, 14 denominator labels, 480 histogram bins and 12 threshold
+lines checked. Actual Figure settings dialog keeps legends on the canvas;
+plotted values and CSV bytes stay unchanged. Original inputs also unchanged.
+
+24 focused tests pass, with measured executed lines. Eighteen isolated verifier
+mutations turn tests red across the successive 15/23/24-test checkpoints.
+Two histogram artists reconstruct their left edges one ULP above the observed
+minimum; the independent count permits at most four endpoint ULPs, rejects
+eight and never fuzzes interior boundaries. The old cutoff is unrepresentable
+at the real GUI precision; the recording explicitly requests 0.555556, with
+exact readback rather than relaxed comparison. No application code edited.
+
+13 scenes / 611 English words frozen. English voices and shared master are
+rendering under the memory guard; 13 translations and the playback matrix
+follow. Total remains 43 complete technical matrices. No biological efficacy,
+native/listening signoff or publication claim. Receipt:
+tools/tutorials/evidence/2026-09-10_invasion_native_threshold_and_figure_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, INVASION TECHNICAL MATRIX COMPLETE.
+
+461e05a93 pushed after rebasing over the other session: all 50 voice tracks
+decoded/fingerprinted, all 14 final language/caption browser cases passed, and
+the shared 4K/30 video fully decoded. All thirteen scenes sampled; scenes
+3, 5, 9, 10, 11 and 13 visually inspected. Fourteen catalogs agree on 75
+lessons / 831 scenes, with 32 unselected lessons preserved. Technical total:
+44 lessons, 2,200 tracks (100 retained), 616 browser cases. No native/listening
+approval, biological validation or publication claim. Receipt:
+tools/tutorials/evidence/2026-09-10_invasion_multilingual_technical_checks.json.
+
+NEXT: Plaque 24. Read-only scope confirms new plaque-model, well-detection and
+physical-calibration settings, plus a live preview. The existing synthetic
+four-image/mask example and old results will stay untouched; a private copy
+will check mask reuse and preview behavior before any narration is written.
+
+CODEX TUTORIAL LANE — 2026-09-10, PLAQUE NATIVE CHECKPOINT VERIFIED.
+
+f1ffaabfd pushed: fifteen current Plaque scenes, actual Model Zoo download
+of cpsam_plaque_r3 (1,218,643,107 bytes, published SHA-256 verified), and
+four -> two -> four live minimum-area filtering with exact pixel restoration
+and no model rerun. Existing-mask analysis gives the independently verified
+4/3/2/1 counts; all 68 numeric/null fields also match the real read-only
+Database Browser. Every original/private input and the inspected output stay
+unchanged. 20 plaque, 7 capture-geometry and 2 archive tests pass. Eight new
+isolated verifier mutations turn tests red, in addition to the earlier ten.
+The downloadable 1.55 MB ZIP preserves the eight synthetic TIFFs and manifest,
+adds a disclosure README and includes no old database, settings or weights.
+
+Observed application limitations, NOT edited: Plaque preview initially uses
+model_name=cpsam rather than plaque_model; an actual Model Zoo choice works,
+and both model fields can be explicitly matched. Its propagation map includes
+only diameter/flow/probability, not model or area filters. Even Masks=False
+resolves the plaque checkpoint. Existing-mask analysis writes tables, not
+figures. The preview stays compact after Console/System are folded; the
+recorder does not invent a larger app viewport. Genuine dialog resizing makes
+the complete Min area value readable. No acquired-data, calibration, model-
+accuracy, biological-effect or newly-segmented batch-result claim is made.
+
+English voices and shared video are rendering under the 110 GiB memory guard;
+translations and final browser checks follow. Technical total remains 44.
+Receipt: tools/tutorials/evidence/
+2026-09-10_plaque_native_preview_and_table_checks.json.
+
+CODEX TUTORIAL LANE — 2026-09-10, PLAQUE TECHNICAL MATRIX COMPLETE.
+
+f851d5ae5 pushed: all 50 final voice tracks decoded/fingerprinted, all 14
+language/caption browser cases passed against the current repository player,
+and the corrected shared 4K/30 master fully decoded. Fifteen scenes sampled;
+5, 7, 9, 10, 11, 13 and 15 visually inspected. The actual Console is expanded
+and the downloadable synthetic ZIP works. Fourteen catalogs agree on 75
+lessons / 838 scenes; 31 unselected lessons stay unchanged (one of those,
+Plate Viewer, is already verified as wholly retained). Technical total is
+45 lessons, 2,250 tracks (100 retained), 630 browser cases. No native/listening
+approval or publication claim. Receipt:
+tools/tutorials/evidence/2026-09-10_plaque_multilingual_technical_checks.json.
+
+NEXT CLAIM: Timelapse 17, tutorial recorder/data checks/lesson only. The route
+is now Mask's Timelapse settings fold, not a standalone page. I will try the
+actual Demos -> Timelapse action in a new private folder and inspect tracking
+and live preview before narrating. The old synthetic tutorial tree is retained
+unchanged; it has merged stacks/masks but no original raw TIFFs. No application,
+Qt, global translation or instruction-ledger changes are claimed.

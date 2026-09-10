@@ -97,6 +97,53 @@ MODEL_SPECS = {
 # entries that still fail every primary whole-sentence, clause, and fragment
 # attempt. Its output receives exactly the same structural and semantic gates;
 # its presence can never turn a failed candidate into an accepted one.
+#: Where the translation checkpoints have been found, most recent first.
+#:
+#: A DEFAULT THAT NAMES ONE MACHINE'S DISK IS A TRAP FOR THE NEXT PERSON.
+#: The default used to be the first of these alone, and when that volume
+#: stopped being mounted the builder did not say "the models are not here"
+#: -- it said the checkpoint directory was missing, which reads as a
+#: broken install rather than a moved disk. Two people have now lost time
+#: to it on two different boxes.
+#:
+#: ORDER IS DELIBERATE and it is not alphabetical: the first entry is the
+#: box the catalogs have historically been rebuilt on, so on that machine
+#: nothing changes at all.
+MODEL_ROOT_CANDIDATES = (
+    "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/"
+    "translation_models/opus",
+    "/media/carruthers/mnt3/claude/toxoplasma_projects/tutorials/project/"
+    "translation_models/opus",
+    "/media/carruthers/mnt3/claude/tutorials/project/translation_models/opus",
+)
+
+#: Overrides the search entirely, for a checkout on a machine neither path
+#: describes.
+MODEL_ROOT_ENV = "SPACR_TRANSLATION_MODELS"
+
+
+def default_model_root() -> Path:
+    """The first translation-model root that exists on this machine.
+
+    :returns: the resolved directory, or the first candidate unchanged when
+        none of them exist.
+
+    NOT RAISING WHEN NOTHING IS FOUND, deliberately. `--audit` and
+    `--sources-only` never load a model, and refusing to build the argument
+    parser would take those down on a machine that has no checkpoints -- an
+    audit is exactly what someone without the models wants to run. The
+    caller that actually loads a checkpoint reports the missing directory,
+    and now it names a path that was really looked for.
+    """
+    override = os.environ.get(MODEL_ROOT_ENV)
+    if override:
+        return Path(override)
+    for candidate in MODEL_ROOT_CANDIDATES:
+        if Path(candidate).is_dir():
+            return Path(candidate)
+    return Path(MODEL_ROOT_CANDIDATES[0])
+
+
 SECONDARY_MODEL = "google/madlad400-7b-mt"
 SECONDARY_MODEL_FOLDER = "../madlad400-7b-mt"
 SECONDARY_LICENSE = "Apache-2.0"
@@ -6482,11 +6529,10 @@ def main() -> int:
         default=list(MODEL_SPECS),
     )
     parser.add_argument(
-        "--model-root", type=Path,
-        default=Path(
-            "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/"
-            "translation_models/opus"
-        ),
+        "--model-root", type=Path, default=default_model_root(),
+        help=(f"translation checkpoint root; defaults to the first of "
+              f"{len(MODEL_ROOT_CANDIDATES)} known locations that exists, "
+              f"or set {MODEL_ROOT_ENV}"),
     )
     parser.add_argument("--sources-only", action="store_true")
     parser.add_argument("--audit", action="store_true")

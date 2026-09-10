@@ -147,3 +147,146 @@ class TestTheCountsAreAlwaysComplete:
         mask = _row_of_cells(n=7, gap=2)
         frame = classify(mask, [1, 4], reach=3.0)
         assert sum(counts(frame).values()) == 7
+
+
+# --- step 2: how infected is the neighbourhood, not just the nearest cell ---
+
+from spacr.bystanders import neighbourhood  # noqa: E402
+
+
+class TestTheNeighbourhoodIsCountedNotAssumed:
+    """`neighbours_counted` is a column because k is a request, not a fact."""
+
+    def test_a_sparse_field_reports_what_it_could_find(self):
+        """Three cells cannot supply six neighbours each.
+
+        A fraction divided by an assumed k would be wrong in exactly the
+        sparse fields where a bystander analysis matters most.
+        """
+        frame = neighbourhood(_row_of_cells(n=3), [1], k=6)
+        assert (frame["neighbours_counted"] == 2).all()
+        assert frame["local_infected_fraction"].max() <= 1.0
+
+    def test_a_full_field_supplies_the_k_that_was_asked_for(self):
+        frame = neighbourhood(_row_of_cells(n=10), [1], k=3)
+        assert (frame["neighbours_counted"] == 3).all()
+
+    def test_one_cell_alone_has_no_neighbourhood(self):
+        frame = neighbourhood(_row_of_cells(n=1), [1], k=6)
+        assert len(frame) == 1
+        assert frame["neighbours_counted"].iloc[0] == 0
+        assert np.isnan(frame["local_infected_fraction"].iloc[0])
+
+
+class TestTheCellIsNotItsOwnNeighbour:
+
+    def test_an_isolated_infected_cell_does_not_count_itself(self):
+        """Otherwise every infected cell would report a non-zero fraction
+        purely by being infected, and the column would measure nothing."""
+        frame = neighbourhood(_row_of_cells(n=6), [1], k=2).set_index("label")
+        # Cell 6 is at the far end; neither of its two nearest is cell 1.
+        assert frame.loc[6, "neighbours_infected"] == 0
+        assert frame.loc[6, "local_infected_fraction"] == 0.0
+
+    def test_an_infected_cell_still_gets_a_fraction(self):
+        """"This infected cell sits among uninfected ones" is a different
+        observation from "this one sits in a cluster"."""
+        alone = neighbourhood(_row_of_cells(n=6), [1], k=2).set_index("label")
+        clustered = neighbourhood(_row_of_cells(n=6), [1, 2, 3],
+                                  k=2).set_index("label")
+        assert alone.loc[1, "local_infected_fraction"] == 0.0
+        assert clustered.loc[2, "local_infected_fraction"] > 0.0
+
+
+class TestItAnswersTheQuestionClassifyCannot:
+
+    def test_the_middle_of_a_focus_scores_above_its_edge(self):
+        """Both cells are bystanders; they are not in the same place.
+
+        This is the whole reason step 2 exists on top of step 1.
+        """
+        mask = _row_of_cells(n=9)
+        frame = neighbourhood(mask, [4, 5, 6], k=2).set_index("label")
+        middle, edge = frame.loc[5], frame.loc[8]
+        assert middle["local_infected_fraction"] > edge["local_infected_fraction"]
+
+    def test_nothing_infected_is_a_field_of_zeros_not_of_nans(self):
+        frame = neighbourhood(_row_of_cells(n=5), [], k=2)
+        assert (frame["neighbours_infected"] == 0).all()
+        assert (frame["local_infected_fraction"] == 0.0).all()
+
+
+class TestSpacingIsRespectedAndNeverFatal:
+
+    @pytest.mark.parametrize("spacing", [None, 1.0, (1.0, 1.0), "coarse",
+                                         (0.0, 1.0), (1.0, 2.0, 3.0)])
+    def test_any_spacing_still_answers(self, spacing):
+        """An anisotropic stack with a mis-typed spacing gets neighbours in
+        pixels -- what the caller had before -- rather than no answer."""
+        frame = neighbourhood(_row_of_cells(n=5), [1], k=2, spacing=spacing)
+        assert len(frame) == 5
+        assert frame["neighbours_counted"].min() >= 1
+
+
+# --- step 4: infected vs bystander vs distal, on a measured feature --------
+
+import pandas as pd  # noqa: E402
+
+from spacr.bystanders import compare  # noqa: E402
+
+
+class TestTheComparisonTheItemIsFor:
+
+    @staticmethod
+    def _measured():
+        return pd.DataFrame({
+            "label": [1, 2, 3, 4, 5, 6],
+            "neighbourhood": ["infected", "infected", "bystander",
+                              "bystander", "distal", "distal"],
+            "area": [100.0, 110.0, 150.0, 160.0, 200.0, 210.0],
+        })
+
+    def test_it_separates_the_three_groups(self):
+        out = compare(self._measured(), "area").set_index("neighbourhood")
+        assert out.loc["infected", "mean"] == pytest.approx(105.0)
+        assert out.loc["bystander", "mean"] == pytest.approx(155.0)
+        assert out.loc["distal", "mean"] == pytest.approx(205.0)
+
+    def test_this_is_the_confound_it_removes(self):
+        """Pooling bystanders into "uninfected" inflates the control.
+
+        The same six cells, read the way the package reads them today,
+        give an uninfected group whose spread is far wider than either of
+        the two populations inside it -- which is the mechanism by which
+        every infection effect size shrinks.
+        """
+        rows = self._measured()
+        split = compare(rows, "area").set_index("neighbourhood")
+        pooled = rows[rows["neighbourhood"] != "infected"]["area"].std(ddof=1)
+        assert pooled > split.loc["bystander", "std"]
+        assert pooled > split.loc["distal", "std"]
+
+    def test_every_group_is_a_row_even_when_empty(self):
+        rows = self._measured()
+        rows = rows[rows["neighbourhood"] != "bystander"]
+        out = compare(rows, "area")
+        assert list(out["neighbourhood"]) == list(STATUSES)
+        assert int(out.loc[out["neighbourhood"] == "bystander", "n"].iloc[0]) == 0
+
+    def test_a_single_cell_has_no_spread_rather_than_zero_spread(self):
+        """Zero would read as a perfectly consistent group."""
+        rows = pd.DataFrame({"neighbourhood": ["bystander"], "area": [5.0]})
+        out = compare(rows, "area").set_index("neighbourhood")
+        assert out.loc["bystander", "n"] == 1
+        assert np.isnan(out.loc["bystander", "std"])
+
+    def test_a_missing_feature_answers_with_the_shape_and_no_numbers(self):
+        out = compare(self._measured(), "not_a_column")
+        assert list(out["neighbourhood"]) == list(STATUSES)
+        assert (out["n"] == 0).all()
+
+    def test_unreadable_values_are_dropped_not_counted(self):
+        rows = pd.DataFrame({"neighbourhood": ["distal"] * 3,
+                             "area": [1.0, "wide", None]})
+        out = compare(rows, "area").set_index("neighbourhood")
+        assert out.loc["distal", "n"] == 1

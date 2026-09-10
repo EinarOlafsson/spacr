@@ -1,0 +1,34 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "fr",
+  "title": "Essai d’invasion",
+  "description": "Configurez l’essai à deux couleurs actuel, séparez les puits de référence du marquage des conditions expérimentales et examinez les vrais seuils, graphiques et fichiers. La base de démonstration est explicitement synthétique.",
+  "objectives": [
+    "Associer les marquages extérieur et total aux bonnes colonnes de mesure.",
+    "Utiliser le contrôle renommé de référence du marquage et examiner la sensibilité au seuil.",
+    "Lire les figures et les dénominateurs par puits sans attribuer de signification biologique aux motifs synthétiques."
+  ],
+  "prerequisite": "La base synthétique existante est conservée ; l’interface actuelle travaille sur une nouvelle copie identique. Ses 1 800 mesures inventées comprennent 360 objets de référence et 1 440 objets d’essai répartis sur douze puits artificiels. Aucune image acquise à deux couleurs n’est fournie, et la plaque téléchargeable générale n’établit pas le protocole de marquage avant et après perméabilisation. Vehicle et inhibitor sont des noms pédagogiques, pas des traitements testés. La moyenne est choisie parce que ces colonnes existent, pas comme recommandation générale pour un marquage de surface. Des calculs indépendants vérifient classifications, seuils, comptes, résumés et géométrie des figures, sans valider images, efficacité ou inférence statistique. Les deux bases d’entrée restent inchangées. Le contrôle actuel est stain_baseline_wells, anciennement control_wells ; le seuil de bimodalité à six décimales est enregistré exactement.",
+  "scenes": [
+    "Ouvrez Invasion Assay dans la section Assays de Home. Ce module classe des parasites déjà mesurés ; il ne segmente pas les images ici. Notre base est explicitement synthétique. Les figures expliquent les réglages et les calculs, pas une invasion observée ni un effet de traitement.",
+    "Choisissez le dossier expérimental contenant measurements, barre oblique, measurements point db. Cette nouvelle copie privée comporte mille huit cents parasites inventés : trois cent soixante objets de référence du marquage et mille quatre cent quarante objets dans les puits d’essai. La plaque téléchargeable ordinaire ne remplace pas une expérience de marquage à deux couleurs validée.",
+    "Outside channel correspond au marquage avant perméabilisation, ici le canal un. Total channel correspond au marquage effectué ensuite, ici le canal zéro. Un parasite positif pour le marquage extérieur est classé attached ; à une intensité égale ou inférieure au seuil, il est classé invaded. Un faible marquage extérieur peut donc créer de fausses classifications invaded.",
+    "Nous choisissons mean parce que la base pédagogique contient des colonnes d’intensité moyenne. Ce n’est pas une recommandation générale pour un marquage de surface. Pour vos données, examinez les mesures de bordure ou de percentile disponibles et pertinentes. Un anneau local de fond n’est pas non plus le canal du marquage extérieur.",
+    "Réglez Stain baseline wells sur la première colonne. Ce nom remplace l’ancien control wells et désigne la référence artificielle de marquage négatif, pas la condition véhicule. Ces objets définissent le seuil et sont exclus des dénominateurs de l’essai. Vehicle et inhibitor restent dans les colonnes deux et trois.",
+    "Control quantile vaut zéro virgule quatre-vingt-dix-neuf. Les trois cent soixante objets de référence donnent un seuil d’environ vingt-deux virgule huit unités d’intensité. Nous laissons Outside threshold vide afin d’utiliser le seuil issu de la référence. La méthode automatique n’est pas le seuil appliqué dans cette exécution.",
+    "Threshold sensitivity vaut zéro virgule vingt-cinq : le seuil est encadré par une valeur vingt-cinq pour cent plus basse et une valeur vingt-cinq pour cent plus haute. Augmenter le seuil peut classer davantage de parasites invaded. Examinez l’intervalle d’efficacité et les indicateurs qualité ; une exécution réussie ne prouve pas la fiabilité du marquage.",
+    "Extracellular class détermine le traitement des objets sans lien avec une cellule hôte. L’exemple utilise classify et laisse la décision au marquage ; tous les objets pédagogiques ont déjà un lien hôte. Pour vos données, choisissez consciemment entre attached, exclude et classify après vérification de la segmentation des cellules hôtes.",
+    "Run produit trois vraies figures. La page des seuils montre une distribution par puits, et non par parasite. Ici, la ligne appliquée provient de la référence et les douze puits sont visibles. Vérifiez si le seuil sépare des populations plausibles ; ces distributions inventées ne remplacent pas l’examen d’images de marquage représentatives.",
+    "Si une légende dépasse du canevas, ouvrez Figure settings et choisissez best pour Legend position dans l’onglet des axes. Confirmez pour garder les libellés visibles. Il s’agit uniquement d’un réglage d’affichage : nous avons vérifié que les valeurs tracées et les tables enregistrées restent inchangées.",
+    "Les barres par puits montrent les fractions attached et invaded, avec cent vingt parasites classés au-dessus de chaque barre. Les puits de référence sont absents. Gardez le dénominateur à côté de la proportion : une forte fraction fondée sur très peu d’objets n’équivaut pas à la même fraction dans un puits bien échantillonné.",
+    "Les deux conditions inventées comptent chacune sept cent vingt parasites classés. Leurs fractions invaded sont d’environ trente-neuf virgule sept et soixante-huit virgule neuf pour cent. Le résumé rapporte aussi la moyenne des puits, généralement différente d’un regroupement des objets. Ni les noms des conditions ni une valeur p n’établissent ici un effet biologique.",
+    "Consultez la console et le dossier de résultats : classifications, seuils par champ, efficacités par puits, résumés par condition et comparaisons. Pour l’inférence, utilisez des puits expérimentaux indépendants, pas les parasites comme répétitions interchangeables. spaCR AI est facultatif et n’a pas servi à cette analyse locale. Validez marquage et images avant toute conclusion biologique."
+  ]
+}

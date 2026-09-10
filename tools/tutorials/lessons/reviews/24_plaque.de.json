@@ -1,0 +1,37 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "eb59bf95ab937290708c8202a22ef1b8105d466f6622e97b7b2a96b3e557ba3d",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "visual_only_update": "Console spotlight geometry only; all English narration, scene order, holds and translated text remain unchanged."
+  },
+  "language": "de",
+  "title": "Plaqueanalyse",
+  "description": "Synthetische Masken wiederverwenden, das Vorschaumodell ausdrücklich wählen und reversible Filter sowie gespeicherte Tabellen prüfen.",
+  "objectives": [
+    "Gespeicherte Masken von neuen Modellvorhersagen unterscheiden.",
+    "Einen reversiblen Filter ohne erneute Segmentierung testen.",
+    "Anzahlen und Pixelflächen ohne erfundene Kalibrierung oder biologische Effekte lesen."
+  ],
+  "prerequisite": "Das SYNTHETISCHE Beispiel herunterladen und in einen neuen Ordner entpacken. Vier TIFF-Bilder und vier Masken bewahren die Originalbytes; alte Ergebnisse, Einstellungen und Modelle sind nicht enthalten. Source auf SYNTHETIC_plaque setzen, Masks ausschalten. Die konstruierten Objekte zählen 4, 3, 2 und 1, insgesamt zehn; keine aufgenommenen Bilder oder physikalische Kalibrierung. Das separat heruntergeladene Vorschaumodell wird gegen die veröffentlichte Prüfsumme geprüft, nicht auf Genauigkeit bewertet. Die Grenze 26211 behält zwei Vorhersagen; null stellt vier wieder her. Die Vorschau übernimmt plaque_model nicht automatisch. Auch bei ausgeschaltetem Masks ein vorhandenes Modell angeben. API: spacr.submodules.analyze_plaques. Weder eine Stapelanalyse mit neuen Masken noch biologische Validierung wird behauptet.",
+  "scenes": [
+    "Öffnen Sie Plaque Analysis unter Assays auf Home. Diese Lektion verwendet vier synthetische Bilder mit konstruierten Masken, keine aufgenommenen Infektionsbilder. Wir zählen gespeicherte Masken, testen eine separate Modellvorschau und prüfen die tatsächliche Datenbank, ohne die Lehrformen als biologische Ergebnisse darzustellen.",
+    "Laden Sie das unten verlinkte synthetische Beispiel herunter und entpacken Sie es in einen neuen Ordner. Source bezeichnet den Ordner mit vier TIFF-Bildern und dem Unterordner masks. Bewahren Sie die Originale auf; verwenden Sie eine weitere Kopie, bevor eine neue Segmentierung die Masken ersetzen könnte.",
+    "Lassen Sie Masks ausgeschaltet, um die mitgelieferten Masken wiederzuverwenden. Die Anzahlen sind vier, drei, zwei und eins. Einschalten fordert Segmentierung an: Durchmesser, Normalisierung und Modell beeinflussen dann eine andere Berechnung. Maskenwiederverwendung testet dieses Modell nicht.",
+    "Well detection ist aus, weil jedes Lehrbild bereits ein Bildfeld darstellt. Eine physikalische Fläche benötigt echte Wellgeometrie und eine bekannte Größe; beides fehlt. Lassen Sie die Kalibrierung leer. Wellname, geschätzter Durchmesser oder erfolgreicher Lauf bestimmen keinen Millimetermaßstab.",
+    "Plaque model benötigt auch bei wiederverwendeten Masken ein verfügbares Modell. Die Aufnahme beginnt mit einem bereits vorhandenen mitgelieferten Modell. Laden Sie bei einer Neuinstallation das Plaquemodell über Model zoo herunter und tragen Sie hier seinen lokalen Pfad ein. Die Vorschau besitzt eine eigene Auswahl, die wir anschließend prüfen.",
+    "Öffnen Sie Live preview und dann Live settings. Prüfen Sie Model ausdrücklich: Diese Version zeigt zunächst das allgemeine Modell, auch wenn Plaque model eine andere Datei angibt. Nehmen Sie keine Synchronisierung an. Gleichen Sie beide Modellwahlen bewusst ab, bevor Sie neue Masken erstellen.",
+    "Wählen Sie Model zoo und das Plaquemodell. Die Datei ist etwa 1,2 Gigabyte groß; wählen Sie einen geeigneten Save to-Ordner und laden Sie sie einmal herunter. Die verwendeten Bytes wurden gegen die veröffentlichte Prüfsumme geprüft. On this machine bedeutet verfügbar, nicht experimentell validiert.",
+    "Wählen Sie das erste synthetische Bild und Run preview. Das gewählte Modell findet vier Objekte. View wechselt zwischen Konturen und farbigen Masken; keine Ansicht misst Modellgenauigkeit. Dies ist eine neue Segmentierung, getrennt von den mitgelieferten Masken der abgeschlossenen Analyse.",
+    "Erhöhen Sie Min area in Live settings auf 26211 Pixel. Die beiden kleineren vorhergesagten Objekte werden entfernt. Der Filter verwendet zwischengespeicherte Masken, ohne das Modell neu auszuführen. Ändern Sie jeweils nur eine Einstellung, damit ihre Wirkung erkennbar bleibt.",
+    "Setzen Sie Min area auf null zurück: Alle vier Objekte erscheinen mit exakt den ursprünglichen Pixeln. Null deaktiviert diese untere Flächengrenze. Vorschauänderungen überschreiben weder Eingabemasken noch Ergebnisdatenbank; eine ansprechende Vorschau ist keine abgeschlossene Stapelanalyse.",
+    "Die Maskenwiederverwendung schreibt eine Datenbank in masks. Dieser Pfad erzeugt Tabellen statt einer eingebetteten Grafik; ein leerer Figures-Bereich belegt hier keinen Fehler. Lesen Sie die Konsole. AI bleibt ausgeschaltet; eine Assistentenantwort ersetzt die Prüfung gespeicherter Ergebnisse nicht.",
+    "Öffnen Sie Database browser über Help und dann die Plaque-Ergebnisdatenbank in masks. Lassen Sie Edit mode ausgeschaltet. Der Browser zeigt tatsächlich gespeicherte Tabellen statt eines Bildes erfundener Ergebnisse. Diese Prüfung lässt auch die Datenbankbytes unverändert.",
+    "Wählen Sie summary und identifizieren Sie jede Zeile anhand des Dateinamens, nicht ihrer Position. Object count stammt aus den mitgelieferten Masken: vier, drei, zwei und eins. Average size ist die mittlere markierte Pixelfläche. Control und treatment sind beliebige Lehrnamen, kein Beleg für einen Behandlungseffekt.",
+    "Wählen Sie stats für Plaqueanzahl, mittlere Fläche und Streuung je Bild. Die Standardabweichung beschreibt einzelne Plaqueflächen dieses Bildes, kein Unsicherheitsintervall eines biologischen Experiments. Interpretieren Sie Zählungen erst nach Prüfung von Maßstab und Segmentierung an echten Daten.",
+    "Wählen Sie details für jede einzelne Fläche. Physikalische Flächenspalten bleiben mangels Kalibrierung leer. Bewahren Sie Bilder, Masken, Einstellungen und Ergebnisse zusammen auf; biologische Vergleiche benötigen unabhängige experimentelle Wiederholungen. Die Lektion prüft Software an synthetischen Formen, nicht Infektion oder Arzneimittelwirkung."
+  ]
+}

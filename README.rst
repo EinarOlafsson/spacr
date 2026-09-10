@@ -719,7 +719,6 @@ The `interactive spaCR tutorial library
 captioned walkthroughs of installation and of each application workflow, in
 73 lessons with 50 voices across eight languages.
 
-
 Citing spaCR
 ~~~~~~~~~~~~
 

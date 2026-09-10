@@ -33,7 +33,7 @@ from typing import Dict, Iterable, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-from .object_distances import surface_distance_transform
+from .object_distances import _centroids, surface_distance_transform
 
 #: What a cell's neighbourhood is called, in the order a reader meets them.
 #:
@@ -194,3 +194,152 @@ def counts(frame: pd.DataFrame) -> Dict[str, int]:
     """
     seen = frame["neighbourhood"].value_counts().to_dict() if len(frame) else {}
     return {name: int(seen.get(name, 0)) for name in STATUSES}
+
+
+def neighbourhood(cell_mask, infected_labels: Iterable[int], *, k: int = 6,
+                  spacing=None) -> pd.DataFrame:
+    """What fraction of each cell's nearest neighbours are infected.
+
+    :param cell_mask: the cell label image.
+    :param infected_labels: labels of the cells carrying a pathogen.
+    :param k: how many neighbours to count, EXCLUDING the cell itself.
+    :param spacing: voxel size, so "nearest" means nearest in real space
+        rather than in pixels on an anisotropic stack.
+    :returns: ``label``, ``neighbours_counted``, ``neighbours_infected``
+        and ``local_infected_fraction``.
+
+    THE SECOND HALF OF THE BYSTANDER QUESTION. :func:`classify` answers
+    "is there an infected cell near this one", which is a threshold on one
+    distance. This answers "how infected is this cell's neighbourhood",
+    which is the quantity that separates a cell at the edge of a focus
+    from one in the middle of it -- both are bystanders and they are not in
+    the same place.
+
+    THE CELL ITSELF IS NEVER ITS OWN NEIGHBOUR, and an INFECTED cell still
+    gets a fraction: "this infected cell sits among uninfected ones" is a
+    different observation from "this one sits in a cluster", and dropping
+    the infected rows would throw the second away.
+
+    `neighbours_counted` IS REPORTED RATHER THAN ASSUMED TO BE ``k``. A
+    field with fewer than ``k + 1`` cells cannot supply k neighbours, and a
+    fraction computed against an assumed denominator would be wrong in
+    exactly the sparse fields where a bystander analysis matters most. The
+    column says what the fraction was actually divided by.
+    """
+    from scipy.spatial import cKDTree
+
+    labelled = np.asarray(cell_mask)
+    labels, centroids = _centroids(labelled)
+    empty = pd.DataFrame({
+        "label": np.asarray(labels, dtype=np.int64),
+        "neighbours_counted": np.zeros(len(labels), dtype=int),
+        "neighbours_infected": np.zeros(len(labels), dtype=int),
+        "local_infected_fraction": np.full(len(labels), np.nan)})
+    if len(labels) < 2:
+        return empty
+
+    scale = _as_neighbour_scale(spacing, centroids.shape[1])
+    points = centroids * scale
+    wanted = {int(v) for v in infected_labels}
+    infected = np.isin(labels, list(wanted)) if wanted else np.zeros(
+        len(labels), dtype=bool)
+
+    # +1 BECAUSE THE FIRST HIT IS ALWAYS THE CELL ITSELF. Asking for k and
+    # dropping the nearest would silently return k-1 neighbours.
+    take = min(int(k) + 1, len(labels)) if int(k) > 0 else 1
+    tree = cKDTree(points)
+    _distance, index = tree.query(points, k=take)
+    index = np.atleast_2d(index)
+    if take == 1:
+        return empty
+
+    neighbours = index[:, 1:]
+    counted = np.full(len(labels), neighbours.shape[1], dtype=int)
+    infected_counts = infected[neighbours].sum(axis=1).astype(int)
+    frame = pd.DataFrame({
+        "label": np.asarray(labels, dtype=np.int64),
+        "neighbours_counted": counted,
+        "neighbours_infected": infected_counts,
+        "local_infected_fraction": infected_counts / counted})
+    return frame
+
+
+def _as_neighbour_scale(spacing, ndim: int) -> np.ndarray:
+    """Per-axis multipliers that turn centroid indices into real lengths.
+
+    :param spacing: a scalar, a per-axis sequence, or None.
+    :param ndim: how many axes the image has.
+    :returns: an array of length ``ndim``, all ones when there is nothing
+        usable to apply.
+
+    ONES ON ANYTHING UNREADABLE rather than a raise. An anisotropic stack
+    with a mis-typed spacing should give neighbours in pixels -- which is
+    what the caller had before -- not no answer at all.
+    """
+    if spacing is None:
+        return np.ones(ndim)
+    try:
+        values = np.asarray(spacing, dtype=float).ravel()
+    except (TypeError, ValueError):
+        return np.ones(ndim)
+    if values.size == 1:
+        values = np.repeat(values, ndim)
+    if values.size != ndim or not np.all(np.isfinite(values)) or \
+            np.any(values <= 0):
+        return np.ones(ndim)
+    return values
+
+
+def compare(frame: pd.DataFrame, feature: str, *,
+            statuses: Sequence[str] = STATUSES) -> pd.DataFrame:
+    """One row per neighbourhood, for one measured feature.
+
+    :param frame: measurements carrying a ``neighbourhood`` column, as
+        :func:`classify` produces it, joined to the feature table.
+    :param feature: the column to summarise.
+    :param statuses: which neighbourhoods to report, in order.
+    :returns: ``neighbourhood``, ``n``, ``mean``, ``std`` and ``median``.
+
+    THE COMPARISON THE WHOLE ITEM IS FOR, and the reason it is worth having
+    is subtraction rather than addition: the package can already compare
+    infected against uninfected. What it cannot do is notice that
+    "uninfected" was two populations, so a bystander effect shows up as
+    nothing more than a wider control.
+
+    EVERY REQUESTED STATUS IS A ROW, at ``n = 0`` where the well has none.
+    A caller comparing plates needs the same three rows every time; a
+    missing row silently changes what a downstream join means.
+
+    NO TEST STATISTIC HERE, deliberately. Summarising is safe on any
+    column; choosing a test is a decision about the design -- paired or
+    not, how the wells nest, what the null is -- and belongs where those
+    are known. This gives the regression layer three named groups to be
+    handed, which is what instruction 388 asks for.
+    """
+    wanted = [str(name) for name in statuses]
+    if feature not in frame.columns or "neighbourhood" not in frame.columns:
+        return pd.DataFrame({"neighbourhood": wanted,
+                             "n": [0] * len(wanted),
+                             "mean": [np.nan] * len(wanted),
+                             "std": [np.nan] * len(wanted),
+                             "median": [np.nan] * len(wanted)})
+    rows = []
+    for name in wanted:
+        values = pd.to_numeric(
+            frame.loc[frame["neighbourhood"] == name, feature],
+            errors="coerce").dropna()
+        rows.append({
+            "neighbourhood": name,
+            "n": int(values.size),
+            # `ddof=1`, WHICH IS THE POINT OF THIS ITEM. The confound it
+            # exists to remove is an inflated control variance, so the
+            # spread reported here has to be the sample estimate a reader
+            # would compare against -- not the population one, which is
+            # smaller and would understate exactly the effect being
+            # looked for. NaN at n < 2 rather than 0: one cell has no
+            # spread, and 0 would read as a perfectly consistent group.
+            "mean": float(values.mean()) if values.size else np.nan,
+            "std": float(values.std(ddof=1)) if values.size > 1 else np.nan,
+            "median": float(values.median()) if values.size else np.nan,
+        })
+    return pd.DataFrame(rows)

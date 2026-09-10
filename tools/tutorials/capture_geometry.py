@@ -1,6 +1,15 @@
 """Describe visible Qt controls in the actual recording window's coordinates."""
 
 
+def foreground_dialogs(dialogs, active_modal=None, active_popup=None):
+    """Draw the actual active modal and its popup above background windows."""
+    result = list(dialogs)
+    for active in (active_modal, active_popup):
+        if active is not None and any(item is active for item in result):
+            result = [item for item in result if item is not active] + [active]
+    return result
+
+
 def capture_rect(widget, window):
     """Return a clipped client rectangle, or None for a hidden/off-frame widget."""
     from PySide6.QtCore import QPoint

@@ -22,6 +22,12 @@ def test_existing_lessons_without_examples_stay_unchanged():
     assert names({})==[] and names({'example_files':'not an array'})==[]
 
 
+def test_preserved_plaque_zip_is_downloadable_without_allowing_arbitrary_extensions():
+    good='SYNTHETIC_plaque_example.zip'
+    assert names({'example_files':[good,good]}) == [good]
+    assert names({'example_files':[good,'model.exe','../outside.zip','https://example.org/a.zip']}) == [good]
+
+
 @pytest.mark.parametrize('bad',['../outside.csv','/root.csv','https://example.org/a.csv','a.csv?query',
     'a.csv#fragment','a.csv/child','<script>.csv','x'*129+'.csv',None,12])
 def test_unsafe_download_name_after_real_positive(bad):

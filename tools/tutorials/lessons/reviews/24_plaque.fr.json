@@ -1,0 +1,37 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "eb59bf95ab937290708c8202a22ef1b8105d466f6622e97b7b2a96b3e557ba3d",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "visual_only_update": "Console spotlight geometry only; all English narration, scene order, holds and translated text remain unchanged."
+  },
+  "language": "fr",
+  "title": "Analyse des plages de lyse",
+  "description": "Réutilisez des masques synthétiques, choisissez explicitement le modèle de prévisualisation et vérifiez les filtres et les tables enregistrées.",
+  "objectives": [
+    "Distinguer les masques enregistrés d’une nouvelle prédiction.",
+    "Tester un filtre réversible sans relancer la segmentation.",
+    "Lire les comptes et les aires sans inventer calibration ou effet biologique."
+  ],
+  "prerequisite": "Téléchargez et extrayez l’exemple SYNTHÉTIQUE dans un nouveau dossier. Les quatre TIFF et leurs quatre masques conservent les octets d’origine ; aucun ancien résultat, réglage ou modèle n’est inclus. Source doit désigner SYNTHETIC_plaque et Masks rester désactivé. Dix objets sont construits : quatre, trois, deux et un ; aucune image acquise ni calibration physique. Le modèle de prévisualisation, téléchargé séparément, est vérifié par somme de contrôle, sans évaluation de précision. Le seuil 26211 conserve deux prédictions ; zéro rétablit les quatre. La prévisualisation n’hérite pas automatiquement de plaque_model. Indiquez un modèle existant même avec Masks désactivé. API : spacr.submodules.analyze_plaques. Aucun traitement par lots avec de nouveaux masques ni effet biologique n’est validé.",
+  "scenes": [
+    "Ouvrez Plaque Analysis dans Assays sur Home. Cette leçon utilise quatre images synthétiques et des masques construits, pas des images d’infection acquises. Nous comptons les masques enregistrés, essayons une prévisualisation distincte et examinons la vraie base sans présenter ces formes pédagogiques comme des résultats biologiques.",
+    "Téléchargez l’exemple synthétique indiqué ci-dessous et extrayez-le dans un nouveau dossier. Réglez Source sur le dossier contenant les quatre TIFF et le sous-dossier masks. Préservez les originaux ; utilisez une autre copie avant une segmentation susceptible de remplacer les masques.",
+    "Laissez Masks désactivé pour réutiliser les masques fournis. Les comptes sont quatre, trois, deux et un. Activer Masks demande une segmentation : diamètre, normalisation et modèle interviennent alors dans un autre calcul. Réutiliser des masques ne teste pas ce modèle.",
+    "Well detection est désactivé, car chaque image représente déjà un champ. Une aire physique nécessite une vraie géométrie du puits et une dimension connue ; l’exemple ne fournit ni l’une ni l’autre. Laissez la calibration vide. Un nom de puits, un diamètre supposé ou une exécution réussie ne déterminent pas une échelle en millimètres.",
+    "Plaque model nécessite un modèle disponible même pour réutiliser des masques. Nous commençons avec un modèle fourni déjà présent. Sur une nouvelle installation, téléchargez le modèle de plages via Model zoo et saisissez ici son chemin local. La prévisualisation possède son propre sélecteur, que nous vérifierons ensuite.",
+    "Ouvrez Live preview, puis Live settings. Vérifiez Model : cette version affiche d’abord le modèle général, même si Plaque model désigne un autre fichier. Ne supposez pas que prévisualisation et formulaire sont synchronisés. Faites correspondre explicitement leurs modèles avant de créer de nouveaux masques.",
+    "Choisissez Model zoo et sélectionnez le modèle de plages. Il pèse environ un virgule deux gigaoctets : choisissez un dossier Save to adapté et téléchargez-le une fois. Les octets ont été vérifiés avec la somme de contrôle publiée. On this machine signifie disponible, pas expérimentalement validé.",
+    "Choisissez la première image synthétique et Run preview. Le modèle sélectionné trouve quatre objets. View alterne entre contours et masques colorés ; aucun affichage ne mesure la précision du modèle. Cette nouvelle segmentation est indépendante des masques fournis utilisés par l’analyse terminée.",
+    "Dans Live settings, augmentez Min area à vingt-six mille deux cent onze pixels. Les deux plus petits objets prédits disparaissent. Le filtrage réutilise les masques en mémoire sans relancer le modèle. Modifiez un seul réglage à la fois pour voir quels objets il retire.",
+    "Remettez Min area à zéro : les quatre objets reviennent avec exactement leurs pixels initiaux. Zéro désactive ce seuil inférieur d’aire. Ces réglages ne réécrivent ni les masques d’entrée ni la base de résultats ; une prévisualisation séduisante n’est pas une analyse par lots achevée.",
+    "La réutilisation des masques écrit une base dans le dossier masks. Cette voie produit des tables, pas de graphique intégré ; une zone Figures vide ne prouve donc pas un échec. Lisez la console. AI reste désactivé ; une réponse d’assistant ne remplacerait pas la vérification des fichiers enregistrés.",
+    "Ouvrez Database browser depuis Help, puis la base d’analyse des plages dans masks. Laissez Edit mode désactivé. Le navigateur montre les vraies tables enregistrées, pas une capture de résultats inventés, et cette inspection ne change pas les octets de la base.",
+    "Sélectionnez summary et identifiez chaque ligne par son nom de fichier, pas sa position. Object count vient des masques fournis : quatre, trois, deux et un. Average size est l’aire moyenne étiquetée en pixels. Control et treatment sont des noms pédagogiques arbitraires, pas la preuve d’un effet.",
+    "Sélectionnez stats pour le nombre de plages, leur aire moyenne et leur dispersion par image. L’écart-type décrit les aires individuelles, pas un intervalle d’incertitude pour une expérience biologique. Interprétez les comptes seulement après validation de l’échelle et de la segmentation sur de vraies données.",
+    "Sélectionnez details pour examiner chaque aire. Les colonnes d’aire physique restent vides faute de calibration. Conservez ensemble images, masques, réglages et résultats, et utilisez des répétitions expérimentales indépendantes pour comparer des effets biologiques. Ce tutoriel vérifie le logiciel sur des formes synthétiques, pas l’infection ni l’efficacité d’un médicament."
+  ]
+}

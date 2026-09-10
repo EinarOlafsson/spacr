@@ -26,7 +26,10 @@ from pathlib import Path
 from typing import Callable, Iterable, Mapping
 
 from build_i18n_catalogs import (
+    MODEL_ROOT_CANDIDATES,
+    MODEL_ROOT_ENV,
     NATIVE_LANGUAGE_NAMES,
+    default_model_root,
     _COMPUTE_RUN_SOURCE,
     _COMPUTE_THREAD_SOURCE,
     _CONTEXT_HARD_PROTECT_RE,
@@ -6547,7 +6550,10 @@ def main() -> int:
     parser.add_argument("--languages", nargs="+", choices=tuple(MODEL_SPECS), default=list(MODEL_SPECS))
     parser.add_argument(
         "--model-root", type=Path,
-        default=Path("/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/project/translation_models/opus"),
+        default=default_model_root(),
+        help=(f"translation checkpoint root; defaults to the first of "
+              f"{len(MODEL_ROOT_CANDIDATES)} known locations that exists, "
+              f"or set {MODEL_ROOT_ENV}"),
     )
     parser.add_argument("--sources-only", action="store_true")
     parser.add_argument("--audit", action="store_true")

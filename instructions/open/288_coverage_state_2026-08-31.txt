@@ -1110,3 +1110,99 @@ STILL OPEN, AND WHY:
   * test_no_commit_credits_claude (1) -- 111 commits, all from the other
     session's lane, which has no commit-msg hook. Maintainer's decision:
     install the hook now, rewrite after 1.5.0.5.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- pytest-cov IS GONE FROM THE `spacr` ENV. USE `coverage run`.
+--------------------------------------------------------------------------------
+
+THE RECORDED TRAP NOW POINTS THE WRONG WAY. 352 says "do it in the `spacr`
+conda env -- `spacr12` lacks pytest-cov and exits 4 per batch while the
+wrapper reports success." Measured today, `spacr` lacks it too:
+
+    python -c "import pytest_cov"   ModuleNotFoundError
+    pip list | grep pytest          pytest, pytest-qt, pytest-randomly,
+                                    pytest-timeout, pytest-xdist
+    python -c "import coverage"     7.16.0
+
+HOW IT FAILS, and it is the reason this is worth a note rather than a
+one-line fix: pytest does not ignore `--cov`, it REJECTS it --
+
+    error: unrecognized arguments: --cov=... --cov-report=term-missing
+
+-- with usage text, no tests run, AND EXIT CODE 0 through a pipe to `tail`.
+A batch wrapper that reads the pipeline's status sees success and records a
+measurement that never happened. That is the same shape as the spacr12
+failure the older note describes, from the opposite cause.
+
+WHAT TO RUN INSTEAD. The plugin is a convenience; the library is the
+measurement, and it needs no plugin:
+
+    python -m coverage run --source=<dotted.module> --data-file=<path> \
+        -m pytest <files> -q -p no:cacheprovider -m "not gpu"
+    python -m coverage report --data-file=<path> --show-missing
+
+`--data-file` OUTSIDE THE WORKTREE, deliberately. `.coverage` in the tree is
+a binary that several sessions would write at once, and a combine over two
+sessions' partial data is a number nobody can reproduce.
+
+DO NOT INSTALL IT TO MAKE THE OLD COMMAND WORK. The env is shared with the
+AF3 job and with other sessions, and a package added mid-run is a change to
+their environment as well as to this one. The three-line form above is not
+worse.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- `--source=` SEGFAULTS THE Qt SUITE. MEASURE WIDE, FILTER LATE.
+--------------------------------------------------------------------------------
+
+THE TRIGGER IS A SINGLE-MODULE `--source=`, AND NOTHING WIDER. Measured on
+`tests/qt/test_cov_r5_cell_montage_view.py`, everything else held fixed --
+same file, same deterministic order under `-p no:randomly`, same tracer:
+
+    --source=spacr                                  17 passed
+    --source=spacr.qt                               17 passed
+    --source=spacr.qt.widgets                       17 passed
+    --source=spacr.qt.widgets.cell_montage_view     Segmentation fault
+    (no --source, .coveragerc's source=spacr)       17 passed, 2 of 2
+
+    and the crashing one dies 3 runs out of 3.
+
+CI IS NOT AFFECTED AND NEITHER IS A FULL SWEEP. `.coveragerc` sets
+`source = spacr` and `tools/run_coverage_batches.py` passes `--cov=spacr`;
+both are package-scoped and both are fine. This bites ONLY someone doing
+what a per-module measurement invites -- naming the one module they are
+measuring. An earlier version of this note said "`--source=` segfaults",
+which was measured on one scope and generalised to all of them; that was
+wrong and it would have sent the next person looking at the wrong thing.
+
+TWO EXPLANATIONS WERE WRONG BEFORE THAT ONE, and both are recorded because
+each cost a measurement:
+
+  * "PySide6 crashes raising TypeError from `addWidget` under a tracer."
+    A four-line reproduction -- QApplication, a QVBoxLayout, `addWidget`
+    with a plain `object()` -- raises cleanly WITH coverage and without.
+    The traceback naming that line names where the process died, not what
+    killed it.
+  * "It is order-dependent, so `pytest-randomly` is the cause." `-p
+    no:randomly` crashes too, and the single test alone under coverage
+    passes. It needs the file's other tests AND `--source`.
+
+  IT IS NOT THE TRACER IMPLEMENTATION EITHER: `COVERAGE_CORE=sysmon` and
+  `COVERAGE_CORE=pytrace` both crash with `--source` set.
+
+WHAT TO DO. Measure WIDE and filter at report time -- the number is
+identical and no test has to be dropped:
+
+    python -m coverage run --data-file=<outside the worktree> -m pytest <file> ...
+    python -m coverage report --data-file=<...> --include="*/<module>.py"
+
+  THE ALTERNATIVE WAS DESELECTING THE TEST THAT DIED, which would have
+  measured this module with one of its tests removed and called the result
+  coverage. `--include` costs nothing and keeps all 32 files.
+
+AND `coverage combine` ERASES ITS TARGET unless told otherwise. Combining
+into a data file that already holds a previous combination REPLACES it, and
+it deletes the per-process files it read on the way -- `--keep` did not
+preserve them here. Two measurements were lost to this in one night. Copy
+the raw files aside first, combine ONCE at the end, and check the
+"Combined N files" line against the number of processes you ran: 16 when
+you ran 32 is a silently partial number that reports as a clean one.

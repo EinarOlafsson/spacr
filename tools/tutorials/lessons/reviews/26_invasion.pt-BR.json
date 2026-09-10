@@ -1,0 +1,34 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "pt-BR",
+  "title": "Ensaio de invasão",
+  "description": "Configure o ensaio atual de duas cores, separe os poços de referência da marcação das condições experimentais e examine limiares, gráficos e arquivos reais. O banco demonstrativo é explicitamente sintético.",
+  "objectives": [
+    "Associar as marcações externa e total às colunas corretas.",
+    "Usar o controle renomeado da referência de marcação e verificar a sensibilidade ao limiar.",
+    "Interpretar figuras e denominadores por poço sem atribuir efeitos biológicos a padrões sintéticos."
+  ],
+  "prerequisite": "O banco sintético existente é preservado; a interface atual usa uma nova cópia idêntica. As 1.800 medidas inventadas incluem 360 objetos de referência e 1.440 objetos do ensaio em doze poços artificiais. Não há imagens adquiridas com duas marcações, e a placa geral para download não estabelece o desenho de marcação antes e depois da permeabilização. Vehicle e inhibitor são rótulos didáticos, não tratamentos testados. A média é usada porque essas colunas estão disponíveis, não por ser a melhor estatística geral para uma marcação superficial. Cálculos independentes verificam classificações, limiares, contagens, resumos e geometria, sem validar imagens, eficácia ou inferência estatística. Os bancos original e copiado permanecem inalterados. O controle atual é stain_baseline_wells, antes control_wells; o limite de bimodalidade de seis casas decimais é registrado exatamente.",
+  "scenes": [
+    "Abra Invasion Assay na seção Assays de Home. O módulo classifica parasitas já medidos; ele não segmenta imagens aqui. Nosso banco é explicitamente sintético. As figuras ensinam configurações e cálculos, não uma invasão observada nem um efeito de tratamento.",
+    "Escolha a pasta do experimento que contém measurements, barra, measurements ponto db. Esta nova cópia privada tem mil e oitocentos parasitas inventados: trezentos e sessenta objetos de referência da marcação e mil quatrocentos e quarenta nos poços do ensaio. A placa comum para download não substitui um experimento validado de marcação em duas cores.",
+    "Outside channel é a marcação aplicada antes da permeabilização, aqui o canal um. Total channel é a marcação posterior, aqui o canal zero. Um parasita positivo na marcação externa é classificado como attached; com intensidade igual ou abaixo do limiar, como invaded. Uma marcação externa fraca pode gerar classificações invaded falsas.",
+    "Selecionamos mean porque o banco didático contém colunas de intensidade média. Isso não é uma recomendação geral para marcação superficial. Em dados reais, examine quais medidas de borda ou percentil estão disponíveis e são adequadas. Um anel de fundo local também é diferente do próprio canal de marcação externa.",
+    "Defina Stain baseline wells como a coluna um. Esse nome substitui o antigo control wells e identifica a referência artificial de marcação negativa, não a condição veículo. Esses objetos definem o limiar e são excluídos dos denominadores do ensaio. Vehicle e inhibitor continuam nas colunas dois e três.",
+    "Control quantile é zero vírgula noventa e nove. Os trezentos e sessenta objetos de referência resultam em um limiar de aproximadamente vinte e dois vírgula oito unidades de intensidade. Deixamos Outside threshold vazio para usar o limiar da referência. O método automático não fornece o limiar aplicado nesta execução.",
+    "Threshold sensitivity é zero vírgula vinte e cinco: o limiar é avaliado vinte e cinco por cento abaixo e acima. Aumentá-lo pode classificar mais parasitas como invaded. Examine o intervalo de eficiência e os indicadores de qualidade antes de interpretar diferenças; uma execução bem-sucedida não prova que a marcação é confiável.",
+    "Extracellular class decide como tratar objetos sem vínculo com uma célula hospedeira. Aqui usamos classify, deixando a decisão para a marcação; todas as linhas didáticas já têm vínculo com uma hospedeira. Em dados reais, escolha conscientemente entre attached, exclude e classify após verificar a segmentação da hospedeira.",
+    "Run produz três figuras reais. A página de limiares mostra uma distribuição por poço, não por parasita. Aqui a linha aplicada vem da referência e todos os doze poços estão visíveis. Verifique se o limiar separa populações plausíveis; essas distribuições inventadas não substituem a inspeção de imagens representativas da marcação.",
+    "Se uma legenda sair da área da figura, abra Figure settings e selecione best em Legend position na aba dos eixos. Confirme para manter os rótulos visíveis. É apenas um ajuste de apresentação: verificamos que os valores desenhados e as tabelas salvas permanecem inalterados.",
+    "As barras por poço mostram as frações attached e invaded, com cento e vinte parasitas classificados acima de cada barra. Os poços de referência não aparecem. Mantenha o denominador junto à proporção: uma fração alta baseada em poucos objetos não equivale à mesma fração em um poço bem amostrado.",
+    "As duas condições inventadas contêm setecentos e vinte parasitas classificados cada. Suas frações invaded são aproximadamente trinta e nove vírgula sete e sessenta e oito vírgula nove por cento. O resumo também informa a média entre poços, que geralmente não é igual a agrupar todos os objetos. Nem esses rótulos nem um valor p demonstram um efeito biológico aqui.",
+    "Revise a console e a pasta de resultados: classificações, limiares por campo, eficiências por poço, resumos e comparações. Para inferência, use poços experimentais independentes, não parasitas individuais como réplicas intercambiáveis. spaCR AI é opcional e não foi usado nesta análise local. Valide a marcação e as imagens antes de tirar conclusões biológicas."
+  ]
+}

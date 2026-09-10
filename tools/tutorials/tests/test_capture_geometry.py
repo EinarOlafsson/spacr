@@ -6,7 +6,21 @@ import pytest
 from PySide6.QtWidgets import QApplication, QDoubleSpinBox, QWidget
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from capture_geometry import capture_rect
+from capture_geometry import capture_rect, foreground_dialogs
+
+
+def test_active_modal_is_above_its_background_dialog_and_does_not_mutate_input():
+    background, modal = object(), object()
+    original = [modal, background]
+    assert foreground_dialogs(original) == original
+    assert foreground_dialogs(original, modal) == [background, modal]
+    assert original == [modal, background]
+
+
+def test_active_popup_is_above_modal_without_adding_hidden_windows():
+    background, modal, popup, hidden = object(), object(), object(), object()
+    assert foreground_dialogs([popup, modal, background], modal, popup) == [background, modal, popup]
+    assert foreground_dialogs([modal, background], hidden, hidden) == [modal, background]
 
 
 @pytest.fixture

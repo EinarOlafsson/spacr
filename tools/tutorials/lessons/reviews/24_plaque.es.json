@@ -1,0 +1,37 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "eb59bf95ab937290708c8202a22ef1b8105d466f6622e97b7b2a96b3e557ba3d",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "visual_only_update": "Console spotlight geometry only; all English narration, scene order, holds and translated text remain unchanged."
+  },
+  "language": "es",
+  "title": "Análisis de placas",
+  "description": "Reutilice máscaras sintéticas, seleccione explícitamente el modelo de vista previa y compruebe los filtros y las tablas guardadas.",
+  "objectives": [
+    "Distinguir las máscaras guardadas de una predicción nueva.",
+    "Probar un filtro reversible sin repetir la segmentación.",
+    "Interpretar recuentos y áreas sin inventar calibración ni efectos biológicos."
+  ],
+  "prerequisite": "Descargue y extraiga el ejemplo SINTÉTICO en una carpeta nueva. Sus cuatro TIFF y cuatro máscaras conservan los bytes originales; no incluye resultados antiguos, ajustes ni modelos. Use SYNTHETIC_plaque como Source y deje Masks desactivado. Hay diez objetos construidos: cuatro, tres, dos y uno; no hay imágenes adquiridas ni calibración física. El modelo de vista previa se descarga por separado y se verifica mediante su suma de comprobación; no es una prueba de precisión. El umbral 26211 conserva dos predicciones y cero restaura las cuatro. El modelo de la vista previa no hereda automáticamente plaque_model. Indique una ruta de modelo existente incluso con Masks desactivado. API: spacr.submodules.analyze_plaques. No se afirma haber ejecutado un lote con máscaras nuevas ni validado efectos biológicos.",
+  "scenes": [
+    "Abra Plaque Analysis en la sección Assays de Home. Usamos cuatro imágenes sintéticas con máscaras construidas, no imágenes de una infección real. Contaremos las máscaras guardadas, probaremos una vista previa independiente y examinaremos la base de datos sin presentar estas formas didácticas como resultados biológicos.",
+    "Descargue el ejemplo sintético enlazado debajo y extráigalo en una carpeta nueva. En Source, seleccione la carpeta que contiene los cuatro TIFF y la subcarpeta masks. Conserve los originales; use otra copia antes de probar una segmentación que pueda reemplazar las máscaras.",
+    "Deje Masks desactivado para reutilizar las máscaras suministradas. Los recuentos son cuatro, tres, dos y uno. Activar Masks solicita segmentación: diámetro, normalización y modelo afectan entonces a otro cálculo. Reutilizar máscaras no pone a prueba ese modelo.",
+    "Well detection está desactivado porque cada imagen didáctica ya representa un campo. El área física requiere una geometría real del pocillo y un tamaño conocido; aquí no tenemos ninguno. Deje la calibración sin definir. Un nombre de pocillo, un diámetro supuesto o una ejecución correcta no establecen una escala en milímetros.",
+    "Plaque model necesita un modelo disponible incluso al reutilizar máscaras. Esta grabación empieza con un modelo incluido que ya existe. En una instalación nueva, descargue el modelo de placas mediante Model zoo e introduzca aquí su ruta local. La vista previa tiene su propio selector, que comprobaremos después.",
+    "Abra Live preview y luego Live settings. Compruebe Model: esta versión muestra inicialmente el modelo general, aunque Plaque model indique otro archivo. No suponga que la vista previa y el formulario de análisis están sincronizados. Haga coincidir sus modelos expresamente antes de crear máscaras nuevas.",
+    "Abra Model zoo y seleccione el modelo de placas. Ocupa aproximadamente uno coma dos gigabytes: elija una carpeta Save to adecuada y descárguelo una vez. Verificamos sus bytes frente a la suma publicada. On this machine significa que el archivo está disponible, no que su experimento esté validado.",
+    "Seleccione la primera imagen sintética y pulse Run preview. El modelo elegido encuentra cuatro objetos. View permite alternar entre contornos y máscaras de colores; ninguna vista mide la precisión del modelo. Esta segmentación nueva es independiente de las máscaras suministradas que utiliza el análisis terminado.",
+    "En Live settings, aumente Min area a veintiséis mil doscientos once píxeles. Desaparecen las dos predicciones menores. El filtro reutiliza las máscaras en memoria sin ejecutar otra vez el modelo. Cambie un ajuste cada vez para ver qué objetos elimina.",
+    "Devuelva Min area a cero: reaparecen los cuatro objetos con exactamente los mismos píxeles. Cero desactiva este límite inferior de área. Los cambios de vista previa no reescriben las máscaras de entrada ni la base de resultados; una vista atractiva no equivale a un análisis por lotes terminado.",
+    "La ejecución que reutiliza máscaras guarda una base de datos en masks. Esta ruta produce tablas, no una gráfica incrustada, por lo que un área Figures vacía no demuestra un fallo. Lea la consola. AI permanece desactivado; una respuesta del asistente no sustituiría la comprobación de los resultados.",
+    "Abra Database browser desde Help y seleccione la base de análisis de placas en masks. Mantenga Edit mode desactivado. El navegador muestra las tablas realmente guardadas, no una imagen de resultados inventados, y esta inspección conserva los bytes de la base de datos.",
+    "Seleccione summary e identifique cada fila por el nombre del archivo, no por su posición. Object count procede de las máscaras suministradas: cuatro, tres, dos y uno. Average size es el área media etiquetada en píxeles. Control y treatment son nombres didácticos arbitrarios, no evidencia de un efecto.",
+    "Seleccione stats para ver el recuento, el tamaño medio y su dispersión por imagen. La desviación estándar describe las áreas de las placas individuales; no es un intervalo de incertidumbre para un experimento biológico. Interprete los recuentos solo después de validar la escala y la segmentación con datos reales.",
+    "Seleccione details para examinar cada área individual. Las columnas de área física están vacías porque no hay calibración. Conserve juntos imágenes, máscaras, ajustes y resultados, y use réplicas experimentales independientes para comparar biología. Este tutorial comprueba software sobre formas sintéticas, no infección ni eficacia farmacológica."
+  ]
+}

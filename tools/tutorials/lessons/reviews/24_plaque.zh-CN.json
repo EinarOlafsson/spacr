@@ -1,0 +1,37 @@
+{
+  "lesson": "24_plaque",
+  "english_sha256": "eb59bf95ab937290708c8202a22ef1b8105d466f6622e97b7b2a96b3e557ba3d",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic inputs, separate preview model, exact filter threshold and calibration limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false,
+    "visual_only_update": "Console spotlight geometry only; all English narration, scene order, holds and translated text remain unchanged."
+  },
+  "language": "zh-CN",
+  "title": "蚀斑分析",
+  "description": "复用合成掩膜，明确选择预览模型，检查可逆过滤和实际保存的数据表。",
+  "objectives": [
+    "区分已保存掩膜的分析与新的模型预测。",
+    "不重复分割，测试可逆的面积过滤。",
+    "读取数量和像素面积，不虚构物理标定或生物学效应。"
+  ],
+  "prerequisite": "下载并将配套合成示例解压到新文件夹。四张TIFF图像和四张掩膜保留原始字节，不含旧结果、设置或模型。将Source设为SYNTHETIC_plaque，关闭Masks。人工构造的对象分别为4、3、2、1个，共10个；没有实拍图像或物理标定。预览模型单独下载并核对公开校验和，这不是准确率评估。面积下限26211保留两项预测，归零恢复四项。预览不会自动继承plaque_model；即使关闭Masks，也必须指定已存在的模型。API：spacr.submodules.analyze_plaques。本课未声称验证新掩膜的批量分析或生物学效应。",
+  "scenes": [
+    "在Home的Assays区域打开Plaque Analysis。本课使用四张合成图像和人工构造的掩膜，而非实际采集的感染图像。我们将统计已有掩膜，另行测试模型预览，再查看真实数据库；这些教学形状不代表生物学结果。",
+    "下载下方链接中的合成示例，解压到新文件夹。将Source指向包含四张TIFF图像及masks子文件夹的目录。保留原件；在尝试可能替换掩膜的分割之前，另做一份副本。",
+    "保持Masks关闭，以复用配套掩膜。四张图像的数量分别为四、三、二、一。打开Masks会要求重新分割，此时直径、归一化和所选模型影响的是另一项计算。复用掩膜并不是在测试该模型。",
+    "这里关闭Well detection，因为每张教学图像已经对应一个视野。物理面积需要真实的孔几何信息和已知尺寸，本例均未提供。因此保留未标定状态。孔名称、猜测的直径或一次成功运行，都不能建立毫米尺度。",
+    "即使复用掩膜，Plaque model也需要一个可用模型。本次录制先使用已经存在的随附模型。新安装时，请通过Model zoo下载蚀斑模型，再在此填入本地路径。预览有独立的模型选择器，接下来需要单独检查。",
+    "打开Live preview，再打开Live settings。明确检查Model：此版本最初显示通用模型，即使Plaque model指向另一个文件。不要假定预览和分析表单已经同步。生成新掩膜之前，应明确让两处模型选择一致。",
+    "进入Model zoo并选择蚀斑模型。文件约一点二吉字节，请选好Save to文件夹并下载一次。本次录制使用的文件已与公开校验和核对。On this machine只表示文件可用，并不说明实验得到验证。",
+    "选择第一张合成图像，点击Run preview。所选蚀斑模型检出四个对象。View可以切换轮廓和着色掩膜，但两种显示都不是准确率测量。这是一次新分割，与已完成分析所用的配套掩膜相互独立。",
+    "在Live settings中，把Min area提高到二万六千二百一十一像素。两个较小的预测对象被去掉。过滤复用缓存掩膜，不会重新运行模型。一次只改变一个设置，才能看清它排除了哪些对象。",
+    "把Min area恢复为零，四个预测对象按原来的精确像素恢复。零会禁用这个面积下限。预览调整不会重写输入掩膜或已有结果数据库；漂亮的预览不等于批量分析已经完成。",
+    "复用掩膜的运行会在masks文件夹中保存数据库。这条路径输出数据表，而非内嵌图，因此此处Figures为空不代表失败。请阅读控制台。演示保持AI关闭；助手回答不能取代对保存结果的核查。",
+    "从Help打开Database browser，再打开masks文件夹中的蚀斑分析数据库。保持Edit mode关闭。浏览器显示的是实际保存的数据表，而不是虚构结果的截图。本次查看也不会改变数据库的字节。",
+    "选择summary，按文件名而不是显示位置核对各行。Object count来自配套掩膜，分别是四、三、二、一。Average size是已标记区域的平均像素面积。control和treatment只是任意教学名称，不是处理效应的证据。",
+    "选择stats，查看每张图像的蚀斑数量、平均面积和面积分散程度。标准差描述这张图中各蚀斑面积的差异，不是生物学实验的不确定性区间。应先用真实数据验证图像尺度和分割，再解释数量。",
+    "选择details，查看每个蚀斑的面积。没有标定，所以物理面积列为空。请将图像、掩膜、设置和结果数据库一同保存，生物学比较应使用独立实验重复。本课验证的是软件对合成形状的处理，并非感染或药物疗效。"
+  ]
+}

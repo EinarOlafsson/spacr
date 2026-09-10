@@ -196,3 +196,60 @@ DELIBERATELY NOT DONE
 Do not bypass translation-model safety checks, use the noncommercial NLLB
 model, loosen zero thresholds, or stamp fresh hashes onto old text. Do not make
 the 1.5.0.5 tag here; instruction 82 owns the final green-CI release sequence.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THE GATES ASSUME A SPACE AFTER AN IDENTIFIER. KOREAN HAS NONE.
+--------------------------------------------------------------------------------
+
+FOUND IN THE RUNTIME REBUILD of 2026-09-10 (the home session's pass; the
+evidence is in that run's `is` and `ko` hand-written reviewed records).
+Recorded here rather than in the pass's own notes because the next person
+to meet it will be reading the GATE, not the rebuild.
+
+WHAT HAPPENS. A Korean translation is refused for `protected_syntax` with
+every protected literal present, spelled correctly, and in the right place.
+The translation is right. The check cannot see it.
+
+WHY. `protected_syntax` finds an identifier by looking for a word boundary
+after it. Korean is agglutinative: the particle attaches DIRECTLY to the
+noun, with no space --
+
+    channel_arrays가        (subject particle)
+    bounding_box도          (also/too)
+
+-- so `channel_arrays` is followed by a Hangul syllable rather than by a
+boundary, the literal appears not to be there, and the candidate is
+rejected as damaged.
+
+WHAT IT IS NOT, and this is the reason it is worth a section of its own:
+it is NOT a bad translation, and it is NOT a broken gate. It is a
+WORD-BOUNDARY ASSUMPTION that holds in the nine locales where particles
+take spaces and fails in the one where they do not. Someone reading
+"protected_syntax refused" will conclude the model produced a damaged
+string and start rewriting correct Korean.
+
+THE FIX FOR ONE STRING is to separate the particle from the identifier
+with a space. That is what the reviewed records for `stream_method` in
+`is` and `ko`, and `max_parasites_per_vacuole`'s label in `hi`, do.
+
+IT IS NOT KOREAN-SPECIFIC. Any agglutinative language hits it on any
+string carrying a bare snake_case identifier -- Korean, Japanese, Turkish,
+Finnish. spaCR ships Korean today, so today it is a Korean problem; adding
+Japanese or Turkish would make it three.
+
+  IF THE GATE IS EVER CHANGED rather than worked around, the boundary to
+  look for is "identifier followed by a non-identifier character",
+  NOT "identifier followed by whitespace or punctuation". A Hangul
+  syllable is a non-identifier character. That would accept the correct
+  translations without loosening what the check is for, which is catching
+  a literal the model has actually mangled or dropped.
+
+AND A SECOND ONE FROM THE SAME PASS: AN INSTALLER STRING'S ARGUMENTS
+CANNOT BE REORDERED. `old_install_found` was first written with positional
+placeholders (`%1$s`, `%2$s`, `%3$s`) because zh_CN, hi and ko all want the
+location before the version. No other message in any of the ten locales
+uses a positional placeholder, so the audit compared them literally and
+refused all three -- correctly: a new placeholder form IS a change rather
+than a translation. THE RULE FOR ANY NEW INSTALLER STRING WITH MORE THAN
+ONE ARGUMENT: phrase the English so the natural order works in all ten,
+because the translations cannot move the arguments.

@@ -1,0 +1,34 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "es",
+  "title": "Ensayo de invasión",
+  "description": "Configure el ensayo actual de dos colores, separe los pocillos de referencia de tinción de las condiciones experimentales y examine los umbrales, gráficos y archivos reales. La base del ejemplo es explícitamente sintética.",
+  "objectives": [
+    "Asignar las tinciones exterior y total a las columnas correctas.",
+    "Usar el control renombrado de referencia de tinción y revisar la sensibilidad al umbral.",
+    "Interpretar gráficos y denominadores por pocillo sin atribuir efectos biológicos a patrones sintéticos."
+  ],
+  "prerequisite": "Se conserva la base sintética existente y se ejecuta la interfaz actual sobre una nueva copia idéntica. Sus 1.800 medidas inventadas incluyen 360 objetos de referencia y 1.440 objetos de ensayo en doce pocillos artificiales. No contiene imágenes adquiridas con dos tinciones; la placa general descargable tampoco establece el diseño anterior y posterior a la permeabilización. Vehicle e inhibitor son etiquetas didácticas, no tratamientos probados. Se usa la media porque existen esas columnas, no por ser la mejor medida general para una tinción superficial. Cálculos independientes verifican clasificaciones, umbrales, recuentos, resúmenes y geometría, sin validar imágenes, eficacia ni inferencia estadística. Las bases original y copiada permanecen intactas. La interfaz usa stain_baseline_wells en lugar de control_wells y registra exactamente el límite de bimodalidad de seis decimales.",
+  "scenes": [
+    "Abra Invasion Assay en la sección Assays de Home. Este módulo clasifica parásitos ya medidos; aquí no segmenta imágenes. Nuestra base es explícitamente sintética. Los gráficos muestran ajustes y cálculos, no una invasión observada ni un efecto de tratamiento.",
+    "Elija la carpeta del experimento que contiene measurements, barra, measurements punto db. Esta nueva copia privada incluye mil ochocientos parásitos inventados: trescientos sesenta de referencia de tinción y mil cuatrocientos cuarenta en pocillos de ensayo. La placa descargable habitual no sustituye un experimento validado de tinción de dos colores.",
+    "Outside channel corresponde a la tinción aplicada antes de permeabilizar, aquí el canal uno. Total channel corresponde a la posterior, aquí el canal cero. Un parásito positivo para la tinción exterior se clasifica como attached; con señal igual o inferior al umbral, como invaded. Una tinción exterior débil puede crear clasificaciones invaded falsas.",
+    "Elegimos mean porque esta base didáctica contiene columnas de intensidad media. No es una recomendación general para una tinción superficial. En datos reales, revise qué medidas de borde o percentil están disponibles y son adecuadas. Un anillo de fondo local también es distinto del canal de tinción exterior.",
+    "Establezca Stain baseline wells en la columna uno. Sustituye el nombre antiguo control wells y señala la referencia artificial de tinción negativa, no la condición vehículo. Estos objetos definen el umbral y quedan excluidos de los denominadores del ensayo. Vehicle e inhibitor permanecen en las columnas dos y tres.",
+    "Control quantile es cero coma noventa y nueve. Los trescientos sesenta objetos de referencia dan un umbral aproximado de veintidós coma ocho unidades de intensidad. Dejamos vacío Outside threshold para aplicar el umbral de referencia. El método automático no es el umbral utilizado en esta ejecución.",
+    "Threshold sensitivity es cero coma veinticinco: se evalúa el umbral un veinticinco por ciento por debajo y por encima. Elevarlo puede clasificar más parásitos como invaded. Examine el intervalo de eficiencia y las banderas de calidad antes de interpretar cambios; una ejecución correcta no demuestra que la tinción sea fiable.",
+    "Extracellular class determina cómo tratar objetos sin vínculo con una célula huésped. Aquí usamos classify y dejamos la decisión a la tinción; todas las filas didácticas ya tienen vínculo con un huésped. En datos reales, elija conscientemente entre attached, exclude y classify tras comprobar la segmentación del huésped.",
+    "Run produce tres gráficos reales. La página de umbrales muestra una distribución por pocillo, no por parásito. Aquí la línea aplicada procede de la referencia y se ven los doce pocillos. Revise si separa poblaciones plausibles; estas distribuciones inventadas no sustituyen la inspección de imágenes de tinción representativas.",
+    "Si una leyenda sale del lienzo, abra Figure settings y seleccione best en Legend position, dentro de la pestaña de ejes. Confirme para mantener visibles las etiquetas. Es solo un ajuste de presentación: verificamos que los valores dibujados y las tablas guardadas no cambian.",
+    "Las barras por pocillo muestran las fracciones attached e invaded, con ciento veinte parásitos clasificados sobre cada barra. No aparecen los pocillos de referencia. Mantenga el denominador junto a la proporción: una fracción alta basada en muy pocos objetos no equivale a la misma fracción en un pocillo bien muestreado.",
+    "Cada condición inventada contiene setecientos veinte parásitos clasificados. Sus fracciones invaded son aproximadamente treinta y nueve coma siete y sesenta y ocho coma nueve por ciento. El resumen también informa la media entre pocillos, que no suele ser igual a agrupar todos los objetos. Ni estas etiquetas ni un valor p demuestran aquí un efecto biológico.",
+    "Revise la consola y la carpeta de resultados: clasificaciones, umbrales por campo, eficiencias por pocillo, resúmenes y comparaciones. Para inferir resultados, use pocillos experimentales independientes, no parásitos individuales como réplicas intercambiables. spaCR AI es opcional y no se usó en este análisis local. Valide la tinción y las imágenes antes de extraer conclusiones biológicas."
+  ]
+}
