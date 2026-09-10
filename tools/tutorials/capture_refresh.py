@@ -299,6 +299,10 @@ def main() -> int:
         from capture_pipeline_graph import record_graph
         record_graph(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'outliers':
+        from capture_outliers import record_outliers
+        record_outliers(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
     elif args.module == 'feature_explorer':
         from capture_feature_explorer import record_explorer
         record_explorer(app, window, stage, captures, capture,
