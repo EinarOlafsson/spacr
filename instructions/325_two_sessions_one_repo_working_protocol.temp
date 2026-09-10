@@ -5657,3 +5657,33 @@ Receipt: tools/tutorials/evidence/
 NEXT CLAIM: Parameter Sweep 73, current Regression fold and a bounded
 one-worker/two-trial demonstration, with independent saved-table checks.
 No Qt, scientific-module, global-translation or ledger edits.
+
+CODEX TUTORIAL LANE — 2026-09-10, SWEEP 73 READABLE NATIVE CHECKPOINT.
+
+3de4523e6 pushed after rebasing on 87c4fbf52. Two real one-worker ridge
+trials use the four existing Regression score/count pairs copied privately.
+The 0.01 / 0.1 penalties match actual saved settings. Both computations
+finish, but BOTH inference QC verdicts FAIL; this is not a validated hit
+discovery example. The native font-1.0 saved-results replay makes both rows
+readable without refitting. Its guide -> gene -> guide interaction matches
+21,626 displayed cells and 1,963 plot points, max coordinate error <2e-13.
+All source inputs are unchanged. 28 numerical helper tests, five additional
+red guard mutations (nine earlier); helper alone 63 statements / 38 branches
+at 100%. Four replay-isolation tests and three red guards also pass.
+
+PROTECTED-APP HANDOFF, no application edits:
+* Parameter Sweep does not inherit Regression's paired_data: its seam reads
+  legacy score_data/count_data, leaving both lists empty. The recording uses
+  the actual multi-file pickers to provide four ordered pairs explicitly.
+* The first diagnostic trial requested alpha=1, but actual regression
+  defaults rewrite 1 to 'auto'; the sweep row still advertises alpha=1.
+  The final recorded pair avoids this by using explicit 0.01 and 0.1.
+* The trial table omits its varied alpha AND saved qc_inference/qc_verdict,
+  showing 'ok' while both inferential verdicts are 'fail'.
+* n_rows_fitted=1174 counts output coefficient rows, not the actual 2955
+  prepared long-form rows / 620 wells. Do not narrate it as sample size.
+
+Receipt: tools/tutorials/evidence/
+2026-09-10_sweep_readable_family_checks.json. Verification is complete;
+the refreshed 73 lesson is NOT counted in the 48 completed media matrices.
+Continuing its narration/media with explicit computational/QC limits.
