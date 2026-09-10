@@ -302,7 +302,6 @@ _THEME_NOTES = {
 # Palettes
 # ---------------------------------------------------------------------------
 
-from .popup_state import a_popup_is_on_screen
 
 class PaletteSpec(NamedTuple):
     """One named colour set: what to call it and what it is made of."""
@@ -5315,11 +5314,35 @@ class AmbientWidget(QWidget):
         shading passes, which is what keeps a frame a pure function of the
         clock even though two threads are involved.
         """
-        # Hold still while a menu or a tooltip is up: see
-        # `popup_state`. The repaint burst a popup causes over a
-        # moving backdrop is what the dock flickering was.
-        if a_popup_is_on_screen():
-            return
+        # NO POPUP HOLD HERE, AND THE REASON IS A MEASUREMENT (385).
+        #
+        # This tick used to return early while a menu or a tooltip was up,
+        # borrowed from the fix for the dock flicker. That fix's own
+        # diagnosis names its subject exactly: "a popup composited over the
+        # NATIVE GL backdrop". This widget has no GL surface and no native
+        # window -- it is a QWidget painting with QPainter -- so the
+        # mechanism it was defending against is not one this widget has.
+        #
+        # And the burst it was counting is not the popup's. Widget repaints
+        # over 1.2 s with an ambient backdrop running behind forty labels
+        # and twelve buttons, offscreen:
+        #
+        #     menu open,  hold on      2      (the animation is stopped)
+        #     menu open,  hold off  1,592
+        #     NO menu,    hold on   1,590
+        #     NO menu,    hold off  1,590
+        #
+        # The last two lines are the finding. A moving backdrop repaints
+        # everything above it whether or not a popup is on screen, so
+        # holding for the popup was not removing a burst the popup caused
+        # -- it was stopping the animation, which stops the burst that was
+        # there the whole time.
+        #
+        # The cost of that was the whole of 385: opening Preferences or the
+        # Help menu froze the theme, and Preferences is where the theme's
+        # own controls live, so a user changing the speed could not see the
+        # change they were making. The GL path in `fractal_travel` keeps
+        # its hold, because that is where the flicker was reported.
         dt = self._clock.restart() / 1000.0
         step = min(MAX_DT, dt) if dt > 0 else 1.0 / self._fps
         self._pending_dt += step

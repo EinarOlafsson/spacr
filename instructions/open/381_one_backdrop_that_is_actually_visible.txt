@@ -99,3 +99,66 @@ black. Instruction 380's sweep will produce more changes of exactly this
 shape, and this is the one to read first.
 
 Related: 327 (the backdrop camera), 380 (the performance sweep).
+
+--------------------------------------------------------------------------------
+2026-09-09 -- STEP 1 CONFIRMED, AND THE FIX ALREADY SHIPS FOR ANOTHER THEME
+--------------------------------------------------------------------------------
+
+The file asks that the opaque-container theory be CONFIRMED before anything
+is changed. It is confirmed, and it is exactly what the pixel sample said:
+a blanket application-wide rule, not any one widget.
+
+`spacr/qt/theme.py`, `_window_block`, line 3002. For every theme that is
+not an image theme:
+
+    QWidget { background-color: bg; ... }
+    QMainWindow, QDialog { background-color: bg; }
+
+That is the rule those 860 plain-`QWidget` black pixels were obeying. On
+the dark theme `bg` is `#000000`, which is why the failure was pure black
+rather than merely flat.
+
+AND STEP 2 IS ALREADY SOLVED IN THIS FILE, for a different theme family.
+The other branch of the same function -- the one taken for IMAGE_THEMES --
+is the shape the animated themes need, and its docstring states the recipe
+in three parts:
+
+    "An image theme needs three things the opaque themes do not: a
+     background image on the window, QWidget transparent so the image is
+     not covered by every child, and each top-level window type explicitly
+     re-opaqued so a stray plain QWidget window does not render as a hole."
+
+It ships that as:
+
+    QWidget { background-color: transparent; ... }
+    QMainWindow, QDialog { <the picture> }
+    QMenu, QToolTip, QMessageBox, QComboBox QAbstractItemView {
+        background-color: surface_alt; }
+
+The third rule is the one that answers this file's "what must not happen is
+a blanket `background: transparent`". Popups are separate top-level windows
+and are re-opaqued by name; the panels keep their own `background-color`
+rules and go on reading as cards.
+
+SO THE CHANGE IS NOT A NEW MECHANISM. It is: when an ambient backdrop is
+enabled, take the image-theme branch's window block instead of the opaque
+one, with the window painting the theme's own ground rather than a picture.
+
+WHY IT IS STILL NOT DONE HERE. This session has no display, and this file's
+own transferable rule is that a change of this shape must be measured on
+screen before it ships -- `QWidget.grab()` cannot see the backdrop and
+renders a working one as black, so the only honest verification is
+`QScreen.grabWindow` under X. Landing the QSS change blind would be the
+same mistake as 7508d8dfb with the sign reversed: a change that is right in
+principle, green in the suite, and unseen.
+
+WHAT THE NEXT SESSION WITH A DISPLAY SHOULD DO, in order:
+  1. Switch `_window_block` to the transparent branch when
+     `get_ambient_enabled()` is true, keeping the popup re-opaque rule.
+  2. Grab the home screen with `QScreen.grabWindow` and check the
+     chromatic fraction against the numbers already in this file --
+     29.6 % at f9fa45319 is the target, 2.5 % is the failure.
+  3. Only then re-enable `_drop_a_redundant_screen_backdrop`, and restore
+     the exact-one assertion in
+     `tests/qt/test_one_backdrop_for_the_window.py` alongside the pixel
+     assertion, never before it.

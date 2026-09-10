@@ -158,3 +158,110 @@ WHAT IS LEFT, in the order worth trying:
     an `isVisible()` test that latched `_animating = False` onto every
     background tab the moment Preferences was saved, so those screens never
     animated again for the rest of the session.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- FOUND. IT IS THE POPUP HOLD, AND ITS OWN JUSTIFICATION MEASURES
+                     SOMETHING THE POPUP DOES NOT CAUSE
+--------------------------------------------------------------------------------
+
+THE GATE IS `a_popup_is_on_screen()`, and it was the first line of
+`AmbientWidget._on_tick`. Neither the file's original three candidates nor
+the leads added after them: it is an EXPLICIT, DELIBERATE hold, added
+2026-08-30 in 61461ae40 to stop the dock flicker.
+
+WHY THE EARLIER MEASUREMENTS MISSED IT. Every one of them opened a DIALOG.
+`a_popup_is_on_screen()` is False for a dialog -- it asks
+`QApplication.activePopupWidget()`, which is a `Qt::Popup` window, and
+`QToolTip.isVisible()`. A QDialog is neither. The ambient engines were
+measured behind a modal dialog and all six kept painting, correctly, and
+that is why the search kept coming back empty. THE USER'S WORD WAS THE
+CLUE AND IT WAS READ AS A SYNONYM: "help menu" is a MENU.
+
+MEASURED, offscreen, a blobs backdrop behind a window, paints over 1.5 s:
+
+    no menu        45
+    menu open       0        <- the report, reproduced
+
+And the two backdrops disagree, which is the second thing that made this
+hard to see:
+
+    ambient (QPainter)          menu open   0 paints
+    fractal travel, CPU path    menu open  46 paints
+    fractal travel, GPU path    holds, by the same call at line 2352
+
+The CPU fractal renderer never had the hold, so whether the theme froze
+depended on which backdrop the user had chosen.
+
+--------------------------------------------------------------------------------
+AND THE REASON GIVEN FOR THE HOLD DOES NOT SURVIVE MEASUREMENT
+--------------------------------------------------------------------------------
+
+61461ae40 says: "A popup composited over the native GL backdrop makes the
+widgets around it repaint once -- 68 QLabel, 25 QWidget, 12 AppTile for the
+spaCR menu. Over a moving surface that burst is visible ... Menu: 238
+painted widgets -> 5."
+
+Widget repaints counted over 1.2 s, an ambient backdrop behind forty
+labels and twelve buttons:
+
+    menu open, hold ON        2      (the animation is stopped)
+    menu open, hold OFF   1,592
+    NO menu,   hold ON    1,590
+    NO menu,   hold OFF   1,590
+
+THE LAST TWO LINES ARE THE FINDING. A moving backdrop repaints everything
+above it whether or not a popup is on screen. The popup adds nothing --
+1,592 against 1,590. So the hold was not removing a burst the popup
+caused; it was stopping the animation, which stops the burst that is there
+the whole time. "238 painted widgets -> 5" is the same measurement: 238 is
+a backdrop animating for the length of a menu, and 5 is a backdrop that
+has been switched off.
+
+That does NOT make the flicker report wrong. The flicker is real and it is
+about compositing, which an offscreen platform has none of. What the
+numbers say is narrower and it is enough to act on: the burst is not
+popup-specific, and the widget the fix was diagnosed against is named in
+its own commit message -- "the NATIVE GL backdrop". `ambient.py` has no GL
+surface and no native window. It is a QWidget painting with QPainter.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+The hold is removed from `AmbientWidget._on_tick` and KEPT in
+`fractal_travel`'s GPU path, which is where the flicker was reported and
+the only surface the diagnosis names. The default backdrop is one of the
+six ambient engines, so this is the case the user meets.
+
+`tests/qt/test_the_theme_keeps_moving_while_a_dialog_is_open.py` is the
+number the instruction asked for rather than an impression: frames counted
+over a fixed interval with the surface shut and open, for a menu and for a
+modal dialog. Both were confirmed RED with the hold restored, so they
+assert the fix rather than the platform.
+
+The third test is the one that keeps the fix honest: a pipeline run still
+pauses the backdrop through `set_animating(False)`, and it comes back
+after. That is the one case that is supposed to stop, and a future change
+that revives the popup hold by widening the pause cannot pass by making
+the first two green.
+
+`tests/qt/test_cov_r8_popup_state.py` asserted that the ambient tick
+consults the helper. It now asserts the opposite, with the reason, so the
+hold cannot come back by accident.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT, AND IT NEEDS A DISPLAY
+--------------------------------------------------------------------------------
+
+WATCH FOR THE DOCK FLICKER COMING BACK. It was a real report and this
+change is the one thing that could revive it. If it does, the fix is not
+to restore the hold -- it is to find why a QPainter backdrop makes the
+dock flicker when the commit's own diagnosis says the mechanism is a popup
+composited over a native GL child. A backdrop that stops moving is not a
+fix for a backdrop that flickers; it is the absence of the backdrop.
+
+If the flicker does come back, the smallest honest compromise is a hold
+for TOOLTIPS ONLY -- they are transient and nobody is looking at the theme
+while one is up -- with menus and dialogs left running. That keeps the
+whole of this instruction's ask for Preferences, which is where the
+theme's controls live.
