@@ -21,6 +21,21 @@ shown in its row, even when a newer release is available.
    :width: 32
    :alt: Windows 10/11
 
+.. |Linux-1-5-0-6| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
+   :width: 32
+   :alt: Download spaCR 1.5.0.6 for 64-bit Linux
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/spaCR-1.5.0.6-Linux-x86_64-Online.run
+
+.. |MacOS-1-5-0-6| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/macos.png
+   :width: 32
+   :alt: Download spaCR 1.5.0.6 for macOS 11+ (Intel and Apple silicon)
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/spaCR-1.5.0.6-macOS-Universal-Online.pkg
+
+.. |Windows-1-5-0-6| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/windows.png
+   :width: 32
+   :alt: Download spaCR 1.5.0.6 for Windows 10/11
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/spaCR-1.5.0.6-Windows-Online-Setup.exe
+
 .. |Linux-1-5-0-5| image:: https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/spacr/resources/icons/platforms/linux.png
    :width: 32
    :alt: Download spaCR 1.5.0.5 for 64-bit Linux
@@ -89,7 +104,11 @@ shown in its row, even when a newer release is available.
      - |Linux|
      - |MacOS|
      - |Windows|
-   * - 1.5.0.5 (current)
+   * - 1.5.0.6 (current)
+     - |Linux-1-5-0-6|
+     - |MacOS-1-5-0-6|
+     - |Windows-1-5-0-6|
+   * - 1.5.0.5
      - |Linux-1-5-0-5|
      - |MacOS-1-5-0-5|
      - |Windows-1-5-0-5|

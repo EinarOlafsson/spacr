@@ -127,16 +127,16 @@ The installers bundle their own Python. Conda is not required.
 
 .. |InstallerWindows| image:: spacr/resources/icons/platforms/windows.png
    :width: 64
-   :alt: Download spaCR 1.5.0.5 for Windows 10/11
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.5/SpaCR-1.5.0.5-Windows-Online-Setup.exe
+   :alt: Download spaCR 1.5.0.6 for Windows 10/11
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/SpaCR-1.5.0.6-Windows-Online-Setup.exe
 .. |InstallerMacOS| image:: spacr/resources/icons/platforms/macos.png
    :width: 64
-   :alt: Download spaCR 1.5.0.5 for macOS 11+ (Intel and Apple silicon)
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.5/SpaCR-1.5.0.5-macOS-Universal-Online.pkg
+   :alt: Download spaCR 1.5.0.6 for macOS 11+ (Intel and Apple silicon)
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/SpaCR-1.5.0.6-macOS-Universal-Online.pkg
 .. |InstallerLinux| image:: spacr/resources/icons/platforms/linux.png
    :width: 64
-   :alt: Download spaCR 1.5.0.5 for 64-bit Linux
-   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.5/SpaCR-1.5.0.5-Linux-x86_64-Online.run
+   :alt: Download spaCR 1.5.0.6 for 64-bit Linux
+   :target: https://github.com/EinarOlafsson/spacr/releases/download/v1.5.0.6/SpaCR-1.5.0.6-Linux-x86_64-Online.run
 .. |InstallerLegacy| image:: spacr/resources/icons/platforms/legacy.png
    :width: 64
    :alt: Earlier spaCR installers
