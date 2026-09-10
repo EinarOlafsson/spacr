@@ -1,0 +1,34 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Innrásarpróf",
+  "description": "Stilltu núverandi tveggja lita próf, aðgreindu viðmiðunarbrunna litunar frá tilraunaskilyrðum og skoðaðu raunveruleg þröskuldsgildi, gröf og skrár. Gagnagrunnur sýnidæmisins er skýrt merktur sem tilbúinn.",
+  "objectives": [
+    "Tengja ytri litun og heildarlitun við rétta mælingadálka.",
+    "Nota endurnefndu litunarviðmiðunina og kanna næmi fyrir þröskuldi.",
+    "Lesa myndir og nefnara hvers brunns án þess að túlka tilbúin mynstur sem líffræðileg áhrif."
+  ],
+  "prerequisite": "Fyrri tilbúni gagnagrunnurinn er varðveittur; núverandi viðmót keyrir á nýju, bæti fyrir bæti eins afriti. Af 1.800 uppspunnum mælingum eru 360 viðmiðunarhlutir litunar og 1.440 prófunarhlutir í tólf tilbúnum brunnum. Engar raunverulegar tveggja lita myndir fylgja og almenna niðurhalsplatan staðfestir ekki tilraunahönnun litunar fyrir og eftir að frumur eru gerðar gegndræpar. Vehicle og inhibitor eru kennsluheiti, ekki prófaðar meðferðir. Meðalstyrkur er valinn vegna tiltækra dálka, ekki sem almennt besta mæling fyrir yfirborðslitun. Óháðir útreikningar athuga flokkun, þröskulda, fjölda, samantektir og rúmfræði grafa, en staðfesta ekki myndir, virkni eða tölfræðilegar ályktanir. Upprunalegi grunnurinn og inntaksafritið haldast óbreytt. Stillingin heitir nú stain_baseline_wells í stað control_wells og mörk tvítoppa dreifingar eru skráð nákvæmlega með sex aukastöfum.",
+  "scenes": [
+    "Opnaðu Invasion Assay undir Assays á Home. Einingin flokkar sníkjudýr sem þegar hafa verið mæld; hún skiptir ekki myndum í hluti hér. Gagnagrunnurinn okkar er skýrt merktur sem tilbúinn. Gröfin kenna stillingar og útreikninga, ekki mælda innrás eða áhrif meðferðar.",
+    "Veldu tilraunamöppuna sem inniheldur measurements/measurements.db. Nýja einkaafritið hefur 1.800 uppspunnar færslur um sníkjudýr: 360 viðmiðunarhluti litunar og 1.440 hluti í prófunarbrunnum. Venjulega niðurhalsplatan kemur ekki í stað staðfestrar tveggja lita litunartilraunar.",
+    "Outside channel er litunin áður en frumur eru gerðar gegndræpar, hér rás 1. Total channel er litunin eftir það, hér rás 0. Sníkjudýr með jákvætt ytra litunarmerki flokkast sem attached; við eða undir þröskuldinum flokkast það sem invaded. Veik ytri litun getur því valdið rangri invaded-flokkun.",
+    "Við veljum mean vegna þess að kennslugagnagrunnurinn hefur dálka með meðalstyrk. Þetta er ekki almenn ráðlegging fyrir yfirborðslitun. Skoðaðu hvaða jaðar- eða hundraðshlutamælingar eru tiltækar og viðeigandi fyrir raunveruleg gögn. Hringur sem mælir staðbundinn bakgrunn er líka annað en ytri litunarrásin sjálf.",
+    "Stilltu Stain baseline wells á dálk 1. Þetta heiti leysir gamla control wells af hólmi og tilgreinir tilbúið neikvætt litunarviðmið, ekki leysiskilyrðið. Hlutirnir ákvarða þröskuld litunar og eru ekki í nefnurum prófunarniðurstaðna. Vehicle og inhibitor eru áfram í dálkum 2 og 3.",
+    "Control quantile er 0,99. Viðmiðunarhlutirnir 360 gefa þröskuld um 22,8 styrkeiningar. Outside threshold er tómt svo að viðmiðunarþröskuldurinn sé notaður. Sjálfvirka aðferðin gefur ekki þröskuldinn sem er beitt í þessari keyrslu.",
+    "Threshold sensitivity er 0,25: einnig er metinn 25 prósent lægri og hærri þröskuldur. Hærri þröskuldur getur flokkað fleiri sníkjudýr sem invaded. Skoðaðu bil innrásarhlutfallsins og gæðaflögg áður en þú túlkar breytingar; vel heppnuð keyrsla sannar ekki áreiðanleika litunar.",
+    "Extracellular class ræður meðferð hluta sem tengjast engri hýsilfrumu. Hér lætur classify litunina ráða; allar kennslufærslur tengjast þegar hýsli. Fyrir raunveruleg gögn skaltu velja meðvitað milli attached, exclude og classify eftir að hafa skoðað skiptingu hýsilfrumna.",
+    "Run býr til þrjár raunverulegar myndir. Þröskuldasíðan sýnir eina dreifingu á brunn, ekki á sníkjudýr. Hér kemur beitta línan frá viðmiðinu og allir tólf brunnar sjást. Skoðaðu hvort þröskuldurinn aðskilji trúverðuga hópa; uppspunnar dreifingar koma ekki í stað dæmigerðra litunarmynda.",
+    "Ef skýringarlykill fer út fyrir teikniflötinn skaltu opna Figure settings og velja best í Legend position á ásaflipanum. Staðfestu gluggann svo merkingarnar sjáist. Þetta er eingöngu útlitsbreyting: við staðfestum að teiknuð gildi og vistaðar niðurstöðutöflur haldast óbreytt.",
+    "Súlurnar fyrir hvern brunn sýna hlutföll attached og invaded, með 120 flokkuðum sníkjudýrum merktum fyrir ofan hverja súlu. Viðmiðunarbrunnarnir eru ekki með. Lestu nefnarann með hlutfallinu: hátt hlutfall frá örfáum hlutum jafngildir ekki sama hlutfalli úr vel mældum brunni.",
+    "Tilbúnu skilyrðin tvö hafa hvort um sig 720 flokkuð sníkjudýr. Invaded-hlutföllin eru um 39,7 og 68,9 prósent. Samantektin gefur einnig meðaltal yfir brunna, sem er almennt ekki það sama og að sameina alla hlutina. Hvorki þessi heiti né p-gildi staðfesta líffræðileg áhrif hér.",
+    "Skoðaðu stjórnborðsúttak og niðurstöðumöppu fyrir flokkun sníkjudýra, þröskulda hvers myndsviðs, innrásarhlutfall hvers brunns, samantektir og samanburð. Notaðu óháða tilraunabrunna við ályktanir, ekki einstök sníkjudýr sem skiptanlegar endurtekningar. spaCR AI er valfrjálst og var ekki notað í þessari staðbundnu greiningu. Staðfestu litun og myndir áður en þú dregur líffræðilegar ályktanir."
+  ]
+}

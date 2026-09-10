@@ -1,0 +1,34 @@
+{
+  "lesson": "26_invasion",
+  "english_sha256": "2ac05b5b0dd4560235a7b670d1b928c866d9ecb9e83bff7355ecce10fb831c54",
+  "review": {
+    "kind": "Parent editorial caption translation of frozen English; synthetic design, stain-baseline rename, thresholds and inference limits retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Invasionsassay",
+  "description": "Den aktuellen Zweifarbenassay konfigurieren, Färbungsreferenz-Wells von Versuchsbedingungen trennen und echte Schwellenwerte, Diagramme und Dateien prüfen. Die Beispieldatenbank ist ausdrücklich synthetisch.",
+  "objectives": [
+    "Außen- und Gesamtfärbung den richtigen Messspalten zuordnen.",
+    "Die umbenannte Färbungsreferenz einstellen und die Schwellenempfindlichkeit prüfen.",
+    "Abbildungen und Nenner pro Well lesen, ohne synthetische Muster als biologische Effekte zu deuten."
+  ],
+  "prerequisite": "Die vorhandene synthetische Datenbank bleibt erhalten; die aktuelle GUI läuft auf einer neuen bytegleichen Kopie. Von 1.800 erfundenen Messungen dienen 360 als Färbungsreferenz, 1.440 stammen aus zwölf künstlichen Assay-Wells. Aufgenommene Zweifarbenbilder fehlen; auch die allgemeine Download-Platte belegt kein Färbungsdesign vor und nach Permeabilisierung. Vehicle und inhibitor sind Lehrbezeichnungen, keine getesteten Behandlungen. Der Mittelwert wird wegen der verfügbaren Spalten gewählt, nicht als generell beste Größe für eine Oberflächenfärbung. Unabhängige Berechnungen prüfen Klassen, Schwellen, Zählungen, Zusammenfassungen und Diagrammgeometrie; Bildqualität, Wirksamkeit und statistische Inferenz werden nicht validiert. Original und Eingabekopie bleiben unverändert. Die aktuelle Einstellung heißt stain_baseline_wells statt control_wells; der auf sechs Dezimalstellen darstellbare Bimodalitätsgrenzwert wird exakt erfasst.",
+  "scenes": [
+    "Öffnen Sie Invasion Assay im Bereich Assays von Home. Dieses Modul klassifiziert bereits vermessene Parasiten; hier segmentiert es keine Bilder. Unsere Beispieldatenbank ist ausdrücklich synthetisch. Die Diagramme erläutern Einstellungen und Rechenwege, keine beobachtete Invasion und keinen Behandlungseffekt.",
+    "Wählen Sie den Versuchsordner mit measurements/measurements.db. Die neue private Kopie enthält 1.800 erfundene Parasitenzeilen: 360 Färbungsreferenzobjekte und 1.440 Objekte aus Assay-Wells. Die gewöhnliche Download-Platte ersetzt keinen validierten Zweifarben-Färbungsversuch.",
+    "Outside channel bezeichnet die Färbung vor der Permeabilisierung, hier Kanal 1. Total channel ist die spätere Färbung, hier Kanal 0. Ein außenpositiver Parasit heißt attached; bei einem Signal gleich oder unter der Außenschwelle heißt er invaded. Schwache Außenfärbung kann daher falsche invaded-Klassifikationen erzeugen.",
+    "Wir wählen mean, weil die Lehrdatenbank Spalten für die mittlere Intensität enthält. Das ist keine allgemeine Empfehlung für Oberflächenfärbung. Prüfen Sie bei realen Daten, welche Rand- oder Perzentilmessungen verfügbar und geeignet sind. Ein lokaler Hintergrundring ist ebenfalls etwas anderes als der Außenfärbungskanal selbst.",
+    "Setzen Sie Stain baseline wells auf Spalte 1. Die Einstellung ersetzt den früheren Namen control wells und bezeichnet die künstliche Negativfärbungsreferenz, nicht die Vehikelbedingung. Diese Objekte bestimmen die Färbungsschwelle und gehen nicht in die Ergebnisnenner ein. Vehicle und inhibitor bleiben in Spalten 2 und 3.",
+    "Control quantile beträgt 0,99. Die 360 Referenzobjekte ergeben eine Schwelle von etwa 22,8 Intensitätseinheiten. Outside threshold bleibt leer, damit die referenzbasierte Schwelle verwendet wird. Der automatische Algorithmus liefert in diesem Lauf nicht die angewandte Schwelle.",
+    "Threshold sensitivity beträgt 0,25: Auch eine um 25 % niedrigere und höhere Schwelle wird bewertet. Eine höhere Schwelle kann mehr Parasiten als invaded einstufen. Prüfen Sie Effizienzspanne und Qualitätsmarkierungen vor der Interpretation; ein erfolgreicher Lauf beweist keine zuverlässige Färbung.",
+    "Extracellular class legt den Umgang mit Objekten ohne Wirtszellzuordnung fest. Hier überlässt classify die Entscheidung der Färbung; alle Lehrdatenzeilen haben bereits eine Wirtszuordnung. Entscheiden Sie bei realen Daten nach Prüfung der Wirtszellsegmentierung bewusst zwischen attached, exclude und classify.",
+    "Run erzeugt drei echte Abbildungen. Die Schwellenseite zeigt eine Verteilung pro Well, nicht pro Parasit. Die angewandte Linie stammt hier aus der Referenz, und alle zwölf Wells sind sichtbar. Prüfen Sie, ob die Schwelle plausible Populationen trennt; erfundene Verteilungen ersetzen keine repräsentativen Färbungsbilder.",
+    "Ragt eine Legende über die Zeichenfläche hinaus, öffnen Sie Figure settings und wählen im Achsenreiter best unter Legend position. Bestätigen Sie, damit die Beschriftungen sichtbar bleiben. Dies ändert nur die Darstellung: Die gezeichneten Werte und gespeicherten Ergebnistabellen bleiben nachweislich unverändert.",
+    "Die Well-Balken zeigen attached- und invaded-Anteile; über jedem Balken stehen 120 klassifizierte Parasiten. Referenz-Wells fehlen. Lesen Sie den Nenner immer mit: Ein hoher Anteil aus sehr wenigen Objekten ist nicht gleichwertig mit demselben Anteil aus einem gut beprobten Well.",
+    "Beide erfundenen Bedingungen enthalten jeweils 720 klassifizierte Parasiten. Ihre invaded-Anteile liegen bei etwa 39,7 % und 68,9 %. Die Zusammenfassung enthält auch den Mittelwert über Wells, der im Allgemeinen nicht dem Zusammenlegen aller Objekte entspricht. Weder diese Namen noch ein p-Wert belegen hier einen biologischen Effekt.",
+    "Prüfen Sie Konsole und Ergebnisordner auf Parasitenklassen, Feldschwellen, Well-Effizienzen, Bedingungsübersichten und Vergleiche. Nutzen Sie unabhängige Versuchs-Wells für Inferenz, nicht einzelne Parasiten als austauschbare Replikate. spaCR AI ist optional und wurde bei dieser lokalen Analyse nicht eingesetzt. Validieren Sie Färbung und Bilder vor biologischen Schlussfolgerungen."
+  ]
+}
