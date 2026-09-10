@@ -241,6 +241,26 @@ WHAT REMAINS BEFORE THIS FILE CAN MOVE TO done/:
     `.csr_envelope` and `.ripley_test` (4). The +12 documented symbols are
     those ten plus the two module docstrings.
 
+    TWO DIFFERENT BASES GIVE TWO DIFFERENT PAIRS OF NUMBERS AND BOTH ARE
+    RIGHT. The figures above are measured on NIGHTLY. The home session's
+    API pass, run on main after merging nightly into it (main 6a863bea6),
+    reads 10,307 -> 10,319 for the same twelve symbols, because main
+    already carried five symbols of its own that nightly did not. SAME
+    DELTA (+12), DIFFERENT BASE. Neither is a correction of the other and
+    neither should be "fixed" to match.
+
+    THE TWELVE, NAMED, so a later count can be checked rather than
+    believed: `spacr.bystanders` and its `classify`, `compare`, `counts`,
+    `distance_to_infected`, `neighbourhood` and `reach_from_diameter`;
+    `spacr.point_patterns` and its `csr_envelope`, `ripley_k`,
+    `ripley_test` and `suggest_radii`.
+
+    WHY THE CATALOG IS BUILT ON MAIN AND NOT ON NIGHTLY, which is not
+    obvious and cost a wasted pass to establish: `docs.yml` deploys under
+    `github.ref == 'refs/heads/main'`, and the audit inside its build
+    compares against whatever ref the workflow checked out. A catalog
+    built on nightly would describe a tree the site never publishes.
+
     MEASURED WITH THE MODULES MOVED ASIDE, which is the only way to tell a
     pending rebuild from a real regression: with `point_patterns.py` out of
     the tree and `bystanders.py` at its committed state the counts were
