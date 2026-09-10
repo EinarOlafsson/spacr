@@ -1652,3 +1652,75 @@ unclassified, and it is the hardest of the three: the word does four jobs
 and appears 1,593 times across the package, the overwhelming majority of
 them the ordinary English word in comments and in widget names. Its
 classification is a separate sitting.
+
+
+--------------------------------------------------------------------------------
+2026-09-09 -- AND THE CLASSIFICATION FOR `controls`, THE HARDEST OF THE THREE
+--------------------------------------------------------------------------------
+
+    controls -> nontargeting_control_grnas
+
+The section above said this one's classification was a separate sitting.
+It is done, and the count that made it look impossible was the wrong count.
+1,593 occurrences of the word `controls` in `spacr/` is the ORDINARY
+ENGLISH WORD in comments, docstrings and widget names. The occurrences that
+a rename could touch are the ones where it is written as a STRING or read
+as a key, and there are 41 of those outside the generated catalogs. That is
+a table, not a wall.
+
+  THE SETTING. These are renamed.
+
+    settings.py:2528       setdefault('controls', ['000000'])
+    settings.py:3801       the expected_types row
+    settings.py:4965       the tooltip -- which already says the true
+                           meaning, "Non-targeting control gRNA
+                           identifiers", and is the argument for the name
+    settings.py:5344       "Plate Layout & Controls" membership
+    settings_model.py:1570 the category list
+    settings_flow_index.py:181
+    setting_api_targets.py 133 and 974
+    object_roles.py:105    EXACT_LABELS["controls"] = "Control gRNA/Gene",
+                           a label override KEYED BY THE SETTING. Its own
+                           comment already explains the confusion the
+                           rename removes: "`controls` names guide or gene
+                           identifiers, whereas the neighbouring control
+                           settings name wells."
+    core.py:1650           settings['controls']
+    regression_summary.py:1922
+    ml.py                  6810, 7018, 7411, 7413, 9173, and the prose at
+                           7286 and 7403
+    settings_advisor.py    477, 841, 844, 851 -- the advisor's question key
+                           IS the setting name
+
+  NOT THE SETTING. Four families, and the first is bigger than the setting.
+
+    THE PANEL KEY. "controls" names the control-separation figure, and it
+    travels through six files as a key:
+        figures/panels.py      577, 593, 621, 738, and SHEET_ORDER at 746
+        figures/fast_render.py 35 and 263
+        regression_results.py  _PANEL_TABS at 1392, and 3024
+        app_screen.py          the live-tile entry at 8667 and
+                               _LIVE_TILE_WIDGETS at 8685
+    Eleven sites, more than the setting has in any single file. Renaming
+    them detaches a figure from its tab and its live tile, and the failure
+    is a blank panel rather than an exception.
+
+    THE SWEEP PAYLOAD. parameter_sweep.py:834 writes `"controls":
+    dict(controls or {})` and sweep_child.py:103 reads it back. The two
+    halves are in different processes, so a rename applied to one and not
+    the other is a sweep that silently runs with no controls.
+
+    THE DEPENDENCY TOKEN. regression_annotation.py declares
+    `needs=("controls", "features")` at 192, tests it at 395, and
+    documents it at 127. This is the token a step declares, not a setting
+    read.
+
+    THE COLUMN CONSTANT. baseline.py:32, `CONTROLS = "controls"`, and
+    submodules.py:5313, `'controls': controls` in a results payload.
+
+SO ALL THREE ARE NOW CLASSIFIED and the rename is a mechanical pass over a
+list rather than a judgement call per line. What it still needs is a
+sitting with the tests: 46 files and 149 occurrences follow the two control
+identifiers, and `controls` has its own test surface on top of that. That
+is the work, and it is the kind that should start at the beginning of a
+session rather than the end of one.
