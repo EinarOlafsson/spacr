@@ -1,6 +1,6 @@
 """Register two overlapping tiles by phase correlation, on whatever hardware.
 
-WHY PHASE CORRELATION AND NOT FEATURE MATCHING. Instruction 372 ran both
+WHY PHASE CORRELATION AND NOT FEATURE MATCHING. Both were run
 on the same pixels -- well A1 cycle 1 of `screenA/20200202_6W-LaC024A`,
 333 tiles of 10X SBS DAPI:
 
@@ -46,11 +46,11 @@ CUDA, ROCm and Apple MPS through one path -- and NumPy always.
     A fallback nobody compares is a second implementation, not a
     fallback.
 
-AND IT NEVER ASSUMES THE CARD IS FREE. The maintainer runs an AlphaFold
-screen on the same GPU. `spacr.accelerator` is the seam that decides
-whether there is a usable device at all, `gpu=False` refuses one that
-exists, and a backend that raises at runtime falls through to the next
-rather than failing the well.
+AND IT NEVER ASSUMES THE CARD IS FREE. A shared GPU is the common case --
+this one also runs structure prediction. `spacr.accelerator` is the seam
+that decides whether there is a usable device at all, `gpu=False` refuses
+one that exists, and a backend that raises at runtime falls through to the
+next rather than failing the well.
 """
 
 from __future__ import annotations

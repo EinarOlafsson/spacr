@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "sv",
+  "title": "Control Charts: granska en försöksserie med tydliga kontroller och gränser",
+  "description": "Öppna verktyget i QC, läs in en tydligt syntetisk serie med trettio plattor, kontrollera vald kontroll och referensperiod och exportera oberoende verifierade punkter.",
+  "objectives": [
+    "Hitta Control Charts i QC och läs in den medföljande syntetiska CSV-filen.",
+    "Skilj brunnsvisa indatarader från plattmedelvärden och välj exakt en kontroll.",
+    "Jämför regler, ändra och återställ kontroll och referensperiod och läs varningarna.",
+    "Exportera den faktiska punkttabellen utan att påstå bildexport eller biologisk validering."
+  ],
+  "prerequisite": "tools/tutorials/fixtures/control_chart_campaign.csv är helt syntetisk och anpassad från ett apptest med fast slumptalsfrö: trettio fiktiva plattor, tre brunnar per kontrolltyp och platta samt en programmerad uppåtgående drift efter platta tjugo. Datumen är exempel på ordningsetiketter, inte insamlingsprotokoll. Specialpanelen har för närvarande ingen Load test data-knapp; ingen mikroskopinedladdning, modell, GPU-analys eller AI-förfrågan används. Den gamla inspelningen med två plattor förkastades eftersom appen vägrade uppskatta gränser. Den smala inställningskolumnen klipper långa stängda alternativ; öppna menyer visar fullständiga namn. Z-prime och omskattning används inte här.",
+  "scenes": [
+    "Öppna QC och sedan knappen Control Charts. Detta specialverktyg visar upprepade kontroller genom en försöksserie. Vår medföljande CSV är uttryckligen syntetisk, inklusive driften. Den demonstrerar programvaran, inte ett faktiskt uppmätt experiment eller en validerad analysmetod.",
+    "Välj Load table och öppna exempel-CSV-filen. Den innehåller tvåhundrasjuttio rader på brunnsnivå: trettio plattor med tre negativa kontrollbrunnar, tre positiva kontrollbrunnar och tre provbrunnar vardera. Diagrammet visar ett medelvärde för den valda kontrollen per platta, inte en punkt per cell.",
+    "Kontrollera Plate, Run order, Measurement och Control column mot namnen som visas. Välj endast neg i Control is. Listan tillåter flera val; om ingen nivå väljs används alla rader. Anta aldrig att filinläsningen redan har valt den kontroll du avser.",
+    "Öppna Sigma from för att läsa alla alternativ. Auto väljer undergruppsskattaren här eftersom varje platta har tre valda brunnar. Gränserna använder variationen inom referensperiodens plattor, justerad för medelvärdets stickprovsstorlek, inte standardavvikelsen för hela den driftande serien.",
+    "Rules erbjuder de vanliga fyra reglerna, alla åtta eller Limits only. Fler regler ger också fler tillfällen till falsklarm. Vi väljer Limits only för att isolera tresigmaregeln. Ett nytt menyval räknar om diagrammet utan en separat Run-knapp.",
+    "Baseline plates är tjugo: P noll ett till P tjugo bestämmer gränserna som används på resterande plattor. Nio punkter, P tjugotvå till P trettio, överskrider den övre gränsen. Rapporten och regeltabellen identifierar dem; dessa programmerade signaler är inte biologiska upptäckter.",
+    "Avmarkera neg och välj endast pos. Diagrammet visar nu den andra kontrollens medelvärden och egna referensgränser, utan brott mot regel ett i detta exempel. Ett lugnt diagram bevisar inte ensamt att en analysmetod är giltig. Återställ neg innan du fortsätter.",
+    "Ändra Baseline plates till tolv, se hur centrum och gränser ändras och återställ sedan tjugo. Appen kräver minst åtta referensplattor, men minimikravet är ingen rekommendation. Planera och motivera referensperioden; justera den inte bara för att ta bort oönskade varningar.",
+    "När ursprunglig kontroll och tjugo referensplattor återställts väljer du Export points och sparar en separat CSV. De trettio raderna innehåller plattidentitet, ordning, medelvärde, undergruppsstorlek och spridning, gränser, standardiserat avstånd, referenstillhörighet och utlösta regler. Det är ingen diagrambild eller fullständig konfigurationsexport.",
+    "Varje exporterad identitet och numeriskt fält kontrollerades mot käll-CSV-filen, inklusive markeringarna för regel ett. Ursprungliga indata är oförändrade. För skript erbjuder kontrollkortets widgetmodul ControlChartSpec och control_chart; resultatet har points_frame. Behåll indata, inställningar och insamlingsanteckningar tillsammans när du utreder verkliga varningar."
+  ]
+}

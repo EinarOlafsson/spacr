@@ -1330,13 +1330,81 @@ GROUP 2 -- THE TUTORIAL LIBRARY, WHICH IS THE TUTORIALS LANE'S.
   moved it. The first is a size filter that is passing more than a third
   of the library through.
 
+    tests/test_the_name_is_spaCR.py
+      test_no_file_mis_cases_the_name
+        tools/tutorials/authoring/tools/capture_install_web.py:331  SpaCR
+        tools/tutorials/authoring/tools/translate_pre_app.py:264    SPACR
+        tools/tutorials/authoring/tools/translate_pre_app.py:265    SPACR
+
+  Three characters, in tutorial tooling. Left alone for the same reason as
+  the two above and no other: the maintainer's instruction on 2026-09-09
+  was that a Codex session owns the tutorials, and a three-character fix
+  in a file somebody else has open is still a conflict.
+
   RECORDED HERE RATHER THAN FIXED, for the reason this file already gives:
   the tutorials belong to another session, and a failure that lives only
   in one session's scrollback is a failure nobody owns. They are named so
   the next run does not rediscover them.
 
-EVERYTHING ELSE PASSED. Fifteen of the 24 chunks at the time of writing --
-roughly 26,000 tests -- and every red is one of the five files above.
+ALL 24 CHUNKS RAN. The complete list of failing FILES is nine, and four of
+them were fixed the same evening:
+
+    FIXED HERE
+      test_api_i18n_extractor.py     pins to 10,279, symbols named
+      test_test_suite_hygiene.py     a crash-recovery test asserted nothing
+      test_user_facing_docstrings.py four OPS module docstrings named the
+                                     instruction and two named a person;
+                                     the rule is right and they were
+                                     rewritten to describe behaviour
+      test_notebook_settings.py      the generated notebooks carry setting
+                                     keys as literals and a rename had not
+                                     reached them
+
+    WAITING ON THE CATALOG REBUILD
+      test_api_i18n_frontend.py      REAL_SYMBOL_COUNT, claimed, moves with
+                                     the number that will hold
+      test_i18n_coverage_audit.py    COVERAGE.md and REVIEW_SCOPE, taken by
+                                     the other session, same commit as the
+                                     catalogs so the three cannot disagree
+
+    THE TUTORIALS LANE
+      test_docs_media_budget.py      two tests
+      test_the_name_is_spaCR.py      three characters of casing
+      test_tutorial_release_audit.py 'ops' has no lesson -- the SAME failure
+                                     this file has carried for days, and
+                                     the only one of the nine that is not
+                                     new
+
+  A TENTH WAS FOUND AFTERWARDS AND IT WAS SELF-INFLICTED. The drift check
+  written earlier the same evening was meant to be HELD off nightly until
+  the catalogs land -- it fails until then by design, 39 public docstrings
+  with no entry -- and a `git add tests/` in an unrelated commit swept it
+  in. It was red on nightly for about three hours before anybody looked.
+  Removed in f263f70af and preserved on `api-catalog-drift-check`.
+
+    THE MECHANICAL FORM OF THE RULE: `git add <path>` for the files a
+    commit is about, never `git add <directory>`. The reasoning form of
+    it -- "we agreed to hold this test" -- was known by both sessions and
+    enforced by nothing, which is the same shape as every other finding
+    in this file.
+
+    AND THE OTHER SESSION AUDITED ITS OWN TWELVE COMMITS BEFORE AGREEING,
+    because it had used directory adds all night too. Nothing was swept:
+    the largest was nine files and every one belonged to the change --
+    a builder edit and the six reviewed-context refreshes that are its
+    downstream, which separating would have committed a rule and its
+    evidence apart. So the same command ran a dozen times in one lane and
+    happened not to catch anything.
+
+      THAT IS THE ARGUMENT, NOT A DEFENCE OF IT. The rule holds because
+      of what it prevents rather than because of what it caught, and an
+      audit that comes back empty is a result -- the same conclusion this
+      instruction reached about the seven-candidate list that found no
+      second plaque bug.
+
+  SO THE SUITE IS GREEN EXCEPT FOR TWO PIPELINES MID-REBUILD AND ONE LANE
+  NOBODY HERE MAY TOUCH. That is a different sentence from "there are nine
+  failures", and it is the one the evidence supports.
 
   AND THE COUNT OF SYMBOLS MOVED AGAIN WHILE THIS WAS BEING WRITTEN, by
   one, from a fix that had nothing to do with any of it:

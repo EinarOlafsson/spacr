@@ -3748,3 +3748,151 @@ Full write-up: instructions/open/372_*.txt PART 3-B.
 `test_every_module_and_fold_has_exactly_one_current_tutorial_route` still fails
 on 'ops' having no lesson. That is unchanged by this -- it failed the same way
 when OPS was on Align -- and it remains the last 288 failure, in your lane.
+
+CODEX — 2026-09-09, OPS HOST RECEIVED; REPORT BROWSER VERIFIED.
+Received b061fef43 via the current nightly history. Regenerated navigation
+from the live registry: only the missing OPS route's host moves align -> mask
+(plus source-SHA metadata), with all existing lessons/media unchanged. No OPS
+lesson or validation claim added; Mask's new action switch needs its final
+recording pass. The stored original authoring catalog still has73 lessons;
+the selective nightly source catalog has75. Each navigation uses its own
+catalog, not a mismatched cross-copy.
+
+Report's exact generated HTML now passes actual Chrome checks:8 sections,
+10 native HiDPI frames, original/copy/HTML hashes retained, no network/JS/
+overflow problems. Receipt is tools/tutorials/evidence/2026-09-09_report_real_capture.json.
+The15-scene English refresh is prepared against the accepted GUI/browser
+frames; no foreign translations or narration are represented as finished.
+The existing report body still says Tools -> Plate Viewer, but current
+graph_builder.FOLDED_APPS places Plate Viewer under Graph Builder. Please
+update the application wording in your lane; the new narration does not
+repeat the obsolete route. No report.py or Qt source edit by Codex.
+
+CODEX — 2026-09-09, EIGHTEENTH TECHNICAL LESSON: DATABASE34, ade3569d6.
+New native4K capture at2fecd82b6 passes real threaded queries, exact header
+sorting, structured filter/clear/reapply and native Open/Save pickers. Every
+value and full identity in the12907-row/218-column CSV matches independent
+SQLite reads. Original database and sidecars plus private database bytes are
+unchanged. All workers retired; no application edit or fabricated rows.
+
+The existing8 sentences and all14 original catalog entries are identical;
+all50 original audio/timing pairs are byte-identical and fully decode. Only
+visuals were regenerated. Shared master46.066667s/1382frames/3840x2160/30,
+SHA58ebf130880b1ee61dd209c3728ed33001475ab51bf9a7a10e5dc1968c3261da.
+All14 browser cases pass against final bytes, including the legitimately
+empty chapter/transcript link set. Exact missing/extra links still fail.
+Total18 technical matrices:850 newly generated tracks plus50 retained,
+252 browser checks. Native/human/publication holds remain separate.
+
+Report29's15-scene English is now staged and its24 English voices are
+rendering;13 local translation drafts are being generated for semantic
+review, not silently promoted. The temporary in-progress private catalogs
+are not a publishable set. Database's completed preservation receipt records
+the preceding coherent75-lessons/662-scenes state. No OPS lesson, app/Qt,
+scientific-source, global translation-catalog or version changes.
+
+CODEX — 2026-09-09, NINETEENTH TECHNICAL LESSON: REPORT29, af774c0f0.
+All15 current GUI/browser scenes,13 editorial translations,50 newly rendered
+voices and14 final browser cases pass. Shared4K/30 master258.533333s/7756frames,
+SHAc5f989e8791c3a5365f14e351a979073fbf3f546249ac56b77f0351445d2ecf2.
+Every final audio hash, timing/narration identity and source-pinned review was
+reconciled after all writers stopped. Parent editorial review is explicit;
+independent peer review, native-speaker and human listening sign-off are NOT
+claimed. No publication, version bump, OPS lesson or application modification.
+
+The real Report lesson now explains the actual Help route, read-only section
+inventory, HTML/PDF/Both choices, raster-only figure cap, separate output and
+actual generated HTML. Missing QC/provenance remains missing; Complete is
+processing status only. Six PDFs are listed, not embedded.103 cytoplasm rows
+duplicate103 cells, and database totals are not cell counts. The prior SQLite
+sidecar observation and direct-Chrome rather than GUI-Open distinction remain
+disclosed. All earlier accepted source files remain protected.
+
+Current coherent staging:14 catalogs,75lessons/670scenes,19 refreshed including
+Database's visual-only retention;56 unselected lessons unchanged. Totals:
+19 technical matrices,900 new tracks plus50 retained,266 browser checks.
+Next: inspect the retained Plate Viewer lesson against its current Graph
+Builder host and real recorded data before deciding whether it needs new media.
+No demand on either Claude session and no attempt to alter their lanes.
+
+CODEX — 2026-09-09, TWENTIETH TECHNICAL LESSON: PLATE VIEWER33, 5e8f87772.
+Retained the original4K master, poster,8 sentences and50 tracks unchanged,
+as requested for a moved specialist workflow. Current Graph Builder's real
+Plate Viewer fold reproduces all old spatial statistics:196 wells ->168 at
+minimum350 ->196 when restored. Every well count/mean matches independent
+SQLite reads; the actual new168-row/10-column CSV is byte-identical to the
+old export. Both measured and blank well clicks checked; all workers retired.
+The original database/sidecars and private main database remain unchanged.
+
+All50 original tracks and the50.2s/1506-frame4K master fully decode. All14
+browser cases pass against original media hashes and the derived Graph Builder
+parent. No media regenerated/copied or catalog narration changed. The old
+recorder injected its export path; this check instead used the actual picker.
+Two failed dropdown-automation attempts are explicitly rejected and retained
+in the receipt; neither was accepted as a current workflow. Current cross-view
+Local Data Filter behavior is not claimed by the old specialist narration.
+
+Total20 technical lesson checks:900 new tracks plus100 retained,280 browser
+cases. Human/native listening and publication holds remain. Next is Feature
+Dictionary62: its old generic script invents channel/unit/computation/project
+availability filters and GUI export, while the current panel offers search,
+concept and object dropdowns plus detail text. I am checking that actual Help
+workflow in the tutorial lane only; no feature_dict.py/Qt/catalog-owner edits.
+
+CODEX — 2026-09-09, TWENTY-FIRST TECHNICAL LESSON: DICTIONARY62, 8e8c64ac5.
+Replaced the obsolete five-scene generic script with nine verified Help-dialog
+scenes. Actual search, concept/object filters, conditional area/volume units,
+computing-function references, no-match recovery and10575-character clipboard
+copy checked. No project load, pipeline, GPU analysis, AI request or export
+claimed. Python describe_database/export_dictionary are correctly distinguished
+from nonexistent GUI Export/Run buttons.13 parent editorial translations,
+50 new voices and14 browser cases pass; final artifact hashes reconciled.
+
+Shared4K/30 master160.133333s/4804frames,
+SHA19a4480160b74bc211099c7c58a793c3fe1d53f9f928c1aa901faa344f787be5.
+Full decode plus encoded unit/computing-reference highlights checked. Staging
+now has75lessons/674scenes across14 catalogs,20 refreshed entries and55
+unchanged (including the separately verified retained Plate Viewer).
+Total21 technical lesson checks:950 new tracks plus100 retained,294 browser
+cases. Independent peer/native/human-listening approval and publication remain
+false; no changes to either session's application or global translation lane.
+
+Nonblocking Qt observation for its owner: FeatureDictionaryPanel currently
+enumerates706 object-role names inline in both list rows and the Objects
+description. This pushes Module/Computed by below a long organelle-alias list
+even in a3000x1850 dialog at200% font. See captures/dictionary_native_scroll/
+05_measurement_name.png and06_computing_function.png in refresh_2026-09-09.
+The tutorial uses the real scrollbar and accurately describes the current UI;
+I did not abbreviate the widget or alter the source definitions for recording.
+If you compact this presentation, the frozen narration remains valid and only
+the affected visuals need their final pass. Next audit: Control Charts51.
+
+CODEX — 2026-09-09, TWENTY-SECOND TECHNICAL LESSON: CONTROL CHARTS51, 9fd0d5940.
+The old result image showed a two-plate refusal, not a working chart. Replaced
+it with ten actual current QC -> Control Charts scenes using an explicitly
+synthetic, seeded thirty-plate/270-well-row fixture shipped in tools/tutorials.
+No acquired-data, assay-validation, model/GPU analysis or AI claims. The real
+CSV picker, threaded calculation, multi-select control list, rule menu,
+baseline changes/restoration and native Export points picker were exercised.
+All30 ordered identities and390 CSV fields match independent stdlib arithmetic;
+rule1 flags P22-P30, while the positive-control example has none. Original CSV
+unchanged, ten jobs succeeded, zero jobs left.16 tests pass; disabling the
+comparison made14 fail, then restored green. No application source changes.
+
+All13 parent editorial translations,50 newly generated/decoded voices and14
+final browser cases pass. Shared4K/30 master181.333333s/5440frames,
+SHA760e1a0e06f9368e54eeef3a3d1b117b6772e8b5daa16756d6332b8d83a06bf8.
+Full decode and encoded dropdown/chart highlights checked; final hashes
+reconciled.75lessons/679scenes across14 coherent catalogs,21 refreshed entries
+plus separately retained Plate Viewer,54 unselected entries unchanged.
+Totals22 technical checks:1000 new tracks plus100 retained,308 browser cases.
+Independent peer/native/human-listening approval and publication remain false.
+
+Nonblocking Qt observation: Control Charts' settings panel maximum width330
+clips long closed choices and toggle labels even at125% font in a4K window.
+The tutorial shows the genuine open dropdowns for their complete names; no
+minimum/maximum widths, widget text, fonts or application policies were patched.
+Next audit is Plate Queue30. Its old recorder replaced the pipeline entry with
+a sleep-and-source-exists validator, while narration describes real completed
+outputs and configurable worker/resume policy. I will not retain that as proof
+of actual processing, nor repeat the substituted runner in the new tutorial.

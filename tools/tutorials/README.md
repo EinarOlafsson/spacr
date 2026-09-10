@@ -40,6 +40,35 @@ The user confirmed these requirements on 9 September:
 An inventory or passing structural test is not a completed tutorial. Only
 validated recordings, narration, captions, and links close a lesson.
 
+### Visual-only refresh with retained narration
+
+`retain_narration.py --lesson 34_database` compares the selected lesson in all
+14 staged, published-source and original authoring catalogs before copying any
+audio. It requires all 50 original audio/timing pairs to match their identities,
+narration and media hashes, refuses differing existing destinations, and rechecks
+every copied byte. Original files remain untouched. Use `--retained-narration`
+on both audio verification and final matrix reconciliation for this explicit
+path; the normal newly rendered path still requires current synthesis inputs
+and source-pinned translation reviews. Retention is not a new native-language,
+listening or renderer-runtime certification.
+
+`stage_lesson.py --focus-map lessons/34_database.focus.json` binds source-pinned
+visual-only highlights without changing an accurate narration catalog. Playback
+requires exactly the authored cross-links in chapters and transcripts, including
+an empty set when the retained lesson defines none.
+
+### Whole-media retention for a moved, unchanged specialist lesson
+
+`verify_retained_media.py --lesson 33_plate_viewer` verifies all original
+catalogs/audio/timings, fully decodes the 4K master and 50 tracks, and refuses
+any staged production override. It writes evidence only, not new media.
+`verify_staged_lesson.py --retained-media` then checks the real player against
+those original bytes and the current generated parent route. Current-GUI
+behavior still needs a separate real-data check: `capture_refresh.py --module
+plate_view` uses Graph Builder's actual fold, threaded queries, minimum-count
+restoration, well clicks and a genuine export picker. It is a retention audit,
+not a replacement recording or a new human-language/listening sign-off.
+
 ## Navigation clarification — 9 September
 
 The user requests two module sections: **Main modules** (the Home tiles) and

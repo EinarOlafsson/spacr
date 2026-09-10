@@ -1,0 +1,31 @@
+{
+  "lesson": "51_control_charts",
+  "english_sha256": "cb86600d4a15c0790329e6abc65660b9b0bce1587f079354143697a06a6bc30e",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified current GUI; visible English controls retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "fr",
+  "title": "Control Charts : examiner une campagne avec des témoins et des limites explicites",
+  "description": "Ouvrez l’outil de QC, chargez une campagne explicitement synthétique de trente plaques, vérifiez le témoin et la référence sélectionnés, puis exportez des points vérifiés indépendamment.",
+  "objectives": [
+    "Trouver Control Charts dans QC et charger le CSV synthétique fourni.",
+    "Distinguer les lignes de puits des moyennes par plaque et sélectionner un seul témoin.",
+    "Comparer les règles, modifier puis rétablir le témoin et la référence, et lire les avertissements.",
+    "Exporter la véritable table des points sans prétendre exporter une image ou valider biologiquement un essai."
+  ],
+  "prerequisite": "Le CSV tools/tutorials/fixtures/control_chart_campaign.csv est entièrement synthétique et adapté d’un test à graine fixe : trente plaques fictives, trois puits par type de témoin et par plaque, avec une dérive ascendante programmée après la vingtième plaque. Les dates sont des repères d’ordre illustratifs, pas des acquisitions. Ce panneau ne possède actuellement aucun bouton Load test data ; aucune image n’est téléchargée, aucun modèle, calcul GPU ou appel AI n’est utilisé. L’ancienne vidéo à deux plaques a été rejetée, l’application refusant d’estimer les limites. La colonne étroite tronque les choix longs lorsqu’ils sont fermés ; les menus ouverts affichent leurs noms complets. Les modes Z-prime et réestimation ne sont pas testés ici.",
+  "scenes": [
+    "Ouvrez QC, puis son bouton Control Charts. Cet outil spécialisé représente des témoins répétés au fil d’une campagne. Notre CSV est explicitement synthétique, dérive comprise : il démontre le logiciel, pas une expérience acquise ni un essai validé.",
+    "Choisissez Load table et ouvrez le CSV d’exemple. Il contient deux cent soixante-dix lignes de puits : trente plaques, avec chacune trois puits témoins négatifs, trois positifs et trois d’échantillon. Le graphique affichera une moyenne du témoin sélectionné par plaque, pas un point par cellule.",
+    "Vérifiez Plate, Run order, Measurement et Control column avec les noms affichés. Sélectionnez uniquement neg dans Control is. La liste accepte plusieurs sélections ; sans niveau sélectionné, toutes les lignes sont représentées. Ne supposez jamais que charger le fichier a déjà sélectionné le témoin voulu.",
+    "Ouvrez Sigma from pour lire les choix complets. Auto choisit ici l’estimateur par sous-groupes, chaque plaque ayant trois puits sélectionnés. Les limites utilisent la variation intra-plaque de la référence, ajustée à la taille d’échantillon de la moyenne, et non l’écart-type de toute la série en dérive.",
+    "Rules propose les quatre règles habituelles, les huit ou Limits only. Davantage de règles crée aussi davantage d’occasions de fausses alertes. Nous choisissons Limits only pour isoler la règle des trois sigma ; changer ce menu recalcule le graphique sans bouton Run distinct.",
+    "Baseline plates vaut vingt : de P zéro un à P vingt, les plaques définissent les limites appliquées aux suivantes. Neuf points, de P vingt-deux à P trente, dépassent la limite supérieure. Le rapport et la table des règles les identifient ; ces signaux programmés ne sont pas des découvertes biologiques.",
+    "Désélectionnez neg et sélectionnez uniquement pos. Le graphique présente alors les moyennes de l’autre témoin et ses propres limites de référence, sans violation de la règle un dans cet exemple. Un graphique calme ne prouve pas à lui seul la validité d’un essai. Rétablissez neg avant de continuer.",
+    "Passez Baseline plates à douze et observez le changement du centre et des limites, puis rétablissez vingt. L’application exige au moins huit plaques de référence, mais ce minimum n’est pas une recommandation. Planifiez et justifiez la référence ; ne l’ajustez pas simplement pour supprimer des alertes gênantes.",
+    "Après avoir rétabli le témoin initial et la référence de vingt plaques, choisissez Export points et enregistrez un CSV séparé. Ses trente lignes contiennent identité et ordre de plaque, moyenne, taille et dispersion du sous-groupe, limites, distance standardisée, appartenance à la référence et règles déclenchées. Ce n’est ni une image du graphique ni une configuration complète.",
+    "Chaque identité et valeur numérique exportée a été comparée au CSV source, y compris les indicateurs de la règle un. L’entrée originale est inchangée. Pour les scripts, le module du widget de graphiques de contrôle expose ControlChartSpec et control_chart ; son résultat fournit points_frame. Gardez données, réglages et notes d’acquisition ensemble pour examiner de vraies alertes."
+  ]
+}

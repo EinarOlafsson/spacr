@@ -1,0 +1,160 @@
+{
+  "lesson": "62_feature_dictionary",
+  "accepted": true,
+  "published": false,
+  "dataset_loaded": false,
+  "analysis_run": false,
+  "export_performed": false,
+  "ai_request_sent": false,
+  "scope": "Built-in definitions and genuine Help controls, not project feature availability",
+  "dialog_modal": false,
+  "visible_dropdowns": [
+    "FeatureDictionaryConcept",
+    "FeatureDictionaryObject"
+  ],
+  "visible_buttons": [
+    "Close"
+  ],
+  "initial_features": 158,
+  "filtered_results": 13,
+  "scroll_checks": [
+    {
+      "before": 0,
+      "after": 1619,
+      "maximum": 1619,
+      "bottom": true
+    },
+    {
+      "before": 0,
+      "after": 0,
+      "maximum": 1863,
+      "bottom": false
+    },
+    {
+      "before": 0,
+      "after": 1863,
+      "maximum": 1863,
+      "bottom": true
+    }
+  ],
+  "unmatched_lookup": "No feature matches that search.",
+  "copy_diagnostic": {
+    "selection_characters": 10575,
+    "clipboard_characters": 10575
+  },
+  "private_xvfb_clipboard_copy": {
+    "characters": 10575,
+    "exact_selection": true
+  },
+  "states": {
+    "03_search_by_idea": {
+      "key": "area",
+      "title": "Area",
+      "unit": "depends on the row's measurement_units column — px^2 (pixel count) when measurement_units='px'; cubic xy pixels — in 3-D this column is a VOLUME, in xy-pixel units (see <object>_volume_voxels) when measurement_units='px_xy'; um^3 — in 3-D this column is a VOLUME (see <object>_volume_um3) when measurement_units='um'",
+      "module": "spacr.measure",
+      "computed_by": "skimage.measure.regionprops_table(area, spacing=...) via spacr.measure._morphological_measurements",
+      "object_type_count": 706,
+      "detail_characters": 10575,
+      "query": "size",
+      "concept": "Any concept",
+      "object_filter": "Any object",
+      "result_count": 29
+    },
+    "05_measurement_name": {
+      "key": "mean_intensity",
+      "title": "Mean intensity",
+      "unit": "native image intensity units of the merged stack (raw acquisition counts, typically uint16; not background-subtracted and not calibrated)",
+      "module": "spacr.measure",
+      "computed_by": "skimage.measure.regionprops_table(mean_intensity) via spacr.measure._extended_regionprops_table",
+      "object_type_count": 706,
+      "detail_characters": 9837,
+      "query": "cell_channel_1_mean_intensity",
+      "concept": "Any concept",
+      "object_filter": "Any object",
+      "result_count": 24
+    },
+    "06_computing_function": {
+      "key": "mean_intensity",
+      "title": "Mean intensity",
+      "unit": "native image intensity units of the merged stack (raw acquisition counts, typically uint16; not background-subtracted and not calibrated)",
+      "module": "spacr.measure",
+      "computed_by": "skimage.measure.regionprops_table(mean_intensity) via spacr.measure._extended_regionprops_table",
+      "object_type_count": 706,
+      "detail_characters": 9837,
+      "query": "cell_channel_1_mean_intensity",
+      "concept": "Any concept",
+      "object_filter": "Any object",
+      "result_count": 24
+    },
+    "07_conditional_area_units": {
+      "key": "area",
+      "title": "Area",
+      "unit": "depends on the row's measurement_units column — px^2 (pixel count) when measurement_units='px'; cubic xy pixels — in 3-D this column is a VOLUME, in xy-pixel units (see <object>_volume_voxels) when measurement_units='px_xy'; um^3 — in 3-D this column is a VOLUME (see <object>_volume_um3) when measurement_units='um'",
+      "module": "spacr.measure",
+      "computed_by": "skimage.measure.regionprops_table(area, spacing=...) via spacr.measure._morphological_measurements",
+      "object_type_count": 706,
+      "detail_characters": 10575,
+      "query": "cell_area",
+      "concept": "Any concept",
+      "object_filter": "Any object",
+      "result_count": 20
+    },
+    "08_area_caveats": {
+      "key": "area",
+      "title": "Area",
+      "unit": "depends on the row's measurement_units column — px^2 (pixel count) when measurement_units='px'; cubic xy pixels — in 3-D this column is a VOLUME, in xy-pixel units (see <object>_volume_voxels) when measurement_units='px_xy'; um^3 — in 3-D this column is a VOLUME (see <object>_volume_um3) when measurement_units='um'",
+      "module": "spacr.measure",
+      "computed_by": "skimage.measure.regionprops_table(area, spacing=...) via spacr.measure._morphological_measurements",
+      "object_type_count": 706,
+      "detail_characters": 10575,
+      "query": "cell_area",
+      "concept": "Any concept",
+      "object_filter": "Any object",
+      "result_count": 20
+    },
+    "10_known_lookup_restored": {
+      "key": "area",
+      "title": "Area",
+      "unit": "depends on the row's measurement_units column — px^2 (pixel count) when measurement_units='px'; cubic xy pixels — in 3-D this column is a VOLUME, in xy-pixel units (see <object>_volume_voxels) when measurement_units='px_xy'; um^3 — in 3-D this column is a VOLUME (see <object>_volume_um3) when measurement_units='um'",
+      "module": "spacr.measure",
+      "computed_by": "skimage.measure.regionprops_table(area, spacing=...) via spacr.measure._morphological_measurements",
+      "object_type_count": 706,
+      "detail_characters": 10575,
+      "query": "cell_area",
+      "concept": "Any concept",
+      "object_filter": "Any object",
+      "result_count": 20
+    }
+  },
+  "canonical_english_sha256": "1e20922e62908000209a58019ff7d20436c5ce4a7e846c14865c6d48df2c49d7",
+  "english_scene_count": 9,
+  "spoken_words": 383,
+  "capture_directory": "refresh_2026-09-09/captures/dictionary_native_scroll",
+  "capture_acceptance_sha256": "19e7a1e78112ec6fe8012f91757906446c86795ba086adb03b10e4df6b411c99",
+  "capture_provenance": {
+    "commit": "ae42d5e3d40da041716f8bfd995fe4da78fa19f4",
+    "version": "1.5.0.4",
+    "module": "feature_dict",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "visually_reviewed": [
+    "05_measurement_name",
+    "06_computing_function",
+    "07_conditional_area_units",
+    "08_area_caveats",
+    "11_actual_text_copy"
+  ],
+  "focused_tests": "6 passed; deliberate source guard bypass:5 failed/1 passed, restored6 passed",
+  "rejected_first_capture": {
+    "directory": "dictionary_current",
+    "reason": "Parent-widget keyboard scrolling did not reach the detail bottom, and selection text used the wrong Qt table serialization; rejected before acceptance. Actual scrollbar key events and selected-document plain text are verified in the accepted run."
+  },
+  "app_lane_observation": "706 supported object-role names expand inline in both results and Objects, pushing Module/Computed by below the fold; no application change made",
+  "new_translations": false,
+  "new_narration": false,
+  "new_video": false
+}

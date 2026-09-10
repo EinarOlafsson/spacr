@@ -82,7 +82,7 @@ def reconcile_browser(report, lesson, language, voice, caption, audio_hash, scen
         raise ValueError('Invalid or unsynchronised browser clocks')
 
 
-def check(stage, lesson_id, renderer):
+def check(stage, lesson_id, renderer, *, retained_narration=False):
     if Path(lesson_id).name != lesson_id or lesson_id in {'.', '..'}:
         raise ValueError('Expected one lesson identity')
     stage = Path(stage).resolve()
@@ -90,6 +90,13 @@ def check(stage, lesson_id, renderer):
     english = read(folder / 'lesson.en.json')
     canonical = hashlib.sha256(json.dumps(english, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     inventory = voice_matrix(renderer)
+    retention = None
+    if retained_narration:
+        from retain_narration import retained_sources
+        from stage_lesson import REPO
+        retention = retained_sources(stage, Path(renderer).resolve().parents[1],
+            REPO / 'docs/source/_extra/tutorials/catalog', lesson_id, inventory,
+            require_staged=True)
     expected = {(language, voice) for language, voices in inventory.items() for voice in voices}
     hashes = {key: digest(folder / 'audio' / key[0] / (key[1] + '.m4a')) for key in expected}
     for language in [*inventory, *CAPTION_LANGUAGES]:
@@ -102,7 +109,7 @@ def check(stage, lesson_id, renderer):
         if language == 'en':
             if translated != english:
                 raise ValueError('Staged English differs from the rendered lesson')
-        else:
+        elif not retained_narration:
             review = read(folder / f'review.{language}.json')
             if (review.get('english_sha256') != canonical or review.get('lesson') != lesson_id
                     or review.get('language') != language
@@ -153,6 +160,7 @@ def check(stage, lesson_id, renderer):
             'browser_reports': browser, 'master_sha256': digest(master), 'master_probe': probe,
             'poster_sha256': digest(folder / 'poster.jpg'),
             'scope': 'Final artifact reconciliation, not a new decode, editorial or listening review',
+            'retained_narration': retention,
             'native_speaker_signoff': False, 'human_listening_review': False, 'published': False}
 
 
@@ -160,8 +168,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--lesson', required=True)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--retained-narration', action='store_true',
+                        help='Require exact original/published catalogs and unchanged original audio/timings')
     args = parser.parse_args()
-    result = check(args.stage, args.lesson, DEFAULT_STAGE.parent / 'tools/render_all_voices.py')
+    result = check(args.stage, args.lesson, DEFAULT_STAGE.parent / 'tools/render_all_voices.py',
+                   retained_narration=args.retained_narration)
     write(args.stage / 'production' / args.lesson / 'final-artifact-checks.json', result)
     print(f"{args.lesson}: {result['unique_final_tracks']} final tracks, "
           f"{len(result['browser_reports'])} browser checks, matching sources; not published.")

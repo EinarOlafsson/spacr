@@ -77,9 +77,20 @@ def main() -> int:
         private_runs = stage / 'runs'
         private_runs.mkdir(parents=True, exist_ok=True)
         runs_destination = Path.home() / '.spacr/runs'
+        queue_binds = []
+        if args.module == 'queue':
+            # Queue persists outside XDG_CONFIG_HOME. Isolate the whole app
+            # state directory before constructing Home/Queue, without changing
+            # Path.home or replacing the application's persistence function.
+            queue_state = stage / 'queue_state' / (args.capture_name or 'queue')
+            queue_state.mkdir(parents=True, exist_ok=True)
+            if (queue_state / 'queue.json').exists():
+                raise RuntimeError('Use a new capture name for a fresh private queue')
+            queue_binds = ['--bind', str(queue_state), str(Path.home() / '.spacr')]
         os.environ['SPACR_TUTORIAL_CACHE_ISOLATED'] = '1'
         os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
                           '--dev-bind', '/dev', '/dev',
+                          *queue_binds,
                           '--bind', str(private_cache), str(destination),
                           '--bind', str(private_runs), str(runs_destination), '--',
                           sys.executable, str(Path(__file__).resolve()),
@@ -123,7 +134,7 @@ def main() -> int:
     set_preload_policy('on_demand')
     set_theme('dark')
     set_font_scale(args.font_scale)
-    if args.module == 'regression':
+    if args.module in ('regression', 'queue'):
         from spacr.qt.preferences import set_figure_format
         set_figure_format('png')
     apply_preferences_to_app(app)
@@ -225,10 +236,20 @@ def main() -> int:
         from capture_database import record_database
         screen = record_database(app, window, None, stage, captures, capture,
                                  settle, write_json, args.timeout)
+    elif args.module == 'feature_dict':
+        from capture_feature_dictionary import record_dictionary
+        record_dictionary(app, window, stage, captures, capture,
+                          settle, write_json, args.timeout)
+    elif args.module == 'queue':
+        from capture_plate_queue import record_queue
+        record_queue(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',
                     'train_compare': 'classify_merged',
+                    'plate_view': 'graph_builder',
+                    'control_chart': 'qc_dashboard',
                     'regression_diagnostics': 'regression'}.get(args.module, args.module)
         if args.module == 'report':
             # Report no longer has a Home tile. Record the actual Help menu
@@ -320,6 +341,14 @@ def main() -> int:
             from capture_report import record_report
             record_report(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout)
+        if args.module == 'plate_view':
+            from capture_plate_retention import record_plate_retention
+            record_plate_retention(app, window, screen, stage, captures, capture,
+                                   settle, write_json, args.timeout)
+        if args.module == 'control_chart':
+            from capture_control_chart import record_control_chart
+            record_control_chart(app, window, screen, stage, captures, capture,
+                                 settle, write_json, args.timeout)
         if args.download:
             def visible_test_data_buttons():
                 return [w for w in screen.findChildren(QAbstractButton)

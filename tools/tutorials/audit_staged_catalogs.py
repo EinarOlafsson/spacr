@@ -31,9 +31,11 @@ def indexed(path):
     return result
 
 
-def audit(baseline, stage, refreshed):
+def audit(baseline, stage, refreshed, *, visual_only=frozenset()):
     original = indexed(baseline / 'lessons_en.json')
     english = indexed(stage / 'catalog/lessons_en.json')
+    if not visual_only <= refreshed & set(original):
+        raise ValueError('Visual-only refresh must select existing refreshed lessons')
     if [key for key in english if key in original] != list(original):
         raise ValueError('Existing lesson identities and their catalog order must survive')
     if not refreshed <= set(english) or set(english) - set(original) - refreshed:
@@ -50,7 +52,9 @@ def audit(baseline, stage, refreshed):
                 raise ValueError(f'Scene count disagrees: {filename}/{key}')
             if key in retained and lesson != before[key]:
                 raise ValueError(f'Unselected lesson was modified: {filename}/{key}')
-            if key in refreshed:
+            if key in visual_only and lesson != before[key]:
+                raise ValueError(f'Visual-only refresh changed its retained catalog: {filename}/{key}')
+            if key in refreshed - visual_only:
                 for field in ('number', 'app_key', 'host_app_key'):
                     if lesson.get(field) != english[key].get(field):
                         raise ValueError(f'Refreshed route disagrees: {filename}/{key}/{field}')
@@ -66,6 +70,7 @@ def audit(baseline, stage, refreshed):
             'lesson_count': len(english),
             'scene_count': sum(len(l['scenes']) for l in english.values()),
             'refreshed_lesson_ids': sorted(refreshed), 'retained_lesson_ids': retained,
+            'visual_only_lesson_ids': sorted(visual_only),
             'retained_count': len(retained), 'catalog_checks': reports,
             'unselected_replacement_media_staged': False,
             'old_lesson_semantic_or_live_media_approval': False, 'published': False}
@@ -75,10 +80,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     parser.add_argument('--refreshed', nargs='+', required=True)
+    parser.add_argument('--visual-only', nargs='*', default=[],
+                        help='Require every original catalog entry to remain exactly unchanged')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     proof = audit(REPO / 'docs/source/_extra/tutorials/catalog', args.stage,
-                  set(args.refreshed))
+                  set(args.refreshed), visual_only=set(args.visual_only))
     write(args.output, proof)
     print(f"{proof['catalog_count']} catalogs agree on {proof['lesson_count']} lessons / "
           f"{proof['scene_count']} scenes; {proof['retained_count']} unselected lessons preserved.")

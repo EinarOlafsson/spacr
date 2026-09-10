@@ -1,0 +1,206 @@
+{
+  "lesson": "34_database",
+  "status": "New current visual master with retained original narration; technical checks passed, not published",
+  "canonical_english_sha256": "ecc2920e5657b8cedad33eb4bf090450238fb86c69281c8787e4c954fee98c6f",
+  "scene_count_per_catalog": 8,
+  "capture": {
+    "directory": "refresh_2026-09-09/captures/database_header_match",
+    "provenance": {
+      "commit": "2fecd82b61fbb506833493c38ca74e94f8980d91",
+      "version": "1.5.0.4",
+      "module": "db_browser",
+      "download_requested": false,
+      "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+      "app_source_modified": false,
+      "cache_isolated_with_bind_mount": true,
+      "completed_capture": true
+    },
+    "native_frames": 17,
+    "source_database_sha256": "9028eabff2bab4d7ef5447e1870f7e0aa3879fa641497ae150ad31b8d2f97d5d",
+    "actual_file_pickers": true,
+    "actual_threaded_workers": true,
+    "source_database_and_sidecars_unchanged": true,
+    "private_database_bytes_unchanged": true,
+    "source_opened_in_gui": false,
+    "job_retirement": {
+      "event_processing_polls": 0,
+      "active_jobs": 0,
+      "queued_jobs": 0,
+      "busy": false,
+      "screen_opened": true,
+      "workers_forcibly_stopped": false,
+      "capture_error": null
+    }
+  },
+  "export": {
+    "rows": 12907,
+    "columns": 218,
+    "all_values_exact": true,
+    "full_object_identities_exact": true,
+    "ordered_identity_sha256": "dfb9e75715f83b397bf58ed45470e04c9e1ef139c96fad7f58d2a29a737f799b",
+    "sha256": "954547690dafeb5ddecfe7b65dd9f96d8134e023afe12c35eb2f1d5d92940146",
+    "path": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/database_runs/example-79kdyr6f/cell_area_ge_10000.csv"
+  },
+  "query_checks": {
+    "unfiltered": {
+      "loaded_rows": 100,
+      "exact_total_rows": 81969,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": null,
+      "status": "cell: 81,969 rows · 218 columns · read-only",
+      "rows_label": "showing 100 of 81,969 rows",
+      "sort_note": "Click a column header to sort the whole table."
+    },
+    "column_search": {
+      "loaded_rows": 100,
+      "exact_total_rows": 81969,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": null,
+      "status": "cell: 81,969 rows · 218 columns · read-only",
+      "rows_label": "showing 100 of 81,969 rows",
+      "sort_note": "Click a column header to sort the whole table."
+    },
+    "06_sort_descending": {
+      "loaded_rows": 100,
+      "exact_total_rows": 81969,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": [
+        "cell_area",
+        true
+      ],
+      "status": "cell: 81,969 rows · 218 columns · read-only",
+      "rows_label": "showing 100 of 81,969 rows",
+      "sort_note": "sorted by cell_area descending — whole table, in SQL. Click again to reverse, a third time to clear."
+    },
+    "06b_sort_ascending": {
+      "loaded_rows": 100,
+      "exact_total_rows": 81969,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": [
+        "cell_area",
+        false
+      ],
+      "status": "cell: 81,969 rows · 218 columns · read-only",
+      "rows_label": "showing 100 of 81,969 rows",
+      "sort_note": "sorted by cell_area ascending — whole table, in SQL. Click again to reverse, a third time to clear."
+    },
+    "06c_sort_cleared": {
+      "loaded_rows": 100,
+      "exact_total_rows": 81969,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": null,
+      "status": "cell: 81,969 rows · 218 columns · read-only",
+      "rows_label": "showing 100 of 81,969 rows",
+      "sort_note": "Click a column header to sort the whole table."
+    },
+    "filtered": {
+      "loaded_rows": 100,
+      "exact_total_rows": 12907,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": null,
+      "status": "cell: 12,907 rows · 218 columns · filter: cell_area >= 10000 · read-only",
+      "rows_label": "showing 100 of 12,907 rows",
+      "sort_note": "Click a column header to sort the whole table."
+    },
+    "filter_cleared": {
+      "loaded_rows": 100,
+      "exact_total_rows": 81969,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": null,
+      "status": "cell: 81,969 rows · 218 columns · read-only",
+      "rows_label": "showing 100 of 81,969 rows",
+      "sort_note": "Click a column header to sort the whole table."
+    },
+    "filter_reapplied": {
+      "loaded_rows": 100,
+      "exact_total_rows": 12907,
+      "columns": 218,
+      "identities_and_values_exact": true,
+      "sort": null,
+      "status": "cell: 12,907 rows · 218 columns · filter: cell_area >= 10000 · read-only",
+      "rows_label": "showing 100 of 12,907 rows",
+      "sort_note": "Click a column header to sort the whole table."
+    }
+  },
+  "retained_narration": {
+    "tracks": 50,
+    "catalogs": 14,
+    "original_published_and_staged_entries_exact": true,
+    "original_audio_and_timing_bytes_exact": true,
+    "all_tracks_fully_decoded": true,
+    "resynthesized": false,
+    "current_runtime_freshness_claimed": false,
+    "pronunciation_rules_changed": false,
+    "retention_report_sha256": "ba7b29761dca161ee1b7af4d20ada9ac4086e30cde874e18780c1137044b74d9"
+  },
+  "master": {
+    "sha256": "58ebf130880b1ee61dd209c3728ed33001475ab51bf9a7a10e5dc1968c3261da",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "1382"
+        }
+      ],
+      "format": {
+        "duration": "46.066667",
+        "size": "4384483"
+      }
+    },
+    "poster_sha256": "c72196a4c6604bd881d4ae4c2a1663ad5b5104ee9138fd074ed4cea598906c08",
+    "full_decode_exit_code": 0,
+    "decoded_sample_seconds": 36,
+    "sample_observation": "Real 100-row preview from the complete 12,907-row filtered query, with the current whole-table-sorting footer and preserved focus treatment."
+  },
+  "browser_checks": {
+    "passed": 14,
+    "spoken": 8,
+    "independent_caption_languages": 6,
+    "all_loaded_audio_hashes_match_final_files": true,
+    "desktop_and_390px_mobile": true,
+    "chapter_and_transcript_links": "Exact authored empty set, not an exemption for missing required links",
+    "retries_required": false
+  },
+  "final_artifact_checks_sha256": "16be69891bda8f5ca44d6ae1e7ed9a285ea0fe04da64f06b4148fca4fd2a7725",
+  "focused_tests": {
+    "narration_player_staging_matrix": 66,
+    "catalog_preservation": 10,
+    "mutations": "Actual catalog/related-link guards bypassed: 6 expected failures, restored66 passes. Visual-only catalog guard bypassed: 2 expected failures, restored10 passes."
+  },
+  "catalog_preservation": {
+    "catalogs": 14,
+    "lessons": 75,
+    "scenes": 662,
+    "refreshed": 18,
+    "visual_only": 1,
+    "unselected_unchanged": 57,
+    "sha256": "cdbfcc54f234751704895d5c13007658201c29a68308f8eb298e2af82a5ec5ab"
+  },
+  "completed_staged_matrices_at_checkpoint": 18,
+  "newly_generated_tracks_at_checkpoint": 850,
+  "retained_tracks_reverified_at_checkpoint": 50,
+  "total_completed_browser_checks_at_checkpoint": 252,
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false,
+  "whole_tutorial_refresh_complete": false,
+  "evidence_sha256": {
+    "provenance.json": "afdd8060c4d4bf944bbcadf020c5a5ebbf5505f7d5b5c19ae71458b7309cf53a",
+    "frames.json": "c2cb5e0603df0e661b77237155da80f5d6f8c75acdadcb67f03b0ef1c5df2bde",
+    "input_manifest.json": "6218d6aba50da73ec6a6c9602201bfe7faf3cb925b17fa2c877beea7cc313732",
+    "output_evidence.json": "7445fa09ce868fcf1e6afaf4d9f075fdf646975641b541af4e727209d5d7f950",
+    "job_retirement.json": "6f3bed9ad8d6ba280fae2e14d24f54c539f1ef349bb5e3bf7400cd985cbce8bc",
+    "scene_mapping.json": "c7f9baf63d9b8e957ae82aafbd2ae26d70bbe8bf0768f1be4cda5d610fb1439f"
+  }
+}

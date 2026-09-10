@@ -5,8 +5,7 @@ which tiles touch, :mod:`spacr.ops_register` says how far apart a touching
 pair is, :mod:`spacr.ops_solve` says where each tile ends up, and this
 runs the three of them over a well and reports what happened.
 
-THE OUTPUT IS COORDINATES, NOT PIXELS -- instruction 372's PART 6, the
-maintainer's own design. A well of this acquisition is 26,855 x 26,865 px
+THE OUTPUT IS COORDINATES, NOT PIXELS. A well of this acquisition is 26,855 x 26,865 px
 and one is enough to exhaust a machine; the transform table is a few
 kilobytes and every later phase reads through it. A canvas, if anybody
 wants one, is rendered from this at whatever downsample suits the screen.

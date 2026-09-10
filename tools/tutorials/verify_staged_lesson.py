@@ -22,6 +22,12 @@ from stage_lesson import DEFAULT_STAGE, read, write
 WORKSPACE = DEFAULT_STAGE.parent
 
 
+def check_related_links(actual, expected):
+    """Require exactly the authored links, including a genuinely linkless lesson."""
+    if sorted(set(actual)) != sorted(set(expected)):
+        raise ValueError(f'Related lesson links differ: {actual!r} != {expected!r}')
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *args):
         pass
@@ -84,7 +90,17 @@ def main():
     parser.add_argument('--language', default='en')
     parser.add_argument('--voice', default='af_heart')
     parser.add_argument('--caption-language', help='Independently test a staged caption language with this voice')
+    parser.add_argument('--retained-media', action='store_true',
+                        help='Require unchanged original catalogs and media, with no staged override')
     args = parser.parse_args()
+    retained = None
+    if args.retained_media:
+        from verify_retained_media import retained_media_sources
+        from check_completed_matrix import voice_matrix
+        from stage_lesson import REPO
+        retained = retained_media_sources(
+            DEFAULT_STAGE, WORKSPACE, REPO / 'docs/source/_extra/tutorials/catalog',
+            args.lesson, voice_matrix(WORKSPACE / 'tools/render_all_voices.py'))
     english = read(DEFAULT_STAGE / 'catalog/lessons_en.json')
     lesson = next(item for item in english['lessons'] if item['id'] == args.lesson)
     if args.caption_language:
@@ -146,11 +162,13 @@ def main():
             evidence['navigation_contains_staged_lesson'] = args.lesson in navigation['preserved_lesson_ids']
             assert evidence['navigation_contains_staged_lesson']
             assert page.locator(f'#curriculum [data-lesson="{args.lesson}"]').count() == 1
-            if lesson.get('host_app_key'):
-                assert page.locator('#lesson-content').get_attribute('data-app-key') == lesson['host_app_key']
-                assert page.locator(f'#curriculum [data-host="{lesson["host_app_key"]}"] [data-lesson="{args.lesson}"]').count() == 1
-                host = next(item for item in english['lessons'] if item.get('app_key') == lesson['host_app_key'])
+            host_key = navigation['routes'].get(args.lesson, {}).get('host_app_key') or lesson.get('host_app_key')
+            if host_key:
+                assert page.locator('#lesson-content').get_attribute('data-app-key') == host_key
+                assert page.locator(f'#curriculum [data-host="{host_key}"] [data-lesson="{args.lesson}"]').count() == 1
+                host = next(item for item in english['lessons'] if item.get('app_key') == host_key)
                 assert host['title'] in page.locator('#lesson-route').inner_text()
+                evidence['host_app_key'] = host_key
             page.wait_for_function('elements.video.readyState >= 2 && elements.audio.readyState >= 2', timeout=60000)
             page.select_option('#language-select', args.language)
             page.wait_for_function('(voice) => [...elements.voice.options].some(o => o.value === voice)',
@@ -173,7 +191,7 @@ def main():
                 const digest = await crypto.subtle.digest('SHA-256', bytes);
                 return [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2, '0')).join('');
             }''')
-            expected_hash = hashlib.sha256((DEFAULT_STAGE / 'production' / args.lesson /
+            expected_hash = hashlib.sha256(((WORKSPACE if retained else DEFAULT_STAGE) / 'production' / args.lesson /
                             'audio' / args.language / f'{args.voice}.m4a').read_bytes()).hexdigest()
             assert audio_hash == expected_hash, (audio_hash, expected_hash)
             evidence['loaded_audio_sha256'] = audio_hash
@@ -197,7 +215,7 @@ def main():
             expected = sorted({identity for scene in lesson['scenes'] for identity in scene.get('related_lessons', [])})
             actual = page.locator('#chapter-list [data-related-lesson]').evaluate_all(
                 '(nodes) => [...new Set(nodes.map(n => n.dataset.relatedLesson))].sort()')
-            assert actual == expected, (actual, expected)
+            check_related_links(actual, expected)
             page.evaluate('elements.audio.muted = true; elements.video.muted = true')
             page.locator('.chapter-button').nth(5).click()
             try:
@@ -215,7 +233,10 @@ def main():
             page.evaluate('elements.audio.pause(); elements.video.pause()')
             page.screenshot(path=str(output / 'desktop.png'), full_page=True)
             page.locator('#transcript-tab').click()
-            assert page.locator('#transcript-list [data-related-lesson]').count() > 0
+            transcript_links = page.locator('#transcript-list [data-related-lesson]').evaluate_all(
+                '(nodes) => nodes.map(n => n.dataset.relatedLesson)')
+            check_related_links(transcript_links, expected)
+            evidence['chapter_and_transcript_links'] = expected
             page.set_viewport_size({'width': 390, 'height': 844})
             assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
             page.screenshot(path=str(output / 'mobile.png'), full_page=True)
@@ -225,6 +246,14 @@ def main():
     finally:
         server.shutdown()
         server.server_close()
+    if retained:
+        after = retained_media_sources(
+            DEFAULT_STAGE, WORKSPACE, REPO / 'docs/source/_extra/tutorials/catalog',
+            args.lesson, voice_matrix(WORKSPACE / 'tools/render_all_voices.py'))
+        if after != retained:
+            raise ValueError('Retained source media changed during playback verification')
+        evidence['whole_media_retained'] = True
+        evidence['original_sources_unchanged'] = True
     write(output / 'playback-checks.json', evidence)
     print(json.dumps(evidence, indent=2))
 

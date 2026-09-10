@@ -94,8 +94,13 @@ def test_a_store_still_naming_the_retired_space_theme_reads_as_a_theme_we_have(
 
     tokens = [token for _label, token in prefs.theme_choices()]
     assert not [token for token in tokens if token.startswith("space:")]
+    # A LITERAL VARIANT, because `get_space_variant` went with the theme.
+    # The accessor was retired under 364 along with the five others that
+    # served a theme nothing could select, and calling it here made this
+    # test fail for the opposite of its own reason -- not "space is
+    # refused" but "the code that asked about space is gone".
     with pytest.raises(ValueError, match="unknown theme choice 'space:"):
-        prefs.set_theme_choice(f"space:{prefs.get_space_variant()}")
+        prefs.set_theme_choice("space:nebula")
 
     # And a token that IS offered is taken, so the refusal above is the
     # missing choice and not a setter that refuses everything.

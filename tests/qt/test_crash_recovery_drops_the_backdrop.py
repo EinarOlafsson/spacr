@@ -140,13 +140,28 @@ def test_dropping_the_backdrop_is_this_process_only(markers, monkeypatch):
 
 def test_the_counter_survives_a_write_failure_without_raising(markers,
                                                              monkeypatch):
-    """Startup and shutdown must not fail over a bookkeeping file."""
+    """Startup and shutdown must not fail over a bookkeeping file.
+
+    A read-only filesystem is a real deployment -- a shared install, a
+    container, a home directory over a full disk -- and losing the crash
+    counter there is a lost diagnosis. Losing the APPLICATION over it
+    would be a lost session.
+    """
+    before = cr._read_counter()
+
     def refuse(*_a, **_k):
         raise OSError("read-only filesystem")
 
     monkeypatch.setattr("builtins.open", refuse)
     cr._write_counter(3)          # must not raise
     cr.note_a_clean_shutdown()    # must not raise
+
+    # AND THE COUNTER IS UNCHANGED, which is the half a "does not raise"
+    # test leaves out: swallowing the error must not also invent a value.
+    monkeypatch.undo()
+    assert cr._read_counter() == before, (
+        "a failed write changed what the counter reads back, so the next "
+        "start would act on a number nothing wrote")
 
 
 def test_the_marker_folder_falls_back_when_the_log_dir_is_unavailable(

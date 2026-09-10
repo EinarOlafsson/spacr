@@ -1,8 +1,7 @@
 """Where every tile of a round well is, in closed form.
 
-THE ADJACENCY WAS THE OPEN PROBLEM AND THIS IS THE ANSWER. Instruction 372
-spent three prototypes trying to RECONSTRUCT the grid from the links that
-register -- a serpentine with a constant stride, then runs delimited by a
+THE ADJACENCY WAS THE OPEN PROBLEM AND THIS IS THE ANSWER. Three earlier
+prototypes tried to RECONSTRUCT the grid from the links that register -- a serpentine with a constant stride, then runs delimited by a
 failed link, then columns as maximal runs of vertical links. All three
 inferred the grid from the very edges that were missing, and all three
 failed on the same acquisition: 27 of 333 tiles placed.

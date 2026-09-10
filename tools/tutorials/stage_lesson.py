@@ -39,9 +39,15 @@ def union(rectangles):
     return [x, y, right - x, bottom - y]
 
 
-def stage_lesson(lesson_path, capture_module, stage, *, check_only=False):
+def stage_lesson(lesson_path, capture_module, stage, *, check_only=False, focus_map=None):
     from PIL import Image
     lesson = read(lesson_path)
+    overrides = read(focus_map) if focus_map is not None else None
+    if overrides is not None:
+        canonical = hashlib.sha256(json.dumps(lesson, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        if (overrides.get('english_sha256') != canonical
+                or set(overrides.get('scenes', {})) != {s['visual'] for s in lesson['scenes']}):
+            raise ValueError('Visual-only focus map must match the exact lesson and every scene')
     catalog_path = stage / 'catalog/lessons_en.json'
     baseline = REPO / 'docs/source/_extra/tutorials/catalog'
     catalog = read(catalog_path if catalog_path.exists() else baseline / 'lessons_en.json')
@@ -88,6 +94,12 @@ def stage_lesson(lesson_path, capture_module, stage, *, check_only=False):
         if 'focus_buttons' in scene:
             visual['focus'] = union([b['rect'] for b in frame['buttons']
                                      if b['name'] == scene['focus_buttons']])
+        if overrides is not None:
+            if 'focus' in visual:
+                raise ValueError('A visual-only focus map cannot override an authored focus')
+            region = overrides['scenes'][scene['visual']]
+            if region is not None:
+                visual['focus'] = region
         if 'focus' in visual:
             x, y, width, height = visual['focus']
             if min(x, y) < 0 or min(width, height) <= 0 or x + width > 3840 or y + height > 2160:
@@ -129,8 +141,11 @@ def main():
     parser.add_argument('--capture-module', required=True)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
     parser.add_argument('--check-only', action='store_true', help='Validate all captures and links without changing any catalog')
+    parser.add_argument('--focus-map', type=Path,
+                        help='Source-pinned visual-only focus geometry for retained narration')
     args = parser.parse_args()
-    stage_lesson(args.lesson, args.capture_module, args.stage.resolve(), check_only=args.check_only)
+    stage_lesson(args.lesson, args.capture_module, args.stage.resolve(),
+                 check_only=args.check_only, focus_map=args.focus_map)
 
 
 if __name__ == '__main__':
