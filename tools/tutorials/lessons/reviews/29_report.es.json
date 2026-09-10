@@ -1,0 +1,32 @@
+{
+  "lesson": "29_report",
+  "language": "es",
+  "english_sha256": "52964f24e8fcce5bb7a34b3ffb5cbafd7898d648ce8344a6c8403bca17894867",
+  "review": {"kind": "Parent editorial translation checked against frozen English and actual capture; rejected misleading machine-draft wording", "independent_peer_review": false, "native_speaker_signoff": false},
+  "title": "Report: inspeccionar y compartir resultados registrados sin repetir el análisis",
+  "description": "Genera un informe a partir del ejemplo real de External Masks, distingue la finalización del procesamiento de la falta de evidencias de control de calidad e inspecciona el HTML autónomo antes de compartirlo.",
+  "objectives": [
+    "Encontrar Report en Help y examinar una copia separada de un proyecto existente.",
+    "Distinguir los registros de procesamiento, los controles de calidad no disponibles y la procedencia de ejecución ausente.",
+    "Generar HTML con los controles reales de formato, límite de figuras y salida.",
+    "Inspeccionar tablas registradas, figuras vectoriales enumeradas y ajustes guardados sin atribuirles un análisis nuevo ni una ocultación automática de datos privados."
+  ],
+  "prerequisite": "Utiliza el proyecto real de dos campos generado en External Masks, con 103 células y etiquetas celulares suministradas. La grabación utiliza una copia privada completa, verificada byte por byte, para proteger el proyecto aceptado. Un examen previo directamente sobre el origen creó un WAL de SQLite vacío y un archivo auxiliar de memoria compartida sin modificar datos existentes; analizar en modo de solo lectura no garantiza que SQLite no cree archivos auxiliares. No se repite la ejecución del flujo de análisis ni del control de calidad. Ningún diario de ejecución corresponde a esta copia privada. Las 103 filas de citoplasma duplican las regiones celulares, no un compartimento independiente. Esta demostración de Report no tiene descarga separada de datos de prueba, vista previa de segmentación en vivo ni interacción con AI.",
+  "scenes": [
+    "Abre Help y después Report. Esta utilidad reúne los archivos y resultados existentes del proyecto en un documento; no vuelve a ejecutar la segmentación, las mediciones ni los análisis de control de calidad. Se accede desde Help, no desde un mosaico independiente de Home.",
+    "Pulsa Choose run folder… y selecciona la copia privada del proyecto completado de External Masks. Contiene dos campos de imagen adquiridos y sus resultados medidos. La copia conserva todos los archivos originales y el proyecto de origen aceptado permanece intacto durante la grabación.",
+    "Tras el examen, lee con atención el mensaje verde Complete. Indica que cada paso de procesamiento registrado procesó todos sus elementos. Afirma que el procesamiento terminó, no que la segmentación sea correcta ni que el control de calidad se haya superado.",
+    "La lista de secciones indica su disponibilidad; no sirve para seleccionar cuáles incluir. Aquí se encuentran cinco de las ocho secciones. La procedencia de ejecución, Segmentation QC y Plate QC no están disponibles, y sus explicaciones permanecen en el informe generado en lugar de desaparecer.",
+    "Las opciones reales de Format son HTML, PDF y Both. Conserva HTML para esta demostración. PDF se describe como una transcripción mediante matplotlib; no promete reproducir exactamente la maquetación del navegador. En esta grabación solo se genera e inspecciona HTML.",
+    "Ajusta Embed at most a tres figuras. El límite afecta a las figuras ráster incrustadas. Este proyecto contiene seis PDF vectoriales, que Report enumera sin incrustar. Aumentar el límite no convertiría esos PDF en vistas previas de imágenes.",
+    "Pulsa Choose output… y elige un nombre nuevo de archivo HTML fuera del proyecto de origen. Esta interfaz no ofrece controles de título, autoría ni exclusión de datos privados. Revisa las rutas y los metadatos antes de compartirlos; Report no los oculta automáticamente.",
+    "Pulsa Generate report y espera la confirmación de escritura. Esta ejecución solo crea el archivo HTML elegido en el directorio de salida. Open puede enviarlo al visor del escritorio; aquí inspeccionamos exactamente ese archivo directamente en Chrome, sin pulsar Open.",
+    "El documento real se abre como un único archivo HTML local, sin solicitudes de recursos externos. Los enlaces del índice identifican las ocho secciones. El aviso conserva el estado de finalización e indica que se han incrustado cero de seis figuras; no oculta las evidencias ausentes.",
+    "Run status reproduce el registro real de measure_crop: dos elementos intentados, dos completados correctamente y cero fallidos. No hemos fabricado un registro de finalización. Estos recuentos describen campos procesados, no el número de células ni una puntuación de validación científica.",
+    "Ninguna ejecución del diario identifica esta carpeta copiada. El informe advierte que las versiones mostradas como alternativa describen la máquina que lo genera, no una reconstrucción de la procedencia del análisis. Las secciones ausentes de control de calidad de segmentación y placa también siguen visibles: no disponible no equivale a superado.",
+    "Key figures enumera los seis PDF de origen y explica por qué no están incrustados. Sus rutas identifican las figuras anteriores y posteriores al filtrado, y las de recortes de ambos campos. Consulta External Masks para ver esas figuras reales; este informe no las rasteriza.",
+    "Statistics and result tables muestra ciento tres filas celulares, el mismo número de filas de citoplasma y de enlaces PNG. En este ejemplo con solo máscaras celulares, el citoplasma duplica las regiones de las células. No sumes esas tablas como si fueran células independientes. Los totales de la base de datos incluyen ajustes y otras filas auxiliares.",
+    "Despliega la sección real de ajustes guardados para inspeccionar su vista previa. Los valores proceden del archivo de ajustes del proyecto, no de un diario de ejecución recuperado. El número de filas no demuestra que cada ajuste sea distinto y esta grabación no lee todas las filas en voz alta.",
+    "En Python, spacr.report.collect_report reúne un objeto Report. build_report reúne los datos y escribe el formato solicitado, devolviendo una lista de rutas de salida. Utiliza la interfaz o la API para compartir evidencias registradas con sus limitaciones; ninguna sustituye controles de calidad ausentes, establece validez biológica ni elimina metadatos sensibles por ti."
+  ]
+}
