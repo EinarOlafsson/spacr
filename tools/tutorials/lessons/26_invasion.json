@@ -1,0 +1,171 @@
+{
+  "id": "26_invasion",
+  "number": 26,
+  "slug": "invasion-assay",
+  "title": "Invasion Assay",
+  "series": 3,
+  "app_key": "invasion",
+  "section": "Toxoplasma assays",
+  "description": "Configure the current two-colour assay, separate stain-baseline wells from experimental conditions, and inspect actual thresholds, distributions and output files. The worked database is explicitly synthetic.",
+  "objectives": [
+    "Map the outside and total stains to their correct measurement columns.",
+    "Use the renamed stain-baseline control and inspect the threshold sensitivity.",
+    "Read real figures and per-well denominators without turning synthetic patterns into biological claims."
+  ],
+  "prerequisite": "This lesson preserves the existing synthetic Invasion database and runs the current GUI on a new byte-identical copy. Its 1,800 invented parasite measurements comprise 360 stain-baseline objects and 1,440 assay objects across twelve artificial wells. It has no acquired two-colour images, and the general downloaded plate does not establish the required pre- and post-permeabilisation staining design. Vehicle and inhibitor are arbitrary teaching labels, not tested treatments. The example uses mean intensity because those are the available columns, not because mean is generally the best statistic for a surface stain. Independent arithmetic checks parasite calls, field thresholds, well counts, condition summaries and plotted geometry; no image validation, experimental efficacy or inferential-statistics approval is claimed. Original and private input databases remain unchanged. The current GUI uses stain_baseline_wells in place of the older control_wells name, and its six-decimal bimodality cutoff is recorded exactly.",
+  "scenes": [
+    {
+      "visual": "01_module",
+      "narration": "Open Invasion Assay in the Assays section of Home. This module scores already measured parasites; it does not segment the images here. Our worked database is explicitly synthetic. The figures demonstrate settings and arithmetic, not observed invasion or a treatment effect.",
+      "focus": [
+        346,
+        50,
+        1140,
+        155
+      ],
+      "related_lessons": [
+        "08_measure"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_setting_src",
+      "narration": "Choose the experiment folder containing measurements slash measurements dot db. This new private copy has eighteen hundred invented parasite rows. Three hundred sixty are staining-baseline objects; fourteen hundred forty belong to assay wells. The ordinary downloaded plate is not a substitute for a validated two-colour staining experiment.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_setting_outside_channel",
+      "narration": "Outside channel is the stain applied before permeabilisation, here channel one. Total channel is the stain applied afterwards, here channel zero. An outside-positive parasite is called attached; a parasite at or below the outside threshold is called invaded. Weak outside staining can therefore create false invaded calls.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_setting_intensity_statistic",
+      "narration": "We select mean intensity because this teaching database contains mean-intensity columns. That is not a general recommendation for a surface stain. For real data, inspect which boundary or percentile measurements are available and appropriate. A local background ring is also different from the outside-stain channel itself.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_setting_stain_baseline_wells",
+      "narration": "Set Stain baseline wells to column one. This replaces the older control wells name and identifies the artificial negative-stain baseline, not the vehicle condition. These objects establish the staining cutoff and are excluded from the assay result denominators. Vehicle and inhibitor remain in columns two and three.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_setting_control_quantile",
+      "narration": "Control quantile is zero point nine nine. The three hundred sixty baseline objects give a cutoff of about twenty-two point eight intensity units. We leave the fixed Outside threshold empty, so the baseline-derived cut is used. The automatic method is not the applied threshold in this run.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "08_setting_threshold_sensitivity",
+      "narration": "Threshold sensitivity is zero point two five, which brackets the cutoff twenty-five percent lower and higher. Raising the cutoff can label more parasites invaded. Inspect the resulting efficiency bracket and quality-control flags before interpreting a change; a successful run does not prove that the stain is reliable.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_setting_extracellular_class",
+      "narration": "Extracellular class decides how objects without a host link are handled. This example uses classify, leaving that decision to the stain, and every teaching row already has a host link. In real data, choose deliberately between attached, exclude and classify after checking the host segmentation.",
+      "focus": [
+        346,
+        170,
+        1150,
+        215
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "15_figure_02",
+      "narration": "Run produces three actual figures. The threshold page shows one distribution per well, not one per parasite. Here the applied line comes from the baseline, and all twelve wells are visible. Inspect whether a cutoff falls between plausible populations; these invented distributions cannot replace reviewing representative stained images.",
+      "focus": [
+        1685,
+        260,
+        2125,
+        875
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "16_legend_00",
+      "narration": "If a legend extends beyond the canvas, open Figure settings and select best for Legend position in the axes tab. Confirm the dialog to keep the labels visible. This is a display adjustment only: we verified that it leaves plotted values and saved result tables unchanged.",
+      "focus": [
+        1420,
+        330,
+        1000,
+        1500
+      ],
+      "related_lessons": [
+        "27_replication"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_readable_figure_00",
+      "narration": "The per-well bars show attached and invaded fractions, with one hundred twenty scored parasites above each bar. Baseline wells are absent. Keep the denominator beside the proportion: a large fraction based on very few objects is not equivalent to the same fraction from a well-sampled well.",
+      "focus": [
+        1685,
+        260,
+        2125,
+        875
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "17_readable_figure_01",
+      "narration": "The two invented conditions contain seven hundred twenty scored parasites each. Their invaded fractions are approximately thirty-nine point seven and sixty-eight point nine percent. The summary also reports the mean across wells, which is not generally the same as pooling objects. Neither these labels nor any p-value establishes a biological effect here.",
+      "focus": [
+        1685,
+        260,
+        2125,
+        875
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "14_actual_completion",
+      "narration": "Review the console and the results folder for parasite calls, field thresholds, well efficiencies, condition summaries and comparison tables. Use independent experimental wells for inference, not individual parasites as interchangeable replicates. spaCR AI is optional and was not used for this local analysis. Validate the stain and images before drawing biological conclusions.",
+      "focus": [
+        1510,
+        1200,
+        2300,
+        370
+      ],
+      "related_lessons": [
+        "08_measure",
+        "13_regression"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}
