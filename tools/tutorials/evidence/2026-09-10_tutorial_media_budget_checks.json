@@ -1,0 +1,43 @@
+{
+  "item": "Tutorial documentation-media checks",
+  "date": "2026-09-10",
+  "before": {
+    "passed": 18,
+    "failed": 2,
+    "failures": [
+      "Expected obsolete 20260825-folded-routes player cache key",
+      "Required published bytes to be less than one-third of local bytes despite only 540 local narration files"
+    ]
+  },
+  "after": {
+    "passed": 26,
+    "failed": 0,
+    "measured_assertion_lines": [
+      69,
+      70
+    ],
+    "isolated_mutations": [
+      {
+        "assertion": "assert set(dropped) == narration",
+        "exit_code": 1,
+        "summary": "1 failed, 2 passed, 23 deselected in 1.61s"
+      },
+      {
+        "assertion": "assert set(published) == local - narration",
+        "exit_code": 1,
+        "summary": "2 failed, 1 passed, 23 deselected in 1.59s"
+      }
+    ]
+  },
+  "measurement": {
+    "published_bytes": 105932486,
+    "excluded_narration_bytes": 123555456,
+    "published_files": 175,
+    "excluded_files": 540,
+    "ceiling_bytes": 734003200,
+    "preserved_voice_count": 50
+  },
+  "policy": "Absolute media ceiling and 85%-of-Pages site ceiling unchanged. Exact file partition replaces a ratio that depended on the amount of local audio; zero, one and ten local tracks each tested. All narration remains excluded from Pages and every non-narration file must remain.",
+  "scope": "Only tests/test_docs_media_budget.py changed. No media deleted, no budget raised, no release or publication performed.",
+  "github_workflow_pass_claimed": false
+}
