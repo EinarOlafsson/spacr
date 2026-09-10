@@ -75,6 +75,43 @@ SCROLLBARS_ALLOWED = {1, 25, 30}
 #: ledger. The three measured forms are elided names, clipped descriptions
 #: and content taller than the fixed canvas. Module folds reduce this set;
 #: longer labels or new visible apps can increase it.
+#:
+#: 2026-09-10 -- THIS LEDGER IS CURRENTLY MEASURING THE MACHINE, AND THE
+#: NUMBERS SAY SO. Two sessions on two boxes, at the same commit, offscreen,
+#: with no uncommitted state, disagree about variant 1:
+#:
+#:     this box    variant 1 fits          variant 2 over by 5 px
+#:     other box   variant 1 over by 4 px  variant 2 over by 5 px
+#:
+#: Four pixels in 904 is 0.4 %. Spread over a column of roughly thirty rows
+#: that is a fraction of a pixel per row of line height -- the size of a font
+#: metrics difference, and far too small to be a design change.
+#:
+#: THE FONT IS NOT THE DIFFERENCE, which was the first guess on both sides
+#: and was checked rather than assumed. Both boxes: three Open Sans faces
+#: (Bold, Italic, Regular), `QFontInfo('Open Sans').exactMatch()` True, and
+#: the bundled variable font present. Whatever moves the line height sits
+#: below the family -- hinting, fontconfig rendering, freetype version, the
+#: Qt build.
+#:
+#: SO VARIANT 2's ENTRY IS NOT SAFER THAN VARIANT 1's ABSENCE. Both sit
+#: within five pixels of the canvas; variant 2 happens to fail on both boxes
+#: today, which is luck rather than a stabler measurement. The audit already
+#: tolerates one pixel (`need.height() > CANVAS_H + 1` in the generators'
+#: `render.audit`), so the question is only what the right number is.
+#:
+#: NEITHER SESSION HAS MOVED IT, deliberately. Widening the tolerance to
+#: admit variant 1 writes one machine into the repository; leaving it writes
+#: the other. The ledger's own rule -- a fix must delete or lower its line in
+#: the same commit -- cannot be honoured by anybody while the line means
+#: something different on each box.
+#:
+#: WHAT WOULD FIX IT PROPERLY, for whoever takes it: derive the tolerance
+#: from what a REAL defect looks like rather than from either measurement. A
+#: genuine regression is a row that does not fit -- one line of tile height,
+#: tens of pixels. A tolerance set well below that and well above five would
+#: separate the two classes and stop depending on freetype. Measure the row
+#: height first; do not pick a number.
 KNOWN_LAYOUT_DEFECTS: dict = {
     # VARIANT 1 LEFT THIS LEDGER ON 2026-09-08, and deleting its line is the
     # ledger's own rule: a fix has to remove its entry or the record stops
