@@ -3096,3 +3096,90 @@ becomes a neighbourhood lookup rather than a one-to-one map.
 AND THE ONE CONFIRMED PAIR IS THE REGRESSION TEST FOR IT. Whatever the
 well-frame version returns for phenotype 41 must agree with scale 0.2510 and
 -0.03 degrees, composed through site 23's own placement.
+
+--------------------------------------------------------------------------------
+PART 14-B -- A4 WORKS ON THE PLATE. EIGHT OF NINE PHENOTYPE FIELDS, SCALE
+0.2499 TO 0.2511, ROTATION UNDER 0.06 DEGREES. 2026-09-10.
+--------------------------------------------------------------------------------
+
+    site   inliers   scale     deg    resid px
+       0     141    0.2511   +0.02      1.53
+      40     119    0.2506   -0.03      1.33
+      41     163    0.2511   -0.06      1.50
+      42      99    0.2507   +0.01      1.54
+     120     175    0.2500   -0.01      1.28
+     300     149    0.2509   +0.00      1.50
+     640     191    0.2499   -0.01      1.47
+    1200     195    0.2499   -0.02      1.41
+     900       -    REFUSED at 8,000 trials
+
+Eight independent fields from across the well agree on a scale to within
+half a percent and a rotation to within a sixteenth of a degree, at
+one-and-a-half pixel residuals, against chance floors of five to nine. One
+field refuses and is reported as refusing, which is the behaviour PART 14
+was built for.
+
+THREE THINGS HAD TO BE RIGHT AND EACH ONE WAS A SEPARATE MISTAKE.
+
+1. THE WELL FRAME, NOT THE TILE. PART 14-A's conclusion, and it helped: the
+   anchor went from 132 agreeing nuclei against one sequencing tile to 163
+   against the well-frame cloud. `stitch_well` places all 333 sequencing
+   tiles in ELEVEN SECONDS -- 624 of 624 edges, residual median 0.201 px --
+   and 185,153 nuclei drop into well pixels in another 24. The shipped
+   module is forty times faster than the prototype PART 6 measured at 400 s.
+
+2. ONE CONFIRMED TILE CALIBRATES THE WHOLE ACQUISITION. Searching the whole
+   well does not work and should not be attempted: 4,000 two-point trials
+   over 185,153 nuclei found 7-9 inlier coincidences and MISSED the
+   163-inlier truth for the one field known to have one. The search space is
+   a thousand tile-areas.
+
+   But the phenotype acquisition is a rigid raster, which is A2's whole
+   argument -- a raster is a layout plus a solve, not a search. The
+   sequencing pitch measured from the placements is
+
+       row  (1267.00, 9.01)      col  (-8.89, 1267.27)   well px
+
+   -- and the 9 px off-axis term is the same stage skew PART 13-D found. The
+   phenotype pitch is that times the radius ratio 10.25/20.15 = 0.5087, so
+   one anchor fixes the origin and every one of the 1,281 fields is
+   PREDICTED. Three fields the anchor never saw aligned immediately.
+
+3. AND `PAIR_TRIALS = 300` IS TOO FEW FOR A WELL-FRAME WINDOW. This is the
+   one that looked like a fact about the specimen and was not. Five fields
+   refused at 300 trials; image statistics could not tell them from the ones
+   that worked -- site 40 is SHARPER than site 41, which aligns at 163 --
+   and the answer was simply that a stochastic search had not looked long
+   enough:
+
+       site 40    300 trials ->  10 inliers      8,000 trials -> 119
+       site 120   300 trials ->   8 inliers      2,000 trials -> 175
+       site 300   300 trials ->   7 inliers      2,000 trials -> 149
+       site 640   300 trials ->  12 inliers      2,000 trials -> 191
+
+   A tile-sized target holds ~600 nuclei and a well-frame window ~3,000, and
+   the chance of a random pair landing on a true correspondence falls with
+   the square of that. THE TRIAL COUNT HAS TO SCALE WITH THE TARGET, and a
+   constant is the wrong shape for it. TO DO in `ops_phenotype.py`:
+   `PAIR_TRIALS` becomes a floor and the default becomes proportional to
+   `len(target)` -- 2,000 for 3,000 points, which is where four of the five
+   recovered.
+
+   NOTE WHAT THE REFUSALS LOOKED LIKE, because it is why this was not
+   obvious: they were not empty. They came back with 7-12 inliers at
+   rotations of -14.5, -11.1, -9.1 and +5.7 degrees -- inside the 15 degree
+   bound, above the chance floor, and completely wrong. The module refuses
+   them on MIN_INLIERS, which is the floor doing exactly the job it was put
+   there for.
+
+THE EXPECTED SCALE WAS 0.2543 AND THE MEASURED ONE IS 0.2505, half a percent
+apart across eight fields. The prediction comes from the two fitted radii
+(10.25 and 20.15) and those are themselves fits; the measured number is
+better and should replace it once more fields confirm it. SCALE_TOLERANCE of
+10 % covers the difference either way, which is why nothing had to be right
+to first order for this to work.
+
+WHAT IS LEFT FOR A4: run all 1,281, write the transform table, and decide
+what a refusal means for Phase C -- a field with no transform has no
+phenotype measurements, and that has to be recorded per field rather than
+silently dropped, exactly as A3 records a refused cycle.
