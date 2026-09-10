@@ -1,0 +1,32 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "es",
+  "title": "Pipeline Graph: inspeccionar la procedencia real y los artefactos ausentes",
+  "description": "Lea registros reales, distinga archivos ausentes de procedencia no registrada, filtre el grafo y copie su representación Graphviz completa sin repetir el análisis.",
+  "objectives": [
+    "Abrir Pipeline graph desde Help y elegir un proyecto existente.",
+    "Comparar la procedencia registrada con los archivos existentes y reconocer dependencias no registradas.",
+    "Usar Current, Stale y Missing sin confundir nodos ocultos con registros ausentes.",
+    "Actualizar con Redraw y copiar el grafo completo; investigar con el flujo adecuado."
+  ],
+  "prerequisite": "Use el proyecto real de External Masks y la demostración terminada de limpieza en Data Manager. La grabación lee una copia verificada byte a byte de esa instantánea archivada después de la limpieza, en la ruta histórica del proyecto dentro de un espacio aislado; no reescribe datos originales ni registros. Una conversión real separada de Batch Runner ilustra la falta de procedencia, no un experimento sin procesar. Los 131 archivos originales, 26 del archivo y siete de la conversión permanecen intactos. Tres registros históricos no tienen enlaces de entrada registrados; el cuarto pertenece a otra ruta de proyecto. Aquí no se elimina nada ni se ejecutan análisis, descargas específicas, vista previa de imágenes, Plot, solicitudes de IA o recuperación.",
+  "scenes": [
+    "Abra Help y después Pipeline graph. Esta pantalla inspecciona las salidas registradas y sus dependencias; no ejecuta el pipeline. Usamos salidas de datos adquiridos de External Masks y el ejemplo real de limpieza de Data Manager, en copias privadas. Consulte esas lecciones para producir y gestionar los datos con seguridad.",
+    "Primero use Browse para elegir la carpeta de imágenes convertidas. La conversión de Batch Runner terminó, pero aquí no se registró ningún artefacto de salida, por lo que el grafo está vacío. Falta procedencia; eso no demuestra que no hubo procesamiento. Declared order describe dependencias posibles entre módulos, no un historial de ejecuciones terminadas.",
+    "Elija la instantánea del proyecto medido posterior a la limpieza. Aparecen tres registros históricos: una base de datos de mediciones, recortes y un registro de recursos. Dos rutas siguen existiendo; la carpeta de recortes se eliminó realmente en la limpieza privada anterior. Esta grabación no elimina nada y el proyecto experimental original sigue intacto.",
+    "Haga clic en el nodo de la base de datos de mediciones y amplíe los detalles con el divisor. Lea su ruta, función, identificador de ejecución, fecha de producción, versión de spaCR y resumen de ajustes. Ese resumen es una huella, no los ajustes completos ni un botón para restaurarlos. Current no demuestra validez científica ni procedencia completa.",
+    "Seleccione el nodo rojo de recortes. Missing indica que su ruta registrada no existe. El tamaño registrado sigue siendo unos tres coma cuatro megabytes en ciento cuatro archivos: ciento tres imágenes recortadas y su registro de formato. Es el tamaño histórico, no el espacio ocupado ahora ni ciento cuatro células.",
+    "El registro de recursos es un artefacto separado fuera de la carpeta del proyecto. Su ruta sigue existiendo, pero no se trasladó al archivo. Este grafo no tiene enlaces de entrada registrados. Nothing was derived from this significa que no se registró aquí ninguna dependencia posterior, no que las salidas científicas fueran independientes.",
+    "Desactive Current para aislar el artefacto de recortes ausente. Current, Stale y Missing son filtros de visualización, no operaciones sobre archivos. Stale advierte sobre la procedencia registrada; este ejemplo no contiene artefactos obsoletos. Esta pantalla no tiene filtros separados por módulo, tipo de artefacto o rama del flujo.",
+    "Desactive también Missing. No queda ningún nodo, aunque el aviso sigue indicando un artefacto ausente de tres. En esta versión, el lienzo vacío dice incorrectamente que no hay nada registrado y puede conservarse el detalle anterior. Compruebe los filtros antes de interpretar esos mensajes: oculto no significa eliminado.",
+    "Copy Graphviz coloca el grafo completo en el portapapeles, incluidos los nodos ocultos. Comprobamos que aparecen los tres identificadores reales y que no se inventaron flechas de dependencia. Es texto Graphviz DOT para usar en otro lugar, no una imagen guardada ni una exportación solo de la selección visible.",
+    "Reactive Current y después Missing: vuelven dos nodos y luego los tres. Seleccione de nuevo un nodo para que sus detalles correspondan al grafo visible. Los filtros no reparan archivos ausentes, cambian la procedencia ni seleccionan un módulo para repetirlo. Investigue la ruta registrada y el flujo previo antes de actuar.",
+    "Redraw vuelve a leer el registro y comprueba otra vez los artefactos. Nuestros registros y los bytes de los archivos permanecen iguales. Use Run History para los ajustes guardados y diarios, o Data Manager para una limpieza explícita. En Python, spacr.pipeline_graph ofrece build_graph y to_dot. Esta inspección no regenera nada ni realiza validación científica."
+  ]
+}
