@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "de",
+  "title": "Data Manager: ein echtes Beispiel sicher prüfen, bereinigen und archivieren",
+  "description": "Registrierte und nicht registrierte Dateien prüfen, das gezielte Löschen von Bildausschnitten abbrechen und bestätigen und eine private Projektkopie samt Archivnachweisen verschieben.",
+  "objectives": [
+    "Data manager über Help öffnen und die tatsächliche Belegung prüfen.",
+    "Löschplan, Aufbewahrungsgründe und vollständige Bestätigungsliste lesen.",
+    "Unwiderrufliches Löschen vom Verschieben unterscheiden und Cancel prüfen.",
+    "Archivziel erneut prüfen und Manifest, Ursprungsprotokoll und Sicherung aufbewahren."
+  ],
+  "prerequisite": "Verwenden Sie das echte External-Masks-Beispiel mit zwei Bildfeldern, 103 vermessenen Objekten und gespeicherten Abbildungen. Die Aufnahme nutzt eine isolierte, byteweise geprüfte Kopie; nur im Aufnahmeprozess verweisen die ursprünglichen absoluten Registerpfade auf diese Wegwerfkopie. Alle 131 Originaldateien bleiben unverändert. Data Manager hat keinen eigenen Datendownload, keine Live-Bildvorschau, keinen Plot-Schalter und kein AI-Feld. Größen messen Bytes, nicht wissenschaftliche Qualität. Nur aus der Kopie werden 103 PNG-Ausschnitte und ihre Format-JSON gelöscht; Messdatenbank und dokumentierte Erzeugungseinstellungen bleiben erhalten. Die Neuerzeugung wird nicht gezeigt. Archivieren verschiebt das übrige Projekt: Es ist keine Sicherung und garantiert nicht die Anpassung aller historischen absoluten Pfade. Externe Ressourcenprotokolle werden nicht mitverschoben.",
+  "scenes": [
+    "Öffnen Sie Help und dann Data manager. Dieses gemeinsame Werkzeug verwaltet Projektdateien; es führt keine Bildanalyse aus. Wir verwenden eine Wegwerfkopie des echten External-Masks-Beispiels einschließlich Messungen und gespeicherter Abbildungen. Legen Sie eine unabhängige Sicherung an, bevor Sie selbst Dateien bereinigen.",
+    "Choose project wählt den Projektstamm. Nach dem Einlesen zeigt Usage ungefähr einundneunzig Megabyte in einhundertneunundzwanzig Dateien. Registered und Unregistered unterscheiden sich: Dateien können ohne Registereintrag existieren. Aus Ordnern abgeleitete Kategorien sind Schätzungen und kein Nachweis des wissenschaftlichen Inhalts.",
+    "Wählen Sie unter Prune die zu prüfenden Arten. Ein eingeschalteter Schalter erlaubt noch keine Löschung. Lassen Sie hier Messdatenbanken und Modellgewichte abgewählt und wählen Sie Show what can be deleted. Lesen Sie sowohl die vorgeschlagenen Dateien als auch die Gründe, andere Ergebnisse aufzubewahren.",
+    "Dieser Plan umfasst nur den Ausschnittordner data: einhundertdrei Objektbilder und eine Formatdatei, nicht einhundertvier Zellen. Er schlägt vor, etwa drei Komma vier Megabyte freizugeben. Get it back by nennt Measure; zur Neuerzeugung benötigen Sie trotzdem die ursprünglichen Eingaben, Einstellungen und geeignete Software.",
+    "Delete öffnet eine zweite Bestätigung mit der tatsächlichen Dateiliste. Das Löschen ist unwiderruflich. Vergrößern Sie den Dialog und lesen Sie die Pfade beim Scrollen, bevor Sie sie bestätigen. Der abschließende Delete-Knopf ist zunächst deaktiviert; die Bestätigung anzukreuzen und etwas zu löschen sind getrennte Schritte.",
+    "Die Bestätigung aktiviert Delete. Nehmen Sie sie zurück, wird Delete wieder deaktiviert. Im ersten Durchlauf wählen wir Cancel, und jede Projektdatei bleibt unverändert. Brechen Sie ab, wenn Pfade, Dateizahlen oder das vorgesehene Wiederherstellungsverfahren unklar sind.",
+    "Wir öffnen denselben geprüften Plan erneut und bestätigen das Löschen nur auf unserer Wegwerfkopie. Das Ergebnis meldet drei Komma vier Megabyte aus einhundertvier Dateien. Alle übrigen vierundzwanzig Dateien außerhalb des Registers bleiben bytegleich, darunter die Messdatenbank und die gespeicherten Abbildungen.",
+    "Die automatische erneute Prüfung meldet nun ein registriertes Ergebnis als auf dem Datenträger fehlend: den absichtlich entfernten Ausschnittordner. Die Erzeugungseinstellungen bleiben mit Bereinigungsmetadaten im Register. Dieser Eintrag ist kein Rückgängig-Puffer; wir haben Measure nicht erneut ausgeführt, um die Ausschnitte zu erzeugen.",
+    "Archive ist anders: Es verschiebt das verbleibende Projekt. Wählen Sie ein leeres Ziel außerhalb des Quellordners und dann Show what would move. Nach der Bereinigung umfasst dieser Plan fünfundzwanzig Dateien mit etwa achtundachtzig Megabyte. Prüfen Sie Quelle und Ziel genau; diese Ansicht plant das gesamte Projekt.",
+    "Move verlangt eine Bestätigung, voreingestellt ist No. Wir wählen zuerst No und prüfen, dass die Quelle unverändert und das Ziel leer bleibt. Ein Plan und eine abgebrochene Bestätigung verschieben nichts. Das Archivziel ist keine zusätzliche Sicherungskopie.",
+    "Wir bestätigen Yes nur für dieses private Beispiel. Die übrigen Dateien werden zum Ziel verschoben. Dort wird ein Manifest geschrieben; am Ursprung bleibt ein Archivprotokoll. Das Originalprojekt, aus dem die Wegwerfkopie entstand, bleibt vollständig unverändert.",
+    "Wählen Sie das Ziel als Projekt und prüfen Sie erneut. Die archivierte Messdatenbank ist am neuen Pfad registriert, und jede Datei außerhalb des Registers stimmt byteweise mit dem Zustand vor dem Verschieben überein. Das zusätzliche Manifest erklärt die neue Dateizahl. Historische Einträge und externe Protokolle werden nicht automatisch umgeschrieben oder verlegt.",
+    "Für Python-Automatisierung bietet spacr.data_manager scan_project, plan_prune, prune, plan_archive und archive. Prüfen Sie den Plan, bevor Sie seinen Bestätigungstoken übergeben. Für Messwerte verwenden Sie Database Browser, für eine lesbare Projektübersicht Report. Bewahren Sie die unabhängige Sicherung und die Archivnachweise mit der Forschungsdokumentation auf."
+  ]
+}

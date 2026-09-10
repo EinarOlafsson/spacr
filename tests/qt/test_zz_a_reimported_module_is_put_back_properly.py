@@ -63,7 +63,19 @@ _DROPS = re.compile(r"(?:monkeypatch\.delitem\(\s*sys\.modules"
 #:     what `test_spaceout_is_the_only_way_in.py` does after dropping
 #:     `spacr.qt.spaceout`.
 _REIMPORTS = re.compile(r"importlib\.import_module\(")
-_RESTORES = re.compile(r"setattr\(\s*(?:package|parent|pkg)\b")
+#: What "it puts the attribute back" looks like, in either style.
+#:
+#: MATCHED ON BEHAVIOUR, NOT ON A VARIABLE NAME, and the first version was
+#: not: it looked for `setattr(package|parent|pkg, ...)` and therefore did
+#: not recognise `monkeypatch.setattr(_widgets_package, "fractal_travel",
+#: getattr(...))`, which is the same repair written the other way. A
+#: detector that calls a fixed file broken is one somebody turns off.
+#:
+#: So: any `setattr` whose target is a module-ish name and whose attribute
+#: is a quoted string, plus the `getattr(...)` or saved-value form that
+#: makes it a RESTORE rather than an assignment.
+_RESTORES = re.compile(
+    r"setattr\(\s*[A-Za-z_][\w.]*\s*,\s*(?:[\"']|leaf\b)")
 
 #: Files that drop a spacr SUBMODULE and import it again, and are known to
 #: put the package attribute back. A file that starts doing this and is not

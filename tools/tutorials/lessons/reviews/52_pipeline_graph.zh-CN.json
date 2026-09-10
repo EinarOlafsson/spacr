@@ -1,0 +1,32 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "zh-CN",
+  "title": "Pipeline Graph：检查真实来源记录和缺失产物",
+  "description": "读取真实产物记录，区分文件缺失与来源未记录，筛选图并复制完整的Graphviz表示，而不重新运行分析。",
+  "objectives": [
+    "从Help打开Pipeline graph并选择已有项目。",
+    "对照来源记录与实际文件是否存在，理解未记录的依赖关系。",
+    "使用Current、Stale和Missing，不把隐藏节点误认为记录不存在。",
+    "用Redraw重新读取，复制完整图，再通过适当工作流程调查。"
+  ],
+  "prerequisite": "使用真实的External Masks项目和已完成的Data Manager清理演示。本录制在隔离环境内的历史项目路径读取清理后归档快照的逐字节验证副本，不改写原始数据或注册记录。另一个真实的Batch Runner转换结果用于说明来源未记录，不是未经处理的实验。原项目131个文件、归档26个文件和转换结果7个文件均保持不变。三个历史项目记录没有已记录的输入边；第四条记录属于另一个项目路径。这里不删除文件、不运行分析、专用下载、图像实时预览、Plot操作、AI请求或恢复任务。",
+  "scenes": [
+    "打开Help，再选择Pipeline graph。此界面检查已记录的输出及依赖关系，不执行流水线。我们在独立副本上使用External Masks的采集数据输出，以及Data Manager的真实清理示例。请参照对应教程生成数据并安全管理数据。",
+    "先用Browse选择转换后的图像文件夹。Batch Runner转换已完成，但这里未注册任何输出产物，所以图是空的。这是来源记录缺失，不是从未处理过的证据。Declared order描述模块间可能的依赖关系，不是已完成运行的历史。",
+    "选择测量项目清理后的快照。三个历史记录出现：测量数据库、裁剪图像和资源日志。两个路径仍存在，而裁剪图像文件夹确实在之前的独立副本清理中被移除。本次录制不删除任何内容，原始实验项目保持完好。",
+    "点击测量数据库方框，拖动分隔条拓宽详情。查看路径、角色、运行标识、生成时间、spaCR版本和设置摘要。摘要是指纹，不是完整设置，也不是恢复按钮。Current不能证明科学有效性或来源记录完整。",
+    "选择红色裁剪图像方框。Missing表示注册路径不存在。记录大小仍显示约三点四兆字节，共一百零四个文件，即一百零三张裁剪图像和一个格式记录。这是历史大小，不是当前磁盘占用，更不是一百零四个细胞。",
+    "资源日志是项目文件夹外的独立产物。其路径仍存在，但它没有被移入归档。此图没有已记录的输入边。Nothing was derived from this表示这里未记录下游依赖，不代表科学输出彼此独立。",
+    "关闭Current，就只显示缺失的裁剪图像产物。Current、Stale和Missing是显示筛选器，不是文件操作。Stale是针对已记录来源的警告；本例没有过时产物。此界面没有独立的模块、产物类型或工作流程分支筛选器。",
+    "再关闭Missing。所有方框消失，但顶部仍报告三个产物中有一个缺失。在此版本中，空白画布错误地显示没有注册内容，之前的详情也可能保留。解释这些信息前先检查筛选器；隐藏不等于删除。",
+    "Copy Graphviz将完整图放入剪贴板，包括隐藏节点。我们核对了三个真实产物标识全部存在，也没有虚构依赖箭头。这是供其他工具使用的Graphviz DOT文本，不是保存的图片，也不是仅导出当前可见选择。",
+    "重新打开Current，再打开Missing：先恢复两个方框，再恢复全部三个。重新选择一个方框，使详情对应当前可见图。显示筛选器不会修复缺失文件、改变来源记录，或选择要重跑的模块。采取行动前，请调查实际注册路径和上游流程。",
+    "Redraw重新读取注册表并再次检查产物。我们的记录及文件字节保持不变。已保存设置和运行日志请用Run History，明确执行清理请用Data Manager。在Python中，spacr.pipeline_graph提供build_graph和to_dot。此检查不执行重新生成或科学验证。"
+  ]
+}

@@ -1,0 +1,1884 @@
+{
+  "lesson": "63_small_multiples",
+  "scope": "Verified actual GUI workflow; multilingual media not yet complete",
+  "capture": "trellis_verified_scales_and_empty_groups",
+  "provenance": {
+    "commit": "089f4274e45c0a1bc9119d7ce1433290bbbf558e",
+    "version": "1.5.0.4",
+    "module": "trellis",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "canonical_english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "scenes": 17,
+  "spoken_words": 846,
+  "capture_frames": 23,
+  "workflow": {
+    "lesson": "63_small_multiples",
+    "accepted": true,
+    "source": {
+      "source": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db",
+      "database": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/trellis_runs/real-measurements-t34zvo33/measurements.db",
+      "source_bundle": {
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db": {
+          "sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+          "signature": [
+            66306,
+            33957043,
+            30629888,
+            1788972666110587400,
+            1788972666110587400
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-wal": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "signature": [
+            66306,
+            33962636,
+            0,
+            1788973501772441900,
+            1788973501772441900
+          ]
+        },
+        "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/annotate_fresh/example_data/plate1/measurements/measurements.db-shm": {
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+          "signature": [
+            66306,
+            33962707,
+            32768,
+            1788982325621416400,
+            1788982325621416400
+          ]
+        }
+      },
+      "database_sha256": "7b18161f0161d39b3ecedf92cfb0ccf9fee2328980da8e43167555a8f6fd27cd",
+      "copy_is_byte_identical": true,
+      "source_opened_in_gui": false
+    },
+    "synthetic_measurements": false,
+    "app_source_modified": false,
+    "published": false,
+    "checks": {
+      "05_four_wells_shared_axes": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "06_both_axes_free": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "free",
+        "scale_y": "free",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -3871.8,
+              100205.8
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4418,
+              98762
+            ],
+            "y_limits": [
+              -1454.4632039158223,
+              34548.37341403742
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4524.3,
+              107858.3
+            ],
+            "y_limits": [
+              -504.63886386036756,
+              37443.23271819742
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -2926.5,
+              78198.5
+            ],
+            "y_limits": [
+              -1530.3838606634047,
+              35593.11083842054
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700 · axes are not shared — horizontally: panels are NOT comparable to each other; vertically: panels are NOT comparable to each other",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "07_both_axes_row": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "row",
+        "scale_y": "row",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4488.150000000001,
+              100235.15
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4488.150000000001,
+              100235.15
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4524.3,
+              107858.3
+            ],
+            "y_limits": [
+              -1621.0163708273078,
+              37496.39355186251
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4524.3,
+              107858.3
+            ],
+            "y_limits": [
+              -1621.0163708273078,
+              37496.39355186251
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700 · axes are not shared — horizontally: only panels in the same row are comparable; vertically: only panels in the same row are comparable",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "08_both_axes_col": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "col",
+        "scale_y": "col",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4524.3,
+              107858.3
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4418,
+              98762
+            ],
+            "y_limits": [
+              -1530.3838606634047,
+              35593.11083842054
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4524.3,
+              107858.3
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4418,
+              98762
+            ],
+            "y_limits": [
+              -1530.3838606634047,
+              35593.11083842054
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700 · axes are not shared — horizontally: only panels in the same column are comparable; vertically: only panels in the same column are comparable",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "09_shared_restored": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "10_live_area_filter": {
+        "rows": 1171,
+        "shown_points": 1171,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 318,
+            "x_limits": [
+              17883.75,
+              106791.25
+            ],
+            "y_limits": [
+              4147.757508235597,
+              30291.386883588828
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 290,
+            "x_limits": [
+              17883.75,
+              106791.25
+            ],
+            "y_limits": [
+              4147.757508235597,
+              30291.386883588828
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 333,
+            "x_limits": [
+              17883.75,
+              106791.25
+            ],
+            "y_limits": [
+              4147.757508235597,
+              30291.386883588828
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 230,
+            "x_limits": [
+              17883.75,
+              106791.25
+            ],
+            "y_limits": [
+              4147.757508235597,
+              30291.386883588828
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 1171,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 230–333",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "11_all_cells_restored": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "12_real_empty_group": {
+        "rows": 174,
+        "shown_points": 174,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 1,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "fieldID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "f20",
+            "occupied": true,
+            "n": 0,
+            "x_limits": [
+              -1713.8500000000004,
+              67802.85
+            ],
+            "y_limits": [
+              -1465.827877906237,
+              34237.43520052002
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "f21",
+            "occupied": true,
+            "n": 67,
+            "x_limits": [
+              -1713.8500000000004,
+              67802.85
+            ],
+            "y_limits": [
+              -1465.827877906237,
+              34237.43520052002
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "f20",
+            "occupied": true,
+            "n": 61,
+            "x_limits": [
+              -1713.8500000000004,
+              67802.85
+            ],
+            "y_limits": [
+              -1465.827877906237,
+              34237.43520052002
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "f21",
+            "occupied": true,
+            "n": 46,
+            "x_limits": [
+              -1713.8500000000004,
+              67802.85
+            ],
+            "y_limits": [
+              -1465.827877906237,
+              34237.43520052002
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 174,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · 1 with no rows · n per panel 46–67",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "13_unfiltered_four_wells": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "14_two_way_wrap_ignored": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 5,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700 · wrap ignored: the grid is faceted both ways, and wrapping it would put unrelated levels in the same row",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "15_twelve_fields_and_three_unused_slots": {
+        "rows": 2341,
+        "shown_points": 2077,
+        "outside_displayed_levels": 264,
+        "shape": [
+          3,
+          5
+        ],
+        "real_panels": 12,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 3,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": null,
+        "facet_col": "fieldID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 5,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": null,
+            "col_level": "f1",
+            "occupied": true,
+            "n": 101,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": null,
+            "col_level": "f9",
+            "occupied": true,
+            "n": 192,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "row_level": null,
+            "col_level": "f10",
+            "occupied": true,
+            "n": 213,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "row_level": null,
+            "col_level": "f11",
+            "occupied": true,
+            "n": 145,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 4,
+            "row_level": null,
+            "col_level": "f12",
+            "occupied": true,
+            "n": 178,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": null,
+            "col_level": "f13",
+            "occupied": true,
+            "n": 243,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": null,
+            "col_level": "f14",
+            "occupied": true,
+            "n": 159,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 2,
+            "row_level": null,
+            "col_level": "f16",
+            "occupied": true,
+            "n": 145,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 3,
+            "row_level": null,
+            "col_level": "f17",
+            "occupied": true,
+            "n": 116,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 4,
+            "row_level": null,
+            "col_level": "f18",
+            "occupied": true,
+            "n": 234,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 2,
+            "col": 0,
+            "row_level": null,
+            "col_level": "f19",
+            "occupied": true,
+            "n": 142,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 2,
+            "col": 1,
+            "row_level": null,
+            "col_level": "f20",
+            "occupied": true,
+            "n": 209,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 2,
+            "col": 2,
+            "row_level": null,
+            "col_level": null,
+            "occupied": false,
+            "n": 0,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 2,
+            "col": 3,
+            "row_level": null,
+            "col_level": null,
+            "occupied": false,
+            "n": 0,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 2,
+            "col": 4,
+            "row_level": null,
+            "col_level": null,
+            "occupied": false,
+            "n": 0,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2077,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "3 × 5 = 15 panels · n per panel 101–243 · fieldID has 13 levels; the first 12 are drawn; 264 row(s) outside the drawn levels",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "16_original_groups_restored": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "18_rescaled_area_not_new_measurement": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "area_k",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4.8519,
+              107.8739
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4.8519,
+              107.8739
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4.8519,
+              107.8739
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4.8519,
+              107.8739
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      },
+      "19_formula_removed_original_points": {
+        "rows": 2341,
+        "shown_points": 2341,
+        "outside_displayed_levels": 0,
+        "shape": [
+          2,
+          2
+        ],
+        "real_panels": 4,
+        "empty_real_panels": 0,
+        "unused_wrap_slots": 0,
+        "x": "cell_area",
+        "y": "cell_channel_1_mean_intensity",
+        "facet_row": "rowID",
+        "facet_col": "columnID",
+        "scale_x": "shared",
+        "scale_y": "shared",
+        "wrap": 0,
+        "panels": [
+          {
+            "row": 0,
+            "col": 0,
+            "row_level": "r5",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 615,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "row_level": "r5",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 525,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "row_level": "r12",
+            "col_level": "c1",
+            "occupied": true,
+            "n": 700,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "row_level": "r12",
+            "col_level": "c2",
+            "occupied": true,
+            "n": 501,
+            "x_limits": [
+              -4851.900000000001,
+              107873.9
+            ],
+            "y_limits": [
+              -2116.941847275812,
+              47580.17793900336
+            ]
+          }
+        ],
+        "max_axis_limit_error": 0,
+        "rendered_points_independently_checked": 2341,
+        "point_comparison_decimal_places": 8,
+        "actual_axis_limits_and_group_titles_checked": true,
+        "notice": "2 × 2 = 4 panels · n per panel 501–700",
+        "source_label": "measurements.db · cell · 2,341 rows × 276 columns"
+      }
+    },
+    "original_unchanged": true,
+    "private_database_unchanged": true,
+    "render_events": [
+      {
+        "rows": 2341,
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 1171,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 1026,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 1026,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 977,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 891,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 842,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 761,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 644,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 587,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 501,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 443,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 318,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 241,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 174,
+        "shape": [
+          2,
+          1
+        ]
+      },
+      {
+        "rows": 174,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          12
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          1,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          3,
+          5
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          1,
+          12
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          12
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      },
+      {
+        "rows": 2341,
+        "shape": [
+          2,
+          2
+        ]
+      }
+    ],
+    "remaining_workers": 0
+  },
+  "oracle_validation": {
+    "tests_passed": 22,
+    "initial_ten_guard_bypass": {
+      "failed": 14,
+      "passed": 6,
+      "did_not_raise_failures": 13,
+      "wrong_exception_failure": 1
+    },
+    "additional_empty_group_and_wrap_guard_bypass": {
+      "failed": 2,
+      "deselected": 20,
+      "did_not_raise_failures": 2
+    },
+    "restored_tests_passed": 22,
+    "named_raise_lines_executed": [
+      78,
+      80,
+      85,
+      87,
+      98,
+      115,
+      120,
+      126,
+      132,
+      137
+    ],
+    "module": "tools/tutorials/trellis_evidence.py",
+    "scope": "Independent bounded source identities, memberships, finite nondegenerate continuous extrema with 5% padding, every demonstrated scale group, scatter-point multiset (eight decimal places), group titles and panel visibility; no arbitrary chart or linked-brush proof"
+  },
+  "rejected_capture": {
+    "capture": "trellis_real_scatter_scales",
+    "reason": "Recorder called height on QRegion rather than its boundingRect while scrolling actual categories; application was not modified",
+    "accepted": false,
+    "source_preserved": true
+  },
+  "scope_limits": [
+    "Real 2341-object downloaded Annotate database, byte-identical private copy; original and sidecars unchanged, private DB unchanged, 45 actual render events and zero remaining workers.",
+    "Four well counts615/525/700/501; shared/free/per-row/per-column axes and exact plotted points checked independently; maximum axis-limit error0.",
+    "Area>=21925 changes2341 to1171; clearing restores exact source membership and scales. Shared means common within current grid, not fixed through filtering.",
+    "Actual columnID=c2 and fieldID in f20/f21 yields174 rows. Grid r5/r12 by f20/f21 counts0/67/61/46; real missing r5/f20 group has axes and zero points, not a measured zero.",
+    "Wrap5 ignored for two-way2x2grid. Single field facet has13levels capped to12:3x5slots,12realgroups,3unusedhidden slots,2077drawnpoints,264f21objects outside drawn levels.",
+    "Actual computed area_k=cell_area/1e3 uses first2000rows for preview, then all2341values independently checked; changing X rescales points/limits, restoring X and Remove restores source. Not physical-unit calibration.",
+    "Small Multiples is Graph Builder's fold; surrounding host controls are not this screen's Load table. No dedicated download/export/Run-level Plot/image preview/GPU pipeline/AI console. Linked selection not demonstrated or validated; no training or biological inference."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

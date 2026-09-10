@@ -1,0 +1,38 @@
+{
+  "lesson": "66_outliers",
+  "english_sha256": "383105db52f8c3c60eb7e6f36308b747810c66e32b082d2c43edf96bfc9ed644",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "nb",
+  "title": "Outliers: undersøk virkelige flagg uten å slette observasjoner",
+  "description": "Åpne Outliers i QC, sammenlign robuste regler på virkelige cellemålinger, skill ikke-vurderte fra problemfrie brønner, undersøk en faktisk avvist logtransformasjon og eksporter alle rader med flaggene.",
+  "objectives": [
+    "Finne undermodulen i QC og velge målte variabler bevisst før Scan.",
+    "Sammenligne MAD, IQR og eksplisitte logtransformasjoner uten å behandle flagg som bekreftede feil.",
+    "Skille objektantall, viste rader og ikke-vurderte brønnsammenligninger.",
+    "Eksportere originalmålinger med flagg og gjenopprette en gyldig regel etter en ugyldig transformasjon."
+  ],
+  "prerequisite": "Bruk det nedlastbare Annotate-eksempelet på en byteidentisk privat databasekopi. Dets 2 341 celler ligger i fire registrerte brønner; de er ikke uavhengige eksperimenter eller objekter med kjente feil. Originalmålingene redigeres eller slettes aldri. Leksjonen kontrollerer uavhengig MAD/IQR for én endelig, ikke-degenerert variabel, hver flagget posisjon, brønnmedianer og antall samt avvisningen av sammenligning med færre enn fem brønner. Den validerer ikke automatisk skanning av alle variabler, alternativer ved null skala, multivariat MCD-inferens eller biologisk kvalitet. En eksisterende måletabell skannes, uten ny segmentering, GPU-analyse eller klassifikatortrening. Skjermen har ingen bildeforhåndsvisning, Plot-bryter, egen eksempelnedlasting eller KI-konsoll; Objects, Wells og Report er de faktiske resultatene.",
+  "scenes": [
+    "Åpne QC fra Home, og velg Outliers-knappen. QC-oversikten leser lagrede kontroller, mens dette nøstede verktøyet beregner flagg fra en måletabell. Vi bruker det virkelige nedlastbare Annotate-eksempelet på en privat databasekopi. Følg den leksjonen for å hente det, og behold den eksperimentelle kilden uendret.",
+    "Velg Load table og databasens cell-tabell. Innlasting skanner automatisk alle valgte kontinuerlige variabler: her 255 over 2 341 celler. Denne brede standarden flagger 2 338 objekter. Det beviser ikke at nesten alle cellene er dårlige. Det kan ta tid å laste den brede resultattabellen.",
+    "Med tomt variabelsøk velger du None for å fjerne alle avkrysninger. Søk etter cell_area, merk bare akkurat den variabelen, og trykk Scan. Søket begrenser variabelnavn, ikke cellerader. Endret utvalg skanner ikke automatisk på nytt; det gamle resultatet kan stå til du kjører den nye regelen.",
+    "For MAD lar du transformasjonen stå på none og k på 3,5. Regelen deler absolutt avstand fra medianen på omtrent 1,4826 ganger median absolutt avvik. Den flagger 26 celler. De er kandidater til inspeksjon, ikke bekreftede segmenteringsfeil, og ingen rad er fjernet.",
+    "Åpne Wells. Alle fire brønner inneholder over 500 objekter, men ingen vurderes: sammenligningen krever minst fem kvalifiserte brønner. Les well_scored og den konkrete grunnen, ikke bare Wells null. Flagged share oppsummerer objektflagg; det er ikke en brønnskår eller bevis på at brønnen er problemfri.",
+    "Report gir regelen, målt sentrum, skala og forbehold. Ett forbehold i denne versjonen hevder feilaktig at de fire brønnene hadde færre enn 20 objekter. De faktiske antallene er 501–700; grunnen er for få brønner. Bruk den konkrete grunnen i brønntabellen og ikke gjenta den uriktige forklaringen om antall.",
+    "Et krav om større avstand flagger færre objekter. k på 2 ga 142 flagg; ved 0,5 blir det 1 479. Det siste er med hensikt bredt for demonstrasjonen, ikke en anbefalt kvalitetsgrense. Objekttabellen viser bare 500 rader, så radantallet er ikke antallet flaggede objekter.",
+    "Velg Export og et nytt filnavn. objects-CSV beholder alle 2 341 rader og legger til flagg; flagged inneholder de 1 479 flaggede radene. Wells har fire sammendrag, og report er en tekstfil. Hver eksporterte måling og hvert flagg ble kontrollert. Eksport er ikke sletting og begrenses ikke til de 500 viste radene.",
+    "Gjenopprett den opprinnelige regelen og velg IQR. Terskelen betyr nå c ganger interkvartilbredden, ikke robuste standardavvik. Med c på 1,5 gir rått celleareal 55 flagg. Begge kvartilgrensene og hver flagget posisjon ble kontrollert uavhengig. Halen i en skjev fordeling kan flagges selv om målingene er gyldige.",
+    "Det finnes enda en tekstfeil. Denne IQR-rapporten kaller 22 663 medianen, men tallet er midtpunktet mellom første og tredje kvartil. Den faktiske medianen er 21 925. De kontrollerte grensene er riktige; ikke siter det viste sentrumet som medianen.",
+    "Velg log10 eksplisitt og skann på nytt. På disse positive arealene gir IQR 79 flagg, mens MAD på 3,5 gir 36. Logtransformasjon endrer avstandene og spørsmålet; den garanterer verken færre flagg eller biologisk riktighet. Rapportens sentre og skalaer er nå i log10-enheter.",
+    "For en virkelig avvisning går du tilbake til ingen transformasjon og velger bare cell_channel_0_min_intensity. Scan lykkes og flagger 68 objekter. Én målt verdi er faktisk null. Denne positive motprøven er viktig: tabellen og variabelen fungerer før vi ber om en transformasjon med et definisjonsområde som utelukker verdien.",
+    "Velg nå log10 og trykk Scan. Den faktiske feilen navngir den ene null- eller negative verdien og variabelen. Ingen pseudotelling oppfinnes, og ingen objekter fjernes; Export deaktiveres. Gamle tabellrader og antall kan bli stående etter feilen, men er ikke et nytt vellykket resultat. Les feilen og gjenopprett en gyldig regel.",
+    "Gå tilbake til rå cell_area og MAD 3,5, og skann for de opprinnelige 26 flaggene. Min objects per well på 700 endrer kvalifiseringen: bare én brønn når antallet, tre beholder konkrete grunner om for få objekter. Å senke minimum skaper ikke den manglende femte brønnen. Ikke vurdert betyr aldri bekreftet problemfri.",
+    "Gjenopprett minimum til 20, slå av Score wells too og skann. Objektflaggene er fortsatt 26, og ingen brønnsammenligning bestilles. Slå på igjen og skann for å gjenopprette de fire ikke-vurderte brønnsammendragene. Innstillingen endrer analysenivå; den filtrerer eller sletter ikke celler eller brønner fra databasen.",
+    "Eksporter den gjenopprettede regelen med et annet filnavn. Sluttfilene har 2 341 objektrader, 26 flaggede rader, fire brønnsammendrag og rapporten. Original og privat måledatabase er uendret. Behold regelen og rapporten sammen med flaggene, slik at en annen terskel ikke forveksles med samme analyse.",
+    "Menyen tilbyr også robust multivariat Mahalanobis, som ikke ble kjørt her. Alfaen avhenger av fordelingsantakelser og er ingen garantert feilrate. Python-beregningen er detect_outliers med OutlierSpec i spacr.qt.widgets.outlier_model. Fortsett med Feature Explorer eller Annotate for fordelinger eller bilder; her var ingen bildeforhåndsvisning eller KI-forespørsel."
+  ]
+}

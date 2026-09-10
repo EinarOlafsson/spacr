@@ -1,0 +1,38 @@
+{
+  "lesson": "63_small_multiples",
+  "english_sha256": "fb3655d5a08b14b80dc77be33860ac39ccfccb81533c5a4b27b54256ddd3e633",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine scatter groups, limits, live filters and capped wrapping; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "da",
+  "title": "Small Multiples: virkelige grupper, livefiltre og retvisende akser",
+  "description": "Åbn Small Multiples inde i Graph Builder, sammenlign downloadede målinger med fælles eller uafhængige akser, undersøg tomme grupper og begrænsede facetter, og opret en afledt kolonne, der kan fjernes igen.",
+  "objectives": [
+    "Find undermodulet og byg et punktdiagramgitter af virkelige målte objekter.",
+    "Sammenlign fælles, frie, rækkevise og kolonnevise akser uden at forveksle skalaændringer med dataændringer.",
+    "Filtrér direkte, skeln mellem tomme grupper og ubrugte pladser, og optæl udeladte niveauer.",
+    "Opret og fjern en omskalering i hukommelsen, bevar kilden og dokumentér figurens valg."
+  ],
+  "prerequisite": "Brug en byteidentisk privat kopi af measurements.db fra Annotates downloadbare eksempel: 2.341 objekter i fire brønde, 13 feltetiketter og 51 observerede brønd/felt-kombinationer. Objektantal er ikke uafhængige forsøgsreplikater, og stedetiketter er ikke fastlagte behandlinger. De viste kontinuerte punkter, gruppetilhørsforhold, aksegrænser, titler og synlige/skjulte paneler er kontrolleret uafhængigt mod kilderækkerne. Kontrollen gælder endelige, ikke-degenererede akser i dette datasæt uden deludtagning; den validerer ikke vilkårlige diagrammer, markering på tværs af visninger, biologiske effekter eller fysisk kalibrering. Small Multiples er et tabelundermodul i Graph Builder uden egen download, billedforhåndsvisning, GPU-pipeline, AI-konsol, generel Plot-kontakt eller eksportknap. Genbrug Annotate-data og undermodulets egen Load table.",
+  "scenes": [
+    "Åbn Graph Builder fra Home, og vælg den indlejrede knap Small Multiples. Det er undermodulets aktuelle adgangsvej, ikke en separat Home-flise. Vi genbruger rigtige downloadbare Annotate-målinger i en privat kopi; Annotate-vejledningen viser, hvordan eksemplet hentes.",
+    "Brug Load table inde i Small Multiples, vælg den private måledatabase og derefter cell. Den indeholder 2.341 målte objekter fra fire brønde. Den overordnede Graph Builder har en anden Load table-knap. Her skal du bruge den ved overskriften Small Multiples.",
+    "Søg efter cell_area, og træk den til X; læg cell_channel_1_mean_intensity på Y. Vælg Scatter under Plot. Træk rowID til Facet nedad og columnID til Facet mod højre. Søgningen indsnævrer kolonnelisten, ikke cellepopulationen. Hvert punkt er her et allerede målt objekt.",
+    "Med begge akser på shared bruger alle fire paneler samme vandrette og lodrette grænser. Titlerne viser 615, 525, 700 og 501 objekter. Række- og kolonneetiketter beskriver placering, ikke verificerede behandlinger. Cellerne er ikke uafhængige forsøgsreplikater.",
+    "Sæt både X scale og Y scale til free. Hvert panel bruger nu sit eget interval. Det viser formen inden for gruppen, men lige brede punktskyer behøver ikke spænde over samme måleværdier. Læs aksemærkerne før sammenligning. Nye akser ændrer ikke kildemålingerne.",
+    "Vælg per row for begge akser. Paneler i samme gitterrække deler grænser; forskellige rækker kan have forskellige grænser. Det er en layoutbaseret skalagruppe, ikke en statistisk korrektion. Her kan de to kolonner i hver række sammenlignes på ens akser.",
+    "Vælg per column for begge akser. Paneler i samme gitterkolonne deler grænser. X og Y kan også indstilles hver for sig; her ændrer vi begge sammen. Gendan shared på begge før sammenligning af alle fire brønde. Fælles betyder fælles i det aktuelle gitter, ikke fast efter ethvert senere filter.",
+    "Tilføj cell_area under Filter, og sæt nedre grænse til 21.925. Gitteret opdateres straks til 1.171 objekter. Panelernes antal og punkter ændres sammen. Det er et livefilter på målinger, ikke billedsegmentering eller en ny analysekørsel.",
+    "Vælg Clear all under Filter. Alle 2.341 objekter vender tilbage med deres oprindelige punkter og fælles aksegrænser. Denne knap fjerner filteret; Clear all channels til venstre fjerner i stedet diagrammets kolonnevalg. Ingen af handlingerne sletter databaserækker.",
+    "For at se en virkelig manglende gruppe filtreres columnID til c2 og fieldID til f20 og f21; rul i kategorilisten efter behov. Sæt fieldID på Facet mod højre, og behold rowID på Facet nedad. Der er 174 celler tilbage. Panelet med rækkeetiket 5 og felt 20 har n = 0: ingen kildeobjekter, ikke en målt intensitet på nul.",
+    "Ryd filtrene, og gendan columnID på Facet mod højre. Sæt Wrap at til 5 med begge facetkanaler udfyldt. Gitteret forbliver 2 × 2, og beskeden siger, at ombrydningen ignoreres. Wrap gælder ved én facetkanal, ikke til omarrangering af et todimensionalt gitter.",
+    "Ryd Facet nedad, læg fieldID på Facet mod højre, og behold Wrap at på 5. De viste felter danner tre rækker med fem pladser i hver. Kun 12 feltniveauer tegnes, selv om kilden har 13. De tre ubrugte pladser er skjult layoutfyld, ikke virkelige grupper vist med n = 0.",
+    "Læs beskeden under gitteret. Felt 21 falder uden for de 12 viste niveauer, så 264 kildeobjekter ikke kommer med i panelerne. Der tegnes faktisk 2.077 punkter, selv om den indlæste tabel stadig har 2.341 rækker. Antallet af indlæste rækker beviser ikke, at alle er synlige.",
+    "Slå Wrap fra, og gendan rowID og columnID som facetter. Under Columns skrives area_k som navn og cell_area divideret med 1.000 som udtryk, præcis som vist. Forhåndsvisningen kontrollerer de første 2.000 rækker. Vælg Add column for at beregne afledte værdier for hele tabellen uden at omskrive databasen.",
+    "Træk area_k til X. Hver vandret koordinat er nu det oprindelige celleareal divideret med 1.000; Y og gruppetilhørsforhold er uændrede. Det er numerisk omskalering, ikke kalibrering til kvadratmikrometer, en ny måling eller bevis for en biologisk effekt. Alle 2.341 afledte værdier er kontrolleret.",
+    "Læg cell_area tilbage på X, før area_k vælges under Columns og Remove trykkes. Det oprindelige firepanelsdiagram vender tilbage, og den afledte kolonne forsvinder. Både den private database og de oprindelige downloadede data er uændrede. Notér variabler, grupper, filtre og akser, så andre kan genskabe visningen.",
+    "I kode definerer trellis og TrellisSpec i spaCRs Qt-modul trellis_spec grupper, akser og Wrap; GraphSpec definerer diagramkanalerne. Denne skærm har ingen egen eksportknap eller downloadbart datasæt. Brug Tabulate til kontrollerede CSV-oversigter. Billedforhåndsvisning, GPU-pipelines og spaCR AI hører til de relevante analysevejledninger, ikke denne tabelvisning."
+  ]
+}

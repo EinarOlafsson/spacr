@@ -1,0 +1,32 @@
+{
+  "lesson": "45_project_browser",
+  "english_sha256": "75865602cfab56c396641c9b94e5b9629f5ae3ba968a5ce441a733c32324aa98",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "zh-CN",
+  "title": "Project Browser：发现真实项目并解读证据",
+  "description": "查找已登记和未登记的示例，控制搜索深度，按实际磁盘占用排序，在不运行分析或删除文件的情况下查看记录。",
+  "objectives": [
+    "从Help打开Project browser，选择范围有限的搜索文件夹。",
+    "用Depth和Scan发现项目，并按实测字节数排序。",
+    "区分缺失的来源记录、基于声明输出的阶段和真实执行历史。",
+    "阅读详情，只移除搜索根目录，并使用专用记录与数据工具。"
+  ],
+  "prerequisite": "使用External Masks和Batch Runner的已完成示例。录制比较两个视野测量项目的已验证专用副本，以及一个四通道转换输出的副本，后者包括隐藏检查点和另外两份转换记录。这是两个不同示例，不是处理前后对比。测量项目原有131个文件和转换的7个原文件均保持不变。仅在录制的隔离进程内，原始产物路径才指向测量副本，不改写来源信息。Project Browser没有独立下载、实时预览、Plot控制或AI面板。Scan读取项目证据，不是所有执行日志。排序、深度和移除根目录均用真实控件，不运行分析、删除、外部文件管理器或自动交接。常规SQLite访问只移除专用登记库的空WAL和32768字节SHM，数据库及其他文件的字节不变。",
+  "scenes": [
+    "打开Help，再选择Project browser。这个共享界面查找项目文件夹，概述已记录或存在于磁盘上的内容。我们使用External Masks和Batch Runner真实输出的专用副本。这是清单浏览工具，不是一次图像分析。",
+    "Add folder选择搜索位置。Depth为零时，只检查该文件夹本身。我们选择的父文件夹在下一层包含项目，所以表格为空。在这个深度没有结果，并不意味着项目或图像丢失。",
+    "把Depth设为一并点击Scan。转换后的图像文件夹出现：七个文件，约三十二兆字节。它们是四张采集到的通道图像、一份转换映射、一份状态记录和一个隐藏检查点。文件数不是细胞数，也不是独立实验数。",
+    "因为文件夹没有产物登记库，State显示unknown, nothing recorded。虽然转换确实完成，Stage仍显示nothing run，Last run显示never。这些列反映声明的工作流输出和已登记产物，不是全部转换历史。Unknown不能证明数据质量良好或从未处理。",
+    "将测量项目添加为第二个搜索根目录。其行显示Measure、约九十一兆字节、一百二十九个文件和登记库时间戳。如果重新扫描后已选行的详情为空，先选择另一行再返回。我们演示这个绕行方法，不修改应用程序。",
+    "选择测量项目，拖动分隔线扩大详情区。三个产物记录在这里为current，但约八十七兆字节仍未登记。Current描述的是基于记录的比较，不表示完整来源信息或科学有效性。Last run详情明确说明时间戳来自登记库。",
+    "解读完成标记前先阅读Stages。本例显示Mask输出完整，是因为导入的数组、计数和掩膜存在；并不能证明运行过Mask分割。What could run next列出工作流建议，并非按钮，也不是对每项分析都适合这些实验数据的验证。",
+    "点击Size表头改变顺序。我们按实际字节数核对了升序和降序，行选择仍指向正确项目。本界面没有单独的阶段、时间跨度、模块状态或过期结果筛选控件；请使用实际存在的可排序列和搜索根目录。",
+    "两个根目录都在时，Depth为零仍能找到直接选中的测量项目，但找不到嵌套在父目录下的转换。恢复为一后两行都回来。深度只改变搜索范围，不会移除数据，也不会改变已经完成多少分析。",
+    "Remove停止搜索选中的根目录，不会删除文件夹。我们移除测量根目录，再把未改变的项目加回来。本版本中双击该行会发出选择信号，但仍停留在Project Browser；不要期待自动打开项目或最近执行的窗口。",
+    "查看真实执行日志请用Run History，测量表用Database Browser，清理或归档用Data Manager。在Python中，spacr.projects提供discover、scan和browse。所有原文件不变，也没有启动新分析。执行建议的下一步前，请先查看对应工作流的教程。"
+  ]
+}

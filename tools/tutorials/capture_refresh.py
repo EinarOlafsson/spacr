@@ -46,6 +46,7 @@ def main() -> int:
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
+    parser.add_argument('--manager-execute', action='store_true', help='Demonstrate confirmed cleanup/archive on the independently verified private Data Manager clone')
     parser.add_argument('--test-data-route', choices=('load', 'stream'), default='load', help='Choose the real Annotate/Classify test-data route')
     parser.add_argument('--diagnostics-from', type=Path, help='Existing private tutorial regression project to inspect')
     parser.add_argument('--timeout', type=float, default=600)
@@ -78,6 +79,38 @@ def main() -> int:
         private_runs.mkdir(parents=True, exist_ok=True)
         runs_destination = Path.home() / '.spacr/runs'
         queue_binds = []
+        manager_binds = []
+        if args.module == 'pipeline_graph':
+            from pipeline_graph_data import prepare
+            state = stage / 'pipeline_graph_state' / f'{args.capture_name or args.module}.json'
+            if state.exists():
+                raise RuntimeError('Use a new capture name for a fresh private Pipeline Graph example')
+            prepared = prepare(stage)
+            write_json(state, prepared)
+            manager_binds = ['--ro-bind', prepared['source'], prepared['original_readonly'],
+                             '--bind', prepared['clone'], prepared['source']]
+        if args.module == 'project_browser':
+            from project_browser_data import prepare
+            state = stage / 'project_browser_state' / f'{args.capture_name or args.module}.json'
+            if state.exists():
+                raise RuntimeError('Use a new capture name for a fresh private Project Browser example')
+            prepared = prepare(stage)
+            write_json(state, prepared)
+            manager_binds = ['--ro-bind', prepared['source'], prepared['original_readonly'],
+                             '--bind', prepared['clone'], prepared['source']]
+        if args.module == 'data_manager':
+            from manager_data import prepare
+            state = stage / 'data_manager_state' / f'{args.capture_name or args.module}.json'
+            if state.exists():
+                raise RuntimeError('Use a new capture name for a fresh private Data Manager project')
+            prepared = prepare(stage)
+            write_json(state, prepared)
+            # Keep the original readable at an immutable alias, then shadow
+            # only its original pathname with the verified disposable copy.
+            # Existing artifact/project paths remain valid without rewriting
+            # their registry or confusing a copied project with a new run.
+            manager_binds = ['--ro-bind', prepared['source'], prepared['original_readonly'],
+                             '--bind', prepared['clone'], prepared['source']]
         if args.module == 'queue':
             # Queue persists outside XDG_CONFIG_HOME. Isolate the whole app
             # state directory before constructing Home/Queue, without changing
@@ -91,6 +124,7 @@ def main() -> int:
         os.execvp('bwrap', ['bwrap', '--die-with-parent', '--bind', '/', '/',
                           '--dev-bind', '/dev', '/dev',
                           *queue_binds,
+                          *manager_binds,
                           '--bind', str(private_cache), str(destination),
                           '--bind', str(private_runs), str(runs_destination), '--',
                           sys.executable, str(Path(__file__).resolve()),
@@ -98,7 +132,8 @@ def main() -> int:
     for key, value in {
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
-        'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' / args.module),
+        'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
+            ((args.capture_name or args.module) if args.module == 'project_browser' else args.module)),
         'SPACR_EXAMPLE_DATA': str(stage / 'example_data'),
         'SPACR_LOG_DIR': str(stage / 'logs'),
         'MPLCONFIGDIR': str(stage / 'mpl'),
@@ -244,6 +279,46 @@ def main() -> int:
         from capture_plate_queue import record_queue
         record_queue(app, window, stage, captures, capture,
                      settle, write_json, args.timeout)
+    elif args.module == 'batch':
+        from capture_batch_runner import record_batch
+        record_batch(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
+    elif args.module == 'run_history':
+        from capture_run_history import record_history
+        record_history(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
+    elif args.module == 'data_manager':
+        from capture_data_manager import record_manager
+        record_manager(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout, execute=args.manager_execute)
+    elif args.module == 'project_browser':
+        from capture_project_browser import record_browser
+        record_browser(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
+    elif args.module == 'pipeline_graph':
+        from capture_pipeline_graph import record_graph
+        record_graph(app, window, stage, captures, capture,
+                     settle, write_json, args.timeout)
+    elif args.module == 'layer_viewer':
+        from capture_layer_viewer import record_layers
+        record_layers(app, window, stage, captures, capture,
+                      settle, write_json, args.timeout)
+    elif args.module == 'trellis':
+        from capture_trellis import record_trellis
+        record_trellis(app, window, stage, captures, capture,
+                       settle, write_json, args.timeout)
+    elif args.module == 'tabulate':
+        from capture_tabulate import record_tabulate
+        record_tabulate(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
+    elif args.module == 'outliers':
+        from capture_outliers import record_outliers
+        record_outliers(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
+    elif args.module == 'feature_explorer':
+        from capture_feature_explorer import record_explorer
+        record_explorer(app, window, stage, captures, capture,
+                        settle, write_json, args.timeout)
     elif args.module != 'home':
         host_key = {'import_images': 'foreign', 'convert': 'foreign',
                     'external_masks': 'foreign', 'model_zoo': 'make_masks',

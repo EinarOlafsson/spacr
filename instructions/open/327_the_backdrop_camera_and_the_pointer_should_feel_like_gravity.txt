@@ -1,18 +1,22 @@
 327 — THE BACKDROP CAMERA AND THE POINTER SHOULD FEEL LIKE GRAVITY
 ==================================================================
 
-Status:    (2), (3) AND (4) ARE DONE. (3) was wired on 2026-09-10 -- the
-           camera tours the twenty mapped regions as a third Path, offered
-           in Preferences, and `RegionTour` finally has a caller. What is
-           left is ONE thing: the GPU renderer cannot shed work, so a weak
-           integrated GPU asked to draw this fullscreen has nothing to give
-           up. `target_render_size` and the user's `scale` are read only by
-           the CPU widget. See the 2026-09-10 note at the foot of the file.
+Status:    (2), (3) AND (4) ARE DONE. (3) was wired by the OTHER session on
+           2026-09-09 as `TourPilot`, offered in Preferences as "Tour the
+           interesting places". What is left is ONE thing: the GPU renderer
+           cannot shed work, so a weak integrated GPU asked to draw this
+           fullscreen has nothing to give up. `target_render_size` and the
+           user's `scale` are read only by the CPU widget.
+
+           A SECOND IMPLEMENTATION OF (3) WAS WRITTEN HERE ON 2026-09-10 AND
+           REMOVED ON MERGE. See the note at the foot of this file; the
+           short version is that `git log -12 origin/nightly` showed only
+           the tutorial lane's commits and the two that mattered were
+           further back in the hundred-and-one this session was behind.
 
            NOT THE DEFAULT: `path` stays "fixed". Turning the tour on for
            everyone changes what every user sees and is the maintainer's
-           call -- and worth asking, because "the camera will automatically
-           smoothely float towards" reads like it was meant to be on.
+           call -- Q-327-A in 357.
 
 ASKED FOR (2026-08-31), four things, in the user's words
 --------------------------------------------------------
@@ -306,57 +310,107 @@ STILL OPEN AFTER THIS SESSION
     between them. The pieces are there; the wire is not.
 
 --------------------------------------------------------------------------------
-2026-09-10 -- (3) IS WIRED. THE CAMERA ACTUALLY TOURS THE TWENTY REGIONS NOW.
+2026-09-09 -- THE TOUR IS WIRED. (3) IS ON SCREEN FOR THE FIRST TIME.
 --------------------------------------------------------------------------------
 
-The closing note above said "(3)'s `RegionTour` is built and tested and
-NOTHING CALLS IT... The pieces are there; the wire is not." The wire exists.
+The 2026-09-05 audit's second open item, verbatim: "(3)'s `RegionTour` is
+built and tested and NOTHING CALLS IT. Nothing in `spacr/` imports it or
+`fractal_regions.REGIONS`, so the twenty places worth looking at are not on
+screen and the camera never floats between them. The pieces are there; the
+wire is not."
 
-A THIRD PATH, beside "fixed" and "guided". `path = "tour"` in the fractal
-settings, offered in Preferences as **Tour the mapped regions**, next to
-Straight down and Search as it goes.
+The wire is `TourPilot`, in `fractal_travel.py` beside `RegionTour`, and
+the door is a third Path mode in Preferences: "Tour the interesting
+places", alongside "Straight down" and "Search as it goes".
 
-ONE LEG OF THE TOUR IS ONE DIVE, and that is the whole design decision.
-`tour_leg_seconds(seconds_per_decade, max_depth, travel)` sizes the dwell as
-"the dive, less the move", so the camera holds one region for the entire
-descent and moves to the next in the seconds around a restart. At the
-shipped numbers -- 24 s a decade, 23 decades, a 9 s move -- that is 543 s on
-a region, 9 s in flight, and 3.07 hours for a full circuit of the twenty.
+IT IS A PLAIN OBJECT, for the reason `SteeringCamera` is one and this file
+already records: logic that lives inside the GPU canvas can only be argued
+about, because the canvas needs a GL context to exist, and three "fixed"
+reports in a row were wrong that way. `TourPilot` is driven frame by frame
+in `tests/qt/test_the_camera_tours_the_twenty_regions.py`.
 
-WHY IT HAS TO BE AT THE SURFACE. Thirty decades down the view is narrower
-than the gap between two regions by thirty orders of magnitude. Travelling
-that gap there is a white flash, which is precisely the jump the request was
-about: "it ruins the immersion when it jumps."
+IT WRITES THE TARGET AND NOTHING ELSE. The camera's own exponential follow
+is what moves it, so two smooth things compose rather than fight: the
+tour's smoothstep out of one region and into the next, and the camera's
+constant-rate approach to wherever the target currently is. Neither starts
+nor stops, which is this file's own account of what stops motion reading
+as jerking.
 
-THE OFFSET IS RECOMPUTED, NEVER INTEGRATED. `u_center_offset` is measured
-from the reference orbit, and `_refine_the_reference` MOVES that orbit onto
-the boundary as the dive descends, zeroing the camera's offset when it
-lands. A tour that remembered its own offset would be thrown off the region
-every time that happened. `tour_offset(tour, seconds, orbit_centre)` asks
-where the region is relative to wherever the reference is NOW, which is
-immune to it -- and there is a test that drives the same instant of the tour
-against two different references and asserts they point at one place.
+Asserted rather than described: over a 1,200-frame circuit at 50 fps the
+largest single step is inside 25x the median one, which is the numeric form
+of "gently and smoothely mooving between points". A tour that cut between
+regions fails it.
 
-DRAGGING ENDS IT, Ctrl+R HANDS IT BACK. `RegionTour` documented that
-contract and nothing honoured it; the drag branch now calls `take_over()`
-and the restart-token branch calls `restart()`.
+THE USER WINS, BOTH WAYS ROUND, which is the other half of what (3) asked:
+a drag calls `take_over()` and the tour never argues again; Ctrl+R -- which
+already sends the dive back to the surface -- calls `restart()` and hands
+the camera back. Both are tested, and both are wired at the two places in
+the canvas that already handle a drag and a restart token.
 
-THE DECIDING IS OUT OF THE CANVAS, which is this file's own rule and the
-reason `SteeringCamera` exists. `tour_leg_seconds` and `tour_offset` are
-module-level and have no Qt in them, so they are driven frame by frame in
-tests rather than reasoned about; `_tour_centre` is only the settings read
-and the clock.
+AND IT KNOWS WHERE ITS ITINERARY ENDS. Each region carries the half-width
+it was measured to stay interesting down to; the pilot stops steering once
+the view is narrower than the widest of those, because steering toward the
+next region at a magnification where the current one has already dissolved
+would fly the picture past at a scale where nothing is recognisable. The
+floor is READ FROM THE DATA, so nobody has to keep a constant in step with
+a generated file.
 
-Eight new tests in `tests/qt/test_the_camera_tours_the_places_worth_seeing.py`
-(20 in the file now), including the two that would have caught the original
-gap: that the Preferences dropdown offers the mode, and that the renderer's
-steering actually branches on it.
+STILL OPEN, unchanged: the GPU path cannot shed work. `target_render_size`
+and the user's `scale` are read only by the CPU widget, and for `orbit_gpu`
+and `space` `base_detail == detail_floor`, so the adaptive loop has nothing
+to turn down. On the reporting machine there is a 12x margin at 1440p and
+it does not matter; on a weak integrated GPU fullscreen there is nothing to
+shed. That one needs a GPU to measure honestly and is not touched here.
 
-NOT THE DEFAULT. `path` stays "fixed". Making a mode that changes what every
-user sees the default is the maintainer's call, not a side effect of wiring
-it up -- and it is worth asking, because "the camera will automatically
-smoothely float towards" the regions reads like it was meant to be on.
-ASK BEFORE THE NEXT RELEASE.
+--------------------------------------------------------------------------------
+2026-09-10 -- (3) WAS WIRED TWICE. THE SECOND ONE IS GONE, AND WHY IT HAPPENED
+IS WORTH MORE THAN THE CODE WAS.
+--------------------------------------------------------------------------------
+
+The other session shipped `TourPilot` at 23:50 on 2026-09-09. This session
+built a second wiring for the same thing overnight -- `tour_leg_seconds`,
+`tour_offset`, `_tour_centre`, a `tour_travel_seconds` setting across three
+files and eight tests -- and removed all of it on merge. THEIRS IS BETTER,
+in two specific ways worth recording rather than conceding vaguely:
+
+  * IT WRITES THE CAMERA'S TARGET, not its centre. The tour's smoothstep
+    out of one region and the camera's existing exponential approach to
+    wherever the target currently is then compose into ONE motion with no
+    start and no stop. Mine assigned the centre directly every frame, which
+    makes the tour the only thing moving the camera and throws away the
+    follow `SteeringCamera` already had.
+  * IT STOPS STEERING FROM THE DATA. The pilot gives up once the view is
+    narrower than the widest half-width the regions carry, read out of
+    `fractal_regions` so nobody has to keep a constant in step with a
+    generated file. Mine tied the tour's leg length to the dive length by
+    an arithmetic rule, which is a second place for the two to disagree.
+
+HOW THE DUPLICATION HAPPENED, because it is a process defect and not bad
+luck. 325 exists to prevent exactly this and was READ at the start of the
+session. What was not done was reading the RANGE: `git log -12
+origin/nightly` showed twelve commits, all from the tutorial lane, and the
+two that mattered were further back in the hundred-and-one this session was
+behind. TWELVE IS NOT A RANGE.
+
+    THE RULE: before starting an instruction item, run
+    `git log --oneline HEAD..origin/<branch> -- <the files it touches>`.
+    One command, bounded by the FILES rather than by a count, and it would
+    have printed both commits.
+
+AND IT COST MORE THAN THE HOURS. Both sessions' work lands in one catalog
+lane: the symbols removed here and the ones `TourPilot` adds each move the
+API manifest, so the nine-language rebuild that finished at 04:00 has to run
+again. That is the real price of not pushing, and it is why the merge was
+done the moment the duplication was found rather than at the end of the
+night.
+
+WHAT SURVIVED FROM THE SECOND ATTEMPT, because not all of it was waste: the
+same run found the test-isolation leak in
+`test_cov_r8_fractal_travel_tails.py` independently, and generalised it --
+`tests/qt/test_zz_a_reimported_module_is_put_back_properly.py` now fails on
+ANY test that re-imports a spacr submodule and restores only `sys.modules`,
+rather than on that one file. Their fix is the one that ships; the detector
+is the one that stops a third.
 
 STILL OPEN, unchanged: the GPU path cannot shed work. `target_render_size`
 and the user's `scale` are read only by the CPU widget.

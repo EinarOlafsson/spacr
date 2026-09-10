@@ -1,0 +1,39 @@
+{
+  "lesson": "61_tabulate",
+  "english_sha256": "f09a40c85fa7b4a0c02c18d7fc14858799cdd4342e43b4630a7a480d73536ccd",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine pivot, exports and numeric scatter; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "da",
+  "title": "Tabulate: gruppér virkelige målinger, kontrollér antal og opdatér diagrammet",
+  "description": "Åbn Tabulate i Database Browser, sammenfat downloadede målinger efter brønd og billedfelt, undersøg manglende værdier, eksportér kontrollerede statistikker, og skeln mellem en opdateret tabel og et forældet eller kategorisk diagram.",
+  "objectives": [
+    "Find undermodulet, og træk faktiske kolonner til grupper efter brønd og billedfelt.",
+    "Læs antal, manglende kombinationer, stikprøvestandardafvigelser og fraktiler uden at opfinde uafhængige gentagelser.",
+    "Filtrér målinger, opdatér diagrammet udtrykkeligt, og skeln mellem kategoriske og numeriske akser.",
+    "Eksportér hele sammenfatningen, og registrér gruppering, statistikker og filtre."
+  ],
+  "prerequisite": "Brug det downloadbare Annotate-eksempel på en byteidentisk privat kopi af measurements.db: 2.341 objekter, fire brønde og 51 observerede brønd/billedfelt-kombinationer. Det er ikke 2.341 uafhængige forsøg; rowID er en rumlig mærkning, ikke en fastslået behandling. Alle viste statistikker, CSV-celler og 51 endelige punkthøjder er kontrolleret uafhængigt. Biologiske virkninger, manglende akselabels, uendelige værdier og store begrænsede gitre er ikke valideret. Tabulate sammenfatter eksisterende data uden egen download, billedforhåndsvisning, GPU-pipeline, AI-konsol eller overordnet Plot-kontakt. Brug dets egne Load table og Export CSV, ikke det omgivende Database Browsers kontroller.",
+  "scenes": [
+    "Åbn Help, derefter Database browser, og vælg den indlejrede Tabulate-knap. Det er et undermodul af Database Browser, ikke en selvstændig Home-flise. Vi bruger en privat kopi af det virkelige downloadbare Annotate-eksempel. Det tidligere Annotate-kursus viser, hvordan dataene hentes.",
+    "Vælg Load table inde i Tabulate, åbn den kopierede måledatabase, og vælg cell. Hele tabellen indeholder 2.341 objekter. Det omgivende Database Browser har egne kontroller; de er ikke denne pivottabels input eller eksport. Indlæsning alene vælger ikke grupperingen.",
+    "Vælg Plate / row / column. De tre nøgler står i Rows i hierarkisk rækkefølge. Lad Values være tom for at tælle kilderækker: De fire brønde indeholder 615, 525, 700 og 501 objekter. Det er celletal, ikke uafhængige forsøgsreplikater.",
+    "Søg efter fieldID, og træk det til Columns. Fire brønde gange 13 billedfeltlabels giver 52 mulige kombinationer, men kun 51 indeholder målinger. Hold musen over den tomme celle for rækkelabel 5, kolonnelabel 2 og billedfelt 20. Kombinationen har ingen kilderækker; det er ikke en målt nulværdi.",
+    "Tøm Columns-området, søg efter cell_area, og træk det til Values. Standardstatistikkerne er antal, gennemsnit og stikprøvestandardafvigelse. Tabellen genberegnes, når akser eller statistikker ændres. Søgefeltet filtrerer kolonnenavne, ikke cellepopulationen.",
+    "I denne version kan lave tabelrækker skjule de efterfølgende tekstlinjer, inklusive n. Hold musen over en resultatcelle for at læse alle statistikker og det tilhørende antal. Standardafvigelsen beskriver variation mellem objekter, ikke usikkerhed mellem uafhængige brønde. Værktøjstippet afrunder de viste tal.",
+    "Slå median, sem og quantile til. Ved 0,75 er quantile den øvre kvartil, beregnet med lineær interpolation. SEM er stikprøvestandardafvigelsen divideret med kvadratroden af det tilgængelige antal. Det korrigerer ikke for objekter i samme billedfelt eller brønd og er derfor ikke et mål for uafhængig biologisk usikkerhed.",
+    "Skift Quantile at til 0,5. Fraktilen svarer nu til medianen: 22.400 i den første brønd. De øvrige statistikker ændres ikke. Gendan 0,75, og slå de ekstra statistikker fra, før du vender tilbage til den enkle sammenfatning.",
+    "Erstat areal med homogenitetsmålingen for kanal 0 ved afstand 32. Den har syv reelt manglende værdier, så 2.334 målinger er tilgængelige. I denne brønd bidrager 501 kilderækker kun med 498 værdier. Antallet afhænger af den valgte måling; manglende målinger er ikke nuller.",
+    "Gendan cell_area, og vælg Tabulates Export CSV med et nyt filnavn. Brøndsammenfatningen har fire rækker og seks kolonner: tre grupperingsnøgler, n, gennemsnit og standardafvigelse. Hver eksporteret værdi er kontrolleret mod kilden. Gem gruppering, statistikker og filtre separat; CSV-filen er ikke en gemt dynamisk specifikation.",
+    "Vælg Plot this table, og træk columnID til X, mean til Y og rowID til Colour. Diagrammet modtager fire sammenfattede rækker, ikke tusindvis af enkeltceller. Pas på: Automatic behandler de fire forskellige gennemsnit som kategorier og tegner et varmekort. Det viser ikke deres størrelser på en kontinuert skala.",
+    "Tilføj cell_area i filteret til højre, og sæt minimum til 21.925. Pivottabellen sammenfatter straks de 1.171 tilbageværende objekter. Diagrammet beholder den gamle sammenfatning, indtil du igen trykker Plot this table. At et diagram er synligt, beviser ikke, at det følger det aktuelle filter.",
+    "Tryk igen på Plot this table for at overføre de genberegnede gennemsnit. Diagrammet indeholder nu de fire filtrerede grupper, men Automatic behandler stadig gennemsnittene kategorisk. En besked siger, at det oprindelige arealfilter ikke kan anvendes direkte på sammenfatningen: Den har mean, ikke cell_area. Det betyder ikke, at pivottabellen ignorerede filteret.",
+    "Vælg Clear all i filteret til højre og derefter Plot this table igen. De oprindelige 2.341 objekter og brøndgennemsnit vender tilbage. Filtrering her sletter ikke kildemålinger. Eksportér filtrerede og ufiltrerede sammenfatninger med forskellige navne, hvis du skal bruge begge.",
+    "For en separat visning på billedfeltniveau trækkes fieldID til Rows efter brøndnøglerne. Gitteret har 52 rækker og 51 observerede grupper. Statistikken beskriver nu et billedfelt i en brønd, ikke hele brønden. Hver observeret gruppe har 15–88 objekter; flere grupper skaber ikke uafhængige forsøg.",
+    "Tryk Plot this table, sæt fieldID på X, behold mean på Y og rowID på Colour, og vælg Scatter under Plot. Med disse 51 forskellige billedfeltgennemsnit identificerer den faktiske kolonneliste mean som kontinuert. Kontrollér rollen og akselabels i stedet for at antage, at et tal altid behandles numerisk.",
+    "Diagrammet viser nu 51 virkelige billedfeltgennemsnit på en kontinuert lodret skala. Hver punkthøjde er kontrolleret mod den uafhængigt beregnede sammenfatning. Gentagne billedfeltlabels tilhører forskellige brønde; farver viser rumlige rækkelabels, ikke bekræftede behandlinger. Denne grupperede tabel har ingen objektnøgler, så markering i diagrammet kan ikke vælge enkeltbilleder.",
+    "Eksportér billedfeltsammenfatningen: 52 rækker og syv kolonner, hvor én reelt tom kombination forbliver tom. Overførslen til diagrammet udelader gruppen, så der er 51 punkter. I reproducerbar kode modtager pivot og PivotSpec i spaCRs Qt-modul pivot_spec disse valg, og to_csv skriver resultatet. Bevar kilden, og registrér præcis gruppering og filter."
+  ]
+}

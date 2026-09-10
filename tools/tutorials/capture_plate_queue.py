@@ -92,10 +92,10 @@ def prepare_replays(stage):
 
 
 def record_queue(app, window, stage, captures, capture, settle, write_json, timeout):
-    from PySide6.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl
+    from PySide6.QtCore import QMimeData, QPoint, QPointF, Qt, QUrl, QTimer
     from PySide6.QtGui import QDragEnterEvent, QDropEvent
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QAbstractButton
+    from PySide6.QtWidgets import QAbstractButton, QFileDialog, QDialogButtonBox, QLineEdit
     from spacr.qt.plate_queue import PlateQueue
     from recruitment_evidence import inspect_results
 
@@ -169,7 +169,64 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
         if not event.isAccepted():
             raise ValueError('The actual queue drop event was refused')
 
+    def configure_current():
+        """Import the first replay's actual settings through the real picker."""
+        window._on_nav_selected('recruitment')
+        wait_for(lambda: window._screens.get('recruitment') is not None)
+        settle(.7)
+        screen = window._screens['recruitment']
+        accepted, errors = [], []
+        timer, watchdog = QTimer(window), QTimer(window)
+        timer.setSingleShot(True)
+        watchdog.setSingleShot(True)
+
+        def handle():
+            dialog = app.activeModalWidget()
+            try:
+                if not isinstance(dialog, QFileDialog):
+                    raise ValueError('Import settings did not open its actual picker')
+                dialog.accepted.connect(lambda: accepted.append(True))
+                edit = dialog.findChild(QLineEdit, 'fileNameEdit')
+                click(edit)
+                QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
+                QTest.keyClicks(edit, inputs['projects'][0]['settings_csv'])
+                capture('00a_import_recruitment_settings')
+                click(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open))
+            except Exception as error:
+                errors.append(str(error))
+                if isinstance(dialog, QFileDialog):
+                    dialog.reject()
+
+        def stalled():
+            errors.append('The actual settings picker timed out')
+            dialog = app.activeModalWidget()
+            if dialog is not None:
+                dialog.reject()
+
+        timer.timeout.connect(handle)
+        watchdog.timeout.connect(stalled)
+        timer.start(400)
+        watchdog.start(15000)
+        try:
+            click(screen._btn_import)
+        finally:
+            timer.stop()
+            watchdog.stop()
+            timer.deleteLater()
+            watchdog.deleteLater()
+        if errors or not accepted:
+            raise ValueError('; '.join(errors) or 'Settings picker not accepted')
+        actual = screen._settings_model.collect()
+        changes = {key: (value, actual.get(key)) for key, value in
+                   inputs['projects'][0]['settings'].items() if actual.get(key) != value}
+        proof['settings_import_differences'] = changes
+        if changes:
+            raise ValueError(f'The actual settings import changed requested values: {changes}')
+        inputs['projects'][0]['settings'] = actual
+        capture('00b_current_recruitment_settings')
+
     try:
+        configure_current()
         queue = open_queue()
         private_state = Path(stage) / 'queue_state' / Path(captures).name
         actual = Path.home() / '.spacr/queue.json'
@@ -189,7 +246,10 @@ def record_queue(app, window, stage, captures, capture, settle, write_json, time
                                     if w.isVisible()]
         record('02_empty_queue')
         for number, project in enumerate(inputs['projects'], 1):
-            drop(project['project'])
+            if number == 1:
+                click(queue._btn_add)
+            else:
+                drop(project['project'])
             wait_for(lambda: len(queue.queue()) == number)
             item = queue.queue().items()[-1]
             if item.app_key != 'recruitment' or item.settings != project['settings']:

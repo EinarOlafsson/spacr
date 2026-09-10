@@ -1,0 +1,35 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "da",
+  "title": "Feature Explorer: rangér virkelige målinger og fasthold en tydelig sammenligning",
+  "description": "Åbn undermodulet i Classify, sammenlign virkelige målinger mellem pladerækker, undersøg fordelinger, filtrér live, tilføj en beregnet kolonne, og eksportér den ønskede rangering uden at træne en klassifikator.",
+  "objectives": [
+    "Find Feature Explorer i Classify, og indlæs eksisterende cellemålinger.",
+    "Skeln mellem AUC og separation, og undersøg klasseantal og fordelingsforskelle.",
+    "Filtrér live uden at overse automatisk skift af sammenligningskolonne.",
+    "Brug Top bevidst, kontrollér en omskaleret kolonne, og eksportér den faktiske rangering."
+  ],
+  "prerequisite": "Brug det downloadede Annotate-eksempel, ikke opdigtede målinger. Optagelsen åbner en byteidentisk privat kopi af databasen med 2.341 celler og 276 kolonner. rowID-grupperne er de rumlige pladerækker r12 og r5, ikke fastslåede behandlinger; cellerne deler billedfelter og brønde og er ikke uafhængige eksperimenter. Originaldata er uændrede. AUC, KS, rækkefølge og klasseantal for endelige værdier er kontrolleret uafhængigt for de tilsigtede sammenligninger mellem to klasser. Den automatisk valgte sammenligning mellem otte klasser er et advarselseksempel, ikke uafhængigt valideret inferens. Shuffle test er slået fra. Her udføres ingen træning, ny billedanalyse, særskilt download, GPU-operation eller AI-forespørgsel; histogrammerne er modulets egne grafer.",
+  "scenes": [
+    "Åbn Classify og derefter knappen Feature Explorer. Dette indlejrede værktøj rangerer eksisterende målinger; det træner ikke en klassifikator ved at blive åbnet. Vi bruger det virkelige Annotate-eksempel, der kan downloades, på en privat databasekopi. Følg Annotate-lektionen for at hente det, og bevar din eksperimentelle kilde uændret.",
+    "Vælg Load table, måledatabasen og dens cell-tabel, og sæt Split by til rowID. Der er 2.341 celler og 276 kolonner. De to grupper er registrerede pladerækker, ikke fastslåede behandlinger; disse celler er ikke uafhængige eksperimenter.",
+    "Rangér efter AUC, og læs begge talkolonner. Separation er den absolutte værdi af to gange AUC minus én: cirka 0,34 separation er ikke en AUC på 0,34. Higher in angiver retningen; min n tæller endelige målinger i den mindste klasse, ikke forsøgsreplikater.",
+    "Sæt Top til fire for at undersøge fire overlejrede histogrammer. Inden for hver variabel deler klasserne intervalgrænser, og søjlehøjderne er antal. Den højest rangerede variabel er ikke automatisk en nyttig biomarkør. Læs advarslen: AUC kan overse forskelle i spredning, selv når fordelingerne er forskellige.",
+    "Export ranking med Top fire skriver fire variabelrækker. I denne version følger eksporten Top, selv om teksten antyder hele rangeringen. Den eksporterer ikke de underliggende celler og gemmer ikke en trænet model. Vi har sammenlignet hver eksporteret værdi med den faktiske aktuelle rangering.",
+    "Sæt Top til 500, før du eksporterer alle vurderede variable i dette eksempel. 261 kan vurderes; to numeriske kandidater kan ikke. Eksporten indeholder alle 261 rækker, mens visningen tegner højst otte fordelinger. Variabelantal, tabelrækker og grafpaneler er forskellige størrelser.",
+    "Skift Rank by til KS for at sammenligne den største afstand mellem kumulative fordelinger, og gå derefter tilbage til AUC. KS kan vise fordelingsforskelle, som AUC overser, men giver ikke i sig selv retning. Andre statistikker har egne begrænsninger; læs advarslen i stedet for at betragte en rangering som en signifikanstest.",
+    "Tilføj cell_area under Filter, og sæt minimum til 21.925. Den synlige population ændres til 1.171 celler, og 255 variable kan stadig vurderes. Denne demonstrationsgrænse baseret på medianen er ikke en biologisk kvalitetsgrænse. Rangeringer og fordelinger opdateres uden at måle billederne igen.",
+    "Clear all fjerner visningsfiltrene, ikke dataene. Alle 2.341 celler og den oprindelige rangering vender tilbage. Kontrollér populationen og Split by igen, når du ændrer filtre. En forskel, der ændres efter filtrering, beskriver en anden udvalgt population, ikke et nyt eksperiment.",
+    "Denne version har en vigtig faldgrube. Filtrering af rowID til r12 fjerner den anden række, men skærmen ændrer lydløst Split by til cell_channel_0_maxima_count. Nu sammenlignes otte grupper med kun ét objekt i den mindste. De imponerende scorer er hverken den oprindelige rækkesammenligning eller evidens for en biologisk opdagelse.",
+    "Ryd filtret, og vælg udtrykkeligt rowID igen. Rydning alene genskaber ikke nødvendigvis den oprindelige sammenligning. Kontrollér både klassekolonnen og populationen før eksport. Shuffle test tilbyder 50 labelombytninger, men vi lader den være slået fra: fri ombytning af disse korrelerede celler ville ikke etablere evidens på brønd- eller behandlingsniveau.",
+    "Åbn Columns, og navngiv en ny kolonne area_k. Indtast cell_area divideret med 1e3, altså 1.000, og vælg Add column med erstatning slået fra. Dette omskalerer arealet; det kalibrerer ikke fysiske enheder og tilføjer ikke en ny måling. Preview kontrollerer de første 2.000 rækker; tilføjelsen anvender formlen på hele tabellen.",
+    "Den omskalerede kolonne kommer med i rangeringen og eksporten, så der er 262 vurderede variable. Dens AUC og KS er lig cell_areas, fordi positiv omskalering bevarer rækkefølgen. Vi har kontrolleret hver beregnet værdi. Fjern formlen for at vende tilbage til de oprindelige 261 variable; måledatabasen forbliver uændret.",
+    "Brug rangeringerne til beskrivende udforskning, ikke uafhængig validering af en udvalgt variabel eller trænet klassifikator. I Python leverer spacr.qt.widgets.feature_rank rank_features og ExplorerSpec. Fortsæt med Database Browser og Graph Builder for rå tabeller eller andre sammenligninger. Ingen ny billedanalysepipeline eller AI-forespørgsel blev kørt."
+  ]
+}

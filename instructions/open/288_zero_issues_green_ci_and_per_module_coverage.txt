@@ -1416,6 +1416,100 @@ them were fixed the same evening:
   for the two-second drift check rather than for more coordination.
 
 --------------------------------------------------------------------------------
+2026-09-09 -- A TEST-ISOLATION LEAK THAT ONLY SHOWS WHEN TWO FILES SHARE A
+                     PROCESS, AND WHY CI COULD NOT SEE IT
+--------------------------------------------------------------------------------
+
+Found while running the fractal suites together for 327. Three tests in
+`tests/qt/test_the_spaceout_fractal.py` fail -- but only when
+`tests/qt/test_cov_r8_fractal_travel_tails.py` has run first in the same
+process:
+
+    test_a_fractal_that_cannot_be_built_leaves_the_old_backdrop
+    test_the_backdrop_uses_the_stored_settings
+    test_the_chosen_pattern_reaches_the_backdrop
+
+Each fails as a monkeypatch that did not take: `install_the_spaceout_fractal`
+returns True where the patched builder should have raised, and a spy dict
+comes back empty.
+
+THE CAUSE IS THAT ONE NAME MEANT TWO MODULES. `TestImportingWithoutNumba`
+re-imports `spacr.qt.widgets.fractal_travel` in a scratch namespace and
+undoes it with `monkeypatch.delitem(sys.modules, ...)`. That restores the
+`sys.modules` DICT and nothing else -- and an import also writes the module
+as an ATTRIBUTE of its package. So after teardown:
+
+    spacr.qt.widgets.fractal_travel            the scratch module
+    sys.modules["spacr.qt.widgets.fractal_travel"]   the real one
+
+and the two import forms follow different ones:
+
+    from spacr.qt.widgets import fractal_travel     -> the attribute
+    from .widgets.fractal_travel import ...         -> sys.modules
+
+The later test patched the first and the code under test read the second.
+
+FIXED by recording the package attribute under monkeypatch before the
+re-import, so undoing puts the real module back in both places. A test in
+the same class now asserts the two agree after an undo -- asserted there
+rather than in a teardown check, because the failure it prevents lands in
+another file and arrives as three unrelated-looking assertion errors.
+
+WHY CI NEVER SAW IT, and this is the transferable part: the suite runs
+under xdist, which distributes by FILE. Two files that only conflict when
+they share a process are exactly what a per-file distribution hides, and
+they stay hidden until someone runs a related group by hand. A green CI
+does not mean the files are independent -- it means they were not asked to
+be.
+
+AND ONE MORE THING THE SAME RUN TAUGHT.
+`tests/qt/test_spaceout_fractals_move_and_stay_in_budget.py` is on the
+workflow's `--ignore` list, with `test_gui_responsiveness`,
+`test_home_stage_and_dock`, `test_figure_queue`, `test_pca` and
+`test_the_backdrop_survives_a_run`. They are the process-local measurement
+files and they run in the serial tail. Including one in an ad-hoc batch
+adds failures that are about scheduler contention rather than the product,
+which cost a bisect here before the ignore list was read.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- THREE RED TESTS THAT ARE THE MACHINE, NOT THE PACKAGE
+--------------------------------------------------------------------------------
+
+    tests/test_cov_w3_8_file_list.py::test_a_chosen_file_is_added_and_remembered
+    tests/test_cov_w3_8_file_list.py::test_a_chosen_folder_is_expanded
+    tests/test_cov_w3_8_file_list.py::test_a_single_file_setting_opens_a_single_file_dialog
+
+All three fail as `pick_files() == 0` where 1 was expected, and all three
+carry the same line in their captured Qt messages:
+
+    inotify_add_watch(...ibus/bus/...) failed: (No space left on device)
+
+"No space left on device" from inotify does not mean the disk. It means the
+per-user INSTANCE limit is reached -- `/proc/sys/fs/inotify/max_user_instances`
+is 128 on this box, and 84 were held when this was measured, by VS Code (five
+processes), Firefox, codex, three Claude sessions, systemd and pulseaudio.
+
+WHY THAT SHOWS UP AS AN EMPTY FILE DIALOG, and the shape of the failure is
+the proof: the fourth test in the same file, which CANCELS the dialog,
+passes. Only the three that `selectFile()` and then `accept()` fail.
+`QFileDialog` populates through `QFileSystemModel`, which takes an inotify
+instance to watch the directory it is listing; without one the model never
+fills, so `selectedFiles()` is empty and the dialog accepts nothing. A test
+that only needs the dialog to EXIST is unaffected.
+
+SO THEY ARE NOT A REGRESSION AND MUST NOT BE "FIXED". Pumping the event
+loop longer does not help -- there is no watch to deliver anything. The
+remedies are outside the suite:
+
+  * raise the ceiling, which needs root:
+        sudo sysctl fs.inotify.max_user_instances=512
+    (and `/etc/sysctl.d/` to make it survive a reboot);
+  * or run the Qt suites when fewer editors and browsers are open.
+
+WORTH KNOWING BEFORE BELIEVING A CI FAILURE OF THIS SHAPE TOO. A container
+with a low inotify ceiling and several parallel xdist workers is the same
+machine condition, and the failure would arrive looking exactly like a
+file-dialog regression.
 2026-09-10 -- SEQUENCING RULE: REBUILD THE CATALOGS ONCE, AT THE END OF A BATCH
 OF CODE WORK, NEVER AFTER EACH CHANGE
 --------------------------------------------------------------------------------

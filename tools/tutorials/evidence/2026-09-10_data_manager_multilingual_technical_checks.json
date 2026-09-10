@@ -1,0 +1,156 @@
+{
+  "lesson": "44_data_manager",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_data_manager_current_workflow.json",
+  "canonical_english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "scene_count": 13,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "a9868bbb20f0979ffad239eef53e753229e594f6",
+    "version": "1.5.0.4",
+    "module": "data_manager",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "44_data_manager.da.json": "c940d43ea0ccf8b5e1c3d08b974fcb9ab5553ab7d0bd8a1316b88a0c487a3677",
+    "44_data_manager.de.json": "48142bc8c62adba05cd7a8f35e857f75b8f84e71cd7acd95163329617c5042e0",
+    "44_data_manager.es.json": "e95a0111c9c96938b0399a35fc84335d90c2401008b3362b4a1994e740df29ca",
+    "44_data_manager.fr.json": "ee97f497e4abdbf6d9e21cbb4c8a115c17e701b2238e6294203a58b40bb7e010",
+    "44_data_manager.hi.json": "d2ce2d3ffbc27762168a93fc8b7e2f1a80f501ca070c65352ec287f4e0058eee",
+    "44_data_manager.is.json": "631228634601d907c66c342f4ca75b77ecac91d7a8f60e9de9d24e09b7da9a4c",
+    "44_data_manager.it.json": "f0a6c06b36c7a3efac4979f8d2af65d27e0573e9796e592121a4af9308e6edc7",
+    "44_data_manager.ja.json": "6cb74b6f69ff849f793838d177d15e624967384b7031d66f528aaf72f5b11b63",
+    "44_data_manager.ko.json": "a58f1b39258c5f296017a407caa98f09c0edc8cbaa5da234e933f2769ae099ba",
+    "44_data_manager.nb.json": "f4f53f620b4c75cb8d281ddf8e6e681216df3a17ddb0f14da492a749bcb15852",
+    "44_data_manager.pt-BR.json": "9a298ecf23cc004c88097acddce396bd4bc90a3794e9a277d1d8cbe7b8312c07",
+    "44_data_manager.sv.json": "5e0c7a36cd6492a9615467ad725ea44448273d3caf0b57b5e0f4f0cf4e8d2e64",
+    "44_data_manager.zh-CN.json": "a1d1436ed91dc09d9f0c9a8b6e123aa3d7dd8f37b9331cc3a305e4f4bd911dbf"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently verified actual GUI; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "e97801111a1f9c2ec56709ca34cc40e166fa4a8c00284a06bca5c9e8ab125891",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "7117"
+        }
+      ],
+      "format": {
+        "duration": "237.233333",
+        "size": "17198376"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 81,
+        "content": "Complete centered actual deletion confirmation with full-width file paths, acknowledgment off and final Delete disabled"
+      },
+      {
+        "seconds": 187,
+        "content": "Actual archive confirmation with exact private source/destination and Yes/No; previous cancellation status remains visible behind the modal"
+      }
+    ]
+  },
+  "poster_sha256": "25b309a636b6ec699fccc281d5a6712fb76b7542e98c10f93cd8902e5b719c80",
+  "final_artifact_checks_sha256": "5d1aaf4e5bd44f2d6655ab26d2a0c0229399fa84a6b1be65c5e5ae6c8356225a",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "5e1bc2f91ff0708854685db897eca63b59240720c9bdb7848b0a59b51c12f62e"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "037492c9aaa93cf9028ef2694fa6bf79f8bd56210ee95a38cd9257a226118746"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "19ed3bb1f0a739487e0c7d322baa72d21aa8aefafd8eb96e04398b51730d7808"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "5ed87881fe276d403f1bcf1d14137101c3365affcdaf1d30e605e378a8e04174"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "66fb79e8e27740c02d113788d939a7b6ecc3e207ec2cd41916e8c4a8bca10295"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "bbf772fd6584861c3b3bc86f60c45ac1e3b9eb888e26add5a27797ab54bc47ba"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "f15df9fcc1bc441e68892eb0cf337f6f0e691e1b1134243628d93d848abd954e"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "fa91341fe0425a49fae42cc903e515a80f791143539d10259d2f34caaf8ebce8"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "de96beb1975e3f71c867f3a13f23eb6df55a95ab2f03af15f6d39711913e333a"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "f15ecb1b709ac0ea7bc418b865acb427c4acb712db4db246103a4dba3e752e34"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "3f3baefcdb04c3e608f161a1ccc15d1b34baf1a301e24fd46fa08393de1df066"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "4e26c6bbeafceb734925d37266927db9a750ee5dfbd0aa55fbdb3d8156d4956c"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "9851f31c6d1c3fba15cb595c975976dcdc3363af67f7066b0df5967e42979d13"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "9e374440f028139766df9bdc7c8c4e9d7971521f5b67be6720e4670dda15a889"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "3c27cd445f2b3bb475a33550e43a23a5ef0c7ffaa82656add304ed20ce98d077"
+    }
+  ],
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "29_report",
+    "31_external_masks",
+    "34_database"
+  ],
+  "catalog_preservation_sha256": "9679dffd1c01a515d54d7784ef4db5510145675c5062bcdcf812411c0f3d8d97",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 700,
+    "selected_refreshed_lessons": 25,
+    "unselected_lessons_unchanged": 50
+  },
+  "original_project_files_byte_identical": 131,
+  "private_cleanup_files_removed": 104,
+  "cleanup_recoverability": "Only two disposable verified demonstration copies were pruned; original acquired-data project and every original crop remain unchanged. No UI undo or actual regeneration claimed.",
+  "archive_non_registry_files_byte_identical": 24,
+  "scope_limits": [
+    "Data Manager usage labels for unregistered content are folder heuristics; six actual saved figures are labelled embeddings, not validated embeddings.",
+    "Archive moves rather than copies. Old registry paths remain historical records; external resource logs do not move.",
+    "No download, live image preview, Plot control or AI panel exists in this Data Manager screen."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

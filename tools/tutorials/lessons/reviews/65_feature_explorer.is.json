@@ -1,0 +1,35 @@
+{
+  "lesson": "65_feature_explorer",
+  "english_sha256": "311d59b1c2c918c541a88621518248ea4f3e58da2cab26f08e70a265f4b46e2a",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "is",
+  "title": "Feature Explorer: raða raunverulegum mælingum og halda samanburðinum skýrum",
+  "description": "Opnaðu undireininguna í Classify, berðu saman raunverulegar mælingar eftir röðum plötu, skoðaðu dreifingar, síaðu í rauntíma, bættu við reiknuðum dálki og flyttu út réttan röðunarlista án þess að þjálfa flokkara.",
+  "objectives": [
+    "Finna Feature Explorer innan Classify og hlaða inn fyrirliggjandi frumumælingum.",
+    "Greina á milli AUC og aðskilnaðar og skoða fjölda í flokkum og mun á dreifingum.",
+    "Sía í rauntíma án þess að missa af sjálfvirkri breytingu á samanburðardálki.",
+    "Velja Top meðvitað, sannreyna endurskalaðan dálk og flytja út raunverulegan röðunarlista."
+  ],
+  "prerequisite": "Notaðu niðurhalaða Annotate-dæmið, ekki tilbúnar mælingar. Upptakan opnar einkaeintak af gagnagrunni með 2.341 frumu og 276 dálkum, eins bæti fyrir bæti og frumritið. rowID-hóparnir r12 og r5 eru staðsetningarraðir á plötu, ekki staðfestir meðferðarhópar; frumurnar deila myndsviðum og brunnum og eru ekki óháðar tilraunir. Frumgögn haldast óbreytt. AUC, KS, röðun og fjöldi endanlegra mæligilda í flokkum eru sannreynd sjálfstætt fyrir fyrirhugaðan tveggja flokka samanburð. Sjálfvirki átta flokka samanburðurinn er varnaðardæmi, ekki sjálfstætt staðfest ályktun. Shuffle test er óvirkt. Hér fer hvorki fram þjálfun, ný myndgreining, sérstakt niðurhal, GPU-aðgerð né AI-beiðni; súluritin eru gröf einingarinnar sjálfrar.",
+  "scenes": [
+    "Opnaðu Classify og síðan Feature Explorer-hnappinn. Þetta innfellda verkfæri raðar fyrirliggjandi mælingum; það þjálfar ekki flokkara við opnun. Við notum raunverulega Annotate-dæmið sem hægt er að sækja, á einkaeintaki gagnagrunnsins. Fylgdu Annotate-kennslunni til að sækja það og haltu upprunalegum tilraunagögnum óbreyttum.",
+    "Veldu Load table, mæligagnagrunninn og cell-töfluna, og stilltu Split by á rowID. Hér eru 2.341 fruma og 276 dálkar. Hóparnir tveir eru skráðar raðir á plötu, ekki staðfestir meðferðarhópar; frumurnar eru ekki óháðar tilraunir.",
+    "Raðaðu eftir AUC og lestu báða talnadálkana. Separation er algildi tvöfalds AUC mínus einn: um 0,34 aðskilnaður er því ekki 0,34 AUC. Higher in segir til um stefnu; min n telur endanleg mæligildi í minni flokknum, ekki endurteknar tilraunir.",
+    "Stilltu Top á fjóra til að skoða fjögur sköruð tíðnirit. Innan hverrar breytu nota flokkarnir sömu bilamörk og súluhæðin sýnir fjölda. Efsta breytan er ekki sjálfkrafa gagnlegur lífmarki. Lestu viðvörunina: AUC getur misst af mun á dreifni þótt dreifingarnar séu ólíkar.",
+    "Export ranking með Top fjóra skrifar fjórar breyturaðir. Í þessari útgáfu fylgir útflutningurinn Top þótt orðalagið gefi til kynna allan listann. Hann flytur hvorki út frumugögnin sjálf né vistar þjálfað líkan. Við bárum hvert útflutt gildi saman við raunverulegan núverandi röðunarlista.",
+    "Stilltu Top á 500 áður en allar metnar breytur þessa dæmis eru fluttar út. Hægt er að meta 261 breytu; tvo tölulega möguleika er ekki hægt að meta. Útflutningurinn hefur allar 261 raðirnar en skjárinn teiknar í mesta lagi átta dreifingar. Fjöldi breyta, töfluraðir og grafreitir eru ólíkar stærðir.",
+    "Skiptu Rank by yfir í KS til að bera saman mesta bil á milli uppsafnaðra dreifinga og farðu síðan aftur í AUC. KS getur sýnt dreifingarmun sem AUC missir af en gefur ekki eitt og sér stefnu. Önnur tölfræðigildi hafa sínar takmarkanir; lestu viðvörunina í stað þess að túlka röðun sem marktæknipróf.",
+    "Bættu cell_area við í Filter og stilltu lágmarkið á 21.925. Sýnilega þýðið verður 1.171 fruma og 255 breytur eru enn metanlegar. Þessi sýniþröskuldur byggir á miðgildi, ekki líffræðilegum gæðamörkum. Röðun og dreifingar uppfærast án þess að myndirnar séu mældar aftur.",
+    "Clear all fjarlægir birtingarsíur, ekki gögn. Allar 2.341 frumurnar og upprunalega röðunin koma aftur. Athugaðu þýðið og Split by eftir síubreytingar. Munur sem breytist við síun lýsir öðru völdu þýði, ekki nýrri tilraun.",
+    "Í þessari útgáfu er mikilvæg gildra. Síun rowID á r12 fjarlægir hina röðina en skjárinn breytir Split by hljóðlega í cell_channel_0_maxima_count. Nú eru átta hópar bornir saman og aðeins einn hlutur í þeim minnsta. Þessi glæsilegu gildi eru hvorki upprunalegi raðasamanburðurinn né sönnun fyrir líffræðilegri uppgötvun.",
+    "Hreinsaðu síuna og veldu rowID sérstaklega aftur. Hreinsunin ein endurheimtir ekki endilega upprunalega samanburðinn. Athugaðu bæði flokkunardálk og þýði fyrir útflutning. Shuffle test býður 50 uppstokkanir flokkamerkja en við höfum það óvirkt: frjáls uppstokkun þessara háðu frumna myndi ekki staðfesta áhrif á brunn- eða meðferðarstigi.",
+    "Opnaðu Columns og nefndu nýjan dálk area_k. Sláðu inn cell_area deilt með 1e3, það er 1.000, og veldu Add column án þess að yfirskrifa. Þetta endurskalar flatarmál; það kvarðar ekki eðlisfræðilegar einingar og bætir ekki við nýrri mælingu. Preview kannar fyrstu 2.000 raðirnar; viðbótin notar formúluna á alla töfluna.",
+    "Endurskalaði dálkurinn bætist við röðun og útflutning svo metnar breytur verða 262. AUC og KS hans eru jöfn gildum cell_area því jákvæð endurskölun varðveitir röð. Við könnuðum hvert reiknað gildi. Fjarlægðu formúluna til að fara aftur í upprunalegu 261 breyturnar; mæligagnagrunnurinn er óbreyttur.",
+    "Notaðu þessa röðun til lýsandi könnunar, ekki sem óháða sannprófun á valinni breytu eða þjálfuðum flokkara. Í Python veitir spacr.qt.widgets.feature_rank föllin og gerðirnar rank_features og ExplorerSpec. Haltu áfram í Database Browser og Graph Builder fyrir hrátöflur eða annan samanburð. Engin ný myndgreiningarvinnsla eða AI-beiðni var keyrð."
+  ]
+}

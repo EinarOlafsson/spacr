@@ -142,3 +142,44 @@ CONFIRMED code-complete. spacr/updater.py:161 reads
 `for name in ("uv.exe", "uv") if os.name == "nt" else ("uv", "uv.exe")`, so
 Windows checks uv.exe FIRST -- the exact gap 8eefc701 closed. Nothing further
 is reachable from a checkout; 100% of the code, 0% of the distribution.
+
+--------------------------------------------------------------------------------
+2026-09-09 -- STEP 3 IS BUILT: THE DIALOG NAMES THE COMMAND THAT WOULD WORK
+--------------------------------------------------------------------------------
+
+"WHAT TO DO" item 3, verbatim: "Consider making a failed upgrade say this
+itself ... A missing-pip failure is recognisable -- 'No module named pip'
+in the output -- and is the one case where the app knows the exact command
+that would work."
+
+It does now. `spacr.qt.app.the_missing_pip_escape(output)` returns the uv
+command line when, and only when, the output carries that phrase, and
+`_on_upgrade_done` appends it under a sentence saying why pip is absent:
+"This environment has no pip -- it was built with uv, which does not
+install one."
+
+EVERY OTHER EXIT CODE GETS THE OUTPUT AND NOTHING ELSE, which is the point
+of the guard rather than a limitation of it. A remedy offered for a failure
+the application cannot recognise sends a user to run a command that is not
+their problem, and a wheel that would not build is the common case.
+
+IT NAMES A PATH EVEN WHEN `find_uv` FINDS NOTHING. That looks like guessing
+and is not: on the affected machine `find_uv` is precisely what the
+installed build is too old to have, so a caller that returned nothing
+without it would go silent for the one user who needs this. The fallback is
+the path the installers WRITE -- `<sys.prefix>/../bootstrap/uv`, or
+`uv.exe` on Windows -- which the user can check with `ls`.
+
+The command is quoted for the platform (`shlex.join`, or
+`subprocess.list2cmdline` on Windows), because a command line with a space
+in the install path that cannot be pasted is not an escape. Tested.
+
+WHAT THIS DOES NOT DO, and the file's own diagnosis is why: it does not
+reach anybody already trapped. Their build has neither this dialog nor
+`find_uv`. This is for the next occurrence -- an install where uv is
+present but the pip form was chosen anyway -- and for making the trap
+self-describing if it is ever met again.
+
+REMAINS, unchanged and not reachable from a checkout: publish 1.5.0.5 and
+its three installers. That is 304's business and needs the maintainer,
+because it is public and irreversible.

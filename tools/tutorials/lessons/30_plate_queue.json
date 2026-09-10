@@ -1,0 +1,30 @@
+{
+  "id": "30_plate_queue",
+  "number": 30,
+  "slug": "plate_queue",
+  "series": 4,
+  "app_key": "queue",
+  "section": "Data and batch runs",
+  "title": "Plate Queue: run, stop between jobs and continue",
+  "description": "Queue two isolated replays of the verified Recruitment example, check actual saved results and distinguish a controlled stop from untested crash recovery.",
+  "objectives": [
+    "Import a validated module configuration and find Plate queue through Help.",
+    "Add the current settings and a prepared project folder as separate jobs.",
+    "Observe sequential processing, stop between jobs and continue without repeating success.",
+    "Check numeric results and clear finished queue records without deleting projects."
+  ],
+  "prerequisite": "Complete the Recruitment lesson first. This recording copies its accepted four-field measurement subset into two separate replay folders; these are the same acquired data, not independent plates or biological replicates. Each folder has measurements/measurements.db and settings/recruitment_settings.csv. The first CSV is imported through the actual module picker; the second folder is dropped onto the queue. No stub runner, model or AI request is used. Plate Queue has no separate Load test data or live-preview panel. Import CSV is not demonstrated: its current implementation creates Mask jobs, not arbitrary module jobs. Long labels may be elided; verify full paths and settings before enqueueing. Crash recovery and failed-job retry are not verified here.",
+  "scenes": [
+    {"visual": "00a_import_recruitment_settings", "narration": "Start with the validated Recruitment example. We copied its four-field measurement database into two separate project folders, each with its own settings file. These are two replays of the same real data, not independent plates. In Recruitment, choose Import settings and open the first folder's CSV.", "hold_after": 0.7, "related_lessons": ["25_recruitment"]},
+    {"visual": "00b_current_recruitment_settings", "narration": "The console confirms that settings loaded. Check the source and channel mapping before enqueueing; the recording verified every requested setting after import. Use the Recruitment lesson for its figures, console and preview workflow. A queue does not validate whether your biological choices are appropriate.", "hold_after": 0.7},
+    {"visual": "01_help_queue", "narration": "Open Help, then Plate queue. This shared tool is reached through the menu, not a new Home tile. Its current runner processes one queued item at a time; this screen has no worker-limit or resume-policy selector.", "hold_after": 0.7},
+    {"visual": "03_added_replay_1", "narration": "Choose Add current plate. The first row contains a snapshot of the Recruitment configuration we just loaded. Check its module and source before running. The table shows identity, module, label, status and elapsed time; it is not a full settings editor.", "hold_after": 0.7, "focus": [450, 160, 2120, 420]},
+    {"visual": "03_added_replay_2", "narration": "Drag the second prepared project folder onto the queue. Its saved Recruitment settings identify the module, and the dropped folder becomes its source. Both rows are queued. Separate folders keep these replay outputs separate; merely adding the same folder twice would not provide that isolation.", "hold_after": 0.7, "focus": [450, 160, 2120, 420]},
+    {"visual": "04_first_job_running", "narration": "Choose Run queue. The first item becomes running while the second remains queued. This is the real Recruitment pipeline, not a simulated progress display. The list tracks jobs; it does not expose every intermediate image or processing step.", "hold_after": 0.7, "focus": [450, 160, 2120, 420]},
+    {"visual": "05_stop_requested", "narration": "Press Stop during the first job. Stop asks this runner to finish the current item and stop before starting another. It is not immediate cancellation: wait for the active job to finish instead of assuming its output has already stopped changing.", "hold_after": 0.7, "focus": [450, 160, 2120, 420]},
+    {"visual": "06_stopped_between_jobs", "narration": "Now the first row says success and the second still says queued. Choose Run queue again to process only the remaining item. We verified that the first job's timestamps did not change. This controlled stop does not establish recovery after a computer crash.", "hold_after": 0.7, "focus": [450, 160, 2120, 420]},
+    {"visual": "07_both_jobs_finished", "narration": "Both jobs now say success. Each project contains cells and wells CSV results: two hundred and twenty-three retained cells across four wells. Object identities and recruitment ratios were independently checked against the measurements; a green status alone would not prove those numbers correct.", "hold_after": 0.7, "focus": [450, 160, 2120, 420]},
+    {"visual": "07_both_jobs_finished", "narration": "Plot was enabled in the saved settings, but this queue runner does not display or save the Recruitment figures. Use the dedicated module tutorial for that figure workflow. The queue also has no AI conversation panel; no AI request or model run was needed here.", "hold_after": 0.7, "related_lessons": ["25_recruitment"]},
+    {"visual": "08_finished_records_cleared", "narration": "Clear finished removes completed queue entries, not their project folders or results. We preserved the queue record before clearing and verified that both projects remained. For scripting, PlateQueue in the Qt plate queue module manages persisted job records; it is not itself the Recruitment analysis function.", "hold_after": 0.7, "related_lessons": ["06_api", "25_recruitment"]}
+  ]
+}

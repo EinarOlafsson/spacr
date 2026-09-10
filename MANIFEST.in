@@ -6,6 +6,11 @@ recursive-include spacr/resources/data *.csv
 # tools/build_release_notes.py before a tag; a wheel without it shows
 # an empty News panel and no error.
 include spacr/resources/release_notes.json
+# The measured layout policy (359). Built by
+# tools/measure_the_layout_matrix.py; spacr/qt/layout_policy.py reads it
+# to choose a first-run window size, and falls back to the size the
+# text-fit sweep proves when a wheel does not carry it.
+include spacr/resources/layout_policy.json
 # app_key -> tutorial lesson, for the Tutorial link in the hover
 # strip. Built by tools/build_tutorial_index.py from the docs
 # build's lesson catalog.

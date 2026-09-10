@@ -1,0 +1,32 @@
+{
+  "lesson": "52_pipeline_graph",
+  "english_sha256": "e80fc05a32a3a607f6552a446cf6238050aa31f07e79108d05d0c2975c2ad08f",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and verified real GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "de",
+  "title": "Pipeline Graph: tatsächliche Herkunft und fehlende Artefakte prüfen",
+  "description": "Echte Artefaktaufzeichnungen lesen, fehlende Dateien von fehlender Provenienz unterscheiden, die Ansicht filtern und den vollständigen Graphviz-Graphen kopieren, ohne Analysen erneut auszuführen.",
+  "objectives": [
+    "Pipeline graph unter Help öffnen und ein vorhandenes Projekt auswählen.",
+    "Aufgezeichnete Provenienz mit vorhandenen Dateien vergleichen und nicht erfasste Abhängigkeiten erkennen.",
+    "Current, Stale und Missing verwenden, ohne ausgeblendete Knoten mit fehlenden Aufzeichnungen zu verwechseln.",
+    "Mit Redraw neu einlesen, den vollständigen Graphen kopieren und im passenden Arbeitsablauf weiterprüfen."
+  ],
+  "prerequisite": "Verwenden Sie das reale External-Masks-Projekt und die abgeschlossene Bereinigungsvorführung in Data Manager. Die Aufnahme liest eine byteweise geprüfte Kopie des archivierten Zustands nach der Bereinigung am historischen Projektpfad innerhalb einer isolierten Umgebung; Originaldaten und Registereinträge werden nicht umgeschrieben. Eine getrennte echte Batch-Runner-Konvertierung zeigt fehlende Provenienz, kein unbearbeitetes Experiment. Alle 131 Originaldateien, 26 Archivdateien und sieben Konvertierungsdateien bleiben unverändert. Drei historische Einträge haben keine aufgezeichneten Eingangskanten; der vierte gehört zu einem anderen Projektpfad. Hier gibt es weder Löschung, Analyse oder Wiederherstellung noch eigenen Download, Live-Bildvorschau, Plot-Steuerung oder KI-Anfrage.",
+  "scenes": [
+    "Öffnen Sie Help und dann Pipeline graph. Diese Ansicht untersucht aufgezeichnete Ausgaben und deren Abhängigkeiten; sie führt die Pipeline nicht aus. Wir verwenden private Kopien von Ausgaben aufgenommener Daten aus External Masks und dem echten Bereinigungsbeispiel aus Data Manager. Die zugehörigen Lektionen erklären die Erzeugung und sichere Verwaltung der Daten.",
+    "Wählen Sie zunächst mit Browse den Ordner konvertierter Bilder. Seine Batch-Runner-Konvertierung ist abgeschlossen, aber hier wurde kein Ausgabe-Artefakt registriert, daher bleibt der Graph leer. Das bedeutet fehlende Provenienz, nicht nachgewiesenermaßen fehlende Verarbeitung. Declared order beschreibt mögliche Modulabhängigkeiten, nicht den Verlauf abgeschlossener Läufe.",
+    "Wählen Sie den Projektstand nach der Bereinigung. Drei historische Einträge erscheinen: Messdatenbank, Bildausschnitte und Ressourcenprotokoll. Zwei Pfade existieren weiterhin; der Ausschnittordner wurde bei der früheren Bereinigung der privaten Kopie tatsächlich entfernt. Diese Aufnahme entfernt nichts, und das ursprüngliche experimentelle Projekt bleibt vollständig erhalten.",
+    "Klicken Sie auf den Messdatenbank-Knoten und verbreitern Sie die Details mit dem Trenner. Lesen Sie Pfad, Rolle, Laufkennung, Erstellungszeit, spaCR-Version und Einstellungs-Digest. Ein Digest ist ein Fingerabdruck, nicht die vollständige Konfiguration oder eine Wiederherstellungsschaltfläche. Current belegt weder wissenschaftliche Gültigkeit noch vollständige Provenienz.",
+    "Wählen Sie den roten Ausschnitt-Knoten. Missing bedeutet, dass sein registrierter Pfad fehlt. Die aufgezeichnete Größe nennt weiterhin etwa drei Komma vier Megabyte in einhundertvier Dateien: einhundertdrei Ausschnittbilder und deren Formateintrag. Das ist die historische Größe, nicht der heutige Speicherbedarf und auch nicht einhundertvier Zellen.",
+    "Das Ressourcenprotokoll ist ein separates Artefakt außerhalb des Projektordners. Sein Pfad existiert noch, wurde jedoch nicht in das Archiv verschoben. Dieser Graph enthält keine aufgezeichneten Eingangskanten. Nothing was derived from this bedeutet, dass hier keine nachgelagerte Abhängigkeit erfasst wurde, nicht dass die wissenschaftlichen Ausgaben unabhängig waren.",
+    "Schalten Sie Current aus, um das fehlende Ausschnitt-Artefakt zu isolieren. Current, Stale und Missing sind Anzeigefilter, keine Dateioperationen. Stale warnt bezüglich aufgezeichneter Provenienz; dieses Beispiel enthält kein veraltetes Artefakt. Separate Filter für Modul, Artefakttyp oder Arbeitsablaufzweig gibt es hier nicht.",
+    "Schalten Sie auch Missing aus. Alle Kästen verschwinden, obwohl das Banner weiter ein fehlendes Artefakt von drei meldet. In dieser Version behauptet die leere Zeichenfläche fälschlich, nichts sei registriert; auch die vorherigen Details können sichtbar bleiben. Prüfen Sie vor der Interpretation die Filter: ausgeblendet heißt nicht gelöscht.",
+    "Copy Graphviz legt den vollständigen Graphen einschließlich ausgeblendeter Knoten in die Zwischenablage. Wir haben alle drei tatsächlichen Artefaktkennungen geprüft und keine erfundenen Abhängigkeitspfeile gefunden. Dies ist Graphviz-DOT-Text zur Verwendung in anderen Werkzeugen, kein gespeichertes Bild und kein Export nur der sichtbaren Auswahl.",
+    "Aktivieren Sie Current und danach Missing wieder: erst erscheinen zwei Kästen, dann alle drei. Wählen Sie erneut einen Knoten, damit die Details zum sichtbaren Graphen gehören. Anzeigefilter reparieren keine fehlenden Dateien, ändern keine Provenienz und wählen kein Modul zum erneuten Ausführen. Prüfen Sie vor dem Handeln den registrierten Pfad und den vorgelagerten Arbeitsablauf.",
+    "Redraw liest das Register erneut ein und prüft die Artefakte nochmals. Unsere Einträge und Dateibytes bleiben unverändert. Verwenden Sie Run History für gespeicherte Einstellungen und Laufprotokolle oder Data Manager zur ausdrücklichen Bereinigung. In Python bietet spacr.pipeline_graph build_graph und to_dot. Diese Prüfung führt weder Neuerzeugung noch wissenschaftliche Validierung durch."
+  ]
+}

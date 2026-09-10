@@ -1,0 +1,141 @@
+{
+  "lesson": "37_batch",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-09_batch_runner_current_workflow.json",
+  "canonical_english_sha256": "cfaf542e696d5f0d5b7916cd7cb3ecbd6c160471f01a0eac387828fe2411c7d6",
+  "scene_count": 13,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "29afc4d35913c93ec3f3d08b16ea444feabc2287",
+    "version": "1.5.0.4",
+    "module": "batch",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "37_batch.da.json": "aba7338e9d5d055be4f09789fdea9070d66d0850b19c2b819550d602a9c1674d",
+    "37_batch.de.json": "fb89ff7ac8d24b74f855fcd578223d88ab78cf5c85c75b20aa640c5027c037cc",
+    "37_batch.es.json": "65715e88b7924466ccb92b502df6b8d29a671f00f14a85607b08119e09862141",
+    "37_batch.fr.json": "9ce74f74a12ec97aa94ceb52cf8f661f15ec8f4dd9a65488fa12b2e19ad8f675",
+    "37_batch.hi.json": "953286654d69c04002d82454e03642e2a093aae31ee3caed946c2e9c1584dec3",
+    "37_batch.is.json": "02d0542dcd2f2159c5758cda663af97653883c994d50be9e1c8ff34437a1cad4",
+    "37_batch.it.json": "fb6ac3afe2ccff2624b9f2731daeb20e8174b34d42e95b8585cb75d787dfc936",
+    "37_batch.ja.json": "6b886ee333ad3021aa00ca969139f5ccf142bbb58e54f19a09c698656920ff93",
+    "37_batch.ko.json": "de19ce3fb84b37a9d1a571dd474e0f6945d5fb71a3db4aba28dc6d8b04afed91",
+    "37_batch.nb.json": "9bafd6ef96cb8dff60a765bf241ac5ed894b14d4f68f66ff837ee30f502b4aeb",
+    "37_batch.pt-BR.json": "b78cdcff106c52af270803a0d65e6a256cf8e956f9c55a71daccfd119470ef01",
+    "37_batch.sv.json": "b6e5febd7e8b71e65b4897149ce3ecadfcbe1b59ea8430904c2fa9728d5c065e",
+    "37_batch.zh-CN.json": "4d34a1354e92ffc392c1526f6bf3116a516f5f206ab9c0a51c6b6875d1705c7b"
+  },
+  "review_scope": "Parent editorial review against frozen English and actual UI; independent peer and native-speaker review not claimed",
+  "master": {
+    "sha256": "a890b80e4478a14e754e814a01a54a671705165f3db52f461cb90a04cfae8062",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "7360"
+        }
+      ],
+      "format": {
+        "duration": "245.333333",
+        "size": "17562196"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 96,
+        "content": "Actual later-dependency error fully readable using the native scrollbar; order corrected before running"
+      },
+      {
+        "seconds": 210,
+        "content": "Actual subprocess log showing four converted channels and exit zero"
+      }
+    ]
+  },
+  "poster_sha256": "7895cd49a3434d44759dd0042b273e9e07d0b2dee87798ba0d3d2299703f8dd8",
+  "final_artifact_checks_sha256": "c19fb4698d7fc6d4e2e3f08c1f0042afe7ddfa1d69cc963fb23b8c32e3b08534",
+  "audio_reports": {
+    "audio-checks.en+es+fr+it+pt-BR.json": "160564647c9181cffe00f7c86305bb75ecf51cfc459a4ac071e2e40d50cf29f1",
+    "audio-checks.hi+ja+zh-CN.json": "5e768f48c838ce9ac239b0c17c5e7a9bc0d085cd340ac002d8d589f0247d5aeb"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "11fe266065ce09dbeb95d7248f7c34b92e4536e05b9324a99c03e5b3234f061b"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "ee30335b62a7c844854fe1e5d5202766b00d11be50999671ea035afcd7c56aa1"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "c8d0140efeca62424af26591fb51a394d67b137ccd747479ea4c6db71d239054"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "88aec36311e51c089b85b054b9c99fc0c0f282403390cd8e37feb8153840a97d"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "d4698f7d8da3bbebfae8493b7c3e27972844e4af9c35fe5810052c46dee1d0eb"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "17ff68dfb26fae48c72c06f03880cf3f9793f1e2bbe5d441b22c1a2d8534a44e"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "716cf2a5eee2c18655beb2be69cd368296d662c5f2b6cc432ecaab0611640962"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "70aa629c337884b90d76358d4d7b9baf695e05ec3274ab96919a96cd9fdcbbd5"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "a722d57b4518bab8566dbb06d104c38677ab45fead9fb01f3b19ca81c28165d1"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "3705b61c38a4454ea913ac8040aae1c3fc40bcc44151ebdad315e495dda87192"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "e8c62289cd73fb9f2002109105d18796d039a96f9f4b0af18fc53b5f795dab27"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "cd7edbee0c3a22676f47f267c06bc45c506588dfb966e4bf25f2d5d196429b63"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "d9d7c3771ed4df6943abb0af0636a1aebe8260cbdb6cc1dd84a6f4c770923b2f"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "411db81b6271cd4cefbee31b26187633e17b94b3429e57c14dd16a74fc5b1e95"
+    }
+  ],
+  "earlier_browser_attempt": "Chinese verification was started before its track existed and failed with FileNotFoundError; the final verification ran after all writers stopped and passed. No incomplete report is counted.",
+  "catalog_preservation_sha256": "1de251bcaef89194641c72ee0f91acb425e07e62c5cd8022958e9cc520dc28d0",
+  "shared_english_video_only": true,
+  "pronunciation_rules_version_unchanged": "v11",
+  "original_input_unchanged": true,
+  "pipeline_replaced": false,
+  "normal_threaded_runner": true,
+  "actual_subprocesses": true,
+  "independent_peer_review": false,
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

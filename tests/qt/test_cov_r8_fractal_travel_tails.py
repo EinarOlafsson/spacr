@@ -41,26 +41,28 @@ class TestImportingWithoutNumba:
             return real_import(name, g, l, fromlist, level)
 
         monkeypatch.setattr(builtins, "__import__", refuse)
-        # THE PACKAGE ATTRIBUTE IS A THIRD PIECE OF STATE, and monkeypatch
-        # does not know about it. `delitem` restores sys.modules; the
-        # re-import below ALSO rebinds `spacr.qt.widgets.fractal_travel`
-        # as an attribute of the package, and nothing puts that back.
+        # THE PARENT PACKAGE HOLDS THE NAME TOO, and `delitem` on
+        # `sys.modules` does not put that back. Importing a module writes
+        # it as an ATTRIBUTE of its package as well as into `sys.modules`,
+        # so a re-import here left `spacr.qt.widgets.fractal_travel` (the
+        # attribute) pointing at this scratch module while `sys.modules`
+        # was restored to the real one on teardown -- two different module
+        # objects under one name.
         #
-        # The two then disagree, which is worse than either being wrong.
-        # `monkeypatch.setattr("spacr...fractal_travel.create_fractal_widget",
-        # ...)` resolves through sys.modules and patches the ORIGINAL, while
-        # `from .fractal_travel import create_fractal_widget` resolves
-        # through the package attribute and gets the numba-less re-import --
-        # so a spy installed in one test file was invisible to the code
-        # under test in another. Three tests in
-        # test_the_spaceout_fractal.py failed exactly that way, in this
-        # combination only, and passed in every run of that file alone.
+        # A later test then patched one and the code under test read the
+        # other: `from spacr.qt.widgets import fractal_travel` follows the
+        # package attribute, and `from .widgets.fractal_travel import ...`
+        # inside `install_the_spaceout_fractal` follows `sys.modules`.
+        # Three tests in `test_the_spaceout_fractal.py` failed that way,
+        # and only when this file ran first -- which CI's per-file
+        # distribution meant it usually did not.
         #
-        # Recorded here with its current value, so teardown restores it.
-        package = sys.modules.get("spacr.qt.widgets")
-        if package is not None and hasattr(package, "fractal_travel"):
-            monkeypatch.setattr(package, "fractal_travel",
-                                package.fractal_travel)
+        # Recording the attribute before the re-import is what restores it.
+        import spacr.qt.widgets as _widgets_package
+
+        monkeypatch.setattr(_widgets_package, "fractal_travel",
+                            getattr(_widgets_package, "fractal_travel", None),
+                            raising=False)
         for name in [n for n in sys.modules
                      if n.startswith("spacr.qt.widgets.fractal_travel")]:
             monkeypatch.delitem(sys.modules, name, raising=False)
@@ -79,6 +81,39 @@ class TestImportingWithoutNumba:
         assert module.numba_config is None
         assert module.set_num_threads(4) is None, (
             "the thread setter must be a no-op, not a missing name")
+
+    def test_the_re_import_leaves_one_module_under_one_name(self,
+                                                            monkeypatch):
+        """The scratch namespace must not outlive this test.
+
+        `delitem` on `sys.modules` restores that dict and nothing else,
+        and an import writes the module as an ATTRIBUTE of its package
+        too. Without the attribute being recorded as well, this class left
+        `spacr.qt.widgets.fractal_travel` meaning two different module
+        objects -- one reached through the package, one through
+        `sys.modules` -- and a later test patched whichever the code under
+        test did not read.
+
+        Asserted INSIDE the test rather than left to a teardown check,
+        because the failure it prevents lands in another file entirely and
+        arrives there as three unrelated-looking assertion errors.
+        """
+        import spacr.qt.widgets as package
+
+        scratch = self._import_without_numba(monkeypatch)
+        # During the test the two legitimately disagree: that is what a
+        # scratch namespace IS.
+        assert scratch is not sys.modules.get("spacr.qt.widgets."
+                                              "fractal_travel", scratch) \
+            or scratch is sys.modules["spacr.qt.widgets.fractal_travel"]
+        # And the attribute is under monkeypatch, so undoing puts the real
+        # module back in both places. Undo here to assert it.
+        monkeypatch.undo()
+        assert package.fractal_travel is sys.modules[
+            "spacr.qt.widgets.fractal_travel"], (
+            "the package attribute and sys.modules name two different "
+            "modules -- a later test will patch one and be read from the "
+            "other")
 
     def test_the_cpu_kernels_say_why_they_cannot_run(self, monkeypatch):
         """A NameError deep in a render loop would not name the cause."""

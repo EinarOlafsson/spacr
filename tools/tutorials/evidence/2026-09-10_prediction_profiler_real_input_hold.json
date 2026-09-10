@@ -1,0 +1,19 @@
+{
+  "lesson": "53_prediction_profiler",
+  "status": "Real-data model demonstration held; no video or narration replaced",
+  "checked_source": "refresh_2026-09-09/regression_runs/example-9wut6lcv/results/guide_permutation/results.csv",
+  "source_sha256": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+  "rows": 759,
+  "families": ["gene", "grna"],
+  "coefficient_equals_standardized_marginal_effect_in_all_rows": true,
+  "actual_from_coefficients_accepted_table": true,
+  "loaded_parameters": 759,
+  "intercept_present": false,
+  "model_summary_states_no_model_was_fitted": true,
+  "original_bytes_unchanged": true,
+  "predictions_requested": false,
+  "reason": "The actual default tutorial Regression run is nonparametric Freedman-Lane marginal association testing, not a fitted simultaneous predictive model. Its compatibility feature/coefficient columns nevertheless satisfy the Prediction Profiler loader, which accepts all 759 guide and gene rows as a single identity-link model. Narrating those curves as predictions from the real run would misrepresent the analysis.",
+  "needed": "A genuinely fitted, scientifically appropriate coefficient table with documented inverse link, intercept/term encoding and design ranges, or an explicitly synthetic controls-only demonstration clearly separated from real-data claims. Do not relabel permutation effects as model coefficients or silently refit them.",
+  "current_gui_scope_already_read": "Regression fold; actual Browse coefficient CSV, Link selector, Points 2..501, ranked inputs and held-value sliders, Reset held values. No design-file picker: the file route assumes two endpoint rows 0..1 for every non-intercept input; set_design/set_model are APIs. No app edits made.",
+  "published": false
+}

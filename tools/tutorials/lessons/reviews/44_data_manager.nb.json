@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "nb",
+  "title": "Data Manager: undersøk, rydd og arkiver et ekte eksempel trygt",
+  "description": "Undersøk registrerte og uregistrerte filer, avbryt og bekreft presis sletting av bildeutsnitt, og flytt en privat prosjektkopi med arkivspor.",
+  "objectives": [
+    "Åpne Data manager via Help og se faktisk diskbruk.",
+    "Les sletteplanen, bevaringsgrunnene og hele bekreftelseslisten.",
+    "Skill uopprettelig sletting fra flytting, og kontroller Cancel.",
+    "Skann arkivet på nytt og behold manifest, opprinnelseslogg og egen sikkerhetskopi."
+  ],
+  "prerequisite": "Bruk det ekte External Masks-eksemplet med to bildefelt, 103 målte objekter og lagrede figurer. Opptaket bruker en isolert kopi kontrollert byte for byte; bare i opptaksprosessen peker registerets opprinnelige absolutte stier på denne midlertidige kopien. Alle 131 originalfiler er uendret. Data Manager har ingen egen datanedlasting, direkte bildeforhåndsvisning, Plot-kontroll eller AI-panel. Størrelser angir byte, ikke vitenskapelig kvalitet. Bare fra kopien slettes 103 PNG-utsnitt og deres format-JSON; måledatabasen og den registrerte oppskriften beholdes. Gjenskaping demonstreres ikke. Arkivering flytter resten av prosjektet, lager ikke en sikkerhetskopi og garanterer ikke at historiske absolutte stier oppdateres. Eksterne ressurslogger flyttes ikke med.",
+  "scenes": [
+    "Åpne Help og deretter Data manager. Dette fellesverktøyet håndterer prosjektfiler; det kjører ikke bildeanalyse. Vi bruker en midlertidig kopi av det ekte External Masks-eksemplet, med målinger og lagrede figurer. Behold en uavhengig sikkerhetskopi før du prøver opprydding selv.",
+    "Choose project velger prosjektets rotmappe. Etter skanning viser Usage omtrent nittien megabyte i hundre og tjueni filer. Registered og Unregistered er forskjellige: filer kan finnes uten en registerpost. Kategorier utledet fra mapper er anslag, ikke bevis på filenes vitenskapelige innhold.",
+    "Velg under Prune hvilke typer som skal vurderes. En aktivert bryter godkjenner ikke sletting alene. La måledatabaser og modellvekter være fravalgt her, og velg Show what can be deleted. Les både de foreslåtte filene og grunnene til at andre resultater beholdes.",
+    "Planen omfatter bare utsnittsmappen data: hundre og tre objektbilder og én formatfil, ikke hundre og fire celler. Den foreslår å frigjøre omtrent tre komma fire megabyte. Get it back by angir Measure, men gjenskaping krever fremdeles opprinnelige inndata, innstillinger og egnet programvare.",
+    "Delete åpner en ny bekreftelse med den faktiske fillisten. Slettingen kan ikke angres. Gjør dialogen større og bla gjennom stiene før du godkjenner dem. Den siste Delete-knappen er først deaktivert; godkjenning og sletting er forskjellige handlinger.",
+    "Godkjenningen aktiverer Delete. Slår du den av, deaktiveres Delete igjen. Første gang velger vi Cancel, og alle prosjektfilene forblir uendret. Avbryt hvis du er usikker på stier, filantall eller hvordan filene skal gjenskapes.",
+    "Vi åpner den samme kontrollerte planen igjen og bekrefter sletting bare på den midlertidige kopien. Resultatet viser tre komma fire megabyte frigjort fra hundre og fire filer. Alle de øvrige tjuefire filene utenfor registeret er byteidentiske, inkludert måledatabasen og de lagrede figurene.",
+    "Den automatiske nye skanningen melder nå om ett registrert resultat som mangler på disken: utsnittsmappen vi slettet med vilje. Oppskriften blir i registeret med oppryddingsmetadata. Denne posten er ingen angrebuffer, og vi har ikke kjørt Measure på nytt for å gjenskape utsnittene.",
+    "Archive er annerledes: det flytter resten av prosjektet. Velg et tomt mål utenfor kilden, og deretter Show what would move. Etter oppryddingen omfatter planen tjuefem filer på omtrent åttiåtte megabyte. Kontroller kilde og mål nøye; denne skjermen planlegger hele prosjektet.",
+    "Move ber om bekreftelse med No valgt som standard. Først velger vi No og kontrollerer at kilden er uendret og målet tomt. En plan og en avbrutt bekreftelse flytter ingenting. Arkivmålet er ikke en ekstra sikkerhetskopi.",
+    "Vi bekrefter Yes bare for dette private eksemplet. De gjenværende filene flyttes til målet. Der skrives et manifest, mens en arkivlogg blir igjen ved opprinnelsen. Originalprosjektet som den midlertidige kopien ble laget fra, er helt uendret.",
+    "Velg målet som prosjekt og skann på nytt. Den arkiverte måledatabasen er registrert på sin nye sti, og hver fil utenfor registeret har samme byte som før flyttingen. Det ekstra manifestet forklarer det nye filantallet. Historiske poster og eksterne logger blir ikke automatisk omskrevet eller flyttet.",
+    "For Python-automatisering tilbyr spacr.data_manager scan_project, plan_prune, prune, plan_archive og archive. Undersøk planen før du oppgir bekreftelsestokenet. Bruk Database Browser til målinger og Report til et lesbart prosjektsammendrag. Behold den uavhengige sikkerhetskopien og arkivsporene sammen med forskningsdokumentasjonen."
+  ]
+}

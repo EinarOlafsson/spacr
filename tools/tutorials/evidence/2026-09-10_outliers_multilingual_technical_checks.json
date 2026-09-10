@@ -1,0 +1,161 @@
+{
+  "lesson": "66_outliers",
+  "status": "Complete staged technical matrix; not published or human-listening approved",
+  "workflow_receipt": "2026-09-10_outliers_current_workflow.json",
+  "canonical_english_sha256": "383105db52f8c3c60eb7e6f36308b747810c66e32b082d2c43edf96bfc9ed644",
+  "scene_count": 17,
+  "new_tracks_fully_decoded": 50,
+  "browser_cases_passed": 14,
+  "current_capture": {
+    "commit": "b495450812a2f72293e4b48147b99a29583be406",
+    "version": "1.5.0.4",
+    "module": "outliers",
+    "download_requested": false,
+    "dataset_cache": "/mnt/firecuda2/Claude/toxoplasma_projects/tutorials/refresh_2026-09-09/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "editorial_reviews": {
+    "66_outliers.da.json": "3828d4a225cb5a4492a4caecf2b66cab8bbef10f23468c635542f6c63fc6dc28",
+    "66_outliers.de.json": "db6149942ee067944704410a66bf9338a9305508415faae769df713ca88e916c",
+    "66_outliers.es.json": "73064ebc3e833d391d92df4884ebfeedd7facec897d7e72c51afdd8f4615e1ed",
+    "66_outliers.fr.json": "e8230761f80ccf2dacb98d86cc7e8e22928c6b5fb5b6c854fa85313d939201f2",
+    "66_outliers.hi.json": "d2a68ec78db87d02cd2a65302e45f7bed7378b0ad0aef4c69138e1befc535603",
+    "66_outliers.is.json": "dcd9c39b7aba727cb0151b6931830cdfab6b5a49da8abf4cb194916cb564e47f",
+    "66_outliers.it.json": "08d5f93e0d8d4ddca87313914f8904d172bc21e808b0def8d45d6ff06712ae89",
+    "66_outliers.ja.json": "c76b95d1f6db5cc4eaa2305576dedda351bfeb488a27069c2c9b94fe2f4b82d1",
+    "66_outliers.ko.json": "027120b2de59eada2a99a9c13d9f89bd82c5bd5e1cbc398791185beb96412a43",
+    "66_outliers.nb.json": "382932dd72043216a54c53191b76443c9427714e1f51e022b512e213195e7975",
+    "66_outliers.pt-BR.json": "dbde80dbba5c4997fb981b78f641fe2bd2c114400deec31350f6d46a597ca5d1",
+    "66_outliers.sv.json": "e216b7f830130739949ebb2e1ab69189a36a29b4bf29c66a00bb2fa911d27ca3",
+    "66_outliers.zh-CN.json": "1f7a7edfaf5f2c62c46707e2d31dceb2ef990a85c95e7b8d2c269ba4649919f0"
+  },
+  "review_scope": "Parent editorial translation against frozen English and independently checked real GUI single-feature scans; independent peer, native-speaker and human listening review not claimed",
+  "master": {
+    "sha256": "d18025ecc66f9dee089af1c91308f72621b6f6683d13ef8c954f1354cddb6cd7",
+    "probe": {
+      "programs": [],
+      "streams": [
+        {
+          "codec_type": "video",
+          "width": 3840,
+          "height": 2160,
+          "r_frame_rate": "30/1",
+          "nb_frames": "11174"
+        }
+      ],
+      "format": {
+        "duration": "372.466667",
+        "size": "21308877"
+      }
+    },
+    "fully_decoded": true,
+    "decoded_scenes_visually_checked": [
+      {
+        "seconds": 90,
+        "content": "Actual four-well table: unscored because fewer than five wells exist, not clean wells"
+      },
+      {
+        "seconds": 270,
+        "content": "Actual log10 refusal of one measured zero; old Objects(68) label and disabled Export"
+      },
+      {
+        "seconds": 353,
+        "content": "Complete actual method dropdown; robust multivariate Mahalanobis not run"
+      }
+    ]
+  },
+  "poster_sha256": "487cfd8369bc409c803f52a9cd93dfa80dce76ac044e46ecd3a8fa8d5a10ad3f",
+  "final_artifact_checks_sha256": "b4abb9a74e66d9019be4071afedf7ab3d65cd2045f6d9a58305974dc83f99877",
+  "audio_reports": {
+    "audio-checks.en+es+fr+hi+it+pt-BR+ja+zh-CN.json": "365879f80072a0366af9817d1b43b4d1ebfd158f12b2817966459e1cac091b59"
+  },
+  "browser_reports": [
+    {
+      "case": "en-af_heart",
+      "report_sha256": "928cf77a3b2d7cef488769c36cc721ec2aa0b928a4fa881ff2e48a94b66a2510"
+    },
+    {
+      "case": "es-ef_dora",
+      "report_sha256": "515fda3be4f6cb10d6d07aa61b11fcbcc38baf27a818a4eebbca3f6f4504b168"
+    },
+    {
+      "case": "fr-ff_siwis",
+      "report_sha256": "156d454a7a4630b08762bf23850b784bb552523b9835681b422fa8ff59d2eaf1"
+    },
+    {
+      "case": "hi-hf_alpha",
+      "report_sha256": "0654e881cbeb43f12275ea97303c72281cba9bedfec8dba7fcbcfab31d0eb45e"
+    },
+    {
+      "case": "it-if_sara",
+      "report_sha256": "45f4a268f63433187bd78af84978d8001ae776568b7203b2fd81371945536fcb"
+    },
+    {
+      "case": "pt-BR-pf_dora",
+      "report_sha256": "3d4d89fe54de13bda936b15328ada224b5d233e2ff1ebb0b8de4a4dbc508bcf0"
+    },
+    {
+      "case": "ja-jf_alpha",
+      "report_sha256": "d1fc3ae833d50492a149d71d3067666a3a7cac9ea12fd3820f89537d1f672241"
+    },
+    {
+      "case": "zh-CN-zf_xiaobei",
+      "report_sha256": "691c14afd9bf8f5e125f5478da2fe183a21d802804c81ae62e9ad2f65206cf07"
+    },
+    {
+      "case": "en-af_heart-captions-da",
+      "report_sha256": "b2ea1ece079d71eae2285d5b86226e15f68ebbfce6205344185b4ef3b3c659d6"
+    },
+    {
+      "case": "en-af_heart-captions-de",
+      "report_sha256": "6a76d8d97550656610278649bc42c19aecc93714e6026eeda902f930aa53d5af"
+    },
+    {
+      "case": "en-af_heart-captions-is",
+      "report_sha256": "2b3f7a614810aee1d7efc25995cd3cc5620602a3338c1f1bf1bc8f82e26f432b"
+    },
+    {
+      "case": "en-af_heart-captions-ko",
+      "report_sha256": "ea9b75e0395917e5c893a09a6384e203245862c5e53a3cd5ecc56529757eed6c"
+    },
+    {
+      "case": "en-af_heart-captions-nb",
+      "report_sha256": "58cc90a533a6e9b9b8bb5dcb1ca62270797b76f8fb75b7fc1fe342038df08cab"
+    },
+    {
+      "case": "en-af_heart-captions-sv",
+      "report_sha256": "5c058a215e4a9b6f4dd794b234bea048e860315a791a5dc854a7e542f660b1f5"
+    }
+  ],
+  "max_observed_browser_clock_error_seconds": 0.04607555537262442,
+  "all_browser_cases_started_after_all_50_tracks_finished": true,
+  "all_browser_cases_passed_first_attempt": true,
+  "related_lessons": [
+    "06_api",
+    "09_annotate",
+    "54_qc_dashboard",
+    "65_feature_explorer"
+  ],
+  "catalog_preservation_sha256": "f64289e9c0eadbda3b2ee5554c86174c0a4d7cce1d67587aaf656337bf617ee1",
+  "catalog_state": {
+    "languages": 14,
+    "lessons": 75,
+    "scenes": 733,
+    "selected_refreshed_lessons": 29,
+    "unselected_lessons_unchanged": 46
+  },
+  "scope_limits": [
+    "Actual QC fold, downloaded Annotate measurement database, 2341 cells and 276 columns. Original database and sidecars unchanged; private database byte-identical after workflow.",
+    "Initial 255-feature auto-scan flagged 2338 objects; not independently reimplemented or interpreted as validated defects. Twelve single-feature scans independently checked with standard-library median, MAD, quartiles and Gaussian consistency factor.",
+    "Raw area MAD k3.5 flags26, k2 flags142, k0.5 flags1479. IQR c1.5 flags55 with fences[-8797,54123]. Log area IQR flags79 and MAD flags36. These are descriptive rules, not established biological quality thresholds.",
+    "Four wells have501,525,615,700 objects; fewer than five wells means none scored. Report incorrectly says all four have fewer than20 objects; individual reasons are correct. IQR report mislabels22663 as median; true median21925, displayed number is quartile midpoint.",
+    "Actual raw minimum intensity scan flags68; exactly one measured zero makes log10 refuse with no result and Export disabled. Old Objects(68) tab label and500 displayed rows persist; tutorial explicitly shows recovery rather than presenting stale results as success.",
+    "Two full exports independently cell-compared against actual source and checked scan:2341 objects/280 columns,1479 or26 flagged, four well summaries and actual report. Display is capped at500; exports are not. Source values are preserved, no objects removed.",
+    "No MCD run, classifier training, GPU/image analysis, new measurement pipeline or AI request. No app/global i18n edit. Initial82.37s load/auto-scan is one observed capture, not a normalized performance benchmark."
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_review": false,
+  "published": false
+}

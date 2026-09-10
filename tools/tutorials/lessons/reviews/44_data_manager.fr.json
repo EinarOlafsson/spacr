@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "fr",
+  "title": "Data Manager : examiner, nettoyer et archiver un exemple réel en sécurité",
+  "description": "Examinez les fichiers enregistrés ou non, annulez puis confirmez la suppression précise des vignettes et déplacez un projet privé avec ses traces d’archivage.",
+  "objectives": [
+    "Ouvrir Data manager depuis Help et examiner l’espace utilisé.",
+    "Lire le plan de suppression, les motifs de conservation et la liste complète.",
+    "Distinguer suppression irréversible et déplacement, puis vérifier Cancel.",
+    "Examiner la destination et conserver manifeste, journal d’origine et sauvegarde."
+  ],
+  "prerequisite": "Utilisez l’exemple réel d’External Masks : deux champs, 103 objets mesurés et des figures enregistrées. L’enregistrement utilise une copie isolée vérifiée octet par octet ; les chemins absolus du registre ne désignent que cette copie dans le processus de capture. Les 131 fichiers originaux restent inchangés. Data Manager ne possède ni téléchargement de données, aperçu d’images, commande Plot, ni panneau AI propres. Les tailles décrivent des octets, pas la qualité scientifique. Seuls les 103 vignettes PNG et leur JSON de format sont supprimés de la copie ; la base de mesures et la recette enregistrée sont conservées. Leur régénération n’est pas démontrée. Archiver déplace le reste du projet : ce n’est pas une sauvegarde et cela ne garantit pas la mise à jour de tous les chemins historiques. Les journaux de ressources externes ne sont pas déplacés.",
+  "scenes": [
+    "Ouvrez Help, puis Data manager. Cet outil partagé gère les fichiers des projets ; il ne lance pas d’analyse d’images. Nous utilisons une copie jetable de l’exemple réel d’External Masks, avec ses mesures et figures enregistrées. Conservez une sauvegarde indépendante avant d’essayer le nettoyage.",
+    "Choose project sélectionne la racine du projet. Après examen, Usage indique environ quatre-vingt-onze mégaoctets dans cent vingt-neuf fichiers. Registered et Unregistered sont distincts : un fichier peut exister sans entrée dans le registre. Les catégories déduites des dossiers ne prouvent pas le contenu scientifique des fichiers.",
+    "Dans Prune, choisissez les types à examiner. Activer un interrupteur n’autorise pas à lui seul une suppression. Laissez ici les bases de mesures et les poids de modèles désélectionnés, puis choisissez Show what can be deleted. Lisez les fichiers proposés et les raisons de conserver les autres résultats.",
+    "Ce plan ne contient que le dossier data des vignettes : cent trois images d’objets et un fichier de format, pas cent quatre cellules. Il propose de libérer environ trois virgule quatre mégaoctets. Get it back by indique Measure, mais la régénération nécessite toujours les entrées originales, les réglages et un logiciel adapté.",
+    "Delete ouvre une seconde confirmation avec la véritable liste des fichiers. La suppression est irréversible. Agrandissez la boîte de dialogue et parcourez les chemins avant de les approuver. Le bouton final Delete est initialement désactivé ; cocher l’approbation ne supprime encore rien.",
+    "L’approbation active Delete. La décocher désactive à nouveau ce bouton. Pour cette première démonstration, nous choisissons Cancel et tous les fichiers du projet restent inchangés. Annulez si les chemins, le nombre de fichiers ou la procédure de récupération ne sont pas clairs.",
+    "Nous rouvrons le même plan vérifié et confirmons la suppression uniquement sur notre copie jetable. Le résultat indique trois virgule quatre mégaoctets libérés dans cent quatre fichiers. Les vingt-quatre autres fichiers hors registre restent identiques octet par octet, notamment la base de mesures et les figures.",
+    "L’examen automatique signale maintenant un résultat enregistré absent du disque : le dossier de vignettes supprimé volontairement. Sa recette reste dans le registre avec les métadonnées de nettoyage. Ce registre n’est pas une mémoire d’annulation ; nous n’avons pas relancé Measure pour régénérer les vignettes.",
+    "Archive est différent : il déplace le reste du projet. Choisissez une destination vide hors du dossier source, puis Show what would move. Après nettoyage, ce plan comprend vingt-cinq fichiers, soit environ quatre-vingt-huit mégaoctets. Vérifiez attentivement source et destination ; cet écran planifie le projet entier.",
+    "Move demande confirmation, avec No choisi par défaut. Nous choisissons d’abord No et vérifions que la source reste inchangée et la destination vide. Un plan ou une confirmation annulée ne déplace rien. La destination de l’archive n’est pas une sauvegarde supplémentaire.",
+    "Nous confirmons Yes uniquement pour cet exemple privé. Les fichiers restants sont déplacés vers la destination. Un manifeste y est écrit et un journal d’archivage reste à l’origine. Le projet original ayant servi à créer notre copie jetable demeure entièrement inchangé.",
+    "Sélectionnez la destination comme projet et examinez-la de nouveau. La base de mesures archivée est enregistrée à son nouveau chemin ; chaque fichier hors registre conserve ses octets d’avant le déplacement. Le manifeste supplémentaire explique le nouveau nombre de fichiers. Les anciens enregistrements et journaux externes ne sont pas automatiquement réécrits ou déplacés.",
+    "Pour automatiser avec Python, spacr.data_manager fournit scan_project, plan_prune, prune, plan_archive et archive. Examinez le plan avant de transmettre son jeton de confirmation. Utilisez Database Browser pour parcourir les mesures et Report pour un résumé lisible. Conservez la sauvegarde indépendante et les traces d’archivage avec votre documentation de recherche."
+  ]
+}

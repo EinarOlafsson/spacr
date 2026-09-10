@@ -138,6 +138,55 @@ class _FractalFollowsItsScreen(QObject):
         return False
 
 
+def open_at_the_measured_width(window) -> bool:
+    """Widen a fresh window to what the modules were measured to need.
+
+    :returns: True when the window was resized.
+
+    INSTRUCTION 359: "every module must initially open wide enough that
+    the right side of its settings is not cut off". The width comes from
+    `spacr.qt.layout_policy`, which reads a GENERATED artifact -- every
+    number in it measured by building each module offscreen and asking
+    whether its settings column is holding more than it can show.
+
+    IT ONLY EVER GROWS, and that is deliberate rather than cautious. The
+    comment above `win.show()` records why this window does not maximise:
+    over X11 forwarding, VNC or a virtual framebuffer the "available
+    geometry" is whatever the remote session claims, and it is frequently
+    a stub. A policy allowed to shrink would take that claim seriously and
+    open a window smaller than the one the user has been getting for a
+    year. Growing on a bad number is bounded by the clamp; shrinking on
+    one is not bounded by anything.
+
+    WITHOUT THE ARTIFACT NOTHING HAPPENS. `layout_policy` falls back to
+    1200 px -- the width the text-fit sweep builds every screen at -- and
+    this window already opens at 1200, so a wheel that does not carry the
+    file behaves exactly as it did.
+
+    Never raises. An opening size is not worth failing a launch over.
+    """
+    try:
+        from .layout_policy import recommended_window_size, why
+        from .preferences import get_font_scale
+
+        handle = window.screen() or QApplication.primaryScreen()
+        if handle is None:
+            return False
+        available = handle.availableGeometry()
+        scale = float(get_font_scale() or 1.0)
+        wanted, _height = recommended_window_size(
+            (available.width(), available.height()), scale)
+        if wanted <= window.width():
+            return False
+        window.resize(min(int(wanted), available.width()), window.height())
+        LOG.info("opened at %d px: %s", window.width(), why(scale))
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not apply the measured layout policy",
+                  exc_info=True)
+        return False
+
+
 def install_the_spaceout_fractal(screen) -> bool:
     """Put the spaceout fractal behind ``screen``, if this is spaceout.
 
@@ -2229,6 +2278,63 @@ def _current_font_scale() -> float:
         return 1.0
 
 
+
+#: What a venv built by ``uv venv`` says when anything reaches for pip.
+#: Lower-cased because the wording differs between interpreters -- "No
+#: module named pip" and "No module named `pip`" both appear -- and the
+#: three words that matter are the same in every one.
+_NO_PIP_IN_THE_OUTPUT = "no module named pip"
+
+
+def the_missing_pip_escape(output: str) -> Optional[str]:
+    """The command that WOULD work, when the upgrade failed for want of pip.
+
+    :param output: everything the upgrade wrote, as the worker captured it.
+    :returns: a command line to show the user, or None when this failure
+        was not the missing-pip one.
+
+    THE ONE FAILURE THE APPLICATION CAN ANSWER, and instruction 01 asks it
+    to. The desktop installers build their environment with ``uv venv``,
+    which does not seed pip, so an install whose updater still runs
+    ``python -m pip`` fails before it starts -- and it is a BOOTSTRAP TRAP:
+    the fix cannot arrive by the route it fixes. A dialog that names the
+    exact command is the only escape that reaches a user who has already
+    hit it.
+
+    Every other exit code gets the output and nothing else. Guessing at a
+    remedy for a failure this cannot recognise would send a user to run a
+    command that is not their problem.
+
+    Derived the way :func:`spacr.updater.find_uv` derives it, and it falls
+    back to the path the installers WRITE rather than returning nothing:
+    on the affected machine `find_uv` is what the installed build is too
+    old to have, so a name the user can check is worth more than silence.
+    """
+    if _NO_PIP_IN_THE_OUTPUT not in (output or "").lower():
+        return None
+    uv = None
+    try:
+        from spacr.updater import find_uv
+
+        uv = find_uv()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not look for the bootstrapped uv", exc_info=True)
+    if not uv:
+        from pathlib import Path
+
+        uv = str(Path(sys.prefix).parent / "bootstrap"
+                 / ("uv.exe" if os.name == "nt" else "uv"))
+    parts = [uv, "pip", "install", "--upgrade", "--python", sys.executable,
+             "spacr"]
+    if os.name == "nt":
+        import subprocess
+
+        return subprocess.list2cmdline(parts)
+    import shlex
+
+    return shlex.join(parts)
+
+
 class MainWindow(QMainWindow):
     """Top-level window: sidebar + stacked screens + status bar.
 
@@ -4078,6 +4184,18 @@ class MainWindow(QMainWindow):
         # Put the tail of it in the dialog instead.
         lines = [line for line in (output or "").splitlines() if line.strip()]
         detail = "\n".join(lines[-6:]) if lines else "No output was captured."
+        # AND THE ONE FAILURE THIS CAN ANSWER, IT ANSWERS. A venv built by
+        # `uv venv` has no pip, so an updater that reaches for pip fails
+        # before it starts -- and the fix for that cannot arrive through
+        # the updater. Here the application knows the exact command that
+        # would work, so it says it rather than leaving the user with an
+        # exit code.
+        escape = the_missing_pip_escape(output)
+        if escape:
+            detail += (
+                "\n\nThis environment has no pip -- it was built with "
+                "uv, which does not install one. Run this once, in a "
+                "terminal, to upgrade:\n\n" + escape)
         QMessageBox.warning(
             self, "Updates",
             f"pip returned exit code {return_code}.\n\n{detail}")
@@ -6058,6 +6176,7 @@ def launch(argv: Optional[list[str]] = None) -> int:
     # window arrives unusable either way. The user can still maximise it,
     # and the 1200x720 minimum this window declares is a sane opening size
     # on a real display.
+    open_at_the_measured_width(win)
     win.show()
 
     # AND ONLY NOW THE DIALOG FILTERS. See :data:`_DIALOG_FILTERS`: they are

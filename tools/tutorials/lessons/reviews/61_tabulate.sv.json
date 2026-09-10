@@ -1,0 +1,39 @@
+{
+  "lesson": "61_tabulate",
+  "english_sha256": "f09a40c85fa7b4a0c02c18d7fc14858799cdd4342e43b4630a7a480d73536ccd",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently checked genuine pivot, exports and numeric scatter; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "sv",
+  "title": "Tabulate: gruppera verkliga mätvärden, kontrollera antal och uppdatera diagrammet",
+  "description": "Öppna Tabulate i Database Browser, sammanfatta nedladdade mätningar per brunn och bildfält, granska saknade värden, exportera kontrollerad statistik och skilj en aktuell tabell från ett inaktuellt eller kategoriskt diagram.",
+  "objectives": [
+    "Hitta undermodulen och skapa brunns- och bildfältssammanfattningar genom att dra faktiska kolumner.",
+    "Tolka antal, saknade kombinationer, stickprovsstandardavvikelser och kvantiler utan påhittade oberoende replikat.",
+    "Filtrera mätvärden, uppdatera diagrammet uttryckligen och skilj kategoriska från numeriska axlar.",
+    "Exportera hela sammanfattningen och dokumentera gruppering, statistik och filter."
+  ],
+  "prerequisite": "Använd det nedladdningsbara Annotate-exemplet på en byteidentisk privat kopia av measurements.db: 2 341 objekt, fyra brunnar och 51 observerade brunn/bildfält-kombinationer. Det är inte 2 341 oberoende försök; rowID är en rumslig etikett, inte en fastställd behandling. Alla visade statistikvärden, CSV-celler och 51 slutliga punkthöjder är oberoende kontrollerade. Biologiska effekter, saknade axeletiketter, oändliga värden och stora begränsade rutnät har inte validerats. Tabulate sammanfattar befintliga data och har ingen egen nedladdning, bildförhandsvisning, GPU-pipeline, AI-konsol eller övergripande Plot-knapp. Använd dess egna Load table och Export CSV, inte kontrollerna i omgivande Database Browser.",
+  "scenes": [
+    "Öppna Help, sedan Database browser, och välj den inbäddade Tabulate-knappen. Det är en undermodul till Database Browser, inte en egen ruta på Home. Vi använder en privat kopia av det verkliga nedladdningsbara Annotate-exemplet. Den tidigare Annotate-handledningen visar hur du hämtar data.",
+    "Välj Load table inne i Tabulate, öppna den kopierade mätdatabasen och välj cell. Hela tabellen innehåller 2 341 objekt. Omgivande Database Browser har egna kontroller; de är inte den här pivottabellens indata eller export. Inläsningen väljer inte i sig någon gruppering.",
+    "Välj Plate / row / column. De tre nycklarna visas i Rows i hierarkisk ordning. Lämna Values tomt för att räkna källrader: De fyra brunnarna innehåller 615, 525, 700 och 501 objekt. Dessa antal avser celler, inte oberoende experimentella replikat.",
+    "Sök efter fieldID och dra det till Columns. Fyra brunnar gånger 13 bildfältsetiketter ger 52 möjliga kombinationer, men bara 51 innehåller mätningar. Håll pekaren över den tomma cellen för radetikett 5, kolumnetikett 2 och bildfält 20. Kombinationen saknar källrader; det betyder inte ett uppmätt nollvärde.",
+    "Töm området Columns, sök efter cell_area och dra det till Values. Standardstatistiken är antal, medelvärde och stickprovsstandardavvikelse. Tabellen räknas om när axlar eller statistik ändras. Sökfältet filtrerar kolumnnamn, inte cellpopulationen.",
+    "I den här versionen kan låga tabellrader dölja senare textrader, inklusive n. Håll pekaren över en resultatcell för att läsa samtliga statistikvärden och det bidragande antalet. Standardavvikelsen beskriver variation mellan objekt, inte osäkerhet mellan oberoende brunnar. Verktygstipset avrundar de visade talen.",
+    "Aktivera median, sem och quantile. Vid 0,75 är quantile den övre kvartilen, beräknad med linjär interpolation. SEM är stickprovsstandardavvikelsen delad med kvadratroten ur det tillgängliga antalet. Det korrigerar inte beroenden mellan objekt i samma bildfält eller brunn och ska därför inte tolkas som oberoende biologisk osäkerhet.",
+    "Ändra Quantile at till 0,5. Kvantilen är nu lika med medianen: 22 400 i den första brunnen. Övrig statistik ändras inte. Återställ 0,75 och stäng av den extra statistiken innan du återgår till den enklare sammanfattningen.",
+    "Ersätt area med homogenitetsmåttet för kanal 0 vid avstånd 32. Det har sju verkligt saknade värden, så 2 334 mätvärden är tillgängliga. I den här brunnen bidrar 501 källrader med bara 498 värden. Antalet beror på valt mått; saknade mätvärden är inte nollor.",
+    "Återställ cell_area och välj Tabulates Export CSV med ett nytt filnamn. Brunnssammanfattningen har fyra rader och sex kolumner: tre grupperingsnycklar, n, medelvärde och standardavvikelse. Varje exporterat värde har kontrollerats mot källan. Dokumentera gruppering, statistik och filter separat; CSV-filen är inte en sparad dynamisk specifikation.",
+    "Välj Plot this table och dra columnID till X, mean till Y och rowID till Colour. Diagrammet får fyra sammanfattade rader, inte tusentals enskilda celler. Observera: Automatic behandlar dessa fyra olika medelvärden som kategorier och ritar en värmekarta. Det visar inte deras storlekar på en kontinuerlig skala.",
+    "Lägg till cell_area i filtret till höger och sätt minimum till 21 925. Pivottabellen sammanfattar omedelbart de 1 171 kvarvarande objekten. Diagrammet behåller den gamla sammanfattningen tills du trycker på Plot this table igen. Ett synligt diagram bevisar inte att det återspeglar aktuellt filter.",
+    "Tryck på Plot this table igen för att överföra de omräknade medelvärdena. Diagrammet innehåller nu de fyra filtrerade grupperna, men Automatic behandlar fortfarande deras medelvärden som kategorier. Ett meddelande säger att det ursprungliga areafiltret inte kan användas direkt på sammanfattningen: Den har mean, inte cell_area. Det betyder inte att pivottabellen före diagrammet ignorerade filtret.",
+    "Välj Clear all i filtret till höger och sedan Plot this table igen. De ursprungliga 2 341 objekten och brunnsmedelvärdena återkommer. Filtrering här raderar inga källmätningar. Exportera filtrerade och ofiltrerade sammanfattningar med olika namn om du behöver båda.",
+    "För en separat vy på bildfältsnivå drar du fieldID till Rows efter brunnsnycklarna. Rutnätet har 52 rader och 51 observerade grupper. Statistiken beskriver nu ett bildfält inom en brunn, inte hela brunnen. Varje observerad grupp innehåller 15–88 objekt; fler grupper skapar inte oberoende försök.",
+    "Tryck på Plot this table, placera fieldID på X, behåll mean på Y och rowID på Colour och välj Scatter under Plot. Med dessa 51 olika bildfältsmedelvärden identifierar den faktiska kolumnlistan mean som kontinuerligt. Kontrollera rollen och axeletiketterna i stället för att anta att ett tal alltid behandlas numeriskt.",
+    "Diagrammet visar nu 51 verkliga bildfältsmedelvärden på en kontinuerlig lodrät skala. Varje punkthöjd har kontrollerats mot den oberoende beräknade sammanfattningen. Upprepade bildfältsetiketter tillhör olika brunnar; färgerna visar rumsliga radetiketter, inte verifierade behandlingar. Den grupperade tabellen saknar objektnycklar, så markering i diagrammet kan inte välja enskilda bilder.",
+    "Exportera bildfältssammanfattningen: 52 rader och sju kolumner, där en verkligt tom kombination behålls som tom. Överföringen till diagrammet utelämnar den gruppen, vilket ger 51 punkter. För reproducerbar kod tar pivot och PivotSpec i spaCR:s Qt-modul pivot_spec emot dessa val, och to_csv skriver resultatet. Bevara källan och dokumentera exakt gruppering och filter."
+  ]
+}

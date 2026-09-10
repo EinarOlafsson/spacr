@@ -377,9 +377,6 @@ FRACTAL_LIMITS = {
                           "a move that takes no time is a jump"),
     "candidate_count": (1, None,
                         "choosing between no candidates chooses nothing"),
-    "tour_travel_seconds": (0.1, None,
-                            "a move between two regions that takes no time "
-                            "is the jump the tour exists to replace"),
     "steering": (0.0, 1.0,
                  "steering is an amount between none and restless"),
     "max_depth": (0.1, 23.0,
@@ -509,8 +506,6 @@ _KEY_FRACTAL_STEERING = "spaceout/fractal_steering"
 #: "fixed" descends to one point; "guided" searches as it goes; "tour"
 #: floats between the twenty mapped regions.
 _KEY_FRACTAL_PATH = "spaceout/fractal_path"
-#: Seconds spent moving from one mapped region to the next, on the tour.
-_KEY_FRACTAL_TOUR_TRAVEL = "spaceout/fractal_tour_travel_seconds"
 
 #: The memory budget: how long an unused thing may sit, how much may be
 #: held, and how much of the machine must stay free for everything else.
@@ -2551,10 +2546,6 @@ def get_fractal_settings() -> dict:
         "path": _text(_KEY_FRACTAL_PATH,
                       _MANDEL_DEFAULTS.get("path", "fixed"),
                       ("fixed", "guided", "tour")),
-        "tour_travel_seconds": _number(
-            _KEY_FRACTAL_TOUR_TRAVEL,
-            _MANDEL_DEFAULTS.get("tour_travel_seconds", 9.0),
-            FRACTAL_LIMITS['tour_travel_seconds'][0], None),
         "steering": _number(_KEY_FRACTAL_STEERING,
                             _MANDEL_DEFAULTS.get("steering", 0.35),
                             0.0, 1.0),
@@ -2621,10 +2612,6 @@ def set_fractal_settings(**values) -> None:
         "candidate_count": (_KEY_FRACTAL_CANDIDATE_COUNT,
                 (FRACTAL_LIMITS['candidate_count'][0], FRACTAL_LIMITS['candidate_count'][1])),
         "path": (_KEY_FRACTAL_PATH, None),
-        "tour_travel_seconds": (
-            _KEY_FRACTAL_TOUR_TRAVEL,
-            (FRACTAL_LIMITS['tour_travel_seconds'][0],
-             FRACTAL_LIMITS['tour_travel_seconds'][1])),
         "steering": (_KEY_FRACTAL_STEERING, (0.0, 1.0)),
         "max_depth": (_KEY_FRACTAL_MAX_DEPTH,
                       (FRACTAL_LIMITS["max_depth"][0],
@@ -6154,7 +6141,11 @@ class PreferencesDialog:
             fractal_path.setObjectName("FractalPath")
             for _key, _label in (("fixed", "Straight down"),
                                  ("guided", "Search as it goes"),
-                                 ("tour", "Tour the mapped regions")):
+                                 # THE TWENTY REGIONS, REACHABLE (327).
+                                 # `RegionTour` and `fractal_regions` were
+                                 # built and tested with no caller and no
+                                 # door; this is the door.
+                                 ("tour", "Tour the interesting places")):
                 fractal_path.addItem(tr(_label), _key)
             fractal_path.setCurrentIndex(
                 max(0, fractal_path.findData(_fractal_values["path"])))
@@ -6166,13 +6157,11 @@ class PreferencesDialog:
                 "every so often and moves the camera onto it. It finds more "
                 "variety, and moving the camera is visible: the Steering "
                 "control below sets how much.\n\n"
-                "Tour the mapped regions visits twenty coordinates found "
-                "once and written down, floating from one to the next while "
-                "the dive is at the surface and holding each for a whole "
-                "descent. Nothing is searched for while it draws, so it is "
-                "as steady as Straight down and does not stay in one place. "
-                "Dragging the backdrop ends the tour; Ctrl+R starts it "
-                "again."))
+                "Tour the interesting places floats between twenty "
+                "coordinates chosen in advance for keeping their detail "
+                "over four decades of zoom, easing out of one and into "
+                "the next. Dragging the view stops the tour; Ctrl+R hands "
+                "the camera back to it."))
             fractal.addRow(tr("Path"), fractal_path)
 
             fractal_steering = _tenths(

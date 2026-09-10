@@ -700,7 +700,15 @@ Q-327-A -- SHOULD THE REGION TOUR BE THE DEFAULT BACKDROP PATH?
     shaking that made "guided" a non-default. If it feels wrong, one
     dropdown puts it back.
 
-Q-385-A -- WITH PREFERENCES OPEN, DOES THE UNCOVERED PART OF THE BACKDROP
+Q-385-A -- STRUCK 2026-09-10, BEFORE IT WAS EVER ASKED. ANSWERED BY THE
+    OTHER SESSION'S FIX, WHICH LANDED BEFORE THE QUESTION WAS WRITTEN.
+    The gate is `a_popup_is_on_screen()` in `AmbientWidget._on_tick`, and the
+    reason nothing in this session found it is the reason the question below
+    was going to be asked: every measurement opened a DIALOG and the request
+    said MENU. Left in place rather than deleted, because a question that
+    turned out to be answerable without the maintainer is worth seeing once.
+
+    WITH PREFERENCES OPEN, DOES THE UNCOVERED PART OF THE BACKDROP
     KEEP MOVING?
     This one question closes or reopens 385, and it takes five seconds at
     the machine. Every mechanism named in that file is now measured and none

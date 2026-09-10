@@ -1,0 +1,34 @@
+{
+  "lesson": "44_data_manager",
+  "english_sha256": "d89c2a653ad59e7da3cacd3cb44a6d8dd7e97715f52f8e26c8475843f2d9fd42",
+  "review": {
+    "kind": "Parent editorial translation against frozen English and independently verified actual GUI; visible controls and API identifiers retained",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false
+  },
+  "language": "it",
+  "title": "Data Manager: esaminare, ripulire e archiviare in sicurezza un esempio reale",
+  "description": "Esamina file registrati e non registrati, annulla e conferma la rimozione precisa dei ritagli e sposta un progetto privato conservando i documenti di archiviazione.",
+  "objectives": [
+    "Aprire Data manager da Help e controllare lo spazio occupato.",
+    "Leggere il piano, i motivi di conservazione e l’elenco completo.",
+    "Distinguere cancellazione irreversibile e archiviazione, verificando Cancel.",
+    "Esaminare la destinazione e conservare manifesto, registro d’origine e backup."
+  ],
+  "prerequisite": "Usa l’esempio reale di External Masks: due campi, 103 oggetti misurati e figure salvate. La registrazione usa una copia isolata verificata byte per byte; nel processo di acquisizione i percorsi assoluti del registro puntano soltanto alla copia. I 131 file originali restano invariati. Data Manager non ha un download dati, un’anteprima delle immagini, un comando Plot o un pannello AI propri. Le dimensioni misurano byte, non qualità scientifica. Dalla sola copia si eliminano 103 ritagli PNG e il relativo JSON di formato, conservando database e ricetta registrata; non se ne dimostra la rigenerazione. Archiviare sposta il progetto restante: non crea un backup né garantisce l’aggiornamento di tutti i percorsi storici. I log di risorse esterni non vengono spostati.",
+  "scenes": [
+    "Apri Help, poi Data manager. Questo strumento condiviso gestisce i file dei progetti; non esegue analisi delle immagini. Usiamo una copia eliminabile dell’esempio reale di External Masks, con misure e figure salvate. Conserva un backup indipendente prima di provare la pulizia.",
+    "Choose project seleziona la radice del progetto. Dopo la scansione, Usage mostra circa novantuno megabyte in centoventinove file. Registered e Unregistered sono diversi: un file può esistere senza una voce nel registro. Le categorie dedotte dalle cartelle sono stime, non prove del contenuto scientifico.",
+    "In Prune scegli quali tipi considerare. Attivare un interruttore non autorizza da solo la cancellazione. Lascia qui deselezionati database delle misure e pesi dei modelli, poi scegli Show what can be deleted. Leggi sia i file proposti sia i motivi per cui gli altri risultati vengono conservati.",
+    "Il piano contiene soltanto la cartella data dei ritagli: centotre immagini di oggetti e un file di formato, non centoquattro cellule. Propone di liberare circa tre virgola quattro megabyte. Get it back by indica Measure, ma la rigenerazione richiede ancora input originali, impostazioni e software adeguato.",
+    "Delete apre una seconda conferma con l’elenco effettivo dei file. La cancellazione non è annullabile. Allarga la finestra e scorri i percorsi prima di approvarli. Il pulsante finale Delete è inizialmente disabilitato; selezionare l’approvazione non significa ancora eliminare qualcosa.",
+    "L’approvazione abilita Delete. Deselezionandola, Delete si disabilita di nuovo. In questa prima dimostrazione scegliamo Cancel e tutti i file del progetto restano invariati. Annulla se percorsi, quantità di file o procedura di recupero non sono chiari.",
+    "Riapriamo lo stesso piano verificato e confermiamo la cancellazione solo sulla copia eliminabile. Il risultato riporta tre virgola quattro megabyte liberati in centoquattro file. Gli altri ventiquattro file estranei al registro restano identici byte per byte, compresi database delle misure e figure.",
+    "La scansione automatica segnala ora un risultato registrato assente dal disco: la cartella dei ritagli eliminata intenzionalmente. La ricetta rimane nel registro con i metadati della pulizia. Quel record non è un meccanismo di annullamento; non abbiamo rieseguito Measure per rigenerare i ritagli.",
+    "Archive è diverso: sposta il progetto restante. Scegli una destinazione vuota esterna all’origine, poi Show what would move. Dopo la pulizia, il piano contiene venticinque file per circa ottantotto megabyte. Controlla attentamente origine e destinazione; questa schermata pianifica l’intero progetto.",
+    "Move chiede conferma, con No selezionato per impostazione predefinita. Prima scegliamo No e verifichiamo che l’origine resti invariata e la destinazione vuota. Un piano e una conferma annullata non spostano nulla. La destinazione dell’archivio non è una copia di backup aggiuntiva.",
+    "Confermiamo Yes soltanto per questo esempio privato. I file restanti vengono spostati alla destinazione. Lì viene scritto un manifesto e all’origine resta un registro dell’archiviazione. Il progetto originale da cui abbiamo creato la copia rimane completamente invariato.",
+    "Scegli la destinazione come progetto e ripeti la scansione. Il database archiviato è registrato al nuovo percorso e ogni file estraneo al registro conserva i byte precedenti allo spostamento. Il manifesto aggiuntivo spiega il nuovo conteggio. Record storici e log esterni non vengono automaticamente riscritti o trasferiti.",
+    "Per automatizzare con Python, spacr.data_manager offre scan_project, plan_prune, prune, plan_archive e archive. Esamina il piano prima di fornire il token di conferma. Usa Database Browser per esplorare le misure e Report per un riepilogo leggibile. Conserva il backup indipendente e i registri di archiviazione con la documentazione della ricerca."
+  ]
+}

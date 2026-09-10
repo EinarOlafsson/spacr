@@ -1,0 +1,23 @@
+{
+  "lesson": "30_plate_queue",
+  "english_sha256": "d2d89e7731cbc26bd8a3e6ba45c0fcce624c7559ba73145109dd8ed5dbf79371",
+  "review": {"kind": "Parent editorial translation against frozen English and verified GUI; visible English controls retained", "independent_peer_review": false, "native_speaker_signoff": false},
+  "language": "zh-CN",
+  "title": "Plate Queue：运行、在任务之间停止并继续",
+  "description": "把经过验证的 Recruitment 示例在两个独立目录中重复运行，检查实际保存的结果，并区分受控停止与尚未验证的崩溃恢复。",
+  "objectives": ["导入已验证的模块配置，并从 Help 找到 Plate queue。", "将当前设置和准备好的项目文件夹添加为两个任务。", "观察顺序执行，在任务之间停止，再继续而不重复成功的任务。", "检查数值结果，清除已完成的队列记录而不删除项目。"],
+  "prerequisite": "请先完成 Recruitment 教程。本次录制将其经过验证的四个显微视野的测量数据子集复制到两个目录；这是同一批实际采集的数据，不是独立实验板或生物学重复。每个目录包含 measurements/measurements.db 和 settings/recruitment_settings.csv。第一个 CSV 通过真实文件选择器导入，第二个目录拖入队列。没有替代执行器、模型运行或 AI 请求。Plate Queue 没有单独的 Load test data 按钮或实时预览。这里不演示 Import CSV：它目前创建的是 Mask 任务，而不是任意模块任务。长标签可能被截断；入队前应检查完整路径和设置。此处未验证崩溃恢复或失败任务重试。",
+  "scenes": [
+    "从经过验证的 Recruitment 示例开始。我们把四个显微视野的测量数据库复制到两个独立的项目目录，各自配有设置文件。这是同一批真实数据的两次重复运行，不是独立实验板。在 Recruitment 中选择 Import settings，打开第一个目录的 CSV。",
+    "控制台确认设置已加载。入队前检查数据源和通道映射；录制时已逐项核对导入后的请求值。图表、控制台和预览流程请参见 Recruitment 教程。队列不会判断你的生物学分析选择是否合理。",
+    "打开 Help，再选择 Plate queue。这个共享工具从菜单进入，不是新的 Home 卡片。当前执行器一次只处理一个排队任务；此界面没有工作进程数量或恢复策略选择器。",
+    "选择 Add current plate。第一行保存刚才加载的 Recruitment 配置副本。运行前检查模块和数据源。表格显示标识、模块、标签、状态和耗时，并不是完整的设置编辑器。",
+    "将第二个准备好的项目目录拖入队列。保存的 Recruitment 设置标明模块，拖入的目录成为数据源。两行均显示 queued。不同目录让输出相互隔离；把同一个目录添加两次并不能实现这种隔离。",
+    "选择 Run queue。第一项变成 running，第二项仍是 queued。这里运行的是真正的 Recruitment 分析流程，不是模拟进度。列表跟踪任务，不会展示每一幅中间图像或每个处理步骤。",
+    "在第一个任务运行时按 Stop。执行器会完成当前任务，然后在启动下一个任务之前停止。这不是立即取消：请等待活动任务结束，不要以为它的输出已经停止变化。",
+    "现在第一行显示 success，第二行仍显示 queued。再次选择 Run queue，只处理剩下的任务。我们核对了第一个任务的时间戳，确认没有改变。这种受控停止并不能证明电脑崩溃后的恢复能力。",
+    "两个任务现在都显示 success。每个项目都有细胞和孔级 CSV 结果：四个孔共保留二百二十三个细胞。对象标识和招募比值已独立对照测量数据核验；仅凭绿色状态不能证明这些数值正确。",
+    "保存的设置已开启 Plot，但这个队列执行器不会显示或保存 Recruitment 图表。图表操作请参见专门的模块教程。队列也没有 AI 对话面板；这里无需 AI 请求或模型运行。",
+    "Clear finished 只移除已完成的队列记录，不会删除项目目录或结果。清除前我们保留了队列记录，并确认两个项目仍然存在。编写脚本时，Qt 的实验板队列模块中的 PlateQueue 管理持久化任务记录，它本身不是 Recruitment 分析函数。"
+  ]
+}
