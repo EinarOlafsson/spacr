@@ -102,7 +102,7 @@ def organelle_label(role: str) -> str:
 #: control settings name wells. Use an explicit label so the two concepts are
 #: not confused in settings forms.
 EXACT_LABELS = {
-    "controls": "Control gRNA/Gene",
+    "nontargeting_control_grnas": "Control gRNA/Gene",
     # THE THIRD SENSE OF "log", and the reason these are spelled out rather
     # than left to the humaniser. `dog` and the Laplacian-of-Gaussian `log_*`
     # suffixes are handled in CASED_TERMS and CASED_PHRASES below; these three

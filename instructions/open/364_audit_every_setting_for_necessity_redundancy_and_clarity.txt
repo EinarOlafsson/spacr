@@ -1812,3 +1812,62 @@ TWO SMALLER CORRECTIONS TO THE SAME TEST, both found by running it:
     `stain_baseline_wells` is one, and the assertion could only say "no
     default to compare against" about the very case it existed to check. It
     now sends a probe the default cannot be and asserts the probe arrives.
+
+--------------------------------------------------------------------------------
+2026-09-10 -- RENAME 7 OF 7. ALL SEVEN ARE DONE.
+--------------------------------------------------------------------------------
+
+    controls -> nontargeting_control_grnas
+
+Done from the classification written on 2026-09-09, which said 41 string
+sites rather than the 1,593 a raw word count suggests, and named four
+false-friend families that must not move. None of them did: the
+control-separation PANEL KEY through figures/panels, fast_render,
+regression_results and app_screen; the SWEEP PAYLOAD whose two halves live
+in different processes; `regression_annotation`'s `needs=("controls", ...)`
+DEPENDENCY TOKEN; and `baseline.CONTROLS`, a column constant.
+
+THE SETTING'S OWN CODE ARGUED FOR THIS RENAME BEFORE ANYONE DID.
+`object_roles.EXACT_LABELS` carried a label OVERRIDE for `controls`, and
+its comment is the case in full: "`controls` names guide or gene
+identifiers, whereas the neighbouring control settings name wells. Use an
+explicit label so the two concepts are not confused in settings forms."
+A setting that needs an override to be understood is a setting whose name
+is wrong.
+
+DONE AS A RENAME ONLY, WITH NO REWORDING, and that was the other session's
+advice rather than mine. The runtime reviewed-translation migration matches
+on EXACT source text and re-points when the destination is unique -- so a
+rename alone carries the human's review across, while a rename plus a
+reworded tooltip drops it. Two commits, not one, if the wording ever needs
+to change.
+
+AND THE GUARD WRITTEN THIS MORNING CAUGHT ITS OWN SUCCESSOR.
+`test_every_rename_names_the_factory_that_declares_it` failed the moment
+`controls` was renamed without a `FACTORIES` entry -- which is exactly the
+hole that let three earlier renames reach the tree with no fold at all,
+silently dropping the user's value. It was written hours earlier for
+precisely this and fired on the first real case.
+
+ONE THING THE RULE DID NOT COVER, found by running the suite: the
+quoted-occurrences-only rule is right for SOURCE and incomplete for TESTS.
+A helper like `_run(tmp_path, controls=None)` or
+`_settings(positive_control=PC_GUIDE)` passes the setting as a KEYWORD
+ARGUMENT into `**overrides`, where it becomes a dict key without ever being
+quoted. Four call sites across two files. Worth adding to the survey step:
+after the quoted pass, grep for the bare name as a keyword argument.
+
+3,459 tests pass across the affected slice.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT IN 364
+--------------------------------------------------------------------------------
+
+The RUNTIME i18n catalogs, and they are the other session's to rebuild --
+they have said so and will do it once for all fifteen changed keys rather
+than twice. Until then `spacr/qt/i18n_catalogs/*.py` carry rows for the old
+names and none for the new ones, so those settings fall back to English in
+all nine languages, and `docs.yml` cannot publish.
+
+Nothing else. Seven renames, one split, eight retirements, the fold bug and
+its guard, and the classification that made the last three safe.

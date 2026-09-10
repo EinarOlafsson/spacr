@@ -61,7 +61,7 @@ def test_a_screen_with_no_named_analysis_excluded_wells_cannot_calibrate():
 def test_a_screen_with_no_positive_guide_cannot_calibrate():
     """The guide is the other half: its sequenced share is the x axis."""
     with pytest.raises(ValueError, match="no gRNA"):
-        ml._calibration_inputs(_settings(positive_control="",
+        ml._calibration_inputs(_settings(positive_control_id="",
                                          positive_control_wells=["c2"],
                                          negative_control_wells=["c1"]))
 
@@ -79,7 +79,7 @@ def test_the_imaging_side_is_the_score_column(tmp_path, monkeypatch):
     })
     monkeypatch.setattr(ml, "_concat_named_csvs",
                         lambda paths: scores if "s" in str(paths) else counts)
-    got = ml._calibration_inputs(_settings(positive_control="pc_guide",
+    got = ml._calibration_inputs(_settings(positive_control_id="pc_guide",
                                            positive_control_wells=["c2"],
                                            negative_control_wells=["c1"],
                                            score_data="s", count_data="c"))
@@ -105,7 +105,7 @@ def test_a_column_token_does_not_swallow_a_wider_column(monkeypatch):
         "pred": [0.9, 0.5, 0.1, 0.4],
     })
     monkeypatch.setattr(ml, "_concat_named_csvs", lambda paths: scores)
-    got = ml._calibration_inputs(_settings(positive_control="pc_guide",
+    got = ml._calibration_inputs(_settings(positive_control_id="pc_guide",
                                            positive_control_wells=["c2"],
                                            negative_control_wells=["c1"]))
     assert got["pure_pc_wells"] == ["p1_r1_c2"]
@@ -116,7 +116,7 @@ def test_a_missing_score_column_is_named_not_guessed(tmp_path, monkeypatch):
     monkeypatch.setattr(ml, "_concat_named_csvs",
                         lambda paths: pd.DataFrame({"prc": ["p1_r1_c2"]}))
     with pytest.raises(ValueError, match="no 'pred' column"):
-        ml._calibration_inputs(_settings(positive_control="pc_guide",
+        ml._calibration_inputs(_settings(positive_control_id="pc_guide",
                                          positive_control_wells=["c2"],
                                          negative_control_wells=["c1"]))
 
@@ -213,7 +213,7 @@ def test_the_real_sweep_reaches_the_run(monkeypatch, capsys):
         lambda paths: scores if "s.csv" in str(paths) else counts)
 
     got = ml._calibrated_fraction_threshold(_settings(
-        positive_control=PC_GUIDE,
+        positive_control_id=PC_GUIDE,
         positive_control_wells=["c2"], negative_control_wells=["c1"],
         dependent_variable="pred", count_data="/tmp/c.csv",
         score_data="/tmp/s.csv"))

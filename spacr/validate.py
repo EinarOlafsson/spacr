@@ -1090,6 +1090,11 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     # call sites that pass `pc=`/`nc=`.
     "positive_control": "positive_control_id",
     "negative_control": "negative_control_id",
+    # RENAMED. `controls` named non-targeting control gRNAs and shared its
+    # spelling with a figure panel key, a sweep payload field, a dependency
+    # token and a column constant -- none of which moved. See 364's
+    # classification for the site-by-site split.
+    "controls": "nontargeting_control_grnas",
     # SPLIT, not renamed (357-Q6). It meant the invasion assay's stain
     # baseline AND the wells Regression and sequencing drop before fitting,
     # with different defaults and no way to set one without setting the

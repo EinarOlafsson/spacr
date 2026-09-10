@@ -1920,7 +1920,7 @@ def _effect_size_cut(run: "_Run") -> Dict[str, str]:
                          + (f" — {rule}" if rule else "")}
     if rule:
         return {"value": f"none — {rule}"}
-    if _clean(_setting(run.settings, "controls")) is None:
+    if _clean(_setting(run.settings, "nontargeting_control_grnas")) is None:
         return {"value": ("none — no control gRNAs were named, so there is "
                           "nothing to calibrate a width against and a hit is "
                           "the corrected P value alone")}

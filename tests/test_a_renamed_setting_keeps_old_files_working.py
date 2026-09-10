@@ -54,6 +54,11 @@ FACTORIES = {
     "negative_control_id": "set_default_analyze_screen",
     "analysis_excluded_wells": "get_perform_regression_default_settings",
     "stain_baseline_wells": "set_analyze_invasion_defaults",
+    # ADDED 2026-09-10 WITH THE RENAME ITSELF, and by this very test: the
+    # completeness check written this morning failed on `controls` the
+    # moment it was renamed, which is the whole reason it exists. The
+    # table cannot go stale in the direction that hides the bug.
+    "nontargeting_control_grnas": "get_perform_regression_default_settings",
 }
 
 

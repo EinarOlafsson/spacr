@@ -9,15 +9,23 @@ Status:    OPEN, filed 2026-09-02. This is the single intake item for every
            SWEPT 2026-09-10. Four of the five open questions were already
            answered and the sheet had not caught up -- 327-A answered and
            shipped, 379-C answered and its item closed, 385-A struck as moot,
-           CI-A part-answered with the tutorial lane now batching. ONE
-           GENUINELY OPEN QUESTION REMAINS:
+           CI-A part-answered with the tutorial lane now batching.
 
-               Q-DOCS-A  may docs.yml be dispatched on nightly, which
-                         PUBLISHES the documentation site?
+           AND THE FIFTH IS NOT READY TO ASK, corrected the same day.
+           Q-DOCS-A was listed here as the one genuinely open question, on
+           evidence that the docs build was green at every step. It is not:
+           `docs.yml` audits TWO catalog lanes and only the API one was
+           rebuilt. The runtime lane is stale in all nine languages from
+           364's renames, so a dispatch fails today.
 
-           It is the only item on this sheet whose effect is visible outside
-           the repository, which is why it is his and not ours. The site is
-           currently serving a build from before the OPS modules existed.
+               NOTHING GOES ON THIS SHEET THAT THE MAINTAINER CANNOT
+               USEFULLY ANSWER. A question whose "yes" produces a failed
+               run is worse than no question: it spends his attention and
+               then makes the failure look like his decision. Q-DOCS-A is
+               BLOCKED, not open, and it returns to this sheet when the
+               runtime rebuild has landed.
+
+           SO THERE IS CURRENTLY NOTHING HERE THAT NEEDS HIM.
 Requested: 2026-09-02 — "for 316 how do we do this, can we do it with vs code
            questions? for any of the items that need my input generate vs code
            questions for me to so we can close the items that way."
@@ -833,8 +841,26 @@ Q-CI-A-ORIGINAL -- HOW SHOULD CI STOP CANCELLING ITSELF?
     useless -- two tests read those files, so CI would go quiet on exactly
     the change that happened.
 
-Q-DOCS-A -- MAY `docs.yml` BE DISPATCHED ON nightly, WHICH PUBLISHES THE
-    DOCUMENTATION SITE?
+Q-DOCS-A -- BLOCKED 2026-09-10, NOT OPEN. DO NOT ASK IT YET.
+    `docs.yml` audits BOTH catalog lanes. The API lane was rebuilt on
+    2026-09-10 (main 1d34aa3c1, ten catalogs at 10,307 symbols); the RUNTIME
+    lane was not, and 364's fourteen renamed and retired keys have staled it
+    in all nine languages -- SETTING_LABELS 7 missing and 14 stale,
+    SETTING_TOOLTIPS the same plus 14 degenerate, SOURCE_HASHES 14 missing,
+    29 stale and 5 wrong, and in zh_CN, hi and ko seven of 364's NEW names
+    are still sitting there in English.
+
+    A DISPATCH TODAY FAILS, on the settings surface. It returns to this
+    sheet the moment the runtime rebuild lands, and the recommendation below
+    stands unchanged for that day.
+
+    THE MISTAKE THAT PUT IT HERE IS WORTH KEEPING: one lane's audit was
+    fixed and read as "the thing blocking the publish is gone", without
+    re-running the other. One green signal is not the picture.
+
+    (The question as originally put follows.)
+Q-DOCS-A-ORIGINAL -- MAY `docs.yml` BE DISPATCHED ON nightly, WHICH PUBLISHES
+    THE DOCUMENTATION SITE?
     Its Pages steps are gated on `main`, OR a `workflow_dispatch` on
     `nightly`. So a dispatch is not a dry run: it deploys. The gate's own
     wording is "an explicit audited nightly", which reads as a deliberate

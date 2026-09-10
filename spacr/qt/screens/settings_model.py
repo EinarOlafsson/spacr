@@ -1567,7 +1567,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Controls & Filters", (
             "positive_control_id", "negative_control_id",
             "positive_control_wells", "negative_control_wells",
-            "mixed_control_wells", "exclude_grnas", "controls",
+            "mixed_control_wells", "exclude_grnas", "nontargeting_control_grnas",
             "filter_column", "filter_value",
             "min_cells_per_well", "min_observations_per_hit", "fraction_threshold",
             # DIRECTLY UNDER THE NUMBER IT REPLACES. It says "measure this

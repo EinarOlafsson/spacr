@@ -6807,7 +6807,7 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
         results['feature'], results['grna'],
         nc=settings.get('negative_control_id'),
         pc=settings.get('positive_control_id'),
-        controls=settings.get('controls'))
+        controls=settings.get('nontargeting_control_grnas'))
 
     from .thresholds import coefficient_threshold
 
@@ -7015,7 +7015,7 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
                 gene_results['feature'], gene_results['gene'],
                 nc=settings.get('negative_control_id'),
                 pc=settings.get('positive_control_id'),
-                controls=settings.get('controls'))
+                controls=settings.get('nontargeting_control_grnas'))
             gene_primary = gene_results.loc[
                 gene_results['minimum_wells_threshold'] == primary].copy()
             print(f"Gene pass: {len(gene_primary)} genes tested as sets in "
@@ -7283,7 +7283,7 @@ def _annotate_level_coefficients(coef_df, n_grna, n_gene):
 def _level_control_rows(frame, level, controls):
     """The control rows of ONE fit's table, matched at that fit's own level.
 
-    ``settings['controls']`` names GUIDES. The guide fit matches them whole,
+    ``settings['nontargeting_control_grnas']`` names GUIDES. The guide fit matches them whole,
     exactly as it always has. The gene fit has no guide column at all -- every
     ``gene_fraction:gene[...]`` row carries ``grna=None`` -- so matching the
     same list there selects nothing and the gene table silently gets no
@@ -7400,7 +7400,7 @@ def _call_level_hits(coef_df, level, settings, regression_type,
     coef_df = coef_df.copy()
 
     # reg_threshold used to be bound only inside the branch below, so a
-    # control-free screen (settings['controls'] is None) hit UnboundLocalError
+    # control-free screen (settings['nontargeting_control_grnas'] is None) hit UnboundLocalError
     # as soon as the toxo volcano block read it. 0 is custom_volcano_plot's own
     # default and means "no coefficient cut-off, select on p <= 0.05 alone",
     # which is the only sensible threshold when there are no controls to
@@ -7408,9 +7408,9 @@ def _call_level_hits(coef_df, level, settings, regression_type,
     reg_threshold = 0
     effect_rule = 'no effect-size cut'
 
-    if settings['controls'] is not None:
+    if settings['nontargeting_control_grnas'] is not None:
         control_coef_df = _level_control_rows(
-            coef_df, level, settings['controls'])
+            coef_df, level, settings['nontargeting_control_grnas'])
 
         # SEVEN METHODS, in one place. It was two -- std and var -- and the
         # maintainer asked for "at least 4 more" reachable from the plot, so
@@ -9170,7 +9170,7 @@ def _perform_regression(settings):
         model_plate_position=settings.get('model_plate_position', True),
         model_data_layout=settings.get('model_data_layout', 'long'),
         nc=settings['negative_control_id'], pc=settings['positive_control_id'],
-        controls=settings['controls'], dst=res_folder,
+        controls=settings['nontargeting_control_grnas'], dst=res_folder,
         # 183: a quiet run gets the summary HEADER and a pointer at the file;
         # verbose gets every coefficient, which is what verbose is for.
         verbose=bool(settings.get('verbose')),
