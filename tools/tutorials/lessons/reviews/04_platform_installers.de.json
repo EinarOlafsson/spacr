@@ -1,0 +1,31 @@
+{
+  "lesson": "04_platform_installers",
+  "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; actual Linux installation distinguished from source-reviewed Windows/macOS guidance",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "de",
+  "title": "Installationsprogramme nach Plattform",
+  "description": "Wählen Sie einen offiziellen Installer, verstehen Sie die automatische Beschleunigerauswahl und freiwilligen Datenschutzoptionen und prüfen Sie die tatsächlich installierte Linux-Laufzeitumgebung.",
+  "objectives": [
+    "Den offiziellen Installer für das Betriebssystem auswählen.",
+    "Automatische Beschleunigung von der ausdrücklichen CPU-only-Wahl unterscheiden.",
+    "Datenschutzoptionen, installierte Versionen und Diagnosewarnungen lesen."
+  ],
+  "prerequisite": "Diese Aufnahme überprüft am 10. September 2026 den mit seiner Prüfsumme abgeglichenen öffentlichen Linux-x86-64-Online-Installer für spaCR 1.5.0.5 mit Python 3.12.13, Qt 6.11.2 und Torch 2.14.0+cu132. Die echte Installation war vor diesen Prüfbildern abgeschlossen. Sie verwendete neue private Laufzeit- und Starterverzeichnisse, vorhandene grafische Systembibliotheken, --skip-system-deps und --no-launch; bestehende Umgebungen oder Systemabhängigkeiten wurden nicht verändert. Vier Referenzkarten sind Anweisungen, keine aufgezeichneten Windows/macOS-Installationen oder erfundenen Terminalausgaben. Windows/macOS-Hinweise wurden nur anhand des aktuellen Installer-Quellcodes geprüft. Die GUI-Aufnahme verwendet ein privates dunkles Profil mit Schriftfaktor 1.5, bereits geschlossener Einführung, Vorladen bei Bedarf und --no-setup; dieses Flag umgeht die separate Datenschutzfrage nicht. Mit der echten Escape-Taste wird der Dialog abgelehnt und alles Freiwillige bleibt aus; die privaten Einstellungen wurden anschließend ausgelesen. Doctor lief mit --no-gpu-probe; Speicherallokation, Geschwindigkeit, Analysen und andere Plattformen werden nicht als geprüft bezeichnet. Fehlgeschlagene Aufnahmeversuche bleiben erhalten und gelten nicht als Anwendungsfehler.",
+  "scenes": [
+    "Verwenden Sie die offizielle spaCR-Veröffentlichung auf GitHub und wählen Sie den Installer für Ihr Betriebssystem. Die Online-Installer laden eine private Python-Laufzeit und wissenschaftliche Abhängigkeiten herunter; eine vorhandene Conda-Umgebung ist nicht nötig. In diesem Linux-Beispiel haben wir die heruntergeladene Datei vor dem Start mit der veröffentlichten Prüfsumme abgeglichen.",
+    "Wählen Sie unter Windows die ausführbare Online-Setup-Datei. Der aktuelle Installer-Quellcode wählt automatische Beschleunigung vor; für reinen CPU-Betrieb lässt sich diese optionale Komponente abwählen. Die Karte erklärt diese Wahl, ist aber weder eine Windows-Installationsaufnahme noch ein Kompatibilitätstest auf Ihrem Computer.",
+    "Wählen Sie unter macOS das universelle Online-Paket für Intel und Apple silicon. Fehlt die Laufzeit, startet der App-Starter die Einrichtung für den jeweiligen Benutzer. Prüfen Sie vor dem Bestätigen von Sicherheitsmeldungen die offizielle Quelle und planen Sie Zeit für Downloads ein. Dies sind anhand des Quellcodes geprüfte Hinweise, keine ausgeführte macOS-Installation.",
+    "Machen Sie unter Linux die geprüfte Datei ausführbar und starten Sie sie aus ihrem Ordner. Die automatische Beschleunigerauswahl ist jetzt Standard; fordern Sie bei Bedarf ausdrücklich CPU an. Unser isolierter Lauf nutzte vorhandene Systembibliotheken und private Pfade und demonstriert daher nicht die Installation von Systemabhängigkeiten.",
+    "Lesen Sie das tatsächliche Installationsprofil, statt aus einem erfolgreichen Start auf das Backend zu schließen. Hier wurde auto angefordert und CUDA auf NVIDIA-Hardware ausgewählt. Der installierte Torch-Build verwendet CUDA dreizehn Punkt zwei. Das identifiziert die Auswahl, ist aber kein GPU-Geschwindigkeitstest.",
+    "Prüfen Sie Paketversion, Qt-Import und Paketpfad. Diese private Laufzeit enthält spaCR eins Punkt fünf Punkt null Punkt fünf. Die Dateien stammen aus der Installation, nicht aus einem bearbeitbaren Quellcode-Checkout. Erfolgreiche Importe validieren nicht jede Analyse oder jedes optionale Dateiformat.",
+    "Der echte erste Start fragt nach freiwilligem Diagnoseteilen, öffentlichen Fehlermeldungen und Kontoeinrichtung. Meldungen wären öffentlich; lesen Sie die Erklärung. Die Aufnahme lehnt den Dialog mit Escape ab, entsprechend Skip, keep all off. Es werden keine Konten verbunden, und die ausgelesenen privaten Einstellungen bestätigen, dass Teilen und Meldeaktionen ausgeschaltet bleiben.",
+    "Nach dieser Wahl öffnet die installierte Anwendung ihre aktuelle Home mit einundzwanzig Kacheln und sechs Kernmodulen. Das Fenster schließt auch normal. Lernen Sie die verschachtelten Abläufe und Beispieldaten in der Home-Lektion kennen; Home allein zu öffnen ist kein Analysetest.",
+    "Führen Sie spacr-doctor aus der installierten Laufzeit aus und lesen Sie Warnungen ebenso wie bestandene Prüfungen. Hier bestätigt es das Installer-Backend, warnt aber vor einer fehlenden optionalen CZI-Abhängigkeit. GPU-Allokation, Datenbank und Einstellungen wurden nicht geprüft. Übersprungen heißt nicht bestanden; bewerten Sie die vorgeschlagene Reparatur vor einer Umgebungsänderung.",
+    "Bewahren Sie install Punkt log und install-profile Punkt json aus dem gewählten Installationsverzeichnis zur Fehlersuche auf. Prüfen Sie Protokolle vor dem Teilen auf private Informationen. Dokumentieren Sie die Version jeder Analyse und aktualisieren Sie bewusst. Die Lektionen zu pip und Conda erläutern die anderen Installationswege mit getrennten Umgebungen."
+  ]
+}

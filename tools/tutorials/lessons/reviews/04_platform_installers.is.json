@@ -1,0 +1,31 @@
+{
+  "lesson": "04_platform_installers",
+  "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; actual Linux installation distinguished from source-reviewed Windows/macOS guidance",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "is",
+  "title": "Uppsetningarforrit fyrir mismunandi stýrikerfi",
+  "description": "Veldu opinbert uppsetningarforrit, skildu sjálfvirkt val á hröðun og valfrjálsar persónuverndarstillingar og athugaðu raunverulega uppsetta Linux-umhverfið.",
+  "objectives": [
+    "Velja opinbert uppsetningarforrit fyrir stýrikerfið.",
+    "Greina sjálfvirka hröðun frá skýru vali um að nota eingöngu CPU.",
+    "Lesa persónuverndarvalkosti, uppsettar útgáfur og viðvaranir úr greiningu."
+  ],
+  "prerequisite": "Upptakan sannreynir opinbera netuppsetningarforritið fyrir Linux x86-64, spaCR 1.5.0.5, sem var borið saman við gátsummu 10. september 2026, með Python 3.12.13, Qt 6.11.2 og Torch 2.14.0+cu132. Raunverulegri uppsetningu var lokið áður en staðfestingarmyndirnar voru teknar. Hún notaði nýjar einkamöppur fyrir keyrsluumhverfi og ræsiforrit, fyrirliggjandi grafísk kerfissöfn, --skip-system-deps og --no-launch; engum fyrirliggjandi umhverfum eða kerfishugbúnaði var breytt. Fjögur viðmiðunarspjöld eru leiðbeiningar, ekki upptökur af Windows/macOS-uppsetningum eða tilbúið skjáhermisúttak. Windows/macOS-leiðbeiningar voru aðeins yfirfarnar út frá núverandi frumkóða uppsetningarforritanna. Viðmótsupptakan notar einkasnið með dökku þema, leturkvarða 1.5, þegar lokaða kynningu, forhleðslu eftir þörfum og --no-setup, sem sleppir ekki aðskildu persónuverndarspurningunni. Henni er hafnað með raunverulegum Escape-takka og allir valfrjálsir kostir haldast óvirkir; einkastillingarnar voru lesnar aftur til staðfestingar. Doctor notaði --no-gpu-probe; ekki er fullyrt að minnisúthlutun, hraði, greiningar eða önnur stýrikerfi hafi verið sannreynd. Misheppnaðar upptökutilraunir eru varðveittar og ekki taldar hugbúnaðargallar.",
+  "scenes": [
+    "Notaðu opinbera spaCR-útgáfu á GitHub og veldu uppsetningarforrit fyrir stýrikerfið þitt. Netuppsetningarforritin sækja sérstakt Python-keyrsluumhverfi og hugbúnað sem vísindalegu greiningarnar þurfa; ekki þarf Conda-umhverfi fyrir. Í þessu Linux-dæmi bárum við niðurhalaða skrá saman við gátsummu útgáfunnar áður en hún var keyrð.",
+    "Í Windows velurðu keyrsluskrána fyrir netuppsetningu. Núverandi frumkóði uppsetningarforritsins forvelur sjálfvirka hröðun; hægt er að taka hakið af þeim valfrjálsa hluta fyrir CPU eingöngu. Spjaldið útskýrir valið en er hvorki upptaka af Windows-uppsetningu né samhæfingarpróf á tölvunni þinni.",
+    "Í macOS velurðu almenna netpakkann fyrir Intel og Apple silicon. Ræsiforrit appsins byrjar uppsetningu fyrir hvern notanda ef keyrsluumhverfið vantar. Staðfestu opinberan uppruna áður en öryggisfyrirmæli eru samþykkt og gefðu niðurhali tíma. Þetta eru leiðbeiningar yfirfarnar út frá frumkóða, ekki framkvæmd macOS-uppsetning.",
+    "Í Linux gerirðu staðfesta skrá keyranlega og ræsir hana úr möppunni hennar. Sjálfvirkt val á hröðun er nú sjálfgefið; veldu CPU sérstaklega ef það er það sem þú þarft. Aðskilin keyrsla okkar endurnýtti kerfissöfn og einkaslóðir og sýndi því ekki uppsetningu kerfishugbúnaðar sem forritið þarf.",
+    "Lestu raunverulegt uppsetningarsnið í stað þess að álykta um bakenda út frá vel heppnaðri ræsingu. Hér var óskað eftir auto og CUDA valið á NVIDIA-vélbúnaði. Uppsetta Torch-útgáfan er byggð fyrir CUDA þrettán punktur tveir. Þetta greinir valið en er ekki hraðamæling á GPU.",
+    "Athugaðu útgáfu pakkans, innflutning Qt og pakkaslóð. Þetta sérstaka keyrsluumhverfi inniheldur spaCR einn punktur fimm punktur núll punktur fimm. Skrárnar koma úr uppsetningunni en ekki breytanlegu frumkóðaafriti. Vel heppnaður innflutningur sannreynir ekki allar greiningar eða valkvæð skráarsnið.",
+    "Við raunverulega fyrstu ræsingu er spurt um valfrjálsa deilingu greiningarupplýsinga, opinberar villutilkynningar og uppsetningu reikninga. Tilkynningar yrðu opinberar, svo lestu skýringuna. Í upptökunni er glugganum hafnað með Escape, jafngilt Skip, keep all off. Engir reikningar eru tengdir og einkastillingar staðfesta að deiling og tilkynningaaðgerðir haldast óvirkar.",
+    "Eftir þetta val opnar uppsetta appið núverandi Home með tuttugu og einni flís og sex kjarnaeiningum. Glugginn lokast líka eðlilega. Haltu áfram í Home-kennslustundina til að læra um hreiðruð verkferli og dæmisgögn; það eitt að opna Home er ekki greiningarpróf.",
+    "Keyrðu spacr-doctor úr uppsetta umhverfinu og lestu bæði viðvaranir og niðurstöður prófa sem stóðust. Hér staðfestir það bakenda uppsetningarinnar en varar við því að hugbúnað vanti fyrir valkvæðan CZI-stuðning. GPU-úthlutun, gagnagrunns- og stillingaprófum var sleppt. Próf sem er sleppt er ekki staðist; mettu ráðlagða viðgerð áður en umhverfinu er breytt.",
+    "Geymdu install punktur log og install-profile punktur json úr valinni uppsetningarmöppu við bilanagreiningu. Leitaðu að einkaupplýsingum í annálum áður en þú deilir þeim. Skráðu útgáfu hverrar greiningar og uppfærðu meðvitað. Kennslustundir um pip og Conda lýsa öðrum uppsetningarleiðum með aðskildum umhverfum."
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "04_platform_installers",
+  "number": 4,
+  "slug": "platform_installers",
+  "title": "Platform installers",
+  "series": 1,
+  "app_key": null,
+  "section": "spaCR",
+  "description": "Choose an official desktop installer, understand automatic accelerator selection and optional privacy choices, and verify the actual installed Linux runtime.",
+  "objectives": [
+    "Select the official installer for the operating system.",
+    "Distinguish automatic acceleration from an explicit CPU-only choice.",
+    "Read privacy choices, installed versions and diagnostic warnings."
+  ],
+  "prerequisite": "This recording verifies the checksum-matched public Linux x86-64 online installer for spaCR 1.5.0.5 on 2026-09-10, with Python 3.12.13, Qt 6.11.2 and Torch 2.14.0+cu132. The real install finished before these verification frames. It used a new private runtime and launcher directory, existing system GUI libraries, --skip-system-deps and --no-launch; no existing environment or system dependency was changed. Four reference cards are instructions, not recorded Windows/macOS installations or fabricated terminal output. Windows/macOS guidance was checked against current installer source only. The GUI recording uses a private dark profile at font scale 1.5, a dismissed tour, on-demand preload and --no-setup, which does not bypass the separate privacy prompt. Native Escape rejects that prompt with every optional choice off; the private preferences were read back. Doctor used --no-gpu-probe; no allocation, speed, analysis or other-platform validation is claimed. Earlier failed recorder takes are retained, not counted as application defects.",
+  "scenes": [
+    {
+      "visual": "08_official_release",
+      "narration": "Use the official spaCR GitHub release and match the installer to your operating system. The online installers download a private Python runtime and scientific dependencies; an existing Conda environment is not required. For this Linux example, we checked the downloaded file against the release checksum before running it.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_windows_guidance",
+      "narration": "On Windows, select the online setup executable. The current installer source preselects automatic acceleration; its optional component can be unticked for CPU-only operation. This card explains that choice, but it is not a Windows installation recording or a compatibility test on your computer.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "10_macos_guidance",
+      "narration": "On macOS, select the universal online package for Intel and Apple silicon. The app launcher starts per-user setup if its runtime is missing. Verify the official source before approving security prompts, and allow time for downloads. This is source-reviewed guidance, not an executed macOS installation.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "11_linux_commands",
+      "narration": "On Linux, make the verified download executable and run it from its folder. Automatic accelerator selection is now the default; request the CPU backend explicitly if that is what you need. Our isolated run reused existing system libraries and used private paths, so it did not demonstrate installing system dependencies.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "02_installer_backend",
+      "narration": "Read the actual install profile rather than inferring the backend from a successful launch. Here the request was auto and the selected backend is CUDA on NVIDIA hardware. The installed Torch build is CUDA thirteen point two. This identifies the selection; it is not a GPU speed benchmark.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "03_installed_versions",
+      "narration": "Check the installed package version, Qt import and package path. This private runtime contains spaCR one point five point zero point five. Its files come from the installation, not an editable source checkout. Successful imports do not validate every analysis or optional file format.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "07_privacy_keep_off",
+      "narration": "The real first launch asks about optional diagnostic sharing, public issue reports and account setup. Reports would be public, so read the explanation. This recording rejects the dialog with Escape, equivalent to Skip, keep all off. No accounts are connected, and the private preferences confirm that sharing and issue actions remain off.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "06_installed_home",
+      "narration": "After that choice, the installed application opens its current Home with twenty-one tiles and six core modules. The window closes normally too. Continue with the Home lesson to learn the nested workflows and their example data; opening Home alone is not an analysis test.",
+      "related_lessons": [
+        "05_home"
+      ],
+      "hold_after": 0.7
+    },
+    {
+      "visual": "05_doctor",
+      "narration": "Run spacr-doctor from the installed runtime and read warnings as well as passes. Here it confirms the installer backend but warns about a missing optional CZI dependency. This run skipped GPU allocation, database and settings checks. A skipped check is not a pass; assess the suggested repair before changing the environment.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "12_logs_and_versions",
+      "narration": "Keep install dot log and install-profile dot json from the chosen installation directory when diagnosing a problem. Review logs for private information before sharing them. Record the version used for each analysis, and treat updates deliberately. The pip and Conda lessons describe the separate environment-based installation routes.",
+      "related_lessons": [
+        "01_pypi_github",
+        "02_conda_install",
+        "03_pip_install"
+      ],
+      "hold_after": 0.7
+    }
+  ]
+}

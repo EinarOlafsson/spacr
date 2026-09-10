@@ -1,0 +1,31 @@
+{
+  "lesson": "04_platform_installers",
+  "english_sha256": "2a2b38873362614a3171567c318585a0ca7e05be69c253e9c971c9d2d22765e9",
+  "review": {
+    "kind": "Parent editorial translation of frozen English; actual Linux installation distinguished from source-reviewed Windows/macOS guidance",
+    "independent_peer_review": false,
+    "native_speaker_signoff": false,
+    "listening_review": false
+  },
+  "language": "sv",
+  "title": "Installationsprogram för olika plattformar",
+  "description": "Välj ett officiellt installationsprogram, förstå automatiskt val av accelerator och frivilliga integritetsval och kontrollera den faktiskt installerade Linux-miljön.",
+  "objectives": [
+    "Välja det officiella installationsprogrammet för operativsystemet.",
+    "Skilja automatisk acceleration från ett uttryckligt val av enbart CPU.",
+    "Läsa integritetsval, installerade versioner och diagnostiska varningar."
+  ],
+  "prerequisite": "Inspelningen kontrollerar det offentliga onlineinstallationsprogrammet för Linux x86-64, spaCR 1.5.0.5, jämfört med kontrollsumman den 10 september 2026, med Python 3.12.13, Qt 6.11.2 och Torch 2.14.0+cu132. Den verkliga installationen var klar före kontrollbilderna. Den använde nya privata kataloger för körmiljö och startprogram, befintliga grafiska systembibliotek, --skip-system-deps och --no-launch; inga befintliga miljöer eller systemberoenden ändrades. Fyra referenskort är instruktioner, inte inspelade Windows/macOS-installationer eller påhittad terminalutmatning. Windows/macOS-anvisningarna har bara kontrollerats mot installationsprogrammets aktuella källkod. GUI-inspelningen använder en privat mörk profil, teckensnittsskala 1.5, redan stängd introduktion, förinläsning vid behov och --no-setup, som inte hoppar över den separata integritetsfrågan. Den avvisas med den verkliga Escape-tangenten så att alla frivilliga val är avstängda; de privata inställningarna lästes tillbaka för bekräftelse. Doctor använde --no-gpu-probe; ingen verifiering av allokering, hastighet, analyser eller andra plattformar hävdas. Misslyckade inspelningsförsök bevaras och räknas inte som programfel.",
+  "scenes": [
+    "Använd spaCR:s officiella utgåva på GitHub och välj installationsprogrammet för ditt operativsystem. Onlineinstallationsprogrammen hämtar en privat Python-körmiljö och vetenskapliga beroenden; en befintlig Conda-miljö behövs inte. I detta Linux-exempel jämförde vi den hämtade filen med utgåvans kontrollsumma före körning.",
+    "På Windows väljer du den körbara onlineinstallationsfilen. Den aktuella källkoden förväljer automatisk acceleration; avmarkera den valfria komponenten om du endast vill använda CPU. Kortet förklarar valet men är varken en inspelad Windows-installation eller ett kompatibilitetstest på din dator.",
+    "På macOS väljer du det universella onlinepaketet för Intel och Apple silicon. Appens startprogram börjar konfigurera användarens miljö om körmiljön saknas. Kontrollera den officiella källan innan säkerhetsfrågor godkänns och avsätt tid för hämtningar. Det är källkodsgranskad vägledning, inte en utförd macOS-installation.",
+    "På Linux gör du den verifierade filen körbar och startar den från dess katalog. Automatiskt val av accelerator är nu standard; begär uttryckligen CPU om det behövs. Vår isolerade körning återanvände systembibliotek och privata sökvägar och demonstrerade därför inte installation av systemberoenden.",
+    "Läs den verkliga installationsprofilen i stället för att dra slutsatser om beräkningsmotorn från en lyckad start. Här begärdes auto och den valda motorn är CUDA på NVIDIA-hårdvara. Installerad Torch är byggd för CUDA tretton punkt två. Det identifierar valet, men är inget GPU-hastighetstest.",
+    "Kontrollera paketversion, Qt-import och paketsökväg. Denna privata körmiljö innehåller spaCR ett punkt fem punkt noll punkt fem. Filerna kommer från installationen, inte en redigerbar källkodskopia. Lyckade importer verifierar inte varje analys eller valfritt filformat.",
+    "Den verkliga första starten frågar om frivillig diagnostikdelning, offentliga felrapporter och kontoinställningar. Rapporter skulle vara offentliga, så läs förklaringen. Inspelningen avvisar dialogen med Escape, motsvarande Skip, keep all off. Inga konton ansluts, och privata inställningar bekräftar att delning och rapportåtgärder förblir avstängda.",
+    "Efter valet öppnar den installerade appen sin aktuella Home med tjugoen rutor och sex kärnmoduler. Fönstret stängs också normalt. Fortsätt med Home-lektionen om nästlade arbetsflöden och exempeldata; att enbart öppna Home är inget analystest.",
+    "Kör spacr-doctor från den installerade körmiljön och läs både varningar och godkända kontroller. Här bekräftas installationsprogrammets motor, men ett valfritt CZI-beroende saknas. GPU-allokering, databas och inställningar hoppades över. En överhoppad kontroll är inte godkänd; bedöm den föreslagna reparationen innan miljön ändras.",
+    "Spara install punkt log och install-profile punkt json från den valda installationskatalogen vid felsökning. Granska loggar efter privata uppgifter innan du delar dem. Anteckna versionen för varje analys och uppdatera medvetet. Lektionerna om pip och Conda beskriver de andra installationsvägarna med separata miljöer."
+  ]
+}
