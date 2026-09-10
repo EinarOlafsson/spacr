@@ -76,7 +76,7 @@ def _settings():
         "multiple_testing_method": "fdr_bh", "fdr_alpha": 0.05,
         "fraction_threshold": 0.01, "min_cells_per_well": 25, "level": "both",
         "guide_permutations": 1000, "guide_permutation_block": "plateID",
-        "positive_control": "220950", "negative_control": "000000",
+        "positive_control_id": "220950", "negative_control_id": "000000",
         "controls": ["000000_1", "000000_2", "000000_3"],
     }
 

@@ -31,8 +31,8 @@ class TestControlRecovery:
         from spacr.trial_metrics import control_recovery
 
         out = control_recovery(_results(),
-                               {"positive_control": "239740",
-                                "negative_control": "233460"})
+                               {"positive_control_id": "239740",
+                                "negative_control_id": "233460"})
         assert out["positive_control_found"]
         # EAF1 is smaller, so the positive control is second among the reals.
         assert out["positive_control_rank"] == 2
@@ -43,7 +43,7 @@ class TestControlRecovery:
         thing a configuration can tell you."""
         from spacr.trial_metrics import control_recovery
 
-        out = control_recovery(_results(), {"negative_control": "233460"})
+        out = control_recovery(_results(), {"negative_control_id": "233460"})
         assert out["negative_control_found"]
         assert out["negative_control_q"] == pytest.approx(0.51)
 
@@ -51,15 +51,15 @@ class TestControlRecovery:
         from spacr.trial_metrics import control_recovery
 
         out = control_recovery(_results(),
-                               {"positive_control": "239740",
-                                "negative_control": "233460"})
+                               {"positive_control_id": "239740",
+                                "negative_control_id": "233460"})
         assert out["control_rank_separation"] == (
             out["negative_control_rank"] - out["positive_control_rank"])
 
     def test_a_control_that_is_absent_says_so_rather_than_vanishing(self):
         from spacr.trial_metrics import control_recovery
 
-        out = control_recovery(_results(), {"positive_control": "999999"})
+        out = control_recovery(_results(), {"positive_control_id": "999999"})
         assert out["positive_control_found"] is False
 
     def test_no_control_named_means_no_columns_invented(self):
@@ -167,8 +167,8 @@ class TestTheWholeRow:
         from spacr.trial_metrics import summarise_trial
 
         row = summarise_trial({"results": _results(), "model": None},
-                              {"positive_control": "239740",
-                               "negative_control": "233460"})
+                              {"positive_control_id": "239740",
+                               "negative_control_id": "233460"})
         assert "r_squared" not in row            # no model to ask
         assert row["positive_control_rank"] == 2  # but this survived
         assert "genomic_inflation" not in row or row["n_tests"] >= 0

@@ -1842,11 +1842,12 @@ def _call_section(run: "_Run") -> List[SummaryField]:
                       ("positive_percentile", "positive_control_percentile")):
         value = run.metrics.get(key)
         if value is None:
-            named = _clean(_setting(run.settings, "positive_control"))
+            named = _clean(_setting(run.settings, "positive_control_id"))
             add(name, reason=(
                 f"the positive control {named!r} has no coefficient in this "
                 f"table" if named else
-                "no positive_control was named in the settings, so there is "
+                "no positive_control_id was named in the settings, so there "
+                "is "
                 "no yardstick to rank against"))
         elif name == "positive_rank":
             total = _count(run.metrics.get("n_ranked"))

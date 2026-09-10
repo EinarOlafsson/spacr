@@ -50,7 +50,7 @@ METADATA_COLUMNS: Tuple[str, ...] = (
 RETIRED = (
     "annotation_column", "annotation_columns", "annotation_values",
     "annotated_classes", "write_random_annotation_column",
-    "location_column", "positive_control", "negative_control",
+    "location_column", "positive_control_id", "negative_control_id",
 )
 
 
@@ -370,7 +370,7 @@ def _rules_from_metadata(settings: Mapping[str, Any]) -> List[ClassRule]:
     names = folder_names(settings)
 
     rules: List[ClassRule] = []
-    for i, key in enumerate(("negative_control", "positive_control")):
+    for i, key in enumerate(("negative_control_id", "positive_control_id")):
         value = settings.get(key)
         if value in (None, ""):
             continue

@@ -488,7 +488,7 @@ def _make_screen(app_key=None, host=None):
                 return run_sweep_parallel(
                     base, destination, space, mode=mode,
                     max_trials=max_trials, seed=seed, n_jobs=workers,
-                    controls={"positive": str(base.get("positive_control",
+                    controls={"positive": str(base.get("positive_control_id",
                                                        "239740"))})
 
             # Bound method, so the handler runs on the GUI thread.

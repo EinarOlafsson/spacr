@@ -1078,6 +1078,18 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     # "min_cell_count" counts cells and drops WELLS. The count is per well
     # and the name does not say so, which is why the tooltip had to.
     "min_cell_count": "min_cells_per_well",
+    # RENAMED, NOT WITHDRAWN. The setting is an IDENTIFIER looked up in
+    # `location_column`, and it sat beside three settings naming WELLS
+    # (`positive_control_wells` and friends) with nothing in the name to
+    # tell them apart. `settings._fold_renamed_settings` copies an old
+    # file's value to the new name before any default is filled in, so a
+    # settings CSV written before this keeps behaving exactly as it did.
+    #
+    # The `generate_ml_scores` PARAMETERS of the same name are unchanged
+    # -- a public signature, already decoupled from the setting at four
+    # call sites that pass `pc=`/`nc=`.
+    "positive_control": "positive_control_id",
+    "negative_control": "negative_control_id",
     # SPLIT, not renamed (357-Q6). It meant the invasion assay's stain
     # baseline AND the wells Regression and sequencing drop before fitting,
     # with different defaults and no way to set one without setting the

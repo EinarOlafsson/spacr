@@ -1491,7 +1491,8 @@ def set_default_classify(settings):
     set_default_analyze_screen(settings)
     deep_spacr_defaults(settings)
 
-    # `location_column`, `positive_control` and `negative_control` come from
+    # `location_column`, `positive_control_id` and `negative_control_id`
+    # come from
     # the ML factory, and the Classes dict now says the same thing better: a
     # control well IS a class defined by a metadata column, which is exactly a
     # row of that dict. Three settings saying it a second way were three ways
@@ -1501,7 +1502,7 @@ def set_default_classify(settings):
     # offers them, and an old settings CSV that sets them still trains on the
     # same wells -- spacr.classify_classes.normalize_settings turns them into
     # class rules before anything reads them.
-    for retired in ("location_column", "positive_control", "negative_control"):
+    for retired in ("location_column", "positive_control_id", "negative_control_id"):
         settings.pop(retired, None)
     return settings
 
@@ -1512,6 +1513,11 @@ def set_default_analyze_screen(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    # BEFORE ANY DEFAULT IS FILLED IN (364). A settings file naming a
+    # renamed key must reach the new name carrying its VALUE, and a
+    # `setdefault` that ran first would already have put the default
+    # there -- so the user's number would be silently replaced by ours.
+    _fold_renamed_settings(settings)
     settings.setdefault('src', 'path')
     # The shared training basis. `resolve_basis` is what keeps an older
     # settings CSV -- which selected the basis IMPLICITLY, by whether
@@ -1544,8 +1550,8 @@ def set_default_analyze_screen(settings):
     settings.setdefault('n_estimators',1000)
     settings.setdefault('test_size',0.2)
     settings.setdefault('location_column','columnID')
-    settings.setdefault('positive_control','c2')
-    settings.setdefault('negative_control','c1')
+    settings.setdefault('positive_control_id','c2')
+    settings.setdefault('negative_control_id','c1')
     settings.setdefault('exclude',None)
     settings.setdefault('nuclei_limit',True)
     settings.setdefault('pathogen_limit',3)
@@ -1557,7 +1563,7 @@ def set_default_analyze_screen(settings):
     settings.setdefault('batch_column', 'plateID')
     settings.setdefault('batch_control_column', None)
     # Keep this blank so control_center follows the module's current
-    # negative_control value instead of silently retaining a stale 'c1' when
+    # negative_control_id value instead of silently retaining a stale 'c1' when
     # the user changes the plate layout.
     settings.setdefault('batch_control_values', None)
     settings.setdefault('batch_covariate_column', None)
@@ -1608,6 +1614,24 @@ RENAMED_SETTINGS = {
     # per well -- which the tooltip has to say ("Wells with fewer than
     # this many cells are dropped") because the name does not.
     "min_cell_count": "min_cells_per_well",
+    # THE SETTING IS AN IDENTIFIER, NOT A WELL AND NOT A CONDITION, and
+    # its own tooltip has always had to say so: "Identifier of the
+    # positive-control class. In ML screening it is the value in
+    # location_column". Three neighbouring settings name WELLS --
+    # `positive_control_wells`, `negative_control_wells`,
+    # `mixed_control_wells` -- so a reader meeting `positive_control`
+    # beside them has no way to tell that this one is a value looked up
+    # in a metadata column rather than a plate address.
+    #
+    # THE FUNCTION PARAMETERS ARE NOT RENAMED WITH IT.
+    # `generate_ml_scores` and `_resolve_controls` take
+    # `positive_control='c2'` as PUBLIC arguments, and four call sites
+    # already pass them as `pc=`/`nc=` -- so the setting name and the
+    # kwarg are already decoupled, and renaming a public signature is a
+    # break this rename does not need to make. The tooltips say which is
+    # which.
+    "positive_control": "positive_control_id",
+    "negative_control": "negative_control_id",
     # A SPLIT, NOT A RENAME (357-Q6). One key meant the invasion assay's
     # stain baseline AND the wells Regression and sequencing drop before
     # fitting, with different defaults and no way for a user to set one
@@ -2380,6 +2404,11 @@ def get_perform_regression_default_settings(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    # BEFORE ANY DEFAULT IS FILLED IN (364). A settings file naming a
+    # renamed key must reach the new name carrying its VALUE, and a
+    # `setdefault` that ran first would already have put the default
+    # there -- so the user's number would be silently replaced by ours.
+    _fold_renamed_settings(settings)
     inference_was_supplied = 'inference' in settings
 
     # One row states one score/count relationship. Legacy score_data and
@@ -2502,8 +2531,8 @@ def get_perform_regression_default_settings(settings):
     # panel or `spacr-run regression`, which all build their dict here.
     settings.setdefault('rra_alpha', 0.25)
     settings.setdefault('rra_permutations', 10000)
-    settings.setdefault('positive_control','239740')
-    settings.setdefault('negative_control','233460')
+    settings.setdefault('positive_control_id','239740')
+    settings.setdefault('negative_control_id','233460')
     settings.setdefault('min_observations_per_hit', 0)
     # THE GENE, NOT THIRTY OF ITS GUIDES (195). Asked for 2026-08-21:
     # "default for controlls in regression should be 000000".
@@ -2521,7 +2550,7 @@ def get_perform_regression_default_settings(settings):
     # takes a mixture of genes and guides -- so a settings CSV written
     # before this reproduces.
     #
-    # NOT `negative_control`, which stays '233460'. The two are different
+    # NOT `negative_control_id`, which stays '233460'. The two are different
     # things: 233460 is a real gene knocked out and expected to show
     # nothing; 000000 binds without cutting and is the empirical null every
     # threshold is measured against.
@@ -2914,7 +2943,7 @@ def get_perform_regression_default_settings(settings):
     # than refused: every regression run before 2026-08-17 wrote one, and a
     # saved settings file that suddenly fails to load is a worse outcome than
     # a key nothing reads. Same treatment `location_column`,
-    # `positive_control` and `negative_control` already get above.
+    # `positive_control_id` and `negative_control_id` already get above.
     settings.pop('volcano', None)
     # THE REGRESSION PLOT SETTINGS STOP BEING SETTINGS (instruction 135):
     # "Regression plot can be removed . hard code regression qc and guide
@@ -3516,8 +3545,8 @@ expected_types = {
     "n_estimators": int,
     "test_size": float,
     "location_column": str,
-    "positive_control": str,
-    "negative_control": str,
+    "positive_control_id": str,
+    "negative_control_id": str,
     "n_repeats": int,
     "top_features": int,
     "remove_low_variance_features": bool,
@@ -4402,7 +4431,7 @@ tooltips = {
     "batch_correction": "(str) - Plate/batch correction applied before Image UMAP, ML screen classification or phenotype regression. 'none' leaves measurements alone; 'center' removes each plate's mean shift; 'zscore' aligns plate means and variances; 'robust_zscore' uses median/MAD and tolerates outliers; 'combat' models the batch effect while protecting the terms named in batch_covariate_column. Correct when plates were stained or imaged separately; leave off when they were not, since every method removes real signal that happens to align with plate. See spacr.batch_correction.correct_batch_effects. Default 'none'.",
     "batch_column": "(str) - Metadata column that identifies independent acquisition batches, normally 'plateID'. Every analyzed row must have a value and at least batch_min_samples rows must occur in each batch. Use an acquisition date or instrument ID only if that is the nuisance source you intend to remove. Default 'plateID'. API: spacr.batch_correction.correct_batch_effects.",
     "batch_control_column": "(str or None) - Metadata column containing reference-control labels for control_center, normally 'columnID' for plate controls. It is ignored by center, zscore, robust_zscore, and none. Blank follows col_to_compare in Image UMAP or location_column in Classify (ML); regression defaults to 'columnID'. API: spacr.batch_correction.correct_batch_effects.",
-    "batch_control_values": "(str, number, list or None) - Reference/negative-control value(s) in batch_control_column used by control_center. Each plate needs at least batch_min_samples matching rows. Image UMAP falls back to neg and Classify (ML) to negative_control when this field is blank; regression requires an explicit value. Default varies by module. API: spacr.batch_correction.correct_batch_effects.",
+    "batch_control_values": "(str, number, list or None) - Reference/negative-control value(s) in batch_control_column used by control_center. Each plate needs at least batch_min_samples matching rows. Image UMAP falls back to neg and Classify (ML) to negative_control_id when this field is blank; regression requires an explicit value. Default varies by module. API: spacr.batch_correction.correct_batch_effects.",
     "batch_covariate_column": "(str, list or None) - Metadata column(s) naming the biological effects ComBat must preserve, for example 'condition' or 'condition,timepoint'. ComBat estimates the batch effect from residuals after fitting these terms, so unlisted effects may be removed with the plate effect. Include every treatment effect that must remain in the corrected data. See spacr.batch_correction.correct_batch_effects. Default None.",
     "batch_combat_mean_only": "(bool) - True corrects only the additive batch shift and leaves each batch's scale alone. Use it when the plates differ in level but not in spread, or when a batch has too few rows for a stable variance estimate. False (the default) corrects both location and scale, which is standard ComBat. Ignored by every method other than combat. API: spacr.batch_correction.correct_batch_effects.",
     "batch_min_samples": "(int) - Minimum number of rows required in every batch, and minimum matching reference controls per batch for control_center. Correction stops with an actionable error below this threshold because a one- or two-object plate estimate is unstable. Default 3. API: spacr.batch_correction.correct_batch_effects.",
@@ -4636,7 +4665,7 @@ tooltips = {
     "intermedeate_save": "(bool, sequence of float, or None) - Control archival model snapshots on improving epochs. True or None uses validation-accuracy thresholds 0.99, 0.98, 0.95 and 0.94; False disables archival snapshots; and a sequence supplies custom thresholds. Best-model and last-model checkpoints remain enabled independently, so False does not remove those recovery artifacts. Default True.",
     "invert": "(bool) - Invert intensities as each image is loaded, pixel -> dtype_max - pixel (255 - x for uint8). Switch it on for brightfield or phase-contrast data where objects are darker than the background, since Cellpose expects bright objects on a dark field; leave it off for fluorescence. Default False.",
     "learning_rate": "(float) - Initial optimizer step size. Values that are too high may prevent convergence; values that are too low may slow convergence or converge to a suboptimal solution. A value near 1e-3 is commonly used for training from random initialization, while 1e-4 to 1e-5 is appropriate for fine-tuning ImageNet weights (init_weights=True). The selected schedule modifies this initial value during training. Default 0.001.",
-    "location_column": "(str) - Metadata column searched for positive_control and negative_control values when labelling rows for machine-learning training, normally 'columnID' or 'rowID'. Set 'rowID' when controls are arranged along plate rows instead of columns. annotation_column overrides this setting when specified. Default 'columnID'.",
+    "location_column": "(str) - Metadata column searched for positive_control_id and negative_control_id values when labelling rows for machine-learning training, normally 'columnID' or 'rowID'. Set 'rowID' when controls are arranged along plate rows instead of columns. annotation_column overrides this setting when specified. Default 'columnID'.",
     "log_data": "(bool) - Apply log(x + 1e-6) to every numeric feature, after the correlation filter and before standard scaling. Compresses heavy-tailed measurements such as intensity sums and areas so a handful of bright or huge objects stop dominating the embedding. Negative feature values become NaN and are then filled with the column mean. Default False.",
     "lower_percentile": "(float) - Percentile of the non-zero pixels in each channel used as the low anchor when rescaling that channel to 0-1; the high anchor is chosen automatically between the 98th and 99.5th percentile. Raise it to crush more dim background to black, lower it to preserve faint signal. Valid 0-100, default 2.",
     "manders_thresholds": "(list) - Percentiles (0-100) used by the activation-map correlation report in spacr.deep_spacr. It no longer affects a measure run: the percentile-pair columns it drove there were removed on 2026-09-02, and measure now writes the three standards-compliant Manders coefficients, which estimate each channel's background inside each object and take no percentile. Default [15, 50, 75].",
@@ -4663,7 +4692,7 @@ tooltips = {
     "model_name": "(str) - Cellpose model used for segmentation. Cellpose 4 provides one stock model, 'cpsam'. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but they are mapped to 'cpsam' and reported. Of the three parameters that previously distinguished models, only diameter remains operational in Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Use 'cpsam' unless loading a custom CPSAM checkpoint. Default 'cpsam'.",
     "model_type": "(str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognized name does not fail during initial validation: choose_model reports 'Invalid model_type' and returns None, after which training fails. The special name 'custom' passes validation and then raises NotImplementedError. Larger backbones require more memory and generally need more labeled crops than smaller backbones. Default 'maxvit_t'.",
     "model_type_ml": "(str) - Classifier fitted by ml_analysis to separate positive- from negative-control wells and rank per-object features by permutation importance. Options are xgboost (default), lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm and mlp; lightgbm and catboost require their optional packages. reg_alpha, reg_lambda and learning_rate affect only boosted models; logistic_regression provides a linear reference model.",
-    "negative_control": "(str) - Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
+    "negative_control_id": "(str) - Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
     "n_estimators": "(int) - Number of trees or boosting rounds in the tabular ML classifier - n_estimators for RandomForest/ExtraTrees/XGBoost/LightGBM, iterations for CatBoost, max_iter for HistGradientBoosting. More rounds keep improving fit up to a plateau while training time grows linearly; boosted models can overfit past it. Default 1000.",
     "n_epochs": "(int) - Number of training passes train_seg makes over the annotated image/mask batch. It also sets the checkpoint interval (a model is saved every n_epochs/10) and is written into the saved model filename. Raise it for a better fit on large annotation sets; lower it when a small set starts overfitting. Default 10000.",
     "n_neighbors": "(int or float) - Size of the local neighbourhood UMAP balances against global structure, and the perplexity when reduction_method is 'tsne'. Small values (5-50) sharpen fine local structure; large values give a smoother, more global embedding. A float is read as a fraction of the number of objects, and anything below 2 is clamped to 2. Default 1000.",
@@ -4685,7 +4714,7 @@ tooltips = {
     "png_dims": "(list of int) - Deprecated in favor of png_channel_mapping and retained for compatibility with older settings files. Under the legacy mapping, entry 0 becomes blue, entry 1 green and entry 2 red, matching the wavelength order 0=405, 1=488 and 2=555. Ignored when png_channel_mapping is set. Default [].",
     "png_channel_mapping": "(dict) - Which source channel goes in each colour of the saved PNG, e.g. {'r': 2, 'g': 1, 'b': 0}: channel 2 is red, 1 is green, 0 is blue. Says outright what png_dims only implied. Channels not named are absent from the crops (measurements are unaffected); a colour left blank is an empty plane. Naming the same channel for all three writes a greyscale PNG. Default {'r': 2, 'g': 1, 'b': 0}, which for a standard 405/488/555 stack puts the nuclear stain in blue.",
     "png_size": "(list of int) - Output crop size as [width, height] in pixels, centred on the object centroid; larger keeps more surroundings, smaller clips large objects. Should match the classifier input size (default [224,224]). With several crop_mode entries pass a list of lists, one size per mode, or a single size is reused for all.",
-    "positive_control": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
+    "positive_control_id": "(str) - Identifier of the positive-control class. In ML screening it is the value in location_column (e.g. 'c2') whose objects are labelled class 1 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '239740') matched against coefficient names to tag them 'pc' in the results and volcano plot. Defaults 'c2' and '239740' respectively.",
     "preprocess": "(bool) - Run image preparation before segmentation: group raw files into per-field channel stacks, optionally subtract background, and percentile-normalize each channel into floating-point arrays. Keep True for unprocessed input; set False only when the normalized arrays already exist, because segmentation requires those arrays. Default True.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
     "spatial_neighbor_radius": "(int) - Radius used by spatial_measurements when counting neighbouring objects. The value is expressed in the units recorded for the measurement table: pixels for two-dimensional data and micrometres for calibrated three-dimensional data. The radius is included in the output column name, so use one value consistently across plates that will be combined. Ignored unless spatial_measurements is enabled. Default 50.",
@@ -5341,7 +5370,7 @@ categories = {
     # change_plate came from "Invasion Assay", where they were shared with the
     # replication assay and so gave that module a heading named after an assay
     # it does not run.
-    "Plate Layout & Controls": ["well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control", "negative_control", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "controls", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "controls", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
     # How the labelled set is assembled, in the order it is assembled:
     # which rule defines a class -> what the classes are -> which crops ->
@@ -7008,6 +7037,11 @@ def set_analyze_invasion_defaults(settings):
     :param settings: dict to fill in place.
     :returns: the settings dict with defaults applied.
     """
+    # BEFORE ANY DEFAULT IS FILLED IN (364). A settings file naming a
+    # renamed key must reach the new name carrying its VALUE, and a
+    # `setdefault` that ran first would already have put the default
+    # there -- so the user's number would be silently replaced by ours.
+    _fold_renamed_settings(settings)
     settings.setdefault('src','path')
     settings.setdefault('parasite_table','pathogen')
     settings.setdefault('compartment','pathogen')

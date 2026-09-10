@@ -182,7 +182,7 @@ def test_the_essentials_still_name_a_group_that_exists():
     # The MODULE's layout, not the shared category map: "@Controls & Filters"
     # is a Qt regroup and `spacr.settings.categories` has never heard of it.
     keys = essential_keys("regression")
-    assert "positive_control" in keys and "negative_control" in keys
+    assert "positive_control_id" in keys and "negative_control_id" in keys
     assert "regression_type" in keys and "dependent_variable" in keys
 
 

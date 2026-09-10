@@ -59,7 +59,7 @@ def _fitted(n_rows=120, n_guides=12, seed=0, pc="239740", full_rank=True):
             "significant": results[results["q_value"] < 0.05]}
 
 
-SETTINGS = {"positive_control": "239740", "negative_control": "233460",
+SETTINGS = {"positive_control_id": "239740", "negative_control_id": "233460",
             "fdr_alpha": 0.05}
 
 

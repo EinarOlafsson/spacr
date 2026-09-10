@@ -32,9 +32,46 @@ from spacr.validate import RETIRED_SETTINGS
 
 #: The factory each renamed setting is declared by, so the fold can be
 #: asked of the function a user's settings file actually goes through.
+#:
+#: IT HELD ONE ENTRY AND THAT WAS THE HOLE. `test_the_fold_runs_before_the
+#: _defaults_are_filled_in` walks this table, so a rename missing from it
+#: was never asked the one question that matters -- and three of the four
+#: renames were missing. The fold had exactly ONE call site in
+#: `settings.py`, so `min_observations_per_hit`, `min_cells_per_well` and
+#: both control identifiers reached their factories after `setdefault` had
+#: already put the default in place: an old settings file naming the old
+#: key kept running and silently lost its VALUE, which is the one failure
+#: a rename is supposed to make impossible.
+#:
+#: `test_every_rename_names_the_factory_that_declares_it` now fails when a
+#: new rename is added without an entry here, so the table cannot go stale
+#: again in the direction that hides the bug.
 FACTORIES = {
     "window_length": "set_default_generate_barecode_mapping",
+    "min_observations_per_hit": "get_perform_regression_default_settings",
+    "min_cells_per_well": "get_perform_regression_default_settings",
+    "positive_control_id": "set_default_analyze_screen",
+    "negative_control_id": "set_default_analyze_screen",
+    "analysis_excluded_wells": "get_perform_regression_default_settings",
+    "stain_baseline_wells": "set_analyze_invasion_defaults",
 }
+
+
+def test_every_rename_names_the_factory_that_declares_it():
+    """A rename with no factory entry is a rename nothing checks.
+
+    The ordering test below walks `FACTORIES`, so an omission here is not
+    a gap in a table -- it is a rename whose fold has never been asked to
+    run before its defaults. That is exactly how three of the four got
+    into the tree with only one call site between them.
+    """
+    from spacr.settings import RENAMED_SETTINGS
+
+    for _old, new in RENAMED_SETTINGS.items():
+        for name in _targets(new):
+            assert name in FACTORIES, (
+                f"{name} is a renamed setting with no factory named here, "
+                "so nothing asserts its fold runs before its defaults")
 
 
 def _targets(new):
@@ -90,13 +127,23 @@ def test_the_fold_runs_before_the_defaults_are_filled_in():
     import spacr.settings as module
 
     for new, factory_name in FACTORIES.items():
-        old = next(o for o, n in RENAMED_SETTINGS.items() if n == new)
+        # A SPLIT REACHES ITS TARGETS FROM ONE OLD KEY, so the lookup is
+        # "which old name leads here" rather than "which maps exactly to
+        # this string" -- `control_wells` maps to a TUPLE, and asking for
+        # an exact match raised StopIteration on both of its halves.
+        old = next(o for o, n in RENAMED_SETTINGS.items()
+                   if new in _targets(n))
         factory = getattr(module, factory_name)
         default = factory({}).get(new)
-        assert default is not None, f"{new} has no default to compare against"
-        mine = factory({old: default + 1 if isinstance(default, int)
-                        else "mine"}).get(new)
-        assert mine != default, (
+        # A PROBE THE DEFAULT CANNOT BE. Comparing "not the default" was
+        # not enough: a setting whose default is None -- and
+        # `stain_baseline_wells` is one -- has nothing to differ from, and
+        # the assertion could only say "no default to compare against"
+        # about the very case it exists to check.
+        probe = default + 1 if isinstance(default, int) else "mine"
+        assert probe != default
+        mine = factory({old: probe}).get(new)
+        assert mine == probe, (
             f"{factory_name} filled in the default before folding {old}, so "
             "a settings file naming the old key silently loses its value")
 

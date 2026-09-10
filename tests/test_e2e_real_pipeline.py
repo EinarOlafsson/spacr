@@ -179,7 +179,7 @@ def test_stage3_generate_ml_scores(pipeline):
     settings = {
         "src": pipeline["src"], "channel_of_interest": 3,
         "location_column": "columnID",
-        "positive_control": "c2", "negative_control": "c1",
+        "positive_control_id": "c2", "negative_control_id": "c1",
         "model_type_ml": "random_forest", "heatmap_feature": "predictions",
         "grouping": "mean", "min_max": "allq", "min_cells_per_well": 25,
         "n_repeats": 2, "top_features": 20, "test_size": 0.25,

@@ -354,8 +354,8 @@ def test_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
     assert "Annotate objects in a second class" in message
     assert "will not assign them a training label" in message
     assert settings["location_column"] == "columnID"
-    assert settings["positive_control"] == "c2"
-    assert settings["negative_control"] == "c1"
+    assert settings["positive_control_id"] == "c2"
+    assert settings["negative_control_id"] == "c1"
 
 
 def test_generate_ml_scores_names_an_annotation_column_with_no_labels(
@@ -385,8 +385,8 @@ def test_generate_ml_scores_annotation_column_autoselects_controls(tmp_path, rng
                             positive_control=None, negative_control=None)
     output, _ = generate_ml_scores(settings)
 
-    assert settings["positive_control"] == "0.0"
-    assert settings["negative_control"] == "1.0"
+    assert settings["positive_control_id"] == "0.0"
+    assert settings["negative_control_id"] == "1.0"
     # every row is a control here, so nothing is left unused
     assert "not_used" not in set(output[0]["data_usage"].unique())
     assert len(output[0]) == N_OBJ

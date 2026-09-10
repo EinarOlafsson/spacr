@@ -176,8 +176,8 @@ def test_the_merged_classify_module_no_longer_offers_the_control_wells():
     from spacr.settings import set_default_classify
 
     settings = set_default_classify({})
-    for retired in ("location_column", "positive_control",
-                    "negative_control"):
+    for retired in ("location_column", "positive_control_id",
+                    "negative_control_id"):
         assert retired not in settings, f"{retired} is still offered"
 
 
@@ -195,7 +195,7 @@ def test_an_old_csv_using_the_control_wells_still_trains_on_them():
     from spacr.classify_classes import assign_classes, normalize_settings
 
     old = {"dataset_mode": "metadata", "location_column": "columnID",
-           "negative_control": "c1", "positive_control": "c3",
+           "negative_control_id": "c1", "positive_control_id": "c3",
            "classes": ["nc", "pc"]}
     frame = pd.DataFrame({"columnID": ["c1", "c1", "c3"]})
     labels = assign_classes(frame, normalize_settings(old))

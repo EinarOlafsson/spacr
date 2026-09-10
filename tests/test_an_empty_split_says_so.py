@@ -16,7 +16,7 @@ def test_no_labelled_objects_names_the_cause():
     said = str(caught.value)
     assert "no labelled objects" in said
     # It has to say what to look at, or it is the old error with new words.
-    assert "positive_control" in said and "negative_control" in said
+    assert "positive_control_id" in said and "negative_control_id" in said
     # And it must not be sklearn's.
     assert "n_samples=0" not in said
 

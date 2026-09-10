@@ -123,4 +123,4 @@ class TestItSitsUnderTheNegativeControl:
         import spacr.settings as settings
 
         keys = settings.categories["Plate Layout & Controls"]
-        assert keys[keys.index("negative_control") + 1] == "exclude_grnas"
+        assert keys[keys.index("negative_control_id") + 1] == "exclude_grnas"

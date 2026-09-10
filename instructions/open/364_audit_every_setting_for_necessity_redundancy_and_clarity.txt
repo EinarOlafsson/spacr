@@ -1724,3 +1724,91 @@ sitting with the tests: 46 files and 149 occurrences follow the two control
 identifiers, and `controls` has its own test surface on top of that. That
 is the work, and it is the kind that should start at the beginning of a
 session rather than the end of one.
+
+
+--------------------------------------------------------------------------------
+2026-09-10 -- RENAMES 5 AND 6, AND A BUG IN THE FIRST FOUR THAT THE SIXTH FOUND
+--------------------------------------------------------------------------------
+
+    positive_control -> positive_control_id
+    negative_control -> negative_control_id
+
+Done from the classification written above rather than from a grep, and it
+was worth the hour: the four false friends it named are all still there and
+none of them was renamed.
+
+THE SETTING ONLY. `generate_ml_scores` and `_resolve_controls` keep their
+PUBLIC parameter names. The evidence for that decision is in the code
+already -- four call sites pass them as `pc=`/`nc=`, so the setting name and
+the kwarg have been decoupled for a long time -- and renaming a public
+signature is a break this rename does not need to make. The tooltips say
+which is which.
+
+WHAT WAS LEFT ALONE, each for its own reason:
+  * `batch_correction.py`'s `"negative_control"` alias, which resolves to
+    `control_center`. A user-facing VALUE, not a key.
+  * `plate_layout.ROLE_POSITIVE` / `ROLE_NEGATIVE`, Qt widget-role tokens.
+    Line 471 maps role to setting and now shows the two apart, with a
+    comment saying why they were ever the same string.
+  * `experiment_design`'s `QLabel[spacrWellRole="negative_control"]`
+    stylesheet selectors.
+  * every bare identifier in `ml.py` -- about sixty sites, including a
+    commented-out block. The rename touched only QUOTED occurrences, which
+    is what made "the setting but not the parameter" a mechanical rule
+    rather than a judgement per line.
+
+AND THE RENAME ATE ITS OWN TABLE ONCE. The quoted-occurrence pass ran over
+`settings.py` after `RENAMED_SETTINGS` had gained
+`"positive_control": "positive_control_id"`, and rewrote the KEY as well --
+leaving `"positive_control_id": "positive_control_id"`, a rename from a
+name to itself, which folds nothing and reads as correct. Caught by asking
+the fold to move a value and watching it not. The trap this file already
+describes, sprung on the file that describes it.
+
+--------------------------------------------------------------------------------
+THE BUG: THE FOLD HAD ONE CALL SITE, SO THREE RENAMES DROPPED THE USER'S VALUE
+--------------------------------------------------------------------------------
+
+`_fold_renamed_settings` is what makes a rename safe: it moves an old key's
+VALUE onto the new name before any `setdefault` runs. Measured while wiring
+the two above:
+
+    grep -n "_fold_renamed_settings" spacr/settings.py
+      1638: def _fold_renamed_settings(settings):
+      6824:     _fold_renamed_settings(settings)      <- one caller
+
+One. `set_default_generate_barecode_mapping`, which owns `window_length`.
+So `min_observations_per_hit`, `min_cells_per_well`, `stain_baseline_wells`
+and `analysis_excluded_wells` were never folded at all: their factories
+filled the default first, and a settings file naming the old key kept
+running and lost its number in silence. That is the one failure a rename
+exists to prevent, and it was in the tree for a day.
+
+WHY THE TEST DID NOT CATCH IT, and this is the transferable part.
+`test_the_fold_runs_before_the_defaults_are_filled_in` is the right test and
+it was written the first day. It walks a TABLE -- `FACTORIES` -- naming the
+factory each renamed setting belongs to, and that table had ONE ENTRY. A
+rename missing from the table was never asked the question. The test passed,
+every time, on one of four renames.
+
+    A TABLE-DRIVEN TEST IS ONLY AS COMPLETE AS ITS TABLE, and nothing was
+    checking the table against the thing it describes.
+
+FIXED IN THREE PARTS:
+  * the fold is called at the top of `get_perform_regression_default_settings`,
+    `set_default_analyze_screen` and `set_analyze_invasion_defaults` as well
+    (`set_default_classify` inherits it by calling the second);
+  * `FACTORIES` is complete, seven entries;
+  * `test_every_rename_names_the_factory_that_declares_it` fails when a
+    rename is added with no entry, so the table cannot go stale in the
+    direction that hides the bug.
+
+TWO SMALLER CORRECTIONS TO THE SAME TEST, both found by running it:
+  * the factory lookup asked "which old name maps EXACTLY to this string",
+    which raises StopIteration on both halves of a SPLIT, since
+    `control_wells` maps to a tuple. It asks "which old name leads here".
+  * it compared the folded value against the default and required them to
+    differ, which cannot be asked of a setting whose default is None --
+    `stain_baseline_wells` is one, and the assertion could only say "no
+    default to compare against" about the very case it existed to check. It
+    now sends a probe the default cannot be and asserts the probe arrives.

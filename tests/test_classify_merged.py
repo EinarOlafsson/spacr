@@ -245,7 +245,7 @@ def test_an_old_ml_settings_file_keeps_the_wells_it_named(qtbot):
     old = set_default_analyze_screen(settings={})
     old.update({"src": "/data/exp", "dataset_mode": "metadata",
                 "location_column": "rowID",
-                "positive_control": "r5", "negative_control": "r6"})
+                "positive_control_id": "r5", "negative_control_id": "r6"})
 
     screen = AppScreen("classify_merged")
     qtbot.addWidget(screen)
@@ -289,8 +289,8 @@ def test_the_merged_defaults_are_the_union_of_both():
     # well is a class defined by a metadata column, which is exactly a row of
     # that dict; keeping location_column and the two control values alongside
     # it would be one thing said twice, with nothing to say which won.
-    replaced_by_classes = {"location_column", "positive_control",
-                           "negative_control"}
+    replaced_by_classes = {"location_column", "positive_control_id",
+                           "negative_control_id"}
     assert cv - replaced_by_classes <= set(merged), sorted(cv - set(merged))
     assert ml - replaced_by_classes <= set(merged), sorted(ml - set(merged))
     assert not (replaced_by_classes & set(merged)), (

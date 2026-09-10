@@ -206,7 +206,8 @@ def matches(spec: Optional[ControlSpec], guides, genes=None):
         # a spec whose value is `220950` -- matched NOTHING.
         #
         # It is the branch a screen WITH a gene column takes, so this is not
-        # an edge: `controls`, `positive_control` and `negative_control` all
+        # an edge: `controls`, `positive_control_id` and
+        # `negative_control_id` all
         # arrive through `rows_for`, and a gene-level control on such a
         # screen selected zero rows in silence. Found on 2026-08-21 while
         # excluding a contaminant by gene name, which is the same code path.

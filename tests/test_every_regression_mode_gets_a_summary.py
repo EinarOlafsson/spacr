@@ -173,8 +173,8 @@ def _settings(regression_type, inference):
         "model_plate_position": True,
         "random_row_column_effects": False,
         "controls": ["000000_1", "000000_2", "000000_3"],
-        "negative_control": "000000",
-        "positive_control": "220950",
+        "negative_control_id": "000000",
+        "positive_control_id": "220950",
         "lasso_n_boot": 200,
         "lasso_selection_threshold": 0.6,
     }

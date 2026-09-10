@@ -703,7 +703,7 @@ def measured_plate(tmp_path):
 
 def _settings(src, **extra):
     values = {"src": str(src), "tables": ["cell"],
-              "positive_control": "c02", "negative_control": "c01"}
+              "positive_control_id": "c02", "negative_control_id": "c01"}
     values.update(extra)
     return values
 

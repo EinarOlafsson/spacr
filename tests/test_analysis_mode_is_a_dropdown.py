@@ -140,7 +140,7 @@ def test_controls_and_filters_is_one_section():
     assert "Quality Filters" not in sections
     for key in ("min_cells_per_well", "min_observations_per_hit",
                 "fraction_threshold",
-                "outlier_detection", "filter_column", "negative_control"):
+                "outlier_detection", "filter_column", "negative_control_id"):
         assert key in sections["Controls & Filters"], key
 
 

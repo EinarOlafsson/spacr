@@ -407,7 +407,7 @@ def _calibration_inputs(settings):
     wrong side of any cut-off.
 
     THE WELLS AND THE GUIDE ARE TWO SETTINGS, and reading one for the other is
-    what stopped this running at all. `positive_control` is a gene or gRNA ID
+    what stopped this running at all. `positive_control_id` is a gene or gRNA ID
     SUBSTRING in a regression -- it defaults to '239740' -- and was being
     matched against well labels, which no well label has ever contained. So
     every screen that ticked the box was refused with "no well matched", and
@@ -432,10 +432,10 @@ def _calibration_inputs(settings):
             "the plate design names no positive_control_wells and "
             "negative_control_wells, and a control-well calibration has "
             "nothing to calibrate against")
-    positive_guide = str(settings.get('positive_control') or '').strip()
+    positive_guide = str(settings.get('positive_control_id') or '').strip()
     if not positive_guide:
         raise ValueError(
-            "positive_control names no gRNA, so there is no guide whose "
+            "positive_control_id names no gRNA, so there is no guide whose "
             "sequenced share can be compared with the imaging")
 
     counts = _concat_named_csvs(settings.get('count_data'))
@@ -2048,8 +2048,8 @@ def _say_when_a_control_matched_nothing(coef_df, nc, pc, controls) -> None:
     measured on nothing.
     """
     counts = coef_df['condition'].value_counts()
-    for value, tag, what in ((nc, 'nc', 'negative_control'),
-                             (pc, 'pc', 'positive_control')):
+    for value, tag, what in ((nc, 'nc', 'negative_control_id'),
+                             (pc, 'pc', 'positive_control_id')):
         if value in (None, '') or int(counts.get(tag, 0)):
             continue
         print(f"  WARNING: {what}={value!r} matches no coefficient in this "
@@ -6805,8 +6805,8 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
     # one, so a permutation run drew no cut and reported no cut either.
     results['condition'] = label_control_condition(
         results['feature'], results['grna'],
-        nc=settings.get('negative_control'),
-        pc=settings.get('positive_control'),
+        nc=settings.get('negative_control_id'),
+        pc=settings.get('positive_control_id'),
         controls=settings.get('controls'))
 
     from .thresholds import coefficient_threshold
@@ -7013,8 +7013,8 @@ def _run_guide_permutation_analysis(data, outcome, destination, settings):
             gene_results['q_value'] = gene_results['adjusted_p_value']
             gene_results['condition'] = label_control_condition(
                 gene_results['feature'], gene_results['gene'],
-                nc=settings.get('negative_control'),
-                pc=settings.get('positive_control'),
+                nc=settings.get('negative_control_id'),
+                pc=settings.get('positive_control_id'),
                 controls=settings.get('controls'))
             gene_primary = gene_results.loc[
                 gene_results['minimum_wells_threshold'] == primary].copy()
@@ -9169,7 +9169,7 @@ def _perform_regression(settings):
         # explicitly as well as rowID and columnID.
         model_plate_position=settings.get('model_plate_position', True),
         model_data_layout=settings.get('model_data_layout', 'long'),
-        nc=settings['negative_control'], pc=settings['positive_control'],
+        nc=settings['negative_control_id'], pc=settings['positive_control_id'],
         controls=settings['controls'], dst=res_folder,
         # 183: a quiet run gets the summary HEADER and a pointer at the file;
         # verbose gets every coefficient, which is what verbose is for.
@@ -9638,8 +9638,8 @@ def _perform_regression(settings):
     try:
         from .guide_concordance import concordance_report
         controls = {}
-        for _key, _role in (('positive_control', 'positive'),
-                            ('negative_control', 'negative')):
+        for _key, _role in (('positive_control_id', 'positive'),
+                            ('negative_control_id', 'negative')):
             _value = settings.get(_key)
             if _value not in (None, ''):
                 controls[str(_value)] = _role
@@ -10432,7 +10432,7 @@ def generate_ml_scores(settings):
             settings = {
                 'src': '/data/plate01',
                 'channel_of_interest': 3,
-                'positive_control': 'c2', 'negative_control': 'c1',
+                'positive_control_id': 'c2', 'negative_control_id': 'c1',
                 'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',
             }
             generate_ml_scores(settings)
@@ -10575,10 +10575,10 @@ def generate_ml_scores(settings):
                 f"Unannotated objects will be scored after training; spaCR "
                 f"will not assign them a training label.")
             
-        if settings['positive_control'] is None and settings['negative_control'] is None:
-            settings['positive_control'] = str(unique_values[0])
-            settings['negative_control'] = str(unique_values[1])
-            print(f"Automatically set positive control to {settings['positive_control']} and negative control to {settings['negative_control']} based on unique values in annotation column.")
+        if settings['positive_control_id'] is None and settings['negative_control_id'] is None:
+            settings['positive_control_id'] = str(unique_values[0])
+            settings['negative_control_id'] = str(unique_values[1])
+            print(f"Automatically set positive control to {settings['positive_control_id']} and negative control to {settings['negative_control_id']} based on unique values in annotation column.")
     
     _flowview_advance("dataset")
 
@@ -10608,7 +10608,7 @@ def generate_ml_scores(settings):
         settings,
         default_control_column=(_label_column
                                 or settings.get('location_column')),
-        default_control_values=settings.get('negative_control'),
+        default_control_values=settings.get('negative_control_id'),
     )
     # Added here rather than in `correction_kwargs` — see the note at its
     # other call site. `ml_analysis` grew both parameters; the helper's
@@ -10624,8 +10624,8 @@ def generate_ml_scores(settings):
     output, figs = ml_analysis(df,
                                settings['channel_of_interest'],
                                _training_column,
-                               settings['positive_control'],
-                               settings['negative_control'],
+                               settings['positive_control_id'],
+                               settings['negative_control_id'],
                                settings['exclude'],
                                settings['n_repeats'],
                                settings['top_features'],

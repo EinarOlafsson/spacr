@@ -1189,7 +1189,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Labels & Classes", (
             "src", "dataset_mode",
             # metadata basis
-            "location_column", "positive_control", "negative_control",
+            "location_column", "positive_control_id", "negative_control_id",
             # annotation basis
             "annotation_column",
             # measurement basis
@@ -1565,7 +1565,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         # below say that. Still read by the invasion-assay panel, which has
         # its own meaning for it.
         ("Controls & Filters", (
-            "positive_control", "negative_control",
+            "positive_control_id", "negative_control_id",
             "positive_control_wells", "negative_control_wells",
             "mixed_control_wells", "exclude_grnas", "controls",
             "filter_column", "filter_value",

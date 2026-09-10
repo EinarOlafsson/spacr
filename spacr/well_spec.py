@@ -18,8 +18,8 @@ WELL_SETTINGS = (
     "cell_loc", "cell_plate_metadata", "class_metadata", "classes",
     "stain_baseline_wells", "analysis_excluded_wells",
     "filter_value", "metadata_item_1_value", "mix", "neg",
-    "negative_control", "pathogen_loc", "pathogen_plate_metadata", "pos",
-    "positive_control", "treatment_loc", "treatment_plate_metadata",
+    "negative_control_id", "pathogen_loc", "pathogen_plate_metadata", "pos",
+    "positive_control_id", "treatment_loc", "treatment_plate_metadata",
     # The three control blocks (221). They were added to WELL_ONLY_SETTINGS
     # -- which grants the plate button -- without being added here, and the
     # audit caught it: `WELL_ONLY_SETTINGS` must be a SUBSET of this, since
